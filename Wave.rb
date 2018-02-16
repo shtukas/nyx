@@ -104,14 +104,14 @@ class WaveTimelineUtils
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
                 uuidFilepath = "#{path}/catalyst-uuid"
-                if File.exist?(uuidFilepath) and IO.read(uuidFilepath).strip==uuid then
+                if File.exist?(uuidFilepath) and IO.read(uuidFilepath).strip == uuid then
                     return path
                 end
             end
         end
         #puts "WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        Xcache::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}",JSON.generate([maybepath]))
+        Xcache::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
         maybepath
     end
 
@@ -120,7 +120,7 @@ class WaveTimelineUtils
         Enumerator.new do |uuids|
             Find.find(WaveTimelineUtils::catalystActiveOpsLineFolderPath()) do |path|
                 next if !File.file?(path)
-                next if File.basename(path)!='catalyst-uuid'
+                next if File.basename(path) != 'catalyst-uuid'
                 uuids << IO.read(path).strip
             end
         end
@@ -128,7 +128,7 @@ class WaveTimelineUtils
 
     # WaveTimelineUtils::timestring22ToFolderpath(timestring22)
     def self.timestring22ToFolderpath(timestring22) # 20170923-143534-341733
-        "#{WaveTimelineUtils::catalystActiveOpsLineFolderPath()}/#{timestring22[0,4]}/#{timestring22[0,6]}/#{timestring22[0,8]}/#{timestring22}"
+        "#{WaveTimelineUtils::catalystActiveOpsLineFolderPath()}/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
     end
 
     # WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
@@ -171,17 +171,17 @@ class WaveTimelineUtils
 
         getFiles = lambda {|folderpath|
             Dir.entries(folderpath)
-            .select{|filename| filename[0,1]!='.' }
-            .select{|filename| filename[0,4]!='wave' }
-            .select{|filename| filename[0,8]!='catalyst' }
+            .select{|filename| filename[0, 1] != '.' }
+            .select{|filename| filename[0, 4] != 'wave' }
+            .select{|filename| filename[0, 8] != 'catalyst' }
         }
         files = getFiles.call(folderpath)
 
         getTextFiles = lambda {|folderpath|
             Dir.entries(folderpath)
-            .select{|filename| filename[0,4]!='wave' }
-            .select{|filename| filename[0,8]!='catalyst' }
-            .select{|filename| filename[-4,4]=='.txt' }
+            .select{|filename| filename[0, 4] != 'wave' }
+            .select{|filename| filename[0, 8] != 'catalyst' }
+            .select{|filename| filename[-4,4] == '.txt' }
         }
         textfiles = getTextFiles.call(folderpath)
 
@@ -191,7 +191,7 @@ class WaveTimelineUtils
             return "empty item"
         end
 
-        if files.size==1 and textfiles.size==1 then
+        if files.size == 1 and textfiles.size == 1 then
             text = IO.read("#{folderpath}/#{textfiles[0]}")
             if text.lines.select{|line| line.strip.size>0 }.count==1 then
                 return text.lines.first.strip
@@ -216,23 +216,23 @@ class WaveTimelineUtils
 
         getFiles = lambda {|folderpath|
             Dir.entries(folderpath)
-            .select{|filename| filename[0,4]!='wave' }
-            .select{|filename| filename[0,1]!='.' }
-            .select{|filename| filename[0,8]!='catalyst' }
+            .select{|filename| filename[0, 4] != 'wave' }
+            .select{|filename| filename[0, 1] != '.' }
+            .select{|filename| filename[0, 8] != 'catalyst' }
         }
         files = getFiles.call(folderpath)
 
         getTextFiles = lambda {|folderpath|
             Dir.entries(folderpath)
-            .select{|filename| filename[0,4]!='wave' }
-            .select{|filename| filename[0,8]!='catalyst' }
-            .select{|filename| filename[-4,4]=='.txt' }
+            .select{|filename| filename[0, 4] != 'wave' }
+            .select{|filename| filename[0, 8] != 'catalyst' }
+            .select{|filename| filename[-4,4] == '.txt' }
         }
         textfiles = getTextFiles.call(folderpath)
 
         # below: If there is only one file and that file is the text file and this text file has only one non empty line, use that as the description.
 
-        if files.size==1 and textfiles.size==1 then
+        if files.size == 1 and textfiles.size == 1 then
             text = IO.read("#{folderpath}/#{textfiles[0]}")
             if text.lines.select{|line| line.strip.size>0 }.count==1 then
                 return text.lines.first.strip
@@ -277,12 +277,12 @@ class WaveTimelineUtils
 
         getFiles = lambda {|folderpath|
             Dir.entries("#{folderpath}")
-            .select{|filename| filename[0,1]!='.' }
-            .select{|filename| filename[0,8]!='catalyst' }
-            .select{|filename| filename[0,4]!='wave' }
+            .select{|filename| filename[0, 1] != '.' }
+            .select{|filename| filename[0, 8] != 'catalyst' }
+            .select{|filename| filename[0, 4] != 'wave' }
         }
         files = getFiles.call(folderpath)
-        if files.size==1 then
+        if files.size == 1 then
             return "#{folderpath}/#{files[0]}"
         end               
 
@@ -310,7 +310,7 @@ class WaveTimelineUtils
 
     # WaveTimelineUtils::commands(schedule)
     def self.commands(schedule)
-        if schedule['@']=='project' then
+        if schedule['@'] == 'project' then
             return ['start','stop','<uuid>','recast','folder','(+)datetimecode','destroy']
         end
         ['open','done','open+','<uuid>','recast','folder','(+)datetimecode','destroy','>todolist','>lib']
@@ -353,9 +353,9 @@ class WaveTimelineUtils
             object['uuid'] = objectuuid
             object['owner'] = 'wave'
             object['metric'] = metric
-            object['announce'] = WaveTimelineUtils::objectToAnnounceShell_shortVersion(object,schedule)
+            object['announce'] = WaveTimelineUtils::objectToAnnounceShell_shortVersion(object, schedule)
             object['commands'] = WaveTimelineUtils::commands(schedule)
-            object['command-interpreter'] = lambda {|object,command| WaveInterface::interpreter(object,command) }
+            object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
             object['schedule'] = schedule
             object
         }
@@ -401,7 +401,7 @@ class WaveSchedules
     def self.makeScheduleObjectInteractivelyOrNull()
 
         scheduleTypes = ['new','today','project','sticky','date','repeat']
-        scheduleType = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("schedule type: ",scheduleTypes, lambda{|entity| entity })
+        scheduleType = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
         if scheduleType=='new' then
@@ -441,7 +441,7 @@ class WaveSchedules
             puts "    format: +<integer, nb of days>" 
             print "> "
             date = STDIN.gets().strip
-            if date[0,1]=='+' then
+            if date[0, 1] == '+' then
                 shift = date[1,99].to_i
                 date = (DateTime.now+shift).to_date.to_s
             end
@@ -455,7 +455,7 @@ class WaveSchedules
         if scheduleType=='repeat' then
 
             repeat_types = ['every-n-hours','every-n-days','every-this-day-of-the-week','every-this-day-of-the-month']
-            type = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("repeat type: ",repeat_types, lambda{|entity| entity })
+            type = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("repeat type: ", repeat_types, lambda{|entity| entity })
 
             if type=='every-n-hours' then
                 print "period (in hours): "
@@ -471,7 +471,7 @@ class WaveSchedules
             end
             if type=='every-this-day-of-the-week' then
                 weekdays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
-                value = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("weekday: ",weekdays, lambda{|entity| entity })
+                value = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("weekday: ", weekdays, lambda{|entity| entity })
             end
             schedule = {
                 "uuid" => SecureRandom.hex,
@@ -488,31 +488,31 @@ class WaveSchedules
 
         raise "WaveSchedules::scheduleToAnnounce doesn't accept null schedules" if schedule.nil?
 
-        if schedule['@']=='new' then
+        if schedule['@'] == 'new' then
             return "new"
         end
-        if schedule['@']=='today' then
+        if schedule['@'] == 'today' then
             return "today"
         end          
-        if schedule['@']=='sticky' then
+        if schedule['@'] == 'sticky' then
             return "sticky"
         end
-        if schedule['@']=='project' then
+        if schedule['@'] == 'project' then
             return "project (#{schedule['hours-per-week']} hours/week)"
         end
-        if schedule['@']=='ondate' then
+        if schedule['@'] == 'ondate' then
             return "ondate: #{schedule['date']}"
         end
-        if schedule['@']=='every-n-hours' then
+        if schedule['@'] == 'every-n-hours' then
             return "every-n-hours: #{schedule['repeat-value']}"
         end
-        if schedule['@']=='every-n-days' then
+        if schedule['@'] == 'every-n-days' then
             return "every-n-days: #{schedule['repeat-value']}"
         end
-        if schedule['@']=='every-this-day-of-the-month' then
+        if schedule['@'] == 'every-this-day-of-the-month' then
             return "every-this-day-of-the-month: #{schedule['repeat-value']}"
         end
-        if schedule['@']=='every-this-day-of-the-week' then
+        if schedule['@'] == 'every-this-day-of-the-week' then
             return "every-this-day-of-the-week: #{schedule['repeat-value']}"
         end
 
@@ -531,23 +531,23 @@ class WaveSchedules
 
         # The "do-not-show-until-datetime" kills the metric
 
-        if schedule['@']=='sticky' then
+        if schedule['@'] == 'sticky' then
             schedule["do-not-show-until-datetime"] = LucilleCore::datetimeAtComingMidnight()
         end
-        if schedule['@']=='every-n-hours' then
+        if schedule['@'] == 'every-n-hours' then
             schedule["do-not-show-until-datetime"] = Time.at(Time.new.to_i+3600*schedule['repeat-value'].to_f).to_s
         end
-        if schedule['@']=='every-n-days' then
+        if schedule['@'] == 'every-n-days' then
             schedule["do-not-show-until-datetime"] = Time.at(Time.new.to_i+86400*schedule['repeat-value'].to_f).to_s
         end
-        if schedule['@']=='every-this-day-of-the-month' then
+        if schedule['@'] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
             while Time.at(cursor).strftime("%d") != schedule['repeat-value'] do
                 cursor = cursor + 3600
             end
             schedule["do-not-show-until-datetime"] = Time.at(cursor).to_s
         end
-        if schedule['@']=='every-this-day-of-the-week' then
+        if schedule['@'] == 'every-this-day-of-the-week' then
             mapping = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
             cursor = Time.new.to_i + 86400
             while mapping[Time.at(cursor).wday]!=schedule['repeat-value'] do
@@ -584,43 +584,43 @@ class WaveSchedules
 
         # One Offs
 
-        if schedule['@']=='new' then
+        if schedule['@'] == 'new' then
             unixtime = schedule['unixtime'] ? schedule['unixtime'] : Time.new.to_i
             return 0.850 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
-        if schedule['@']=='today' then
+        if schedule['@'] == 'today' then
             return 0.7 - 0.01*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
-        if schedule['@']=='sticky' then # shows up once a day
+        if schedule['@'] == 'sticky' then # shows up once a day
             return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
-        if schedule['@']=='ondate' then
+        if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.70 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'],Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+                return 0.70 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'], Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
             end
         end
 
         # Projects
 
-        if schedule['@']=='project' then
+        if schedule['@'] == 'project' then
             return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], 0.3, 2.2)
         end
 
         # Repeats
 
-        if schedule['@']=='every-this-day-of-the-month' then
+        if schedule['@'] == 'every-this-day-of-the-month' then
             return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
 
-        if schedule['@']=='every-this-day-of-the-week' then
+        if schedule['@'] == 'every-this-day-of-the-week' then
             return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
-        if schedule['@']=='every-n-hours' then
+        if schedule['@'] == 'every-n-hours' then
             return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
-        if schedule['@']=='every-n-days' then
+        if schedule['@'] == 'every-n-days' then
             return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         1
@@ -681,8 +681,8 @@ class WaveInterface
         WaveTimelineUtils::getCatalystObjects()
     end
 
-    # WaveInterface::interpreter(object,command)
-    def self.interpreter(object,command)
+    # WaveInterface::interpreter(object, command)
+    def self.interpreter(object, command)
 
         xobject1 = WaveInterface::getCatalystObjects().select{|object| object['uuid']==command }.first
         if xobject1 then
@@ -709,7 +709,7 @@ class WaveInterface
         schedule = object['schedule']
         objectuuid = object['uuid']      
 
-        if command[0,1]=='+' then
+        if command[0, 1] == '+' then
             code = command.strip
             datetime = LucilleCore::datetimeSpecification2232ToDatetime(code)
             schedule = object['schedule']
@@ -723,7 +723,7 @@ class WaveInterface
         if command=='open' then
             objectuuid = object['uuid']
             naturalobjectlocation = WaveTimelineUtils::extractNaturalObjectLocationPathAtWaveItem(objectuuid)
-            if File.file?(naturalobjectlocation) and naturalobjectlocation[-4,4]=='.txt' and IO.read(naturalobjectlocation).strip.lines.to_a.size==1 and IO.read(naturalobjectlocation).strip.start_with?('http') then
+            if File.file?(naturalobjectlocation) and naturalobjectlocation[-4,4] == '.txt' and IO.read(naturalobjectlocation).strip.lines.to_a.size == 1 and IO.read(naturalobjectlocation).strip.start_with?('http') then
                 url = IO.read(naturalobjectlocation).strip
                 system("open -a Safari '#{url}'")
                 return 
@@ -739,41 +739,41 @@ class WaveInterface
 
         if command=='done' then
 
-            if schedule['@']=='new' then
+            if schedule['@'] == 'new' then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)        
             end
-            if schedule['@']=='today' then
+            if schedule['@'] == 'today' then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)
             end
-            if schedule['@']=='queue' then
+            if schedule['@'] == 'queue' then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)
             end
-            if schedule['@']=='sticky' then
+            if schedule['@'] == 'sticky' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid,schedule)
+                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
-            if schedule['@']=='check' then
+            if schedule['@'] == 'check' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid,schedule)
+                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
-            if schedule['@']=='ondate' then
+            if schedule['@'] == 'ondate' then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)        
             end
-            if schedule['@']=='every-n-hours' then
+            if schedule['@'] == 'every-n-hours' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid,schedule)
+                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
-            if schedule['@']=='every-n-days' then
+            if schedule['@'] == 'every-n-days' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid,schedule)
+                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
-            if schedule['@']=='every-this-day-of-the-month' then
+            if schedule['@'] == 'every-this-day-of-the-month' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid,schedule)
+                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
-            if schedule['@']=='every-this-day-of-the-week' then
+            if schedule['@'] == 'every-this-day-of-the-week' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid,schedule)
+                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
 
             return
@@ -783,7 +783,7 @@ class WaveInterface
             schedule = object['schedule']
             objectuuid = object['uuid']
             schedule = WaveTimelineUtils::makeNewSchedule()
-            WaveTimelineUtils::writeScheduleToDisk(objectuuid,schedule)
+            WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             return
         end
 
@@ -803,7 +803,7 @@ class WaveInterface
         end
 
         if command=='>todolist' then
-            listname = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("listname: ",ProjectsCore::getProjectsNames(),lambda{ |name| name })
+            listname = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("listname: ", ProjectsCore::getProjectsNames(),lambda{ |name| name })
             xsource = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             xtarget = "#{TODOLISTS_FOLDERPATH}/#{listname}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath(xtarget)
@@ -830,7 +830,7 @@ class WaveInterface
             # Copying the wave folder to the Desktop                    
             sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(objectuuid)
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
-            LucilleCore::copyFileSystemLocation(sourcelocation,staginglocation)
+            LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
 
             # Removing wave files.
             Dir.entries(staginglocation)
@@ -844,7 +844,7 @@ class WaveInterface
 
             puts "Done. I am now moving the item to the librarian timeline"
             librariantargetfolder = `librarian make-parent-folder-for-new-item`.strip
-            LucilleCore::copyFileSystemLocation(staginglocation,librariantargetfolder)
+            LucilleCore::copyFileSystemLocation(staginglocation, librariantargetfolder)
             LucilleCore::removeFileSystemLocation(staginglocation)
 
             puts "Archiving the Wave item"

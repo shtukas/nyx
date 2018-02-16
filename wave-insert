@@ -16,4 +16,4 @@ folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeString
 FileUtils.mkpath folderpath
 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
 File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
-WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
+WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)

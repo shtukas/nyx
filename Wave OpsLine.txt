@@ -18,6 +18,3 @@ catalyst-origin.txt:
 wave-target-filename.txt:
     The natural filename, if there is one, goes to file 
 
-
-	
-

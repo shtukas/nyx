@@ -6,5 +6,5 @@
     "metric" : (real)
     "announce" : ""
     "commands" : Array[String]
-    "command-interpreter": (object,command) -> Action
+    "command-interpreter": (object, command) -> Action
 }

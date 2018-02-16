@@ -42,12 +42,12 @@ CATALYST_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Wave-DropOff"
 class DropOff
     def self.collect_objects()
         Dir.entries(CATALYST_DROPOFF_FOLDERPATH)
-            .select{|filename| filename[0,1]!='.' }
+            .select{|filename| filename[0, 1] != '.' }
             .map{|filename| "#{CATALYST_DROPOFF_FOLDERPATH}/#{filename}" }
             .each{|sourcelocation|
                 uuid = SecureRandom.hex(4)
                 description = 
-                    if sourcelocation[-4,4]=='.txt' and IO.read(sourcelocation).lines.to_a.size==1 then
+                    if sourcelocation[-4,4] == '.txt' and IO.read(sourcelocation).lines.to_a.size == 1 then
                         IO.read(sourcelocation).strip
                     else
                         File.basename(sourcelocation)

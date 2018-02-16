@@ -52,7 +52,7 @@ class CatalystCore
         wl['metric'] = 0.2
         wl['announce'] = "-- Water Level -----------------------------------".green
         wl["commands"] = []
-        wl["command-interpreter"] = lambda {|object,command|}
+        wl["command-interpreter"] = lambda {|object, command|}
 
         o1 = WaveInterface::getCatalystObjects()
         o2 = ProjectsInterface::getCatalystObjects()

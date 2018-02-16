@@ -122,9 +122,9 @@ class EmailMetadataManagement
     # EmailMetadataManagement::getObjectsOfGivenType(type)
     def self.getObjectsOfGivenType(type)
         Dir.entries("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}")
-            .select{|filename| filename[-7,7]=='.object' }
+            .select{|filename| filename[-7, 7] == '.object' }
             .map{|filename| JSON.parse(IO.read("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{filename}")) }
-            .select{|object| object['type']==type }
+            .select{|object| object['type'] == type }
     end
 end
 
@@ -238,12 +238,12 @@ class GeneralEmailClient
                 next
             end
 
-            if statusobject['status']=='init' then
+            if statusobject['status'] == 'init' then
                 puts "email agent (imap loop): #{emailuid} (on server and init on local)" if verbose
                 next
             end
 
-            if statusobject['status']=='deleted' then
+            if statusobject['status'] == 'deleted' then
                 puts "email agent (imap loop): #{emailuid} has been logically deleted on local. Hard delete on local and marking for deletion on the server" if verbose
                 EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid,verbose)
                 imap.store(id, "+FLAGS", [:Deleted])
@@ -287,7 +287,7 @@ class GeneralEmailClient
                 EmailMetadataManagement::storeMetadataObject(statusobject)
                 next
             end
-            if statusobject['status']=='init' then
+            if statusobject['status'] == 'init' then
                 # We have a local init email that is not longer on the server, needs to be removed
                 puts "email agent: We have a local init email that is not longer on the server. Removing email point: emailuid: #{emailuid}" if verbose
                 EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid,verbose)

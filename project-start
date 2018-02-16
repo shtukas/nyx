@@ -20,7 +20,7 @@ require_relative "Projects.rb"
 
 # ------------------------------------------------------------------------
 
-projectName = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("Project: ",ProjectsCore::getProjectsNames())
+projectName = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("Project: ", ProjectsCore::getProjectsNames())
 projectuuid = ProjectsCore::projectNameToUuid(projectName)
 DRbObject.new(nil, "druby://:10423").start(projectuuid)
 

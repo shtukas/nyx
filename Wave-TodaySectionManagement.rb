@@ -50,7 +50,7 @@ class TodaySectionManagement
     end
 
     # TodaySectionManagement::contents_to_sections(reminaing_lines,sections)
-    def self.contents_to_sections(reminaing_lines,sections)
+    def self.contents_to_sections(reminaing_lines, sections)
         return sections.select{|section| TodaySectionManagement::section_is_not_empty(section) } if reminaing_lines.size==0
         line = reminaing_lines.shift
         if line.start_with?('[]') then
@@ -75,7 +75,7 @@ class TodaySectionManagement
     # -------------------------------------------------------------------------------------
     # TodaySectionManagement::sectionToLength8UUID(section)
     def self.sectionToLength8UUID(section)
-        TodaySectionManagement::section_to_uuid(section)[0,8]
+        TodaySectionManagement::section_to_uuid(section)[0, 8]
     end
 
     # TodaySectionManagement::ensureFolder(path)
@@ -85,16 +85,16 @@ class TodaySectionManagement
         end        
     end
 
-    # TodaySectionManagement::ensureFileAndContents(path,contents)
-    def self.ensureFileAndContents(path,contents)
+    # TodaySectionManagement::ensureFileAndContents(path, contents)
+    def self.ensureFileAndContents(path, contents)
         if File.exists?(path) and IO.read(path)==contents then
             return 
         end
         File.open(path, 'w') {|f| f.write(contents) }
     end
 
-    # TodaySectionManagement::ensureFileNonContentsOverride(path,contents)
-    def self.ensureFileNonContentsOverride(path,contents)
+    # TodaySectionManagement::ensureFileNonContentsOverride(path, contents)
+    def self.ensureFileNonContentsOverride(path, contents)
         if File.exists?(path) then
             return 
         end
@@ -112,7 +112,7 @@ class TodaySectionManagement
     # TodaySectionManagement::foldersUUIDs()
     def self.foldersUUIDs()
         todayPlusCalendarRoot = "/Galaxy/DataBank/Wave/02-OpsLine-Active/Today+Calendar-Items"
-        Dir.entries(todayPlusCalendarRoot).select{|filename| filename[0,1]!='.' }
+        Dir.entries(todayPlusCalendarRoot).select{|filename| filename[0, 1] != '.' }
     end
 
     # TodaySectionManagement::performSync()
@@ -125,7 +125,7 @@ class TodaySectionManagement
             uuid = TodaySectionManagement::sectionToLength8UUID(section)
             TodaySectionManagement::ensureFolder("#{todayPlusCalendarRoot}/#{uuid}")
             TodaySectionManagement::ensureFileAndContents("#{todayPlusCalendarRoot}/#{uuid}/catalyst-uuid",uuid)
-            if File.exists?("#{todayPlusCalendarRoot}/#{uuid}/catalyst-schedule.json") and ( schedule = JSON.parse(IO.read("#{todayPlusCalendarRoot}/#{uuid}/catalyst-schedule.json")) ) and schedule['do-not-show-until-datetime'] and (schedule['do-not-show-until-datetime']>Time.new.to_s) then
+            if File.exists?("#{todayPlusCalendarRoot}/#{uuid}/catalyst-schedule.json") and ( schedule = JSON.parse(IO.read("#{todayPlusCalendarRoot}/#{uuid}/catalyst-schedule.json")) ) and schedule['do-not-show-until-datetime'] and (schedule['do-not-show-until-datetime'] > Time.new.to_s) then
 
             else
                 schedule = {
@@ -136,11 +136,11 @@ class TodaySectionManagement
                   "metric"   => 1.300 + Math.atan(-idx)/1000,
                   "::is-today+calendar" => true
                 }
-                TodaySectionManagement::ensureFileNonContentsOverride("#{todayPlusCalendarRoot}/#{uuid}/catalyst-schedule.json",JSON.pretty_generate(schedule))
+                TodaySectionManagement::ensureFileNonContentsOverride("#{todayPlusCalendarRoot}/#{uuid}/catalyst-schedule.json", JSON.pretty_generate(schedule))
             end
 
-            TodaySectionManagement::ensureFileAndContents("#{todayPlusCalendarRoot}/#{uuid}/catalyst-description.txt",section.join)
-            TodaySectionManagement::ensureFileAndContents("#{todayPlusCalendarRoot}/#{uuid}/catalyst-origin.txt",'Today+Calendar')
+            TodaySectionManagement::ensureFileAndContents("#{todayPlusCalendarRoot}/#{uuid}/catalyst-description.txt", section.join)
+            TodaySectionManagement::ensureFileAndContents("#{todayPlusCalendarRoot}/#{uuid}/catalyst-origin.txt", 'Today+Calendar')
         }
 
         # ----------------------------------------------------------------
@@ -159,9 +159,9 @@ class TodaySectionManagement
 
             todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
             calendarcontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[1].strip
-            todaysections1 = TodaySectionManagement::contents_to_sections(todaycontents.lines.to_a,[])
+            todaysections1 = TodaySectionManagement::contents_to_sections(todaycontents.lines.to_a, [])
             todaysections2 = todaysections1.select{|section|
-                TodaySectionManagement::sectionToLength8UUID(section)!=uuid
+                TodaySectionManagement::sectionToLength8UUID(section) != uuid
             }
             File.open(PATH_TO_CALENDAR_FILE, 'w') {|f| 
                 todaysections2.each{|section|

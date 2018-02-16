@@ -98,12 +98,12 @@ class TimeComputations
     # TimeComputations::getEntityTimespanInSecondsDuringThePastNDays(entityuid, n)
     def self.getEntityTimespanInSecondsDuringThePastNDays(entityuid, n)
         unixtime = Time.new.to_i-86400*n
-        TimeManagement::totalTimespanAfterThisUnixtime(entityuid,unixtime)
+        TimeManagement::totalTimespanAfterThisUnixtime(entityuid, unixtime)
     end
 
     # TimeComputations::getEntityProportionOfTimeDoneBasingOnThePastNDays(entityuid, hoursCommitmentPerWeek, n)
     def self.getEntityProportionOfTimeDoneBasingOnThePastNDays(entityuid, hoursCommitmentPerWeek, n)
-        timedoneInSeconds = TimeComputations::getEntityTimespanInSecondsDuringThePastNDays(entityuid,n)
+        timedoneInSeconds = TimeComputations::getEntityTimespanInSecondsDuringThePastNDays(entityuid, n)
         if TimeManagement::isRunning(entityuid) then
             startunixtime = TimeManagement::startUnixtimeOrNull(entityuid)
             timedoneInSeconds = timedoneInSeconds + ( Time.new.to_i - startunixtime )
@@ -113,7 +113,7 @@ class TimeComputations
 
     # TimeComputations::getEntityProportionOfTimeDone(entityuid, hoursCommitmentPerWeek)
     def self.getEntityProportionOfTimeDone(entityuid, hoursCommitmentPerWeek)
-        (1..7).map{ |n| TimeComputations::getEntityProportionOfTimeDoneBasingOnThePastNDays(entityuid,hoursCommitmentPerWeek,n) }.max
+        (1..7).map{ |n| TimeComputations::getEntityProportionOfTimeDoneBasingOnThePastNDays(entityuid, hoursCommitmentPerWeek, n) }.max
     end
 
     # TimeComputations::metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
@@ -142,11 +142,11 @@ class Interface
 
     def stopAndAddTimeSpan(uid)
         timespan = TimeManagement::stop(uid)
-        TimeManagement::addTimespan(uid,timespan)
+        TimeManagement::addTimespan(uid, timespan)
     end    
 
     def totalTimeSpanAfterUnixtime(uid, horizonunixtime)
-        TimeManagement::totalTimespanAfterThisUnixtime(uid,horizonunixtime)        
+        TimeManagement::totalTimespanAfterThisUnixtime(uid, horizonunixtime)        
     end
 
     def metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)

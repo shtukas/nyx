@@ -65,13 +65,13 @@ require_relative "Wave-DropOff.rb"
 # ----------------------------------------------------------------------------
 
 def email_downloads_on_schedule(verbose)
-    if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7",1200) then
+    if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
         begin
-            newEmailCount = GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/guardian-relay.json")),verbose)
+            newEmailCount = GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/guardian-relay.json")), verbose)
             if newEmailCount>0 then
                 puts "Retrieved #{newEmailCount} new emails"
             end
-            OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/operator.json")),verbose)
+            OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/operator.json")), verbose)
             # We call again so that the clock restarts at the end of the process
             LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
         rescue
@@ -89,7 +89,7 @@ def screen_width()
 end
 
 def vertical_space(announce)
-    announce.lines.map{|line| (line.size/screen_width())+1 }.inject(0,:+)
+    announce.lines.map{|line| (line.size/screen_width())+1 }.inject(0, :+)
 end
 
 def forward_command_decomposition(str)
@@ -101,7 +101,7 @@ def forward_command_decomposition(str)
     }
 end
 
-def puts_object_shell_display(object,dislayobjects)
+def puts_object_shell_display(object, dislayobjects)
     
     # Here is the reason why the second argument was introduced
     # A first display is performed. 
@@ -124,7 +124,7 @@ def puts_object_shell_display(object,dislayobjects)
     # If the command is empty and the object was a Today+Calendar.txt object
     # then we push it by 40 minutes.
     if command.size==0 and object['schedule']["::is-today+calendar"] then
-        object['command-interpreter'].call(object,"+0.666 hours")
+        object['command-interpreter'].call(object, "+0.666 hours")
         return
     end
 
@@ -132,7 +132,7 @@ def puts_object_shell_display(object,dislayobjects)
     # Attempt to decompose the command as (item display id, command) 
     if command.size>0 and (decomposition = forward_command_decomposition(command))['first-token-is-numeric'] and (decomposition['ordinal']<=objects.size-1) then
         targetobject = dislayobjects.drop(decomposition['ordinal']).first
-        if decomposition['command'].size>0 then
+        if decomposition['command'].size > 0 then
             targetobject['command-interpreter'].call(targetobject,decomposition['command'])
         else
             puts_object_shell_display(targetobject, dislayobjects)
@@ -140,7 +140,7 @@ def puts_object_shell_display(object,dislayobjects)
         return
     end
 
-    object['command-interpreter'].call(object,command)
+    object['command-interpreter'].call(object, command)
 end
 
 def puts_objects(objects, remaining_number_of_lines, indx)
@@ -182,7 +182,7 @@ loop {
     puts ""
 
     if object then
-        puts_object_shell_display(object,objects.clone)
+        puts_object_shell_display(object, objects.clone)
     else
         sleep 30
     end

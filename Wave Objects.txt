@@ -7,7 +7,7 @@
     "metric" : (real)
     "announce" : ""
     "commands" : Array[String]
-    "command-interpreter": (object,command) -> Action
+    "command-interpreter": (object, command) -> Action
 
     "schedule" : (schedule-7da672d1-6e30-4af8-a641-e4760c3963e6)
 
@@ -55,7 +55,7 @@ type:
     - every-n-hours               -> value: Float
     - every-n-days                -> value: Float
     - every-this-day-of-the-month -> value: String Length:2
-    - every-this-day-of-the-week  -> value: 'monday','tuesday','wednesday','thursday','friday','saturday','sunday'
+    - every-this-day-of-the-week  -> value: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
 
 
 {

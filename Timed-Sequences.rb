@@ -66,10 +66,10 @@ PATH_TO_SEQUENCES_FOLDER = "/Galaxy/DataBank/Timed-Sequences"
 class TimedSequencesUtils
     def self.sequence_folderpaths()
         Dir.entries(PATH_TO_SEQUENCES_FOLDER)
-            .select{|filename| filename[0,1]!="." }
+            .select{|filename| filename[0, 1] != "." }
             .map{|filename| "#{PATH_TO_SEQUENCES_FOLDER}/#{filename}"}
     end
-    def self.ideal_number_of_lines_done(schedule,numberoflines)
+    def self.ideal_number_of_lines_done(schedule, numberoflines)
         beginunixtime = DateTime.parse(schedule['begin']).to_time.to_i
         endunixtime = DateTime.parse(schedule['end']).to_time.to_i
         speed_lines_per_second = (numberoflines+1).to_f/(endunixtime-beginunixtime)
@@ -80,7 +80,7 @@ class TimedSequencesUtils
     def self.get_uuid(folderpath)
         uuidfilepath = "#{folderpath}/uuid"
         if !File.exists?(uuidfilepath) then
-            File.open(uuidfilepath,'w'){|f| f.write(SecureRandom.hex(4)) }
+            File.open(uuidfilepath, 'w'){|f| f.write(SecureRandom.hex(4)) }
         end
         IO.read(uuidfilepath).strip
     end
@@ -88,10 +88,10 @@ class TimedSequencesUtils
         TimedSequencesUtils::sequence_folderpaths()
             .map{|folderpath|  
                 object = {}
-                object['folderpath'] = folderpath
-                object['uuid']       = TimedSequencesUtils::get_uuid(folderpath)
-                object['lines']      = IO.read("#{folderpath}/sequence.txt").lines.to_a.map{|line| line.strip }.select{|line| line.size>0 }
-                object['schedule'] = JSON.parse(IO.read("#{folderpath}/schedule.json"))
+                object['folderpath']    = folderpath
+                object['uuid']          = TimedSequencesUtils::get_uuid(folderpath)
+                object['lines']         = IO.read("#{folderpath}/sequence.txt").lines.to_a.map{|line| line.strip }.select{|line| line.size>0 }
+                object['schedule']      = JSON.parse(IO.read("#{folderpath}/schedule.json"))
                 object['initial-count'] = IO.read("#{folderpath}/initial-count").to_i
                 object['todolist'] =
                     if File.exists?("#{folderpath}/todolist.txt") then
@@ -99,16 +99,16 @@ class TimedSequencesUtils
                     else
                         nil                
                     end
-                object['ideal-done-count'] = TimedSequencesUtils::ideal_number_of_lines_done(object['schedule'],object['initial-count'])
+                object['ideal-done-count'] = TimedSequencesUtils::ideal_number_of_lines_done(object['schedule'], object['initial-count'])
                 object['current-done-count'] = object['initial-count'] - object['lines'].count
                 object
             }
     end
     def self.commands(itemuuid)
         if Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{itemuuid}")=='true' then
-            ['stop','done']
+            ['stop', 'done']
         else
-            ['start','done']
+            ['start', 'done']
         end
     end
 end
@@ -124,7 +124,7 @@ class TimedSequences
             .each{|sequenceobject|
                 if sequenceobject['lines'].count!=0 then
                     line = sequenceobject['lines'].first
-                    uuid = Digest::SHA1.hexdigest("#{sequenceobject['uuid']}:#{line}")[0,8]
+                    uuid = Digest::SHA1.hexdigest("#{sequenceobject['uuid']}:#{line}")[0, 8]
                     metric = [ 0.3*Math.exp( ( sequenceobject['ideal-done-count'] - sequenceobject['current-done-count'] ).to_f / sequenceobject['initial-count'] ), 0.4 ].min
                     metric = Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{uuid}")=='true' ? 2.2 : metric
                     announce = "[#{uuid}] (#{"%.3f" % metric}) timed sequence: #{File.basename(sequenceobject['folderpath'])}, item: #{line} (project: #{sequenceobject['todolist']})"
@@ -133,7 +133,7 @@ class TimedSequences
                     item['metric']     = metric
                     item['announce']   = announce
                     item['commands']   = TimedSequencesUtils::commands(uuid)
-                    item['command-interpreter'] = lambda {|object,command| TimedSequences::interpreter(object,command) }
+                    item['command-interpreter'] = lambda {|object, command| TimedSequences::interpreter(object, command) }
                     item['todolist']   = sequenceobject['todolist']
                     item['folderpath'] = sequenceobject['folderpath']
                     objects << item
@@ -143,7 +143,7 @@ class TimedSequences
                     object['metric'] = 1
                     object['announce'] = "timed sequences: You are done with sequence: #{sequenceobject['folderpath']}"
                     object["commands"] = []
-                    object["command-interpreter"] = lambda {|object,command| }
+                    object["command-interpreter"] = lambda {|object, command| }
                     object['folderpath'] = sequenceobject['folderpath']
                     object['todolist'] = sequenceobject['todolist']  
                     objects << object                  
@@ -152,8 +152,8 @@ class TimedSequences
         objects
     end
 
-    # TimedSequences::interpreter(object,command)
-    def self.interpreter(object,command)
+    # TimedSequences::interpreter(object, command)
+    def self.interpreter(object, command)
         if command=='start' then
             todolistname = object['todolist']
             if !todolistname.nil? and todolistname.size>0 then
@@ -176,7 +176,7 @@ class TimedSequences
         end
         if command=='done' then
             if Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{object['uuid']}")=='true' then
-                TimedSequences::interpreter(object,'stop')
+                TimedSequences::interpreter(object, 'stop')
             end
             filepath = "#{object['folderpath']}/sequence.txt"
             newlines = IO.read(filepath).lines.to_a.drop(1)

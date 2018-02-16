@@ -20,7 +20,7 @@ class Ninja
             "metric" => metric,
             "announce" => "           (#{"%.3f" % metric}) ninja play",
             "commands" => [],
-            "command-interpreter" => lambda{|object,command|  
+            "command-interpreter" => lambda{|object, command|  
                 system('ninja play')
             }
         } 

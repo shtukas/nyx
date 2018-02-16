@@ -64,6 +64,6 @@ require_relative "Wave-DropOff.rb"
 
 # ----------------------------------------------------------------------------
 
-GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/guardian-relay.json")),true)
-OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/operator.json")),true)
+GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/guardian-relay.json")), true)
+OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/operator.json")), true)
 

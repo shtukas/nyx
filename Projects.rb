@@ -73,14 +73,14 @@ class TimeComputations
         value = Xcache::getOrDefaultValue("3bc9710f-c18d-4d48-bbf0-74be6a7091ea:#{listuuid}", "1")
         value.to_f
     end
-    # TimeComputations::getListDoneTimeInSecondsDuringThePastNDays(listuuid,n)
-    def self.getListDoneTimeInSecondsDuringThePastNDays(listuuid,n)
+    # TimeComputations::getListDoneTimeInSecondsDuringThePastNDays(listuuid, n)
+    def self.getListDoneTimeInSecondsDuringThePastNDays(listuuid, n)
         unixtime = Time.new.to_i-86400*n
-        DRbObject.new(nil, "druby://:10423").totalTimeSpanAfterUnixtime(listuuid,unixtime)
+        DRbObject.new(nil, "druby://:10423").totalTimeSpanAfterUnixtime(listuuid, unixtime)
     end
-    # TimeComputations::getProportionOfTimeDoneBasingOnThePastNDays(listuuid,n)
-    def self.getProportionOfTimeDoneBasingOnThePastNDays(listuuid,n)
-        timedoneInSeconds = TimeComputations::getListDoneTimeInSecondsDuringThePastNDays(listuuid,n)
+    # TimeComputations::getProportionOfTimeDoneBasingOnThePastNDays(listuuid, n)
+    def self.getProportionOfTimeDoneBasingOnThePastNDays(listuuid, n)
+        timedoneInSeconds = TimeComputations::getListDoneTimeInSecondsDuringThePastNDays(listuuid, n)
         if DRbObject.new(nil, "druby://:10423").isRunning(listuuid) then
             startunixtime = DRbObject.new(nil, "druby://:10423").lastStartUnixtime(listuuid)
             timedoneInSeconds = timedoneInSeconds + ( Time.new.to_i - startunixtime )
@@ -90,7 +90,7 @@ class TimeComputations
 
     # TimeComputations::getProportionOfTimeDone(listuuid)
     def self.getProportionOfTimeDone(listuuid)
-        (1..7).map{ |n| TimeComputations::getProportionOfTimeDoneBasingOnThePastNDays(listuuid,n) }.max
+        (1..7).map{ |n| TimeComputations::getProportionOfTimeDoneBasingOnThePastNDays(listuuid, n) }.max
     end
 
     # TimeComputations::commands(listuuid)
@@ -105,13 +105,13 @@ class ProjectsCore
     # ProjectsCore::getProjectsNames()
     def self.getProjectsNames()
         Dir.entries(TODOLISTS_FOLDERPATH)
-            .select{|filename| filename[0,1]!='.' }
+            .select{|filename| filename[0, 1] != '.' }
     end
 
     # ProjectsCore::getProjectItem(listname)
     def self.getProjectItem(listname)
         Dir.entries("#{TODOLISTS_FOLDERPATH}/#{listname}")
-            .select{|filename| filename[0,1]!='.' }
+            .select{|filename| filename[0, 1] != '.' }
     end
 
     # ProjectsCore::projectNameToUuid(listname)
@@ -128,13 +128,13 @@ class ProjectsCore
         listuuid = ProjectsCore::projectNameToUuid(listname)
         hoursCommitmentPerWeek = Xcache::getOrDefaultValue("3bc9710f-c18d-4d48-bbf0-74be6a7091ea:#{listuuid}", "1").to_f
         metric = DRbObject.new(nil, "druby://:10423").metric(listuuid, hoursCommitmentPerWeek, 0.3, 2.1)
-        Xcache::set("dd60d5ac-9fc1-4388-ad30-3cb92f954a61:#{listname}",listuuid)
+        Xcache::set("dd60d5ac-9fc1-4388-ad30-3cb92f954a61:#{listname}", listuuid)
         object = {}
         object['uuid'] = listuuid
         object['metric'] = metric
         object['announce'] = "           (#{"%.3f" % metric}) project folder: #{listname}"
         object['commands'] = TimeComputations::commands(listuuid)
-        object['command-interpreter'] = lambda{|object,command| ProjectsInterface::interpreter(object,command) }
+        object['command-interpreter'] = lambda{|object, command| ProjectsInterface::interpreter(object, command) }
         object['listname'] = listname
         object
     end
@@ -150,8 +150,8 @@ class ProjectsInterface
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end
-    # ProjectsInterface::interpreter(object,command)
-    def self.interpreter(object,command)
+    # ProjectsInterface::interpreter(object, command)
+    def self.interpreter(object, command)
         if command=='start' then
             DRbObject.new(nil, "druby://:10423").start(object['uuid'])
         end
