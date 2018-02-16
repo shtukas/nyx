@@ -1,0 +1,37 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require "net/http"
+require "uri"
+
+require 'json'
+
+require 'date'
+
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require "net/http"
+require "uri"
+
+require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+
+require_relative "Wave.rb"
+
+require_relative "CatalystCore.rb"
+
+# -------------------------------------------------------------------------------------
+
+def today()
+    DateTime.now.to_date.to_s
+end
+
+WaveTimelineUtils::getCatalystObjects().each{|object|
+    puts "#{object['announce'].lines.first}"
+}
+

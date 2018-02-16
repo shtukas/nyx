@@ -1,0 +1,191 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require "net/http"
+require "uri"
+
+require 'json'
+
+require 'date'
+
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require "net/http"
+require "uri"
+
+require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require_relative "CatalystCore.rb"
+
+require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
+=begin
+
+    Xcache::set(key, value)
+    Xcache::getOrNull(key)
+    Xcache::getOrDefaultValue(key, defaultValue)
+    Xcache::destroy(key)
+
+    XcacheSets::values(setuid)
+    XcacheSets::insert(setuid, valueuid, value) # value can be an object
+    XcacheSets::remove(setuid, valueuid)
+
+    XStore::set(repositorypath, key, value)
+    XStore::getOrNull(repositorypath, key)
+    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
+    XStore::destroy(repositorypath, key)
+
+    XStoreSets::values(repositorypath, setuid)
+    XStoreSets::insert(repositorypath, setuid, valueuid, value) # value can be an object
+    XStoreSets::remove(repositorypath, setuid, valueuid)
+
+    Xcache and XStore have identical interfaces
+    Xcache is XStore with a repositorypath defaulting to x-space
+
+=end
+
+require_relative "Wave-DropOff.rb"
+
+# ----------------------------------------------------------------------------
+
+def email_downloads_on_schedule(verbose)
+    if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7",1200) then
+        begin
+            newEmailCount = GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/guardian-relay.json")),verbose)
+            if newEmailCount>0 then
+                puts "Retrieved #{newEmailCount} new emails"
+            end
+            OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/operator.json")),verbose)
+            # We call again so that the clock restarts at the end of the process
+            LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
+        rescue
+            puts "Problems retrieving emails"
+        end
+    end    
+end
+
+def screen_height()
+    `/usr/bin/env tput lines`.to_i
+end
+
+def screen_width()
+    `/usr/bin/env tput cols`.to_i
+end
+
+def vertical_space(announce)
+    announce.lines.map{|line| (line.size/screen_width())+1 }.inject(0,:+)
+end
+
+def forward_command_decomposition(str)
+    firstToken = str.split(" ").first
+    {
+        "first-token-is-numeric" => firstToken == firstToken.to_i.to_s,
+        "ordinal" => firstToken.to_i,
+        "command" => str[firstToken.size, str.size].strip
+    }
+end
+
+def puts_object_shell_display(object,dislayobjects)
+    
+    # Here is the reason why the second argument was introduced
+    # A first display is performed. 
+    # You select number 8.
+    # The list of objects is recomputed and the 8th (actually the 9th) one is selected.
+    # There is no guaranty that the one selected was the one you were looking at since the objects
+    # could have been reordered between the two computations.
+
+    # Here:
+    # If you select an ordinal, you get to apply it to the list you were looking at when you made that 
+    # mental selection.
+
+    puts object['announce']
+    puts object['commands'].join(", ").red
+    print "---> "
+    command = STDIN.gets().strip
+
+    # ---------------------
+    # "::is-today+calendar"
+    # If the command is empty and the object was a Today+Calendar.txt object
+    # then we push it by 40 minutes.
+    if command.size==0 and object['schedule']["::is-today+calendar"] then
+        object['command-interpreter'].call(object,"+0.666 hours")
+        return
+    end
+
+    # --------------------------------------------------------------
+    # Attempt to decompose the command as (item display id, command) 
+    if command.size>0 and (decomposition = forward_command_decomposition(command))['first-token-is-numeric'] and (decomposition['ordinal']<=objects.size-1) then
+        targetobject = dislayobjects.drop(decomposition['ordinal']).first
+        if decomposition['command'].size>0 then
+            targetobject['command-interpreter'].call(targetobject,decomposition['command'])
+        else
+            puts_object_shell_display(targetobject, dislayobjects)
+        end
+        return
+    end
+
+    object['command-interpreter'].call(object,command)
+end
+
+def puts_objects(objects, remaining_number_of_lines, indx)
+    return remaining_number_of_lines if objects.size==0
+    return remaining_number_of_lines if remaining_number_of_lines<=0
+    object = objects.shift
+    str = "(#{indx.to_s.rjust(2)}) #{object['announce']}"
+    if object['metric']>=2 then
+        str = str.green
+    end
+    puts str
+    puts_objects(objects,remaining_number_of_lines-vertical_space(object['announce']), indx+1)
+end
+
+# -----------------------------------------------------------------
+
+email_downloads_on_schedule(true)
+
+Thread.new() do
+    loop {
+        sleep 1200
+        email_downloads_on_schedule(false)
+        WaveDevOps::archivesGarbageCollection(true)
+    }
+end
+
+loop {
+    
+    TodaySectionManagement::performSync()
+    DropOff::collect_objects()
+    objects = CatalystCore::objects().first(10)
+    object = objects.first
+
+    puts "# -------------------------------------------------------"
+    
+    remaining_number_of_lines = screen_height()-(7+vertical_space(object['announce']))
+    puts_objects(objects.clone.select{|object| object['metric'] > 0 },remaining_number_of_lines, 0)
+
+    puts ""
+
+    if object then
+        puts_object_shell_display(object,objects.clone)
+    else
+        sleep 30
+    end
+
+}
+

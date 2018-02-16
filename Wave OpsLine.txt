@@ -1,0 +1,23 @@
+
+catalyst-uuid:
+    As it says on the tin.
+
+
+catalyst-schedule.json:
+    Schedule objects go to file
+
+
+catalyst-description.txt:
+    Descriptions that override the name of the folder for the display in Catalyst 
+
+
+catalyst-origin.txt:
+    The source system can go to file
+
+
+wave-target-filename.txt:
+    The natural filename, if there is one, goes to file 
+
+
+	
+

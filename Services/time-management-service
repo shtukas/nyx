@@ -1,0 +1,159 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require 'drb/drb'
+require 'thread'
+
+require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
+=begin
+
+    Xcache::set(key, value)
+    Xcache::getOrNull(key)
+    Xcache::getOrDefaultValue(key, defaultValue)
+    Xcache::destroy(key)
+
+    XcacheSets::values(setuid)
+    XcacheSets::insert(setuid, valueuid, value)
+    XcacheSets::remove(setuid, valueuid)
+
+    XStore::set(repositorypath, key, value)
+    XStore::getOrNull(repositorypath, key)
+    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
+    XStore::destroy(repositorypath, key)
+
+    XStoreSets::values(repositorypath, setuid)
+    XStoreSets::insert(repositorypath, setuid, valueuid, value)
+    XStoreSets::remove(repositorypath, setuid, valueuid)
+
+    Xcache and XStore have identical interfaces
+    Xcache is XStore with a repositorypath defaulting to x-space
+
+=end
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+# ---------------------------------------------------------------------------------------
+
+class TimeManagement
+
+    # TimeManagement::isRunning(uid)
+    def self.isRunning(uid)
+        defaultValue = '{"is-running":false}'
+        status = JSON.parse(Xcache::getOrDefaultValue("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", defaultValue))
+        status['is-running']
+    end
+
+    # TimeManagement::startUnixtimeOrNull(uid)
+    def self.startUnixtimeOrNull(uid)
+        defaultValue = '{"is-running":false}'
+        status = JSON.parse(Xcache::getOrDefaultValue("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", defaultValue))
+        if status['is-running'] then
+            status['starttime']
+        else
+            nil
+        end
+    end
+
+    # TimeManagement::start(uid)
+    def self.start(uid)
+        return if TimeManagement::isRunning(uid)
+        status = {"is-running"=>true,"starttime"=>Time.new.to_i}
+        Xcache::set("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", JSON.generate(status))
+    end
+
+    # TimeManagement::stop(uid)
+    def self.stop(uid) # stop a run and returns the time spent running in seconds 
+        return if !TimeManagement::isRunning(uid)
+        status1 = JSON.parse(Xcache::getOrNull("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}"))
+        status2 = {"is-running"=>false}
+        Xcache::set("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", JSON.generate(status2))
+        Time.new.to_i - status1['starttime']
+    end
+
+    # TimeManagement::addTimespan(uid,timespan)
+    def self.addTimespan(uid,timespan)
+        object = {
+            "unixtime" => Time.new.to_i,
+            "timespan" => timespan
+        }
+        XcacheSets::insert("f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}", SecureRandom.hex, object)
+    end
+
+    # TimeManagement::totalTimespanAfterThisUnixtime(uid,horizonunixtime)
+    def self.totalTimespanAfterThisUnixtime(uid,horizonunixtime)
+        XcacheSets::values("f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}")
+            .select{|object| object['unixtime'] >= horizonunixtime }
+            .map{|object| object['timespan'] }
+            .compact
+            .inject(0,:+)
+    end
+end
+
+class TimeComputations
+
+    # TimeComputations::getEntityTimespanInSecondsDuringThePastNDays(entityuid, n)
+    def self.getEntityTimespanInSecondsDuringThePastNDays(entityuid, n)
+        unixtime = Time.new.to_i-86400*n
+        TimeManagement::totalTimespanAfterThisUnixtime(entityuid,unixtime)
+    end
+
+    # TimeComputations::getEntityProportionOfTimeDoneBasingOnThePastNDays(entityuid, hoursCommitmentPerWeek, n)
+    def self.getEntityProportionOfTimeDoneBasingOnThePastNDays(entityuid, hoursCommitmentPerWeek, n)
+        timedoneInSeconds = TimeComputations::getEntityTimespanInSecondsDuringThePastNDays(entityuid,n)
+        if TimeManagement::isRunning(entityuid) then
+            startunixtime = TimeManagement::startUnixtimeOrNull(entityuid)
+            timedoneInSeconds = timedoneInSeconds + ( Time.new.to_i - startunixtime )
+        end
+        timedoneInSeconds.to_f/((n.to_f/7)*hoursCommitmentPerWeek*3600)        
+    end
+
+    # TimeComputations::getEntityProportionOfTimeDone(entityuid, hoursCommitmentPerWeek)
+    def self.getEntityProportionOfTimeDone(entityuid, hoursCommitmentPerWeek)
+        (1..7).map{ |n| TimeComputations::getEntityProportionOfTimeDoneBasingOnThePastNDays(entityuid,hoursCommitmentPerWeek,n) }.max
+    end
+
+    # TimeComputations::metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
+    def self.metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
+        if TimeManagement::isRunning(entityuid) then
+            metricRunning
+        else
+            metricAtZero * Math.exp(-TimeComputations::getEntityProportionOfTimeDone(entityuid, hoursCommitmentPerWeek))
+        end
+    end
+end
+
+class Interface
+
+    def start(uid)
+        TimeManagement::start(uid)
+    end 
+
+    def isRunning(uid)
+        TimeManagement::isRunning(uid)
+    end 
+
+    def lastStartUnixtime(uid)
+        TimeManagement::startUnixtimeOrNull(uid)
+    end 
+
+    def stopAndAddTimeSpan(uid)
+        timespan = TimeManagement::stop(uid)
+        TimeManagement::addTimespan(uid,timespan)
+    end    
+
+    def totalTimeSpanAfterUnixtime(uid, horizonunixtime)
+        TimeManagement::totalTimespanAfterThisUnixtime(uid,horizonunixtime)        
+    end
+
+    def metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
+        TimeComputations::metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
+    end
+end
+
+DRb.start_service("druby://:10423", Interface.new())
+DRb.thread.join
+

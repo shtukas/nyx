@@ -1,0 +1,51 @@
+#!/usr/bin/ruby
+
+# encoding: utf-8
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv('oldname', 'newname')
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "1ac4eb69"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+# ------------------------------------------------------------------------
+
+sequencename = LucilleCore::askQuestionAnswerAsString("Sequence name: ")
+primarystring = LucilleCore::askQuestionAnswerAsString("Primary string: ")
+secondarystrings = []
+loop {
+    secstr = LucilleCore::askQuestionAnswerAsString("Secondary string (counter): ").strip
+    break if secstr.size==0
+    secondarystrings << secstr 
+}
+startShiftDays = LucilleCore::askQuestionAnswerAsString("Start shift days: ").to_f
+endShiftDays = LucilleCore::askQuestionAnswerAsString("End shift days: ").to_f
+
+todolist = LucilleCore::askQuestionAnswerAsString("Todolist: ")
+
+sequencefolder = "/Galaxy/DataBank/Timed-Sequences/#{sequencename}"
+FileUtils.mkpath(sequencefolder)
+
+File.open("#{sequencefolder}/initial-count",'w') {|f| f.write(secondarystrings.count) }
+
+startdate = Time.at( Time.new.to_i + 86400*startShiftDays ).to_s
+enddate = Time.at( Time.new.to_i + 86400*endShiftDays ).to_s
+File.open("#{sequencefolder}/schedule.json",'w') {|f| f.write( JSON.pretty_generate( {"begin"=>startdate, "end"=>enddate} ) ) }
+
+File.open("#{sequencefolder}/sequence.txt",'w') {|f| 
+    secondarystrings.each{|sec|
+        f.puts("#{primarystring} : #{sec}")
+    }
+}
+
+File.open("#{sequencefolder}/todolist.txt",'w') {|f| f.write(todolist) }
+
+File.open("#{sequencefolder}/uuid",'w') {|f| f.write(SecureRandom.hex) }

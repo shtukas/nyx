@@ -1,0 +1,10 @@
+
+# --------------------------------------------------------------------
+
+{
+    "uuid" : (uuid)
+    "metric" : (real)
+    "announce" : ""
+    "commands" : Array[String]
+    "command-interpreter": (object,command) -> Action
+}
