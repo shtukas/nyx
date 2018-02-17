@@ -125,14 +125,16 @@ class TimedSequences
                 if sequenceobject['lines'].count!=0 then
                     line = sequenceobject['lines'].first
                     uuid = Digest::SHA1.hexdigest("#{sequenceobject['uuid']}:#{line}")[0, 8]
+                    isrunning = Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{uuid}")=='true'
                     metric = [ 0.3*Math.exp( ( sequenceobject['ideal-done-count'] - sequenceobject['current-done-count'] ).to_f / sequenceobject['initial-count'] ), 0.4 ].min
-                    metric = Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{uuid}")=='true' ? 2.2 : metric
+                    metric = isrunning ? 2.2 : metric
                     announce = "[#{uuid}] (#{"%.3f" % metric}) timed sequence: #{File.basename(sequenceobject['folderpath'])}, item: #{line} (project: #{sequenceobject['todolist']})"
                     item = {}
                     item['uuid']       = uuid
                     item['metric']     = metric
                     item['announce']   = announce
                     item['commands']   = TimedSequencesUtils::commands(uuid)
+                    item['default-commands'] = isrunning ? ['stop'] : ['start']
                     item['command-interpreter'] = lambda {|object, command| TimedSequences::interpreter(object, command) }
                     item['todolist']   = sequenceobject['todolist']
                     item['folderpath'] = sequenceobject['folderpath']
