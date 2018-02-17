@@ -47,11 +47,11 @@
 {
     "uuid" => SecureRandom.hex,
     "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-    "@"    => type,
+    "@"    => (repeat type),
     "repeat-value" => value
 }
 
-type:
+(repeat type):
     - every-n-hours               -> value: Float
     - every-n-days                -> value: Float
     - every-this-day-of-the-month -> value: String Length:2
@@ -68,4 +68,6 @@ type:
 Optional attributes 
     "metric" which when present overrides the schedule metric.
     "do-not-show-until-datetime": "2017-10-02 15:59:34 +0100"
+    "default-commands" : Array[String] 
+        # When a schedule carry this, then the object gets it by default.
 

@@ -311,55 +311,91 @@ class WaveTimelineUtils
     # WaveTimelineUtils::commands(schedule)
     def self.commands(schedule)
         if schedule['@'] == 'project' then
-            return ['start','stop','<uuid>','recast','folder','(+)datetimecode','destroy']
+            return ['start', 'stop', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy']
         end
-        ['open','done','open+','<uuid>','recast','folder','(+)datetimecode','destroy','>todolist','>lib']
+        ['open', 'done', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy', '>todolist', '>lib']
+    end
+
+    # WaveTimelineUtils::extractFirstURLOrNUll(string)
+    def self.extractFirstURLOrNUll(string)
+        return nil if !string.include?('http')
+        while string.include?('http') and !string.start_with?('http') do
+            string = string[1,string.length]
+        end
+        if string.include?(' ') then
+            string = string[0,string.index(' ')]
+        end
+        string
+    end
+
+    # WaveTimelineUtils::defaultCommandsOrNull(announce, schedule)
+    def self.defaultCommandsOrNull(announce, schedule)
+
+        if schedule['default-commands'] then
+            return schedule['default-commands'] # When a schedule carry default commands, then the object gets them by default.
+        end
+
+        repeatTypes = ['every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week']
+        if repeatTypes.include?(schedule['@']) and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
+            return ["shell: open #{WaveTimelineUtils::extractFirstURLOrNUll(announce)}", 'done']
+        end
+
+        if schedule['@']=='sticky' and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
+            return ["shell: open #{WaveTimelineUtils::extractFirstURLOrNUll(announce)}", 'done']
+        end
+
+        if repeatTypes.include?(schedule['@']) then
+            return ['done']
+        end
+        nil
+    end
+
+    # WaveTimelineUtils::objectuuidToCatalystObject(objectuuid)
+    def self.objectuuidToCatalystObject(objectuuid)
+        location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        if location.nil? then
+            puts "Could not find location for uuid: #{location}"
+            exit
+        end
+
+        schedule = WaveTimelineUtils::readScheduleFromWaveItemOrNull(objectuuid)
+        if schedule.nil? then
+            puts "Could not find schedule for location: #{location}"
+            exit
+        end
+
+        metric = 
+            if File.exists?("#{location}/metric") then
+                IO.read("#{location}/metric").to_f
+            else
+                WaveSchedules::scheduleToMetric(schedule)
+            end
+        
+        description  = WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(objectuuid)
+
+        originSystem = WaveTimelineUtils::extractOriginSystemAtWaveItemOrNull(objectuuid)
+        if originSystem.nil? then
+            originSystem = ""
+        else
+            originSystem = "#{originSystem}"
+        end
+
+        object = {}
+        object['uuid'] = objectuuid
+        object['owner'] = 'wave'
+        object['metric'] = metric
+        object['announce'] = WaveTimelineUtils::objectToAnnounceShell_shortVersion(object, schedule)
+        object['commands'] = WaveTimelineUtils::commands(schedule)
+        object['default-commands'] = WaveTimelineUtils::defaultCommandsOrNull(object['announce'], schedule)
+        object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
+        object['schedule'] = schedule
+        object
     end
 
     # WaveTimelineUtils::getCatalystObjects()
     def self.getCatalystObjects()
-        objects = WaveTimelineUtils::catalystUUIDsEnumerator()
-        .map{|objectuuid|
-
-            location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-            if location.nil? then
-                puts "Could not find location for uuid: #{location}"
-                exit
-            end
-
-            schedule = WaveTimelineUtils::readScheduleFromWaveItemOrNull(objectuuid)
-            if schedule.nil? then
-                puts "Could not find schedule for location: #{location}"
-                exit
-            end
-
-            metric = 
-                if File.exists?("#{location}/metric") then
-                    IO.read("#{location}/metric").to_f
-                else
-                    WaveSchedules::scheduleToMetric(schedule)
-                end
-            
-            description  = WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(objectuuid)
-
-            originSystem = WaveTimelineUtils::extractOriginSystemAtWaveItemOrNull(objectuuid)
-            if originSystem.nil? then
-                originSystem = ""
-            else
-                originSystem = "#{originSystem}"
-            end
-
-            object = {}
-            object['uuid'] = objectuuid
-            object['owner'] = 'wave'
-            object['metric'] = metric
-            object['announce'] = WaveTimelineUtils::objectToAnnounceShell_shortVersion(object, schedule)
-            object['commands'] = WaveTimelineUtils::commands(schedule)
-            object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
-            object['schedule'] = schedule
-            object
-        }
-        objects
+        WaveTimelineUtils::catalystUUIDsEnumerator()
+            .map{|objectuuid| WaveTimelineUtils::objectuuidToCatalystObject(objectuuid) }
     end
 
     # WaveTimelineUtils::objectToAnnounceShell_shortVersion(object,schedule)
@@ -692,16 +728,7 @@ class WaveInterface
             command = STDIN.gets().strip
             WaveInterface::interpreter(xobject1,command)
             return
-        end
-
-        # ------------------------------------------
-        # rewrite 
-
-        if command=='open+' then
-            WaveInterface::interpreter(object,'open')
-            WaveInterface::interpreter(object,'done')
-            return
-        end       
+        end      
 
         # ------------------------------------------
         # 

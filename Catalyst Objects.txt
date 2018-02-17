@@ -2,9 +2,10 @@
 # --------------------------------------------------------------------
 
 {
-    "uuid" : (uuid)
-    "metric" : (real)
-    "announce" : ""
-    "commands" : Array[String]
-    "command-interpreter": (object, command) -> Action
+    "uuid"                : String (uuid)
+    "metric"              : Float
+    "announce"            : String
+    "commands"            : Array[String]
+    "default-commands"    : Null | Array[String]
+    "command-interpreter" : (object, command) -> Action
 }

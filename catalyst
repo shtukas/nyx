@@ -115,16 +115,28 @@ def puts_object_shell_display(object, dislayobjects)
     # mental selection.
 
     puts object['announce']
+
+    if object['default-commands'] then
+        print object['default-commands'].join(" ; ").green
+        print " ; "
+    end
     puts object['commands'].join(", ").red
     print "---> "
     command = STDIN.gets().strip
 
     # ---------------------
-    # "::is-today+calendar"
-    # If the command is empty and the object was a Today+Calendar.txt object
+    # default commands
     # then we push it by 40 minutes.
-    if command.size==0 and object['schedule']["::is-today+calendar"] then
-        object['command-interpreter'].call(object, "+0.666 hours")
+    if command.size==0 and object['default-commands'] then
+        object['default-commands'].each{|command|
+            if command.start_with?('shell:') then
+                command = command[7,command.size].strip
+                system(command)
+            else
+                object['command-interpreter'].call(object, command)
+            end
+            
+        }
         return
     end
 
