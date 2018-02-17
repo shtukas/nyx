@@ -818,7 +818,6 @@ class WaveInterface
             location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
-            puts_object_shell_display(object) # marker:7af3f22c-eb49-405a-b1c2-97a83a431990 This is a catalyst-shell function, should not be called from here, but will do for the moment
             return
         end
 
