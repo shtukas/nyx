@@ -142,7 +142,7 @@ def puts_object_shell_display(object, dislayobjects)
 
     # --------------------------------------------------------------
     # Attempt to decompose the command as (item display id, command) 
-    if command.size>0 and (decomposition = forward_command_decomposition(command))['first-token-is-numeric'] and (decomposition['ordinal']<=objects.size-1) then
+    if command.size>0 and (decomposition = forward_command_decomposition(command))['first-token-is-numeric'] and (decomposition['ordinal']<=dislayobjects.size-1) then
         targetobject = dislayobjects.drop(decomposition['ordinal']).first
         if decomposition['command'].size > 0 then
             targetobject['command-interpreter'].call(targetobject,decomposition['command'])
