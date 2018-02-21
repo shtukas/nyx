@@ -175,12 +175,12 @@ Thread.new() do
     loop {
         sleep 1200
         email_downloads_on_schedule(false)
-        WaveDevOps::archivesGarbageCollection(true)
     }
 end
 
 loop {
     
+    WaveDevOps::archivesGarbageCollection(true)
     TodaySectionManagement::performSync()
     DropOff::collect_objects()
     objects = CatalystCore::objects().first(10)
