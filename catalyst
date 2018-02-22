@@ -168,7 +168,15 @@ end
 
 # -----------------------------------------------------------------
 
+WaveDevOps::archivesGarbageCollection(true)
 email_downloads_on_schedule(true)
+
+Thread.new() do
+    loop {
+        sleep 300
+        WaveDevOps::archivesGarbageCollection(true)
+    }
+end
 
 Thread.new() do
     loop {
@@ -179,7 +187,6 @@ end
 
 loop {
     
-    WaveDevOps::archivesGarbageCollection(true)
     TodaySectionManagement::performSync()
     DropOff::collect_objects()
     objects = CatalystCore::objects().first(10)
