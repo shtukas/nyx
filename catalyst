@@ -126,7 +126,6 @@ def puts_object_shell_display(object, dislayobjects)
 
     # ---------------------
     # default commands
-    # then we push it by 40 minutes.
     if command.size==0 and object['default-commands'] then
         object['default-commands'].each{|command|
             if command.start_with?('shell:') then

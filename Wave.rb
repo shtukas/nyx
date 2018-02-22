@@ -720,6 +720,16 @@ class WaveInterface
     # WaveInterface::interpreter(object, command)
     def self.interpreter(object, command)
 
+        if command.include?(";") then
+            command
+                .split(";")
+                .map{|c| c.strip}
+                .each{|c|
+                    WaveInterface::interpreter(object, c)
+                }
+            return
+        end
+
         xobject1 = WaveInterface::getCatalystObjects().select{|object| object['uuid']==command }.first
         if xobject1 then
             puts xobject1['announce']
@@ -888,7 +898,6 @@ class WaveInterface
             DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(schedule['uuid'])
             return
         end  
-
     end
 end
 
