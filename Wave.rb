@@ -346,6 +346,11 @@ class WaveTimelineUtils
         if repeatTypes.include?(schedule['@']) then
             return ['done']
         end
+
+        if schedule['@'] == 'time-commitment' then
+            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], ['start'], ['stop'])
+        end
+
         nil
     end
 
