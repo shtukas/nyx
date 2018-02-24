@@ -51,7 +51,7 @@ require 'mail'
     mail.body.decoded    #=> 'This is the body of the email...
 =end
 
-EMAIL_METADATA_OBJECTS_FOLDERPATH = "/Galaxy/DataBank/Wave/03-Emails-Metadata-Objects"
+EMAIL_METADATA_OBJECTS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave/03-Emails-Metadata-Objects"
 
 class EmailUtils
 

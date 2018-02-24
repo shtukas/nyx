@@ -54,7 +54,7 @@ require 'drb/drb'
 
 # -------------------------------------------------------------------------
 
-PATH_TO_SEQUENCES_FOLDER = "/Galaxy/DataBank/Finite-Bursts"
+PATH_TO_SEQUENCES_FOLDER = "/Galaxy/DataBank/Catalyst/Finite-Bursts"
 
 =begin
 (schedule) {
@@ -93,12 +93,6 @@ class FiniteBurstsUtils
                 object['lines']         = IO.read("#{folderpath}/sequence.txt").lines.to_a.map{|line| line.strip }.select{|line| line.size>0 }
                 object['schedule']      = JSON.parse(IO.read("#{folderpath}/schedule.json"))
                 object['initial-count'] = IO.read("#{folderpath}/initial-count").to_i
-                object['todolist'] =
-                    if File.exists?("#{folderpath}/todolist.txt") then
-                        IO.read("#{folderpath}/todolist.txt").strip
-                    else
-                        nil                
-                    end
                 object['ideal-done-count'] = FiniteBurstsUtils::ideal_number_of_lines_done(object['schedule'], object['initial-count'])
                 object['current-done-count'] = object['initial-count'] - object['lines'].count
                 object
@@ -128,7 +122,7 @@ class FiniteBursts
                     isrunning = Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{uuid}")=='true'
                     metric = [ 0.3*Math.exp( ( sequenceobject['ideal-done-count'] - sequenceobject['current-done-count'] ).to_f / sequenceobject['initial-count'] ), 0.4 ].min
                     metric = isrunning ? 2.2 : metric
-                    announce = "[#{uuid}] (#{"%.3f" % metric}) finite burst: #{File.basename(sequenceobject['folderpath'])}, item: #{line} (project: #{sequenceobject['todolist']})"
+                    announce = "[#{uuid}] (#{"%.3f" % metric}) finite burst: #{File.basename(sequenceobject['folderpath'])}, item: #{line}"
                     item = {}
                     item['uuid']       = uuid
                     item['metric']     = metric
@@ -136,7 +130,6 @@ class FiniteBursts
                     item['commands']   = FiniteBurstsUtils::commands(uuid)
                     item['default-commands'] = isrunning ? ['stop'] : ['start']
                     item['command-interpreter'] = lambda {|object, command| FiniteBursts::interpreter(object, command) }
-                    item['todolist']   = sequenceobject['todolist']
                     item['folderpath'] = sequenceobject['folderpath']
                     objects << item
                 else
@@ -147,7 +140,6 @@ class FiniteBursts
                     object["commands"] = []
                     object["command-interpreter"] = lambda {|object, command| }
                     object['folderpath'] = sequenceobject['folderpath']
-                    object['todolist'] = sequenceobject['todolist']  
                     objects << object                  
                 end
             }
@@ -157,23 +149,9 @@ class FiniteBursts
     # FiniteBursts::interpreter(object, command)
     def self.interpreter(object, command)
         if command=='start' then
-            todolistname = object['todolist']
-            if !todolistname.nil? and todolistname.size>0 then
-                todolistuuid = Xcache::getOrNull("dd60d5ac-9fc1-4388-ad30-3cb92f954a61:#{todolistname}")
-                if !todolistuuid.nil? then
-                    DRbObject.new(nil, "druby://:10423").start(todolistuuid)
-                end
-            end
             Xcache::set("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{object['uuid']}",'true')
         end
         if command=='stop' then
-            todolistname = object['todolist']
-            if !todolistname.nil? and todolistname.size>0 then
-                todolistuuid = Xcache::getOrNull("dd60d5ac-9fc1-4388-ad30-3cb92f954a61:#{todolistname}")
-                if !todolistuuid.nil? then
-                    DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(todolistuuid)
-                end
-            end
             Xcache::set("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{object['uuid']}",'false')
         end
         if command=='done' then

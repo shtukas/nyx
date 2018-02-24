@@ -38,7 +38,6 @@ require 'fileutils'
 require 'find'
 
 require_relative "Wave.rb"
-require_relative "Projects.rb"
 require_relative "Finite-Bursts.rb"
 require_relative "Ninja.rb"
 
@@ -55,11 +54,10 @@ class CatalystCore
         wl["command-interpreter"] = lambda {|object, command|}
 
         o1 = WaveInterface::getCatalystObjects()
-        o2 = ProjectsInterface::getCatalystObjects()
         o3 = FiniteBursts::getCatalystObjects()
         o4 = Ninja::getCatalystObjects()
         
-        ([wl]+o1+o2+o3+o4)
+        ([wl]+o1+o3+o4)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end

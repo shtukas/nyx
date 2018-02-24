@@ -61,7 +61,7 @@
 {
     "uuid" => SecureRandom.hex,
     "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-    "@"    => "project",
+    "@"    => "time-commitment",
     "hours-per-week" => Float
 }
 

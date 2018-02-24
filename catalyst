@@ -67,11 +67,11 @@ require_relative "Wave-DropOff.rb"
 def email_downloads_on_schedule(verbose)
     if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
         begin
-            newEmailCount = GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/guardian-relay.json")), verbose)
+            newEmailCount = GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/guardian-relay.json")), verbose)
             if newEmailCount>0 then
                 puts "Retrieved #{newEmailCount} new emails"
             end
-            OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Wave-Email-Config/operator.json")), verbose)
+            OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/operator.json")), verbose)
             # We call again so that the clock restarts at the end of the process
             LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
         rescue

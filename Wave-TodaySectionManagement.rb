@@ -111,13 +111,13 @@ class TodaySectionManagement
 
     # TodaySectionManagement::foldersUUIDs()
     def self.foldersUUIDs()
-        todayPlusCalendarRoot = "/Galaxy/DataBank/Wave/02-OpsLine-Active/Today+Calendar-Items"
+        todayPlusCalendarRoot = "/Galaxy/DataBank/Catalyst/Wave/02-OpsLine-Active/Today+Calendar-Items"
         Dir.entries(todayPlusCalendarRoot).select{|filename| filename[0, 1] != '.' }
     end
 
     # TodaySectionManagement::performSync()
     def self.performSync()
-        todayPlusCalendarRoot = "/Galaxy/DataBank/Wave/02-OpsLine-Active/Today+Calendar-Items"
+        todayPlusCalendarRoot = "/Galaxy/DataBank/Catalyst/Wave/02-OpsLine-Active/Today+Calendar-Items"
         
         # ----------------------------------------------------------------
         todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip

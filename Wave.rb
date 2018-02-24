@@ -65,11 +65,10 @@ require 'find'
 
 require_relative "CatalystCore.rb"
 require_relative "Wave-TodaySectionManagement.rb"
-require_relative "Projects.rb"
 
 # ----------------------------------------------------------------------
 
-DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Wave"
+DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
 
 # ----------------------------------------------------------------------
 
@@ -310,10 +309,10 @@ class WaveTimelineUtils
 
     # WaveTimelineUtils::commands(schedule)
     def self.commands(schedule)
-        if schedule['@'] == 'project' then
+        if schedule['@'] == 'time-commitment' then
             return ['start', 'stop', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy']
         end
-        ['open', 'done', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy', '>todolist', '>lib']
+        ['open', 'done', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy', '>lib']
     end
 
     # WaveTimelineUtils::extractFirstURLOrNUll(string)
@@ -436,7 +435,7 @@ class WaveSchedules
     # WaveSchedules::makeScheduleObjectInteractivelyOrNull()
     def self.makeScheduleObjectInteractivelyOrNull()
 
-        scheduleTypes = ['new','today','project','sticky','date','repeat']
+        scheduleTypes = ['new','today','time-commitment','sticky','date','repeat']
         scheduleType = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
@@ -456,11 +455,11 @@ class WaveSchedules
                 "unixtime" => Time.new.to_i
             }
         end
-        if scheduleType=='project' then
+        if scheduleType=='time-commitment' then
             schedule = {
                 "uuid" => SecureRandom.hex,
                 "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-                "@"    => "project",
+                "@"    => "time-commitment",
                 "hours-per-week" => LucilleCore::askQuestionAnswerAsString("Hours per week: ").to_f
             }
         end
@@ -533,8 +532,8 @@ class WaveSchedules
         if schedule['@'] == 'sticky' then
             return "sticky"
         end
-        if schedule['@'] == 'project' then
-            return "project (#{schedule['hours-per-week']} hours/week)"
+        if schedule['@'] == 'time-commitment' then
+            return "time commitment (#{schedule['hours-per-week']} hours/week)"
         end
         if schedule['@'] == 'ondate' then
             return "ondate: #{schedule['date']}"
@@ -638,9 +637,9 @@ class WaveSchedules
             end
         end
 
-        # Projects
+        # time commitments
 
-        if schedule['@'] == 'project' then
+        if schedule['@'] == 'time-commitment' then
             return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], 0.3, 2.2)
         end
 
@@ -835,25 +834,6 @@ class WaveInterface
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)                       
             end
-            return
-        end
-
-        if command=='>todolist' then
-            listname = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("listname: ", ProjectsCore::getProjectsNames(),lambda{ |name| name })
-            xsource = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-            xtarget = "#{TODOLISTS_FOLDERPATH}/#{listname}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mkpath(xtarget)
-            FileUtils.cp_r(xsource,xtarget)
-
-            # Removing wave files.
-            Dir.entries(xtarget)
-                .select{|filename| filename.start_with?('catalyst-') or filename.start_with?('wave-') }
-                .map{|filename| "#{xtarget}/#{filename}" }
-                .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
-
-            puts "Item has been copied as todolist item"
-            WaveTimelineUtils::archiveWaveItems(objectuuid)
-            puts "Item has been wave archived"            
             return
         end
 

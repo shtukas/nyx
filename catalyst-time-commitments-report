@@ -38,4 +38,3 @@ WaveTimelineUtils::getCatalystObjects()
 .each{|object|
     puts "#{object['announce'].lines.first}"
 }
-

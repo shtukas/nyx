@@ -37,7 +37,7 @@ require_relative "Wave-Emails.rb"
 
 # -------------------------------------------------------------------------------------
 
-CATALYST_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Wave-DropOff"
+CATALYST_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave-DropOff"
 
 class DropOff
     def self.collect_objects()

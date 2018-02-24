@@ -1,13 +1,11 @@
 
-         2.200 { wave project, finite burst } running
-         2.100 Project folder running (displayed in green)
+         2.200 { wave time commitment, wave finite burst } running
 1.200 -> 1.400 Today+Calendar
 0.900 -> 1.000 Incoming Emails General
 0.800 -> 0.900 Incoming Emails operator@alseyn.net
          0.850 Wave "new"
-0.600 -> 0.800 Stuff that should rather be done today (eg: pending finite burst items)
 0.400 -> 0.600 Stuff ideally done today
 0.300 -> 0.400 Finite Bursts
-0.000 -> 0.300 Projects + Ninja
+0.000 -> 0.300 Time Commitments + Ninja
 
 0.000          Not To Be Done

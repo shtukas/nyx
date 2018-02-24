@@ -29,9 +29,7 @@ loop {
 startShiftDays = LucilleCore::askQuestionAnswerAsString("Start shift days: ").to_f
 endShiftDays = LucilleCore::askQuestionAnswerAsString("End shift days: ").to_f
 
-todolist = LucilleCore::askQuestionAnswerAsString("Todolist: ")
-
-sequencefolder = "/Galaxy/DataBank/Finite-Bursts/#{sequencename}"
+sequencefolder = "/Galaxy/DataBank/Catalyst/Finite-Bursts/#{sequencename}"
 FileUtils.mkpath(sequencefolder)
 
 File.open("#{sequencefolder}/initial-count", 'w') {|f| f.write(secondarystrings.count) }
@@ -45,7 +43,5 @@ File.open("#{sequencefolder}/sequence.txt", 'w') {|f|
         f.puts("#{primarystring} : #{sec}")
     }
 }
-
-File.open("#{sequencefolder}/todolist.txt", 'w') {|f| f.write(todolist) }
 
 File.open("#{sequencefolder}/uuid", 'w') {|f| f.write(SecureRandom.hex) }
