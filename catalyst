@@ -189,7 +189,7 @@ loop {
     
     TodaySectionManagement::performSync()
     DropOff::collect_objects()
-    objects = CatalystCore::objects().first(10)
+    objects = CatalystCore::objects().first(screen_height()-5)
     object = objects.first
 
     puts "# -------------------------------------------------------"

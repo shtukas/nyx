@@ -66,6 +66,8 @@ require 'find'
 require_relative "CatalystCore.rb"
 require_relative "Wave-TodaySectionManagement.rb"
 
+require 'drb/drb'
+
 # ----------------------------------------------------------------------
 
 DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
