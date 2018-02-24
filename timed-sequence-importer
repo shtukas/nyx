@@ -31,7 +31,7 @@ endShiftDays = LucilleCore::askQuestionAnswerAsString("End shift days: ").to_f
 
 todolist = LucilleCore::askQuestionAnswerAsString("Todolist: ")
 
-sequencefolder = "/Galaxy/DataBank/Timed-Sequences/#{sequencename}"
+sequencefolder = "/Galaxy/DataBank/Finite-Bursts/#{sequencename}"
 FileUtils.mkpath(sequencefolder)
 
 File.open("#{sequencefolder}/initial-count", 'w') {|f| f.write(secondarystrings.count) }

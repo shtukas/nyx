@@ -54,7 +54,7 @@ require 'drb/drb'
 
 # -------------------------------------------------------------------------
 
-PATH_TO_SEQUENCES_FOLDER = "/Galaxy/DataBank/Timed-Sequences"
+PATH_TO_SEQUENCES_FOLDER = "/Galaxy/DataBank/Finite-Bursts"
 
 =begin
 (schedule) {
@@ -63,7 +63,7 @@ PATH_TO_SEQUENCES_FOLDER = "/Galaxy/DataBank/Timed-Sequences"
 }
 =end
 
-class TimedSequencesUtils
+class FiniteBurstsUtils
     def self.sequence_folderpaths()
         Dir.entries(PATH_TO_SEQUENCES_FOLDER)
             .select{|filename| filename[0, 1] != "." }
@@ -85,11 +85,11 @@ class TimedSequencesUtils
         IO.read(uuidfilepath).strip
     end
     def self.get_sequences()
-        TimedSequencesUtils::sequence_folderpaths()
+        FiniteBurstsUtils::sequence_folderpaths()
             .map{|folderpath|  
                 object = {}
                 object['folderpath']    = folderpath
-                object['uuid']          = TimedSequencesUtils::get_uuid(folderpath)
+                object['uuid']          = FiniteBurstsUtils::get_uuid(folderpath)
                 object['lines']         = IO.read("#{folderpath}/sequence.txt").lines.to_a.map{|line| line.strip }.select{|line| line.size>0 }
                 object['schedule']      = JSON.parse(IO.read("#{folderpath}/schedule.json"))
                 object['initial-count'] = IO.read("#{folderpath}/initial-count").to_i
@@ -99,7 +99,7 @@ class TimedSequencesUtils
                     else
                         nil                
                     end
-                object['ideal-done-count'] = TimedSequencesUtils::ideal_number_of_lines_done(object['schedule'], object['initial-count'])
+                object['ideal-done-count'] = FiniteBurstsUtils::ideal_number_of_lines_done(object['schedule'], object['initial-count'])
                 object['current-done-count'] = object['initial-count'] - object['lines'].count
                 object
             }
@@ -115,12 +115,12 @@ end
 
 # -------------------------------------------------------------------------
 
-class TimedSequences
+class FiniteBursts
 
-    # TimedSequences::getCatalystObjects()
+    # FiniteBursts::getCatalystObjects()
     def self.getCatalystObjects()
         objects = []
-        TimedSequencesUtils::get_sequences()
+        FiniteBurstsUtils::get_sequences()
             .each{|sequenceobject|
                 if sequenceobject['lines'].count!=0 then
                     line = sequenceobject['lines'].first
@@ -128,14 +128,14 @@ class TimedSequences
                     isrunning = Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{uuid}")=='true'
                     metric = [ 0.3*Math.exp( ( sequenceobject['ideal-done-count'] - sequenceobject['current-done-count'] ).to_f / sequenceobject['initial-count'] ), 0.4 ].min
                     metric = isrunning ? 2.2 : metric
-                    announce = "[#{uuid}] (#{"%.3f" % metric}) timed sequence: #{File.basename(sequenceobject['folderpath'])}, item: #{line} (project: #{sequenceobject['todolist']})"
+                    announce = "[#{uuid}] (#{"%.3f" % metric}) finite burst: #{File.basename(sequenceobject['folderpath'])}, item: #{line} (project: #{sequenceobject['todolist']})"
                     item = {}
                     item['uuid']       = uuid
                     item['metric']     = metric
                     item['announce']   = announce
-                    item['commands']   = TimedSequencesUtils::commands(uuid)
+                    item['commands']   = FiniteBurstsUtils::commands(uuid)
                     item['default-commands'] = isrunning ? ['stop'] : ['start']
-                    item['command-interpreter'] = lambda {|object, command| TimedSequences::interpreter(object, command) }
+                    item['command-interpreter'] = lambda {|object, command| FiniteBursts::interpreter(object, command) }
                     item['todolist']   = sequenceobject['todolist']
                     item['folderpath'] = sequenceobject['folderpath']
                     objects << item
@@ -143,7 +143,7 @@ class TimedSequences
                     object = {}
                     object['uuid'] = SecureRandom.hex
                     object['metric'] = 1
-                    object['announce'] = "timed sequences: You are done with sequence: #{sequenceobject['folderpath']}"
+                    object['announce'] = "finite bursts: You are done with sequence: #{sequenceobject['folderpath']}"
                     object["commands"] = []
                     object["command-interpreter"] = lambda {|object, command| }
                     object['folderpath'] = sequenceobject['folderpath']
@@ -154,7 +154,7 @@ class TimedSequences
         objects
     end
 
-    # TimedSequences::interpreter(object, command)
+    # FiniteBursts::interpreter(object, command)
     def self.interpreter(object, command)
         if command=='start' then
             todolistname = object['todolist']
@@ -178,7 +178,7 @@ class TimedSequences
         end
         if command=='done' then
             if Xcache::getOrNull("61c39302-4427-4668-8d44-7f4f9ddd6abd:#{object['uuid']}")=='true' then
-                TimedSequences::interpreter(object, 'stop')
+                FiniteBursts::interpreter(object, 'stop')
             end
             filepath = "#{object['folderpath']}/sequence.txt"
             newlines = IO.read(filepath).lines.to_a.drop(1)

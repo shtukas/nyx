@@ -39,7 +39,7 @@ require 'find'
 
 require_relative "Wave.rb"
 require_relative "Projects.rb"
-require_relative "Timed-Sequences.rb"
+require_relative "Finite-Bursts.rb"
 require_relative "Ninja.rb"
 
 # ----------------------------------------------------------------------
@@ -56,7 +56,7 @@ class CatalystCore
 
         o1 = WaveInterface::getCatalystObjects()
         o2 = ProjectsInterface::getCatalystObjects()
-        o3 = TimedSequences::getCatalystObjects()
+        o3 = FiniteBursts::getCatalystObjects()
         o4 = Ninja::getCatalystObjects()
         
         ([wl]+o1+o2+o3+o4)
