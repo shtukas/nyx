@@ -163,7 +163,7 @@ def puts_object_shell_display(object, dislayobjects)
     # If you select an ordinal, you get to apply it to the list you were looking at when you made that 
     # mental selection.
 
-    puts object['announce']
+    puts object['announce'].strip
 
     if object['default-commands'] then
         print object['default-commands'].join(" ; ").green
