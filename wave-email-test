@@ -60,8 +60,6 @@ require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
 
 =end
 
-require_relative "Wave-DropOff.rb"
-
 # ----------------------------------------------------------------------------
 
 GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/guardian-relay.json")), true)
