@@ -540,7 +540,7 @@ class WaveSchedules
             return "sticky"
         end
         if schedule['@'] == 'time-commitment' then
-            return "time commitment (#{schedule['hours-per-week']} hours/week)"
+            return "time commitment: #{schedule['hours-per-week']} hours/week"
         end
         if schedule['@'] == 'ondate' then
             return "ondate: #{schedule['date']}"

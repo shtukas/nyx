@@ -35,6 +35,8 @@ WaveTimelineUtils::getCatalystObjects()
 .select{|object|
     object['schedule'] and object['schedule']['@']=='time-commitment'
 }
+.sort{|o1,o2| o1['metric']<=>o2['metric'] }
+.reverse
 .each{|object|
     puts "#{object['announce'].lines.first}"
 }
