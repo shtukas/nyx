@@ -22,7 +22,9 @@ class Ninja
             "commands" => [],
             "default-commands" => ['play'],
             "command-interpreter" => lambda{|object, command|  
-                system('ninja play')
+                if command=='play' then
+                    system('ninja play')
+                end
             }
         } 
         objects
