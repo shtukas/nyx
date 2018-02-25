@@ -124,7 +124,6 @@ def email_downloads_on_schedule(verbose)
             # We call again so that the clock restarts at the end of the process
             LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
         rescue
-            puts "Problems retrieving emails"
         end
     end    
 end
@@ -141,17 +140,14 @@ def vertical_space(announce)
     announce.lines.map{|line| (line.size/screen_width())+1 }.inject(0, :+)
 end
 
-def forward_command_decomposition(str)
-    firstToken = str.split(" ").first
-    {
-        "first-token-is-numeric" => firstToken == firstToken.to_i.to_s,
-        "ordinal" => firstToken.to_i,
-        "command" => str[firstToken.size, str.size].strip
-    }
+def tokenIsInteger(token)
+    token == token.to_i.to_s
 end
 
 def puts_object_shell_display(object, dislayobjects)
     
+    dislayobjects = dislayobjects.clone
+
     # Here is the reason why the second argument was introduced
     # A first display is performed. 
     # You select number 8.
@@ -165,17 +161,18 @@ def puts_object_shell_display(object, dislayobjects)
 
     puts object['announce'].strip
 
-    if object['default-commands'] then
+    if object['default-commands'] and object['default-commands'].size>0 then
         print object['default-commands'].join(" ; ").green
         print " ; "
     end
     puts object['commands'].join(", ").red
     print "---> "
-    command = STDIN.gets().strip
+    expression = STDIN.gets().strip
 
     # ---------------------
     # default commands
-    if command.size==0 and object['default-commands'] then
+
+    if expression.size==0 and object['default-commands'] then
         object['default-commands'].each{|command|
             if command.start_with?('shell:') then
                 command = command[7,command.size].strip
@@ -183,27 +180,51 @@ def puts_object_shell_display(object, dislayobjects)
             else
                 object['command-interpreter'].call(object, command)
             end
-            
         }
         return
     end
 
-    # --------------------------------------------------------------
-    # Attempt to decompose the command as (item display id, command) 
-    if command.size>0 and (decomposition = forward_command_decomposition(command))['first-token-is-numeric'] and (decomposition['ordinal']<=dislayobjects.size-1) then
-        targetobject = dislayobjects.drop(decomposition['ordinal']).first
-        if decomposition['command'].size > 0 then
-            targetobject['command-interpreter'].call(targetobject,decomposition['command'])
+    # ---------------------
+    # regular expression: optional integer and commands
+
+    def expression_decomposition(expression, dislayobjects)
+        dislayobjects = dislayobjects.clone
+        tokens = expression.split(';').map{|t| t.strip }        
+        if tokenIsInteger(tokens[0]) then
+            targetObject = dislayobjects.drop(tokens[0].to_i).first # overriding the current object with the targetted object
+            tokens.shift
+            [targetObject, tokens]
         else
-            puts_object_shell_display(targetobject, dislayobjects)
+            [nil, tokens]
         end
-        return
     end
 
-    object['command-interpreter'].call(object, command)
+    targetObject, tokens = expression_decomposition(expression, dislayobjects)
+
+    if targetObject and tokens.size==0 then
+        puts_object_shell_display(targetObject, dislayobjects)
+    end
+
+    if targetObject and tokens.size>0 then
+        tokens.each{|command|
+            targetObject['command-interpreter'].call(targetObject, command)
+        }
+    end    
+
+    if targetObject.nil? and tokens.size==0 then
+        
+    end
+
+    if targetObject.nil? and tokens.size>0 then
+        tokens.each{|command|
+            object['command-interpreter'].call(object, command)
+        }        
+    end
+
 end
 
 def puts_objects(objects, remaining_number_of_lines, indx)
+    objects = objects.clone
     return remaining_number_of_lines if objects.size==0
     return remaining_number_of_lines if remaining_number_of_lines<=0
     object = objects.shift
@@ -217,40 +238,26 @@ end
 
 # -----------------------------------------------------------------
 
-WaveDevOps::archivesGarbageCollection(true)
-email_downloads_on_schedule(true)
-
-Thread.new() do
-    loop {
-        sleep 300
-        WaveDevOps::archivesGarbageCollection(true)
-    }
-end
-
-Thread.new() do
-    loop {
-        sleep 1200
-        email_downloads_on_schedule(false)
-    }
-end
-
 loop {
     
+    WaveDevOps::archivesGarbageCollection(true)
+    email_downloads_on_schedule(false)
     TodaySectionManagement::performSync()
     DropOff::collectWaveObjects()
     DropOff::collectNinjaObjects()
+
     objects = CatalystCore::objects().first(screen_height()-5)
     object = objects.first
 
     puts "# -------------------------------------------------------"
     
     remaining_number_of_lines = screen_height()-(7+vertical_space(object['announce']))
-    puts_objects(objects.clone.select{|object| object['metric'] > 0 },remaining_number_of_lines, 0)
+    puts_objects(objects.select{|object| object['metric'] > 0 },remaining_number_of_lines, 0)
 
     puts ""
 
     if object then
-        puts_object_shell_display(object, objects.clone)
+        puts_object_shell_display(object, objects)
     else
         sleep 30
     end
