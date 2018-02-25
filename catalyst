@@ -212,7 +212,7 @@ def puts_object_shell_display(object, dislayobjects)
     end    
 
     if targetObject.nil? and tokens.size==0 then
-        
+        # Nothing to do 
     end
 
     if targetObject.nil? and tokens.size>0 then
