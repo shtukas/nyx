@@ -2,9 +2,6 @@
 
 # encoding: UTF-8
 
-require "net/http"
-require "uri"
-
 require 'json'
 
 require 'date'
@@ -16,9 +13,6 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "net/http"
-require "uri"
-
 require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
 
 require 'fileutils'
@@ -28,37 +22,9 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-
 require_relative "CatalystCore.rb"
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
-=begin
-
-    Xcache::set(key, value)
-    Xcache::getOrNull(key)
-    Xcache::getOrDefaultValue(key, defaultValue)
-    Xcache::destroy(key)
-
-    XcacheSets::values(setuid)
-    XcacheSets::insert(setuid, valueuid, value) # value can be an object
-    XcacheSets::remove(setuid, valueuid)
-
-    XStore::set(repositorypath, key, value)
-    XStore::getOrNull(repositorypath, key)
-    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
-    XStore::destroy(repositorypath, key)
-
-    XStoreSets::values(repositorypath, setuid)
-    XStoreSets::insert(repositorypath, setuid, valueuid, value) # value can be an object
-    XStoreSets::remove(repositorypath, setuid, valueuid)
-
-    Xcache and XStore have identical interfaces
-    Xcache is XStore with a repositorypath defaulting to x-space
-
-=end
+require_relative "Wave-Emails.rb"
 
 # ----------------------------------------------------------------------------
 
@@ -165,6 +131,7 @@ def puts_object_shell_display(object, dislayobjects)
         print object['default-commands'].join(" ; ").green
         print " ; "
     end
+
     puts object['commands'].join(", ").red
     print "---> "
     expression = STDIN.gets().strip
