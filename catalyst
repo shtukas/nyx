@@ -156,7 +156,12 @@ def puts_object_shell_display(object, dislayobjects)
 
     def expression_decomposition(expression, dislayobjects)
         dislayobjects = dislayobjects.clone
-        tokens = expression.split(';').map{|t| t.strip }        
+        tokens = 
+            if expression.start_with?('+') then
+                [expression]
+            else
+                expression.split(' ').map{|t| t.strip }
+            end
         if tokenIsInteger(tokens[0]) then
             targetObject = dislayobjects.drop(tokens[0].to_i).first # overriding the current object with the targetted object
             tokens.shift
