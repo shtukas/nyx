@@ -139,6 +139,18 @@ def puts_object_shell_display(object, dislayobjects)
 
     expression = STDIN.gets().strip
 
+    if expression.start_with?("search") then
+        pattern = expression[6,expression.size].strip
+        CatalystCore::objects()
+            .select{|object| object['announce'].downcase.include?(pattern.downcase) }
+            .each{|object| puts "[#{object['uuid']}] #{object['announce']}" }
+        print "uuid: "
+        uuid = STDIN.gets().strip
+        command = uuid
+        object['command-interpreter'].call(object, command) # We are making the hypothesis that the object is a wave
+        return
+    end
+
     # ---------------------
     # default commands
 
@@ -222,6 +234,8 @@ Thread.new {
     }
 }
 
+firstrun = true
+
 loop {
     
     WaveDevOps::archivesGarbageCollection(true)
@@ -238,12 +252,15 @@ loop {
     puts_objects(objects.select{|object| object['metric'] > 0 },remaining_number_of_lines, 0)
 
     puts ""
-
+    puts "We have now a search command; search <pattern>\n".green if firstrun
     if object then
         puts_object_shell_display(object, objects)
+
     else
         sleep 30
     end
+
+    firstrun = false
 
 }
 
