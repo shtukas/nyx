@@ -210,10 +210,18 @@ end
 
 # -----------------------------------------------------------------
 
+email_downloads_on_schedule(true)
+
+Thread.new { 
+    loop {
+        sleep 1200
+        email_downloads_on_schedule(false)
+    }
+}
+
 loop {
     
     WaveDevOps::archivesGarbageCollection(true)
-    email_downloads_on_schedule(false)
     TodaySectionManagement::performSync()
     DropOff::collectWaveObjects()
     DropOff::collectNinjaObjects()
