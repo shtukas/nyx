@@ -334,19 +334,11 @@ class WaveTimelineUtils
     # WaveTimelineUtils::defaultCommandsOrNull(announce, schedule)
     def self.defaultCommandsOrNull(announce, schedule)
 
-        repeatTypes = ['every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week']
-
         if schedule['default-commands'] then
             return schedule['default-commands'] # When a schedule carry default commands, then the object gets them by default.
         end
 
-        if schedule['@'] == 'sticky' and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
-            return ["shell: open #{WaveTimelineUtils::extractFirstURLOrNUll(announce)}", 'done']
-        end
-
-        if schedule['@'] == 'time-commitment' then
-            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC) < 1 ? ['start'] : ['stop']
-        end
+        repeatTypes = ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week']
         
         if repeatTypes.include?(schedule['@']) and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
             return ["shell: open #{WaveTimelineUtils::extractFirstURLOrNUll(announce)}", 'done']
@@ -354,6 +346,10 @@ class WaveTimelineUtils
 
         if repeatTypes.include?(schedule['@']) then
             return ['done']
+        end
+
+        if schedule['@'] == 'time-commitment' then
+            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC) < 1 ? ['start'] : ['stop']
         end
 
         nil
