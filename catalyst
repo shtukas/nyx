@@ -137,13 +137,14 @@ def puts_object_shell_display(object, dislayobjects)
 
     if expression.start_with?("search") then
         pattern = expression[6,expression.size].strip
-        CatalystCore::objects()
+        searchobjects = CatalystCore::objects()
             .select{|object| object['announce'].downcase.include?(pattern.downcase) }
-            .each{|object| puts "[#{object['uuid']}] #{object['announce']}" }
-        print "uuid: "
-        uuid = STDIN.gets().strip
-        command = uuid
-        object['command-interpreter'].call(object, command) # We are making the hypothesis that the object is a wave
+        if searchobjects.size>0 then
+            searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
+            if searchobject then
+                puts_object_shell_display(searchobject, dislayobjects)
+            end
+        end
         return
     end
 
@@ -203,7 +204,6 @@ def puts_object_shell_display(object, dislayobjects)
             object['command-interpreter'].call(object, command)
         }        
     end
-
 end
 
 def puts_objects(objects, remaining_number_of_lines, indx)
