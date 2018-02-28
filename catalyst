@@ -129,11 +129,7 @@ def puts_object_shell_display(object, dislayobjects)
 
     object['default-commands'] = [] if object['default-commands'].nil?
 
-    print object['default-commands'].join(" ").green
-
-    print " | " if ( object['default-commands'].size>0 and object['commands'].size>0 )
-
-    puts object['commands'].join(" ").red
+    puts [ object['default-commands'].join(" ").green , object['commands'].join(" ").red ].select{|s| s.size>0 }.join(" ; ").strip
 
     print "---> "
 
