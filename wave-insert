@@ -10,7 +10,16 @@ end
 description = ARGV[0].strip
 exit if description.size==0
 uuid = SecureRandom.hex(4)
-schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
+
+if ARGV[1].nil? then
+    schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
+else
+    datecode = ARGV[1]
+    schedule = WaveSchedules::makeScheduleObjectNew()
+    datetime = LucilleCore::datetimeSpecification2232ToDatetime(datecode)
+    schedule["do-not-show-until-datetime"] = datetime
+end
+
 puts JSON.pretty_generate(schedule)
 folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
 FileUtils.mkpath folderpath
