@@ -706,8 +706,9 @@ class WaveDevOps
         end
     end
 
-    # WaveDevOps::archivesGarbageCollection(verbose)
+    # WaveDevOps::archivesGarbageCollection(verbose): Int # number of items removed
     def self.archivesGarbageCollection(verbose)
+        answer = 0
         currentsize = WaveDevOps::getArchiveSizeInMegaBytes()
         while currentsize > 1024 do # Gigabytes of Archives
             location = WaveDevOps::getFirstDiveFirstLocationAtLocation("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives")
@@ -715,7 +716,9 @@ class WaveDevOps
             currentsize = currentsize - (LucilleCore::locationRecursiveSize(location).to_f/(1024*1024))
             puts "Garbage Collection: Removing: #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
+            answer = answer + 1
         end
+        answer
     end
 end
 

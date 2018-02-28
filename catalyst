@@ -238,7 +238,6 @@ firstrun = true
 
 loop {
     
-    WaveDevOps::archivesGarbageCollection(true)
     TodaySectionManagement::performSync()
     DropOff::collectWaveObjects()
     DropOff::collectNinjaObjects()
@@ -252,10 +251,20 @@ loop {
     puts_objects(objects.select{|object| object['metric'] > 0 },remaining_number_of_lines, 0)
 
     puts ""
-    puts "We have now a search command; search <pattern>\n".green if firstrun
+
+    count = WaveDevOps::archivesGarbageCollection(true)
+    if count>0 then
+        LucilleCore::pressEnterToContinue()
+        puts ""
+    end
+
+    if firstrun then
+        puts "We have now a search command; search <pattern>".green 
+        puts ""
+    end
+
     if object then
         puts_object_shell_display(object, objects)
-
     else
         sleep 30
     end
