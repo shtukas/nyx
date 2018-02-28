@@ -70,7 +70,9 @@ require 'drb/drb'
 
 # ----------------------------------------------------------------------
 
-DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
+WAVE_DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
+WAVE_TIME_COMMITMENT_BASE_METRIC = 0.3
+WAVE_TIME_COMMITMENT_RUN_METRIC = 2.2
 
 # ----------------------------------------------------------------------
 
@@ -78,12 +80,12 @@ class WaveTimelineUtils
 
     # WaveTimelineUtils::catalystActiveOpsLineFolderPath()
     def self.catalystActiveOpsLineFolderPath()
-        "#{DATABANK_WAVE_FOLDER_PATH}/02-OpsLine-Active"
+        "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/02-OpsLine-Active"
     end
 
     # WaveTimelineUtils::catalystArchiveOpsLineFolderPath()
     def self.catalystArchiveOpsLineFolderPath()
-        "#{DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives"
+        "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives"
     end
 
     # WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
@@ -332,25 +334,26 @@ class WaveTimelineUtils
     # WaveTimelineUtils::defaultCommandsOrNull(announce, schedule)
     def self.defaultCommandsOrNull(announce, schedule)
 
+        repeatTypes = ['every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week']
+
         if schedule['default-commands'] then
             return schedule['default-commands'] # When a schedule carry default commands, then the object gets them by default.
         end
 
-        repeatTypes = ['every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week']
-        if repeatTypes.include?(schedule['@']) and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
+        if schedule['@'] == 'sticky' and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
             return ["shell: open #{WaveTimelineUtils::extractFirstURLOrNUll(announce)}", 'done']
         end
 
-        if schedule['@']=='sticky' and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
+        if schedule['@'] == 'time-commitment' then
+            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC) < 1 ? ['start'] : ['stop']
+        end
+        
+        if repeatTypes.include?(schedule['@']) and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
             return ["shell: open #{WaveTimelineUtils::extractFirstURLOrNUll(announce)}", 'done']
         end
 
         if repeatTypes.include?(schedule['@']) then
             return ['done']
-        end
-
-        if schedule['@'] == 'time-commitment' then
-            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], ['start'], ['stop'])
         end
 
         nil
@@ -647,7 +650,7 @@ class WaveSchedules
         # time commitments
 
         if schedule['@'] == 'time-commitment' then
-            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], 0.3, 2.2)
+            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC)
         end
 
         # Repeats
@@ -678,7 +681,7 @@ class WaveDevOps
 
     # WaveDevOps::getArchiveSizeInMegaBytes()
     def self.getArchiveSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize("#{DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives").to_f/(1024*1024)
+        LucilleCore::locationRecursiveSize("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives").to_f/(1024*1024)
     end
 
     # WaveDevOps::getFirstDiveFirstLocationAtLocation(location)
@@ -707,8 +710,8 @@ class WaveDevOps
     def self.archivesGarbageCollection(verbose)
         currentsize = WaveDevOps::getArchiveSizeInMegaBytes()
         while currentsize > 1024 do # Gigabytes of Archives
-            location = WaveDevOps::getFirstDiveFirstLocationAtLocation("#{DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives")
-            break if location == "#{DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives"
+            location = WaveDevOps::getFirstDiveFirstLocationAtLocation("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives")
+            break if location == "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives"
             currentsize = currentsize - (LucilleCore::locationRecursiveSize(location).to_f/(1024*1024))
             puts "Garbage Collection: Removing: #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
