@@ -246,7 +246,7 @@ loop {
     objects = CatalystCore::objects().first(screen_height()-5)
     object = objects.first
 
-    puts "# -------------------------------------------------------"
+    puts "# -------------------------------------------------------".yellow
     
     remaining_number_of_lines = screen_height()-(7+vertical_space(object['announce']))
     puts_objects(objects.select{|object| object['metric'] > 0 },remaining_number_of_lines, 0)
