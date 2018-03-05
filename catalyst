@@ -251,12 +251,13 @@ loop {
     count = WaveDevOps::archivesGarbageCollection(true)
     if count>0 then
         LucilleCore::pressEnterToContinue()
-        puts ""
+        next
     end
 
     if firstrun then
         puts "We have now a search command; search <pattern>".green 
         puts ""
+        firstrun = false
     end
 
     if object then
@@ -264,8 +265,6 @@ loop {
     else
         sleep 30
     end
-
-    firstrun = false
 
 }
 
