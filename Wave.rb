@@ -349,7 +349,11 @@ class WaveTimelineUtils
         end
 
         if schedule['@'] == 'time-commitment' then
-            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC) < 1 ? ['start'] : ['stop']
+            begin
+                return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC) < 1 ? ['start'] : ['stop']
+            rescue
+                return []
+            end
         end
 
         nil
@@ -646,7 +650,11 @@ class WaveSchedules
         # time commitments
 
         if schedule['@'] == 'time-commitment' then
-            return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC)
+            begin
+                return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC)
+            rescue
+                return 0.21
+            end
         end
 
         # Repeats
