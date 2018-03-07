@@ -125,11 +125,17 @@ def puts_object_shell_display(object, dislayobjects)
     # If you select an ordinal, you get to apply it to the list you were looking at when you made that 
     # mental selection.
 
-    puts object['announce'].strip
+    requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
+    requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
+
+    puts "#{object['announce'].strip}#{requirements}"
 
     object['default-commands'] = [] if object['default-commands'].nil?
 
-    puts [ object['default-commands'].join(" ").green , object['commands'].join(" ").red ].select{|s| s.size>0 }.join(" ; ").strip
+    puts [
+        object['default-commands'].join(" ").green ,
+        object['commands'].join(" ").red
+    ].select{|s| s.size>0 }.join(" ; ").strip
 
     print "---> "
 
@@ -160,7 +166,23 @@ def puts_object_shell_display(object, dislayobjects)
         return
     end
 
+    if expression.start_with?("requirement") then
+        requirement = expression[11,expression.size].strip
+        $requirement_operator.setRequirementOff(requirement)
+        return
+    end
 
+    if expression.start_with?("on") then
+        requirement = expression[2,expression.size].strip
+        $requirement_operator.setRequirementOn(requirement)
+        return
+    end
+
+    if expression.start_with?("off") then
+        requirement = expression[3,expression.size].strip
+        $requirement_operator.setRequirementOff(requirement)
+        return
+    end
 
     # ---------------------
     # default commands
@@ -225,13 +247,70 @@ def puts_objects(objects, remaining_number_of_lines, indx)
     return remaining_number_of_lines if objects.size==0
     return remaining_number_of_lines if remaining_number_of_lines<=0
     object = objects.shift
-    str = "(#{indx.to_s.rjust(2)}) #{object['announce']}"
+    requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
+    requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
+    str = "(#{indx.to_s.rjust(2)}) #{object['announce']}#{requirements}"
     if object['metric']>=2 then
         str = str.green
     end
     puts str
     puts_objects(objects,remaining_number_of_lines-vertical_space(object['announce']), indx+1)
 end
+
+class RequirementsOperator
+
+    def initialize()
+        @data = nil
+        @pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements-structure/requirements-structure.json"
+        self.loadDataFromDisk()
+    end
+
+    def loadDataFromDisk()
+        @data = JSON.parse(IO.read(@pathToDataFile))
+    end
+
+    def saveDataToDisk()
+        File.open(@pathToDataFile,'w') {|f| f.puts(JSON.pretty_generate(@data)) }
+    end
+
+    def currentHour()
+        Time.new.to_s[0,13]
+    end
+
+    def getObjectRequirements(uuid)
+        @data['items-requirements-distribution'][uuid] || []
+    end
+
+    def requirementIsSatisfied(requirement)
+        @data['unsatisfied-requirements-timeline']["#{currentHour()};#{requirement}"].nil? or @data['unsatisfied-requirements-timeline']["#{currentHour()}/#{requirement}"]
+    end
+
+    def meetRequirements(uuid)
+        self.getObjectRequirements(uuid)
+            .all?{|requirement| self.requirementIsSatisfied(requirement) }
+    end
+
+    def addObjectRequirement(uuid,requirement)
+        requirements = @data['items-requirements-distribution'][uuid] || []
+        requirements << requirement
+        requirements = requirements.uniq.sort
+        @data['items-requirements-distribution'][uuid] = requirements
+        self.saveDataToDisk()
+    end
+
+    def setRequirementOn(requirement)
+        @data['unsatisfied-requirements-timeline']["#{currentHour()};#{requirement}"] = true
+        self.saveDataToDisk()
+    end
+
+    def setRequirementOff(requirement)
+        @data['unsatisfied-requirements-timeline']["#{currentHour()};#{requirement}"] = false
+        self.saveDataToDisk()
+    end
+
+end
+
+$requirement_operator = RequirementsOperator.new()
 
 # -----------------------------------------------------------------
 
@@ -252,7 +331,9 @@ loop {
     DropOff::collectWaveObjects()
     DropOff::collectNinjaObjects()
 
-    objects = CatalystCore::objects().first(screen_height()-5)
+    objects = CatalystCore::objects()
+        .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }
+        .first(screen_height()-5)
     object = objects.first
 
     puts "# #{ "-" * (screen_width()-3) }".yellow
@@ -269,9 +350,14 @@ loop {
     end
 
     if firstrun then
-        puts "Special commands:".green 
-        puts "    insert <wave item description>".green 
-        puts "    search <pattern>".green 
+        puts "Special General Commands:".green
+        puts "    insert <wave item description>".green
+        puts "    search <pattern>".green
+        puts "    on <requirement>".green
+        puts "    off <requirement>".green
+        puts ""
+        puts "Special Object Commands:".green
+        puts "    requirement <requirement>".green
         puts ""
         firstrun = false
     end
