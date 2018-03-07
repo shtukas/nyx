@@ -135,6 +135,18 @@ def puts_object_shell_display(object, dislayobjects)
 
     expression = STDIN.gets().strip
 
+    if expression.start_with?('insert') then
+        description = expression[6,expression.size].strip
+        uuid = SecureRandom.hex(4)
+        schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
+        folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
+        WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
+        return
+    end
+
     if expression.start_with?("search") then
         pattern = expression[6,expression.size].strip
         searchobjects = CatalystCore::objects()
@@ -147,6 +159,8 @@ def puts_object_shell_display(object, dislayobjects)
         end
         return
     end
+
+
 
     # ---------------------
     # default commands
@@ -255,7 +269,9 @@ loop {
     end
 
     if firstrun then
-        puts "We have now a search command; search <pattern>".green 
+        puts "Special commands:".green 
+        puts "    insert <wave item description>".green 
+        puts "    search <pattern>".green 
         puts ""
         firstrun = false
     end
