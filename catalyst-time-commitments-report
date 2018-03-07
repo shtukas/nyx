@@ -40,3 +40,10 @@ WaveTimelineUtils::getCatalystObjects()
 .each{|object|
     puts "#{object['announce'].lines.first}"
 }
+
+puts WaveTimelineUtils::getCatalystObjects()
+.select{|object|
+    object['schedule'] and object['schedule']['@']=='time-commitment'
+}
+.map{|object| object['schedule']['hours-per-week'] }
+.inject(0,:+)
