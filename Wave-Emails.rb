@@ -165,8 +165,8 @@ class EmailStatusManagement
 end
 
 class GeneralEmailClient
-    # GeneralEmailClient::downloadDataFromServer(parameters, verbose)
-    def self.downloadDataFromServer(parameters, verbose)
+    # GeneralEmailClient::syncEmailDataWithServer(parameters, verbose)
+    def self.syncEmailDataWithServer(parameters, verbose)
 
         emailImapServer = parameters['server']
         emailUsername   = parameters['username']
@@ -305,7 +305,7 @@ class GeneralEmailClient
 end
 
 class OperatorEmailDownloader
-    def self.downloadDataFromServer(parameters,verbose)
+    def self.syncEmailDataWithServer(parameters,verbose)
 
         emailImapServer = parameters['server']
         emailUsername   = parameters['username']

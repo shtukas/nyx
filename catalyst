@@ -79,14 +79,14 @@ class DropOff
     end
 end
 
-def email_downloads_on_schedule(verbose)
+def email_sync_on_schedule(verbose)
     if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
         begin
-            newEmailCount = GeneralEmailClient::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/guardian-relay.json")), verbose)
+            newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/guardian-relay.json")), verbose)
             if newEmailCount>0 then
                 puts "Retrieved #{newEmailCount} new emails"
             end
-            OperatorEmailDownloader::downloadDataFromServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/operator.json")), verbose)
+            OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/operator.json")), verbose)
             # We call again so that the clock restarts at the end of the process
             LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
         rescue
@@ -235,12 +235,12 @@ end
 
 # -----------------------------------------------------------------
 
-email_downloads_on_schedule(true)
+email_sync_on_schedule(true)
 
 Thread.new { 
     loop {
         sleep 1200
-        email_downloads_on_schedule(false)
+        email_sync_on_schedule(false)
     }
 }
 
