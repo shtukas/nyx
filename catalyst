@@ -281,13 +281,13 @@ class RequirementsOperator
         @data['items-requirements-distribution'][uuid] || []
     end
 
-    def requirementIsSatisfied(requirement)
-        @data['unsatisfied-requirements-timeline']["#{currentHour()};#{requirement}"].nil? or @data['unsatisfied-requirements-timeline']["#{currentHour()}/#{requirement}"]
+    def requirementIsCurrentlySatisfied(requirement)
+        @data['requirements-status-timeline']["#{currentHour()};#{requirement}"].nil? or @data['requirements-status-timeline']["#{currentHour()};#{requirement}"]
     end
 
     def meetRequirements(uuid)
         self.getObjectRequirements(uuid)
-            .all?{|requirement| self.requirementIsSatisfied(requirement) }
+            .all?{|requirement| self.requirementIsCurrentlySatisfied(requirement) }
     end
 
     def addObjectRequirement(uuid,requirement)
@@ -299,13 +299,21 @@ class RequirementsOperator
     end
 
     def setRequirementOn(requirement)
-        @data['unsatisfied-requirements-timeline']["#{currentHour()};#{requirement}"] = true
+        @data['requirements-status-timeline']["#{currentHour()};#{requirement}"] = true
         self.saveDataToDisk()
     end
 
     def setRequirementOff(requirement)
-        @data['unsatisfied-requirements-timeline']["#{currentHour()};#{requirement}"] = false
+        @data['requirements-status-timeline']["#{currentHour()};#{requirement}"] = false
         self.saveDataToDisk()
+    end
+
+    def allRequirements()
+        @data['items-requirements-distribution'].values.flatten.uniq
+    end
+
+    def currentlyUnsatisfifiedRequirements()
+        self.allRequirements().select{|requirement| !self.requirementIsCurrentlySatisfied(requirement) }
     end
 
 end
@@ -361,6 +369,13 @@ loop {
         puts ""
         firstrun = false
     end
+
+    unsatisfied_requirements = $requirement_operator.currentlyUnsatisfifiedRequirements()
+    if unsatisfied_requirements.size>0 then
+        puts "UNSATISFIED REQUIREMENTS: "+unsatisfied_requirements.join(", ").green
+        puts ""
+    end
+
 
     if object then
         puts_object_shell_display(object, objects)
