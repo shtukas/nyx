@@ -168,7 +168,7 @@ def puts_object_shell_display(object, dislayobjects)
 
     if expression.start_with?("requirement") then
         requirement = expression[11,expression.size].strip
-        $requirement_operator.setRequirementOff(requirement)
+        $requirement_operator.addObjectRequirement(object['uuid'],requirement)
         return
     end
 
