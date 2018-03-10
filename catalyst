@@ -267,14 +267,13 @@ class RequirementsOperator
 
     def loadDataFromDisk()
         @data = JSON.parse(IO.read(@pathToDataFile))
+        if @data['requirements-status'].nil? then
+            @data['requirements-status'] = {}
+        end
     end
 
     def saveDataToDisk()
         File.open(@pathToDataFile,'w') {|f| f.puts(JSON.pretty_generate(@data)) }
-    end
-
-    def currentHour()
-        Time.new.to_s[0,13]
     end
 
     def getObjectRequirements(uuid)
@@ -282,7 +281,7 @@ class RequirementsOperator
     end
 
     def requirementIsCurrentlySatisfied(requirement)
-        @data['requirements-status-timeline']["#{currentHour()};#{requirement}"].nil? or @data['requirements-status-timeline']["#{currentHour()};#{requirement}"]
+        @data['requirements-status']["#{requirement}"].nil? or @data['requirements-status']["#{requirement}"]
     end
 
     def meetRequirements(uuid)
@@ -299,12 +298,12 @@ class RequirementsOperator
     end
 
     def setRequirementOn(requirement)
-        @data['requirements-status-timeline']["#{currentHour()};#{requirement}"] = true
+        @data['requirements-status']["#{requirement}"] = true
         self.saveDataToDisk()
     end
 
     def setRequirementOff(requirement)
-        @data['requirements-status-timeline']["#{currentHour()};#{requirement}"] = false
+        @data['requirements-status']["#{requirement}"] = false
         self.saveDataToDisk()
     end
 
@@ -342,20 +341,16 @@ loop {
     objects = CatalystCore::objects()
         .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }
         .first(screen_height()-5)
-    object = objects.first
 
     puts "# #{ "-" * (screen_width()-3) }".yellow
-    
-    remaining_number_of_lines = screen_height()-(7+vertical_space(object['announce']))
-    puts_objects(objects.select{|object| object['metric'] > 0 },remaining_number_of_lines, 0)
-
-    puts ""
 
     count = WaveDevOps::archivesGarbageCollection(true)
     if count>0 then
         LucilleCore::pressEnterToContinue()
         next
     end
+
+    screen_space_for_listing = screen_height()-7
 
     if firstrun then
         puts "Special General Commands:".green
@@ -368,14 +363,23 @@ loop {
         puts "    require <requirement>".green
         puts ""
         firstrun = false
+        screen_space_for_listing = screen_space_for_listing-9
     end
 
     unsatisfied_requirements = $requirement_operator.currentlyUnsatisfifiedRequirements()
     if unsatisfied_requirements.size>0 then
-        puts "UNSATISFIED REQUIREMENTS: "+unsatisfied_requirements.join(", ").green
+        puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
         puts ""
+        screen_space_for_listing = screen_space_for_listing-2
     end
 
+    object = objects.first
+
+    screen_space_for_listing = screen_space_for_listing-vertical_space(object['announce'])
+
+    puts_objects(objects.select{|object| object['metric'] > 0 },screen_space_for_listing, 0)
+
+    puts ""
 
     if object then
         puts_object_shell_display(object, objects)
