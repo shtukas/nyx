@@ -166,8 +166,8 @@ def puts_object_shell_display(object, dislayobjects)
         return
     end
 
-    if expression.start_with?("requirement") then
-        requirement = expression[11,expression.size].strip
+    if expression.start_with?("require") then
+        requirement = expression[7,expression.size].strip
         $requirement_operator.addObjectRequirement(object['uuid'],requirement)
         return
     end
@@ -365,7 +365,7 @@ loop {
         puts "    off <requirement>".green
         puts ""
         puts "Special Object Commands:".green
-        puts "    requirement <requirement>".green
+        puts "    require <requirement>".green
         puts ""
         firstrun = false
     end
