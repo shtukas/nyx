@@ -26,6 +26,32 @@ require_relative "CatalystCore.rb"
 
 require_relative "Wave-Emails.rb"
 
+require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
+=begin
+
+    Xcache::set(key, value)
+    Xcache::getOrNull(key)
+    Xcache::getOrDefaultValue(key, defaultValue)
+    Xcache::destroy(key)
+
+    XcacheSets::values(setuid)
+    XcacheSets::insert(setuid, valueuid, value) # value can be an object
+    XcacheSets::remove(setuid, valueuid)
+
+    XStore::set(repositorypath, key, value)
+    XStore::getOrNull(repositorypath, key)
+    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
+    XStore::destroy(repositorypath, key)
+
+    XStoreSets::values(repositorypath, setuid)
+    XStoreSets::insert(repositorypath, setuid, valueuid, value) # value can be an object
+    XStoreSets::remove(repositorypath, setuid, valueuid)
+
+    Xcache and XStore have identical interfaces
+    Xcache is XStore with a repositorypath defaulting to x-space
+
+=end
+
 # ----------------------------------------------------------------------------
 
 CATALYST_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave-DropOff"
@@ -63,9 +89,7 @@ def tokenIsInteger(token)
     token == token.to_i.to_s
 end
 
-def puts_object_shell_display(object, dislayobjects)
-    
-    dislayobjects = dislayobjects.clone
+def puts_object_shell_display(object, dislayobjects, preListObjects)
 
     # Here is the reason why the second argument was introduced
     # A first display is performed. 
@@ -94,6 +118,11 @@ def puts_object_shell_display(object, dislayobjects)
 
     expression = STDIN.gets().strip
 
+    if expression=="push" then
+        $pending_list_uuids << object['uuid']
+        return
+    end
+
     if expression.start_with?('insert') then
         description = expression[6,expression.size].strip
         uuid = SecureRandom.hex(4)
@@ -113,7 +142,7 @@ def puts_object_shell_display(object, dislayobjects)
         if searchobjects.size>0 then
             searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
             if searchobject then
-                puts_object_shell_display(searchobject, dislayobjects)
+                puts_object_shell_display(searchobject, dislayobjects, preListObjects)
             end
         end
         return
@@ -155,8 +184,7 @@ def puts_object_shell_display(object, dislayobjects)
     # ---------------------
     # regular expression: optional integer and commands
 
-    def expression_decomposition(expression, dislayobjects)
-        dislayobjects = dislayobjects.clone
+    def expression_decomposition(expression, dislayobjects, preListObjects)
         tokens = 
             if expression.start_with?('+') then
                 [expression]
@@ -164,7 +192,8 @@ def puts_object_shell_display(object, dislayobjects)
                 expression.split(' ').map{|t| t.strip }
             end
         if tokenIsInteger(tokens[0]) then
-            targetObject = dislayobjects.drop(tokens[0].to_i).first # overriding the current object with the targetted object
+            indx = tokens[0].to_i
+            targetObject = indx<100 ? dislayobjects.drop(indx).first : preListObjects.drop(indx-100).first 
             tokens.shift
             [targetObject, tokens]
         else
@@ -172,13 +201,15 @@ def puts_object_shell_display(object, dislayobjects)
         end
     end
 
-    targetObject, tokens = expression_decomposition(expression, dislayobjects)
+    targetObject, tokens = expression_decomposition(expression, dislayobjects.clone, preListObjects.clone)
 
     if targetObject and tokens.size==0 then
-        puts_object_shell_display(targetObject, dislayobjects)
+        $pending_list_uuids.delete(targetObject['uuid'])
+        puts_object_shell_display(targetObject, dislayobjects, preListObjects)
     end
 
     if targetObject and tokens.size>0 then
+        $pending_list_uuids.delete(targetObject['uuid'])
         tokens.each{|command|
             targetObject['command-interpreter'].call(targetObject, command)
         }
@@ -196,15 +227,18 @@ def puts_object_shell_display(object, dislayobjects)
 end
 
 def puts_objects(objects, remaining_number_of_lines, indx)
-    objects = objects.clone
     return remaining_number_of_lines if objects.size==0
     return remaining_number_of_lines if remaining_number_of_lines<=0
     object = objects.shift
     requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
     requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-    str = "(#{indx.to_s.rjust(2)}) #{object['announce']}#{requirements}"
+    indexString = "(#{indx.to_s.rjust(3)})"
+    str = "#{indexString} #{object['announce']}#{requirements}"
     if object['metric']>=2 then
         str = str.green
+    end
+    if indx>=100 then
+        str = str.yellow
     end
     puts str
     puts_objects(objects,remaining_number_of_lines-vertical_space(object['announce']), indx+1)
@@ -317,9 +351,10 @@ class RequirementsOperator
 
 end
 
-$requirement_operator = RequirementsOperator.new()
-
 # -----------------------------------------------------------------
+
+$requirement_operator = RequirementsOperator.new()
+$pending_list_uuids = []
 
 email_sync_on_schedule(true)
 
@@ -350,7 +385,7 @@ loop {
         next
     end
 
-    screen_space_for_listing = screen_height()-7
+    screen_space = screen_height()-7
 
     if firstrun then
         puts "Special General Commands:".green
@@ -361,28 +396,42 @@ loop {
         puts ""
         puts "Special Object Commands:".green
         puts "    require <requirement>".green
+        puts "    push".green
         puts ""
         firstrun = false
-        screen_space_for_listing = screen_space_for_listing-9
+        screen_space = screen_space-9
     end
 
     unsatisfied_requirements = $requirement_operator.currentlyUnsatisfifiedRequirements()
     if unsatisfied_requirements.size>0 then
         puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
         puts ""
-        screen_space_for_listing = screen_space_for_listing-2
+        screen_space = screen_space-2
     end
 
-    object = objects.first
+    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and $pending_list_uuids.include?(object['uuid']) }
+    screen_space = puts_objects(
+        preListObjects.clone, 
+        screen_space, 
+        100
+    )
+    puts "" if preListObjects.size>0
 
-    screen_space_for_listing = screen_space_for_listing-vertical_space(object['announce'])
 
-    puts_objects(objects.select{|object| object['metric'] > 0 },screen_space_for_listing, 0)
+    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !$pending_list_uuids.include?(object['uuid']) }
+
+    screen_space = screen_space-vertical_space(mainListObjects.first['announce'])
+
+    screen_space = puts_objects(
+        mainListObjects.clone, 
+        screen_space, 
+        0
+    )
 
     puts ""
 
-    if object then
-        puts_object_shell_display(object, objects)
+    if mainListObjects.size>0 then
+        puts_object_shell_display(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
     else
         sleep 30
     end
