@@ -32,53 +32,6 @@ CATALYST_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave-DropOff"
 NINJA_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Ninja-DropOff"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
-class DropOff
-    # DropOff::collectWaveObjects()
-    def self.collectWaveObjects()
-        Dir.entries(CATALYST_DROPOFF_FOLDERPATH)
-            .select{|filename| filename[0, 1] != '.' }
-            .map{|filename| "#{CATALYST_DROPOFF_FOLDERPATH}/#{filename}" }
-            .each{|sourcelocation|
-                uuid = SecureRandom.hex(4)
-                description = 
-                    if sourcelocation[-4,4] == '.txt' and IO.read(sourcelocation).lines.to_a.size == 1 then
-                        IO.read(sourcelocation).strip
-                    else
-                        File.basename(sourcelocation)
-                    end
-                schedule = WaveSchedules::makeScheduleObjectNew()
-                folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
-                FileUtils.mkpath folderpath
-                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
-                WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
-                if File.file?(sourcelocation) then
-                    FileUtils.cp(sourcelocation,folderpath)
-                else
-                    FileUtils.cp_r(sourcelocation,folderpath)
-                end
-                File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(File.basename(sourcelocation)) }
-                LucilleCore::removeFileSystemLocation(sourcelocation)
-            }
-    end
-    # DropOff::collectNinjaObjects()
-    def self.collectNinjaObjects()
-        Dir.entries(NINJA_DROPOFF_FOLDERPATH)
-            .select{|filename| filename[0, 1] != '.' }
-            .map{|filename| "#{NINJA_DROPOFF_FOLDERPATH}/#{filename}" }
-            .each{|sourcelocation|
-                folderpath = "#{NINJA_ITEMS_REPOSITORY_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}-ninja"
-                FileUtils.mkpath(folderpath)
-                if File.file?(sourcelocation) then
-                    FileUtils.cp(sourcelocation,folderpath)
-                else
-                    FileUtils.cp_r(sourcelocation,folderpath)
-                end
-                LucilleCore::removeFileSystemLocation(sourcelocation)
-            }
-    end
-end
-
 def email_sync_on_schedule(verbose)
     if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
         begin
@@ -255,6 +208,53 @@ def puts_objects(objects, remaining_number_of_lines, indx)
     end
     puts str
     puts_objects(objects,remaining_number_of_lines-vertical_space(object['announce']), indx+1)
+end
+
+class DropOff
+    # DropOff::collectWaveObjects()
+    def self.collectWaveObjects()
+        Dir.entries(CATALYST_DROPOFF_FOLDERPATH)
+            .select{|filename| filename[0, 1] != '.' }
+            .map{|filename| "#{CATALYST_DROPOFF_FOLDERPATH}/#{filename}" }
+            .each{|sourcelocation|
+                uuid = SecureRandom.hex(4)
+                description = 
+                    if sourcelocation[-4,4] == '.txt' and IO.read(sourcelocation).lines.to_a.size == 1 then
+                        IO.read(sourcelocation).strip
+                    else
+                        File.basename(sourcelocation)
+                    end
+                schedule = WaveSchedules::makeScheduleObjectNew()
+                folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                FileUtils.mkpath folderpath
+                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
+                WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
+                if File.file?(sourcelocation) then
+                    FileUtils.cp(sourcelocation,folderpath)
+                else
+                    FileUtils.cp_r(sourcelocation,folderpath)
+                end
+                File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(File.basename(sourcelocation)) }
+                LucilleCore::removeFileSystemLocation(sourcelocation)
+            }
+    end
+    # DropOff::collectNinjaObjects()
+    def self.collectNinjaObjects()
+        Dir.entries(NINJA_DROPOFF_FOLDERPATH)
+            .select{|filename| filename[0, 1] != '.' }
+            .map{|filename| "#{NINJA_DROPOFF_FOLDERPATH}/#{filename}" }
+            .each{|sourcelocation|
+                folderpath = "#{NINJA_ITEMS_REPOSITORY_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}-ninja"
+                FileUtils.mkpath(folderpath)
+                if File.file?(sourcelocation) then
+                    FileUtils.cp(sourcelocation,folderpath)
+                else
+                    FileUtils.cp_r(sourcelocation,folderpath)
+                end
+                LucilleCore::removeFileSystemLocation(sourcelocation)
+            }
+    end
 end
 
 class RequirementsOperator
