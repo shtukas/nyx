@@ -43,19 +43,31 @@ require_relative "Ninja.rb"
 # ----------------------------------------------------------------------
 
 class CatalystCore
-    # CatalystCore::objects()
-    def self.objects()
+
+    # CatalystCore::waterLevelObject()
+    def self.waterLevelObject()
         wl = {}
         wl['uuid'] = SecureRandom.hex
         wl['metric'] = 0.2
         wl['announce'] = "-- Water Level -----------------------------------".green
         wl["commands"] = []
         wl["command-interpreter"] = lambda {|object, command|}
+        wl
+    end
+
+    # CatalystCore::objects()
+    def self.objects()
 
         o1 = WaveInterface::getCatalystObjects()
         o4 = Ninja::getCatalystObjects()
         
-        ([wl]+o1+o4)
+        objects = o1+o4
+
+        if objects.map{|object| object['metric'] }.max > 2 then
+            objects << CatalystCore::waterLevelObject()
+        end
+
+        (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end
