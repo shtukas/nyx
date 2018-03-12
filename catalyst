@@ -420,7 +420,7 @@ loop {
 
     mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !$pending_list_uuids.include?(object['uuid']) }
 
-    screen_space = screen_space-vertical_space(mainListObjects.first['announce'])
+    screen_space = screen_space-vertical_space(mainListObjects.first['announce']) if mainListObjects.size>0
 
     screen_space = puts_objects(
         mainListObjects.clone, 
@@ -432,8 +432,13 @@ loop {
 
     if mainListObjects.size>0 then
         puts_object_shell_display(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
+    elsif 
+        preListObjects.size>0
+        puts "Nothing to do (^_^). Defaulting to prelisting:"
+        puts_object_shell_display(preListObjects.first, preListObjects.clone, preListObjects.clone)        
     else
-        sleep 30
+        puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
+        sleep 60
     end
 
 }
