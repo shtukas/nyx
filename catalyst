@@ -428,7 +428,7 @@ loop {
         0
     )
 
-    puts ""
+    puts "" if (mainListObjects+preListObjects).size>0
 
     if mainListObjects.size>0 then
         puts_object_shell_display(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
