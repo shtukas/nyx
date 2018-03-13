@@ -402,13 +402,6 @@ loop {
         screen_space = screen_space-9
     end
 
-    unsatisfied_requirements = $requirement_operator.currentlyUnsatisfifiedRequirements()
-    if unsatisfied_requirements.size>0 then
-        puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
-        puts ""
-        screen_space = screen_space-2
-    end
-
     preListObjects = objects.select{|object| ( object['metric'] > 0 ) and $pending_list_uuids.include?(object['uuid']) }
     screen_space = puts_objects(
         preListObjects.clone, 
@@ -429,6 +422,13 @@ loop {
     )
 
     puts "" if (mainListObjects+preListObjects).size>0
+
+    unsatisfied_requirements = $requirement_operator.currentlyUnsatisfifiedRequirements()
+    if unsatisfied_requirements.size>0 then
+        puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
+        puts ""
+        screen_space = screen_space-2
+    end
 
     if mainListObjects.size>0 then
         puts_object_shell_display(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
