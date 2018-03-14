@@ -301,9 +301,6 @@ class RequirementsOperator
 
     def loadDataFromDisk()
         @data = JSON.parse(IO.read(@pathToDataFile))
-        if @data['requirements-status'].nil? then
-            @data['requirements-status'] = {}
-        end
     end
 
     def saveDataToDisk()
@@ -315,7 +312,7 @@ class RequirementsOperator
     end
 
     def requirementIsCurrentlySatisfied(requirement)
-        @data['requirements-status']["#{requirement}"].nil? or @data['requirements-status']["#{requirement}"]
+        @data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"].nil? or @data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"]
     end
 
     def meetRequirements(uuid)
@@ -332,12 +329,12 @@ class RequirementsOperator
     end
 
     def setRequirementOn(requirement)
-        @data['requirements-status']["#{requirement}"] = true
+        @data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"] = true
         self.saveDataToDisk()
     end
 
     def setRequirementOff(requirement)
-        @data['requirements-status']["#{requirement}"] = false
+        @data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"] = false
         self.saveDataToDisk()
     end
 
