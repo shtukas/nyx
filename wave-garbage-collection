@@ -19,7 +19,7 @@ require 'securerandom'
 require "net/http"
 require "uri"
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -34,7 +34,7 @@ require 'digest/sha1'
 
 require_relative "CatalystCore.rb"
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
 =begin
 
     Xcache::set(key, value)

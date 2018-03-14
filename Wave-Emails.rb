@@ -16,7 +16,7 @@ require 'date'
 
 require 'colorize'
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Wave.rb"
 

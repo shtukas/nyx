@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
 =begin
 
     Xcache::set(key, value)
@@ -28,7 +28,7 @@ require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
 
 =end
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require 'json'
 

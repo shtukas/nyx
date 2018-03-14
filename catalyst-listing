@@ -19,7 +19,7 @@ require 'securerandom'
 require "net/http"
 require "uri"
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Wave.rb"
 

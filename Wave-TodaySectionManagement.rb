@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require 'json'
 

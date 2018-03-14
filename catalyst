@@ -13,7 +13,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -26,7 +26,7 @@ require_relative "CatalystCore.rb"
 
 require_relative "Wave-Emails.rb"
 
-require "/Galaxy/LucilleOS/Misc-Resources/Ruby-Libraries/xstore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
 =begin
 
     Xcache::set(key, value)
