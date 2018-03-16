@@ -127,7 +127,7 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
 
     if expression[0,4]=='lib:' then
         pattern = expression[4,99].strip
-        R136_CLI_Tools_Shared_Data_Manipulation::searchSelectAndVisit(pattern)
+        R136_CLI_Tools_Shared_Interactive::searchSelectVisitEdit(pattern)
         return
     end
 
