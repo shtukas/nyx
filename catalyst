@@ -118,6 +118,19 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
 
     expression = STDIN.gets().strip
 
+    if expression=='lib+' then
+        require "/Galaxy/LucilleOS/Lucille-General-Log/R137-CLI-Tools-Shared.rb"
+        R136_CLI_Tools_Shared_Interactive::makeNewLogEntry()
+        return
+    end
+
+    if expression[0,4]=='lib:' then
+        require "/Galaxy/LucilleOS/Lucille-General-Log/R137-CLI-Tools-Shared.rb"
+        pattern = expression[4,99]
+        R136_CLI_Tools_Shared_Interactive::search(pattern)
+        return
+    end
+
     if expression=="push" then
         $pending_list_uuids << object['uuid']
         return
@@ -390,13 +403,15 @@ loop {
         puts "    search <pattern>".green
         puts "    on <requirement>".green
         puts "    off <requirement>".green
+        puts "    lib+ # adding an element".green
+        puts "    lib: <search pattern># search element".green
         puts ""
         puts "Special Object Commands:".green
         puts "    require <requirement>".green
         puts "    push".green
         puts ""
         firstrun = false
-        screen_space = screen_space-9
+        screen_space = screen_space-10
     end
 
     preListObjects = objects.select{|object| ( object['metric'] > 0 ) and $pending_list_uuids.include?(object['uuid']) }

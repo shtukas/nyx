@@ -853,6 +853,7 @@ class WaveInterface
         end
 
         if command=='>lib' then
+            
             puts "I am copying the wave folder to the Desktop and will rename it to a new atlas reference"
 
             # Selection of the new atlas reference
@@ -869,13 +870,17 @@ class WaveInterface
                 .map{|filename| "#{staginglocation}/#{filename}" }
                 .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
 
-            puts "Done. I am now moving you to the Librarian's user interface"
+            print "Perform your updates and press [enter] when you're done: "
+            STDIN.gets()
 
-            system("librarian the-atlas-reference-general-loop #{atlasreference}")
+            metadatatempname = Time.new.to_f.to_s
+            metadataobject = {
+                "staginglocation" => staginglocation,
+                "title" => LucilleCore::askQuestionAnswerAsString("General Log title: ")
+            }
+            File.open("/tmp/#{metadatatempname}",'w') {|f| f.write(JSON.pretty_generate(metadataobject)) }
+            system("/Galaxy/LucilleOS/Lucille-General-Log/X-catalyst-bridge-create #{metadatatempname}")
 
-            puts "Done. I am now moving the item to the librarian timeline"
-            librariantargetfolder = `librarian make-parent-folder-for-new-item`.strip
-            LucilleCore::copyFileSystemLocation(staginglocation, librariantargetfolder)
             LucilleCore::removeFileSystemLocation(staginglocation)
 
             puts "Archiving the Wave item"
