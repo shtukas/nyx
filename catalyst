@@ -126,7 +126,7 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
     end
 
     if expression[0,4]=='lib:' then
-        pattern = expression[4,99]
+        pattern = expression[4,99].strip
         R136_CLI_Tools_Shared_Interactive::search(pattern)
         return
     end
