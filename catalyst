@@ -52,6 +52,8 @@ require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
 
 =end
 
+require "/Galaxy/LucilleOS/Librarian/R137-CLI-Tools-Shared.rb"
+
 # ----------------------------------------------------------------------------
 
 CATALYST_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave-DropOff"
@@ -119,13 +121,11 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
     expression = STDIN.gets().strip
 
     if expression=='lib+' then
-        require "/Galaxy/LucilleOS/Lucille-General-Log/R137-CLI-Tools-Shared.rb"
         R136_CLI_Tools_Shared_Interactive::makeNewLogEntry()
         return
     end
 
     if expression[0,4]=='lib:' then
-        require "/Galaxy/LucilleOS/Lucille-General-Log/R137-CLI-Tools-Shared.rb"
         pattern = expression[4,99]
         R136_CLI_Tools_Shared_Interactive::search(pattern)
         return
