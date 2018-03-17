@@ -125,14 +125,8 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
         LucilleCore::pressEnterToContinue()
     end
 
-    if expression=='lib+' then
-        R136_CLI_Tools_Shared_Interactive::makeNewLogEntry()
-        return
-    end
-
-    if expression[0,4]=='lib:' then
-        pattern = expression[4,99].strip
-        R136_CLI_Tools_Shared_Interactive::searchSelectToStringAndOperationsMenu(pattern)
+    if expression=='lib' then
+        R136_CLI_Tools_Shared_Interactive::librarianInteractive()
         return
     end
 
@@ -372,8 +366,7 @@ def putshelp()
     puts "    search <pattern>".green
     puts "    on <requirement>".green
     puts "    off <requirement>".green
-    puts "    lib+ # adding an element".green
-    puts "    lib: <search pattern># search element".green
+    puts "    lib # Invoques the Librarian interactive".green
     puts ""
     puts "Special Object Commands:".green
     puts "    require <requirement>".green
