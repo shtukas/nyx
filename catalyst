@@ -120,6 +120,11 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
 
     expression = STDIN.gets().strip
 
+    if expression=='help' then
+        putshelp()
+        LucilleCore::pressEnterToContinue()
+    end
+
     if expression=='lib+' then
         R136_CLI_Tools_Shared_Interactive::makeNewLogEntry()
         return
@@ -358,7 +363,21 @@ class RequirementsOperator
     def currentlyUnsatisfifiedRequirements()
         self.allRequirements().select{|requirement| !self.requirementIsCurrentlySatisfied(requirement) }
     end
+end
 
+def putshelp()
+    puts "Special General Commands:".green
+    puts "    help".green
+    puts "    insert <wave item description>".green
+    puts "    search <pattern>".green
+    puts "    on <requirement>".green
+    puts "    off <requirement>".green
+    puts "    lib+ # adding an element".green
+    puts "    lib: <search pattern># search element".green
+    puts ""
+    puts "Special Object Commands:".green
+    puts "    require <requirement>".green
+    puts "    push".green
 end
 
 # -----------------------------------------------------------------
@@ -398,17 +417,7 @@ loop {
     screen_space = screen_height()-7
 
     if firstrun then
-        puts "Special General Commands:".green
-        puts "    insert <wave item description>".green
-        puts "    search <pattern>".green
-        puts "    on <requirement>".green
-        puts "    off <requirement>".green
-        puts "    lib+ # adding an element".green
-        puts "    lib: <search pattern># search element".green
-        puts ""
-        puts "Special Object Commands:".green
-        puts "    require <requirement>".green
-        puts "    push".green
+        putshelp()
         puts ""
         firstrun = false
         screen_space = screen_space-10
