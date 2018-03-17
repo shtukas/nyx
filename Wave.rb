@@ -879,7 +879,7 @@ class WaveInterface
                 "title" => LucilleCore::askQuestionAnswerAsString("General Log title: ")
             }
             File.open("/tmp/#{metadatatempname}",'w') {|f| f.write(JSON.pretty_generate(metadataobject)) }
-            system("/Galaxy/LucilleOS/Lucille-General-Log/X-catalyst-bridge-create #{metadatatempname}")
+            system("/Galaxy/LucilleOS/Librarian/X-catalyst-bridge-create #{metadatatempname}")
 
             LucilleCore::removeFileSystemLocation(staginglocation)
 
