@@ -39,6 +39,7 @@ require 'find'
 
 require_relative "Wave.rb"
 require_relative "Ninja.rb"
+require_relative "Queue.rb"
 
 # ----------------------------------------------------------------------
 
@@ -60,10 +61,11 @@ class CatalystCore
 
         o1 = WaveInterface::getCatalystObjects()
         o4 = Ninja::getCatalystObjects()
+        o5 = Queue::getCatalystObjects()
         
-        objects = o1+o4
+        objects = o1+o4+o5
 
-        if objects.map{|object| object['metric'] }.max > 2 then
+        if objects.map{|object| object['metric'] }.max > 0.2 then
             objects << CatalystCore::waterLevelObject()
         end
 
