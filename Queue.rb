@@ -39,7 +39,7 @@ class Queue
             "metric" => metric,
             "announce" => "(#{"%.3f" % metric}) queue",
             "commands" => ["start", "stop", "folder"],
-            "default-commands" => metric < 2 ? ['start'] : ['stop'],
+            "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(METRIC_UUID) ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command|  
                 if command=='folder' then
                     system("open '/Galaxy/DataBank/Catalyst/Queue/items'")

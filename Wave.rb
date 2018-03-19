@@ -350,7 +350,7 @@ class WaveTimelineUtils
 
         if schedule['@'] == 'time-commitment' then
             begin
-                return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC) < 1 ? ['start'] : ['stop']
+                return DRbObject.new(nil, "druby://:10423").isRunning(schedule['uuid']) ? ['stop'] : ['start']
             rescue
                 return []
             end
