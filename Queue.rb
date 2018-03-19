@@ -39,7 +39,7 @@ class Queue
             "metric" => metric,
             "announce" => "(#{"%.3f" % metric}) queue",
             "commands" => ["start", "stop", "folder"],
-            "default-commands" => [],
+            "default-commands" => metric < 2 ? ['start'] : ['stop'],
             "command-interpreter" => lambda{|object, command|  
                 if command=='folder' then
                     system("open '/Galaxy/DataBank/Catalyst/Queue/items'")
