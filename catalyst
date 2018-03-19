@@ -131,7 +131,7 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
     end
 
     if expression=="push" then
-        $pending_list_uuids << object['uuid']
+        PendingListOperator::add(currentHour(),object['uuid'])
         return
     end
 
@@ -216,12 +216,12 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
     targetObject, tokens = expression_decomposition(expression, dislayobjects.clone, preListObjects.clone)
 
     if targetObject and tokens.size==0 then
-        $pending_list_uuids.delete(targetObject['uuid'])
+        PendingListOperator::delete(currentHour(), targetObject['uuid'])
         puts_object_shell_display(targetObject, dislayobjects, preListObjects)
     end
 
     if targetObject and tokens.size>0 then
-        $pending_list_uuids.delete(targetObject['uuid'])
+        PendingListOperator::delete(currentHour(), targetObject['uuid'])
         tokens.each{|command|
             targetObject['command-interpreter'].call(targetObject, command)
         }
@@ -373,10 +373,28 @@ def putshelp()
     puts "    push".green
 end
 
+def currentHour()
+    Time.new.to_s[0,13]
+end
+
+class PendingListOperator
+    @@uuids = {}
+    def self.uuids(hour)
+        @@uuids[hour] = [] if @@uuids[hour].nil?
+        @@uuids[hour]
+    end
+    def self.add(hour, uuid)
+        @@uuids[hour] = [] if @@uuids[hour].nil?
+        @@uuids[hour] << uuid
+    end
+    def self.delete(hour, uuid)
+        @@uuids[hour] = [] if @@uuids[hour].nil?
+        @@uuids[hour].delete(uuid)
+    end
+end
 # -----------------------------------------------------------------
 
 $requirement_operator = RequirementsOperator.new()
-$pending_list_uuids = []
 
 email_sync_on_schedule(true)
 
@@ -416,7 +434,7 @@ loop {
         screen_space = screen_space-10
     end
 
-    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and $pending_list_uuids.include?(object['uuid']) }
+    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and PendingListOperator::uuids(currentHour()).include?(object['uuid']) }
     screen_space = puts_objects(
         preListObjects.clone, 
         screen_space, 
@@ -425,7 +443,7 @@ loop {
     puts "" if preListObjects.size>0
 
 
-    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !$pending_list_uuids.include?(object['uuid']) }
+    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !PendingListOperator::uuids(currentHour()).include?(object['uuid']) }
 
     screen_space = screen_space-vertical_space(mainListObjects.first['announce']) if mainListObjects.size>0
 
