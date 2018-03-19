@@ -42,7 +42,7 @@ class Queue
             "default-commands" => [],
             "command-interpreter" => lambda{|object, command|  
                 if command=='folder' then
-                    system("open '/Galaxy/DataBank/Catalyst/Queue/current-item'")
+                    system("open '/Galaxy/DataBank/Catalyst/Queue/items'")
                     return
                 end
                 if command=='start' then
