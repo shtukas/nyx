@@ -57,14 +57,6 @@
     - every-this-day-of-the-month -> value: String Length:2
     - every-this-day-of-the-week  -> value: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
 
-
-{
-    "uuid" => SecureRandom.hex,
-    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-    "@"    => "time-commitment",
-    "hours-per-week" => Float
-}
-
 Optional attributes 
     "metric" which when present overrides the schedule metric.
     "do-not-show-until-datetime": "2017-10-02 15:59:34 +0100"

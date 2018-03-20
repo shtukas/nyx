@@ -314,9 +314,6 @@ class WaveTimelineUtils
 
     # WaveTimelineUtils::commands(schedule)
     def self.commands(schedule)
-        if schedule['@'] == 'time-commitment' then
-            return ['start', 'stop', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy']
-        end
         ['open', 'done', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy', '>lib']
     end
 
@@ -347,14 +344,6 @@ class WaveTimelineUtils
 
         if repeatTypes.include?(schedule['@']) then
             return ['done']
-        end
-
-        if schedule['@'] == 'time-commitment' then
-            begin
-                return DRbObject.new(nil, "druby://:10423").isRunning(schedule['uuid']) ? ['stop'] : ['start']
-            rescue
-                return []
-            end
         end
 
         nil
@@ -446,7 +435,7 @@ class WaveSchedules
     # WaveSchedules::makeScheduleObjectInteractivelyOrNull()
     def self.makeScheduleObjectInteractivelyOrNull()
 
-        scheduleTypes = ['new','today','time-commitment','sticky','date','repeat']
+        scheduleTypes = ['new', 'today', 'sticky', 'date', 'repeat']
         scheduleType = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
@@ -464,14 +453,6 @@ class WaveSchedules
                 "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
                 "@"    => "today",
                 "unixtime" => Time.new.to_i
-            }
-        end
-        if scheduleType=='time-commitment' then
-            schedule = {
-                "uuid" => SecureRandom.hex,
-                "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-                "@"    => "time-commitment",
-                "hours-per-week" => LucilleCore::askQuestionAnswerAsString("Hours per week: ").to_f
             }
         end
         if scheduleType=='sticky' then
@@ -542,9 +523,6 @@ class WaveSchedules
         end          
         if schedule['@'] == 'sticky' then
             return "sticky"
-        end
-        if schedule['@'] == 'time-commitment' then
-            return "time commitment: #{schedule['hours-per-week']} hours/week"
         end
         if schedule['@'] == 'ondate' then
             return "ondate: #{schedule['date']}"
@@ -645,16 +623,6 @@ class WaveSchedules
                 return 0
             else
                 return 0.70 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'], Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
-            end
-        end
-
-        # time commitments
-
-        if schedule['@'] == 'time-commitment' then
-            begin
-                return DRbObject.new(nil, "druby://:10423").metric(schedule['uuid'], schedule['hours-per-week'], WAVE_TIME_COMMITMENT_BASE_METRIC, WAVE_TIME_COMMITMENT_RUN_METRIC)
-            rescue
-                return 0.21
             end
         end
 
