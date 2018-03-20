@@ -60,7 +60,7 @@ class Stream
             "uuid" => uuid,
             "metric" => metric,
             "announce" => "(#{"%.3f" % metric}) stream: #{folderpath} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid).to_f/3600 )} hours)",
-            "commands" => ["start", "stop", "folder", "destroy"],
+            "commands" => ["start", "stop", "folder", "completed"],
             "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command|  
                 if command=='folder' then
@@ -76,7 +76,7 @@ class Stream
                     DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
                     return
                 end
-                if command=='destroy' then
+                if command=="completed" then
                     if DRbObject.new(nil, "druby://:10423").isRunning(object['uuid']) then
                         DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
                     end
