@@ -153,7 +153,7 @@ class TodaySectionManagement
     def self.removeSectionFromFile(uuid)
         if TodaySectionManagement::todayPlusCalendarFileSectionsUUIDs().include?(uuid) then
             time = Time.new
-            targetFolder = "#{WaveTimelineUtils::catalystArchiveOpsLineFolderPath()}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+            targetFolder = "/Galaxy/DataBank/Catalyst/GarbageTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
             FileUtils.mkpath(targetFolder)
             FileUtils.cp(PATH_TO_CALENDAR_FILE,"#{targetFolder}/Today+Calendar.txt")
 

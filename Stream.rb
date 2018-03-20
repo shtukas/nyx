@@ -91,7 +91,12 @@ class Stream
                             DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
                         }
                     end
-                    puts "Removing folder: #{object['item-folderpath']}"
+                    time = Time.new
+                    targetFolder = "/Galaxy/DataBank/Catalyst/GarbageTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+                    puts "Source: #{object['item-folderpath']}"
+                    puts "Target: #{targetFolder}"
+                    FileUtils.mkpath(targetFolder)
+                    FileUtils.mv("#{object['item-folderpath']}",targetFolder)
                     LucilleCore::removeFileSystemLocation(object['item-folderpath'])
                     return
                 end

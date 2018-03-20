@@ -84,11 +84,6 @@ class WaveTimelineUtils
         "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/02-OpsLine-Active"
     end
 
-    # WaveTimelineUtils::catalystArchiveOpsLineFolderPath()
-    def self.catalystArchiveOpsLineFolderPath()
-        "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives"
-    end
-
     # WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
     def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         Find.find(WaveTimelineUtils::catalystActiveOpsLineFolderPath()) do |path|
@@ -303,7 +298,7 @@ class WaveTimelineUtils
         folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
         raise "[error] WaveTimelineUtils::archiveWaveItems for uuid: #{uuid}" if folderpath.nil?
         time = Time.new
-        targetFolder = "#{WaveTimelineUtils::catalystArchiveOpsLineFolderPath()}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+        targetFolder = "/Galaxy/DataBank/Catalyst/GarbageTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
         FileUtils.mkpath(targetFolder)
         FileUtils.mv("#{folderpath}",targetFolder)
 
@@ -654,7 +649,7 @@ class WaveDevOps
 
     # WaveDevOps::getArchiveSizeInMegaBytes()
     def self.getArchiveSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives").to_f/(1024*1024)
+        LucilleCore::locationRecursiveSize("/Galaxy/DataBank/Catalyst/GarbageTimeline").to_f/(1024*1024)
     end
 
     # WaveDevOps::getFirstDiveFirstLocationAtLocation(location)
@@ -683,8 +678,8 @@ class WaveDevOps
     def self.archivesGarbageCollection(verbose)
         answer = 0
         while WaveDevOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = WaveDevOps::getFirstDiveFirstLocationAtLocation("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives")
-            break if location == "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/01-OpsLine-Archives"
+            location = WaveDevOps::getFirstDiveFirstLocationAtLocation("/Galaxy/DataBank/Catalyst/GarbageTimeline")
+            break if location == "/Galaxy/DataBank/Catalyst/GarbageTimeline"
             puts "Garbage Collection: Removing: #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
             answer = answer + 1
