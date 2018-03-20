@@ -39,7 +39,7 @@ require 'find'
 
 require_relative "Wave.rb"
 require_relative "Ninja.rb"
-require_relative "Queue.rb"
+require_relative "Stream.rb"
 
 # ----------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ class CatalystCore
 
         o1 = WaveInterface::getCatalystObjects()
         o4 = Ninja::getCatalystObjects()
-        o5 = Queue::getCatalystObjects()
+        o5 = Stream::getCatalystObjects()
         
         objects = o1+o4+o5
 

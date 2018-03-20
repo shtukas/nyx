@@ -73,6 +73,7 @@ require 'drb/drb'
 WAVE_DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
 WAVE_TIME_COMMITMENT_BASE_METRIC = 0.3
 WAVE_TIME_COMMITMENT_RUN_METRIC = 2.2
+WAVE_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave-DropOff"
 
 # ----------------------------------------------------------------------
 
@@ -722,12 +723,42 @@ class WaveDevOps
         end
         answer
     end
+
+    # WaveDevOps::collectWaveObjects()
+    def self.collectWaveObjects()
+        Dir.entries(WAVE_DROPOFF_FOLDERPATH)
+            .select{|filename| filename[0, 1] != '.' }
+            .map{|filename| "#{WAVE_DROPOFF_FOLDERPATH}/#{filename}" }
+            .each{|sourcelocation|
+                uuid = SecureRandom.hex(4)
+                description = 
+                    if sourcelocation[-4,4] == '.txt' and IO.read(sourcelocation).lines.to_a.size == 1 then
+                        IO.read(sourcelocation).strip
+                    else
+                        File.basename(sourcelocation)
+                    end
+                schedule = WaveSchedules::makeScheduleObjectNew()
+                folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                FileUtils.mkpath folderpath
+                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
+                WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
+                if File.file?(sourcelocation) then
+                    FileUtils.cp(sourcelocation,folderpath)
+                else
+                    FileUtils.cp_r(sourcelocation,folderpath)
+                end
+                File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(File.basename(sourcelocation)) }
+                LucilleCore::removeFileSystemLocation(sourcelocation)
+            }
+    end
 end
 
 class WaveInterface
 
     # WaveInterface::getCatalystObjects()
     def self.getCatalystObjects()
+        WaveDevOps::collectWaveObjects()
         WaveTimelineUtils::getCatalystObjects()
     end
 

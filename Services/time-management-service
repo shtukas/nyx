@@ -19,8 +19,16 @@ class Interface
         Chronos::addTimespan(uid, timespan)
     end
 
-    def metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
-        Chronos::metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
+    def metric(uid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
+        Chronos::metric(uid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
+    end
+
+    def getEntityAdaptedTotalTimespan(uid)
+        Chronos::getEntityAdaptedTotalTimespan(uid)
+    end
+
+    def addTimeSpan(uid, timespan)
+        Chronos::addTimespan(uid, timespan)
     end
 end
 
