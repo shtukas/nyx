@@ -1,12 +1,14 @@
 
          2.000+ running items
+
 1.200 -> 1.400  Today+Calendar
 0.900 -> 1.000  Incoming Emails General
 0.800 -> 0.900  Incoming Emails operator@alseyn.net
          0.850  Wave "new"
-0.400 -> 0.600  Stuff ideally done today
-0.000 -> 0.300  Ninja
 
-0.000 -> 1.000  Stream
+0.600 -> 0.800  Stuff ideally done today
 
-0.000           Not To Be Done
+0.100 -> 0.600  Stream
+0.200 -> 0.600  Ninja
+
+         0.000  Not To Be Done

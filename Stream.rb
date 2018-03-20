@@ -13,12 +13,21 @@ require 'fileutils'
 
 require 'drb/drb'
 
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+=end
+
 # -------------------------------------------------------------------------------------
 
 PATH_TO_STREAM_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 METRIC_UUID = "eaa86995-7bc8-4263-9a39-784e9824b126"
 
 # Stream::firstUpToSixItemsFolderpath()
+# Stream::basemetric(uuid)
 # Stream::pathToItemToCatalystObject(folderpath)
 # Stream::getCatalystObjects()
 
@@ -32,9 +41,21 @@ class Stream
             .first(6)
     end
     
+    def self.basemetric(uuid)
+        metric = KeyValueStore::getOrNull(nil, "7d0d4344-57e3-4233-8764-96f4b182db69:#{uuid}")
+        if metric.nil? then
+            metric = 0.4 + 0.1*rand()
+            KeyValueStore::set(nil, "7d0d4344-57e3-4233-8764-96f4b182db69:#{uuid}", metric)
+            metric
+        else
+            metric.to_f
+        end
+    end
+
     def self.pathToItemToCatalystObject(folderpath)
         uuid = File.basename(folderpath)
-        metric = DRbObject.new(nil, "druby://:10423").metric(uuid, 2, 1, 2) # 2 hours per week, base metric=1, run metric=2
+        basemetric = Stream::basemetric(uuid)
+        metric = 0.1 + DRbObject.new(nil, "druby://:10423").metric(uuid, 2, basemetric, 2) # 2 hours per week, base metric=1, run metric=2
         {
             "uuid" => uuid,
             "metric" => metric,
