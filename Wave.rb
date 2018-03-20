@@ -314,7 +314,7 @@ class WaveTimelineUtils
 
     # WaveTimelineUtils::commands(schedule)
     def self.commands(schedule)
-        ['open', 'done', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy', '>lib']
+        ['open', 'done', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy', ">stream", '>lib']
     end
 
     # WaveTimelineUtils::extractFirstURLOrNUll(string)
@@ -848,6 +848,14 @@ class WaveInterface
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)                       
             end
+            return
+        end
+
+        if command=='>stream' then
+            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(objectuuid)
+            targetfolderpath = "/Galaxy/DataBank/Catalyst/Stream/items/#{LucilleCore::timeStringL22()}"
+            LucilleCore::copyFileSystemLocation(sourcelocation, targetfolderpath)
+            WaveTimelineUtils::archiveWaveItems(objectuuid) 
             return
         end
 
