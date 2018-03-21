@@ -26,36 +26,22 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 PATH_TO_STREAM_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 METRIC_UUID = "eaa86995-7bc8-4263-9a39-784e9824b126"
 
-# Stream::firstUpToSixItemsFolderpath()
-# Stream::basemetric(uuid)
+# Stream::itemsFolderpath()
 # Stream::pathToItemToCatalystObject(folderpath)
 # Stream::getCatalystObjects()
 
 class Stream
 
-    def self.firstUpToSixItemsFolderpath()
+    def self.itemsFolderpath()
         Dir.entries("#{PATH_TO_STREAM_FOLDER}/items")
             .select{|filename| filename[0,1]!='.' }
             .sort
             .map{|filename| "#{PATH_TO_STREAM_FOLDER}/items/#{filename}" }
-            .first(6)
-    end
-    
-    def self.basemetric(uuid)
-        metric = KeyValueStore::getOrNull(nil, "7d0d4344-57e3-4233-8764-96f4b182db69:#{uuid}")
-        if metric.nil? then
-            metric = 0.4 + 0.1*rand()
-            KeyValueStore::set(nil, "7d0d4344-57e3-4233-8764-96f4b182db69:#{uuid}", metric)
-            metric
-        else
-            metric.to_f
-        end
     end
 
     def self.pathToItemToCatalystObject(folderpath)
         uuid = File.basename(folderpath)
-        basemetric = Stream::basemetric(uuid)
-        metric = 0.1 + DRbObject.new(nil, "druby://:10423").metric(uuid, 2, basemetric, 2) # 2 hours per week, base metric=1, run metric=2
+        metric = 0.1 + DRbObject.new(nil, "druby://:10423").metric(uuid, 2, 0.5, 2) # 2 hours per week, base metric=1, run metric=2
         {
             "uuid" => uuid,
             "metric" => metric,
@@ -81,7 +67,7 @@ class Stream
                         DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
                     end
                     timespan = DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid)
-                    folderpaths = Stream::firstUpToSixItemsFolderpath()
+                    folderpaths = Stream::itemsFolderpath().first(6)
                     if folderpaths.size>0 then
                         folderpaths.each{|xfolderpath| 
                             next if xfolderpath == object['item-folderpath']
@@ -121,7 +107,13 @@ class Stream
 
         # ---------------------------------------------------
         # Catalyst Objects
-        Stream::firstUpToSixItemsFolderpath()
-            .map{|folderpath| Stream::pathToItemToCatalystObject(folderpath) }
+        folderpaths = Stream::itemsFolderpath()
+        answer = []
+        while answer.size==0 or answer.all?{|object| object['metric']<0.2 } do
+            path = folderpaths.drop(answer.size).first
+            break if path.nil?
+            answer << Stream::pathToItemToCatalystObject(path)
+        end
+        answer
     end
 end
