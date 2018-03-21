@@ -50,7 +50,7 @@ class CatalystCore
         wl = {}
         wl['uuid'] = SecureRandom.hex
         wl['metric'] = 0.2
-        wl['announce'] = "-- Water Level -----------------------------------".green
+        wl['announce'] = "(0.200) water level"
         wl["commands"] = []
         wl["command-interpreter"] = lambda {|object, command|}
         wl
