@@ -134,7 +134,7 @@ class TodaySectionManagement
                   "@"        => "new",
                   "unixtime" => 1510077314,
                   "metric"   => 1.300 + Math.atan(-idx)/1000,
-                  "default-commands" => ['+0.666 hours']
+                  "default-commands" => []
                 }
                 TodaySectionManagement::ensureFileNonContentsOverride("#{todayPlusCalendarRoot}/#{uuid}/catalyst-schedule.json", JSON.pretty_generate(schedule))
             end
