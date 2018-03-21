@@ -23,8 +23,8 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 # -------------------------------------------------------------------------------------
 
-PATH_TO_STREAM_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
-METRIC_UUID = "eaa86995-7bc8-4263-9a39-784e9824b126"
+STREAM_PATH_TO_ITEMS_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
+STREAM_PERFECT_NUMBER = 6
 
 # Stream::itemsFolderpath()
 # Stream::pathToItemToCatalystObject(folderpath)
@@ -33,10 +33,10 @@ METRIC_UUID = "eaa86995-7bc8-4263-9a39-784e9824b126"
 class Stream
 
     def self.itemsFolderpath()
-        Dir.entries("#{PATH_TO_STREAM_FOLDER}/items")
+        Dir.entries("#{STREAM_PATH_TO_ITEMS_FOLDER}/items")
             .select{|filename| filename[0,1]!='.' }
             .sort
-            .map{|filename| "#{PATH_TO_STREAM_FOLDER}/items/#{filename}" }
+            .map{|filename| "#{STREAM_PATH_TO_ITEMS_FOLDER}/items/#{filename}" }
     end
 
     def self.pathToItemToCatalystObject(folderpath)
@@ -67,7 +67,7 @@ class Stream
                         DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
                     end
                     timespan = DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid)
-                    folderpaths = Stream::itemsFolderpath().first(6)
+                    folderpaths = Stream::itemsFolderpath().first(STREAM_PERFECT_NUMBER)
                     if folderpaths.size>0 then
                         folderpaths.each{|xfolderpath| 
                             next if xfolderpath == object['item-folderpath']
@@ -94,12 +94,13 @@ class Stream
     def self.getCatalystObjects()
 
         # ---------------------------------------------------
-        # DropOff 
-        Dir.entries("#{PATH_TO_STREAM_FOLDER}/Stream-DropOff")
+        # DropOff
+
+        Dir.entries("#{STREAM_PATH_TO_ITEMS_FOLDER}/Stream-DropOff")
             .select{|filename| filename[0,1]!='.' }
-            .map{|filename| "#{PATH_TO_STREAM_FOLDER}/Stream-DropOff/#{filename}" }
+            .map{|filename| "#{STREAM_PATH_TO_ITEMS_FOLDER}/Stream-DropOff/#{filename}" }
             .each{|filepath|  
-                targetfolderpath = "#{PATH_TO_STREAM_FOLDER}/items/#{LucilleCore::timeStringL22()}"
+                targetfolderpath = "#{STREAM_PATH_TO_ITEMS_FOLDER}/items/#{LucilleCore::timeStringL22()}"
                 FileUtils.mkpath(targetfolderpath)
                 LucilleCore::copyFileSystemLocation(filepath, targetfolderpath)
                 LucilleCore::removeFileSystemLocation(filepath)
@@ -107,13 +108,28 @@ class Stream
 
         # ---------------------------------------------------
         # Catalyst Objects
-        folderpaths = Stream::itemsFolderpath()
+
         answer = []
-        while answer.size==0 or answer.all?{|object| object['metric']<0.2 } do
+
+        trueIfIhaveTodayStuffInTheTodayCalendarFile = lambda {
+            IO.read("/Galaxy/DataBank/Today+Calendar.txt").split("@calendar").first.strip.length > 0
+        }
+
+        # If we have something to do today, we do not go beyound 6 acrtive items
+
+        folderpaths = 
+            if trueIfIhaveTodayStuffInTheTodayCalendarFile.call() then
+                Stream::itemsFolderpath().first(STREAM_PERFECT_NUMBER)
+            else
+                Stream::itemsFolderpath()
+            end
+
+        while answer.size==0 or answer.all?{|object| object['metric'] < 0.2 } do
             path = folderpaths.drop(answer.size).first
             break if path.nil?
             answer << Stream::pathToItemToCatalystObject(path)
         end
+
         answer
     end
 end
