@@ -41,7 +41,7 @@ class Ninja
         objects << {
             "uuid" => "44a372b9-32d4-4fb7-884d-efba45616961",
             "metric" => metric,
-            "announce" => "           (#{"%.3f" % metric}) ninja play",
+            "announce" => "(#{"%.3f" % metric}) ninja play",
             "commands" => [],
             "default-commands" => ['play'],
             "command-interpreter" => lambda{|object, command|  
