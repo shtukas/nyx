@@ -309,17 +309,17 @@ class RequirementsOperator
 end
 
 def putshelp()
-    puts "Special General Commands:".green
-    puts "    help".green
-    puts "    insert <wave item description>".green
-    puts "    search <pattern>".green
-    puts "    on <requirement>".green
-    puts "    off <requirement>".green
-    puts "    lib # Invoques the Librarian interactive".green
+    puts "Special General Commands:".yellow
+    puts "    help".yellow
+    puts "    insert <wave item description>".yellow
+    puts "    search <pattern>".yellow
+    puts "    on <requirement>".yellow
+    puts "    off <requirement>".yellow
+    puts "    lib # Invoques the Librarian interactive".yellow
     puts ""
-    puts "Special Object Commands:".green
-    puts "    require <requirement>".green
-    puts "    push".green
+    puts "Special Object Commands:".yellow
+    puts "    require <requirement>".yellow
+    puts "    push".yellow
 end
 
 def currentHour()
@@ -364,7 +364,7 @@ loop {
         .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }
         .first(screen_height()-5)
 
-    puts "# #{ "-" * (screen_width()-3) }".yellow
+    puts "# #{ "-" * (screen_width()-3) }"
 
     count = WaveDevOps::archivesGarbageCollection(true)
     if count>0 then
