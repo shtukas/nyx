@@ -111,29 +111,9 @@ class Stream
 
         answer = []
 
-        trueIfIhaveTodayStuffInTheTodayCalendarFile = lambda {
-            IO.read("/Galaxy/DataBank/Today+Calendar.txt").split("@calendar").first.strip.length > 0
-        }
-
-        streamNotificationObject = lambda{
-          wl = {}
-          wl['uuid'] = SecureRandom.hex
-          wl['metric'] = 0.2
-          wl['announce'] = "(0.200) Stream Notification: You have blocking elements in Today+Calendar.txt"
-          wl["commands"] = []
-          wl["command-interpreter"] = lambda {|object, command|}
-          wl
-        }
-
         # If we have something to do today, we do not go beyound 6 acrtive items
 
-        folderpaths = 
-            if trueIfIhaveTodayStuffInTheTodayCalendarFile.call() then
-                answer << streamNotificationObject.call()
-                Stream::itemsFolderpath().first(STREAM_PERFECT_NUMBER)
-            else
-                Stream::itemsFolderpath()
-            end
+        folderpaths = Stream::itemsFolderpath()
 
         while answer.size==0 or answer.all?{|object| object['metric'] < 0.2 } do
             path = folderpaths.drop(answer.size).first
