@@ -45,29 +45,14 @@ require_relative "Stream.rb"
 
 class CatalystCore
 
-    # CatalystCore::waterLevelObject()
-    def self.waterLevelObject()
-        wl = {}
-        wl['uuid'] = SecureRandom.hex
-        wl['metric'] = 0.2
-        wl['announce'] = "(0.200) water level"
-        wl["commands"] = []
-        wl["command-interpreter"] = lambda {|object, command|}
-        wl
-    end
-
     # CatalystCore::objects()
     def self.objects()
 
         o1 = WaveInterface::getCatalystObjects()
         o4 = Ninja::getCatalystObjects()
         o5 = Stream::getCatalystObjects()
-        
-        objects = o1+o4+o5
 
-        if objects.map{|object| object['metric'] }.max > 0.2 then
-            objects << CatalystCore::waterLevelObject()
-        end
+        objects = o1+o4+o5
 
         (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
