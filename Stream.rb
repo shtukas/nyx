@@ -110,17 +110,14 @@ class Stream
         # Catalyst Objects
 
         answer = []
-
-        # If we have something to do today, we do not go beyound 6 acrtive items
-
         folderpaths = Stream::itemsFolderpath()
-
-        while answer.size==0 or answer.all?{|object| object['metric'] < 0.2 } do
+        loop {
             path = folderpaths.drop(answer.size).first
-            break if path.nil?
-            answer << Stream::pathToItemToCatalystObject(path)
-        end
-
+            break if path.nil?    
+            break if answer.size >= STREAM_PERFECT_NUMBER*2
+            break if answer.any?{|object| object['metric'] >= 0.2 }
+            answer << Stream::pathToItemToCatalystObject(path)        
+        }
         answer
     end
 end
