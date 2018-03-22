@@ -296,7 +296,7 @@ class WaveTimelineUtils
     # WaveTimelineUtils::archiveWaveItems(uuid)
     def self.archiveWaveItems(uuid)
         folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::archiveWaveItems for uuid: #{uuid}" if folderpath.nil?
+        return if folderpath.nil?
         time = Time.new
         targetFolder = "/Galaxy/DataBank/Catalyst/GarbageTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
         FileUtils.mkpath(targetFolder)
