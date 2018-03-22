@@ -26,30 +26,12 @@ require_relative "CatalystCore.rb"
 
 require_relative "Wave-Emails.rb"
 
-require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 =begin
-
-    Xcache::set(key, value)
-    Xcache::getOrNull(key)
-    Xcache::getOrDefaultValue(key, defaultValue)
-    Xcache::destroy(key)
-
-    XcacheSets::values(setuid)
-    XcacheSets::insert(setuid, valueuid, value) # value can be an object
-    XcacheSets::remove(setuid, valueuid)
-
-    XStore::set(repositorypath, key, value)
-    XStore::getOrNull(repositorypath, key)
-    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
-    XStore::destroy(repositorypath, key)
-
-    XStoreSets::values(repositorypath, setuid)
-    XStoreSets::insert(repositorypath, setuid, valueuid, value) # value can be an object
-    XStoreSets::remove(repositorypath, setuid, valueuid)
-
-    Xcache and XStore have identical interfaces
-    Xcache is XStore with a repositorypath defaulting to x-space
-
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
 =end
 
 require "/Galaxy/LucilleOS/Librarian/R137-CLI-Tools-Shared.rb"
@@ -328,6 +310,9 @@ end
 
 class PendingListOperator
     @@uuids = {}
+    def self.init()
+        @@uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", '{}'))
+    end
     def self.uuids(hour)
         @@uuids[hour] = [] if @@uuids[hour].nil?
         @@uuids[hour]
@@ -335,15 +320,21 @@ class PendingListOperator
     def self.add(hour, uuid)
         @@uuids[hour] = [] if @@uuids[hour].nil?
         @@uuids[hour] << uuid
+        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", JSON.generate(@@uuids))
     end
     def self.delete(hour, uuid)
         @@uuids[hour] = [] if @@uuids[hour].nil?
         @@uuids[hour].delete(uuid)
+        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", JSON.generate(@@uuids))
     end
 end
+
 # -----------------------------------------------------------------
 
+PendingListOperator::init()
 $requirement_operator = RequirementsOperator.new()
+
+# -----------------------------------------------------------------
 
 email_sync_on_schedule(true)
 
