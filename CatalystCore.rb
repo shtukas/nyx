@@ -40,6 +40,7 @@ require 'find'
 require_relative "Wave.rb"
 require_relative "Ninja.rb"
 require_relative "Stream.rb"
+require_relative "Today.rb"
 
 # ----------------------------------------------------------------------
 
@@ -51,8 +52,9 @@ class CatalystCore
         o1 = WaveInterface::getCatalystObjects()
         o4 = Ninja::getCatalystObjects()
         o5 = Stream::getCatalystObjects()
+        o6 = Today::getCatalystObjects()
 
-        objects = o1+o4+o5
+        objects = o1+o4+o5+o6
 
         (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }

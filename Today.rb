@@ -1,0 +1,140 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+
+require 'json'
+
+=begin
+
+  -- reading the string and building the object
+     dataset = IO.read($dataset_location)
+     JSON.parse(dataset)
+
+  -- printing the string
+     file.puts JSON.pretty_generate(dataset)
+
+=end
+
+require 'date'
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv('oldname', 'newname')
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'find'
+
+require_relative "CatalystCore.rb"
+
+PATH_TO_CALENDAR_FILE = "/Galaxy/DataBank/Today+Calendar.txt"
+
+class Today
+
+    # -------------------------------------------------------------------------------------
+    # Today::section_is_not_empty(section)
+    def self.section_is_not_empty(section)
+        section.any?{|line| line.strip.size>0 }
+    end
+
+    # Today::contents_to_sections(reminaing_lines,sections)
+    def self.contents_to_sections(reminaing_lines, sections)
+        return sections.select{|section| Today::section_is_not_empty(section) } if reminaing_lines.size==0
+        line = reminaing_lines.shift
+        if line.start_with?('[]') then
+            sections << [line]
+            return Today::contents_to_sections(reminaing_lines,sections)
+        end
+        sections = [[]] if sections.size==0
+        sections.last << line
+        Today::contents_to_sections(reminaing_lines,sections)
+    end
+
+    # Today::section_to_string(section)
+    def self.section_to_string(section)
+        section.join().strip
+    end
+
+    # Today::section_to_uuid(section)
+    def self.section_to_uuid(section)
+        Digest::SHA1.hexdigest Today::section_to_string(section)
+    end
+
+    # -------------------------------------------------------------------------------------
+    # Today::sectionToLength8UUID(section)
+    def self.sectionToLength8UUID(section)
+        Today::section_to_uuid(section)[0, 8]
+    end
+
+    # Today::todaySectionsUUIDs()
+    def self.todaySectionsUUIDs()
+        todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
+        Today::contents_to_sections(todaycontents.lines.to_a,[]).map{|section|
+            Today::sectionToLength8UUID(section)
+        }
+    end
+
+    # Today::removeSectionFromFile(uuid)
+    def self.removeSectionFromFile(uuid)
+        if Today::todaySectionsUUIDs().include?(uuid) then
+            time = Time.new
+            targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+            FileUtils.mkpath(targetFolder)
+            FileUtils.cp(PATH_TO_CALENDAR_FILE,"#{targetFolder}/Today+Calendar.txt")
+
+            todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
+            calendarcontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[1].strip
+            todaysections1 = Today::contents_to_sections(todaycontents.lines.to_a, [])
+            todaysections2 = todaysections1.select{|section|
+                Today::sectionToLength8UUID(section) != uuid
+            }
+            File.open(PATH_TO_CALENDAR_FILE, 'w') {|f| 
+                todaysections2.each{|section|
+                    f.puts(Today::section_to_string(section))
+                }
+                f.puts ""
+                f.puts "@calendar"
+                f.puts ""
+                f.puts calendarcontents
+            }
+        end
+    end
+
+    # Today::getCatalystObjects()
+    def self.getCatalystObjects()
+        objects = []
+        todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
+        Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
+            uuid = Today::sectionToLength8UUID(section)
+            metric = 0.800 + 0.049*Math.exp(-idx.to_f/10) # 0.800 -> 0.850  Today+Calendar
+            announce = section.size>1 ? "today:\n#{section.join}" : "today: #{section.first}"
+            objects << {
+                "uuid" => uuid,
+                "metric" => metric,
+                "announce" => "[#{uuid}] (#{"%.3f" % metric}) #{announce}",
+                "commands" => ['done'],
+                "default-commands" => ['done'],
+                "command-interpreter" => lambda{|object, command|
+                    if command=='done' then
+                        Today::removeSectionFromFile(object['uuid'])
+                    end
+                }
+            }
+        }  
+        objects
+    end
+
+end
+

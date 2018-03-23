@@ -51,7 +51,7 @@ require 'mail'
     mail.body.decoded    #=> 'This is the body of the email...
 =end
 
-EMAIL_METADATA_OBJECTS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave/03-Emails-Metadata-Objects"
+EMAIL_METADATA_OBJECTS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave/Emails-Metadata-Objects"
 
 class EmailUtils
 
@@ -151,7 +151,7 @@ class EmailStatusManagement
             folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(catalystuuid)
             if !folderpath.nil? and File.exists?(folderpath) then
                 time = Time.new
-                targetFolder = "/Galaxy/DataBank/Catalyst/GarbageTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+                targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
                 FileUtils.mkpath(targetFolder)
                 FileUtils.mv(folderpath,targetFolder)
             end            
@@ -223,7 +223,7 @@ class GeneralEmailClient
                 EmailMetadataManagement::storeMetadataObject(emailpoint)
 
                 schedule = WaveSchedules::makeScheduleObjectNew()
-                schedule['metric'] = 0.850 - LucilleCore::nextInteger("14b3e2b4-1365-4ca4-b081-cf0ae0daad5f").to_f/1000000
+                schedule['metric'] = 0.900 - LucilleCore::nextInteger("14b3e2b4-1365-4ca4-b081-cf0ae0daad5f").to_f/1000000
                 WaveTimelineUtils::writeScheduleToDisk(catalystuuid,schedule)
 
                 File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(emailFilename) }

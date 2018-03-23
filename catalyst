@@ -41,11 +41,11 @@ require "/Galaxy/LucilleOS/Librarian/R137-CLI-Tools-Shared.rb"
 def email_sync_on_schedule(verbose)
     if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
         begin
-            newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/guardian-relay.json")), verbose)
+            newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
             if newEmailCount>0 then
                 puts "Retrieved #{newEmailCount} new emails"
             end
-            OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave-Email-Config/operator.json")), verbose)
+            OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/operator.json")), verbose)
             # We call again so that the clock restarts at the end of the process
             LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
         rescue
@@ -238,7 +238,7 @@ class RequirementsOperator
 
     def initialize()
         @data = nil
-        @pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements-structure/requirements-structure.json"
+        @pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements/requirements-structure.json"
         self.loadDataFromDisk()
     end
 
@@ -247,7 +247,7 @@ class RequirementsOperator
     end
 
     def saveDataToDisk()
-        File.open(@pathToDataFile,'w') {|f| f.puts(JSON.pretty_generate(@data)) }
+        File.open(@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@data)) }
     end
 
     def getObjectRequirements(uuid)
@@ -348,8 +348,6 @@ Thread.new {
 firstrun = true
 
 loop {
-    
-    TodaySectionManagement::performSync()
 
     objects = CatalystCore::objects()
         .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }

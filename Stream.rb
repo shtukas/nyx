@@ -78,7 +78,7 @@ class Stream
                         }
                     end
                     time = Time.new
-                    targetFolder = "/Galaxy/DataBank/Catalyst/GarbageTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+                    targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
                     puts "Source: #{object['item-folderpath']}"
                     puts "Target: #{targetFolder}"
                     FileUtils.mkpath(targetFolder)
