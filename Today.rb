@@ -123,7 +123,7 @@ class Today
             objects << {
                 "uuid" => uuid,
                 "metric" => metric,
-                "announce" => "[#{uuid}] (#{"%.3f" % metric}) #{announce}",
+                "announce" => "(#{"%.3f" % metric}) [#{uuid}] #{announce}",
                 "commands" => ['done'],
                 "default-commands" => ['done'],
                 "command-interpreter" => lambda{|object, command|

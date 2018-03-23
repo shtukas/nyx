@@ -401,7 +401,7 @@ class WaveTimelineUtils
             else
                 ""
             end
-        "[#{object['uuid']}] (#{( "%.3f" % object['metric'] )}) {#{p5}}#{p3}#{p4}#{p6}"    
+        "(#{( "%.3f" % object['metric'] )}) [#{object['uuid']}] {#{p5}}#{p3}#{p4}#{p6}"    
     end
 end
 

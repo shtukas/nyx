@@ -28,6 +28,7 @@ STREAM_PERFECT_NUMBER = 6
 
 # Stream::itemsFolderpath()
 # Stream::pathToItemToCatalystObject(folderpath)
+# Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjects()
 
 class Stream
@@ -48,47 +49,49 @@ class Stream
             "announce" => "(#{"%.3f" % metric}) stream: #{folderpath} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid).to_f/3600 )} hours)",
             "commands" => ["start", "stop", "folder", "completed"],
             "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
-            "command-interpreter" => lambda{|object, command|  
-                if command=='folder' then
-                    system("open '#{object['item-folderpath']}'")
-                    return
-                end
-                if command=='start' then
-                    DRbObject.new(nil, "druby://:10423").start(uuid)
-                    system("open '#{object['item-folderpath']}'")
-                    return
-                end
-                if command=='stop' then
-                    DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-                    return
-                end
-                if command=="completed" then
-                    if DRbObject.new(nil, "druby://:10423").isRunning(object['uuid']) then
-                        DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-                    end
-                    timespan = DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid)
-                    folderpaths = Stream::itemsFolderpath().first(STREAM_PERFECT_NUMBER)
-                    if folderpaths.size>0 then
-                        folderpaths.each{|xfolderpath| 
-                            next if xfolderpath == object['item-folderpath']
-                            xuuid = File.basename(xfolderpath)
-                            xtimespan =  timespan.to_f/6
-                            puts "Putting #{xtimespan} seconds for #{xuuid}"
-                            DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
-                        }
-                    end
-                    time = Time.new
-                    targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
-                    puts "Source: #{object['item-folderpath']}"
-                    puts "Target: #{targetFolder}"
-                    FileUtils.mkpath(targetFolder)
-                    FileUtils.mv("#{object['item-folderpath']}",targetFolder)
-                    LucilleCore::removeFileSystemLocation(object['item-folderpath'])
-                    return
-                end
-            },
+            "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath
-        } 
+        }
+    end
+
+    def self.objectCommandHandler(object, command)
+        if command=='folder' then
+            system("open '#{object['item-folderpath']}'")
+            return
+        end
+        if command=='start' then
+            DRbObject.new(nil, "druby://:10423").start(uuid)
+            system("open '#{object['item-folderpath']}'")
+            return
+        end
+        if command=='stop' then
+            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+            return
+        end
+        if command=="completed" then
+            if DRbObject.new(nil, "druby://:10423").isRunning(object['uuid']) then
+                DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+            end
+            timespan = DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid)
+            folderpaths = Stream::itemsFolderpath().first(STREAM_PERFECT_NUMBER)
+            if folderpaths.size>0 then
+                folderpaths.each{|xfolderpath| 
+                    next if xfolderpath == object['item-folderpath']
+                    xuuid = File.basename(xfolderpath)
+                    xtimespan =  timespan.to_f/6
+                    puts "Putting #{xtimespan} seconds for #{xuuid}"
+                    DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
+                }
+            end
+            time = Time.new
+            targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+            puts "Source: #{object['item-folderpath']}"
+            puts "Target: #{targetFolder}"
+            FileUtils.mkpath(targetFolder)
+            FileUtils.mv("#{object['item-folderpath']}",targetFolder)
+            LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+            return
+        end
     end
 
     def self.getCatalystObjects()
