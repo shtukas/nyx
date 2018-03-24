@@ -2,16 +2,26 @@
 
 # encoding: UTF-8
 
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+=end
+
 # -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Ninja-DropOff"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
+# -------------------------------------------------------------------------------------
+
 class Ninja
 
-    # Ninja::collectNinjaObjects()
-    def self.collectNinjaObjects()
+    # Ninja::collectDropOffObjects()
+    def self.collectDropOffObjects()
         Dir.entries(NINJA_DROPOFF_FOLDERPATH)
             .select{|filename| filename[0, 1] != '.' }
             .map{|filename| "#{NINJA_DROPOFF_FOLDERPATH}/#{filename}" }
@@ -27,17 +37,36 @@ class Ninja
             }
     end
 
+    def self.pendingCountAtBeginningOfDay()
+        key = "6f6e355b-300d-42b1-a94b-117c37c06f1a:#{Time.new.to_s[0,10]}"
+        count = KeyValueStore::getOrNull(nil, key)
+        if count.nil? then
+            count = `/Galaxy/LucilleOS/Binaries/ninja api:catalyst:pendingcount`.to_i
+            KeyValueStore::set(nil, key, count)
+            count
+        else
+            count.to_i
+        end
+    end
+
+    def self.dayActivityCount()
+        `/Galaxy/LucilleOS/Binaries/ninja api:catalyst:today-activity-count`.to_i
+    end
+
+    def self.metric()
+        todaydone = Ninja::dayActivityCount()
+        todaytotal = Ninja::pendingCountAtBeginningOfDay()
+        return 0 if todaydone > todaytotal
+        0.2 + 0.4 * Math.exp( - todaydone.to_f / todaytotal )
+    end
+
     # Ninja::getCatalystObjects()
     def self.getCatalystObjects()
 
-        Ninja::collectNinjaObjects()
+        Ninja::collectDropOffObjects()
 
         objects = []
-        pendingcount = `/Galaxy/LucilleOS/Binaries/ninja api:catalyst:pendingcount`.to_i
-        dayactivitycount = `/Galaxy/LucilleOS/Binaries/ninja api:catalyst:last-24-hours-activity-count`.to_i
-        metric = pendingcount==0 ? 0 : 0.2 + 0.1*Math.exp(-dayactivitycount.to_f/20)
-            # The second term raise the metric from 0 to 1 as the pending count increases
-            # The third term collapse from 1 to 0 as the last-24-hours-activity-count raises
+        metric = Ninja::metric()
         objects << {
             "uuid" => "44a372b9-32d4-4fb7-884d-efba45616961",
             "metric" => metric,

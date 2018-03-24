@@ -49,10 +49,19 @@ class CatalystCore
     # CatalystCore::objects()
     def self.objects()
 
+        #start = Time.new.to_f
+
         o1 = WaveInterface::getCatalystObjects()
+        #puts "Wave   : #{Time.new.to_f - start} , #{o1.count}"
+
         o4 = Ninja::getCatalystObjects()
+        #puts "Ninja  : #{Time.new.to_f - start} , #{o4.count}"
+
         o5 = Stream::getCatalystObjects()
+        #puts "Stream : #{Time.new.to_f - start} , #{o5.count}"
+
         o6 = Today::getCatalystObjects()
+        #puts "Today  : #{Time.new.to_f - start} , #{o6.count}"
 
         objects = o1+o4+o5+o6
 
