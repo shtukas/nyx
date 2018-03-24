@@ -345,7 +345,9 @@ Thread.new {
     }
 }
 
-firstrun = true
+puts "# #{ "-" * (screen_width()-3) }"
+putshelp()
+LucilleCore::pressEnterToContinue()
 
 loop {
 
@@ -362,13 +364,6 @@ loop {
     end
 
     screen_space = screen_height()-7
-
-    if firstrun then
-        putshelp()
-        puts ""
-        firstrun = false
-        screen_space = screen_space-10
-    end
 
     preListObjects = objects.select{|object| ( object['metric'] > 0 ) and PendingListOperator::uuids(currentHour()).include?(object['uuid']) }
     screen_space = puts_objects(
