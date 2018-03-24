@@ -345,10 +345,6 @@ Thread.new {
     }
 }
 
-puts "# #{ "-" * (screen_width()-3) }"
-putshelp()
-LucilleCore::pressEnterToContinue()
-
 loop {
 
     objects = CatalystCore::objects()
