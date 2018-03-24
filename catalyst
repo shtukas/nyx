@@ -291,17 +291,17 @@ class RequirementsOperator
 end
 
 def putshelp()
-    puts "Special General Commands:".yellow
-    puts "    help".yellow
-    puts "    insert <wave item description>".yellow
-    puts "    search <pattern>".yellow
-    puts "    on <requirement>".yellow
-    puts "    off <requirement>".yellow
-    puts "    lib # Invoques the Librarian interactive".yellow
+    puts "Special General Commands:"
+    puts "    help"
+    puts "    insert <wave item description>"
+    puts "    search <pattern>"
+    puts "    on <requirement>"
+    puts "    off <requirement>"
+    puts "    lib # Invoques the Librarian interactive"
     puts ""
-    puts "Special Object Commands:".yellow
-    puts "    require <requirement>".yellow
-    puts "    push".yellow
+    puts "Special Object Commands:"
+    puts "    require <requirement>"
+    puts "    push"
 end
 
 def currentHour()
