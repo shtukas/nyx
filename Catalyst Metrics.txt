@@ -6,8 +6,7 @@
 0.860 -> 0.900  Incoming Emails operator@alseyn.net
          0.850  Wave "new"
 0.800 -> 0.850  Today+Calendar
-0.600 -> 0.800  Stuff ideally done today
-
+0.600 -> 0.800  Stuff ideally done today + Torr
 0.100 -> 0.600  Stream
 0.200 -> 0.600  Ninja
 

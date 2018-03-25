@@ -23,8 +23,12 @@ class Interface
         Chronos::metric(uid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
     end
 
-    def getEntityAdaptedTotalTimespan(uid)
-        Chronos::getEntityAdaptedTotalTimespan(uid)
+    def metric2(uid, referencePeriodInDays, commitmentPerReferencePeriodInHours, metricAtFullyDone, metricAtZeroDone, metricRunning)
+        Chronos::metric2(uid, referencePeriodInDays, commitmentPerReferencePeriodInHours, metricAtFullyDone, metricAtZeroDone, metricRunning)
+    end
+
+    def getEntityTotalTimespanForPeriod(entityuid, referencePeriodInDays)
+        Chronos::getEntityTotalTimespanForPeriod(entityuid, referencePeriodInDays)
     end
 
     def addTimeSpan(uid, timespan)

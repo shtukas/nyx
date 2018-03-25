@@ -44,10 +44,9 @@ require 'securerandom'
 # Chronos::stop(uid)
 # Chronos::addTimespan(uid,timespan)
 # Chronos::totalTimespanAfterThisUnixtime(uid,horizonunixtime)
-# Chronos::timepacketToAdaptedTimespan(timepacket, currentUnixtime)
 # Chronos::timepackets(uid)
-# Chronos::metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
-# Chronos::getEntityAdaptedTotalTimespan(entityuid)
+# Chronos::metric2(uid, referencePeriodInDays, commitmentPerReferencePeriodInHours, metricAtFullyDone, metricAtZeroDone, metricRunning)
+# Chronos::getEntityTotalTimespanForPeriod(entityuid, referencePeriodInDays)
 
 class Chronos
 
@@ -89,37 +88,29 @@ class Chronos
         XcacheSets::insert("f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}", SecureRandom.hex, object)
     end
 
-    def self.timepacketToAdaptedTimespan(timepacket, currentUnixtime)
-        #{
-        #    "unixtime" => Time.new.to_i,
-        #    "timespan" => timespan
-        #}
-        timeDifference = currentUnixtime-timepacket['unixtime']
-        correctionFactor = 
-            if (timeDifference)<86400*7 then
-                1
-            else
-                Math.exp( -(timeDifference-86400*7).to_f/86400 )           
-            end
-        timepacket['timespan'] * correctionFactor
-    end
-
     def self.timepackets(uid)
         XcacheSets::values("f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}")
     end
 
-    def self.metric(entityuid, hoursCommitmentPerWeek, metricAtZero, metricRunning)
-        if Chronos::isRunning(entityuid) then
-            metricRunning
+    def self.metric2(uid, referencePeriodInDays, commitmentPerReferencePeriodInHours, metricAtFullyDone, metricAtZeroDone, metricRunning)
+        # When running, value is metricRunning
+        # Between {zero done} and {totally done}, moves from metricAtZeroDone to metricAtFullyDone
+        # Above {totally done} jumps 0.36*metricAtFullyDone and then collapse to zero
+        return metricRunning if Chronos::isRunning(uid)
+        doneTimeInSeconds = Chronos::getEntityTotalTimespanForPeriod(uid, referencePeriodInDays)
+        totalTimeInSeconds = commitmentPerReferencePeriodInHours*3600
+        if doneTimeInSeconds <= totalTimeInSeconds then
+            metricAtZeroDone - (metricAtZeroDone-metricAtFullyDone)*(doneTimeInSeconds.to_f/totalTimeInSeconds)
         else
-            metricAtZero * (hoursCommitmentPerWeek*3600-Chronos::getEntityAdaptedTotalTimespan(entityuid)).to_f/(hoursCommitmentPerWeek*3600)
+            metricAtFullyDone*Math.exp( -(doneTimeInSeconds.to_f/totalTimeInSeconds) )
         end
     end
 
-    def self.getEntityAdaptedTotalTimespan(entityuid)
-        Chronos::timepackets(entityuid)
-        .map{|timepacket| Chronos::timepacketToAdaptedTimespan(timepacket, Time.new.to_i) }
-        .inject(0, :+)
+    def self.getEntityTotalTimespanForPeriod(uid, referencePeriodInDays)
+        Chronos::timepackets(uid)
+            .select{|timepacket| ( Time.new.to_i - timepacket['unixtime'] ) < referencePeriodInDays*86400 }
+            .map{|timepacket| timepacket['timespan'] }
+            .inject(0, :+)
     end
 
 end

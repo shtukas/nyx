@@ -28,7 +28,7 @@ require 'securerandom'
 
 # -------------------------------------------------------------------------------------
 
-STREAM_PATH_TO_ITEMS_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
+STREAM_PATH_TO_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 STREAM_PERFECT_NUMBER = 6
 
 # Stream::itemsFolderpath()
@@ -40,26 +40,30 @@ STREAM_PERFECT_NUMBER = 6
 class Stream
 
     def self.itemsFolderpath()
-        Dir.entries("#{STREAM_PATH_TO_ITEMS_FOLDER}/items")
+        Dir.entries("#{STREAM_PATH_TO_DOMAIN_FOLDER}/items")
             .select{|filename| filename[0,1]!='.' }
             .sort
-            .map{|filename| "#{STREAM_PATH_TO_ITEMS_FOLDER}/items/#{filename}" }
+            .map{|filename| "#{STREAM_PATH_TO_DOMAIN_FOLDER}/items/#{filename}" }
+            .select{|folderpath| !File.exist?("#{folderpath}/.torr") }
     end
 
     def self.getItemDescription(folderpath)
-        uuid = IO.read("#{folderpath}/.streamuuid").strip
+        uuid = IO.read("#{folderpath}/.uuid").strip
         description = KeyValueStore::getOrDefaultValue(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{folderpath}")
     end
 
     def self.pathToItemToCatalystObject(folderpath)
-        uuid = IO.read("#{folderpath}/.streamuuid").strip
+        if !File.exist?("#{folderpath}/.uuid") then
+            File.open("#{folderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) }
+        end
+        uuid = IO.read("#{folderpath}/.uuid").strip
         description = Stream::getItemDescription(folderpath)
-        metric = 0.1 + DRbObject.new(nil, "druby://:10423").metric(uuid, 2, 0.5, 2) # 2 hours per week, base metric=1, run metric=2
+        metric = DRbObject.new(nil, "druby://:10423").metric2(uuid, 7, 3, 0.1, 0.6, 2)
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) stream: #{description} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid).to_f/3600 )} hours)",
-            "commands" => ["start", "stop", "folder", "completed", "set-description"],
+            "announce" => "(#{"%.3f" % metric}) stream: #{description} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)",
+            "commands" => ["start", "stop", "folder", "completed", "set-description", ">torr"],
             "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath
@@ -85,7 +89,7 @@ class Stream
             if DRbObject.new(nil, "druby://:10423").isRunning(object['uuid']) then
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             end
-            timespan = DRbObject.new(nil, "druby://:10423").getEntityAdaptedTotalTimespan(uuid)
+            timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
             folderpaths = Stream::itemsFolderpath().first(STREAM_PERFECT_NUMBER)
             if folderpaths.size>0 then
                 folderpaths.each{|xfolderpath| 
@@ -111,6 +115,10 @@ class Stream
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
             return
         end
+        if command=='>torr' then
+            FileUtils.touch("#{object['item-folderpath']}/.torr")
+            return
+        end
     end
 
     def self.getCatalystObjects()
@@ -118,13 +126,12 @@ class Stream
         # ---------------------------------------------------
         # DropOff
 
-        Dir.entries("#{STREAM_PATH_TO_ITEMS_FOLDER}/Stream-DropOff")
+        Dir.entries("#{STREAM_PATH_TO_DOMAIN_FOLDER}/Stream-DropOff")
             .select{|filename| filename[0,1]!='.' }
-            .map{|filename| "#{STREAM_PATH_TO_ITEMS_FOLDER}/Stream-DropOff/#{filename}" }
+            .map{|filename| "#{STREAM_PATH_TO_DOMAIN_FOLDER}/Stream-DropOff/#{filename}" }
             .each{|filepath|  
-                targetfolderpath = "#{STREAM_PATH_TO_ITEMS_FOLDER}/items/#{LucilleCore::timeStringL22()}"
+                targetfolderpath = "#{STREAM_PATH_TO_DOMAIN_FOLDER}/items/#{LucilleCore::timeStringL22()}"
                 FileUtils.mkpath(targetfolderpath)
-                File.open("#{targetfolderpath}/.streamuuid", 'w'){|f| f.print(SecureRandom.hex(4)) }
                 LucilleCore::copyFileSystemLocation(filepath, targetfolderpath)
                 LucilleCore::removeFileSystemLocation(filepath)
             }
