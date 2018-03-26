@@ -57,13 +57,13 @@ class Torr
         end
         uuid = IO.read("#{folderpath}/.uuid").strip
         description = Torr::getItemDescription(folderpath)
-        metric = DRbObject.new(nil, "druby://:10423").metric2(uuid, 1, individualItemDailyCommitmentInHours, 0.6, 0.8, 2)
+        metric = DRbObject.new(nil, "druby://:10423").metric2("#{uuid}:#{Today.new.to_s[0,10]}", 1, individualItemDailyCommitmentInHours, 0.6, 0.8, 2)
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) torr: #{description} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)",
+            "announce" => "(#{"%.3f" % metric}) torr: #{description} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod("#{uuid}:#{Today.new.to_s[0,10]}", 7).to_f/3600 )} hours)",
             "commands" => ["start", "stop", "folder", "set-description"],
-            "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
+            "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning("#{uuid}:#{Today.new.to_s[0,10]}") ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command| Torr::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath
         }
@@ -75,12 +75,12 @@ class Torr
             return
         end
         if command=='start' then
-            DRbObject.new(nil, "druby://:10423").start(object['uuid'])
+            DRbObject.new(nil, "druby://:10423").start("#{object['uuid']}:#{Today.new.to_s[0,10]}")
             system("open '#{object['item-folderpath']}'")
             return
         end
         if command=='stop' then
-            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(object['uuid'])
+            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan("#{object['uuid']}:#{Today.new.to_s[0,10]}")
             return
         end
         if command=='set-description' then

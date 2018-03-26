@@ -107,10 +107,14 @@ class Chronos
     end
 
     def self.getEntityTotalTimespanForPeriod(uid, referencePeriodInDays)
-        Chronos::timepackets(uid)
+        answer = Chronos::timepackets(uid)
             .select{|timepacket| ( Time.new.to_i - timepacket['unixtime'] ) < referencePeriodInDays*86400 }
             .map{|timepacket| timepacket['timespan'] }
             .inject(0, :+)
+        if Chronos::isRunning(uid) then
+            answer = answer + (Time.new.to_i - Chronos::startUnixtimeOrNull(uid))
+        end
+        answer
     end
 
 end
