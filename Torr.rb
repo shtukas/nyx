@@ -65,7 +65,7 @@ class Torr
         end
         uuid = IO.read("#{folderpath}/.uuid").strip
         description = Torr::getItemDescription(folderpath)
-        metric = DRbObject.new(nil, "druby://:10423").metric2(Torr::uuid2metricuuid(uuid), 1, individualItemDailyCommitmentInHours, 0.6, 0.8, 2)
+        metric = DRbObject.new(nil, "druby://:10423").metric2(Torr::uuid2metricuuid(uuid), 1, individualItemDailyCommitmentInHours, 0.6, 0.7, 2)
         {
             "uuid" => uuid,
             "metric" => metric,

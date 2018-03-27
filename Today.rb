@@ -118,7 +118,7 @@ class Today
         todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
-            metric = 0.800 + 0.049*Math.exp(-idx.to_f/10) # 0.800 -> 0.850  Today+Calendar
+            metric = 0.800 + 0.040*Math.exp(-idx.to_f/10) # 0.800 -> 0.840  Today+Calendar
             announce = section.size>1 ? "today:\n#{section.join}" : "today: #{section.first}"
             objects << {
                 "uuid" => uuid,

@@ -603,33 +603,33 @@ class WaveSchedules
             return 0.850 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'today' then
-            return 0.8 - 0.2*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
+            return 0.8 - 0.1*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
-            return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.70 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'], Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+                return 0.75 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'], Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
             end
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.7 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         1
     end
