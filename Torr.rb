@@ -54,10 +54,10 @@ class Torr
 
     def self.getItemDescription(folderpath)
         uuid = IO.read("#{folderpath}/.uuid").strip
-        description = KeyValueStore::getOrDefaultValue(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{folderpath}")
+        description = KeyValueStore::getOrDefaultValue(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{File.basename(folderpath)}")
     end
     def self.uuid2metricuuid(uuid)
-        "#{uuid}:#{Today.new.to_s[0,10]}"
+        "#{uuid}:#{Time.new.to_s[0,10]}"
     end
     def self.pathToItemToCatalystObject(folderpath, individualItemDailyCommitmentInHours)
         if !File.exist?("#{folderpath}/.uuid") then
@@ -69,7 +69,7 @@ class Torr
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) torr: #{description} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(Torr::uuid2metricuuid(uuid), 7).to_f/3600 )} hours)",
+            "announce" => "(#{"%.3f" % metric}) torr: #{description} (#{"%.2f" % ( 100*DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(Torr::uuid2metricuuid(uuid), 1).to_f/(individualItemDailyCommitmentInHours*3600) )} % of daily target)",
             "commands" => ["start", "stop", "folder", "set-description", "completed"],
             "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(Torr::uuid2metricuuid(uuid)) ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command| Torr::objectCommandHandler(object, command) },
