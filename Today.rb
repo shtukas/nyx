@@ -39,6 +39,10 @@ require 'find'
 
 require_relative "CatalystCore.rb"
 
+require_relative "CatalystCommon.rb"
+
+# -------------------------------------------------------------------------------------
+
 PATH_TO_CALENDAR_FILE = "/Galaxy/DataBank/Today+Calendar.txt"
 
 class Today
@@ -90,7 +94,7 @@ class Today
     def self.removeSectionFromFile(uuid)
         if Today::todaySectionsUUIDs().include?(uuid) then
             time = Time.new
-            targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
             FileUtils.mkpath(targetFolder)
             FileUtils.cp(PATH_TO_CALENDAR_FILE,"#{targetFolder}/Today+Calendar.txt")
 

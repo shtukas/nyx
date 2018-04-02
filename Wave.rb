@@ -67,6 +67,8 @@ require_relative "CatalystCore.rb"
 
 require 'drb/drb'
 
+require_relative "CatalystCommon.rb"
+
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
@@ -297,7 +299,7 @@ class WaveTimelineUtils
         folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         time = Time.new
-        targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
         FileUtils.mkpath(targetFolder)
         FileUtils.mv("#{folderpath}",targetFolder)
     end
@@ -644,7 +646,7 @@ class WaveDevOps
 
     # WaveDevOps::getArchiveSizeInMegaBytes()
     def self.getArchiveSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize("/Galaxy/DataBank/Catalyst/ArchivesTimeline").to_f/(1024*1024)
+        LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
     # WaveDevOps::getFirstDiveFirstLocationAtLocation(location)
@@ -673,8 +675,8 @@ class WaveDevOps
     def self.archivesGarbageCollection(verbose)
         answer = 0
         while WaveDevOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = WaveDevOps::getFirstDiveFirstLocationAtLocation("/Galaxy/DataBank/Catalyst/ArchivesTimeline")
-            break if location == "/Galaxy/DataBank/Catalyst/ArchivesTimeline"
+            location = WaveDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
+            break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
             puts "Garbage Collection: Removing: #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
             answer = answer + 1

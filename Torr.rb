@@ -26,6 +26,8 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
+require_relative "CatalystCommon.rb"
+
 # -------------------------------------------------------------------------------------
 
 TORR_PATH_TO_STREAM_ITEM_FOLDER = "/Galaxy/DataBank/Catalyst/Stream/items"
@@ -105,7 +107,7 @@ class Torr
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(Torr::uuid2metricuuid(uuid))
             end
             time = Time.new
-            targetFolder = "/Galaxy/DataBank/Catalyst/ArchivesTimeline/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
             puts "Source: #{object['item-folderpath']}"
             puts "Target: #{targetFolder}"
             FileUtils.mkpath(targetFolder)
