@@ -606,7 +606,7 @@ class WaveSchedules
             return 0.8 - 0.1*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
-            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 1.5 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
