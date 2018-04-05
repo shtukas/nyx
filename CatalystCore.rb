@@ -65,6 +65,15 @@ class CatalystCore
 
         objects = o1+o4+o5+o6
 
+        objects << {
+            "uuid"                => "d341644d",
+            "metric"              => 0.2,
+            "announce"            => "-- sleep time ---------------------------------------------------",
+            "commands"            => [],
+            "default-commands"    => [],
+            "command-interpreter" => lambda{ |command, object| }
+        }
+
         (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
