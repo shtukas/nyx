@@ -38,8 +38,15 @@ require 'fileutils'
 require 'find'
 
 require_relative "CatalystCore.rb"
-
 require_relative "CatalystCommon.rb"
+
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+=end
 
 # -------------------------------------------------------------------------------------
 
@@ -122,6 +129,7 @@ class Today
         todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
+            next if !KeyValueStore::getOrNull(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}")
             metric = 0.800 + 0.040*Math.exp(-idx.to_f/10) # 0.800 -> 0.840  Today+Calendar
             announce = section.size>1 ? "today:\n#{section.join}" : "today: #{section.first}"
             objects << {
@@ -133,6 +141,10 @@ class Today
                 "command-interpreter" => lambda{|object, command|
                     if command=='done' then
                         Today::removeSectionFromFile(object['uuid'])
+                    end
+                    if command=="temp-hide" then
+                        uuid = object["uuid"]
+                        KeyValueStore::set(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}","true")
                     end
                 }
             }

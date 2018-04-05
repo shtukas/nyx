@@ -41,7 +41,6 @@ require_relative "Wave.rb"
 require_relative "Ninja.rb"
 require_relative "Stream.rb"
 require_relative "Today.rb"
-require_relative "Torr.rb"
 
 # ----------------------------------------------------------------------
 
@@ -55,9 +54,6 @@ class CatalystCore
         o1 = WaveInterface::getCatalystObjects()
         #puts "Wave   : #{Time.new.to_f - start} , #{o1.count}"
 
-        o2 = Torr::getCatalystObjects()
-        #puts "Torr   : #{Time.new.to_f - start} , #{o2.count}"
-
         o4 = Ninja::getCatalystObjects()
         #puts "Ninja  : #{Time.new.to_f - start} , #{o4.count}"
 
@@ -67,7 +63,7 @@ class CatalystCore
         o6 = Today::getCatalystObjects()
         #puts "Today  : #{Time.new.to_f - start} , #{o6.count}"
 
-        objects = o1+o2+o4+o5+o6
+        objects = o1+o4+o5+o6
 
         (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }

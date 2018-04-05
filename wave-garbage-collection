@@ -34,32 +34,6 @@ require 'digest/sha1'
 
 require_relative "CatalystCore.rb"
 
-require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
-=begin
-
-    Xcache::set(key, value)
-    Xcache::getOrNull(key)
-    Xcache::getOrDefaultValue(key, defaultValue)
-    Xcache::destroy(key)
-
-    XcacheSets::values(setuid)
-    XcacheSets::insert(setuid, valueuid, value) # value can be an object
-    XcacheSets::remove(setuid, valueuid)
-
-    XStore::set(repositorypath, key, value)
-    XStore::getOrNull(repositorypath, key)
-    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
-    XStore::destroy(repositorypath, key)
-
-    XStoreSets::values(repositorypath, setuid)
-    XStoreSets::insert(repositorypath, setuid, valueuid, value) # value can be an object
-    XStoreSets::remove(repositorypath, setuid, valueuid)
-
-    Xcache and XStore have identical interfaces
-    Xcache is XStore with a repositorypath defaulting to x-space
-
-=end
-
 # ----------------------------------------------------------------------------
 
 puts WaveDevOps::getArchiveSizeInMegaBytes()

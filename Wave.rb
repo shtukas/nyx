@@ -2,32 +2,6 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
-=begin
-
-    Xcache::set(key, value)
-    Xcache::getOrNull(key)
-    Xcache::getOrDefaultValue(key, defaultValue)
-    Xcache::destroy(key)
-
-    XcacheSets::values(setuid)
-    XcacheSets::insert(setuid, valueuid, value)
-    XcacheSets::remove(setuid, valueuid)
-
-    XStore::set(repositorypath, key, value)
-    XStore::getOrNull(repositorypath, key)
-    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
-    XStore::destroy(repositorypath, key)
-
-    XStoreSets::values(repositorypath, setuid)
-    XStoreSets::insert(repositorypath, setuid, valueuid, value)
-    XStoreSets::remove(repositorypath, setuid, valueuid)
-
-    Xcache and XStore have identical interfaces
-    Xcache is XStore with a repositorypath defaulting to x-space
-
-=end
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require 'json'
@@ -69,6 +43,14 @@ require 'drb/drb'
 
 require_relative "CatalystCommon.rb"
 
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+=end
+
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
@@ -99,7 +81,7 @@ class WaveTimelineUtils
 
     # WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = Xcache::getOrNull("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = KeyValueStore::getOrNull(nil, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -111,7 +93,7 @@ class WaveTimelineUtils
         end
         #puts "WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        Xcache::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
+        KeyValueStore::set(nil, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
         maybepath
     end
 
@@ -605,7 +587,7 @@ class WaveSchedules
             return 0.850 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'today' then
-            return 0.8 - 0.1*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
+            return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
             return 1.5 + WaveSchedules::traceToMetricShift(schedule['uuid'])
@@ -614,24 +596,24 @@ class WaveSchedules
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.75 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'], Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+                return 0.77 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'], Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
             end
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.75 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         1
     end

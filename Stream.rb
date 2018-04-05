@@ -33,15 +33,74 @@ require_relative "CatalystCommon.rb"
 STREAM_PATH_TO_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 STREAM_PERFECT_NUMBER = 6
 
-# Stream::itemsFolderpath()
+# classification: ["quicky", "shorty", "project"]
+
+# StreamClassification::getItemClassificationOrNull(uuid)
+# StreamClassification::setItemClassification(uuid, classification)
+# StreamClassification::uuidToMetric(uuid)
+# StreamClassification::extractUnClassifiedFolderpaths(folderpaths)
+# StreamClassification::resolveClassificationForThisFolderpath(uuid)
+# StreamClassification::getNumberOfClassificationForThisHour()
+# StreamClassification::increaseNumberOfClassificationForThisHour()
+# StreamClassification::dataManagementClassifying()
+
+class StreamClassification
+    def self.getItemClassificationOrNull(uuid)        
+        KeyValueStore::getOrNull(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}")
+    end
+    def self.setItemClassification(uuid, classification)
+        KeyValueStore::set(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}", classification)
+    end
+    def self.uuidToMetric(uuid)
+        classification = StreamClassification::getItemClassificationOrNull(uuid)
+        low, high = 0.0, 0.2 if classification.nil?
+        low, high = 0.1, 0.4 if classification=="project"
+        low, high = 0.3, 0.6 if classification=="shorty"
+        low, high = 0.5, 0.8 if classification=="quicky"
+        DRbObject.new(nil, "druby://:10423").metric2(uuid, 7, 3, low, high, 2)
+    end
+    def self.extractUnClassifiedFolderpaths(folderpaths)
+        folderpaths.select{|folderpath| 
+            uuid = Stream::folderpath2uuid(folderpath)
+            StreamClassification::getItemClassificationOrNull(uuid).nil? 
+        }
+    end
+    def self.resolveClassificationForThisFolderpath(folderpath)
+        puts "Stream: resolving clasification for this #{folderpath}"
+        LucilleCore::pressEnterToContinue()
+        system("open '#{folderpath}'")
+        classification = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("classification", ["quicky", "shorty", "project"])  
+        uuid = Stream::folderpath2uuid(folderpath)
+        StreamClassification::setItemClassification(uuid, classification)
+    end
+    def self.getNumberOfClassificationForThisHour()
+        KeyValueStore::getOrDefaultValue(nil, "0051e8da-68c6-44df-a3bb-51fcbcd6ed49:#{Time.new.to_s[0,13]}", "0").to_i
+    end
+    def self.increaseNumberOfClassificationForThisHour()
+        newcount = StreamClassification::getNumberOfClassificationForThisHour()+1
+        KeyValueStore::set(nil, "0051e8da-68c6-44df-a3bb-51fcbcd6ed49:#{Time.new.to_s[0,13]}", newcount)
+    end
+    def self.dataManagementClassifying()
+        if StreamClassification::getNumberOfClassificationForThisHour()<3 then
+            StreamClassification::extractUnClassifiedFolderpaths(Stream::folderpaths()).first(3).each{|folderpath|
+                StreamClassification::resolveClassificationForThisFolderpath(folderpath)
+                StreamClassification::increaseNumberOfClassificationForThisHour()
+            }
+        end
+    end
+end
+
+# Stream::folderpaths()
 # Stream::getItemDescription(folderpath)
+# Stream::folderpath2uuid(folderpath)
+# Stream::getUUIDs()
 # Stream::pathToItemToCatalystObject(folderpath)
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjects()
 
 class Stream
 
-    def self.itemsFolderpath()
+    def self.folderpaths()
         Dir.entries("#{STREAM_PATH_TO_DOMAIN_FOLDER}/items")
             .select{|filename| filename[0,1]!='.' }
             .sort
@@ -54,17 +113,27 @@ class Stream
         description = KeyValueStore::getOrDefaultValue(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{folderpath}")
     end
 
-    def self.pathToItemToCatalystObject(folderpath)
+    def self.folderpath2uuid(folderpath)
         if !File.exist?("#{folderpath}/.uuid") then
             File.open("#{folderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) }
         end
-        uuid = IO.read("#{folderpath}/.uuid").strip
+        IO.read("#{folderpath}/.uuid").strip
+    end
+
+    def self.getUUIDs()
+        Stream::folderpaths()
+            .map{|folderpath| Stream::folderpath2uuid(folderpath) }
+    end
+
+    def self.pathToItemToCatalystObject(folderpath, indx)
+        uuid = Stream::folderpath2uuid(folderpath)
         description = Stream::getItemDescription(folderpath)
-        metric = DRbObject.new(nil, "druby://:10423").metric2(uuid, 7, 3, 0.1, 0.6, 2)
+        classification = StreamClassification::getItemClassificationOrNull(uuid)
+        metric = StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) stream: #{description} (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)",
+            "announce" => "(#{"%.3f" % metric}) stream: #{description}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)",
             "commands" => ["start", "stop", "folder", "completed", "set-description", ">torr"],
             "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
@@ -92,7 +161,7 @@ class Stream
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             end
             timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
-            folderpaths = Stream::itemsFolderpath().first(STREAM_PERFECT_NUMBER)
+            folderpaths = Stream::folderpaths().first(STREAM_PERFECT_NUMBER)
             if folderpaths.size>0 then
                 folderpaths.each{|xfolderpath| 
                     next if xfolderpath == object['item-folderpath']
@@ -139,17 +208,15 @@ class Stream
             }
 
         # ---------------------------------------------------
+        # 
+        StreamClassification::dataManagementClassifying()
+
+        # ---------------------------------------------------
         # Catalyst Objects
 
-        answer = []
-        folderpaths = Stream::itemsFolderpath()
-        loop {
-            path = folderpaths.drop(answer.size).first
-            break if path.nil?    
-            break if answer.size >= STREAM_PERFECT_NUMBER*2
-            break if answer.any?{|object| object['metric'] >= 0.2 }
-            answer << Stream::pathToItemToCatalystObject(path)        
+        folderpaths = Stream::folderpaths()
+        folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
+            Stream::pathToItemToCatalystObject(folderpath, indx)
         }
-        answer
     end
 end

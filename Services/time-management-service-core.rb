@@ -5,36 +5,26 @@
 require 'drb/drb'
 require 'thread'
 
-require "/Galaxy/local-resources/Ruby-Libraries/xstore.rb"
-=begin
-
-    Xcache::set(key, value)
-    Xcache::getOrNull(key)
-    Xcache::getOrDefaultValue(key, defaultValue)
-    Xcache::destroy(key)
-
-    XcacheSets::values(setuid)
-    XcacheSets::insert(setuid, valueuid, value)
-    XcacheSets::remove(setuid, valueuid)
-
-    XStore::set(repositorypath, key, value)
-    XStore::getOrNull(repositorypath, key)
-    XStore::getOrDefaultValue(repositorypath, key, defaultValue)
-    XStore::destroy(repositorypath, key)
-
-    XStoreSets::values(repositorypath, setuid)
-    XStoreSets::insert(repositorypath, setuid, valueuid, value)
-    XStoreSets::remove(repositorypath, setuid, valueuid)
-
-    Xcache and XStore have identical interfaces
-    Xcache is XStore with a repositorypath defaulting to x-space
-
-=end
-
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+=end
+
+require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
+=begin
+    SetsOperator::insert(repositorylocation or nil, setuuid, valueuuid, value)
+    SetsOperator::getOrNull(repositorylocation or nil, setuuid, valueuuid)
+    SetsOperator::delete(repositorylocation or nil, setuuid, valueuuid)
+    SetsOperator::values(repositorylocation or nil, setuuid)
+=end
 
 # ---------------------------------------------------------------------------------------
 
@@ -52,13 +42,13 @@ class Chronos
 
     def self.isRunning(uid)
         defaultValue = '{"is-running":false}'
-        status = JSON.parse(Xcache::getOrDefaultValue("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", defaultValue))
+        status = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", defaultValue))
         status['is-running']
     end
 
     def self.startUnixtimeOrNull(uid)
         defaultValue = '{"is-running":false}'
-        status = JSON.parse(Xcache::getOrDefaultValue("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", defaultValue))
+        status = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", defaultValue))
         if status['is-running'] then
             status['starttime']
         else
@@ -69,14 +59,14 @@ class Chronos
     def self.start(uid)
         return if Chronos::isRunning(uid)
         status = {"is-running"=>true,"starttime"=>Time.new.to_i}
-        Xcache::set("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", JSON.generate(status))
+        KeyValueStore::set(nil, "CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", JSON.generate(status))
     end
 
     def self.stop(uid) # stop a run and returns the time spent running in seconds 
         return if !Chronos::isRunning(uid)
-        status1 = JSON.parse(Xcache::getOrNull("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}"))
+        status1 = JSON.parse(KeyValueStore::getOrNull(nil, "CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}"))
         status2 = {"is-running"=>false}
-        Xcache::set("CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", JSON.generate(status2))
+        KeyValueStore::set(nil, "CEE6080B-63DA-4FE6-8CC9-94DDBB58B0DD:#{uid}", JSON.generate(status2))
         Time.new.to_i - status1['starttime']
     end
 
@@ -85,11 +75,11 @@ class Chronos
             "unixtime" => Time.new.to_i,
             "timespan" => timespan
         }
-        XcacheSets::insert("f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}", SecureRandom.hex, object)
+        SetsOperator::insert(nil, "f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}", SecureRandom.hex, object)
     end
 
     def self.timepackets(uid)
-        XcacheSets::values("f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}")
+        SetsOperator::values(nil, "f0da0e03-0ae9-44ce-9315-d870d4e2e851:#{uid}")
     end
 
     def self.metric2(uid, referencePeriodInDays, commitmentPerReferencePeriodInHours, metricAtFullyDone, metricAtZeroDone, metricRunning)
