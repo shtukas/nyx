@@ -49,19 +49,35 @@ class CatalystCore
     # CatalystCore::objects()
     def self.objects()
 
-        #start = Time.new.to_f
+        timings = {}
 
+        start = Time.new.to_f
         o1 = WaveInterface::getCatalystObjects()
-        #puts "Wave   : #{Time.new.to_f - start} , #{o1.count}"
+        timings["Wave"] = {
+            "time" => Time.new.to_f - start,
+            "count" => o1.count
+        }
 
+        start = Time.new.to_f
         o4 = Ninja::getCatalystObjects()
-        #puts "Ninja  : #{Time.new.to_f - start} , #{o4.count}"
+        timings["Ninja"] = {
+            "time" => Time.new.to_f - start,
+            "count" => o4.count
+        }
 
+        start = Time.new.to_f
         o5 = Stream::getCatalystObjects()
-        #puts "Stream : #{Time.new.to_f - start} , #{o5.count}"
+        timings["Stream"] = {
+            "time" => Time.new.to_f - start,
+            "count" => o5.count
+        }
 
+        start = Time.new.to_f
         o6 = Today::getCatalystObjects()
-        #puts "Today  : #{Time.new.to_f - start} , #{o6.count}"
+        timings["Today"] = {
+            "time" => Time.new.to_f - start,
+            "count" => o6.count
+        }
 
         objects = o1+o4+o5+o6
 
@@ -73,6 +89,17 @@ class CatalystCore
             "default-commands"    => [],
             "command-interpreter" => lambda{ |command, object| }
         }
+
+        if timings.map{|key, value| value["time"] }.inject(0,:+) > 1 then
+            objects << {
+                "uuid"                => "5E2B7E8",
+                "metric"              => 1,
+                "announce"            => "Catalyst generation is taking too long\n#{JSON.pretty_generate(timings)}",
+                "commands"            => [],
+                "default-commands"    => [],
+                "command-interpreter" => lambda{ |command, object| }
+            }
+        end
 
         (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
