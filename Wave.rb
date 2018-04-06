@@ -823,7 +823,7 @@ class WaveInterface
         if command=='>stream' then
             sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(objectuuid)
             targetfolderpath = "/Galaxy/DataBank/Catalyst/Stream/items/#{LucilleCore::timeStringL22()}"
-            LucilleCore::copyFileSystemLocation(sourcelocation, targetfolderpath)
+            FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
             return
         end
@@ -842,7 +842,7 @@ class WaveInterface
 
             # Removing wave files.
             Dir.entries(staginglocation)
-                .select{|filename| filename.start_with?('catalyst-') or filename.start_with?('wave-') }
+                .select{|filename| (filename.start_with?('catalyst-') or filename.start_with?('wave-')) and !filename.include?("description") }
                 .map{|filename| "#{staginglocation}/#{filename}" }
                 .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
 
