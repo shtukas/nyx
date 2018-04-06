@@ -12,12 +12,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 # -------------------------------------------------------------------------------------
 
-NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
-NINJA_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Ninja-DropOff"
-NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
-
-# -------------------------------------------------------------------------------------
-
 class Ninja
 
     # Ninja::collectDropOffObjects()
@@ -60,8 +54,8 @@ class Ninja
         0.2 + 0.4 * Math.exp( - todaydone.to_f / todaytotal )
     end
 
-    # Ninja::getCatalystObjects()
-    def self.getCatalystObjects()
+    # Ninja::getCatalystObjectsFromScratch()
+    def self.getCatalystObjectsFromScratch()
 
         Ninja::collectDropOffObjects()
 
@@ -77,8 +71,32 @@ class Ninja
                 if command=='play' then
                     system('ninja play')
                 end
+                $NINJA_GLOBAL_STATE["catalyst-objects"] = Ninja::getCatalystObjectsFromScratch()
             }
         } 
         objects
     end
+
+    # Ninja::getCatalystObjects()
+    def self.getCatalystObjects()
+        Ninja::collectDropOffObjects()
+        $NINJA_GLOBAL_STATE["catalyst-objects"]
+    end
 end
+
+# -------------------------------------------------------------------------------------
+
+NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
+NINJA_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Ninja-DropOff"
+NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
+
+$NINJA_GLOBAL_STATE = {}
+=begin
+    GLOBAL STATE = {
+        "catalyst-objects": Array[CatalystObjects]
+    }
+=end
+$NINJA_GLOBAL_STATE["catalyst-objects"] = Ninja::getCatalystObjectsFromScratch()
+
+# We update $NINJA_GLOBAL_STATE["catalyst-objects"] once at start up and then everytime we interact with one of the objects 
+
