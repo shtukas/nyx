@@ -30,11 +30,6 @@ require_relative "CatalystCommon.rb"
 
 # -------------------------------------------------------------------------------------
 
-STREAM_PATH_TO_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
-STREAM_PERFECT_NUMBER = 6
-
-# classification: ["quicky", "shorty", "project"]
-
 # StreamClassification::getItemClassificationOrNull(uuid)
 # StreamClassification::setItemClassification(uuid, classification)
 # StreamClassification::uuidToMetric(uuid)
@@ -94,8 +89,9 @@ end
 # Stream::getItemDescription(folderpath)
 # Stream::folderpath2uuid(folderpath)
 # Stream::getUUIDs()
-# Stream::pathToItemToCatalystObject(folderpath)
+# Stream::folderpathToCatalystObject(folderpath, indx)
 # Stream::objectCommandHandler(object, command)
+# Stream::getCatalystObjectsFromDisk()
 # Stream::getCatalystObjects()
 
 class Stream
@@ -125,7 +121,7 @@ class Stream
             .map{|folderpath| Stream::folderpath2uuid(folderpath) }
     end
 
-    def self.pathToItemToCatalystObject(folderpath, indx)
+    def self.folderpathToCatalystObject(folderpath, indx)
         uuid = Stream::folderpath2uuid(folderpath)
         description = Stream::getItemDescription(folderpath)
         classification = StreamClassification::getItemClassificationOrNull(uuid)
@@ -134,7 +130,7 @@ class Stream
             "uuid" => uuid,
             "metric" => metric,
             "announce" => "(#{"%.3f" % metric}) stream: #{description}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)",
-            "commands" => ["start", "stop", "folder", "completed", "set-description", ">torr"],
+            "commands" => ["start", "stop", "folder", "completed", "set-description"],
             "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath
@@ -144,16 +140,13 @@ class Stream
     def self.objectCommandHandler(object, command)
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
-            return
         end
         if command=='start' then
             DRbObject.new(nil, "druby://:10423").start(uuid)
             system("open '#{object['item-folderpath']}'")
-            return
         end
         if command=='stop' then
             DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-            return
         end
         
         if command=="completed" then
@@ -178,18 +171,20 @@ class Stream
             FileUtils.mkpath(targetFolder)
             FileUtils.mv("#{object['item-folderpath']}",targetFolder)
             LucilleCore::removeFileSystemLocation(object['item-folderpath'])
-            return
         end
         if command=='set-description' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             uuid = object['uuid']
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
-            return
         end
-        if command=='>torr' then
-            FileUtils.touch("#{object['item-folderpath']}/.torr")
-            return
-        end
+        $STREAM_GLOBAL_STATE["catalyst-objects"] = Stream::getCatalystObjectsFromDisk()
+    end
+
+    def self.getCatalystObjectsFromDisk()
+        folderpaths = Stream::folderpaths()
+        folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
+            Stream::folderpathToCatalystObject(folderpath, indx)
+        }
     end
 
     def self.getCatalystObjects()
@@ -212,11 +207,30 @@ class Stream
         StreamClassification::dataManagementClassifying()
 
         # ---------------------------------------------------
-        # Catalyst Objects
-
-        folderpaths = Stream::folderpaths()
-        folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
-            Stream::pathToItemToCatalystObject(folderpath, indx)
-        }
+        # 
+        $STREAM_GLOBAL_STATE["catalyst-objects"]
     end
 end
+
+# -------------------------------------------------------------------------------------
+
+STREAM_PATH_TO_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
+STREAM_PERFECT_NUMBER = 6
+
+# classification: ["quicky", "shorty", "project"]
+
+$STREAM_GLOBAL_STATE = {}
+=begin
+    GLOBAL STATE = {
+        "catalyst-objects": Array[CatalystObjects]
+    }
+=end
+$STREAM_GLOBAL_STATE["catalyst-objects"] = Stream::getCatalystObjectsFromDisk()
+
+# We update $STREAM_GLOBAL_STATE["catalyst-objects"] once at start up and then everytime we interact with one of the objects 
+
+# -------------------------------------------------------------------------------------
+
+
+
+
