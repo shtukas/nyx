@@ -391,11 +391,6 @@ end
 
 class WaveSchedules
 
-    # WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(trace)
-    def self.scheduleUtils_distanceBetweenTwoDatesInDays(date1,date2)
-        (DateTime.parse("#{date1} 00:00:00").to_time.to_f - DateTime.parse("#{date2} 00:00:00").to_time.to_f).abs.to_f/86400
-    end
-
     # WaveSchedules::makeScheduleObjectNew()
     def self.makeScheduleObjectNew()
         {
@@ -519,7 +514,7 @@ class WaveSchedules
 
     # WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
     def self.scheduleOfTypeDateIsInTheFuture(schedule)
-        schedule['date'] > DateTime.new.to_date.to_s
+        schedule['date'] > DateTime.now.to_date.to_s
     end
 
     # WaveSchedules::cycleSchedule(schedule)
@@ -596,7 +591,7 @@ class WaveSchedules
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.77 + WaveSchedules::scheduleUtils_distanceBetweenTwoDatesInDays(schedule['date'], Time.new.to_s[0,10]).to_f/1000 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+                return 0.77 + WaveSchedules::traceToMetricShift(schedule['uuid'])
             end
         end
 
