@@ -97,11 +97,10 @@ end
 class Stream
 
     def self.folderpaths()
-        Dir.entries("#{STREAM_PATH_TO_DOMAIN_FOLDER}/items")
+        Dir.entries(STREAM_PATH_TO_DOMAIN_FOLDER)
             .select{|filename| filename[0,1]!='.' }
             .sort
-            .map{|filename| "#{STREAM_PATH_TO_DOMAIN_FOLDER}/items/#{filename}" }
-            .select{|folderpath| !File.exist?("#{folderpath}/.torr") }
+            .map{|filename| "#{STREAM_PATH_TO_DOMAIN_FOLDER}/#{filename}" }
     end
 
     def self.getItemDescription(folderpath)
@@ -188,19 +187,6 @@ class Stream
     end
 
     def self.getCatalystObjects()
-
-        # ---------------------------------------------------
-        # DropOff
-
-        Dir.entries("#{STREAM_PATH_TO_DOMAIN_FOLDER}/Stream-DropOff")
-            .select{|filename| filename[0,1]!='.' }
-            .map{|filename| "#{STREAM_PATH_TO_DOMAIN_FOLDER}/Stream-DropOff/#{filename}" }
-            .each{|filepath|  
-                targetfolderpath = "#{STREAM_PATH_TO_DOMAIN_FOLDER}/items/#{LucilleCore::timeStringL22()}"
-                FileUtils.mkpath(targetfolderpath)
-                LucilleCore::copyFileSystemLocation(filepath, targetfolderpath)
-                LucilleCore::removeFileSystemLocation(filepath)
-            }
 
         # ---------------------------------------------------
         # 
