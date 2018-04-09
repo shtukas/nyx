@@ -578,8 +578,9 @@ class WaveSchedules
         # One Offs
 
         if schedule['@'] == 'new' then
-            unixtime = schedule['unixtime'] ? schedule['unixtime'] : Time.new.to_i
-            return 0.850 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            age = schedule['unixtime'] - DateTime.parse("#{Time.new.to_s[0, 10]} 00:00:00").to_time.to_i
+            # newer items (bigger difference) have a lower metric
+            return 0.850 - Math.atan(age.to_f/86400)/100
         end
         if schedule['@'] == 'today' then
             return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
