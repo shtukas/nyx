@@ -825,6 +825,7 @@ class WaveInterface
             targetfolderpath = "/Galaxy/DataBank/Catalyst/Stream/items/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
+            StreamClassification::resolveClassificationForThisFolderpath(targetfolderpath)
             return
         end
 
