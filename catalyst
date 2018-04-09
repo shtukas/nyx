@@ -104,7 +104,7 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
     end
 
     if expression=='lib' then
-        LibrarianUserInterfaceUtils::librarianInteractive()
+        LibrarianUserInterface::librarianInteractive()
         return
     end
 
