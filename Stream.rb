@@ -60,10 +60,12 @@ class StreamClassification
             StreamClassification::getItemClassificationOrNull(uuid).nil? 
         }
     end
-    def self.resolveClassificationForThisFolderpath(folderpath)
-        puts "Stream: resolving clasification for this #{folderpath}"
+    def self.resolveClassificationForThisFolderpath(folderpath, shouldOpenFolder = true)
+        puts "Stream: resolving clasification for #{folderpath}"
         LucilleCore::pressEnterToContinue()
-        system("open '#{folderpath}'")
+        if shouldOpenFolder then
+            system("open '#{folderpath}'")
+        end
         classification = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("classification", ["quicky", "shorty", "project"])  
         uuid = Stream::folderpath2uuid(folderpath)
         StreamClassification::setItemClassification(uuid, classification)
