@@ -143,10 +143,12 @@ class Stream
             system("open '#{object['item-folderpath']}'")
         end
         if command=='start' then
+            uuid = object['uuid']
             DRbObject.new(nil, "druby://:10423").start(uuid)
             system("open '#{object['item-folderpath']}'")
         end
         if command=='stop' then
+            uuid = object['uuid']
             DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
         end
         
@@ -174,8 +176,8 @@ class Stream
             LucilleCore::removeFileSystemLocation(object['item-folderpath'])
         end
         if command=='set-description' then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
             uuid = object['uuid']
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
         end
         $STREAM_GLOBAL_STATE["catalyst-objects"] = Stream::getCatalystObjectsFromDisk()
