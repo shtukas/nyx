@@ -168,7 +168,7 @@ class Stream
                 count = [STREAM_PERFECT_NUMBER, folderpaths.size].min
                 folderpaths.each{|xfolderpath| 
                     next if xfolderpath == object['item-folderpath']
-                    xuuid = File.basename(xfolderpath)
+                    xuuid = Stream::folderpath2uuid(xfolderpath)
                     xtimespan =  timespan.to_f/count
                     puts "Putting #{xtimespan} seconds for #{xuuid}"
                     DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
