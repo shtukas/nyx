@@ -158,12 +158,18 @@ class Stream
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             end
             timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
-            folderpaths = Stream::folderpaths().first(STREAM_PERFECT_NUMBER)
+            classification = StreamClassification::getItemClassificationOrNull(uuid)
+            folderpaths = Stream::folderpaths()
+                .select{|folderpath|
+                    StreamClassification::getItemClassificationOrNull(Stream::folderpath2uuid(folderpath))==classification
+                }
+                .first(STREAM_PERFECT_NUMBER)
             if folderpaths.size>0 then
+                count = [STREAM_PERFECT_NUMBER, folderpaths.size].min
                 folderpaths.each{|xfolderpath| 
                     next if xfolderpath == object['item-folderpath']
                     xuuid = File.basename(xfolderpath)
-                    xtimespan =  timespan.to_f/STREAM_PERFECT_NUMBER
+                    xtimespan =  timespan.to_f/count
                     puts "Putting #{xtimespan} seconds for #{xuuid}"
                     DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
                 }
