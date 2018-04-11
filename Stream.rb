@@ -153,7 +153,8 @@ class Stream
         end
         
         if command=="completed" then
-            if DRbObject.new(nil, "druby://:10423").isRunning(object['uuid']) then
+            uuid = object['uuid']
+            if DRbObject.new(nil, "druby://:10423").isRunning(uuid) then
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             end
             timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
