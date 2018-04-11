@@ -336,9 +336,9 @@ $requirement_operator = RequirementsOperator.new()
 
 # -----------------------------------------------------------------
 
-email_sync_on_schedule(true)
-
 Thread.new { 
+    sleep 60
+    email_sync_on_schedule(true)
     loop {
         sleep 1200
         email_sync_on_schedule(false)
