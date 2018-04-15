@@ -365,7 +365,7 @@ loop {
         next
     end
 
-    screen_space = Jupiter::screen_height()-7
+    screen_space = Jupiter::screen_height()-6
 
     objects = CatalystCore::objects()
         .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }
