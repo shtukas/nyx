@@ -37,8 +37,6 @@ require 'fileutils'
 
 require 'find'
 
-require_relative "CatalystCore.rb"
-
 require 'drb/drb'
 
 require_relative "CatalystCommon.rb"

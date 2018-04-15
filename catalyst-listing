@@ -2,12 +2,11 @@
 
 # encoding: UTF-8
 
-require_relative "Wave.rb"
 require_relative "CatalystCore.rb"
 
 # -------------------------------------------------------------------------------------
 
-WaveTimelineUtils::getCatalystObjects().each{|object|
+CatalystCore::objects().each{|object|
     puts "#{object['announce'].lines.first}"
 }
 

@@ -37,7 +37,6 @@ require 'fileutils'
 
 require 'find'
 
-require_relative "CatalystCore.rb"
 require_relative "CatalystCommon.rb"
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
@@ -52,15 +51,22 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 PATH_TO_CALENDAR_FILE = "/Galaxy/DataBank/Today+Calendar.txt"
 
+# Today::section_is_not_empty(section)
+# Today::contents_to_sections(reminaing_lines,sections)
+# Today::section_to_string(section)
+# Today::section_to_uuid(section)
+# Today::sectionToLength8UUID(section)
+# Today::todaySectionsUUIDs()
+# Today::removeSectionFromFile(uuid)
+# Today::getCatalystObjects()
+
 class Today
 
     # -------------------------------------------------------------------------------------
-    # Today::section_is_not_empty(section)
     def self.section_is_not_empty(section)
         section.any?{|line| line.strip.size>0 }
     end
 
-    # Today::contents_to_sections(reminaing_lines,sections)
     def self.contents_to_sections(reminaing_lines, sections)
         return sections.select{|section| Today::section_is_not_empty(section) } if reminaing_lines.size==0
         line = reminaing_lines.shift
@@ -73,23 +79,19 @@ class Today
         Today::contents_to_sections(reminaing_lines,sections)
     end
 
-    # Today::section_to_string(section)
     def self.section_to_string(section)
         section.join().strip
     end
 
-    # Today::section_to_uuid(section)
     def self.section_to_uuid(section)
         Digest::SHA1.hexdigest Today::section_to_string(section)
     end
 
     # -------------------------------------------------------------------------------------
-    # Today::sectionToLength8UUID(section)
     def self.sectionToLength8UUID(section)
         Today::section_to_uuid(section)[0, 8]
     end
 
-    # Today::todaySectionsUUIDs()
     def self.todaySectionsUUIDs()
         todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).map{|section|
@@ -97,7 +99,6 @@ class Today
         }
     end
 
-    # Today::removeSectionFromFile(uuid)
     def self.removeSectionFromFile(uuid)
         if Today::todaySectionsUUIDs().include?(uuid) then
             time = Time.new
@@ -123,13 +124,13 @@ class Today
         end
     end
 
-    # Today::getCatalystObjects()
     def self.getCatalystObjects()
         objects = []
         todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
-            next if !KeyValueStore::getOrNull(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}")
+            puts Time.new.to_s[0,13]
+            next if KeyValueStore::getOrNull(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}")
             metric = 0.800 + 0.040*Math.exp(-idx.to_f/10) # 0.800 -> 0.840  Today+Calendar
             announce = section.size>1 ? "today:\n#{section.join}" : "today: #{section.first}"
             objects << {

@@ -45,7 +45,6 @@ require_relative "Today.rb"
 # ----------------------------------------------------------------------
 
 class CatalystCore
-
     # CatalystCore::objects()
     def self.objects()
 

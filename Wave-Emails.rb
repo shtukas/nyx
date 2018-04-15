@@ -20,8 +20,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Wave.rb"
 
-require_relative "CatalystCore.rb"
-
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
