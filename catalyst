@@ -377,11 +377,16 @@ loop {
         screen_space, 
         100
     )
-    puts "" if preListObjects.size>0
+    if preListObjects.size>0 then
+        puts ""
+        screen_space = screen_space-1
+    end
 
     mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !PendingListOperator::uuids(Jupiter::currentHour()).include?(object['uuid']) }
 
-    screen_space = screen_space-Jupiter::vertical_space(mainListObjects.first['announce']) if mainListObjects.size>0
+    if mainListObjects.size>0 then
+        screen_space = screen_space-Jupiter::vertical_space(mainListObjects.first['announce']) 
+    end
 
     screen_space = Jupiter::puts_objects(
         mainListObjects.clone, 
@@ -389,7 +394,10 @@ loop {
         0
     )
 
-    puts "" if (mainListObjects+preListObjects).size>0
+    if mainListObjects.size>0 then
+        puts ""
+        screen_space = screen_space-1
+    end
 
     unsatisfied_requirements = $requirement_operator.currentlyUnsatisfifiedRequirements()
     if unsatisfied_requirements.size>0 then
