@@ -38,203 +38,225 @@ require "/Galaxy/LucilleOS/Librarian/LibrarianUI.rb"
 
 # ----------------------------------------------------------------------------
 
-def email_sync_on_schedule(verbose)
-    if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
-        begin
-            newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
-            if newEmailCount>0 then
-                puts "Retrieved #{newEmailCount} new emails"
+# Jupiter::Jupiter::email_sync_on_schedule(verbose)
+# Jupiter::screen_height()
+# Jupiter::screen_width()
+# Jupiter::vertical_space(announce)
+# Jupiter::tokenIsInteger(token)
+# Jupiter::puts_object_with_shell_display(object, dislayobjects, preListObjects)
+# Jupiter::puts_objects(objects, remaining_number_of_lines, indx)
+# Jupiter::putshelp()
+# Jupiter::currentHour()
+
+class Jupiter
+    def self.email_sync_on_schedule(verbose)
+        if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
+            begin
+                newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
+                if newEmailCount>0 then
+                    puts "Retrieved #{newEmailCount} new emails"
+                end
+                OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/operator.json")), verbose)
+                # We call again so that the clock restarts at the end of the process
+                LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
+            rescue
             end
-            OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/operator.json")), verbose)
-            # We call again so that the clock restarts at the end of the process
-            LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
-        rescue
+        end    
+    end
+    def self.screen_height()
+        `/usr/bin/env tput lines`.to_i
+    end
+    def self.screen_width()
+        `/usr/bin/env tput cols`.to_i
+    end
+    def self.vertical_space(announce)
+        announce.lines.map{|line| (line.size/Jupiter::screen_width())+1 }.inject(0, :+)
+    end
+    def self.tokenIsInteger(token)
+        token == token.to_i.to_s
+    end
+    def self.puts_object_with_shell_display(object, dislayobjects, preListObjects)
+
+        # Here is the reason why the second argument was introduced
+        # A first display is performed. 
+        # You select number 8.
+        # The list of objects is recomputed and the 8th (actually the 9th) one is selected.
+        # There is no guaranty that the one selected was the one you were looking at since the objects
+        # could have been reordered between the two computations.
+
+        # Here:
+        # If you select an ordinal, you get to apply it to the list you were looking at when you made that 
+        # mental selection.
+
+        requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
+        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
+
+        puts "#{object['announce'].strip}#{requirements}"
+
+        object['default-commands'] = [] if object['default-commands'].nil?
+
+        puts [
+            object['default-commands'].join(" ").green ,
+            object['commands'].join(" ").red
+        ].select{|s| s.size>0 }.join(" ; ").strip
+
+        print "---> "
+
+        expression = STDIN.gets().strip
+
+        if expression=='help' then
+            Jupiter::putshelp()
+            LucilleCore::pressEnterToContinue()
         end
-    end    
-end
 
-def screen_height()
-    `/usr/bin/env tput lines`.to_i
-end
+        if expression=='lib' then
+            LibrarianUserInterface::librarianInteractive()
+            return
+        end
 
-def screen_width()
-    `/usr/bin/env tput cols`.to_i
-end
+        if expression=="push" then
+            PendingListOperator::add(Jupiter::currentHour(),object['uuid'])
+            return
+        end
 
-def vertical_space(announce)
-    announce.lines.map{|line| (line.size/screen_width())+1 }.inject(0, :+)
-end
+        if expression.start_with?('insert') then
+            description = expression[6,expression.size].strip
+            uuid = SecureRandom.hex(4)
+            schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
+            folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+            File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
+            WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
+            return
+        end
 
-def tokenIsInteger(token)
-    token == token.to_i.to_s
-end
-
-def puts_object_shell_display(object, dislayobjects, preListObjects)
-
-    # Here is the reason why the second argument was introduced
-    # A first display is performed. 
-    # You select number 8.
-    # The list of objects is recomputed and the 8th (actually the 9th) one is selected.
-    # There is no guaranty that the one selected was the one you were looking at since the objects
-    # could have been reordered between the two computations.
-
-    # Here:
-    # If you select an ordinal, you get to apply it to the list you were looking at when you made that 
-    # mental selection.
-
-    requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
-    requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-
-    puts "#{object['announce'].strip}#{requirements}"
-
-    object['default-commands'] = [] if object['default-commands'].nil?
-
-    puts [
-        object['default-commands'].join(" ").green ,
-        object['commands'].join(" ").red
-    ].select{|s| s.size>0 }.join(" ; ").strip
-
-    print "---> "
-
-    expression = STDIN.gets().strip
-
-    if expression=='help' then
-        putshelp()
-        LucilleCore::pressEnterToContinue()
-    end
-
-    if expression=='lib' then
-        LibrarianUserInterface::librarianInteractive()
-        return
-    end
-
-    if expression=="push" then
-        PendingListOperator::add(currentHour(),object['uuid'])
-        return
-    end
-
-    if expression.start_with?('insert') then
-        description = expression[6,expression.size].strip
-        uuid = SecureRandom.hex(4)
-        schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
-        folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
-        WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
-        return
-    end
-
-    if expression.start_with?("search") then
-        pattern = expression[6,expression.size].strip
-        searchobjects = CatalystCore::objects()
-            .select{|object| object['announce'].downcase.include?(pattern.downcase) }
-        if searchobjects.size>0 then
-            searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
-            if searchobject then
-                puts_object_shell_display(searchobject, dislayobjects, preListObjects)
+        if expression.start_with?("search") then
+            pattern = expression[6,expression.size].strip
+            searchobjects = CatalystCore::objects()
+                .select{|object| object['announce'].downcase.include?(pattern.downcase) }
+            if searchobjects.size>0 then
+                searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
+                if searchobject then
+                    Jupiter::puts_object_with_shell_display(searchobject, dislayobjects, preListObjects)
+                end
             end
+            return
         end
-        return
-    end
 
-    if expression.start_with?("require") then
-        requirement = expression[7,expression.size].strip
-        $requirement_operator.addObjectRequirement(object['uuid'],requirement)
-        return
-    end
+        if expression.start_with?("require") then
+            requirement = expression[7,expression.size].strip
+            $requirement_operator.addObjectRequirement(object['uuid'],requirement)
+            return
+        end
 
-    if expression.start_with?("on") then
-        command, requirement = expression.split(" ")
-        $requirement_operator.setRequirementOn(requirement, [ Time.new.to_s[0,13] ])
-        return
-    end
+        if expression.start_with?("on") then
+            command, requirement = expression.split(" ")
+            $requirement_operator.setRequirementOn(requirement, [ Time.new.to_s[0,13] ])
+            return
+        end
 
-    if expression.start_with?("off") then
-        command, requirement, length = expression.split(" ")
-        datehours = LucilleCore::integerEnumerator()
-            .first(length.to_i)
-            .map{|idx| Time.at( Time.new.to_i + idx*3600 ).to_s[0,13] }        
-        $requirement_operator.setRequirementOff(requirement, datehours)
-        return
-    end
+        if expression.start_with?("off") then
+            command, requirement, length = expression.split(" ")
+            datehours = LucilleCore::integerEnumerator()
+                .first(length.to_i)
+                .map{|idx| Time.at( Time.new.to_i + idx*3600 ).to_s[0,13] }        
+            $requirement_operator.setRequirementOff(requirement, datehours)
+            return
+        end
 
-    # ---------------------
-    # default commands
+        # ---------------------
+        # default commands
 
-    if expression.size==0 and object['default-commands'] then
-        object['default-commands'].each{|command|
-            if command.start_with?('shell:') then
-                command = command[7,command.size].strip
-                system(command)
+        if expression.size==0 and object['default-commands'] then
+            object['default-commands'].each{|command|
+                if command.start_with?('shell:') then
+                    command = command[7,command.size].strip
+                    system(command)
+                else
+                    object['command-interpreter'].call(object, command)
+                end
+            }
+            return
+        end
+
+        # ---------------------
+        # regular expression: optional integer and commands
+
+        expression_decomposition = lambda{ |expression, dislayobjects, preListObjects|
+            tokens = 
+                if expression.start_with?('+') then
+                    [expression]
+                else
+                    expression.split(' ').map{|t| t.strip }
+                end
+            if Jupiter::tokenIsInteger(tokens[0]) then
+                indx = tokens[0].to_i
+                targetObject = indx<100 ? dislayobjects.drop(indx).first : preListObjects.drop(indx-100).first 
+                tokens.shift
+                [targetObject, tokens]
             else
+                [nil, tokens]
+            end
+        }
+
+        targetObject, tokens = expression_decomposition.call(expression, dislayobjects.clone, preListObjects.clone)
+
+        if targetObject and tokens.size==0 then
+            PendingListOperator::delete(Jupiter::currentHour(), targetObject['uuid'])
+            Jupiter::puts_object_with_shell_display(targetObject, dislayobjects, preListObjects)
+        end
+
+        if targetObject and tokens.size>0 then
+            PendingListOperator::delete(Jupiter::currentHour(), targetObject['uuid'])
+            tokens.each{|command|
+                targetObject['command-interpreter'].call(targetObject, command)
+            }
+        end    
+
+        if targetObject.nil? and tokens.size==0 then
+            # Nothing to do 
+        end
+
+        if targetObject.nil? and tokens.size>0 then
+            tokens.each{|command|
                 object['command-interpreter'].call(object, command)
-            end
-        }
-        return
-    end
-
-    # ---------------------
-    # regular expression: optional integer and commands
-
-    def expression_decomposition(expression, dislayobjects, preListObjects)
-        tokens = 
-            if expression.start_with?('+') then
-                [expression]
-            else
-                expression.split(' ').map{|t| t.strip }
-            end
-        if tokenIsInteger(tokens[0]) then
-            indx = tokens[0].to_i
-            targetObject = indx<100 ? dislayobjects.drop(indx).first : preListObjects.drop(indx-100).first 
-            tokens.shift
-            [targetObject, tokens]
-        else
-            [nil, tokens]
+            }        
         end
     end
-
-    targetObject, tokens = expression_decomposition(expression, dislayobjects.clone, preListObjects.clone)
-
-    if targetObject and tokens.size==0 then
-        PendingListOperator::delete(currentHour(), targetObject['uuid'])
-        puts_object_shell_display(targetObject, dislayobjects, preListObjects)
+    def self.puts_objects(objects, remaining_number_of_lines, indx)
+        return remaining_number_of_lines if objects.size==0
+        return remaining_number_of_lines if remaining_number_of_lines<=0
+        object = objects.shift
+        requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
+        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
+        indexString = "(#{indx.to_s.rjust(3)})"
+        str = "#{indexString} #{object['announce'].lines.first}#{requirements}"
+        if object['metric']>=2 then
+            str = str.green
+        end
+        if indx>=100 then
+            str = str.yellow
+        end
+        puts str
+        Jupiter::puts_objects(objects,remaining_number_of_lines-1, indx+1)
     end
-
-    if targetObject and tokens.size>0 then
-        PendingListOperator::delete(currentHour(), targetObject['uuid'])
-        tokens.each{|command|
-            targetObject['command-interpreter'].call(targetObject, command)
-        }
-    end    
-
-    if targetObject.nil? and tokens.size==0 then
-        # Nothing to do 
+    def self.putshelp()
+        puts "Special General Commands:"
+        puts "    help"
+        puts "    insert <wave item description>"
+        puts "    search <pattern>"
+        puts "    on <requirement>"
+        puts "    off <requirement> <number of hours>"
+        puts "    lib # Invoques the Librarian interactive"
+        puts ""
+        puts "Special Object Commands:"
+        puts "    require <requirement>"
+        puts "    push"
     end
-
-    if targetObject.nil? and tokens.size>0 then
-        tokens.each{|command|
-            object['command-interpreter'].call(object, command)
-        }        
+    def self.currentHour()
+        Time.new.to_s[0,13]
     end
-end
-
-def puts_objects(objects, remaining_number_of_lines, indx)
-    return remaining_number_of_lines if objects.size==0
-    return remaining_number_of_lines if remaining_number_of_lines<=0
-    object = objects.shift
-    requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
-    requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-    indexString = "(#{indx.to_s.rjust(3)})"
-    str = "#{indexString} #{object['announce']}#{requirements}"
-    if object['metric']>=2 then
-        str = str.green
-    end
-    if indx>=100 then
-        str = str.yellow
-    end
-    puts str
-    puts_objects(objects,remaining_number_of_lines-vertical_space(object['announce']), indx+1)
 end
 
 class RequirementsOperator
@@ -297,24 +319,6 @@ class RequirementsOperator
     end
 end
 
-def putshelp()
-    puts "Special General Commands:"
-    puts "    help"
-    puts "    insert <wave item description>"
-    puts "    search <pattern>"
-    puts "    on <requirement>"
-    puts "    off <requirement> <number of hours>"
-    puts "    lib # Invoques the Librarian interactive"
-    puts ""
-    puts "Special Object Commands:"
-    puts "    require <requirement>"
-    puts "    push"
-end
-
-def currentHour()
-    Time.new.to_s[0,13]
-end
-
 class PendingListOperator
     @@uuids = {}
     def self.init()
@@ -345,43 +349,41 @@ $requirement_operator = RequirementsOperator.new()
 
 Thread.new { 
     sleep 60
-    email_sync_on_schedule(true)
+    Jupiter::email_sync_on_schedule(true)
     loop {
         sleep 1200
-        email_sync_on_schedule(false)
+        Jupiter::email_sync_on_schedule(false)
     }
 }
 
 loop {
 
-    objects = CatalystCore::objects()
-        .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }
-        .first(screen_height()-5)
+    puts "# #{ "-" * (Jupiter::screen_width()-3) }"
 
-    puts "# #{ "-" * (screen_width()-3) }"
-
-    count = WaveDevOps::archivesGarbageCollection(true)
-    if count>0 then
+    if WaveDevOps::archivesGarbageCollection(true)>0 then
         LucilleCore::pressEnterToContinue()
         next
     end
 
-    screen_space = screen_height()-7
+    screen_space = Jupiter::screen_height()-7
 
-    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and PendingListOperator::uuids(currentHour()).include?(object['uuid']) }
-    screen_space = puts_objects(
+    objects = CatalystCore::objects()
+        .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }
+        .first(Jupiter::screen_height()-5)
+
+    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and PendingListOperator::uuids(Jupiter::currentHour()).include?(object['uuid']) }
+    screen_space = Jupiter::puts_objects(
         preListObjects.clone, 
         screen_space, 
         100
     )
     puts "" if preListObjects.size>0
 
+    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !PendingListOperator::uuids(Jupiter::currentHour()).include?(object['uuid']) }
 
-    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !PendingListOperator::uuids(currentHour()).include?(object['uuid']) }
+    screen_space = screen_space-Jupiter::vertical_space(mainListObjects.first['announce']) if mainListObjects.size>0
 
-    screen_space = screen_space-vertical_space(mainListObjects.first['announce']) if mainListObjects.size>0
-
-    screen_space = puts_objects(
+    screen_space = Jupiter::puts_objects(
         mainListObjects.clone, 
         screen_space, 
         0
@@ -397,11 +399,11 @@ loop {
     end
 
     if mainListObjects.size>0 then
-        puts_object_shell_display(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
+        Jupiter::puts_object_with_shell_display(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
     elsif 
         preListObjects.size>0
         puts "Nothing to do (^_^). Defaulting to prelisting:"
-        puts_object_shell_display(preListObjects.first, preListObjects.clone, preListObjects.clone)        
+        Jupiter::puts_object_with_shell_display(preListObjects.first, preListObjects.clone, preListObjects.clone)        
     else
         puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
         sleep 60
