@@ -132,7 +132,7 @@ class Today
             puts Time.new.to_s[0,13]
             next if KeyValueStore::getOrNull(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}")
             metric = 0.800 + 0.040*Math.exp(-idx.to_f/10) # 0.800 -> 0.840  Today+Calendar
-            announce = section.size>1 ? "today:\n#{section.join}".strip : "today: #{section.first}".strip
+            announce = section.size>1 ? "today:\n#{section.first(4).map{|line| "        #{line}" }.join}".strip : "today: #{section.first}".strip
             objects << {
                 "uuid" => uuid,
                 "metric" => metric,

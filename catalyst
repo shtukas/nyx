@@ -145,14 +145,17 @@ def puts_object_shell_display(object, dislayobjects, preListObjects)
     end
 
     if expression.start_with?("on") then
-        requirement = expression[2,expression.size].strip
-        $requirement_operator.setRequirementOn(requirement)
+        command, requirement = expression.split(" ")
+        $requirement_operator.setRequirementOn(requirement, [ Time.new.to_s[0,13] ])
         return
     end
 
     if expression.start_with?("off") then
-        requirement = expression[3,expression.size].strip
-        $requirement_operator.setRequirementOff(requirement)
+        command, requirement, length = expression.split(" ")
+        datehours = LucilleCore::integerEnumerator()
+            .first(length.to_i)
+            .map{|idx| Time.at( Time.new.to_i + idx*3600 ).to_s[0,13] }        
+        $requirement_operator.setRequirementOff(requirement, datehours)
         return
     end
 
@@ -271,14 +274,18 @@ class RequirementsOperator
         self.saveDataToDisk()
     end
 
-    def setRequirementOn(requirement)
-        @data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"] = true
-        self.saveDataToDisk()
+    def setRequirementOn(requirement, datehours)
+        datehours.each{|datehour|
+            @data['requirements-status-timeline']["#{datehour};#{requirement}"] = true
+            self.saveDataToDisk()
+        }
     end
 
-    def setRequirementOff(requirement)
-        @data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"] = false
-        self.saveDataToDisk()
+    def setRequirementOff(requirement, datehours)
+        datehours.each{|datehour|
+            @data['requirements-status-timeline']["#{datehour};#{requirement}"] = false
+            self.saveDataToDisk()
+        }
     end
 
     def allRequirements()
@@ -296,7 +303,7 @@ def putshelp()
     puts "    insert <wave item description>"
     puts "    search <pattern>"
     puts "    on <requirement>"
-    puts "    off <requirement>"
+    puts "    off <requirement> <number of hours>"
     puts "    lib # Invoques the Librarian interactive"
     puts ""
     puts "Special Object Commands:"
