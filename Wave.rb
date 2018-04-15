@@ -836,7 +836,7 @@ class WaveInterface
         end
 
         if command=='>stream' then
-            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(objectuuid)
+            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             targetfolderpath = "/Galaxy/DataBank/Catalyst/Stream/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
@@ -853,7 +853,7 @@ class WaveInterface
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
 
             # Copying the wave folder to the Desktop                    
-            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(objectuuid)
+            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
             LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
 
