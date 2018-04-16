@@ -257,7 +257,7 @@ class Jupiter
             str = str.yellow
         end
         puts str
-        Jupiter::puts_objects(objects,remaining_number_of_lines-1, indx+1)
+        Jupiter::puts_objects(objects,remaining_number_of_lines-Jupiter::vertical_space(str), indx+1)
     end
 
     def self.putshelp()
