@@ -119,8 +119,8 @@ class Jupiter
             return
         end
 
-        if expression.start_with?('insert') then
-            description = expression[6,expression.size].strip
+        if expression.start_with?('wave:') then
+            description = expression[5, expression.size].strip
             uuid = SecureRandom.hex(4)
             schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
             folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
@@ -128,6 +128,14 @@ class Jupiter
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
             File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
             WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
+            return
+        end
+
+        if expression.start_with?('stream:') then
+            description = expression[7, expression.size].strip
+            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             return
         end
 
@@ -244,7 +252,8 @@ class Jupiter
     def self.putshelp()
         puts "Special General Commands:"
         puts "    help"
-        puts "    insert <wave item description>"
+        puts "    wave: <wave description>"
+        puts "    stream: <stream description>"
         puts "    search <pattern>"
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
