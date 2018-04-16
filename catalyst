@@ -47,6 +47,8 @@ require "/Galaxy/LucilleOS/Librarian/LibrarianUI.rb"
 # Jupiter::puts_objects(objects, remaining_number_of_lines, indx)
 # Jupiter::putshelp()
 # Jupiter::currentHour()
+# Jupiter::edit_text_using_textmate(text)
+# Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
 
 class Jupiter
     def self.email_sync_on_schedule(verbose)
@@ -63,18 +65,23 @@ class Jupiter
             end
         end    
     end
+
     def self.screen_height()
         `/usr/bin/env tput lines`.to_i
     end
+
     def self.screen_width()
         `/usr/bin/env tput cols`.to_i
     end
+
     def self.vertical_space(announce)
         announce.lines.map{|line| (line.size/Jupiter::screen_width())+1 }.inject(0, :+)
     end
+
     def self.tokenIsInteger(token)
         token == token.to_i.to_s
     end
+
     def self.puts_object_with_shell_display(object, dislayobjects, preListObjects)
 
         # Here is the reason why the second argument was introduced
@@ -121,6 +128,7 @@ class Jupiter
 
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
+            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             uuid = SecureRandom.hex(4)
             schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
             folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
@@ -133,6 +141,7 @@ class Jupiter
 
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
+            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
@@ -232,6 +241,7 @@ class Jupiter
             }        
         end
     end
+
     def self.puts_objects(objects, remaining_number_of_lines, indx)
         return remaining_number_of_lines if objects.size==0
         return remaining_number_of_lines if remaining_number_of_lines<=0
@@ -249,6 +259,7 @@ class Jupiter
         puts str
         Jupiter::puts_objects(objects,remaining_number_of_lines-1, indx+1)
     end
+
     def self.putshelp()
         puts "Special General Commands:"
         puts "    help"
@@ -263,8 +274,27 @@ class Jupiter
         puts "    require <requirement>"
         puts "    push"
     end
+
     def self.currentHour()
         Time.new.to_s[0,13]
+    end
+
+    def self.edit_text_using_textmate(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}  
+      system("/usr/local/bin/mate \"#{filepath}\"")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)  
+    end
+
+    def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        if description=='text' then
+            edit_text_using_textmate("")
+        else
+            description
+        end
     end
 end
 
