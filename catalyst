@@ -231,7 +231,7 @@ class Jupiter
         requirements = $requirement_operator.getObjectRequirements(object['uuid']).join(", ")
         requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
         indexString = "(#{indx.to_s.rjust(3)})"
-        str = "#{indexString} #{object['announce'].lines.first}#{requirements}"
+        str = "#{indexString} #{object['announce'].lines.first.strip}#{requirements}"
         if object['metric']>=2 then
             str = str.green
         end

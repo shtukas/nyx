@@ -153,4 +153,3 @@ class Today
     end
 
 end
-

@@ -79,30 +79,32 @@ class StreamClassification
     end
     def self.dataManagementClassifying()
         if StreamClassification::getNumberOfClassificationForThisHour()<3 then
-            StreamClassification::extractUnClassifiedFolderpaths(Stream::folderpaths()).first(3).each{|folderpath|
-                StreamClassification::resolveClassificationForThisFolderpath(folderpath)
-                StreamClassification::increaseNumberOfClassificationForThisHour()
+            ["strm1", "strm2"].each{|streamName|
+                StreamClassification::extractUnClassifiedFolderpaths(Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")).first(3).each{|folderpath|
+                    StreamClassification::resolveClassificationForThisFolderpath(folderpath)
+                    StreamClassification::increaseNumberOfClassificationForThisHour()
+                }
             }
         end
     end
 end
 
-# Stream::folderpaths()
+# Stream::folderpaths(itemsfolderpath)
 # Stream::getItemDescription(folderpath)
 # Stream::folderpath2uuid(folderpath)
 # Stream::getUUIDs()
-# Stream::folderpathToCatalystObject(folderpath, indx)
+# Stream::folderpathToCatalystObject(folderpath, indx, streamName)
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjectsFromDisk()
 # Stream::getCatalystObjects()
 
 class Stream
 
-    def self.folderpaths()
-        Dir.entries(STREAM_PATH_TO_DOMAIN_FOLDER)
+    def self.folderpaths(itemsfolderpath)
+        Dir.entries(itemsfolderpath)
             .select{|filename| filename[0,1]!='.' }
             .sort
-            .map{|filename| "#{STREAM_PATH_TO_DOMAIN_FOLDER}/#{filename}" }
+            .map{|filename| "#{itemsfolderpath}/#{filename}" }
     end
 
     def self.getItemDescription(folderpath)
@@ -118,11 +120,13 @@ class Stream
     end
 
     def self.getUUIDs()
-        Stream::folderpaths()
+        ["strm1", "strm2"].map{|streamName|
+            Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
             .map{|folderpath| Stream::folderpath2uuid(folderpath) }
+        }.flatten
     end
 
-    def self.folderpathToCatalystObject(folderpath, indx)
+    def self.folderpathToCatalystObject(folderpath, indx, streamName)
         uuid = Stream::folderpath2uuid(folderpath)
         description = Stream::getItemDescription(folderpath)
         classification = StreamClassification::getItemClassificationOrNull(uuid)
@@ -134,14 +138,15 @@ class Stream
             "commands" => ["start", "stop", "folder", "completed", "set-description", "rotate"],
             "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
-            "item-folderpath" => folderpath
+            "item-folderpath" => folderpath,
+            "item-stream-name" => streamName           
         }
     end
 
     def self.objectCommandHandler(object, command)
         if command=='rotate' then
             sourcelocation = object["item-folderpath"]
-            targetfolderpath  = "/Galaxy/DataBank/Catalyst/Stream/#{LucilleCore::timeStringL22()}"
+            targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
         end
         if command=='folder' then
@@ -164,7 +169,8 @@ class Stream
             end
             timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
             classification = StreamClassification::getItemClassificationOrNull(uuid)
-            folderpaths = Stream::folderpaths()
+            streamName = object["item-stream-name"]
+            folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
                 .select{|folderpath|
                     StreamClassification::getItemClassificationOrNull(Stream::folderpath2uuid(folderpath))==classification
                 }
@@ -196,27 +202,22 @@ class Stream
     end
 
     def self.getCatalystObjectsFromDisk()
-        folderpaths = Stream::folderpaths()
-        folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
-            Stream::folderpathToCatalystObject(folderpath, indx)
-        }
+        ["strm1", "strm2"].map{|streamName|
+            folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
+            folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
+                Stream::folderpathToCatalystObject(folderpath, indx, streamName)
+            }
+        }.flatten
     end
 
     def self.getCatalystObjects()
-
-        # ---------------------------------------------------
-        # 
         StreamClassification::dataManagementClassifying()
-
-        # ---------------------------------------------------
-        # 
         $STREAM_GLOBAL_STATE["catalyst-objects"]
     end
 end
 
 # -------------------------------------------------------------------------------------
 
-STREAM_PATH_TO_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 STREAM_PERFECT_NUMBER = 6
 
 # classification: ["quicky", "shorty", "project"]
