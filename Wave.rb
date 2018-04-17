@@ -839,7 +839,6 @@ class WaveInterface
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
-            StreamClassification::resolveClassificationForThisFolderpath(targetfolderpath, false)
             return
         end
 

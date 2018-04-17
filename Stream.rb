@@ -32,6 +32,7 @@ require_relative "CatalystCommon.rb"
 
 # StreamClassification::getItemClassificationOrNull(uuid)
 # StreamClassification::setItemClassification(uuid, classification)
+# StreamClassification::updateItemClassification(uuid, classification, totalTimeSpan)
 # StreamClassification::uuidToMetric(uuid)
 # StreamClassification::extractUnClassifiedFolderpaths(folderpaths)
 # StreamClassification::resolveClassificationForThisFolderpath(uuid)
@@ -39,13 +40,29 @@ require_relative "CatalystCommon.rb"
 # StreamClassification::increaseNumberOfClassificationForThisHour()
 # StreamClassification::dataManagementClassifying()
 
+# classification: ["quicky", "shorty", "project"]
+
 class StreamClassification
     def self.getItemClassificationOrNull(uuid)
         KeyValueStore::getOrNull(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}")
     end
+
     def self.setItemClassification(uuid, classification)
         KeyValueStore::set(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}", classification)
     end
+
+    def self.updateItemClassification(uuid, classification, totalTimeSpan)
+        if classification.nil? then
+            StreamClassification::setItemClassification(uuid, "quicky")
+        end
+        if ( classification == "quicky" ) and ( totalTimeSpan > 3600*2 ) then
+            StreamClassification::setItemClassification(uuid, "shorty")
+        end
+        if ( classification == "shorty" ) and ( totalTimeSpan > 3600*5 ) then
+            StreamClassification::setItemClassification(uuid, "project") 
+        end
+    end
+
     def self.uuidToMetric(uuid)
         classification = StreamClassification::getItemClassificationOrNull(uuid)
         low, high = 0.0, 0.2 if classification.nil?
@@ -54,12 +71,14 @@ class StreamClassification
         low, high = 0.5, 0.8 if classification=="quicky"
         DRbObject.new(nil, "druby://:10423").metric2(uuid, 7, 3, low, high, 2)
     end
+
     def self.extractUnClassifiedFolderpaths(folderpaths)
         folderpaths.select{|folderpath| 
             uuid = Stream::folderpath2uuid(folderpath)
             StreamClassification::getItemClassificationOrNull(uuid).nil? 
         }
     end
+
     def self.resolveClassificationForThisFolderpath(folderpath, shouldOpenFolder = true)
         puts "Stream: resolving clasification for #{folderpath}"
         LucilleCore::pressEnterToContinue()
@@ -70,23 +89,16 @@ class StreamClassification
         uuid = Stream::folderpath2uuid(folderpath)
         StreamClassification::setItemClassification(uuid, classification)
     end
+
     def self.getNumberOfClassificationForThisHour()
         KeyValueStore::getOrDefaultValue(nil, "0051e8da-68c6-44df-a3bb-51fcbcd6ed49:#{Time.new.to_s[0,13]}", "0").to_i
     end
+
     def self.increaseNumberOfClassificationForThisHour()
         newcount = StreamClassification::getNumberOfClassificationForThisHour()+1
         KeyValueStore::set(nil, "0051e8da-68c6-44df-a3bb-51fcbcd6ed49:#{Time.new.to_s[0,13]}", newcount)
     end
-    def self.dataManagementClassifying()
-        if StreamClassification::getNumberOfClassificationForThisHour()<3 then
-            ["strm1", "strm2"].each{|streamName|
-                StreamClassification::extractUnClassifiedFolderpaths(Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")).first(3).each{|folderpath|
-                    StreamClassification::resolveClassificationForThisFolderpath(folderpath)
-                    StreamClassification::increaseNumberOfClassificationForThisHour()
-                }
-            }
-        end
-    end
+
 end
 
 # Stream::folderpaths(itemsfolderpath)
@@ -131,12 +143,13 @@ class Stream
         description = Stream::getItemDescription(folderpath)
         classification = StreamClassification::getItemClassificationOrNull(uuid)
         metric = StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
+        defaultCommands = DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start']
         {
             "uuid" => uuid,
             "metric" => metric,
             "announce" => "(#{"%.3f" % metric}) [#{uuid}] stream: #{description}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)",
             "commands" => ["start", "stop", "folder", "completed", "set-description", "rotate"],
-            "default-commands" => DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'],
+            "default-commands" => defaultCommands,
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath,
             "item-stream-name" => streamName           
@@ -144,6 +157,11 @@ class Stream
     end
 
     def self.objectCommandHandler(object, command)
+        uuid = object['uuid']
+        StreamClassification::updateItemClassification(
+            uuid, 
+            StreamClassification::getItemClassificationOrNull(uuid), 
+            DRbObject.new(nil, "druby://:10423").getEntityTotalTimespan(uuid))
         if command=='rotate' then
             sourcelocation = object["item-folderpath"]
             targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
@@ -153,17 +171,14 @@ class Stream
             system("open '#{object['item-folderpath']}'")
         end
         if command=='start' then
-            uuid = object['uuid']
             DRbObject.new(nil, "druby://:10423").start(uuid)
             system("open '#{object['item-folderpath']}'")
         end
         if command=='stop' then
-            uuid = object['uuid']
             DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
         end
         
         if command=="completed" then
-            uuid = object['uuid']
             if DRbObject.new(nil, "druby://:10423").isRunning(uuid) then
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             end
@@ -194,7 +209,6 @@ class Stream
             LucilleCore::removeFileSystemLocation(object['item-folderpath'])
         end
         if command=='set-description' then
-            uuid = object['uuid']
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
         end
@@ -211,7 +225,6 @@ class Stream
     end
 
     def self.getCatalystObjects()
-        StreamClassification::dataManagementClassifying()
         $STREAM_GLOBAL_STATE["catalyst-objects"]
     end
 end
@@ -219,8 +232,6 @@ end
 # -------------------------------------------------------------------------------------
 
 STREAM_PERFECT_NUMBER = 6
-
-# classification: ["quicky", "shorty", "project"]
 
 $STREAM_GLOBAL_STATE = {}
 =begin

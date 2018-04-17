@@ -37,6 +37,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 # Chronos::timepackets(uid)
 # Chronos::metric2(uid, referencePeriodInDays, commitmentPerReferencePeriodInHours, metricAtFullyDone, metricAtZeroDone, metricRunning)
 # Chronos::getEntityTotalTimespanForPeriod(entityuid, referencePeriodInDays)
+# Chronos::getEntityTotalTimespan(uid)
 
 class Chronos
 
@@ -94,6 +95,12 @@ class Chronos
         else
             metricAtFullyDone*Math.exp( -(doneTimeInSeconds.to_f/totalTimeInSeconds) )
         end
+    end
+
+    def self.getEntityTotalTimespan(uid)
+        Chronos::timepackets(uid)
+            .map{|timepacket| timepacket['timespan'] }
+            .inject(0, :+)
     end
 
     def self.getEntityTotalTimespanForPeriod(uid, referencePeriodInDays)
