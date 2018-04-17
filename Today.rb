@@ -130,7 +130,7 @@ class Today
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
             next if KeyValueStore::getOrNull(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}")
-            metric = 0.800 + 0.040*Math.exp(-idx.to_f/10) # 0.800 -> 0.840  Today+Calendar
+            metric = 0.840 + 0.010*Math.exp(-idx.to_f/10)
             announce = section.size>1 ? "today:\n#{section.first(4).map{|line| "        #{line}" }.join}".strip : "today: #{section.first}".strip
             objects << {
                 "uuid" => uuid,
