@@ -375,7 +375,7 @@ class WaveTimelineUtils
     def self.objectToAnnounceShell_shortVersion(object,schedule)
         output = []        
         p3 = WaveTimelineUtils::extractOriginSystemAtWaveItemOrNull(object['uuid'])
-        p3 = p3.nil? ? "" : " #{p3}"
+        p3 = p3.nil? ? "" : " #{p3}:"
         p4 = WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(object['uuid'])
         p4 = p4.size==0 ? "" : " #{p4}"
         p5 = WaveSchedules::scheduleToAnnounce(schedule)
