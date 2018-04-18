@@ -121,7 +121,10 @@ class TimeCommitments
         extraTimespan = gcresults.map{|pair| pair[1] }.compact.inject(0, :+)
         if extraTimespan>0 and data.size>0 then
             increment = extraTimespan.to_f/data.size
-            data = data.map{|item| item["timespans"] << increment }
+            data = data.map{|item| 
+                item["timespans"] << increment 
+                item
+            }
             TimeCommitments::writeDataToDisk(data)
         end
 
