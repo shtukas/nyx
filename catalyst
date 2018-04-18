@@ -176,7 +176,7 @@ class Jupiter
         if expression.start_with?("off") then
             command, requirement, length = expression.split(" ")
             datehours = LucilleCore::integerEnumerator()
-                .first(length.to_i)
+                .first([length.to_i, 24].min)
                 .map{|idx| Time.at( Time.new.to_i + idx*3600 ).to_s[0,13] }        
             $requirement_operator.setRequirementOff(requirement, datehours)
             return
