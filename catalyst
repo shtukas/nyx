@@ -399,19 +399,21 @@ loop {
 
     if KeyValueStore::getOrNull(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? then
         numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today: ").to_f
-        data = TimeCommitments::getDataFromDisk()
-        10.times {|indx|
-            data << {
-                "uuid"                => SecureRandom.hex(4),
-                "description"         => "Guardian",
-                "commitment-in-hours" => numberOfHours/10,
-                "timespans"           => [],
-                "is-running"          => false,
-                "last-start-unixtime" => 0,
-                "metric"              => 1 - 0.05*indx
-            }
-        }   
-        TimeCommitments::writeDataToDisk(data)
+        if numberOfHours>0 then
+            data = TimeCommitments::getDataFromDisk()
+            10.times {|indx|
+                data << {
+                    "uuid"                => SecureRandom.hex(4),
+                    "description"         => "Guardian",
+                    "commitment-in-hours" => numberOfHours/10,
+                    "timespans"           => [],
+                    "is-running"          => false,
+                    "last-start-unixtime" => 0,
+                    "metric"              => 1 - 0.05*indx
+                }
+            }   
+            TimeCommitments::writeDataToDisk(data)            
+        end
         KeyValueStore::set(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}","done")        
     end
 
