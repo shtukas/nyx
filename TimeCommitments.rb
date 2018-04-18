@@ -49,15 +49,26 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 require 'colorize'
 
+require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
+=begin
+    # setuuids are used as namespace, therefore the same uuid in different sets are different values.
+    SetsOperator::insert(repositorylocation or nil, setuuid, valueuuid, value)
+    SetsOperator::getOrNull(repositorylocation or nil, setuuid, valueuuid)
+    SetsOperator::delete(repositorylocation or nil, setuuid, valueuuid)
+    SetsOperator::values(repositorylocation or nil, setuuid)
+=end
+
 # -------------------------------------------------------------------------------------
 
-GENERIC_TIME_COMMITMENTS_PATH_TO_DATA_FILE = "/Galaxy/DataBank/Catalyst/time-commitments/data.json"
+GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1"
+GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time-commitments/items"
 
 =begin
     Data
         file: Array[Item]
         Item {
             "uuid"                : String
+            "domain"              : String # Two items of the same domain share their timespans
             "description"         : String
             "commitment-in-hours" : Float
             "timespans"           : Array[Float]
@@ -67,46 +78,56 @@ GENERIC_TIME_COMMITMENTS_PATH_TO_DATA_FILE = "/Galaxy/DataBank/Catalyst/time-com
         }
 =end
 
-# TimeCommitments::getDataFromDisk()
+# TimeCommitments::getItems()
+# TimeCommitments::getItemByUUID(uuid)
+# TimeCommitments::saveItem(item)
 # TimeCommitments::writeDataToDisk(data)
-# TimeCommitments::genericStart(item, uuid)
-# TimeCommitments::genericDone(item, uuid)
-# TimeCommitments::garbageCollectionAtomic1(item): (item, 0) or (nil, extraTimespan)
+# TimeCommitments::startItem(item)
+# TimeCommitments::stopItem(item)
+# TimeCommitments::extraTimeFromCollectedItemOrNull(item): Float # extra time to be given to another item of the same domain
 # TimeCommitments::itemToLiveTimespan(item)
 # TimeCommitments::getCatalystObjects()
 
 class TimeCommitments
 
-    def self.getDataFromDisk()
-        JSON.parse(IO.read(GENERIC_TIME_COMMITMENTS_PATH_TO_DATA_FILE))
+    def self.getItems()
+        SetsOperator::values(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID)
+            .compact
+    end
+
+    def self.getItemByUUID(uuid)
+        SetsOperator::getOrNull(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, uuid)
+    end
+
+    def self.saveItem(item)
+        SetsOperator::insert(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"], item)
     end
 
     def self.writeDataToDisk(data)
-        File.open(GENERIC_TIME_COMMITMENTS_PATH_TO_DATA_FILE, "w"){|f|
-            f.puts(JSON.pretty_generate(data))
+        data.each{|item|
+            SetsOperator::insert(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"], item)    
         }
     end
 
-    def self.genericStart(item, uuid)
-        return item if item['uuid']!=uuid
+    def self.startItem(item)
         return item if item["is-running"]
         item["is-running"] = true
         item["last-start-unixtime"] = Time.new.to_i
         item
     end
 
-    def self.genericDone(item, uuid)
-        return item if item['uuid']!=uuid
+    def self.stopItem(item)
         return item if !item["is-running"]
         item["is-running"] = false
         item["timespans"] << Time.new.to_i - item["last-start-unixtime"]
         item
     end
 
-    def self.garbageCollectionAtomic1(item)
-        return [item, 0] if item["is-running"]
-        return [item, 0] if ( item["timespans"].inject(0,:+) < item["commitment-in-hours"]*3600 )
-        [nil, item["timespans"].inject(0,:+) - item["commitment-in-hours"]*3600 ]
+    def self.extraTimeFromCollectedItemOrNull(item)
+        return nil if item["is-running"]
+        return nil if ( item["timespans"].inject(0,:+) < item["commitment-in-hours"]*3600 )
+        SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"])
+        item["timespans"].inject(0,:+) - item["commitment-in-hours"]*3600
     end
 
     def self.itemToLiveTimespan(item) 
@@ -115,20 +136,20 @@ class TimeCommitments
 
     def self.getCatalystObjects()
 
-        gcresults = TimeCommitments::getDataFromDisk()
-            .map{|item| TimeCommitments::garbageCollectionAtomic1(item) }
-        data = gcresults.map{|pair| pair[0] }.compact
-        extraTimespan = gcresults.map{|pair| pair[1] }.compact.inject(0, :+)
-        if extraTimespan>0 and data.size>0 then
-            increment = extraTimespan.to_f/data.size
-            data = data.map{|item| 
-                item["timespans"] << increment 
-                item
-            }
-            TimeCommitments::writeDataToDisk(data)
+        extraTime = TimeCommitments::getItems()
+            .map{|item| TimeCommitments::extraTimeFromCollectedItemOrNull(item) }
+            .compact
+            .inject(0, :+)
+
+        items = TimeCommitments::getItems()
+
+        if extraTime>0 and items.size>0 then
+            firstItem = items.first
+            firstItem["timespans"] << extraTime
+            TimeCommitments::saveItem(firstItem)
         end
 
-        TimeCommitments::getDataFromDisk()
+        TimeCommitments::getItems()
         .map{|item|
             uuid = item['uuid']
             ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
@@ -146,14 +167,14 @@ class TimeCommitments
                 "command-interpreter" => lambda{|object, command|
                     uuid = object['uuid']
                     if command=='start' then
-                        data2 = TimeCommitments::getDataFromDisk()
-                            .map{|item| TimeCommitments::genericStart(item, uuid) }
-                        TimeCommitments::writeDataToDisk(data2)
+                        item = TimeCommitments::getItemByUUID(uuid)
+                        item = TimeCommitments::startItem(item)
+                        TimeCommitments::saveItem(item)
                     end
                     if command=="stop" then
-                        data2 = TimeCommitments::getDataFromDisk()
-                            .map{|item| TimeCommitments::genericDone(item, uuid) }
-                        TimeCommitments::writeDataToDisk(data2)
+                        item = TimeCommitments::getItemByUUID(uuid)
+                        item = TimeCommitments::stopItem(item)
+                        TimeCommitments::saveItem(item)
                     end
                 }
             }

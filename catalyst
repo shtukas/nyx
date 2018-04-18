@@ -404,6 +404,7 @@ loop {
             10.times {|indx|
                 data << {
                     "uuid"                => SecureRandom.hex(4),
+                    "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
                     "description"         => "Guardian",
                     "commitment-in-hours" => numberOfHours/10,
                     "timespans"           => [],
