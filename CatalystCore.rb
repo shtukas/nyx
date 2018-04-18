@@ -41,6 +41,7 @@ require_relative "Wave.rb"
 require_relative "Ninja.rb"
 require_relative "Stream.rb"
 require_relative "Today.rb"
+require_relative "TimeCommitments.rb"
 
 # ----------------------------------------------------------------------
 
@@ -78,7 +79,14 @@ class CatalystCore
             "count" => o6.count
         }
 
-        objects = o1+o4+o5+o6
+        start = Time.new.to_f
+        o7 = TimeCommitments::getCatalystObjects()
+        timings["TimeCommitments"] = {
+            "time" => Time.new.to_f - start,
+            "count" => o7.count
+        }        
+
+        objects = o1+o4+o5+o6+o7
 
         objects << {
             "uuid"                => "d341644d",

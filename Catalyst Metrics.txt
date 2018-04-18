@@ -6,6 +6,8 @@
 
 0.840 -> 0.850  Today+Calendar
 0.820 -> 0.830  Wave: new
+            
+         0.810  TimeCommitments (unless specified by the item itself)   
 
 0.750 -> 0.800  Wave: today, ondate, repeats
 0.500 -> 0.800  Stream quicky

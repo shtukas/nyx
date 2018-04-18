@@ -49,7 +49,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 # -------------------------------------------------------------------------------------
 
-PATH_TO_CALENDAR_FILE = "/Galaxy/DataBank/Today+Calendar.txt"
+TODAY_PATH_TO_DATA_FILE = "/Galaxy/DataBank/Today+Calendar.txt"
 
 # Today::section_is_not_empty(section)
 # Today::contents_to_sections(reminaing_lines,sections)
@@ -93,7 +93,7 @@ class Today
     end
 
     def self.todaySectionsUUIDs()
-        todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
+        todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).map{|section|
             Today::sectionToLength8UUID(section)
         }
@@ -104,15 +104,15 @@ class Today
             time = Time.new
             targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
             FileUtils.mkpath(targetFolder)
-            FileUtils.cp(PATH_TO_CALENDAR_FILE,"#{targetFolder}/Today+Calendar.txt")
+            FileUtils.cp(TODAY_PATH_TO_DATA_FILE,"#{targetFolder}/Today+Calendar.txt")
 
-            todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
-            calendarcontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[1].strip
+            todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
+            calendarcontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[1].strip
             todaysections1 = Today::contents_to_sections(todaycontents.lines.to_a, [])
             todaysections2 = todaysections1.select{|section|
                 Today::sectionToLength8UUID(section) != uuid
             }
-            File.open(PATH_TO_CALENDAR_FILE, 'w') {|f| 
+            File.open(TODAY_PATH_TO_DATA_FILE, 'w') {|f| 
                 todaysections2.each{|section|
                     f.puts(Today::section_to_string(section))
                 }
@@ -126,7 +126,7 @@ class Today
 
     def self.getCatalystObjects()
         objects = []
-        todaycontents = IO.read(PATH_TO_CALENDAR_FILE).split('@calendar')[0].strip
+        todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
             next if KeyValueStore::getOrNull(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}")
