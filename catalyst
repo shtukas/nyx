@@ -126,7 +126,8 @@ end
 # Jupiter::screen_width()
 # Jupiter::vertical_space(announce)
 # Jupiter::tokenIsInteger(token)
-# Jupiter::puts_object_with_shell_display(object, dislayobjects, preListObjects)
+# Jupiter::execute(expression, object, displayObjects, preListObjects)
+# Jupiter::puts_object_with_shell_display(object, displayObjects, preListObjects)
 # Jupiter::puts_objects(objects, remaining_number_of_lines, indx)
 # Jupiter::putshelp()
 # Jupiter::currentHour()
@@ -165,23 +166,7 @@ class Jupiter
         token == token.to_i.to_s
     end
 
-    def self.puts_object_with_shell_display(object, dislayobjects, preListObjects)
-
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
-        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-
-        puts "#{object['announce'].strip}#{requirements}"
-
-        object['default-commands'] = [] if object['default-commands'].nil?
-
-        puts [
-            object['default-commands'].join(" ").green ,
-            object['commands'].join(" ").red
-        ].select{|s| s.size>0 }.join(" ; ").strip
-
-        print "---> "
-
-        expression = STDIN.gets().strip
+    def self.execute(expression, object, displayObjects, preListObjects)
 
         if expression == 'help' then
             Jupiter::putshelp()
@@ -195,7 +180,7 @@ class Jupiter
         end
 
         if expression == "push" then
-            PendingListOperator::add(Jupiter::currentDay(),object['uuid'])
+            PendingListOperator::add(Jupiter::currentDay(), object['uuid'])
             return
         end
 
@@ -228,7 +213,7 @@ class Jupiter
             if searchobjects.size>0 then
                 searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
                 if searchobject then
-                    Jupiter::puts_object_with_shell_display(searchobject, dislayobjects, preListObjects)
+                    Jupiter::puts_object_with_shell_display(searchobject, displayObjects, preListObjects)
                 end
             end
             return
@@ -273,51 +258,44 @@ class Jupiter
         # ---------------------
         # regular expression: optional integer and commands
 
-        expression_decomposition = lambda{ |expression, dislayobjects, preListObjects|
-            tokens = 
-                if expression.start_with?('+') then
-                    [expression]
-                else
-                    expression.split(' ').map{|t| t.strip }
-                end
-            if Jupiter::tokenIsInteger(tokens[0]) then
-                indx = tokens[0].to_i
-                targetObject = indx<100 ? dislayobjects.drop(indx).first : preListObjects.drop(indx-100).first 
-                tokens.shift
-                [targetObject, tokens]
+        tokens = expression.split(';').map{|t| t.strip }
+
+        if Jupiter::tokenIsInteger(tokens[0]) then
+            indx = (tokens.shift).to_i
+            targetObject = indx<100 ? displayObjects.drop(indx).first : preListObjects.drop(indx-100).first 
+            if tokens.size>0 then
+                puts targetObject['announce']
+                Jupiter::execute(tokens.join(" ; "), targetObject, displayObjects, preListObjects)
             else
-                [nil, tokens]
+                PendingListOperator::delete(Jupiter::currentDay(), targetObject['uuid'])
+                Jupiter::puts_object_with_shell_display(targetObject, displayObjects, preListObjects)
             end
-        }
-
-        targetObject, tokens = expression_decomposition.call(expression, dislayobjects.clone, preListObjects.clone)
-
-        if targetObject and tokens.size==0 then
-            PendingListOperator::delete(Jupiter::currentDay(), targetObject['uuid'])
-            Jupiter::puts_object_with_shell_display(targetObject, dislayobjects, preListObjects)
-        end
-
-        if targetObject and tokens.size>0 then
-            puts "object:"
-            puts "    #{targetObject['announce'].strip}"
-            puts "running:"
-            puts "    #{tokens.join(" ")}"
-            LucilleCore::pressEnterToContinue()
-            PendingListOperator::delete(Jupiter::currentDay(), targetObject['uuid'])
-            tokens.each{|command|
-                targetObject['command-interpreter'].call(targetObject, command)
-            }
-        end    
-
-        if targetObject.nil? and tokens.size==0 then
-            # Nothing to do 
-        end
-
-        if targetObject.nil? and tokens.size>0 then
+        else
             tokens.each{|command|
                 object['command-interpreter'].call(object, command)
-            }        
+            } 
         end
+    end
+
+    def self.puts_object_with_shell_display(object, displayObjects, preListObjects)
+
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
+        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
+
+        puts "#{object['announce'].strip}#{requirements}"
+
+        object['default-commands'] = [] if object['default-commands'].nil?
+
+        puts [
+            object['default-commands'].join(" ").green ,
+            object['commands'].join(" ").red
+        ].select{|s| s.size>0 }.join(" ; ").strip
+
+        print "---> "
+
+        expression = STDIN.gets().strip
+
+        Jupiter::execute(expression, object, displayObjects, preListObjects)
     end
 
     def self.puts_objects(objects, remaining_number_of_lines, indx)
@@ -347,10 +325,12 @@ class Jupiter
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
         puts "    lib # Invoques the Librarian interactive"
+        puts "    <object index> ; command ; ..."
         puts ""
         puts "Special Object Commands:"
         puts "    require <requirement>"
         puts "    push"
+        puts "    command ; ..."
     end
 
     def self.currentHour()
