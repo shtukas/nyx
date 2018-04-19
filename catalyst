@@ -127,7 +127,7 @@ end
 # Jupiter::vertical_space(announce)
 # Jupiter::tokenIsInteger(token)
 # Jupiter::execute(expression, object, displayObjects, preListObjects)
-# Jupiter::puts_object_with_shell_display(object, displayObjects, preListObjects)
+# Jupiter::putsObjectWithShellDisplay(object, displayObjects, preListObjects)
 # Jupiter::puts_objects(objects, remaining_number_of_lines, indx)
 # Jupiter::putshelp()
 # Jupiter::currentHour()
@@ -213,7 +213,7 @@ class Jupiter
             if searchobjects.size>0 then
                 searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
                 if searchobject then
-                    Jupiter::puts_object_with_shell_display(searchobject, displayObjects, preListObjects)
+                    Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects, preListObjects)
                 end
             end
             return
@@ -268,16 +268,16 @@ class Jupiter
                 Jupiter::execute(tokens.join(" ; "), targetObject, displayObjects, preListObjects)
             else
                 PendingListOperator::delete(Jupiter::currentDay(), targetObject['uuid'])
-                Jupiter::puts_object_with_shell_display(targetObject, displayObjects, preListObjects)
+                Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects, preListObjects)
             end
         else
             tokens.each{|command|
                 object['command-interpreter'].call(object, command)
-            } 
+            }
         end
     end
 
-    def self.puts_object_with_shell_display(object, displayObjects, preListObjects)
+    def self.putsObjectWithShellDisplay(object, displayObjects, preListObjects)
 
         requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
         requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
@@ -452,11 +452,11 @@ loop {
     end
 
     if mainListObjects.size>0 then
-        Jupiter::puts_object_with_shell_display(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
+        Jupiter::putsObjectWithShellDisplay(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
     elsif 
         preListObjects.size>0
         puts "Nothing to do (^_^). Defaulting to prelisting:"
-        Jupiter::puts_object_with_shell_display(preListObjects.first, preListObjects.clone, preListObjects.clone)        
+        Jupiter::putsObjectWithShellDisplay(preListObjects.first, preListObjects.clone, preListObjects.clone)
     else
         puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
         sleep 60
