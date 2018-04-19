@@ -590,7 +590,7 @@ class WaveSchedules
         if schedule['@'] == 'new' then
             age = schedule['unixtime'] - DateTime.parse("#{Time.new.to_s[0, 10]} 00:00:00").to_time.to_i
             # newer items (bigger age) have a lower metric
-            return 0.820 + 0.010*Math.exp( -age.to_f/86400 )
+            return 0.820 + 0.010*Math.atan( -age.to_f/86400 )
         end
         if schedule['@'] == 'today' then
             return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
