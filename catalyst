@@ -103,6 +103,7 @@ class Jupiter
         if expression=='help' then
             Jupiter::putshelp()
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if expression=='lib' then
@@ -220,6 +221,11 @@ class Jupiter
         end
 
         if targetObject and tokens.size>0 then
+            puts "object:"
+            puts "    #{targetObject['announce'].strip}"
+            puts "running:"
+            puts "    #{tokens.join(" ")}"
+            LucilleCore::pressEnterToContinue()
             PendingListOperator::delete(Jupiter::currentHour(), targetObject['uuid'])
             tokens.each{|command|
                 targetObject['command-interpreter'].call(targetObject, command)
