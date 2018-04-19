@@ -100,25 +100,19 @@ class Jupiter
 
         expression = STDIN.gets().strip
 
-        if expression=='help' then
+        if expression == 'help' then
             Jupiter::putshelp()
             LucilleCore::pressEnterToContinue()
             return
         end
 
-        if expression=='lib' then
+        if expression == 'lib' then
             LibrarianUserInterface::librarianInteractive()
             return
         end
 
-        if expression.start_with?("push") then
-            command, datecode = expression.split(" ")
-            if datecode.nil? then
-                puts "You need to specify a datecode"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            PendingListOperator::add(Jupiter::currentHour(),object['uuid'])
+        if expression == "push" then
+            PendingListOperator::add(Jupiter::currentDay(),object['uuid'])
             return
         end
 
@@ -181,7 +175,7 @@ class Jupiter
         # ---------------------
         # default commands
 
-        if expression.size==0 and object['default-commands'] then
+        if expression.size == 0 and object['default-commands'] then
             object['default-commands'].each{|command|
                 if command.start_with?('shell:') then
                     command = command[7,command.size].strip
@@ -216,7 +210,7 @@ class Jupiter
         targetObject, tokens = expression_decomposition.call(expression, dislayobjects.clone, preListObjects.clone)
 
         if targetObject and tokens.size==0 then
-            PendingListOperator::delete(Jupiter::currentHour(), targetObject['uuid'])
+            PendingListOperator::delete(Jupiter::currentDay(), targetObject['uuid'])
             Jupiter::puts_object_with_shell_display(targetObject, dislayobjects, preListObjects)
         end
 
@@ -226,7 +220,7 @@ class Jupiter
             puts "running:"
             puts "    #{tokens.join(" ")}"
             LucilleCore::pressEnterToContinue()
-            PendingListOperator::delete(Jupiter::currentHour(), targetObject['uuid'])
+            PendingListOperator::delete(Jupiter::currentDay(), targetObject['uuid'])
             tokens.each{|command|
                 targetObject['command-interpreter'].call(targetObject, command)
             }
@@ -278,6 +272,10 @@ class Jupiter
 
     def self.currentHour()
         Time.new.to_s[0,13]
+    end
+
+    def self.currentDay()
+        Time.new.to_s[0,10]
     end
 
     def self.edit_text_using_textmate(text)
@@ -364,18 +362,18 @@ class PendingListOperator
     def self.init()
         @@uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", '{}'))
     end
-    def self.uuids(hour)
-        @@uuids[hour] = [] if @@uuids[hour].nil?
-        @@uuids[hour]
+    def self.uuids(timeprefix)
+        @@uuids[timeprefix] = [] if @@uuids[timeprefix].nil?
+        @@uuids[timeprefix]
     end
-    def self.add(hour, uuid)
-        @@uuids[hour] = [] if @@uuids[hour].nil?
-        @@uuids[hour] << uuid
+    def self.add(timeprefix, uuid)
+        @@uuids[timeprefix] = [] if @@uuids[timeprefix].nil?
+        @@uuids[timeprefix] << uuid
         KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", JSON.generate(@@uuids))
     end
-    def self.delete(hour, uuid)
-        @@uuids[hour] = [] if @@uuids[hour].nil?
-        @@uuids[hour].delete(uuid)
+    def self.delete(timeprefix, uuid)
+        @@uuids[timeprefix] = [] if @@uuids[timeprefix].nil?
+        @@uuids[timeprefix].delete(uuid)
         KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", JSON.generate(@@uuids))
     end
 end
@@ -436,7 +434,7 @@ loop {
         .select{ |object| $requirement_operator.meetRequirements(object['uuid']) }
         .first(Jupiter::screen_height()-5)
 
-    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and PendingListOperator::uuids(Jupiter::currentHour()).include?(object['uuid']) }
+    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and PendingListOperator::uuids(Jupiter::currentDay()).include?(object['uuid']) }
     screen_space = Jupiter::puts_objects(
         preListObjects.clone, 
         screen_space, 
@@ -447,7 +445,7 @@ loop {
         screen_space = screen_space-1
     end
 
-    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !PendingListOperator::uuids(Jupiter::currentHour()).include?(object['uuid']) }
+    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !PendingListOperator::uuids(Jupiter::currentDay()).include?(object['uuid']) }
 
     if mainListObjects.size>0 then
         screen_space = screen_space-Jupiter::vertical_space(mainListObjects.first['announce']) 
