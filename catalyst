@@ -96,28 +96,34 @@ class RequirementsOperator
     end
 end
 
-class PendingListOperator
-    @@uuids = {}
+# VirtualScreensManager::init()
+# VirtualScreensManager::add(uuid)
+# VirtualScreensManager::remove(uuid)
+# VirtualScreensManager::test(isPrimaryScreen, uuid)
+
+class VirtualScreensManager
+    @@uuids = [] # List the uuids of the secondary screen
 
     def self.init()
-        @@uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", '{}'))
+        @@uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "284088e8-90c2-4dab-a1a3-83bbd417b5be", "[]"))
     end
 
-    def self.uuids(timeprefix)
-        @@uuids[timeprefix] = [] if @@uuids[timeprefix].nil?
-        @@uuids[timeprefix]
+    def self.add(uuid)
+        @@uuids << uuid
+        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd417b5be", JSON.generate(@@uuids))
     end
 
-    def self.add(timeprefix, uuid)
-        @@uuids[timeprefix] = [] if @@uuids[timeprefix].nil?
-        @@uuids[timeprefix] << uuid
-        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", JSON.generate(@@uuids))
+    def self.remove(uuid)
+        @@uuids.delete(uuid)
+        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd417b5be", JSON.generate(@@uuids))
     end
 
-    def self.delete(timeprefix, uuid)
-        @@uuids[timeprefix] = [] if @@uuids[timeprefix].nil?
-        @@uuids[timeprefix].delete(uuid)
-        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd407b5be", JSON.generate(@@uuids))
+    def self.test(isPrimaryScreen, uuid)
+        if isPrimaryScreen then
+            !@@uuids.include?(uuid)
+        else
+            @@uuids.include?(uuid)
+        end 
     end
 end
 
@@ -126,8 +132,8 @@ end
 # Jupiter::screen_width()
 # Jupiter::vertical_space(announce)
 # Jupiter::tokenIsInteger(token)
-# Jupiter::execute(expression, object, displayObjects, preListObjects)
-# Jupiter::putsObjectWithShellDisplay(object, displayObjects, preListObjects)
+# Jupiter::execute(expression, object, displayObjects)
+# Jupiter::putsObjectWithShellDisplay(object, displayObjects)
 # Jupiter::puts_objects(objects, remaining_number_of_lines, indx)
 # Jupiter::putshelp()
 # Jupiter::currentHour()
@@ -166,7 +172,7 @@ class Jupiter
         token == token.to_i.to_s
     end
 
-    def self.execute(expression, object, displayObjects, preListObjects)
+    def self.execute(expression, object, displayObjects)
 
         if expression == 'help' then
             Jupiter::putshelp()
@@ -180,7 +186,7 @@ class Jupiter
         end
 
         if expression == "push" then
-            PendingListOperator::add(Jupiter::currentDay(), object['uuid'])
+            VirtualScreensManager::add(object['uuid'])
             return
         end
 
@@ -213,7 +219,7 @@ class Jupiter
             if searchobjects.size>0 then
                 searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
                 if searchobject then
-                    Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects, preListObjects)
+                    Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects)
                 end
             end
             return
@@ -258,26 +264,19 @@ class Jupiter
         # ---------------------
         # regular expression: optional integer and commands
 
-        tokens = expression.split(';').map{|t| t.strip }
-
-        if Jupiter::tokenIsInteger(tokens[0]) then
-            indx = (tokens.shift).to_i
-            targetObject = indx<100 ? displayObjects.drop(indx).first : preListObjects.drop(indx-100).first 
-            if tokens.size>0 then
-                puts targetObject['announce']
-                Jupiter::execute(tokens.join(" ; "), targetObject, displayObjects, preListObjects)
-            else
-                PendingListOperator::delete(Jupiter::currentDay(), targetObject['uuid'])
-                Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects, preListObjects)
-            end
+        if Jupiter::tokenIsInteger(expression) then
+            indx = expression.to_i
+            targetObject = displayObjects.drop(indx).first
+            VirtualScreensManager::remove(targetObject['uuid'])
+            Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects)
         else
-            tokens.each{|command|
+            expression.split(' ').map{|t| t.strip }.each{|command|
                 object['command-interpreter'].call(object, command)
             }
         end
     end
 
-    def self.putsObjectWithShellDisplay(object, displayObjects, preListObjects)
+    def self.putsObjectWithShellDisplay(object, displayObjects)
 
         requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
         requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
@@ -295,7 +294,7 @@ class Jupiter
 
         expression = STDIN.gets().strip
 
-        Jupiter::execute(expression, object, displayObjects, preListObjects)
+        Jupiter::execute(expression, object, displayObjects)
     end
 
     def self.puts_objects(objects, remaining_number_of_lines, indx)
@@ -362,7 +361,7 @@ end
 
 # -----------------------------------------------------------------
 
-PendingListOperator::init()
+VirtualScreensManager::init()
 RequirementsOperator::init()
 
 # -----------------------------------------------------------------
@@ -410,36 +409,26 @@ loop {
         next
     end
 
+    isPrimaryScreen = true
+
     screen_space = Jupiter::screen_height()-6
 
     objects = CatalystCore::objects()
         .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
+        .select{ |object| VirtualScreensManager::test(isPrimaryScreen, object["uuid"]) }
         .first(Jupiter::screen_height()-5)
 
-    preListObjects = objects.select{|object| ( object['metric'] > 0 ) and PendingListOperator::uuids(Jupiter::currentDay()).include?(object['uuid']) }
-    screen_space = Jupiter::puts_objects(
-        preListObjects.clone, 
-        screen_space, 
-        100
-    )
-    if preListObjects.size>0 then
-        puts ""
-        screen_space = screen_space-1
-    end
-
-    mainListObjects = objects.select{|object| ( object['metric'] > 0 ) and !PendingListOperator::uuids(Jupiter::currentDay()).include?(object['uuid']) }
-
-    if mainListObjects.size>0 then
-        screen_space = screen_space-Jupiter::vertical_space(mainListObjects.first['announce']) 
+    if objects.size>0 then
+        screen_space = screen_space-Jupiter::vertical_space(objects.first['announce']) 
     end
 
     screen_space = Jupiter::puts_objects(
-        mainListObjects.clone, 
+        objects.clone, 
         screen_space, 
         0
     )
 
-    if mainListObjects.size>0 then
+    if objects.size>0 then
         puts ""
         screen_space = screen_space-1
     end
@@ -451,12 +440,8 @@ loop {
         screen_space = screen_space-2
     end
 
-    if mainListObjects.size>0 then
-        Jupiter::putsObjectWithShellDisplay(mainListObjects.first, mainListObjects.clone, preListObjects.clone)
-    elsif 
-        preListObjects.size>0
-        puts "Nothing to do (^_^). Defaulting to prelisting:"
-        Jupiter::putsObjectWithShellDisplay(preListObjects.first, preListObjects.clone, preListObjects.clone)
+    if objects.size>0 then
+        Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
     else
         puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
         sleep 60
