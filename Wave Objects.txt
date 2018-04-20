@@ -60,6 +60,3 @@
 Optional attributes 
     "metric" which when present overrides the schedule metric.
     "do-not-show-until-datetime": "2017-10-02 15:59:34 +0100"
-    "default-commands" : Array[String] 
-        # When a schedule carry this, then the object gets it by default.
-

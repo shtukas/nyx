@@ -258,21 +258,6 @@ class Jupiter
         end
 
         # ---------------------
-        # default commands
-
-        if expression.size == 0 and object['default-commands'] then
-            object['default-commands'].each{|command|
-                if command.start_with?('shell:') then
-                    command = command[7,command.size].strip
-                    system(command)
-                else
-                    object['command-interpreter'].call(object, command)
-                end
-            }
-            return
-        end
-
-        # ---------------------
         # regular expression: optional integer and commands
 
         if Jupiter::tokenIsInteger(expression) then
@@ -294,12 +279,7 @@ class Jupiter
 
         puts "#{object['announce'].strip}#{requirements}"
 
-        object['default-commands'] = [] if object['default-commands'].nil?
-
-        puts [
-            object['default-commands'].join(" ").green ,
-            object['commands'].join(" ").red
-        ].select{|s| s.size>0 }.join(" ; ").strip
+        puts object['commands'].join(" ").red
 
         print "---> "
 

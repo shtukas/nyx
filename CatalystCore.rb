@@ -93,7 +93,6 @@ class CatalystCore
             "metric"              => 0.2,
             "announce"            => "-- sleep time ---------------------------------------------------",
             "commands"            => [],
-            "default-commands"    => [],
             "command-interpreter" => lambda{ |command, object| }
         }
 
@@ -103,7 +102,6 @@ class CatalystCore
                 "metric"              => 1,
                 "announce"            => "Catalyst generation is taking too long\n#{JSON.pretty_generate(timings)}",
                 "commands"            => [],
-                "default-commands"    => [],
                 "command-interpreter" => lambda{ |command, object| }
             }
         end

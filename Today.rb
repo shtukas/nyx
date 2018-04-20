@@ -137,7 +137,6 @@ class Today
                 "metric" => metric,
                 "announce" => "(#{"%.3f" % metric}) [#{uuid}] #{announce}",
                 "commands" => ['done'],
-                "default-commands" => ['done'],
                 "command-interpreter" => lambda{|object, command|
                     if command=='done' then
                         Today::removeSectionFromFile(object['uuid'])

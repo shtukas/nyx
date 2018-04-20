@@ -73,7 +73,6 @@ WAVE_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave/Wave-DropOff"
 # WaveTimelineUtils::archiveWaveItems(uuid)
 # WaveTimelineUtils::commands(schedule)
 # WaveTimelineUtils::extractFirstURLOrNUll(string)
-# WaveTimelineUtils::defaultCommandsOrNull(announce, schedule)
 # WaveTimelineUtils::objectuuidToCatalystObject(objectuuid)
 # WaveTimelineUtils::getCatalystObjects()
 # WaveTimelineUtils::objectToAnnounceShell_shortVersion(object,schedule)
@@ -307,25 +306,6 @@ class WaveTimelineUtils
         string
     end
 
-    def self.defaultCommandsOrNull(announce, schedule)
-
-        if schedule['default-commands'] then
-            return schedule['default-commands'] # When a schedule carry default commands, then the object gets them by default.
-        end
-
-        repeatTypes = ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week']
-        
-        if repeatTypes.include?(schedule['@']) and WaveTimelineUtils::extractFirstURLOrNUll(announce) then
-            return ["shell: open #{WaveTimelineUtils::extractFirstURLOrNUll(announce)}", 'done']
-        end
-
-        if repeatTypes.include?(schedule['@']) then
-            return ['done']
-        end
-
-        nil
-    end
-
     def self.objectuuidToCatalystObject(objectuuid)
         location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
         if location.nil? then
@@ -361,7 +341,6 @@ class WaveTimelineUtils
         object['metric'] = metric
         object['announce'] = WaveTimelineUtils::objectToAnnounceShell_shortVersion(object, schedule)
         object['commands'] = WaveTimelineUtils::commands(schedule)
-        object['default-commands'] = WaveTimelineUtils::defaultCommandsOrNull(object['announce'], schedule)
         object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
         object['schedule'] = schedule
         object

@@ -163,7 +163,6 @@ class TimeCommitments
                 "metric" => metric,
                 "announce" => "(#{"%.3f" % metric}) #{announce}",
                 "commands" => commands,
-                "default-commands" => defaultcommands,
                 "command-interpreter" => lambda{|object, command|
                     uuid = object['uuid']
                     if command=='start' then

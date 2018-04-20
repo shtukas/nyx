@@ -6,6 +6,5 @@
     "metric"              : Float
     "announce"            : String
     "commands"            : Array[String]
-    "default-commands"    : Null | Array[String]
     "command-interpreter" : (object, command) -> Action
 }

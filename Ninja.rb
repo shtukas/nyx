@@ -66,7 +66,6 @@ class Ninja
             "metric" => metric,
             "announce" => "(#{"%.3f" % metric}) ninja play",
             "commands" => [],
-            "default-commands" => ['play'],
             "command-interpreter" => lambda{|object, command|  
                 if command=='play' then
                     system('ninja play')
