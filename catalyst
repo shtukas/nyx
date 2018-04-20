@@ -180,6 +180,14 @@ class Jupiter
             return
         end
 
+        if expression == "primary" then
+            KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([true]))
+        end
+
+        if expression == "secondary" then
+            KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([false]))
+        end
+
         if expression == 'lib' then
             LibrarianUserInterface::librarianInteractive()
             return
@@ -318,6 +326,8 @@ class Jupiter
     def self.putshelp()
         puts "Special General Commands:"
         puts "    help"
+        puts "    primary # switch to primary screen"
+        puts "    secondary # switch to secondary screen"
         puts "    wave: <wave description>"
         puts "    stream: <stream description>"
         puts "    search <pattern>"
@@ -409,14 +419,21 @@ loop {
         next
     end
 
-    isPrimaryScreen = true
+    catalystObjectsAll = CatalystCore::objects()
+    catalystObjectsMeetingRequirements = catalystObjectsAll
+        .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
+
+    primaryScreenObjects = catalystObjectsMeetingRequirements
+        .select{ |object| VirtualScreensManager::test(true, object["uuid"]) }
+
+    secondaryScreenObjects = catalystObjectsMeetingRequirements
+        .select{ |object| VirtualScreensManager::test(false, object["uuid"]) }
+
+    isPrimaryScreen = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", "[true]"))[0]
 
     screen_space = Jupiter::screen_height()-6
 
-    objects = CatalystCore::objects()
-        .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
-        .select{ |object| VirtualScreensManager::test(isPrimaryScreen, object["uuid"]) }
-        .first(Jupiter::screen_height()-5)
+    objects = isPrimaryScreen ? primaryScreenObjects : secondaryScreenObjects
 
     if objects.size>0 then
         screen_space = screen_space-Jupiter::vertical_space(objects.first['announce']) 
@@ -433,11 +450,24 @@ loop {
         screen_space = screen_space-1
     end
 
-    unsatisfied_requirements = RequirementsOperator::currentlyUnsatisfifiedRequirements()
-    if unsatisfied_requirements.size>0 then
+    flagIntermediaryInformation = false
+
+    
+    if ( unsatisfied_requirements = RequirementsOperator::currentlyUnsatisfifiedRequirements() ).size>0 then
         puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
+        screen_space = screen_space-1
+        flagIntermediaryInformation = true
+    end
+
+    if !isPrimaryScreen then
+        puts "SECONDARY SCREEN"
+        screen_space = screen_space-1
+        flagIntermediaryInformation = true
+    end
+
+    if flagIntermediaryInformation then
         puts ""
-        screen_space = screen_space-2
+        screen_space = screen_space-1        
     end
 
     if objects.size>0 then
