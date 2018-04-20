@@ -198,6 +198,11 @@ class Jupiter
             return
         end
 
+        if expression.start_with?('+') then
+            object['command-interpreter'].call(object, expression)
+            return
+        end
+
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
