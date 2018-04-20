@@ -193,8 +193,13 @@ class Jupiter
             return
         end
 
-        if expression == "push" then
+        if expression == ">primary" then
             VirtualScreensManager::add(object['uuid'])
+            return
+        end
+
+        if expression == ">secondary" then
+            VirtualScreensManager::remove(object['uuid'])
             return
         end
 
@@ -343,7 +348,8 @@ class Jupiter
         puts ""
         puts "Special Object Commands:"
         puts "    require <requirement>"
-        puts "    push"
+        puts "    >primary"
+        puts "    >secondary"
         puts "    command ; ..."
     end
 
