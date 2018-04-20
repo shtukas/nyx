@@ -57,7 +57,7 @@ class RequirementsOperator
     end
 
     def self.requirementIsCurrentlySatisfied(requirement)
-        @@data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"].nil? or @@data['requirements-status-timeline']["#{Time.new.to_s[0,13]};#{requirement}"]
+        @@data['requirements-status-timeline'][requirement].nil? or @@data['requirements-status-timeline'][requirement]
     end
 
     def self.meetRequirements(uuid)
@@ -73,18 +73,14 @@ class RequirementsOperator
         RequirementsOperator::saveDataToDisk()
     end
 
-    def self.setRequirementOn(requirement, datehours)
-        datehours.each{|datehour|
-            @@data['requirements-status-timeline']["#{datehour};#{requirement}"] = true
-            RequirementsOperator::saveDataToDisk()
-        }
+    def self.setRequirementOn(requirement)
+        @@data['requirements-status-timeline'][requirement] = true
+        RequirementsOperator::saveDataToDisk()
     end
 
-    def self.setRequirementOff(requirement, datehours)
-        datehours.each{|datehour|
-            @@data['requirements-status-timeline']["#{datehour};#{requirement}"] = false
-            RequirementsOperator::saveDataToDisk()
-        }
+    def self.setRequirementOff(requirement)
+        @@data['requirements-status-timeline'][requirement] = false
+        RequirementsOperator::saveDataToDisk()
     end
 
     def self.allRequirements()
@@ -251,16 +247,13 @@ class Jupiter
 
         if expression.start_with?("on") then
             command, requirement = expression.split(" ")
-            RequirementsOperator::setRequirementOn(requirement, [ Time.new.to_s[0,13] ])
+            RequirementsOperator::setRequirementOn(requirement)
             return
         end
 
         if expression.start_with?("off") then
-            command, requirement, length = expression.split(" ")
-            datehours = LucilleCore::integerEnumerator()
-                .first([length.to_i, 24].min)
-                .map{|idx| Time.at( Time.new.to_i + idx*3600 ).to_s[0,13] }        
-            RequirementsOperator::setRequirementOff(requirement, datehours)
+            command, requirement = expression.split(" ")    
+            RequirementsOperator::setRequirementOff(requirement)
             return
         end
 
