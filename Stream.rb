@@ -107,12 +107,15 @@ end
 # Stream::getItemDescription(folderpath)
 # Stream::folderpath2uuid(folderpath)
 # Stream::getUUIDs()
+# Stream::naturalTargetUnderLocation(location): (type, address) , where type is "file" or "url"
 # Stream::folderpathToCatalystObject(folderpath, indx, streamName)
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjectsFromDisk()
 # Stream::getCatalystObjects()
 
 class Stream
+
+    @@naturalTargets = {}
 
     def self.folderpaths(itemsfolderpath)
         Dir.entries(itemsfolderpath)
@@ -140,6 +143,35 @@ class Stream
         }.flatten
     end
 
+    def self.naturalTargetUnderLocation(location)
+        value = @@naturalTargets[location]
+        return value if value
+        value =
+            if File.file?(location) then
+                ["file", location]
+            else
+                nonDotFilespaths = Dir.entries(location)
+                    .select{|filename| filename[0,1]!="." }
+                    .map{|filename| "#{location}/#{filename}" }
+                if nonDotFilespaths.size==1 then
+                    filepath = nonDotFilespaths[0]
+                    if filepath[-4,4]==".txt" then
+                        if IO.read(filepath).strip.lines.to_a.size==1 and IO.read(filepath).strip.start_with?("http") then
+                            ["url", IO.read(filepath).strip]
+                        else
+                            ["file", filepath]
+                        end
+                    else
+                        ["file", location]
+                    end
+                else
+                    ["file", location]
+                end
+            end
+        @@naturalTargets[location] = value
+        value
+    end
+
     def self.folderpathToCatalystObject(folderpath, indx, streamName)
         uuid = Stream::folderpath2uuid(folderpath)
         description = Stream::getItemDescription(folderpath)
@@ -147,7 +179,7 @@ class Stream
         metric = StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
         isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
         commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate"]
-        announcesuffix = "stream: #{description}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
+        announcesuffix = "stream: #{naturalTargetUnderLocation(folderpath)[1]}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
         if isRunning then
             announcesuffix = announcesuffix.green
         end
@@ -180,7 +212,7 @@ class Stream
         end
         if command=='start' then
             DRbObject.new(nil, "druby://:10423").start(uuid)
-            system("open '#{object['item-folderpath']}'")
+            system("open '#{naturalTargetUnderLocation(folderpath)[1]}'")
             return [nil, false]
         end
         if command=='stop' then
