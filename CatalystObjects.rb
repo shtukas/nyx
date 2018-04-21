@@ -51,53 +51,31 @@ class CatalystCore
     # CatalystCore::objects()
     def self.objects()
 
-        timings = {}
+        sources = [
+            ["Wave", lambda { WaveInterface::getCatalystObjects() }],
+            ["Ninja", lambda { Ninja::getCatalystObjects() }],
+            ["Stream", lambda { Stream::getCatalystObjects() }],
+            ["Today", lambda { Today::getCatalystObjects() }],
+            ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
+            ["SecondaryDisplayTeaser", lambda { SecondaryDisplayTeaser::getCatalystObjects() }],
+            ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }]
+        ]
 
-        start = Time.new.to_f
-        o1 = WaveInterface::getCatalystObjects()
-        timings["Wave"] = {
-            "time" => Time.new.to_f - start,
-            "count" => o1.count
-        }
-
-        start = Time.new.to_f
-        o4 = Ninja::getCatalystObjects()
-        timings["Ninja"] = {
-            "time" => Time.new.to_f - start,
-            "count" => o4.count
-        }
-
-        start = Time.new.to_f
-        o5 = Stream::getCatalystObjects()
-        timings["Stream"] = {
-            "time" => Time.new.to_f - start,
-            "count" => o5.count
-        }
-
-        start = Time.new.to_f
-        o6 = Today::getCatalystObjects()
-        timings["Today"] = {
-            "time" => Time.new.to_f - start,
-            "count" => o6.count
-        }
-
-        start = Time.new.to_f
-        o7 = TimeCommitments::getCatalystObjects()
-        timings["TimeCommitments"] = {
-            "time" => Time.new.to_f - start,
-            "count" => o7.count
-        }        
-
-        start = Time.new.to_f
-        o8 = SecondaryDisplayTeaser::getCatalystObjects()
-        timings["SecondaryDisplayTeaser"] = {
-            "time" => Time.new.to_f - start,
-            "count" => o8.count
-        } 
-
-        o9 = StreamKiller::getCatalystObjects()
-
-        objects = o1+o4+o5+o6+o7+o8+o9
+        objects = sources.map{|pair| 
+            startTime = Time.new.to_f
+            xobjects = pair[1].call() 
+            queryTime = Time.new.to_f - startTime
+            if queryTime > 0.1 then
+                xobjects << {
+                    "uuid"                => SecureRandom.hex(4),
+                    "metric"              => 0.3,
+                    "announce"            => "-> Catalyst generation is taking too long for #{pair[0]}: #{queryTime} seconds",
+                    "commands"            => [],
+                    "command-interpreter" => lambda{ |command, object| }
+                }
+            end
+            xobjects
+        }.inject([], :+)
 
         objects << {
             "uuid"                => "d341644d",
@@ -106,16 +84,6 @@ class CatalystCore
             "commands"            => [],
             "command-interpreter" => lambda{ |command, object| }
         }
-
-        if timings.map{|key, value| value["time"] }.inject(0,:+) > 1 then
-            objects << {
-                "uuid"                => "5E2B7E8",
-                "metric"              => 1,
-                "announce"            => "Catalyst generation is taking too long\n#{JSON.pretty_generate(timings)}",
-                "commands"            => [],
-                "command-interpreter" => lambda{ |command, object| }
-            }
-        end
 
         (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
