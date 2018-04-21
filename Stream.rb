@@ -143,11 +143,16 @@ class Stream
         description = Stream::getItemDescription(folderpath)
         classification = StreamClassification::getItemClassificationOrNull(uuid)
         metric = StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
-        commands = ( DRbObject.new(nil, "druby://:10423").isRunning(uuid) ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate"]
+        isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
+        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate"]
+        announcesuffix = "stream: #{description}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
+        if isRunning then
+            announcesuffix = announcesuffix.green
+        end
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) [#{uuid}] stream: #{description}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)",
+            "announce" => "(#{"%.3f" % metric}) [#{uuid}] #{announcesuffix}",
             "commands" => commands,
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath,
