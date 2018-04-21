@@ -42,7 +42,7 @@ require 'colorize'
 # StreamClassification::increaseNumberOfClassificationForThisHour()
 # StreamClassification::dataManagementClassifying()
 
-# classification: ["quicky", "shorty", "project"]
+# classification: ["quicky", "medium", "project"]
 
 class StreamClassification
     def self.getItemClassificationOrNull(uuid)
@@ -58,9 +58,9 @@ class StreamClassification
             StreamClassification::setItemClassification(uuid, "quicky")
         end
         if ( classification == "quicky" ) and ( totalTimeSpan > 3600*2 ) then
-            StreamClassification::setItemClassification(uuid, "shorty")
+            StreamClassification::setItemClassification(uuid, "medium")
         end
-        if ( classification == "shorty" ) and ( totalTimeSpan > 3600*5 ) then
+        if ( classification == "medium" ) and ( totalTimeSpan > 3600*5 ) then
             StreamClassification::setItemClassification(uuid, "project") 
         end
     end
@@ -69,7 +69,7 @@ class StreamClassification
         classification = StreamClassification::getItemClassificationOrNull(uuid)
         low, high = 0.0, 0.2 if classification.nil?
         low, high = 0.1, 0.4 if classification=="project"
-        low, high = 0.3, 0.6 if classification=="shorty"
+        low, high = 0.3, 0.6 if classification=="medium"
         low, high = 0.5, 0.8 if classification=="quicky"
         DRbObject.new(nil, "druby://:10423").metric2(uuid, 7, 3, low, high, 2)
     end
@@ -87,7 +87,7 @@ class StreamClassification
         if shouldOpenFolder then
             system("open '#{folderpath}'")
         end
-        classification = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("classification", ["quicky", "shorty", "project"])  
+        classification = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("classification", ["quicky", "medium", "project"])  
         uuid = Stream::folderpath2uuid(folderpath)
         StreamClassification::setItemClassification(uuid, classification)
     end
@@ -188,7 +188,7 @@ class Stream
         classification = StreamClassification::getItemClassificationOrNull(uuid)
         metric = StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
         isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
-        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">shorty", ">project"]
+        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">medium", ">project"]
         announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(naturalTargetUnderLocation(folderpath)[1])}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
         if isRunning then
             announcesuffix = announcesuffix.green
@@ -265,8 +265,8 @@ class Stream
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
             return [nil, true]
         end
-        if command=='shorty' then
-            StreamClassification::setItemClassification(uuid, ">shorty")
+        if command=='medium' then
+            StreamClassification::setItemClassification(uuid, ">medium")
             return [nil, false]
         end
         if command=='project' then
