@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "CatalystCore.rb"
+require_relative "CatalystObjects.rb"
 
 # -------------------------------------------------------------------------------------
 

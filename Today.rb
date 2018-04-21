@@ -129,7 +129,6 @@ class Today
         todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
-            next if KeyValueStore::getOrNull(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}")
             metric = 0.840 + 0.010*Math.exp(-idx.to_f/10)
             announce = section.size>1 ? "today:\n#{section.first(4).map{|line| "        #{line}" }.join}".strip : "today: #{section.first}".strip
             objects << {
@@ -140,11 +139,9 @@ class Today
                 "command-interpreter" => lambda{|object, command|
                     if command=='done' then
                         Today::removeSectionFromFile(object['uuid'])
+                        return [nil, false]
                     end
-                    if command=="temp-hide" then
-                        uuid = object["uuid"]
-                        KeyValueStore::set(nil, "a3840d6c-8a99-4299-b58a-92821301cf7c:#{uuid}:#{Time.new.to_s[0,13]}","true")
-                    end
+                    [nil, false]
                 }
             }
         }  

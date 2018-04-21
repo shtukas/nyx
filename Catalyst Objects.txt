@@ -6,5 +6,14 @@
     "metric"              : Float
     "announce"            : String
     "commands"            : Array[String]
-    "command-interpreter" : (object, command) -> Action
+    "command-interpreter" : (object, command) -> Action : (directive, value)
 }
+
+
+Most of the time (directive, value) will be 
+    (null, false) # 
+    (null, true)  # Indicates to catalyst that the same object should be redisplayed
+
+But can also be
+    ("object-to-display", object) # The provided object should be displayed
+

@@ -69,6 +69,7 @@ class Ninja
             "command-interpreter" => lambda{|object, command|  
                 system('ninja play')
                 $NINJA_GLOBAL_STATE["catalyst-objects"] = Ninja::getCatalystObjectsFromScratch()
+                [nil, false]
             }
         } 
         objects

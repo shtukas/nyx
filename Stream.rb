@@ -28,6 +28,8 @@ require 'securerandom'
 
 require_relative "CatalystCommon.rb"
 
+require 'colorize'
+
 # -------------------------------------------------------------------------------------
 
 # StreamClassification::getItemClassificationOrNull(uuid)
@@ -160,7 +162,7 @@ class Stream
         }
     end
 
-    def self.objectCommandHandler(object, command)
+    def self.objectCommandHandlerCore(object, command)
         uuid = object['uuid']
         StreamClassification::updateItemClassification(
             uuid, 
@@ -170,16 +172,20 @@ class Stream
             sourcelocation = object["item-folderpath"]
             targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
+            return [nil, false]
         end
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
+            return [nil, true]
         end
         if command=='start' then
             DRbObject.new(nil, "druby://:10423").start(uuid)
             system("open '#{object['item-folderpath']}'")
+            return [nil, false]
         end
         if command=='stop' then
             DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+            return [nil, false]
         end
         
         if command=="completed" then
@@ -211,12 +217,20 @@ class Stream
             FileUtils.mkpath(targetFolder)
             FileUtils.mv("#{object['item-folderpath']}",targetFolder)
             LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+            return [nil, false]
         end
         if command=='set-description' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
+            return [nil, true]
         end
+        [nil, false]
+    end
+
+    def self.objectCommandHandler(object, command)
+        status = Stream::objectCommandHandlerCore(object, command)
         $STREAM_GLOBAL_STATE["catalyst-objects"] = Stream::getCatalystObjectsFromDisk()
+        status
     end
 
     def self.getCatalystObjectsFromDisk()

@@ -169,12 +169,15 @@ class TimeCommitments
                         item = TimeCommitments::getItemByUUID(uuid)
                         item = TimeCommitments::startItem(item)
                         TimeCommitments::saveItem(item)
+                        return [nil, false]
                     end
                     if command=="stop" then
                         item = TimeCommitments::getItemByUUID(uuid)
                         item = TimeCommitments::stopItem(item)
                         TimeCommitments::saveItem(item)
+                        return [nil, false]
                     end
+                    [nil, false]
                 }
             }
         }

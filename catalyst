@@ -22,7 +22,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require_relative "CatalystCore.rb"
+require_relative "CatalystObjects.rb"
 
 require_relative "Wave-Emails.rb"
 
@@ -36,7 +36,14 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 require "/Galaxy/LucilleOS/Librarian/LibrarianUI.rb"
 
-# ----------------------------------------------------------------------------
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+
+
+# ----------------------------------------------------------------------
 
 class RequirementsOperator
 
@@ -128,13 +135,14 @@ end
 # Jupiter::screen_width()
 # Jupiter::vertical_space(announce)
 # Jupiter::tokenIsInteger(token)
-# Jupiter::execute(expression, object, displayObjects)
-# Jupiter::putsObjectWithShellDisplay(object, displayObjects)
+# Jupiter::execute(expression, object, displayObjects): (directive, value) # See documentation for details
+# Jupiter::putsObjectWithShellDisplay(object, displayObjects): (directive, value) # See documentation for details
 # Jupiter::puts_objects(objects, remaining_number_of_lines, indx)
 # Jupiter::putshelp()
 # Jupiter::currentHour()
 # Jupiter::edit_text_using_textmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+# Jupiter::main()
 
 class Jupiter
     def self.email_sync_on_schedule(verbose)
@@ -173,43 +181,43 @@ class Jupiter
         if expression == 'help' then
             Jupiter::putshelp()
             LucilleCore::pressEnterToContinue()
-            return
+            return [nil, false]
         end
 
         if expression == 'info' then
             puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}"
             LucilleCore::pressEnterToContinue()
-            return
+            return [nil, false]
         end
 
         if expression == "primary" then
             KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([true]))
-            return
+            return [nil, false]
         end
 
         if expression == "secondary" then
             KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([false]))
-            return
+            return [nil, false]
         end
 
         if expression == 'lib' then
             LibrarianUserInterface::librarianInteractive()
-            return
+            return [nil, false]
         end
 
         if expression == ">primary" then
             VirtualScreensManager::add(object['uuid'])
-            return
+            return [nil, false]
         end
 
         if expression == ">secondary" then
             VirtualScreensManager::remove(object['uuid'])
-            return
+            return [nil, false]
         end
 
         if expression.start_with?('+') then
             object['command-interpreter'].call(object, expression)
-            return
+            return [nil, false]
         end
 
         if expression.start_with?('wave:') then
@@ -222,7 +230,7 @@ class Jupiter
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
             File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
             WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
-            return
+            return [nil, false]
         end
 
         if expression.start_with?('stream:') then
@@ -231,7 +239,7 @@ class Jupiter
             folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-            return
+            return [nil, false]
         end
 
         if expression.start_with?("search") then
@@ -241,28 +249,28 @@ class Jupiter
             if searchobjects.size>0 then
                 searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
                 if searchobject then
-                    Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects)
+                    return Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects)
                 end
             end
-            return
+            return [nil, false]
         end
 
         if expression.start_with?("require") then
             requirement = expression[7,expression.size].strip
             RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
-            return
+            return [nil, false]
         end
 
         if expression.start_with?("on") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setRequirementOn(requirement)
-            return
+            return [nil, false]
         end
 
         if expression.start_with?("off") then
             command, requirement = expression.split(" ")    
             RequirementsOperator::setRequirementOff(requirement)
-            return
+            return [nil, false]
         end
 
         # ---------------------
@@ -272,35 +280,41 @@ class Jupiter
             indx = expression.to_i
             targetObject = displayObjects.drop(indx).first
             VirtualScreensManager::remove(targetObject['uuid'])
-            Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects)
+            return Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects)
         else
             if expression.size > 0 then
-                expression.split(' ').map{|t| t.strip }.each{|command|
-                    object['command-interpreter'].call(object, command)
-                }
+                tokens = expression.split(' ').map{|t| t.strip }
+                if tokens.size>1 then
+                    tokens.each{|command|
+                        object['command-interpreter'].call(object, command)
+                    }
+                    return [nil, false]
+                else
+                    return object['command-interpreter'].call(object, tokens[0])
+                end
             else
-                object['command-interpreter'].call(object, "")
+                return object['command-interpreter'].call(object, "")
             end
-
         end
     end
 
     def self.putsObjectWithShellDisplay(object, displayObjects)
-
         requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
         requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-
         puts "#{object['announce'].strip}#{requirements}"
-
         if object['commands'].size>0 then
             puts object['commands'].join(" ").red
         end
-
         print "---> "
-
         expression = STDIN.gets().strip
-
-        Jupiter::execute(expression, object, displayObjects)
+        directive, value = Jupiter::execute(expression, object, displayObjects)
+        if directive.nil? and value then
+            return Jupiter::putsObjectWithShellDisplay(object, displayObjects) 
+        end
+        if directive=="object-to-display" then
+            return Jupiter::putsObjectWithShellDisplay(value, displayObjects) 
+        end
+        [nil, false]
     end
 
     def self.puts_objects(objects, remaining_number_of_lines, indx)
@@ -366,6 +380,102 @@ class Jupiter
             description
         end
     end
+
+    def self.main()
+        loop {
+
+            if KeyValueStore::getOrNull(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? then
+                numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
+                if numberOfHours.strip.size==0 then
+                    numberOfHours = "5"
+                end
+                numberOfHours = numberOfHours.to_f
+                if numberOfHours>0 then
+                    10.times {|indx|
+                        item = {
+                            "uuid"                => SecureRandom.hex(4),
+                            "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
+                            "description"         => "Guardian",
+                            "commitment-in-hours" => numberOfHours/10,
+                            "timespans"           => [],
+                            "is-running"          => false,
+                            "last-start-unixtime" => 0,
+                            "metric"              => 1 - 0.05*indx
+                        }
+                        TimeCommitments::saveItem(item)
+                    }   
+                   
+                end
+                KeyValueStore::set(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}","done")
+            end
+
+            puts "# #{ "-" * (Jupiter::screen_width()-3) }"
+
+            if WaveDevOps::archivesGarbageCollection(true)>0 then
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            catalystObjectsAll = CatalystCore::objects()
+            catalystObjectsMeetingRequirements = catalystObjectsAll
+                .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
+
+            primaryScreenObjects = catalystObjectsMeetingRequirements
+                .select{ |object| VirtualScreensManager::test(true, object["uuid"]) }
+
+            secondaryScreenObjects = catalystObjectsMeetingRequirements
+                .select{ |object| VirtualScreensManager::test(false, object["uuid"]) }
+
+            isPrimaryScreen = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", "[true]"))[0]
+
+            screen_space = Jupiter::screen_height()-6
+
+            objects = isPrimaryScreen ? primaryScreenObjects : secondaryScreenObjects
+
+            if objects.size>0 then
+                screen_space = screen_space-Jupiter::vertical_space(objects.first['announce']) 
+            end
+
+            screen_space = Jupiter::puts_objects(
+                objects.clone, 
+                screen_space, 
+                0
+            )
+
+            if objects.size>0 then
+                puts ""
+                screen_space = screen_space-1
+            end
+
+            flagIntermediaryInformation = false
+
+            
+            if ( unsatisfied_requirements = RequirementsOperator::currentlyUnsatisfifiedRequirements() ).size>0 then
+                puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
+                screen_space = screen_space-1
+                flagIntermediaryInformation = true
+            end
+
+            if !isPrimaryScreen then
+                puts "SECONDARY SCREEN"
+                screen_space = screen_space-1
+                flagIntermediaryInformation = true
+            end
+
+            if flagIntermediaryInformation then
+                puts ""
+                screen_space = screen_space-1        
+            end
+
+            if objects.size>0 then
+                Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
+            else
+                puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
+                sleep 60
+            end
+
+        }
+    end
 end
 
 # -----------------------------------------------------------------
@@ -384,97 +494,5 @@ Thread.new {
     }
 }
 
-loop {
-
-    if KeyValueStore::getOrNull(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? then
-        numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
-        if numberOfHours.strip.size==0 then
-            numberOfHours = "5"
-        end
-        numberOfHours = numberOfHours.to_f
-        if numberOfHours>0 then
-            10.times {|indx|
-                item = {
-                    "uuid"                => SecureRandom.hex(4),
-                    "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                    "description"         => "Guardian",
-                    "commitment-in-hours" => numberOfHours/10,
-                    "timespans"           => [],
-                    "is-running"          => false,
-                    "last-start-unixtime" => 0,
-                    "metric"              => 1 - 0.05*indx
-                }
-                TimeCommitments::saveItem(item)
-            }   
-           
-        end
-        KeyValueStore::set(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}","done")
-    end
-
-    puts "# #{ "-" * (Jupiter::screen_width()-3) }"
-
-    if WaveDevOps::archivesGarbageCollection(true)>0 then
-        LucilleCore::pressEnterToContinue()
-        next
-    end
-
-    catalystObjectsAll = CatalystCore::objects()
-    catalystObjectsMeetingRequirements = catalystObjectsAll
-        .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
-
-    primaryScreenObjects = catalystObjectsMeetingRequirements
-        .select{ |object| VirtualScreensManager::test(true, object["uuid"]) }
-
-    secondaryScreenObjects = catalystObjectsMeetingRequirements
-        .select{ |object| VirtualScreensManager::test(false, object["uuid"]) }
-
-    isPrimaryScreen = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", "[true]"))[0]
-
-    screen_space = Jupiter::screen_height()-6
-
-    objects = isPrimaryScreen ? primaryScreenObjects : secondaryScreenObjects
-
-    if objects.size>0 then
-        screen_space = screen_space-Jupiter::vertical_space(objects.first['announce']) 
-    end
-
-    screen_space = Jupiter::puts_objects(
-        objects.clone, 
-        screen_space, 
-        0
-    )
-
-    if objects.size>0 then
-        puts ""
-        screen_space = screen_space-1
-    end
-
-    flagIntermediaryInformation = false
-
-    
-    if ( unsatisfied_requirements = RequirementsOperator::currentlyUnsatisfifiedRequirements() ).size>0 then
-        puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
-        screen_space = screen_space-1
-        flagIntermediaryInformation = true
-    end
-
-    if !isPrimaryScreen then
-        puts "SECONDARY SCREEN"
-        screen_space = screen_space-1
-        flagIntermediaryInformation = true
-    end
-
-    if flagIntermediaryInformation then
-        puts ""
-        screen_space = screen_space-1        
-    end
-
-    if objects.size>0 then
-        Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
-    else
-        puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
-        sleep 60
-    end
-
-}
+Jupiter::main()
 

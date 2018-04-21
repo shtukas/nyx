@@ -683,7 +683,10 @@ class WaveDevOps
 end
 
 # WaveInterface::getCatalystObjects()
-# WaveInterface::interpreter(object, command)
+# WaveInterface::interpreter(object, command): (directive, value)
+    # (null, false)
+    # (null, true)
+    # ("object-to-display", object)
 
 class WaveInterface
 
@@ -694,24 +697,9 @@ class WaveInterface
 
     def self.interpreter(object, command)
 
-        if command.include?(";") then
-            command
-                .split(";")
-                .map{|c| c.strip}
-                .each{|c|
-                    WaveInterface::interpreter(object, c)
-                }
-            return
-        end
-
         xobject1 = WaveInterface::getCatalystObjects().select{|object| object['uuid']==command }.first
         if xobject1 then
-            puts xobject1['announce']
-            puts xobject1['commands'].join(", ").red
-            print "---> "
-            command = STDIN.gets().strip
-            WaveInterface::interpreter(xobject1,command)
-            return
+            return ["object-to-display", xobject1]
         end      
 
         # ------------------------------------------
@@ -728,7 +716,7 @@ class WaveInterface
             schedule.delete("metric")
             #puts JSON.pretty_generate(schedule)
             WaveTimelineUtils::writeScheduleToDisk(object['uuid'],schedule)
-            return
+            return [nil, false]
         end 
 
         if command=='open' then
@@ -737,15 +725,15 @@ class WaveInterface
             if File.file?(naturalobjectlocation) and naturalobjectlocation[-4,4] == '.txt' and IO.read(naturalobjectlocation).strip.lines.to_a.size == 1 and IO.read(naturalobjectlocation).strip.start_with?('http') then
                 url = IO.read(naturalobjectlocation).strip
                 system("open -a Safari '#{url}'")
-                return 
+                return [nil, true]
             end            
             if File.file?(naturalobjectlocation) then
                 system("open '#{naturalobjectlocation}'")
-                return 
+                return [nil, true]
             end
             puts "Opening #{naturalobjectlocation}"
             system("open '#{naturalobjectlocation}'")
-            return
+            return [nil, true]
         end
 
         if command=='done' then
@@ -787,7 +775,7 @@ class WaveInterface
                 WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
 
-            return
+            return [nil, false]
         end
 
         if command=='recast' then
@@ -795,21 +783,21 @@ class WaveInterface
             objectuuid = object['uuid']
             schedule = WaveTimelineUtils::makeNewSchedule()
             WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
-            return
+            return [nil, true]
         end
 
         if command=='folder' then
             location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
-            return
+            return [nil, true]
         end
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)                       
             end
-            return
+            return [nil, false]
         end
 
         if command=='>stream' then
@@ -818,7 +806,7 @@ class WaveInterface
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
-            return
+            return [nil, false]
         end
 
         if command=='>lib' then
@@ -852,18 +840,10 @@ class WaveInterface
             puts "Archiving the Wave item"
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
    
-            return
+            return [nil, false]
         end
-
-        if command=='start' then
-            DRbObject.new(nil, "druby://:10423").start(schedule['uuid'])
-            return
-        end 
-
-        if command=='stop' then
-            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(schedule['uuid'])
-            return
-        end  
+ 
+        [nil, false]
     end
 end
 
