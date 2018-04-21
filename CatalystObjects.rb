@@ -42,6 +42,7 @@ require_relative "Ninja.rb"
 require_relative "Stream.rb"
 require_relative "Today.rb"
 require_relative "TimeCommitments.rb"
+require_relative "SecondaryDisplayTeaser.rb"
 
 # ----------------------------------------------------------------------
 
@@ -86,7 +87,14 @@ class CatalystCore
             "count" => o7.count
         }        
 
-        objects = o1+o4+o5+o6+o7
+        start = Time.new.to_f
+        o8 = SecondaryDisplayTeaser::getCatalystObjects()
+        timings["SecondaryDisplayTeaser"] = {
+            "time" => Time.new.to_f - start,
+            "count" => o8.count
+        } 
+
+        objects = o1+o4+o5+o6+o7+o8
 
         objects << {
             "uuid"                => "d341644d",

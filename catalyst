@@ -99,37 +99,6 @@ class RequirementsOperator
     end
 end
 
-# VirtualScreensManager::init()
-# VirtualScreensManager::add(uuid)
-# VirtualScreensManager::remove(uuid)
-# VirtualScreensManager::test(isPrimaryScreen, uuid)
-
-class VirtualScreensManager
-    @@uuids = [] # List the uuids of the secondary screen
-
-    def self.init()
-        @@uuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "284088e8-90c2-4dab-a1a3-83bbd417b5be", "[]"))
-    end
-
-    def self.add(uuid)
-        @@uuids << uuid
-        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd417b5be", JSON.generate(@@uuids))
-    end
-
-    def self.remove(uuid)
-        @@uuids.delete(uuid)
-        KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd417b5be", JSON.generate(@@uuids))
-    end
-
-    def self.test(isPrimaryScreen, uuid)
-        if isPrimaryScreen then
-            !@@uuids.include?(uuid)
-        else
-            @@uuids.include?(uuid)
-        end 
-    end
-end
-
 # Jupiter::Jupiter::email_sync_on_schedule(verbose)
 # Jupiter::screen_height()
 # Jupiter::screen_width()
@@ -191,12 +160,12 @@ class Jupiter
         end
 
         if expression == "primary" then
-            KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([true]))
+            VirtualScreensManager::activatePrimaryScreen()
             return [nil, false]
         end
 
         if expression == "secondary" then
-            KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([false]))
+            VirtualScreensManager::activateSecondaryScreen()
             return [nil, false]
         end
 
@@ -206,12 +175,12 @@ class Jupiter
         end
 
         if expression == ">primary" then
-            VirtualScreensManager::add(object['uuid'])
+            VirtualScreensManager::remove(object['uuid'])
             return [nil, false]
         end
 
         if expression == ">secondary" then
-            VirtualScreensManager::remove(object['uuid'])
+            VirtualScreensManager::add(object['uuid'])
             return [nil, false]
         end
 
@@ -426,11 +395,9 @@ class Jupiter
             secondaryScreenObjects = catalystObjectsMeetingRequirements
                 .select{ |object| VirtualScreensManager::test(false, object["uuid"]) }
 
-            isPrimaryScreen = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", "[true]"))[0]
-
             screen_space = Jupiter::screen_height()-6
 
-            objects = isPrimaryScreen ? primaryScreenObjects : secondaryScreenObjects
+            objects = VirtualScreensManager::isPrimaryScreen() ? primaryScreenObjects : secondaryScreenObjects
 
             if objects.size>0 then
                 screen_space = screen_space-Jupiter::vertical_space(objects.first['announce']) 
@@ -456,7 +423,7 @@ class Jupiter
                 flagIntermediaryInformation = true
             end
 
-            if !isPrimaryScreen then
+            if !VirtualScreensManager::isPrimaryScreen() then
                 puts "SECONDARY SCREEN"
                 screen_space = screen_space-1
                 flagIntermediaryInformation = true
