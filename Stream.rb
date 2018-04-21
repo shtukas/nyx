@@ -161,6 +161,8 @@ class Stream
                         else
                             ["file", filepath]
                         end
+                    elsif filepath[-7,7]==".webloc" and !filepath.include?("'") then
+                        ["file", filepath]
                     else
                         ["file", location]
                     end
@@ -172,14 +174,22 @@ class Stream
         value
     end
 
+    def self.naturalTargetToDisplayName(target)
+        if target[-7,7]==".webloc" then
+            File.basename(target)
+        else
+            target
+        end
+    end
+
     def self.folderpathToCatalystObject(folderpath, indx, streamName)
         uuid = Stream::folderpath2uuid(folderpath)
         description = Stream::getItemDescription(folderpath)
         classification = StreamClassification::getItemClassificationOrNull(uuid)
         metric = StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
         isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
-        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate"]
-        announcesuffix = "stream: #{naturalTargetUnderLocation(folderpath)[1]}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
+        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">shorty", ">project"]
+        announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(naturalTargetUnderLocation(folderpath)[1])}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
         if isRunning then
             announcesuffix = announcesuffix.green
         end
@@ -212,14 +222,13 @@ class Stream
         end
         if command=='start' then
             DRbObject.new(nil, "druby://:10423").start(uuid)
-            system("open '#{naturalTargetUnderLocation(folderpath)[1]}'")
+            system("open '#{naturalTargetUnderLocation(object["item-folderpath"])[1]}'")
             return [nil, false]
         end
         if command=='stop' then
             DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             return [nil, false]
         end
-        
         if command=="completed" then
             if DRbObject.new(nil, "druby://:10423").isRunning(uuid) then
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
@@ -255,6 +264,14 @@ class Stream
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
             return [nil, true]
+        end
+        if command=='shorty' then
+            StreamClassification::setItemClassification(uuid, ">shorty")
+            return [nil, false]
+        end
+        if command=='project' then
+            StreamClassification::setItemClassification(uuid, ">project")
+            return [nil, false]
         end
         [nil, false]
     end
