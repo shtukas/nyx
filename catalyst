@@ -176,6 +176,12 @@ class Jupiter
             return
         end
 
+        if expression == 'info' then
+            puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if expression == "primary" then
             KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([true]))
             return
