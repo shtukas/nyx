@@ -57,14 +57,14 @@ class StreamKiller
         endingCount      = 0
         idealCount       = 995 - 995*(Time.new.to_i - startingUnixtime).to_f/(endingUnixtime - startingUnixtime)
         currentCount     = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
-        lastFoldername   = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").sort.last
-        lastFolderUUID   = IO.read("/Galaxy/DataBank/Catalyst/Stream/strm1/#{lastFoldername}/.uuid").strip
+        targetFoldername = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").select{|filename| filename[0,1]!="." }.sample
+        targetFolderUUID = IO.read("/Galaxy/DataBank/Catalyst/Stream/strm1/#{targetFoldername}/.uuid").strip
         objects = []
         if currentCount > idealCount then
             objects << {
                 "uuid" => "2662371C-44C0-422B-83FF-FAB12B76FDED",
                 "metric" => 1,
-                "announce" => "-> stream killer (ideal: #{idealCount}, current: #{currentCount}): /Galaxy/DataBank/Catalyst/Stream/strm1/#{lastFoldername}",
+                "announce" => "-> stream killer (ideal: #{idealCount}, current: #{currentCount}): /Galaxy/DataBank/Catalyst/Stream/strm1/#{targetFoldername}",
                 "commands" => [],
                 "command-interpreter" => lambda{|object, command| 
                     targetuuid = object["target-uuid"]
@@ -77,7 +77,7 @@ class StreamKiller
                     return [nil, false]
 
                 },
-                "target-uuid" => lastFolderUUID
+                "target-uuid" => targetFolderUUID
             }
         end
         objects

@@ -65,11 +65,11 @@ class CatalystCore
             startTime = Time.new.to_f
             xobjects = pair[1].call() 
             queryTime = Time.new.to_f - startTime
-            if queryTime > 0.1 then
+            if queryTime > 1.to_f/sources.size then
                 xobjects << {
                     "uuid"                => SecureRandom.hex(4),
                     "metric"              => 0.3,
-                    "announce"            => "-> Catalyst generation is taking too long for #{pair[0]}: #{queryTime} seconds",
+                    "announce"            => "-> Catalyst generation is taking too long for #{pair[0]}: #{queryTime} seconds, should be less than #{1.to_f/sources.size} seconds.",
                     "commands"            => [],
                     "command-interpreter" => lambda{ |command, object| }
                 }
