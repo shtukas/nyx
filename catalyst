@@ -153,6 +153,12 @@ class Jupiter
             return [nil, false]
         end
 
+        if expression == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return [nil, true]
+        end
+
         if expression == 'info' then
             puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}"
             LucilleCore::pressEnterToContinue()
@@ -318,6 +324,7 @@ class Jupiter
         puts "    <object index> ; command ; ..."
         puts ""
         puts "Special Object Commands:"
+        puts "    expose # pring the object"
         puts "    require <requirement>"
         puts "    >primary"
         puts "    >secondary"

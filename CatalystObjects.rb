@@ -43,6 +43,7 @@ require_relative "Stream.rb"
 require_relative "Today.rb"
 require_relative "TimeCommitments.rb"
 require_relative "SecondaryDisplayTeaser.rb"
+require_relative "StreamKiller.rb"
 
 # ----------------------------------------------------------------------
 
@@ -94,7 +95,9 @@ class CatalystCore
             "count" => o8.count
         } 
 
-        objects = o1+o4+o5+o6+o7+o8
+        o9 = StreamKiller::getCatalystObjects()
+
+        objects = o1+o4+o5+o6+o7+o8+o9
 
         objects << {
             "uuid"                => "d341644d",
