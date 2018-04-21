@@ -286,7 +286,9 @@ class Jupiter
 
         puts "#{object['announce'].strip}#{requirements}"
 
-        puts object['commands'].join(" ").red
+        if object['commands'].size>0 then
+            puts object['commands'].join(" ").red
+        end
 
         print "---> "
 
