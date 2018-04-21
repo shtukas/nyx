@@ -178,10 +178,12 @@ class Jupiter
 
         if expression == "primary" then
             KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([true]))
+            return
         end
 
         if expression == "secondary" then
             KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([false]))
+            return
         end
 
         if expression == 'lib' then
