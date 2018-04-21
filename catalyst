@@ -266,9 +266,14 @@ class Jupiter
             VirtualScreensManager::remove(targetObject['uuid'])
             Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects)
         else
-            expression.split(' ').map{|t| t.strip }.each{|command|
-                object['command-interpreter'].call(object, command)
-            }
+            if expression.size > 0 then
+                expression.split(' ').map{|t| t.strip }.each{|command|
+                    object['command-interpreter'].call(object, command)
+                }
+            else
+                object['command-interpreter'].call(object, "")
+            end
+
         end
     end
 
