@@ -106,9 +106,11 @@ end
 # Jupiter::tokenIsInteger(token)
 # Jupiter::execute(expression, object, displayObjects): (directive, value) # See documentation for details
 # Jupiter::putsObjectWithShellDisplay(object, displayObjects): (directive, value) # See documentation for details
-# Jupiter::puts_objects(objects, remaining_number_of_lines, indx)
+# Jupiter::object_to_string_line(object, indx)
+# Jupiter::puts_objects(objects, remaining_number_of_lines: Int, indx: Int)
 # Jupiter::putshelp()
 # Jupiter::currentHour()
+# Jupiter::currentDay()
 # Jupiter::edit_text_using_textmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
 # Jupiter::main()
@@ -249,6 +251,17 @@ class Jupiter
             return [nil, false]
         end
 
+        if expression.start_with?("show") then
+            command, requirement = expression.split(" ")
+            requirementObjects = CatalystCore::objects()
+                .select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                .each{|object|
+                    puts Jupiter::object_to_string_line(object)
+                }
+            LucilleCore::pressEnterToContinue()
+            return [nil, false]
+        end
+
         # ---------------------
         # regular expression: optional integer and commands
 
@@ -302,20 +315,22 @@ class Jupiter
         [nil, false]
     end
 
+    def self.object_to_string_line(object, indx = nil)
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
+        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
+        indexString = indx ? "(#{indx.to_s.rjust(3)}) " : ""
+        str = "#{indexString}#{object['announce'].lines.first.strip}#{requirements}"
+        if object['metric']>=2 then
+            str = str.green
+        end
+        str
+    end
+
     def self.puts_objects(objects, remaining_number_of_lines, indx)
         return remaining_number_of_lines if objects.size==0
         return remaining_number_of_lines if remaining_number_of_lines<=0
         object = objects.shift
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
-        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-        indexString = "(#{indx.to_s.rjust(3)})"
-        str = "#{indexString} #{object['announce'].lines.first.strip}#{requirements}"
-        if object['metric']>=2 then
-            str = str.green
-        end
-        if indx>=100 then
-            str = str.yellow
-        end
+        str = Jupiter::object_to_string_line(object, indx)
         puts str
         Jupiter::puts_objects(objects,remaining_number_of_lines-Jupiter::vertical_space(str), indx+1)
     end
@@ -323,13 +338,14 @@ class Jupiter
     def self.putshelp()
         puts "Special General Commands:"
         puts "    help"
+        puts "    search <pattern>"
         puts "    primary # switch to primary screen"
         puts "    secondary # switch to secondary screen"
-        puts "    wave: <wave description>"
-        puts "    stream: <stream description>"
-        puts "    search <pattern>"
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
+        puts "    show <requirement> # shows all the objects of that requirement"
+        puts "    wave: <wave description>"
+        puts "    stream: <stream description>"
         puts "    lib # Invoques the Librarian interactive"
         puts "    <object index> ; command ; ..."
         puts ""
