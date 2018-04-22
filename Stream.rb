@@ -234,22 +234,24 @@ class Stream
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             end
             timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
-            classification = StreamClassification::getItemClassificationOrNull(uuid)
-            streamName = object["item-stream-name"]
-            folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
-                .select{|folderpath|
-                    StreamClassification::getItemClassificationOrNull(Stream::folderpath2uuid(folderpath))==classification
-                }
-                .first(STREAM_PERFECT_NUMBER)
-            if folderpaths.size>0 then
-                count = [STREAM_PERFECT_NUMBER, folderpaths.size].min
-                folderpaths.each{|xfolderpath| 
-                    next if xfolderpath == object['item-folderpath']
-                    xuuid = Stream::folderpath2uuid(xfolderpath)
-                    xtimespan =  timespan.to_f/count
-                    puts "Putting #{xtimespan} seconds for #{xuuid}"
-                    DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
-                }
+            if timespan>0 then
+                classification = StreamClassification::getItemClassificationOrNull(uuid)
+                streamName = object["item-stream-name"]
+                folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
+                    .select{|folderpath|
+                        StreamClassification::getItemClassificationOrNull(Stream::folderpath2uuid(folderpath))==classification
+                    }
+                    .first(STREAM_PERFECT_NUMBER)
+                if folderpaths.size>0 then
+                    count = [STREAM_PERFECT_NUMBER, folderpaths.size].min
+                    folderpaths.each{|xfolderpath| 
+                        next if xfolderpath == object['item-folderpath']
+                        xuuid = Stream::folderpath2uuid(xfolderpath)
+                        xtimespan =  timespan.to_f/count
+                        puts "Putting #{xtimespan} seconds for #{xuuid}"
+                        DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
+                    }
+                end
             end
             time = Time.new
             targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
