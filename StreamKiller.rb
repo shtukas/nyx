@@ -72,7 +72,7 @@ class StreamKiller
 
         currentCount     = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
 
-        metric           = currentCount.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
+        metric           = currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
         metric           = [metric, 1].min
         metric           = [metric, 0].max
 
@@ -82,7 +82,7 @@ class StreamKiller
         objects << {
             "uuid" => "2662371C-44C0-422B-83FF-FAB12B76FDED",
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) -> stream killer (ideal: #{idealCount}, current: #{currentCount}): /Galaxy/DataBank/Catalyst/Stream/strm1/#{targetFoldername}",
+            "announce" => "(#{"%.3f" % metric}) -> stream killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount}): /Galaxy/DataBank/Catalyst/Stream/strm1/#{targetFoldername}",
             "commands" => [],
             "command-interpreter" => lambda{|object, command| 
                 targetuuid = object["target-uuid"]
