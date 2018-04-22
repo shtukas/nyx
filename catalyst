@@ -161,6 +161,7 @@ class Jupiter
 
         if expression == 'info' then
             puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}"
+            puts "Stream item count: #{Stream::getUUIDs().size}"
             LucilleCore::pressEnterToContinue()
             return [nil, false]
         end

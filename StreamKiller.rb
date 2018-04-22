@@ -47,6 +47,8 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorypath or nil, key)
 =end
 
+require_relative "Stream.rb"
+
 # -------------------------------------------------------------------------------------
 
 class StreamKiller
@@ -76,13 +78,12 @@ class StreamKiller
         metric           = [metric, 1].min
         metric           = [metric, 0].max
 
-        targetFoldername = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").select{|filename| filename[0,1]!="." }.sample
-        targetFolderUUID = IO.read("/Galaxy/DataBank/Catalyst/Stream/strm1/#{targetFoldername}/.uuid").strip
+        targetuuid       = Stream::getUUIDs().sample
         objects = []
         objects << {
             "uuid" => "2662371C-44C0-422B-83FF-FAB12B76FDED",
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) -> stream killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount}): /Galaxy/DataBank/Catalyst/Stream/strm1/#{targetFoldername}",
+            "announce" => "(#{"%.3f" % metric}) -> stream killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount}) target uuid: #{targetuuid}",
             "commands" => [],
             "command-interpreter" => lambda{|object, command| 
                 targetuuid = object["target-uuid"]
@@ -95,7 +96,7 @@ class StreamKiller
                 return [nil, false]
 
             },
-            "target-uuid" => targetFolderUUID
+            "target-uuid" => targetuuid
         }
         objects
     end
