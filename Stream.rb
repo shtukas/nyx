@@ -304,7 +304,7 @@ class Stream
             Stream::performObjectClosing(object)
             return [nil, false]
         end
-        [nil, false]
+        nil
     end
 
     def self.objectCommandHandler(object, command)

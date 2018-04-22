@@ -846,7 +846,7 @@ class WaveInterface
             return [nil, false]
         end
  
-        [nil, false]
+        nil
     end
 end
 

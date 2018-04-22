@@ -141,7 +141,7 @@ class Today
                         Today::removeSectionFromFile(object['uuid'])
                         return [nil, false]
                     end
-                    [nil, false]
+                    nil
                 }
             }
         }  

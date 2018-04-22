@@ -93,7 +93,7 @@ class StreamKiller
                     searchobject = searchobjects.first
                     Jupiter::putsObjectWithShellDisplay(searchobject, [])
                 end
-                return [nil, false]
+                [nil, false]
 
             },
             "target-uuid" => targetuuid

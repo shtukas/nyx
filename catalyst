@@ -261,9 +261,12 @@ class Jupiter
             if expression.size > 0 then
                 tokens = expression.split(' ').map{|t| t.strip }
                 if tokens.size>1 then
-                    tokens.each{|command|
+                    returnValues = tokens.map{|command|
                         object['command-interpreter'].call(object, command)
                     }
+                    if returnValues.any?{|value| value.nil? } then
+                        return nil
+                    end
                     return [nil, false]
                 else
                     return object['command-interpreter'].call(object, tokens[0])
@@ -283,7 +286,13 @@ class Jupiter
         end
         print "---> "
         expression = STDIN.gets().strip
-        directive, value = Jupiter::execute(expression, object, displayObjects)
+        execReturnValue = Jupiter::execute(expression, object, displayObjects)
+        if execReturnValue.nil? then
+            puts "Expression: #{expression} was not correctly interpreted"
+            LucilleCore::pressEnterToContinue()
+            return [nil, false]
+        end
+        directive, value = execReturnValue
         if directive.nil? and value then
             return Jupiter::putsObjectWithShellDisplay(object, displayObjects) 
         end

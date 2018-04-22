@@ -6,7 +6,7 @@
     "metric"              : Float
     "announce"            : String
     "commands"            : Array[String]
-    "command-interpreter" : (object, command) -> Action : (directive, value)
+    "command-interpreter" : (object, command) -> Action : (directive, value) or nil
 }
 
 
@@ -17,3 +17,4 @@ Most of the time (directive, value) will be
 But can also be
     ("object-to-display", object) # The provided object should be displayed
 
+If the return value is nil, it means that the non empty command wasn't interpreted.

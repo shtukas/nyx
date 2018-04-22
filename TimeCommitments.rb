@@ -177,7 +177,7 @@ class TimeCommitments
                         TimeCommitments::saveItem(item)
                         return [nil, false]
                     end
-                    [nil, false]
+                    nil
                 }
             }
         }
