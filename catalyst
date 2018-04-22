@@ -34,7 +34,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorypath or nil, key)
 =end
 
-require "/Galaxy/LucilleOS/Librarian/LibrarianUI.rb"
+require "/Galaxy/LucilleOS/Librarian/LibrarianExportedFunctions.rb"
 
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
@@ -176,7 +176,7 @@ class Jupiter
         end
 
         if expression == 'lib' then
-            LibrarianUserInterface::librarianInteractive()
+            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
             return [nil, false]
         end
 

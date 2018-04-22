@@ -49,6 +49,8 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorypath or nil, key)
 =end
 
+require "/Galaxy/LucilleOS/Librarian/LibrarianExportedFunctions.rb"
+
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
@@ -816,6 +818,8 @@ class WaveInterface
             # Selection of the new atlas reference
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
 
+            puts "atlas reference: #{atlasreference}"
+
             # Copying the wave folder to the Desktop                    
             sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
@@ -824,16 +828,15 @@ class WaveInterface
             # Removing wave files.
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(staginglocation)
 
-            print "Perform your updates and press [enter] when you're done: "
-            STDIN.gets()
+            puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
+            LucilleCore::pressEnterToContinue()
 
-            metadatatempname = Time.new.to_f.to_s
-            metadataobject = {
-                "staginglocation" => staginglocation,
-                "title" => LucilleCore::askQuestionAnswerAsString("General Log title: ")
-            }
-            File.open("/tmp/#{metadatatempname}",'w') {|f| f.write(JSON.pretty_generate(metadataobject)) }
-            system("/Galaxy/LucilleOS/Librarian/x-api-catalyst-bridge-create #{metadatatempname}")
+            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(nil, nil, atlasreference, nil, nil)
+
+            # Copying the staging folder to the timeline
+            targetparentlocation = R136CoreUtils::getNewUniqueDataTimelineIndexSubFolderPathReadyToUse()
+
+            LucilleCore::copyFileSystemLocation(staginglocation, targetparentlocation)
 
             LucilleCore::removeFileSystemLocation(staginglocation)
 

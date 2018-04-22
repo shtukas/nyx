@@ -109,6 +109,7 @@ end
 # Stream::getUUIDs()
 # Stream::naturalTargetUnderLocation(location): (type, address) , where type is "file" or "url"
 # Stream::folderpathToCatalystObject(folderpath, indx, streamName)
+# Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjectsFromDisk()
 # Stream::getCatalystObjects()
@@ -188,7 +189,7 @@ class Stream
         classification = StreamClassification::getItemClassificationOrNull(uuid)
         isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
         metric = isRunning ? 2 : StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
-        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">medium", ">project"]
+        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">medium", ">project", ">lib"]
         announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(naturalTargetUnderLocation(folderpath)[1])}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
         if isRunning then
             announcesuffix = announcesuffix.green
@@ -202,6 +203,40 @@ class Stream
             "item-folderpath" => folderpath,
             "item-stream-name" => streamName           
         }
+    end
+
+    def self.performObjectClosing(object)
+        uuid = object['uuid']
+        if DRbObject.new(nil, "druby://:10423").isRunning(uuid) then
+            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+        end
+        timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
+        if timespan>0 then
+            classification = StreamClassification::getItemClassificationOrNull(uuid)
+            streamName = object["item-stream-name"]
+            folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
+                .select{|folderpath|
+                    StreamClassification::getItemClassificationOrNull(Stream::folderpath2uuid(folderpath))==classification
+                }
+                .first(STREAM_PERFECT_NUMBER)
+            if folderpaths.size>0 then
+                count = [STREAM_PERFECT_NUMBER, folderpaths.size].min
+                folderpaths.each{|xfolderpath| 
+                    next if xfolderpath == object['item-folderpath']
+                    xuuid = Stream::folderpath2uuid(xfolderpath)
+                    xtimespan =  timespan.to_f/count
+                    puts "Putting #{xtimespan} seconds for #{xuuid}"
+                    DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
+                }
+            end
+        end
+        time = Time.new
+        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+        puts "Source: #{object['item-folderpath']}"
+        puts "Target: #{targetFolder}"
+        FileUtils.mkpath(targetFolder)
+        FileUtils.mv("#{object['item-folderpath']}",targetFolder)
+        LucilleCore::removeFileSystemLocation(object['item-folderpath'])
     end
 
     def self.objectCommandHandlerCore(object, command)
@@ -230,36 +265,7 @@ class Stream
             return [nil, false]
         end
         if command=="completed" then
-            if DRbObject.new(nil, "druby://:10423").isRunning(uuid) then
-                DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-            end
-            timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
-            if timespan>0 then
-                classification = StreamClassification::getItemClassificationOrNull(uuid)
-                streamName = object["item-stream-name"]
-                folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
-                    .select{|folderpath|
-                        StreamClassification::getItemClassificationOrNull(Stream::folderpath2uuid(folderpath))==classification
-                    }
-                    .first(STREAM_PERFECT_NUMBER)
-                if folderpaths.size>0 then
-                    count = [STREAM_PERFECT_NUMBER, folderpaths.size].min
-                    folderpaths.each{|xfolderpath| 
-                        next if xfolderpath == object['item-folderpath']
-                        xuuid = Stream::folderpath2uuid(xfolderpath)
-                        xtimespan =  timespan.to_f/count
-                        puts "Putting #{xtimespan} seconds for #{xuuid}"
-                        DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
-                    }
-                end
-            end
-            time = Time.new
-            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
-            puts "Source: #{object['item-folderpath']}"
-            puts "Target: #{targetFolder}"
-            FileUtils.mkpath(targetFolder)
-            FileUtils.mv("#{object['item-folderpath']}",targetFolder)
-            LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+            Stream::performObjectClosing(object)
             return [nil, false]
         end
         if command=='set-description' then
@@ -273,6 +279,29 @@ class Stream
         end
         if command=='project' then
             StreamClassification::setItemClassification(uuid, ">project")
+            return [nil, false]
+        end
+        if command=='>lib' then
+            isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
+            if isRunning then
+                puts "The items is currently running..."
+                if !LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to close it and carry on with the librarian archiving? ") then
+                    return [nil, true]
+                end
+                DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+            end
+            sourcefolderpath = object['item-folderpath']
+            atlasreference = "atlas-#{SecureRandom.hex(8)}"
+            puts "atlas reference: #{atlasreference}"
+            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
+            LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
+            puts "Stream folder moved to the staging folder (Desktop), edit and press [Enter]"
+            LucilleCore::pressEnterToContinue()
+            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(nil, nil, atlasreference, nil, nil)
+            targetparentlocation = R136CoreUtils::getNewUniqueDataTimelineIndexSubFolderPathReadyToUse()
+            LucilleCore::copyFileSystemLocation(staginglocation, targetparentlocation)
+            LucilleCore::removeFileSystemLocation(staginglocation)
+            Stream::performObjectClosing(object)
             return [nil, false]
         end
         [nil, false]
