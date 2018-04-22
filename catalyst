@@ -448,14 +448,20 @@ class Jupiter
 
             if flagIntermediaryInformation then
                 puts ""
-                screen_space = screen_space-1        
+                screen_space = screen_space-1
             end
 
             if objects.size>0 then
                 Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
             else
-                puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
-                sleep 60
+                if VirtualScreensManager::isPrimaryScreen() then
+                    puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
+                    sleep 60 
+                else
+                    puts "No items in the secondary screen, moving to primary screen"
+                    LucilleCore::pressEnterToContinue()
+                    VirtualScreensManager::activatePrimaryScreen()
+                end
             end
 
         }
