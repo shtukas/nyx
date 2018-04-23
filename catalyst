@@ -300,7 +300,7 @@ class Jupiter
         print "---> "
         expression = STDIN.gets().strip
         execReturnValue = Jupiter::execute(expression, object, displayObjects)
-        if execReturnValue.nil? then
+        if expression.size>0 and execReturnValue.nil? then
             puts "Expression: #{expression} was not correctly interpreted"
             LucilleCore::pressEnterToContinue()
             return [nil, false]
