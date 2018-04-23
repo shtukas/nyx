@@ -113,6 +113,7 @@ end
 # Jupiter::currentDay()
 # Jupiter::edit_text_using_textmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+# Jupiter::selectDisplayObjects()
 # Jupiter::main()
 
 class Jupiter
@@ -383,90 +384,50 @@ class Jupiter
         end
     end
 
+    def self.selectDisplayObjects()
+        catalystObjectsAll = CatalystCore::objects()
+        catalystObjectsMeetingRequirements = catalystObjectsAll
+            .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
+        primaryScreenObjects = catalystObjectsMeetingRequirements
+            .select{ |object| VirtualScreensManager::test(true, object["uuid"]) }
+        secondaryScreenObjects = catalystObjectsMeetingRequirements
+            .select{ |object| VirtualScreensManager::test(false, object["uuid"]) }
+        objects = VirtualScreensManager::isPrimaryScreen() ? primaryScreenObjects : secondaryScreenObjects 
+        objects
+    end
+
     def self.main()
         loop {
-
-            if KeyValueStore::getOrNull(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? then
-                numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
-                if numberOfHours.strip.size==0 then
-                    numberOfHours = "5"
-                end
-                numberOfHours = numberOfHours.to_f
-                if numberOfHours>0 then
-                    10.times {|indx|
-                        item = {
-                            "uuid"                => SecureRandom.hex(4),
-                            "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                            "description"         => "Guardian",
-                            "commitment-in-hours" => numberOfHours/10,
-                            "timespans"           => [],
-                            "is-running"          => false,
-                            "last-start-unixtime" => 0,
-                            "metric"              => 1 - 0.05*indx
-                        }
-                        TimeCommitments::saveItem(item)
-                    }   
-                   
-                end
-                KeyValueStore::set(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}","done")
-            end
-
             puts "# #{ "-" * (Jupiter::screen_width()-3) }"
-
             if WaveDevOps::archivesGarbageCollection(true)>0 then
                 LucilleCore::pressEnterToContinue()
                 next
             end
-
-            catalystObjectsAll = CatalystCore::objects()
-            catalystObjectsMeetingRequirements = catalystObjectsAll
-                .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
-
-            primaryScreenObjects = catalystObjectsMeetingRequirements
-                .select{ |object| VirtualScreensManager::test(true, object["uuid"]) }
-
-            secondaryScreenObjects = catalystObjectsMeetingRequirements
-                .select{ |object| VirtualScreensManager::test(false, object["uuid"]) }
-
+            objects = Jupiter::selectDisplayObjects()
             screen_space = Jupiter::screen_height()-6
-
-            objects = VirtualScreensManager::isPrimaryScreen() ? primaryScreenObjects : secondaryScreenObjects
-
             if objects.size>0 then
                 screen_space = screen_space-Jupiter::vertical_space(objects.first['announce']) 
             end
-
-            screen_space = Jupiter::puts_objects(
-                objects.clone, 
-                screen_space, 
-                0
-            )
-
+            screen_space = Jupiter::puts_objects(objects.clone, screen_space, 0)
             if objects.size>0 then
                 puts ""
                 screen_space = screen_space-1
             end
-
             flagIntermediaryInformation = false
-
-            
             if ( unsatisfied_requirements = RequirementsOperator::currentlyUnsatisfifiedRequirements() ).size>0 then
                 puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
                 screen_space = screen_space-1
                 flagIntermediaryInformation = true
             end
-
             if !VirtualScreensManager::isPrimaryScreen() then
                 puts "SECONDARY SCREEN"
                 screen_space = screen_space-1
                 flagIntermediaryInformation = true
             end
-
             if flagIntermediaryInformation then
                 puts ""
                 screen_space = screen_space-1
             end
-
             if objects.size>0 then
                 Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
             else
@@ -479,7 +440,6 @@ class Jupiter
                     VirtualScreensManager::activatePrimaryScreen()
                 end
             end
-
         }
     end
 end

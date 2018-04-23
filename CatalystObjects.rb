@@ -44,6 +44,7 @@ require_relative "Today.rb"
 require_relative "TimeCommitments.rb"
 require_relative "SecondaryDisplayTeaser.rb"
 require_relative "StreamKiller.rb"
+require_relative "GuardianTime.rb"
 
 # ----------------------------------------------------------------------
 
@@ -58,7 +59,8 @@ class CatalystCore
             ["Today", lambda { Today::getCatalystObjects() }],
             ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
             ["SecondaryDisplayTeaser", lambda { SecondaryDisplayTeaser::getCatalystObjects() }],
-            ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }]
+            ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],
+            ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }]
         ]
 
         objects = sources.map{|pair| 
