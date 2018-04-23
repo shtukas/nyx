@@ -66,11 +66,27 @@ class XLaniakea
                 }
             ]
         else
+
+            removeAnnouncePrefix1 = lambda {|announce|
+                indx = announce.index("}")
+                announce[indx+1,announce.size].strip
+            }
+            removeAnnouncePrefix2 = lambda {|announce|
+                if announce[0,2]=="[]" then
+                    announce[2,announce.size].strip
+                else
+                    announce
+                end
+            }
+            item["announce"] = removeAnnouncePrefix1.call(item["announce"])
+            item["announce"] = removeAnnouncePrefix2.call(item["announce"])
+            item["announce"] = "(#{"%.3f" % item["metric"]}) [#{item["uuid"]}] x-laniakea: #{item["announce"]}"
             item["commands"] = ["done"]
             item["command-interpreter"] = lambda{ |command, object| 
                 if command=="done" then
                     item = FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
-                    puts 
+                    puts JSON.pretty_generate(item)
+                    LucilleCore::pressEnterToContinue()
                 end
             }
             [
