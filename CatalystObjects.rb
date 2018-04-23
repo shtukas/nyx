@@ -45,6 +45,7 @@ require_relative "TimeCommitments.rb"
 require_relative "SecondaryDisplayTeaser.rb"
 require_relative "StreamKiller.rb"
 require_relative "GuardianTime.rb"
+require_relative "x-laniakea.rb"
 
 # ----------------------------------------------------------------------
 
@@ -60,7 +61,8 @@ class CatalystCore
             ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
             ["SecondaryDisplayTeaser", lambda { SecondaryDisplayTeaser::getCatalystObjects() }],
             ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],
-            ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }]
+            ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }],
+            ["x-laniakea", lambda { XLaniakea::getCatalystObjects() }]
         ]
 
         objects = sources.map{|pair| 
