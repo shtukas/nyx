@@ -51,34 +51,61 @@ require_relative "Stream.rb"
 
 # -------------------------------------------------------------------------------------
 
+# metric = f(idealCount*0.9) = 0
+#          f(idealCount)     = 1
+#          slope = 1.to_f/(0.1*idealCount)
+#          f(x) = x.to_f/(0.1*idealCount) + something
+#          something = f(x) - x.to_f/(0.1*idealCount)
+#          something = - (idealCount*0.9).to_f/(0.1*idealCount)
+#          f(x) = x.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
+#          check: f(idealCount*0.9) = (idealCount*0.9).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount) = 0
+#          check: f(idealCount)     = idealCount.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
+#                                   = (idealCount*0.9 + idealCount*0.1).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
+#                                   = 1
+
+# StreamKiller::getCatalystObjects()
+
 class StreamKiller
+    def self.getCurve()
+        filename = Dir.entries("/Galaxy/DataBank/Catalyst/StreamKiller")
+            .select{|filename| filename[0,1] != "." }
+            .sort
+            .last
+        JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/StreamKiller/#{filename}"))
+    end
+    def self.shiftCurve(curve)
+        curve = curve.clone
+        curve["starting-count"] = curve["starting-count"]-10
+        curve["ending-unixtime"] = curve["ending-unixtime"]-86400
+        curve
+    end
+    def self.computeIdealCountFromCurve(curve)
+        curve["starting-count"] - curve["starting-count"]*(Time.new.to_i - curve["starting-unixtime"]).to_f/(curve["ending-unixtime"] - curve["starting-unixtime"])
+    end
+    def self.computeMetric(currentCount, idealCount)
+        currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
+    end
     def self.getCatalystObjects()
+        curve = StreamKiller::getCurve()
+        idealCount = StreamKiller::computeIdealCountFromCurve(curve)
+        currentCount = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
+        metric = StreamKiller::computeMetric(currentCount, idealCount)
 
-        startingUnixtime = 1524341098
-        endingUnixtime   = 1524341098 + 86400*100 # 100 days
-        startingCount    = 995
-        endingCount      = 0
-        idealCount       = 995 - 995*(Time.new.to_i - startingUnixtime).to_f/(endingUnixtime - startingUnixtime)
-        
-                # metric = f(idealCount*0.9) = 0
-                #          f(idealCount)     = 1
-                #          slope = 1.to_f/(0.1*idealCount)
-                #          f(x) = x.to_f/(0.1*idealCount) + something
-                #          something = f(x) - x.to_f/(0.1*idealCount)
-                #          something = - (idealCount*0.9).to_f/(0.1*idealCount)
-                #          f(x) = x.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-                #          check: f(idealCount*0.9) = (idealCount*0.9).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount) = 0
-                #          check: f(idealCount)     = idealCount.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-                #                                   = (idealCount*0.9 + idealCount*0.1).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-                #                                   = 1
+        if metric < 0.2 then
+            curveX = StreamKiller::shiftCurve(curve)
+            idealCountX  = StreamKiller::computeIdealCountFromCurve(curveX)
+            metricX = StreamKiller::computeMetric(currentCount, idealCountX)
+            if metricX < 0.2 then
+                puts "StreamKiller, shifting curve on disk (metric: #{metric} -> #{metricX})"
+                puts JSON.pretty_generate(curve)
+                puts JSON.pretty_generate(curveX)
+                LucilleCore::pressEnterToContinue()
+                File.open("/Galaxy/DataBank/Catalyst/StreamKiller/curve-#{LucilleCore::timeStringL22()}.json", "w"){|f| f.puts( JSON.pretty_generate(curveX) ) }
+                curve = curveX
+            end
+        end
 
-        currentCount     = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
-
-        metric           = currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
-        metric           = [metric, 1].min
-        metric           = [metric, 0].max
-
-        targetuuid       = Stream::getUUIDs().sample
+        targetuuid = Stream::getUUIDs().sample
         objects = []
         objects << {
             "uuid" => "2662371C-44C0-422B-83FF-FAB12B76FDED",
@@ -101,3 +128,4 @@ class StreamKiller
         objects
     end
 end
+
