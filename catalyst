@@ -227,10 +227,11 @@ class Jupiter
             searchobjects = CatalystCore::objects()
                 .select{|object| object['announce'].downcase.include?(pattern.downcase) }
             if searchobjects.size>0 then
-                searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
-                if searchobject then
-                    return Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects)
-                end
+                loop {
+                    searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
+                    break if searchobject.nil?
+                    Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects)
+                }
             end
             return [nil, false]
         end
