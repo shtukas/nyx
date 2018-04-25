@@ -99,25 +99,25 @@ class RequirementsOperator
     end
 end
 
-# Jupiter::Jupiter::email_sync_on_schedule(verbose)
-# Jupiter::screen_height()
-# Jupiter::screen_width()
-# Jupiter::vertical_space(announce)
+# Jupiter::Jupiter::emailSyncOnSchedule(verbose)
+# Jupiter::screenHeight()
+# Jupiter::screenWidth()
+# Jupiter::verticalSpace(announce)
 # Jupiter::tokenIsInteger(token)
 # Jupiter::execute(expression, object, displayObjects): (directive, value) # See documentation for details
 # Jupiter::putsObjectWithShellDisplay(object, displayObjects): (directive, value) # See documentation for details
-# Jupiter::object_to_string_line(object, indx)
-# Jupiter::puts_objects(objects, remaining_number_of_lines: Int, indx: Int)
+# Jupiter::objectToStringLine(object, indx)
+# Jupiter::putsObjects(objects, remaining_number_of_lines: Int, indx: Int)
 # Jupiter::putshelp()
 # Jupiter::currentHour()
 # Jupiter::currentDay()
-# Jupiter::edit_text_using_textmate(text)
+# Jupiter::editTextUsingTextmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
 # Jupiter::selectDisplayObjects()
 # Jupiter::main()
 
 class Jupiter
-    def self.email_sync_on_schedule(verbose)
+    def self.emailSyncOnSchedule(verbose)
         if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
             begin
                 newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
@@ -132,16 +132,16 @@ class Jupiter
         end    
     end
 
-    def self.screen_height()
+    def self.screenHeight()
         `/usr/bin/env tput lines`.to_i
     end
 
-    def self.screen_width()
+    def self.screenWidth()
         `/usr/bin/env tput cols`.to_i
     end
 
-    def self.vertical_space(announce)
-        announce.lines.map{|line| (line.size/Jupiter::screen_width())+1 }.inject(0, :+)
+    def self.verticalSpace(announce)
+        announce.lines.map{|line| (line.size/Jupiter::screenWidth())+1 }.inject(0, :+)
     end
 
     def self.tokenIsInteger(token)
@@ -258,7 +258,7 @@ class Jupiter
             requirementObjects = CatalystCore::objects()
                 .select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 .each{|object|
-                    puts Jupiter::object_to_string_line(object)
+                    puts Jupiter::objectToStringLine(object)
                 }
             LucilleCore::pressEnterToContinue()
             return [nil, false]
@@ -317,7 +317,7 @@ class Jupiter
         [nil, false]
     end
 
-    def self.object_to_string_line(object, indx = nil)
+    def self.objectToStringLine(object, indx = nil)
         requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
         requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
         indexString = indx ? "(#{indx.to_s.rjust(3)}) " : ""
@@ -328,13 +328,13 @@ class Jupiter
         str
     end
 
-    def self.puts_objects(objects, remaining_number_of_lines, indx)
+    def self.putsObjects(objects, remaining_number_of_lines, indx)
         return remaining_number_of_lines if objects.size==0
         return remaining_number_of_lines if remaining_number_of_lines<=0
         object = objects.shift
-        str = Jupiter::object_to_string_line(object, indx)
+        str = Jupiter::objectToStringLine(object, indx)
         puts str
-        Jupiter::puts_objects(objects,remaining_number_of_lines-Jupiter::vertical_space(str), indx+1)
+        Jupiter::putsObjects(objects,remaining_number_of_lines-Jupiter::verticalSpace(str), indx+1)
     end
 
     def self.putshelp()
@@ -367,7 +367,7 @@ class Jupiter
         Time.new.to_s[0,10]
     end
 
-    def self.edit_text_using_textmate(text)
+    def self.editTextUsingTextmate(text)
       filename = SecureRandom.hex
       filepath = "/tmp/#{filename}"
       File.open(filepath, 'w') {|f| f.write(text)}  
@@ -379,7 +379,7 @@ class Jupiter
 
     def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
         if description=='text' then
-            edit_text_using_textmate("")
+            editTextUsingTextmate("")
         else
             description
         end
@@ -399,17 +399,17 @@ class Jupiter
 
     def self.main()
         loop {
-            puts "# #{ "-" * (Jupiter::screen_width()-3) }"
+            puts "# #{ "-" * (Jupiter::screenWidth()-3) }"
             if WaveDevOps::archivesGarbageCollection(true)>0 then
                 LucilleCore::pressEnterToContinue()
                 next
             end
             objects = Jupiter::selectDisplayObjects()
-            screen_space = Jupiter::screen_height()-6
+            screen_space = Jupiter::screenHeight()-6
             if objects.size>0 then
-                screen_space = screen_space-Jupiter::vertical_space(objects.first['announce']) 
+                screen_space = screen_space-Jupiter::verticalSpace(objects.first['announce']) 
             end
-            screen_space = Jupiter::puts_objects(objects.clone, screen_space, 0)
+            screen_space = Jupiter::putsObjects(objects.clone, screen_space, 0)
             if objects.size>0 then
                 puts ""
                 screen_space = screen_space-1
@@ -454,10 +454,10 @@ RequirementsOperator::init()
 
 Thread.new { 
     sleep 60
-    Jupiter::email_sync_on_schedule(true)
+    Jupiter::emailSyncOnSchedule(true)
     loop {
         sleep 1200
-        Jupiter::email_sync_on_schedule(false)
+        Jupiter::emailSyncOnSchedule(false)
     }
 }
 
