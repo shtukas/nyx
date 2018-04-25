@@ -87,6 +87,9 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time
 # TimeCommitments::extractNonRunningOverflowingItemOrNull(items)
 # TimeCommitments::extractDifferentItemOrNull(items, item)
 # TimeCommitments::itemToLiveTimespan(item)
+# TimeCommitments::garbageCollectionItems(items)
+# TimeCommitments::garbageCollectionGlobal()
+# TimeCommitments::getUniqueDomains(items)
 # TimeCommitments::getCatalystObjects()
 
 class TimeCommitments
@@ -139,17 +142,35 @@ class TimeCommitments
         item["timespans"].inject(0,:+) + ( item["is-running"] ? Time.new.to_i - item["last-start-unixtime"] : 0 )
     end
 
-    def self.getCatalystObjects()
-
-        items = TimeCommitments::getItems()
+    def self.garbageCollectionItems(items)
         if ( overflowingItem = TimeCommitments::extractNonRunningOverflowingItemOrNull(items) ) then
             if ( recipientItem = TimeCommitments::extractDifferentItemOrNull(items, overflowingItem) ) then
-                recipientItem["timespans"] <<  ( overflowingItem["commitment-in-hours"]*3600 - overflowingItem["timespans"].inject(0,:+) )
+                recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
+                puts "TimeCommitments garbage collection"
+                puts JSON.pretty_generate(overflowingItem)
+                puts JSON.pretty_generate(recipientItem)
+                LucilleCore::pressEnterToContinue()
                 TimeCommitments::saveItem(recipientItem)
                 SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
             end
         end
+    end
 
+    def self.garbageCollectionGlobal()
+        items = TimeCommitments::getItems()
+        domains = TimeCommitments::getUniqueDomains(items)
+        domains.each{|domain|  
+            domainItems = items.select{|item| item["domain"]==domain }
+            TimeCommitments::garbageCollectionItems(domainItems)
+        }
+    end
+
+    def self.getUniqueDomains(items)
+        items.map{|item| item["domain"] }.uniq
+    end
+
+    def self.getCatalystObjects()
+        TimeCommitments::garbageCollectionGlobal()
         TimeCommitments::getItems()
         .map{|item|
             uuid = item['uuid']
