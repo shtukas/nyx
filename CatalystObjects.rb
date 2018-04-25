@@ -65,21 +65,29 @@ class CatalystCore
             ["x-laniakea", lambda { XLaniakea::getCatalystObjects() }]
         ]
 
-        objects = sources.map{|pair| 
+        struct1 = sources.map{|pair|
             startTime = Time.new.to_f
-            xobjects = pair[1].call() 
+            xobjects  = pair[1].call() 
             queryTime = Time.new.to_f - startTime
-            if queryTime > 1.to_f/sources.size then
-                xobjects << {
-                    "uuid"                => SecureRandom.hex(4),
-                    "metric"              => 0.3,
-                    "announce"            => "-> Catalyst generation is taking too long for #{pair[0]}: #{queryTime} seconds, should be less than #{1.to_f/sources.size} seconds.",
-                    "commands"            => [],
-                    "command-interpreter" => lambda{ |command, object| }
-                }
-            end
-            xobjects
-        }.inject([], :+)
+            {
+                "domain"  => pair[0],
+                "objects" => xobjects,
+                "time"    => queryTime
+            }
+        }
+
+        objects = struct1.map{|s| s["objects"] }.flatten
+
+        if struct1.map{|s| s["time"] }.inject(0, :+) > 1 then
+            offender = struct1.sort{|s1,s2| s1["time"]<=>s2["time"] }.last
+            objects << {
+                "uuid"                => SecureRandom.hex(4),
+                "metric"              => 0.3,
+                "announce"            => "-> Catalyst generation is taking too long for #{offender["domain"]} (#{offender["time"]} seconds)",
+                "commands"            => [],
+                "command-interpreter" => lambda{ |command, object| }
+            }
+        end
 
         objects << {
             "uuid"                => "d341644d",
