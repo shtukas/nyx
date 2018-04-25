@@ -84,7 +84,8 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time
 # TimeCommitments::writeDataToDisk(data)
 # TimeCommitments::startItem(item)
 # TimeCommitments::stopItem(item)
-# TimeCommitments::extraTimeFromCollectedItemOrNull(item): Float # extra time to be given to another item of the same domain
+# TimeCommitments::extractNonRunningOverflowingItemOrNull(items)
+# TimeCommitments::extractDifferentItemOrNull(items, item)
 # TimeCommitments::itemToLiveTimespan(item)
 # TimeCommitments::getCatalystObjects()
 
@@ -123,11 +124,15 @@ class TimeCommitments
         item
     end
 
-    def self.extraTimeFromCollectedItemOrNull(item)
-        return nil if item["is-running"]
-        return nil if ( item["timespans"].inject(0,:+) < item["commitment-in-hours"]*3600 )
-        SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"])
-        item["timespans"].inject(0,:+) - item["commitment-in-hours"]*3600
+    def self.extractNonRunningOverflowingItemOrNull(items)
+        items
+            .select{|item| !item["is-running"] }
+            .select{|item| item["timespans"].inject(0,:+) >= item["commitment-in-hours"]*3600  }
+            .first
+    end
+
+    def self.extractDifferentItemOrNull(items, item)
+        items.select{|i| i["uuid"]!=item["uuid"] }.first
     end
 
     def self.itemToLiveTimespan(item) 
@@ -136,17 +141,13 @@ class TimeCommitments
 
     def self.getCatalystObjects()
 
-        extraTime = TimeCommitments::getItems()
-            .map{|item| TimeCommitments::extraTimeFromCollectedItemOrNull(item) }
-            .compact
-            .inject(0, :+)
-
         items = TimeCommitments::getItems()
-
-        if extraTime>0 and items.size>0 then
-            firstItem = items.first
-            firstItem["timespans"] << extraTime
-            TimeCommitments::saveItem(firstItem)
+        if ( overflowingItem = TimeCommitments::extractNonRunningOverflowingItemOrNull(items) ) then
+            if ( recipientItem = TimeCommitments::extractDifferentItemOrNull(items, overflowingItem) ) then
+                recipientItem["timespans"] <<  ( overflowingItem["commitment-in-hours"]*3600 - overflowingItem["timespans"].inject(0,:+) )
+                TimeCommitments::saveItem(recipientItem)
+                SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
+            end
         end
 
         TimeCommitments::getItems()
