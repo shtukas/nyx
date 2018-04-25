@@ -52,7 +52,9 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 class SecondaryDisplayTeaser
     def self.getCatalystObjects()
         objects = []
-        if Time.new.to_i - VirtualScreensManager::lastSecondaryActivationTime() > 3600*2 then
+        bool1 = Time.new.to_i - VirtualScreensManager::lastSecondaryActivationTime() > 3600*2 # indicates that we haven't visited the secondary screen for a while
+        bool2 = KeyValueStore::getOrDefaultValue(nil, "309f9991-f619-4176-9003-ac5882085241:#{Time.new.to_s[0,13]}", "[]") != "[]" # indicates that the secondary screens currently has objects
+        if bool1 and bool2 then
             objects << {
                 "uuid" => "8ebbee14-2578-471f-859d-9ea234647b58",
                 "metric" => 1,

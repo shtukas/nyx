@@ -5,10 +5,22 @@
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
 CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 
+# Saturn::currentHour()
+# Saturn::currentDay()
+
+class Saturn
+    def self.currentHour()
+        Time.new.to_s[0,13]
+    end
+    def self.currentDay()
+        Time.new.to_s[0,10]
+    end
+end
+
 # VirtualScreensManager::init()
 # VirtualScreensManager::add(uuid)
 # VirtualScreensManager::remove(uuid)
-# VirtualScreensManager::test(isPrimaryScreen, uuid)
+# VirtualScreensManager::trueIfScreenContainsItem(isPrimaryScreen, uuid)
 # VirtualScreensManager::isPrimaryScreen()
 # VirtualScreensManager::activatePrimaryScreen()
 # VirtualScreensManager::activateSecondaryScreen()
@@ -31,7 +43,7 @@ class VirtualScreensManager
         KeyValueStore::set(nil, "284088e8-90c2-4dab-a1a3-83bbd417b5be", JSON.generate(@@uuids))
     end
 
-    def self.test(isPrimaryScreen, uuid)
+    def self.trueIfScreenContainsItem(isPrimaryScreen, uuid)
         if isPrimaryScreen then
             !@@uuids.include?(uuid)
         else

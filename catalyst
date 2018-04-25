@@ -109,8 +109,6 @@ end
 # Jupiter::objectToStringLine(object, indx)
 # Jupiter::putsObjects(objects, remaining_number_of_lines: Int, indx: Int)
 # Jupiter::putshelp()
-# Jupiter::currentHour()
-# Jupiter::currentDay()
 # Jupiter::editTextUsingTextmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
 # Jupiter::selectDisplayObjects()
@@ -360,14 +358,6 @@ class Jupiter
         puts "    command ; ..."
     end
 
-    def self.currentHour()
-        Time.new.to_s[0,13]
-    end
-
-    def self.currentDay()
-        Time.new.to_s[0,10]
-    end
-
     def self.editTextUsingTextmate(text)
       filename = SecureRandom.hex
       filepath = "/tmp/#{filename}"
@@ -391,9 +381,10 @@ class Jupiter
         catalystObjectsMeetingRequirements = catalystObjectsAll
             .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
         primaryScreenObjects = catalystObjectsMeetingRequirements
-            .select{ |object| VirtualScreensManager::test(true, object["uuid"]) }
+            .select{ |object| VirtualScreensManager::trueIfScreenContainsItem(true, object["uuid"]) }
         secondaryScreenObjects = catalystObjectsMeetingRequirements
-            .select{ |object| VirtualScreensManager::test(false, object["uuid"]) }
+            .select{ |object| VirtualScreensManager::trueIfScreenContainsItem(false, object["uuid"]) }
+        KeyValueStore::set(nil, "309f9991-f619-4176-9003-ac5882085241:#{Time.new.to_s[0,13]}",JSON.generate(secondaryScreenObjects))
         objects = VirtualScreensManager::isPrimaryScreen() ? primaryScreenObjects : secondaryScreenObjects 
         objects
     end
