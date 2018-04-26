@@ -157,8 +157,13 @@ class Stream
                 if nonDotFilespaths.size==1 then
                     filepath = nonDotFilespaths[0]
                     if filepath[-4,4]==".txt" then
-                        if IO.read(filepath).strip.lines.to_a.size==1 and IO.read(filepath).strip.start_with?("http") then
-                            ["url", IO.read(filepath).strip]
+                        if IO.read(filepath).strip.lines.to_a.size==1 then
+                            line = IO.read(filepath).strip
+                            if line.start_with?("http") then
+                                ["url", line]
+                            else
+                                ["file", filepath]
+                            end
                         else
                             ["file", filepath]
                         end
@@ -190,7 +195,7 @@ class Stream
         isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
         metric = isRunning ? 2 : StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
         commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">medium", ">project", ">lib"]
-        announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(naturalTargetUnderLocation(folderpath)[1])}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
+        announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath)[1])}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
         if isRunning then
             announcesuffix = announcesuffix.green
         end
@@ -257,7 +262,7 @@ class Stream
         end
         if command=='start' then
             DRbObject.new(nil, "druby://:10423").start(uuid)
-            system("open '#{naturalTargetUnderLocation(object["item-folderpath"])[1]}'")
+            system("open '#{Stream::naturalTargetUnderLocation(object["item-folderpath"])[1]}'")
             return [nil, false]
         end
         if command=='stop' then
