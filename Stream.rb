@@ -107,6 +107,7 @@ end
 # Stream::getItemDescription(folderpath)
 # Stream::folderpath2uuid(folderpath)
 # Stream::getUUIDs()
+# Stream::simplifyURLCarryingString(string)
 # Stream::naturalTargetUnderLocation(location): (type, address) , where type is "file" or "url"
 # Stream::folderpathToCatalystObject(folderpath, indx, streamName)
 # Stream::performObjectClosing(object)
@@ -144,6 +145,35 @@ class Stream
         }.flatten
     end
 
+    def self.simplifyURLCarryingString(string)
+        return string if /http/.match(string).nil?
+        if ( m = /^\{\s\d*\s\}/.match(string) ) then
+            string = string[m.to_s.size, string.size].strip
+            return Stream::simplifyURLCarryingString(string)
+        end
+        if ( m = /^\[\]/.match(string) ) then
+            string = string[m.to_s.size, string.size].strip
+            return Stream::simplifyURLCarryingString(string)
+        end
+        if ( m = /^line:/.match(string) ) then
+            string = string[m.to_s.size, string.size].strip
+            return Stream::simplifyURLCarryingString(string)
+        end
+        if ( m = /^todo:/.match(string) ) then
+            string = string[m.to_s.size, string.size].strip
+            return Stream::simplifyURLCarryingString(string)
+        end
+        if ( m = /^url:/.match(string) ) then
+            string = string[m.to_s.size, string.size].strip
+            return Stream::simplifyURLCarryingString(string)
+        end
+        if ( m = /^\[\s*\d*\s*\]/.match(string) ) then
+            string = string[m.to_s.size, string.size].strip
+            return Stream::simplifyURLCarryingString(string)
+        end
+        string
+    end
+
     def self.naturalTargetUnderLocation(location)
         value = @@naturalTargets[location]
         return value if value
@@ -159,10 +189,11 @@ class Stream
                     if filepath[-4,4]==".txt" then
                         if IO.read(filepath).strip.lines.to_a.size==1 then
                             line = IO.read(filepath).strip
+                            line = Stream::simplifyURLCarryingString(line)
                             if line.start_with?("http") then
                                 ["url", line]
                             else
-                                ["file", filepath]
+                                ["line", line]
                             end
                         else
                             ["file", filepath]
@@ -180,12 +211,12 @@ class Stream
         value
     end
 
-    def self.naturalTargetToDisplayName(target)
-        if target[-7,7]==".webloc" then
-            File.basename(target)
-        else
-            target
-        end
+    def self.naturalTargetToDisplayName(pair)
+        return pair[1] if pair[0]=="line"
+        return pair[1] if pair[0]=="url"
+        target = pair[1]
+        return File.basename(target) if target[-7,7]==".webloc" 
+        target
     end
 
     def self.folderpathToCatalystObject(folderpath, indx, streamName)
@@ -195,7 +226,7 @@ class Stream
         isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
         metric = isRunning ? 2 : StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
         commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">medium", ">project", ">lib"]
-        announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath)[1])}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
+        announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
         if isRunning then
             announcesuffix = announcesuffix.green
         end
@@ -338,6 +369,13 @@ class Stream
         objects
     end
 end
+
+# -------------------------------------------------------------------------------------
+
+LucilleCore::assert(
+    "4e29669a-a5de-4100-ac70-a2e0b59dabc9",
+    Stream::simplifyURLCarryingString("{ 1223 } [] line: todo: [ 173] http://www.mit.edu/~xela/tao.html")=="http://www.mit.edu/~xela/tao.html"
+)
 
 # -------------------------------------------------------------------------------------
 
