@@ -278,11 +278,11 @@ class Stream
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
             return [nil, true]
         end
-        if command=='medium' then
+        if command=='>medium' then
             StreamClassification::setItemClassification(uuid, ">medium")
             return [nil, false]
         end
-        if command=='project' then
+        if command=='>project' then
             StreamClassification::setItemClassification(uuid, ">project")
             return [nil, false]
         end
