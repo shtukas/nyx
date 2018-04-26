@@ -194,7 +194,9 @@ class Jupiter
         end
 
         if expression.start_with?('+') then
-            object['command-interpreter'].call(object, expression)
+            code = expression
+            datetime = Jupiter::datetimeSpecification2232ToDatetime(code)
+            DoNotShowUntil::set(object["uuid"], datetime)
             return [nil, false]
         end
 
@@ -294,7 +296,6 @@ class Jupiter
         else
             return object['command-interpreter'].call(object, "")
         end
-
     end
 
     def self.putsObjectWithShellDisplay(object, displayObjects)
@@ -363,6 +364,7 @@ class Jupiter
         puts "    >primary"
         puts "    >secondary"
         puts "    command ..."
+        puts "    (+)datetimecode"
     end
 
     def self.editTextUsingTextmate(text)
@@ -440,12 +442,67 @@ class Jupiter
             end
         }
     end
+
+    def self.datetimeSpecification2232ToDatetime(code)
+        localsuffix = Time.new.to_s[-5,5]
+        if code[0,1]=='+' then
+            code = code[1,999]
+            if code.index('@') then
+                # The first part is an integer and the second HH:MM
+                part1 = code[0,code.index('@')]
+                part2 = code[code.index('@')+1,999]
+                "#{( DateTime.now + part1.to_i ).to_date.to_s} #{part2}:00 #{localsuffix}"
+            else
+                if code.include?('days') or code.include?('day') then
+                    if code.include?('days') then
+                        # The entire string is to be interpreted as a number of days from now
+                        "#{( DateTime.now + code[0,code.size-4].to_f ).to_time.to_s}"
+                    else
+                        # The entire string is to be interpreted as a number of days from now
+                        "#{( DateTime.now + code[0,code.size-3].to_f ).to_time.to_s}"
+                    end
+
+                elsif code.include?('hours') or code.include?('hour') then
+                    if code.include?('hours') then
+                        ( Time.new + code[0,code.size-5].to_f*3600 ).to_s
+                    else
+                        ( Time.new + code[0,code.size-4].to_f*3600 ).to_s
+                    end
+                else
+                    raise "error: Jupiter::datetimeSpecification2232ToDatetime 30c6e629-1d71-4777-aad5-de2a40662623"
+                end
+            end
+        else
+            # Here we expect "YYYY-MM-DD" or "YYYY-MM-DD@HH:MM" 
+            if code.index('@') then
+                part1 = code[0,10]
+                part2 = code[11,999]
+                "#{part1} #{part2}:00 #{localsuffix}"
+            else
+                part1 = code[0,10]
+                part2 = code[11,999]
+                "#{part1} 00:00:00 #{localsuffix}"
+            end
+        end
+    end
+
 end
+
+LucilleCore::assert("PascalMiscUtils 1.0", Jupiter::datetimeSpecification2232ToDatetime("+0 days") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert("PascalMiscUtils 1.5", Jupiter::datetimeSpecification2232ToDatetime("+1.6 days") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
+LucilleCore::assert("PascalMiscUtils 1.6", Jupiter::datetimeSpecification2232ToDatetime("+0 hours") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert("PascalMiscUtils 1.5", Jupiter::datetimeSpecification2232ToDatetime("+0 day") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert("PascalMiscUtils 1.5", Jupiter::datetimeSpecification2232ToDatetime("+1.6 day") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
+LucilleCore::assert("PascalMiscUtils 1.6", Jupiter::datetimeSpecification2232ToDatetime("+0 hour") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert("PascalMiscUtils 1.7", Jupiter::datetimeSpecification2232ToDatetime("+1.6 hour") == "#{( Time.new + 1.6*3600 ).to_s}")
+LucilleCore::assert("PascalMiscUtils 2.0", Jupiter::datetimeSpecification2232ToDatetime("+1@12:32") == "#{( DateTime.now + 1 ).to_date.to_s} 12:32:00 #{Time.new.to_s[-5,5]}")
+LucilleCore::assert("PascalMiscUtils 3.0", Jupiter::datetimeSpecification2232ToDatetime("2017-06-19@12:32") == "2017-06-19 12:32:00 #{Time.new.to_s[-5,5]}")
 
 # -----------------------------------------------------------------
 
 VirtualScreensManager::init()
 RequirementsOperator::init()
+DoNotShowUntil::init()
 
 # -----------------------------------------------------------------
 

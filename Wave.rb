@@ -294,7 +294,7 @@ class WaveTimelineUtils
     end
 
     def self.commands(schedule)
-        ['open', 'done', '<uuid>', 'recast', 'folder', '(+)datetimecode', 'destroy', ">stream", '>lib']
+        ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", '>lib']
     end
 
     def self.extractFirstURLOrNUll(string)
@@ -708,18 +708,7 @@ class WaveInterface
         # 
 
         schedule = object['schedule']
-        objectuuid = object['uuid']      
-
-        if command[0, 1] == '+' then
-            code = command.strip
-            datetime = LucilleCore::datetimeSpecification2232ToDatetime(code)
-            schedule = object['schedule']
-            schedule["do-not-show-until-datetime"] = datetime
-            schedule.delete("metric")
-            #puts JSON.pretty_generate(schedule)
-            WaveTimelineUtils::writeScheduleToDisk(object['uuid'],schedule)
-            return [nil, false]
-        end 
+        objectuuid = object['uuid']
 
         if command=='open' then
             objectuuid = object['uuid']

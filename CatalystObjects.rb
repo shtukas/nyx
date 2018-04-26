@@ -97,6 +97,8 @@ class CatalystCore
             "command-interpreter" => lambda{ |command, object| }
         }
 
+        objects = DoNotShowUntil::transform(objects)
+
         (objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse

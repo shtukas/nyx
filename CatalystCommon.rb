@@ -63,7 +63,41 @@ class VirtualScreensManager
         KeyValueStore::set(nil, "last-secondary-screen-activitation-time:4cf02066-db02-4106-a43e-92ea3f9273ec", Time.new.to_i)        
         KeyValueStore::set(nil, "8dbecdcb-6c37-4a06-840a-8d7c65a0ee40", JSON.generate([false]))
     end
+
     def self.lastSecondaryActivationTime()
         KeyValueStore::getOrDefaultValue(nil, "last-secondary-screen-activitation-time:4cf02066-db02-4106-a43e-92ea3f9273ec", "0").to_i
+    end
+end
+
+# DoNotShowUntil::set(uuid, datetime)
+# DoNotShowUntil::transform(objects)
+
+class DoNotShowUntil
+    @@mapping = {}
+
+    def self.init()
+        @@mapping = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/do-not-show-until.json"))
+    end
+
+    def self.set(uuid, datetime)
+        @@mapping[uuid] = datetime
+        File.open("/Galaxy/DataBank/Catalyst/do-not-show-until.json", "w"){|f| f.puts(JSON.pretty_generate(@@mapping)) }
+    end
+
+    def self.isactive(object)
+        return true if @@mapping[object["uuid"]].nil?
+        return true if DateTime.now() >= DateTime.parse(@@mapping[object["uuid"]])
+        false
+    end
+
+    def self.transform(objects)
+        objects.map{|object|
+            if !DoNotShowUntil::isactive(object) then
+                object["do-not-show-metric"] = object["metric"]
+                object["do-not-show-until-datetime"] = @@mapping[object["uuid"]]
+                object["metric"] = 0
+            end
+            object
+        }
     end
 end
