@@ -684,7 +684,7 @@ class WaveDevOps
     end
 end
 
-# WaveInterface::getCatalystObjects(size = nil)
+# WaveInterface::getCatalystObjects()
 # WaveInterface::interpreter(object, command): (directive, value)
     # (null, false)
     # (null, true)
@@ -692,7 +692,7 @@ end
 
 class WaveInterface
 
-    def self.getCatalystObjects(size = nil)
+    def self.getCatalystObjects()
         WaveDevOps::collectWaveObjects()
         WaveTimelineUtils::getCatalystObjects()
     end

@@ -48,19 +48,19 @@ require_relative "x-laniakea.rb"
 
 # ----------------------------------------------------------------------
 
-class CatalystCore
-    # CatalystCore::objects(size = nil)
-    def self.objects(size = nil)
+class CatalystObjects
+    # CatalystObjects::all()
+    def self.all()
 
         sources = [
-            ["Wave", lambda { WaveInterface::getCatalystObjects(size) }],
-            ["Ninja", lambda { Ninja::getCatalystObjects(size) }],
-            ["Stream", lambda { Stream::getCatalystObjects(size) }],
-            ["Today", lambda { Today::getCatalystObjects(size) }],
-            ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects(size) }],
-            ["StreamKiller", lambda { StreamKiller::getCatalystObjects(size) }],
-            ["GuardianTime", lambda { GuardianTime::getCatalystObjects(size) }],
-            ["x-laniakea", lambda { XLaniakea::getCatalystObjects(size) }]
+            ["Wave", lambda { WaveInterface::getCatalystObjects() }],
+            ["Ninja", lambda { Ninja::getCatalystObjects() }],
+            ["Stream", lambda { Stream::getCatalystObjects() }],
+            ["Today", lambda { Today::getCatalystObjects() }],
+            ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
+            ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],
+            ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }],
+            ["x-laniakea", lambda { XLaniakea::getCatalystObjects() }]
         ]
 
         struct1 = sources.map{|pair|
@@ -95,11 +95,7 @@ class CatalystCore
             "command-interpreter" => lambda{ |command, object| }
         }
 
-        objects = DoNotShowUntil::transform(objects)
-
-        (objects)
-            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-            .reverse
+        objects
     end
 end
 

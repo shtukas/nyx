@@ -204,7 +204,7 @@ class Jupiter
 
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
-            searchobjects = CatalystCore::objects()
+            searchobjects = CatalystObjects::all()
                 .select{|object| object['announce'].downcase.include?(pattern.downcase) }
             if searchobjects.size>0 then
                 loop {
@@ -236,7 +236,7 @@ class Jupiter
 
         if expression.start_with?("show") then
             command, requirement = expression.split(" ")
-            requirementObjects = CatalystCore::objects()
+            requirementObjects = CatalystObjects::all()
                 .select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 .each{|object|
                     puts Jupiter::objectToStringLine(object)
@@ -361,9 +361,16 @@ class Jupiter
     end
 
     def self.selectDisplayObjects()
-        objects = CatalystCore::objects(6)
+        objects = CatalystObjects::all()
             .select{|object| object["metric"] > 0 }
             .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
+        objects = DoNotShowUntil::transform(objects)
+            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+            .reverse
+        while objects.select{|object| object['metric'] < 0.815 }.size >= 2 do
+            objects.pop
+        end
+        objects
     end
 
     def self.main()

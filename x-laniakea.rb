@@ -53,7 +53,7 @@ class XLaniakea
         }
         [] 
     end
-    def self.getCatalystObjects(size = nil)
+    def self.getCatalystObjects()
         item = FIFOQueue::getFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
         if item.nil? then
             [

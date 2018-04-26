@@ -113,7 +113,7 @@ end
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjectsFromDisk()
-# Stream::getCatalystObjects(size = nil)
+# Stream::getCatalystObjects()
 
 class Stream
 
@@ -358,15 +358,8 @@ class Stream
         }.flatten
     end
 
-    def self.getCatalystObjects(size = nil)
-        objects = $STREAM_GLOBAL_STATE["catalyst-objects"]
-        if size then
-            objects = objects
-                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-                .reverse
-                .first(size)
-        end
-        objects
+    def self.getCatalystObjects()
+        $STREAM_GLOBAL_STATE["catalyst-objects"]
     end
 end
 

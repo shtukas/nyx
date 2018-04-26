@@ -75,8 +75,8 @@ class Ninja
         objects
     end
 
-    # Ninja::getCatalystObjects(size = nil)
-    def self.getCatalystObjects(size = nil)
+    # Ninja::getCatalystObjects()
+    def self.getCatalystObjects()
         Ninja::collectDropOffObjects()
         $NINJA_GLOBAL_STATE["catalyst-objects"]
     end

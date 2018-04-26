@@ -7,6 +7,8 @@
 0.840 -> 0.850  Today+Calendar
 0.820 -> 0.830  Wave: new
             
+         0.815 -- view level --
+
          0.810  TimeCommitments (unless specified by the item itself)   
 
 0.750 -> 0.800  Wave: today, ondate, repeats
@@ -15,6 +17,8 @@
 0.200 -> 0.600  Ninja
 0.100 -> 0.400  Stream project
 0.201 -> 0.501  x-laniakea
+
+         0.200 -- sleep level --
 
          0.000  Not To Be Done
 

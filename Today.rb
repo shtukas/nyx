@@ -58,7 +58,7 @@ TODAY_PATH_TO_DATA_FILE = "/Galaxy/DataBank/Today+Calendar.txt"
 # Today::sectionToLength8UUID(section)
 # Today::todaySectionsUUIDs()
 # Today::removeSectionFromFile(uuid)
-# Today::getCatalystObjects(size = nil)
+# Today::getCatalystObjects()
 
 class Today
 
@@ -124,7 +124,7 @@ class Today
         end
     end
 
-    def self.getCatalystObjects(size = nil)
+    def self.getCatalystObjects()
         objects = []
         todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|

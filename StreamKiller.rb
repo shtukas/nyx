@@ -63,7 +63,7 @@ require_relative "Stream.rb"
 #                                   = (idealCount*0.9 + idealCount*0.1).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
 #                                   = 1
 
-# StreamKiller::getCatalystObjects(size = nil)
+# StreamKiller::getCatalystObjects()
 
 class StreamKiller
     def self.getCurve()
@@ -85,7 +85,7 @@ class StreamKiller
     def self.computeMetric(currentCount, idealCount)
         currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
     end
-    def self.getCatalystObjects(size = nil)
+    def self.getCatalystObjects()
         curve = StreamKiller::getCurve()
         idealCount = StreamKiller::computeIdealCountFromCurve(curve)
         currentCount = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
@@ -114,7 +114,7 @@ class StreamKiller
             "commands" => [],
             "command-interpreter" => lambda{|object, command| 
                 targetuuid = object["target-uuid"]
-                searchobjects = CatalystCore::objects()
+                searchobjects = CatalystObjects::all()
                     .select{|object| object['announce'].downcase.include?(targetuuid) }
                 if searchobjects.size>0 then
                     searchobject = searchobjects.first
