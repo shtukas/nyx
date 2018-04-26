@@ -145,12 +145,7 @@ class TimeCommitments
     def self.garbageCollectionItems(items)
         if ( overflowingItem = TimeCommitments::extractNonRunningOverflowingItemOrNull(items) ) then
             if ( recipientItem = TimeCommitments::extractDifferentItemOrNull(items, overflowingItem) ) then
-                puts "TimeCommitments garbage collection"
-                puts JSON.pretty_generate(overflowingItem)
-                puts JSON.pretty_generate(recipientItem)
                 recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
-                puts JSON.pretty_generate(recipientItem)
-                LucilleCore::pressEnterToContinue()
                 TimeCommitments::saveItem(recipientItem)
                 SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
             end
