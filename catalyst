@@ -385,20 +385,11 @@ class Jupiter
             if objects.size>0 then
                 screen_space = screen_space-Jupiter::verticalSpace(objects.first['announce']) 
             end
-            screen_space = Jupiter::putsObjects(objects.clone, screen_space, 0)
-            if objects.size>0 then
-                puts ""
-                screen_space = screen_space-1
-            end
-            flagIntermediaryInformation = false
+            Jupiter::putsObjects(objects.clone, screen_space, 0)
             if ( unsatisfied_requirements = RequirementsOperator::currentlyUnsatisfifiedRequirements() ).size>0 then
                 puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
-                screen_space = screen_space-1
-                flagIntermediaryInformation = true
-            end
-            if flagIntermediaryInformation then
+            else
                 puts ""
-                screen_space = screen_space-1
             end
             if objects.size>0 then
                 Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
