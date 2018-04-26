@@ -263,37 +263,38 @@ class Jupiter
             return [nil, false]
         end
 
-        if expression.start_with?(":") then
-            expression = expression[1,expression.size].strip
-            indx = expression.to_i
-            targetObject = displayObjects.drop(indx).first
-            expression = expression[indx.to_s.size,expression.size].strip
-            return Jupiter::execute(expression, targetObject, [])
-        end
-
         if Jupiter::tokenIsInteger(expression) then
             indx = expression.to_i
             targetObject = displayObjects.drop(indx).first
             VirtualScreensManager::remove(targetObject['uuid'])
             return Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects)
-        else
-            if expression.size > 0 then
-                tokens = expression.split(' ').map{|t| t.strip }
-                if tokens.size>1 then
-                    returnValues = tokens.map{|command|
-                        object['command-interpreter'].call(object, command)
-                    }
-                    if returnValues.any?{|value| value.nil? } then
-                        return nil
-                    end
-                    return [nil, false]
-                else
-                    return object['command-interpreter'].call(object, tokens[0])
-                end
-            else
-                return object['command-interpreter'].call(object, "")
-            end
         end
+
+        if expression.split(" ").size>0 and Jupiter::tokenIsInteger(expression.split(" ").first) then
+            indx = expression.split(" ").first.to_i
+            expression = expression[indx.to_s.size,expression.size].strip
+            targetObject = displayObjects.drop(indx).first
+            return [nil, false] if targetObject.nil?
+            return Jupiter::execute(expression, targetObject, [])
+        end
+
+        if expression.size > 0 then
+            tokens = expression.split(' ').map{|t| t.strip }
+            if tokens.size>1 then
+                returnValues = tokens.map{|command|
+                    object['command-interpreter'].call(object, command)
+                }
+                if returnValues.any?{|value| value.nil? } then
+                    return nil
+                end
+                return [nil, false]
+            else
+                return object['command-interpreter'].call(object, tokens[0])
+            end
+        else
+            return object['command-interpreter'].call(object, "")
+        end
+
     end
 
     def self.putsObjectWithShellDisplay(object, displayObjects)
@@ -353,7 +354,7 @@ class Jupiter
         puts "    wave: <wave description>"
         puts "    stream: <stream description>"
         puts "    <object index>"
-        puts "    :<object index> command ; ..."
+        puts "    <object index> command ; ..."
         puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special Object Commands:"
