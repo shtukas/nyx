@@ -26,7 +26,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require_relative "CatalystCommon.rb"
+require_relative "Commons.rb"
 
 require 'colorize'
 

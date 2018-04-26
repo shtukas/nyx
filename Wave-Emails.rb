@@ -49,7 +49,7 @@ require 'mail'
     mail.body.decoded    #=> 'This is the body of the email...
 =end
 
-require_relative "CatalystCommon.rb"
+require_relative "Commons.rb"
 
 # -------------------------------------------------------------------------------------
 

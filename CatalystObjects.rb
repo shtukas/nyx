@@ -42,7 +42,6 @@ require_relative "Ninja.rb"
 require_relative "Stream.rb"
 require_relative "Today.rb"
 require_relative "TimeCommitments.rb"
-require_relative "SecondaryDisplayTeaser.rb"
 require_relative "StreamKiller.rb"
 require_relative "GuardianTime.rb"
 require_relative "x-laniakea.rb"
@@ -59,7 +58,6 @@ class CatalystCore
             ["Stream", lambda { Stream::getCatalystObjects(size) }],
             ["Today", lambda { Today::getCatalystObjects(size) }],
             ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects(size) }],
-            ["SecondaryDisplayTeaser", lambda { SecondaryDisplayTeaser::getCatalystObjects(size) }],
             ["StreamKiller", lambda { StreamKiller::getCatalystObjects(size) }],
             ["GuardianTime", lambda { GuardianTime::getCatalystObjects(size) }],
             ["x-laniakea", lambda { XLaniakea::getCatalystObjects(size) }]

@@ -39,7 +39,7 @@ require 'find'
 
 require 'drb/drb'
 
-require_relative "CatalystCommon.rb"
+require_relative "Commons.rb"
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 =begin

@@ -37,7 +37,7 @@ require 'fileutils'
 
 require 'find'
 
-require_relative "CatalystCommon.rb"
+require_relative "Commons.rb"
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 =begin

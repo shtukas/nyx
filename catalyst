@@ -168,28 +168,8 @@ class Jupiter
             return [nil, false]
         end
 
-        if expression == "primary" then
-            VirtualScreensManager::activatePrimaryScreen()
-            return [nil, false]
-        end
-
-        if expression == "secondary" then
-            VirtualScreensManager::activateSecondaryScreen()
-            return [nil, false]
-        end
-
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
-            return [nil, false]
-        end
-
-        if expression == ">primary" then
-            VirtualScreensManager::remove(object['uuid'])
-            return [nil, false]
-        end
-
-        if expression == ">secondary" then
-            VirtualScreensManager::add(object['uuid'])
             return [nil, false]
         end
 
@@ -268,7 +248,6 @@ class Jupiter
         if Jupiter::tokenIsInteger(expression) then
             indx = expression.to_i
             targetObject = displayObjects.drop(indx).first
-            VirtualScreensManager::remove(targetObject['uuid'])
             return Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects)
         end
 
@@ -347,8 +326,6 @@ class Jupiter
         puts "Special General Commands:"
         puts "    help"
         puts "    search <pattern>"
-        puts "    primary # switch to primary screen"
-        puts "    secondary # switch to secondary screen"
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
         puts "    show <requirement> # shows all the objects of that requirement"
@@ -361,8 +338,6 @@ class Jupiter
         puts "Special Object Commands:"
         puts "    expose # pring the object"
         puts "    require <requirement>"
-        puts "    >primary"
-        puts "    >secondary"
         puts "    command ..."
         puts "    (+)datetimecode"
     end
@@ -386,14 +361,9 @@ class Jupiter
     end
 
     def self.selectDisplayObjects()
-        objects = CatalystCore::objects(6).select{|object| object["metric"] > 0 }
-        catalystObjectsMeetingRequirements = objects.select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
-        primaryScreenObjects = catalystObjectsMeetingRequirements
-            .select{ |object| VirtualScreensManager::trueIfScreenContainsItem(true, object["uuid"]) }
-        secondaryScreenObjects = catalystObjectsMeetingRequirements
-            .select{ |object| VirtualScreensManager::trueIfScreenContainsItem(false, object["uuid"]) }
-        KeyValueStore::set(nil, "309f9991-f619-4176-9003-ac5882085241:#{Time.new.to_s[0,13]}",JSON.generate(secondaryScreenObjects))
-        VirtualScreensManager::isPrimaryScreen() ? primaryScreenObjects : secondaryScreenObjects
+        objects = CatalystCore::objects(6)
+            .select{|object| object["metric"] > 0 }
+            .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
     end
 
     def self.main()
@@ -419,11 +389,6 @@ class Jupiter
                 screen_space = screen_space-1
                 flagIntermediaryInformation = true
             end
-            if !VirtualScreensManager::isPrimaryScreen() then
-                puts "SECONDARY SCREEN"
-                screen_space = screen_space-1
-                flagIntermediaryInformation = true
-            end
             if flagIntermediaryInformation then
                 puts ""
                 screen_space = screen_space-1
@@ -431,14 +396,8 @@ class Jupiter
             if objects.size>0 then
                 Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
             else
-                if VirtualScreensManager::isPrimaryScreen() then
-                    puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
-                    sleep 60 
-                else
-                    puts "No items in the secondary screen, moving to primary screen"
-                    LucilleCore::pressEnterToContinue()
-                    VirtualScreensManager::activatePrimaryScreen()
-                end
+                puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
+                sleep 60 
             end
         }
     end
@@ -500,7 +459,6 @@ LucilleCore::assert("PascalMiscUtils 3.0", Jupiter::datetimeSpecification2232ToD
 
 # -----------------------------------------------------------------
 
-VirtualScreensManager::init()
 RequirementsOperator::init()
 DoNotShowUntil::init()
 
