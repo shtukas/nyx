@@ -362,7 +362,7 @@ class Jupiter
 
     def self.selectDisplayObjects()
         objects = CatalystObjects::all()
-            .select{|object| object["metric"] > 0 }
+            .select{|object| object["metric"] > 0.1 }
             .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
         objects = DoNotShowUntil::transform(objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }

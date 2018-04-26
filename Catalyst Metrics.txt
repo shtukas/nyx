@@ -20,6 +20,8 @@
 
          0.200 -- sleep level --
 
+         0.100 -- bottom level --
+
          0.000  Not To Be Done
 
 0.840 + 0.010*Math.exp( ... )
