@@ -263,8 +263,13 @@ class Jupiter
             return [nil, false]
         end
 
-        # ---------------------
-        # regular expression: optional integer and commands
+        if expression.start_with?(":") then
+            expression = expression[1,expression.size].strip
+            indx = expression.to_i
+            targetObject = displayObjects.drop(indx).first
+            expression = expression[indx.to_s.size,expression.size].strip
+            return Jupiter::execute(expression, targetObject, [])
+        end
 
         if Jupiter::tokenIsInteger(expression) then
             indx = expression.to_i
@@ -347,15 +352,16 @@ class Jupiter
         puts "    show <requirement> # shows all the objects of that requirement"
         puts "    wave: <wave description>"
         puts "    stream: <stream description>"
+        puts "    <object index>"
+        puts "    :<object index> command ; ..."
         puts "    lib # Invoques the Librarian interactive"
-        puts "    <object index> ; command ; ..."
         puts ""
         puts "Special Object Commands:"
         puts "    expose # pring the object"
         puts "    require <requirement>"
         puts "    >primary"
         puts "    >secondary"
-        puts "    command ; ..."
+        puts "    command ..."
     end
 
     def self.editTextUsingTextmate(text)
