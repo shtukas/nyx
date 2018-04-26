@@ -63,7 +63,7 @@ require_relative "Stream.rb"
 #                                   = (idealCount*0.9 + idealCount*0.1).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
 #                                   = 1
 
-# StreamKiller::getCatalystObjects()
+# StreamKiller::getCatalystObjects(size = nil)
 
 class StreamKiller
     def self.getCurve()
@@ -85,7 +85,7 @@ class StreamKiller
     def self.computeMetric(currentCount, idealCount)
         currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
     end
-    def self.getCatalystObjects()
+    def self.getCatalystObjects(size = nil)
         curve = StreamKiller::getCurve()
         idealCount = StreamKiller::computeIdealCountFromCurve(curve)
         currentCount = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size

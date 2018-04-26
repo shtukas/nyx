@@ -21,10 +21,10 @@ require 'securerandom'
 
 # -------------------------------------------------------------------------------------
 
-# GuardianTime::getCatalystObjects()
+# GuardianTime::getCatalystObjects(size = nil)
 
 class GuardianTime
-    def self.getCatalystObjects()
+    def self.getCatalystObjects(size = nil)
         if KeyValueStore::getOrNull(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? then
             numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
             if numberOfHours.strip.size==0 then

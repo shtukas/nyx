@@ -90,7 +90,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time
 # TimeCommitments::garbageCollectionItems(items)
 # TimeCommitments::garbageCollectionGlobal()
 # TimeCommitments::getUniqueDomains(items)
-# TimeCommitments::getCatalystObjects()
+# TimeCommitments::getCatalystObjects(size = nil)
 
 class TimeCommitments
 
@@ -169,7 +169,7 @@ class TimeCommitments
         items.map{|item| item["domain"] }.uniq
     end
 
-    def self.getCatalystObjects()
+    def self.getCatalystObjects(size = nil)
         TimeCommitments::garbageCollectionGlobal()
         TimeCommitments::getItems()
         .map{|item|

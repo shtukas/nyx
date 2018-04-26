@@ -50,19 +50,19 @@ require_relative "x-laniakea.rb"
 # ----------------------------------------------------------------------
 
 class CatalystCore
-    # CatalystCore::objects()
-    def self.objects()
+    # CatalystCore::objects(size = nil)
+    def self.objects(size = nil)
 
         sources = [
-            ["Wave", lambda { WaveInterface::getCatalystObjects() }],
-            ["Ninja", lambda { Ninja::getCatalystObjects() }],
-            ["Stream", lambda { Stream::getCatalystObjects() }],
-            ["Today", lambda { Today::getCatalystObjects() }],
-            ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
-            ["SecondaryDisplayTeaser", lambda { SecondaryDisplayTeaser::getCatalystObjects() }],
-            ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],
-            ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }],
-            ["x-laniakea", lambda { XLaniakea::getCatalystObjects() }]
+            ["Wave", lambda { WaveInterface::getCatalystObjects(size) }],
+            ["Ninja", lambda { Ninja::getCatalystObjects(size) }],
+            ["Stream", lambda { Stream::getCatalystObjects(size) }],
+            ["Today", lambda { Today::getCatalystObjects(size) }],
+            ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects(size) }],
+            ["SecondaryDisplayTeaser", lambda { SecondaryDisplayTeaser::getCatalystObjects(size) }],
+            ["StreamKiller", lambda { StreamKiller::getCatalystObjects(size) }],
+            ["GuardianTime", lambda { GuardianTime::getCatalystObjects(size) }],
+            ["x-laniakea", lambda { XLaniakea::getCatalystObjects(size) }]
         ]
 
         struct1 = sources.map{|pair|

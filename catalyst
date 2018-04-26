@@ -377,16 +377,14 @@ class Jupiter
     end
 
     def self.selectDisplayObjects()
-        catalystObjectsAll = CatalystCore::objects()
-        catalystObjectsMeetingRequirements = catalystObjectsAll
-            .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
+        objects = CatalystCore::objects(6).select{|object| object["metric"] > 0 }
+        catalystObjectsMeetingRequirements = objects.select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
         primaryScreenObjects = catalystObjectsMeetingRequirements
             .select{ |object| VirtualScreensManager::trueIfScreenContainsItem(true, object["uuid"]) }
         secondaryScreenObjects = catalystObjectsMeetingRequirements
             .select{ |object| VirtualScreensManager::trueIfScreenContainsItem(false, object["uuid"]) }
         KeyValueStore::set(nil, "309f9991-f619-4176-9003-ac5882085241:#{Time.new.to_s[0,13]}",JSON.generate(secondaryScreenObjects))
-        objects = VirtualScreensManager::isPrimaryScreen() ? primaryScreenObjects : secondaryScreenObjects 
-        objects
+        VirtualScreensManager::isPrimaryScreen() ? primaryScreenObjects : secondaryScreenObjects
     end
 
     def self.main()

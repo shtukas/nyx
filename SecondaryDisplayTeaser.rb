@@ -50,7 +50,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 # -------------------------------------------------------------------------------------
 
 class SecondaryDisplayTeaser
-    def self.getCatalystObjects()
+    def self.getCatalystObjects(size = nil)
         objects = []
         bool1 = Time.new.to_i - VirtualScreensManager::lastSecondaryActivationTime() > 3600*2 # indicates that we haven't visited the secondary screen for a while
         bool2 = KeyValueStore::getOrDefaultValue(nil, "309f9991-f619-4176-9003-ac5882085241:#{Time.new.to_s[0,13]}", "[]") != "[]" # indicates that the secondary screens currently has objects
