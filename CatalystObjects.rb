@@ -45,6 +45,7 @@ require_relative "TimeCommitments.rb"
 require_relative "StreamKiller.rb"
 require_relative "GuardianTime.rb"
 require_relative "x-laniakea.rb"
+require_relative "RequirementsReviewReminder.rb"
 
 # ----------------------------------------------------------------------
 
@@ -60,7 +61,8 @@ class CatalystObjects
             ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
             ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],
             ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }],
-            ["x-laniakea", lambda { XLaniakea::getCatalystObjects() }]
+            ["x-laniakea", lambda { XLaniakea::getCatalystObjects() }],
+            ["RequirementsReviewReminder", lambda{ RequirementsReviewReminder::getCatalystObjects() }]
         ]
 
         struct1 = sources.map{|pair|
