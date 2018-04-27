@@ -255,6 +255,8 @@ class Jupiter
             indx = expression.split(" ").first.to_i
             expression = expression[indx.to_s.size,expression.size].strip
             targetObject = displayObjects.drop(indx).first
+            puts Jupiter::objectToStringLine(targetObject)
+            puts "---> #{expression}"
             return [nil, false] if targetObject.nil?
             return Jupiter::execute(expression, targetObject, [])
         end
