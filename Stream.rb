@@ -147,30 +147,13 @@ class Stream
 
     def self.simplifyURLCarryingString(string)
         return string if /http/.match(string).nil?
-        if ( m = /^\{\s\d*\s\}/.match(string) ) then
-            string = string[m.to_s.size, string.size].strip
-            return Stream::simplifyURLCarryingString(string)
-        end
-        if ( m = /^\[\]/.match(string) ) then
-            string = string[m.to_s.size, string.size].strip
-            return Stream::simplifyURLCarryingString(string)
-        end
-        if ( m = /^line:/.match(string) ) then
-            string = string[m.to_s.size, string.size].strip
-            return Stream::simplifyURLCarryingString(string)
-        end
-        if ( m = /^todo:/.match(string) ) then
-            string = string[m.to_s.size, string.size].strip
-            return Stream::simplifyURLCarryingString(string)
-        end
-        if ( m = /^url:/.match(string) ) then
-            string = string[m.to_s.size, string.size].strip
-            return Stream::simplifyURLCarryingString(string)
-        end
-        if ( m = /^\[\s*\d*\s*\]/.match(string) ) then
-            string = string[m.to_s.size, string.size].strip
-            return Stream::simplifyURLCarryingString(string)
-        end
+        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
+            .each{|regex|
+                if ( m = regex.match(string) ) then
+                    string = string[m.to_s.size, string.size].strip
+                    return Stream::simplifyURLCarryingString(string)
+                end
+            }
         string
     end
 
