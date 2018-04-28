@@ -25,7 +25,7 @@ require 'securerandom'
 
 class GuardianTime
     def self.getCatalystObjects()
-        if KeyValueStore::getOrNull(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? then
+        if KeyValueStore::getOrNull(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) then
             numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
             if numberOfHours.strip.size==0 then
                 numberOfHours = "5"
