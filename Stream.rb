@@ -46,7 +46,9 @@ require 'colorize'
 
 class StreamClassification
     def self.getItemClassificationOrNull(uuid)
-        KeyValueStore::getOrNull(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}")
+        classification = KeyValueStore::getOrNull(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}")
+        return "project" if classification==">project"
+        classification
     end
 
     def self.setItemClassification(uuid, classification)

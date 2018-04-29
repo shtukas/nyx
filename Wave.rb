@@ -49,7 +49,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorypath or nil, key)
 =end
 
-require "/Galaxy/LucilleOS/Librarian/LibrarianExportedFunctions.rb"
+require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 
 # ----------------------------------------------------------------------
 
