@@ -359,7 +359,7 @@ if ARGV[0]=="monitor" then
     loop {
         objects = Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3)
         system("clear")
-        puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
+        puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
         objects.each{|object|
             puts Jupiter::object2Line_v0(object)
         }
