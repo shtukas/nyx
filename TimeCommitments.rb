@@ -143,6 +143,13 @@ class TimeCommitments
     end
 
     def self.garbageCollectionItems(items)
+        if items.size==1 then
+            item = items.first
+            if !item["is-running"] and (item["timespans"].inject(0,:+) >= item["commitment-in-hours"]*3600) then
+                SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"])
+                return
+            end
+        end
         if ( overflowingItem = TimeCommitments::extractNonRunningOverflowingItemOrNull(items) ) then
             if ( recipientItem = TimeCommitments::extractDifferentItemOrNull(items, overflowingItem) ) then
                 recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
