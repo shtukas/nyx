@@ -43,9 +43,67 @@ class DoNotShowUntil
             if !DoNotShowUntil::isactive(object) then
                 object["do-not-show-metric"] = object["metric"]
                 object["do-not-show-until-datetime"] = @@mapping[object["uuid"]]
+                # next we try to promote any do-not-show-until-datetime contained in a shceduler of a wave item, with a target in the future
+                if object["do-not-show-until-datetime"].nil? and object["schedule"] and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
+                    object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
+                end
                 object["metric"] = 0
             end
             object
         }
+    end
+end
+
+class RequirementsOperator
+
+    @@pathToDataFile = nil
+    @@data = nil
+
+    def self.init()
+        @@pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements/requirements-structure.json"
+        @@data = JSON.parse(IO.read(@@pathToDataFile))
+    end
+
+    def self.saveDataToDisk()
+        File.open(@@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@@data)) }
+    end
+
+    def self.getObjectRequirements(uuid)
+        @@data['items-requirements-distribution'][uuid] || []
+    end
+
+    def self.requirementIsCurrentlySatisfied(requirement)
+        @@data['requirements-status-timeline'][requirement].nil? or @@data['requirements-status-timeline'][requirement]
+    end
+
+    def self.meetRequirements(uuid)
+        RequirementsOperator::getObjectRequirements(uuid)
+            .all?{|requirement| RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
+    end
+
+    def self.addObjectRequirement(uuid,requirement)
+        requirements = @@data['items-requirements-distribution'][uuid] || []
+        requirements << requirement
+        requirements = requirements.uniq.sort
+        @@data['items-requirements-distribution'][uuid] = requirements
+        RequirementsOperator::saveDataToDisk()
+    end
+
+    def self.setRequirementOn(requirement)
+        @@data['requirements-status-timeline'][requirement] = true
+        RequirementsOperator::saveDataToDisk()
+    end
+
+    def self.setRequirementOff(requirement)
+        @@data['requirements-status-timeline'][requirement] = false
+        RequirementsOperator::saveDataToDisk()
+    end
+
+    def self.allRequirements()
+        @@data['items-requirements-distribution'].values.flatten.uniq
+    end
+
+    def self.currentlyUnsatisfifiedRequirements()
+        RequirementsOperator::allRequirements().select{|requirement| !RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
     end
 end

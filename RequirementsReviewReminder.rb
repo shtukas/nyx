@@ -61,9 +61,14 @@ class RequirementsReviewReminder
                 {
                     "uuid" => "f8e7c5f6",
                     "metric" => metric,
-                    "announce" => "(#{"%.3f" % metric}) -> requirements review reminder",
+                    "announce" => "-> requirements review reminder",
                     "commands" => [],
-                    "command-interpreter" => lambda{|object, command| 
+                    "command-interpreter" => lambda{|object, command|
+                        RequirementsOperator::currentlyUnsatisfifiedRequirements()
+                        .each{|requirement|
+                            puts "showing contents of #{requirement}"
+                            Jupiter::doExecute(object, "show #{requirement}")
+                        }
                         KeyValueStore::set(nil, "e165addc-c72a-4a43-a234-e4189c59780b:#{Time.new.to_s[0,12]}", "done")
                     }
                 }

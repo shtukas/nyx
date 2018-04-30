@@ -32,6 +32,8 @@ require 'colorize'
 
 # -------------------------------------------------------------------------------------
 
+STREAM_PERFECT_NUMBER = 6
+
 # StreamClassification::getItemClassificationOrNull(uuid)
 # StreamClassification::setItemClassification(uuid, classification)
 # StreamClassification::updateItemClassification(uuid, classification, totalTimeSpan)
@@ -47,7 +49,7 @@ require 'colorize'
 class StreamClassification
     def self.getItemClassificationOrNull(uuid)
         classification = KeyValueStore::getOrNull(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}")
-        return "project" if classification==">project"
+        return "quicky" if ![nil, "quicky", "medium", "project"].include?(classification) # because data got corrupted once
         classification
     end
 
@@ -211,15 +213,16 @@ class Stream
         isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
         metric = isRunning ? 2 : StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
         commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">medium", ">project", ">lib"]
-        announcesuffix = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
+        announce = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
         if isRunning then
-            announcesuffix = announcesuffix.green
+            announce = announce.green
         end
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => "(#{"%.3f" % metric}) [#{uuid}] #{announcesuffix}",
+            "announce" => "#{announce}",
             "commands" => commands,
+            "default-expression" => ( commands[0] == "start" ? "start" : "" ),
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath,
             "item-stream-name" => streamName           
@@ -270,44 +273,38 @@ class Stream
             sourcelocation = object["item-folderpath"]
             targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
-            return [nil, false]
         end
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
-            return [nil, true]
         end
         if command=='start' then
             DRbObject.new(nil, "druby://:10423").start(uuid)
             system("open '#{Stream::naturalTargetUnderLocation(object["item-folderpath"])[1]}'")
-            return [nil, false]
         end
         if command=='stop' then
             DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-            return [nil, false]
         end
         if command=="completed" then
             Stream::performObjectClosing(object)
-            return [nil, false]
         end
         if command=='set-description' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
-            return [nil, true]
         end
         if command=='>medium' then
-            StreamClassification::setItemClassification(uuid, ">medium")
-            return [nil, false]
+            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+            StreamClassification::setItemClassification(uuid, "medium")
         end
         if command=='>project' then
-            StreamClassification::setItemClassification(uuid, ">project")
-            return [nil, false]
+            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+            StreamClassification::setItemClassification(uuid, "project")
         end
         if command=='>lib' then
             isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
             if isRunning then
                 puts "The items is currently running..."
                 if !LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to close it and carry on with the librarian archiving? ") then
-                    return [nil, true]
+                    return
                 end
                 DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
             end
@@ -318,19 +315,17 @@ class Stream
             LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
             puts "Stream folder moved to the staging folder (Desktop), edit and press [Enter]"
             LucilleCore::pressEnterToContinue()
-            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(nil, nil, atlasreference, nil, nil)
+            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
             targetparentlocation = R136CoreUtils::getNewUniqueDataTimelineIndexSubFolderPathReadyToUse()
             LucilleCore::copyFileSystemLocation(staginglocation, targetparentlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::performObjectClosing(object)
-            return [nil, false]
         end
-        nil
     end
 
     def self.objectCommandHandler(object, command)
         status = Stream::objectCommandHandlerCore(object, command)
-        $STREAM_GLOBAL_STATE["catalyst-objects"] = Stream::getCatalystObjectsFromDisk()
+        KeyValueStore::set(nil, "7DC2D872-1045-41B8-AE85-9F81F7699B7A", JSON.generate(Stream::getCatalystObjectsFromDisk()))
         status
     end
 
@@ -344,33 +339,19 @@ class Stream
     end
 
     def self.getCatalystObjects()
-        $STREAM_GLOBAL_STATE["catalyst-objects"]
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "7DC2D872-1045-41B8-AE85-9F81F7699B7A", "[]"))
+            .map{|object| 
+                object["command-interpreter"] = lambda{|object, command| Stream::objectCommandHandler(object, command) } # overriding this after deserialistion 
+                object
+            }
     end
 end
 
 # -------------------------------------------------------------------------------------
 
-LucilleCore::assert(
-    "4e29669a-a5de-4100-ac70-a2e0b59dabc9",
-    Stream::simplifyURLCarryingString("{ 1223 } [] line: todo: [ 173] http://www.mit.edu/~xela/tao.html")=="http://www.mit.edu/~xela/tao.html"
-)
+LucilleCore::assert(Stream::simplifyURLCarryingString("{ 1223 } [] line: todo: [ 173] http://www.mit.edu/~xela/tao.html")=="http://www.mit.edu/~xela/tao.html")
+
+KeyValueStore::set(nil, "7DC2D872-1045-41B8-AE85-9F81F7699B7A", JSON.generate(Stream::getCatalystObjectsFromDisk()))
 
 # -------------------------------------------------------------------------------------
-
-STREAM_PERFECT_NUMBER = 6
-
-$STREAM_GLOBAL_STATE = {}
-=begin
-    GLOBAL STATE = {
-        "catalyst-objects": Array[CatalystObjects]
-    }
-=end
-$STREAM_GLOBAL_STATE["catalyst-objects"] = Stream::getCatalystObjectsFromDisk()
-
-# We update $STREAM_GLOBAL_STATE["catalyst-objects"] once at start up and then everytime we interact with one of the objects 
-
-# -------------------------------------------------------------------------------------
-
-
-
 

@@ -45,73 +45,18 @@ require 'find'
 
 # ----------------------------------------------------------------------
 
-class RequirementsOperator
-
-    @@pathToDataFile = nil
-    @@data = nil
-
-    def self.init()
-        @@pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements/requirements-structure.json"
-        @@data = JSON.parse(IO.read(@@pathToDataFile))
-    end
-
-    def self.saveDataToDisk()
-        File.open(@@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@@data)) }
-    end
-
-    def self.getObjectRequirements(uuid)
-        @@data['items-requirements-distribution'][uuid] || []
-    end
-
-    def self.requirementIsCurrentlySatisfied(requirement)
-        @@data['requirements-status-timeline'][requirement].nil? or @@data['requirements-status-timeline'][requirement]
-    end
-
-    def self.meetRequirements(uuid)
-        RequirementsOperator::getObjectRequirements(uuid)
-            .all?{|requirement| RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
-    end
-
-    def self.addObjectRequirement(uuid,requirement)
-        requirements = @@data['items-requirements-distribution'][uuid] || []
-        requirements << requirement
-        requirements = requirements.uniq.sort
-        @@data['items-requirements-distribution'][uuid] = requirements
-        RequirementsOperator::saveDataToDisk()
-    end
-
-    def self.setRequirementOn(requirement)
-        @@data['requirements-status-timeline'][requirement] = true
-        RequirementsOperator::saveDataToDisk()
-    end
-
-    def self.setRequirementOff(requirement)
-        @@data['requirements-status-timeline'][requirement] = false
-        RequirementsOperator::saveDataToDisk()
-    end
-
-    def self.allRequirements()
-        @@data['items-requirements-distribution'].values.flatten.uniq
-    end
-
-    def self.currentlyUnsatisfifiedRequirements()
-        RequirementsOperator::allRequirements().select{|requirement| !RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
-    end
-end
-
-# Jupiter::Jupiter::emailSyncOnSchedule(verbose)
+# Jupiter::emailSyncOnSchedule(verbose)
 # Jupiter::screenHeight()
 # Jupiter::screenWidth()
-# Jupiter::verticalSpace(announce)
-# Jupiter::tokenIsInteger(token)
-# Jupiter::execute(expression, object, displayObjects): (directive, value) # See documentation for details
-# Jupiter::putsObjectWithShellDisplay(object, displayObjects): (directive, value) # See documentation for details
-# Jupiter::objectToStringLine(object, indx)
-# Jupiter::putsObjects(objects, remaining_number_of_lines: Int, indx: Int)
+# Jupiter::object2Line_v0(object)
+# Jupiter::object2Line_v1(object)
 # Jupiter::putshelp()
 # Jupiter::editTextUsingTextmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
 # Jupiter::selectDisplayObjects()
+# Jupiter::object2Line_v1(object)
+# Jupiter::interactiveDisplayObjectAndProcessCommand(object)
+# Jupiter::doExecute(object, expression)
 # Jupiter::main()
 
 class Jupiter
@@ -138,46 +83,51 @@ class Jupiter
         `/usr/bin/env tput cols`.to_i
     end
 
-    def self.verticalSpace(announce)
-        announce.lines.map{|line| (line.size/Jupiter::screenWidth())+1 }.inject(0, :+)
-    end
-
-    def self.tokenIsInteger(token)
-        token == token.to_i.to_s
-    end
-
-    def self.execute(expression, object, displayObjects)
+    def self.doExecute(object, expression)
 
         if expression == 'help' then
             Jupiter::putshelp()
             LucilleCore::pressEnterToContinue()
-            return [nil, false]
+            return
+        end
+
+        if expression == 'top' then
+            selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3), lambda{ |object| Jupiter::object2Line_v0(object) })
+            return if selectedobject.nil?
+            Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            return
+        end
+
+        if expression == 'clear' then
+            system("clear")
+            return
         end
 
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
-            return [nil, true]
+            return
         end
 
         if expression == 'info' then
-            puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}"
-            puts "Stream item count: #{Stream::getUUIDs().size}"
-            puts "x-laniakea item count: #{FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count}"
+            puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}".green
+            puts "Stream item count: #{Stream::getUUIDs().size}".green
+            puts "x-laniakea item count: #{FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count}".green
+            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
-            return [nil, false]
+            return
         end
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
-            return [nil, false]
+            return
         end
 
         if expression.start_with?('+') then
             code = expression
             datetime = Jupiter::datetimeSpecification2232ToDatetime(code)
             DoNotShowUntil::set(object["uuid"], datetime)
-            return [nil, false]
+            return
         end
 
         if expression.start_with?('wave:') then
@@ -190,7 +140,7 @@ class Jupiter
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
             File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
             WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
-            return [nil, false]
+            return
         end
 
         if expression.start_with?('stream:') then
@@ -199,143 +149,74 @@ class Jupiter
             folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-            return [nil, false]
+            puts "created item: #{folderpath}"
+            return
         end
 
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             searchobjects = CatalystObjects::all()
-                .select{|object| object['announce'].downcase.include?(pattern.downcase) }
+                .select{|object| Jupiter::object2Line_v0(object).include?(pattern.downcase) }
             if searchobjects.size>0 then
                 loop {
-                    searchobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object: ", searchobjects, lambda{ |item| item['announce'] })
-                    break if searchobject.nil?
-                    Jupiter::putsObjectWithShellDisplay(searchobject, displayObjects)
+                    selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                    break if selectedobject.nil?
+                    Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
                 }
             end
-            return [nil, false]
+            return
         end
 
         if expression.start_with?("require") then
             requirement = expression[7,expression.size].strip
             RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
-            return [nil, false]
+            return
         end
 
         if expression.start_with?("on") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setRequirementOn(requirement)
-            return [nil, false]
+            return
         end
 
         if expression.start_with?("off") then
             command, requirement = expression.split(" ")    
             RequirementsOperator::setRequirementOff(requirement)
-            return [nil, false]
+            return
         end
 
         if expression.start_with?("show") then
             command, requirement = expression.split(" ")
             requirementObjects = CatalystObjects::all()
                 .select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                .each{|object|
-                    puts Jupiter::objectToStringLine(object)
+                loop {
+                    selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                    break if selectedobject.nil?
+                    Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
                 }
-            LucilleCore::pressEnterToContinue()
-            return [nil, false]
-        end
-
-        if Jupiter::tokenIsInteger(expression) then
-            indx = expression.to_i
-            targetObject = displayObjects.drop(indx).first
-            return Jupiter::putsObjectWithShellDisplay(targetObject, displayObjects)
-        end
-
-        if expression.split(" ").size>0 and Jupiter::tokenIsInteger(expression.split(" ").first) then
-            indx = expression.split(" ").first.to_i
-            expression = expression[indx.to_s.size,expression.size].strip
-            targetObject = displayObjects.drop(indx).first
-            puts Jupiter::objectToStringLine(targetObject)
-            puts "---> #{expression}"
-            return [nil, false] if targetObject.nil?
-            return Jupiter::execute(expression, targetObject, [])
+            return
         end
 
         if expression.size > 0 then
-            tokens = expression.split(' ').map{|t| t.strip }
-            if tokens.size>1 then
-                returnValues = tokens.map{|command|
-                    object['command-interpreter'].call(object, command)
-                }
-                if returnValues.any?{|value| value.nil? } then
-                    return nil
-                end
-                return [nil, false]
-            else
-                return object['command-interpreter'].call(object, tokens[0])
-            end
+            tokens = expression.split(" ").map{|t| t.strip }
+            .each{|token| object['command-interpreter'].call(object, token) }
         else
-            return object['command-interpreter'].call(object, "")
+            object['command-interpreter'].call(object, "")
         end
-    end
-
-    def self.putsObjectWithShellDisplay(object, displayObjects)
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
-        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-        puts "#{object['announce'].strip}#{requirements}"
-        if object['commands'].size>0 then
-            puts object['commands'].join(" ").red
-        end
-        print "---> "
-        expression = STDIN.gets().strip
-        execReturnValue = Jupiter::execute(expression, object, displayObjects)
-        if expression.size>0 and execReturnValue.nil? then
-            puts "Expression: #{expression} was not correctly interpreted"
-            LucilleCore::pressEnterToContinue()
-            return [nil, false]
-        end
-        directive, value = execReturnValue
-        if directive.nil? and value then
-            return Jupiter::putsObjectWithShellDisplay(object, displayObjects) 
-        end
-        if directive=="object-to-display" then
-            return Jupiter::putsObjectWithShellDisplay(value, displayObjects) 
-        end
-        [nil, false]
-    end
-
-    def self.objectToStringLine(object, indx = nil)
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid']).join(", ")
-        requirements = requirements.size>0 ? " ( #{requirements} )".green : ''
-        indexString = indx ? "(#{indx.to_s.rjust(3)}) " : ""
-        str = "#{indexString}#{object['announce'].lines.first.strip}#{requirements}"
-        if object['metric']>=2 then
-            str = str.green
-        end
-        str
-    end
-
-    def self.putsObjects(objects, remaining_number_of_lines, indx)
-        return remaining_number_of_lines if objects.size==0
-        return remaining_number_of_lines if remaining_number_of_lines<=0
-        object = objects.shift
-        str = Jupiter::objectToStringLine(object, indx)
-        puts str
-        Jupiter::putsObjects(objects,remaining_number_of_lines-Jupiter::verticalSpace(str), indx+1)
     end
 
     def self.putshelp()
         puts "Special General Commands:"
         puts "    help"
+        puts "    top"
         puts "    search <pattern>"
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
         puts "    show <requirement> # shows all the objects of that requirement"
         puts "    wave: <wave description>"
         puts "    stream: <stream description>"
-        puts "    <object index>"
-        puts "    <object index> command ; ..."
         puts "    lib # Invoques the Librarian interactive"
+        puts "    clear # clear the screen"
         puts ""
         puts "Special Object Commands:"
         puts "    expose # pring the object"
@@ -369,37 +250,7 @@ class Jupiter
         objects = DoNotShowUntil::transform(objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
-        while objects.select{|object| object['metric'] < 0.815 }.size >= 2 do
-            objects.pop
-        end
         objects
-    end
-
-    def self.main()
-        loop {
-            puts "# #{ "-" * (Jupiter::screenWidth()-3) }"
-            if WaveDevOps::archivesGarbageCollection(true)>0 then
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            objects = Jupiter::selectDisplayObjects()
-            screen_space = Jupiter::screenHeight()-6
-            if objects.size>0 then
-                screen_space = screen_space-Jupiter::verticalSpace(objects.first['announce']) 
-            end
-            Jupiter::putsObjects(objects.clone, screen_space, 0)
-            if ( unsatisfied_requirements = RequirementsOperator::currentlyUnsatisfifiedRequirements() ).size>0 then
-                puts "REQUIREMENTS OFF: "+unsatisfied_requirements.join(", ").green
-            else
-                puts ""
-            end
-            if objects.size>0 then
-                Jupiter::putsObjectWithShellDisplay(objects.first, objects.clone)
-            else
-                puts "Nothing to do (^_^). Sleeping for 60 seconds at #{Time.new.to_s}"
-                sleep 60 
-            end
-        }
     end
 
     def self.datetimeSpecification2232ToDatetime(code)
@@ -445,17 +296,57 @@ class Jupiter
         end
     end
 
+    def self.object2Line_v0(object)
+        doNotShowUntilAsString = object["do-not-show-until-datetime"] ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{object['announce'].strip}",
+            "#{doNotShowUntilAsString}",
+        ].join()
+    end
+
+    def self.object2Line_v1(object)
+        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        doNotShowUntilAsString = object["do-not-show-until-datetime"] ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{object['announce'].strip}",
+            "#{requirementsAsString.green}",
+            "#{doNotShowUntilAsString}",
+            " (#{object["commands"].join(" ").red})",
+            " \"#{defaultExpressionAsString.green}\""
+        ].join()
+    end
+
+    def self.interactiveDisplayObjectAndProcessCommand(object)
+        print Jupiter::object2Line_v1(object) + " : "
+        givenCommand = STDIN.gets().strip
+        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+        Jupiter::doExecute(object, command)
+    end
+
+    def self.main()
+        loop {
+            WaveDevOps::archivesGarbageCollection(true)
+            Jupiter::interactiveDisplayObjectAndProcessCommand(Jupiter::selectDisplayObjects().first)
+        }
+    end
+
 end
 
-LucilleCore::assert("PascalMiscUtils 1.0", Jupiter::datetimeSpecification2232ToDatetime("+0 days") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert("PascalMiscUtils 1.5", Jupiter::datetimeSpecification2232ToDatetime("+1.6 days") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
-LucilleCore::assert("PascalMiscUtils 1.6", Jupiter::datetimeSpecification2232ToDatetime("+0 hours") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert("PascalMiscUtils 1.5", Jupiter::datetimeSpecification2232ToDatetime("+0 day") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert("PascalMiscUtils 1.5", Jupiter::datetimeSpecification2232ToDatetime("+1.6 day") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
-LucilleCore::assert("PascalMiscUtils 1.6", Jupiter::datetimeSpecification2232ToDatetime("+0 hour") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert("PascalMiscUtils 1.7", Jupiter::datetimeSpecification2232ToDatetime("+1.6 hour") == "#{( Time.new + 1.6*3600 ).to_s}")
-LucilleCore::assert("PascalMiscUtils 2.0", Jupiter::datetimeSpecification2232ToDatetime("+1@12:32") == "#{( DateTime.now + 1 ).to_date.to_s} 12:32:00 #{Time.new.to_s[-5,5]}")
-LucilleCore::assert("PascalMiscUtils 3.0", Jupiter::datetimeSpecification2232ToDatetime("2017-06-19@12:32") == "2017-06-19 12:32:00 #{Time.new.to_s[-5,5]}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 days") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1.6 days") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 hours") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 day") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1.6 day") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 hour") == "#{DateTime.now.to_time.to_s}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1.6 hour") == "#{( Time.new + 1.6*3600 ).to_s}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1@12:32") == "#{( DateTime.now + 1 ).to_date.to_s} 12:32:00 #{Time.new.to_s[-5,5]}")
+LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("2017-06-19@12:32") == "2017-06-19 12:32:00 #{Time.new.to_s[-5,5]}")
 
 # -----------------------------------------------------------------
 
@@ -463,6 +354,19 @@ RequirementsOperator::init()
 DoNotShowUntil::init()
 
 # -----------------------------------------------------------------
+
+if ARGV[0]=="monitor" then
+    loop {
+        objects = Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3)
+        system("clear")
+        puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
+        objects.each{|object|
+            puts Jupiter::object2Line_v0(object)
+        }
+        sleep 30
+    }
+    exit
+end
 
 Thread.new { 
     sleep 60
@@ -474,4 +378,3 @@ Thread.new {
 }
 
 Jupiter::main()
-

@@ -229,8 +229,7 @@ class GeneralEmailClient
                 WaveTimelineUtils::writeScheduleToDisk(catalystuuid,schedule)
 
                 File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(emailFilename) }
-                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(EmailUtils::msgToSubject(msg)) }
-                File.open("#{folderpath}/catalyst-origin.txt", 'w') {|f| f.write("email agent") }
+                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
 
                 statusobjectuuid = "#{emailpoint['uuid']}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
                 statusobject = EmailStatusManagement::makeStatusObject(statusobjectuuid, "init")
@@ -336,8 +335,7 @@ class OperatorEmailDownloader
                 schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
                 WaveTimelineUtils::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(emailFilename) }
-                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write("email: #{emailuid}") }
-                File.open("#{folderpath}/catalyst-origin.txt", 'w') {|f| f.write("operator@alseyn.net") }
+                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
             else
                 puts "[operator@alseyn.net] Importing email as subjectline" if verbose
                 catalystuuid = SecureRandom.hex(4)
@@ -347,8 +345,7 @@ class OperatorEmailDownloader
                 schedule = WaveSchedules::makeScheduleObjectNew()
                 schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
                 WaveTimelineUtils::writeScheduleToDisk(catalystuuid, schedule)
-                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(subjectline) }
-                File.open("#{folderpath}/catalyst-origin.txt", 'w') {|f| f.write("operator@alseyn.net (subject line)") }
+                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write("operator@alseyn.net (subject line): #{subjectline}") }
             end
 
             imap.store(id, "+FLAGS", [:Deleted])

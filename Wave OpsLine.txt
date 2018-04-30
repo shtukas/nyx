@@ -10,11 +10,6 @@ catalyst-schedule.json:
 catalyst-description.txt:
     Descriptions that override the name of the folder for the display in Catalyst 
 
-
-catalyst-origin.txt:
-    The source system can go to file
-
-
 wave-target-filename.txt:
     The natural filename, if there is one, goes to file 
 

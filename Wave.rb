@@ -69,7 +69,6 @@ WAVE_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave/Wave-DropOff"
 # WaveTimelineUtils::readScheduleFromWaveItemOrNull(uuid)
 # WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(uuid)
 # WaveTimelineUtils::extractCatalystShellDescriptionAtWaveItem(uuid)
-# WaveTimelineUtils::extractOriginSystemAtWaveItemOrNull(uuid)
 # WaveTimelineUtils::extractNaturalObjectLocationPathAtWaveItem(uuid)
 # WaveTimelineUtils::makeNewSchedule()
 # WaveTimelineUtils::archiveWaveItems(uuid)
@@ -77,7 +76,7 @@ WAVE_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave/Wave-DropOff"
 # WaveTimelineUtils::extractFirstURLOrNUll(string)
 # WaveTimelineUtils::objectuuidToCatalystObject(objectuuid)
 # WaveTimelineUtils::getCatalystObjects()
-# WaveTimelineUtils::objectToAnnounceShell_shortVersion(object,schedule)
+# WaveTimelineUtils::objectUUIDToAnnounce(object,schedule)
 # WaveTimelineUtils::removeWaveMetadataFilesAtLocation(location)
 
 class WaveTimelineUtils
@@ -158,7 +157,7 @@ class WaveTimelineUtils
     def self.extractCatalystDescriptionAtWaveItem(uuid)
 
         folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::extractCatalystDescriptionAtWaveItem for uuid: #{uuid}" if folderpath.nil?
+        raise "[error] WaveTimelineUtils::extractCatalystDescriptionAtWaveItem for uuid: #{JSON.generate([uuid])}" if folderpath.nil?
 
         descriptionFilepath = "#{folderpath}/catalyst-description.txt"
         return IO.read(descriptionFilepath).strip if File.exists?(descriptionFilepath)
@@ -239,14 +238,6 @@ class WaveTimelineUtils
         end    
     end
 
-    def self.extractOriginSystemAtWaveItemOrNull(uuid)
-        folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::extractOriginSystemAtWaveItemOrNull for uuid: #{uuid}" if folderpath.nil?
-        filepath = "#{folderpath}/catalyst-origin.txt"
-        return nil if !File.exists?(filepath)
-        IO.read(filepath).strip
-    end
-
     def self.extractNaturalObjectLocationPathAtWaveItem(uuid)
         folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
         raise "[error] WaveTimelineUtils::extractNaturalObjectLocationPathAtWaveItem for uuid: #{uuid}" if folderpath.nil?
@@ -297,6 +288,18 @@ class WaveTimelineUtils
         ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", '>lib']
     end
 
+    def self.defaultExpression(announce, schedule)
+        if schedule["@"].start_with?("every") then
+            if announce.include?("http") then
+                "open done"
+            else
+                "done"
+            end
+        else
+            "open done"
+        end
+    end
+
     def self.extractFirstURLOrNUll(string)
         return nil if !string.include?('http')
         while string.include?('http') and !string.start_with?('http') do
@@ -314,35 +317,19 @@ class WaveTimelineUtils
             puts "Could not find location for uuid: #{location}"
             exit
         end
-
         schedule = WaveTimelineUtils::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
             puts "Could not find schedule for location: #{location}"
             exit
         end
-
-        metric = 
-            if File.exists?("#{location}/metric") then
-                IO.read("#{location}/metric").to_f
-            else
-                WaveSchedules::scheduleToMetric(schedule)
-            end
-        
-        description  = WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(objectuuid)
-
-        originSystem = WaveTimelineUtils::extractOriginSystemAtWaveItemOrNull(objectuuid)
-        if originSystem.nil? then
-            originSystem = ""
-        else
-            originSystem = "#{originSystem}"
-        end
-
+        metric = WaveSchedules::scheduleToMetric(schedule)
+        announce = WaveTimelineUtils::objectUUIDToAnnounce(objectuuid, schedule)
         object = {}
         object['uuid'] = objectuuid
-        object['owner'] = 'wave'
         object['metric'] = metric
-        object['announce'] = WaveTimelineUtils::objectToAnnounceShell_shortVersion(object, schedule)
+        object['announce'] = announce
         object['commands'] = WaveTimelineUtils::commands(schedule)
+        object["default-expression"] = WaveTimelineUtils::defaultExpression(announce, schedule)
         object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
         object['schedule'] = schedule
         object
@@ -353,11 +340,9 @@ class WaveTimelineUtils
             .map{|objectuuid| WaveTimelineUtils::objectuuidToCatalystObject(objectuuid) }
     end
 
-    def self.objectToAnnounceShell_shortVersion(object,schedule)
+    def self.objectUUIDToAnnounce(objectuuid,schedule)
         output = []        
-        p3 = WaveTimelineUtils::extractOriginSystemAtWaveItemOrNull(object['uuid'])
-        p3 = p3.nil? ? "" : " #{p3}:"
-        p4 = WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(object['uuid'])
+        p4 = WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(objectuuid)
         p4 = p4.size==0 ? "" : " #{p4}"
         p5 = WaveSchedules::scheduleToAnnounce(schedule)
         p6 = 
@@ -366,7 +351,7 @@ class WaveTimelineUtils
             else
                 ""
             end
-        "(#{( "%.3f" % object['metric'] )}) [#{object['uuid']}] {#{p5}}#{p3}#{p4}#{p6}"    
+        "{#{p5}}#{p4}#{p6}"    
     end
 
     def self.removeWaveMetadataFilesAtLocation(location)
@@ -716,15 +701,14 @@ class WaveInterface
             if File.file?(naturalobjectlocation) and naturalobjectlocation[-4,4] == '.txt' and IO.read(naturalobjectlocation).strip.lines.to_a.size == 1 and IO.read(naturalobjectlocation).strip.start_with?('http') then
                 url = IO.read(naturalobjectlocation).strip
                 system("open -a Safari '#{url}'")
-                return [nil, true]
+                return
             end            
             if File.file?(naturalobjectlocation) then
                 system("open '#{naturalobjectlocation}'")
-                return [nil, true]
+                return
             end
             puts "Opening #{naturalobjectlocation}"
             system("open '#{naturalobjectlocation}'")
-            return [nil, true]
         end
 
         if command=='done' then
@@ -765,8 +749,6 @@ class WaveInterface
                 schedule = WaveSchedules::cycleSchedule(schedule)
                 WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
             end
-
-            return [nil, false]
         end
 
         if command=='recast' then
@@ -774,21 +756,18 @@ class WaveInterface
             objectuuid = object['uuid']
             schedule = WaveTimelineUtils::makeNewSchedule()
             WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
-            return [nil, true]
         end
 
         if command=='folder' then
             location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
-            return [nil, true]
         end
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 WaveTimelineUtils::archiveWaveItems(objectuuid)                       
             end
-            return [nil, false]
         end
 
         if command=='>stream' then
@@ -797,7 +776,6 @@ class WaveInterface
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
-            return [nil, false]
         end
 
         if command=='>lib' then
@@ -820,7 +798,7 @@ class WaveInterface
             puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
             LucilleCore::pressEnterToContinue()
 
-            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(nil, nil, atlasreference, nil, nil)
+            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
 
             # Copying the staging folder to the timeline
             targetparentlocation = R136CoreUtils::getNewUniqueDataTimelineIndexSubFolderPathReadyToUse()
@@ -831,8 +809,6 @@ class WaveInterface
 
             puts "Archiving the Wave item"
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
-   
-            return [nil, false]
         end
  
         nil

@@ -179,7 +179,7 @@ class TimeCommitments
             {
                 "uuid" => uuid,
                 "metric" => metric,
-                "announce" => "(#{"%.3f" % metric}) #{announce}",
+                "announce" => announce,
                 "commands" => commands,
                 "command-interpreter" => lambda{|object, command|
                     uuid = object['uuid']
@@ -187,15 +187,12 @@ class TimeCommitments
                         item = TimeCommitments::getItemByUUID(uuid)
                         item = TimeCommitments::startItem(item)
                         TimeCommitments::saveItem(item)
-                        return [nil, false]
                     end
                     if command=="stop" then
                         item = TimeCommitments::getItemByUUID(uuid)
                         item = TimeCommitments::stopItem(item)
                         TimeCommitments::saveItem(item)
-                        return [nil, false]
                     end
-                    nil
                 }
             }
         }

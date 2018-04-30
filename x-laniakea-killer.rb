@@ -49,29 +49,27 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 require_relative "Stream.rb"
 
+require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
+=begin
+    # The set of values that we support is whatever that can be json serialisable.
+    FIFOQueue::size(repositorylocation or nil, queueuuid)
+    FIFOQueue::values(repositorylocation or nil, queueuuid)
+    FIFOQueue::push(repositorylocation or nil, queueuuid, value)
+    FIFOQueue::getFirstOrNull(repositorylocation or nil, queueuuid)
+    FIFOQueue::takeFirstOrNull(repositorylocation or nil, queueuuid)
+=end
+
 # -------------------------------------------------------------------------------------
 
-# metric = f(idealCount*0.9) = 0
-#          f(idealCount)     = 1
-#          slope = 1.to_f/(0.1*idealCount)
-#          f(x) = x.to_f/(0.1*idealCount) + something
-#          something = f(x) - x.to_f/(0.1*idealCount)
-#          something = - (idealCount*0.9).to_f/(0.1*idealCount)
-#          f(x) = x.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-#          check: f(idealCount*0.9) = (idealCount*0.9).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount) = 0
-#          check: f(idealCount)     = idealCount.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-#                                   = (idealCount*0.9 + idealCount*0.1).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-#                                   = 1
+# XLaniakeaKiller::getCatalystObjects()
 
-# StreamKiller::getCatalystObjects()
-
-class StreamKiller
+class XLaniakeaKiller
     def self.getCurve()
-        filename = Dir.entries("/Galaxy/DataBank/Catalyst/StreamKiller")
+        filename = Dir.entries("/Galaxy/DataBank/Catalyst/XLaniakeaKiller")
             .select{|filename| filename[0,1] != "." }
             .sort
             .last
-        JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/StreamKiller/#{filename}"))
+        JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/XLaniakeaKiller/#{filename}"))
     end
     def self.shiftCurve(curve)
         curve = curve.clone
@@ -86,42 +84,38 @@ class StreamKiller
         currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
     end
     def self.getCatalystObjects()
-        curve = StreamKiller::getCurve()
-        idealCount = StreamKiller::computeIdealCountFromCurve(curve)
-        currentCount = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
-        metric = StreamKiller::computeMetric(currentCount, idealCount)
-
+        curve = XLaniakeaKiller::getCurve()
+        idealCount = XLaniakeaKiller::computeIdealCountFromCurve(curve)
+        currentCount = FIFOQueue::size(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
+        metric = XLaniakeaKiller::computeMetric(currentCount, idealCount)
         if metric < 0.2 then
-            curveX = StreamKiller::shiftCurve(curve)
-            idealCountX  = StreamKiller::computeIdealCountFromCurve(curveX)
-            metricX = StreamKiller::computeMetric(currentCount, idealCountX)
+            curveX = XLaniakeaKiller::shiftCurve(curve)
+            idealCountX  = XLaniakeaKiller::computeIdealCountFromCurve(curveX)
+            metricX = XLaniakeaKiller::computeMetric(currentCount, idealCountX)
             if metricX < 0.2 then
-                puts "StreamKiller, shifting curve on disk (metric: #{metric} -> #{metricX})"
+                puts "XLaniakeaKiller, shifting curve on disk (metric: #{metric} -> #{metricX})"
                 puts JSON.pretty_generate(curve)
                 puts JSON.pretty_generate(curveX)
                 LucilleCore::pressEnterToContinue()
-                File.open("/Galaxy/DataBank/Catalyst/StreamKiller/curve-#{LucilleCore::timeStringL22()}.json", "w"){|f| f.puts( JSON.pretty_generate(curveX) ) }
+                File.open("/Galaxy/DataBank/Catalyst/XLaniakeaKiller/curve-#{LucilleCore::timeStringL22()}.json", "w"){|f| f.puts( JSON.pretty_generate(curveX) ) }
                 curve = curveX
             end
         end
-
-        targetuuid = Stream::getUUIDs().sample
         objects = []
         objects << {
-            "uuid" => "2662371C",
+            "uuid" => "A3B08A86",
             "metric" => metric,
-            "announce" => "-> stream killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount}) target uuid: #{targetuuid}",
+            "announce" => "-> x-laniakea killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount})",
             "commands" => [],
             "command-interpreter" => lambda{|object, command| 
-                targetuuid = object["target-uuid"]
+                targetuuid = FIFOQueue::getFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")["uuid"]
                 targetobjects = CatalystObjects::all()
                     .select{|object| object["uuid"]==targetuuid }
                 if targetobjects.size>0 then
                     targetobject = targetobjects.first
                     Jupiter::interactiveDisplayObjectAndProcessCommand(targetobject)
                 end
-            },
-            "target-uuid" => targetuuid
+            }
         }
         objects
     end
