@@ -101,23 +101,19 @@ class XLaniakeaKiller
                 curve = curveX
             end
         end
-        objects = []
-        objects << {
-            "uuid" => "A3B08A86",
-            "metric" => metric,
-            "announce" => "-> x-laniakea killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount})",
-            "commands" => [],
-            "command-interpreter" => lambda{|object, command| 
-                targetuuid = FIFOQueue::getFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")["uuid"]
-                targetobjects = CatalystObjects::all()
-                    .select{|object| object["uuid"]==targetuuid }
-                if targetobjects.size>0 then
-                    targetobject = targetobjects.first
-                    Jupiter::interactiveDisplayObjectAndProcessCommand(targetobject)
-                end
+        [
+            {
+                "uuid" => "A3B08A86",
+                "metric" => metric,
+                "announce" => "-> x-laniakea killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount})",
+                "commands" => [],
+                "command-interpreter" => lambda{|object, command| 
+                    if ( targetobject = XLaniakea::getCatalystObjects().first ) then
+                        Jupiter::interactiveDisplayObjectAndProcessCommand(targetobject)
+                    end
+                }
             }
-        }
-        objects
+        ]
     end
 end
 

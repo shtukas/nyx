@@ -77,15 +77,11 @@ class Vienna
     end
 
     def self.getCatalystObjects()
-        if (unixtime = FIFOQueue::getFirstOrNull(nil, "715921a9-f0dc-44f8-87d0-f43515e7eba0")) then
-            if (Time.new.to_i - unixtime)>86400 then
-                FIFOQueue::takeFirstOrNull(nil, "715921a9-f0dc-44f8-87d0-f43515e7eba0")
-            end
-        end
+        FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
         link = Vienna::getUnreadLinkOrNull()
         return [] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
-        metric = Math.exp(-FIFOQueue::size(nil, "715921a9-f0dc-44f8-87d0-f43515e7eba0").to_f/10)
+        metric = Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/10)
         [
             {
                 "uuid" => uuid,
@@ -99,7 +95,7 @@ class Vienna
                     end
                     if command=='done' then
                         Vienna::setLinkAsRead(object["link"])
-                        FIFOQueue::push(nil, "715921a9-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
+                        FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
                     end
                 },
                 "link" => link

@@ -53,12 +53,7 @@ class XLaniakea
         }
         [] 
     end
-    def self.cleaning()
-        item = FIFOQueue::getFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
-        # Consume the item if irrelevant
-    end
     def self.getCatalystObjects()
-        XLaniakea::cleaning()
         item = FIFOQueue::getFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
         if item.nil? then
             [
