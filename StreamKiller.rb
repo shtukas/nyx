@@ -49,6 +49,16 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 require_relative "Stream.rb"
 
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    # The set of values that we support is whatever that can be json serialisable.
+    FIFOQueue::size(repositorylocation or nil, queueuuid)
+    FIFOQueue::values(repositorylocation or nil, queueuuid)
+    FIFOQueue::push(repositorylocation or nil, queueuuid, value)
+    FIFOQueue::getFirstOrNull(repositorylocation or nil, queueuuid)
+    FIFOQueue::takeFirstOrNull(repositorylocation or nil, queueuuid)
+=end
+
 # -------------------------------------------------------------------------------------
 
 # metric = f(idealCount*0.9) = 0
@@ -64,8 +74,26 @@ require_relative "Stream.rb"
 #                                   = 1
 
 # StreamKiller::getCatalystObjects()
+# StreamKiller::getTargetUUIDOrNull()
+# StreamKiller::getObjectForTargetUUIDOrNull(targetuuid)
 
 class StreamKiller
+    def self.getTargetUUIDOrNull()
+        targetuuid = FIFOQueue::getFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613")
+        if targetuuid.nil? then
+            Stream::getUUIDs().shuffle.each{|uuid|
+                FIFOQueue::push(nil, "6e724d6b-8273-49cb-8115-c7de81125613", uuid)
+            }
+        end
+        FIFOQueue::getFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613")
+    end
+
+    def self.getObjectForTargetUUIDOrNull(targetuuid)
+        Stream::getCatalystObjects()
+            .select{|object| object["uuid"]==targetuuid }
+            .first
+    end
+
     def self.getCurve()
         filename = Dir.entries("/Galaxy/DataBank/Catalyst/StreamKiller")
             .select{|filename| filename[0,1] != "." }
@@ -73,24 +101,27 @@ class StreamKiller
             .last
         JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/StreamKiller/#{filename}"))
     end
+
     def self.shiftCurve(curve)
         curve = curve.clone
         curve["starting-count"] = curve["starting-count"]-10
         curve["ending-unixtime"] = curve["ending-unixtime"]-86400
         curve
     end
+
     def self.computeIdealCountFromCurve(curve)
         curve["starting-count"] - curve["starting-count"]*(Time.new.to_i - curve["starting-unixtime"]).to_f/(curve["ending-unixtime"] - curve["starting-unixtime"])
     end
+
     def self.computeMetric(currentCount, idealCount)
         currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
     end
+
     def self.getCatalystObjects()
         curve = StreamKiller::getCurve()
         idealCount = StreamKiller::computeIdealCountFromCurve(curve)
         currentCount = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
         metric = StreamKiller::computeMetric(currentCount, idealCount)
-
         if metric < 0.2 then
             curveX = StreamKiller::shiftCurve(curve)
             idealCountX  = StreamKiller::computeIdealCountFromCurve(curveX)
@@ -104,25 +135,50 @@ class StreamKiller
                 curve = curveX
             end
         end
-
-        targetuuid = Stream::getUUIDs().sample
         objects = []
-        objects << {
-            "uuid" => "2662371C",
-            "metric" => metric,
-            "announce" => "-> stream killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount}) target uuid: #{targetuuid}",
-            "commands" => [],
-            "command-interpreter" => lambda{|object, command| 
-                targetuuid = object["target-uuid"]
-                targetobjects = CatalystObjects::all()
-                    .select{|object| object["uuid"]==targetuuid }
-                if targetobjects.size>0 then
-                    targetobject = targetobjects.first
-                    Jupiter::interactiveDisplayObjectAndProcessCommand(targetobject)
-                end
-            },
-            "target-uuid" => targetuuid
-        }
+        if (targetuuid = StreamKiller::getTargetUUIDOrNull()) then
+            if (targetobject = StreamKiller::getObjectForTargetUUIDOrNull(targetuuid)) then
+                objects << {
+                    "uuid" => "2662371C",
+                    "metric" => metric,
+                    "announce" => "-> stream killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount}) target uuid: #{targetuuid}",
+                    "commands" => ["->object", "rotate"],
+                    "default-expression" => "->object",
+                    "command-interpreter" => lambda{|object, command| 
+                        if command=="->object" then
+                            targetuuid = object["target-uuid"]
+                            if (targetobject = StreamKiller::getObjectForTargetUUIDOrNull(targetuuid)) then
+                                Jupiter::interactiveDisplayObjectAndProcessCommand(targetobject)
+                            else
+                                puts "StreamKiller: weird case bd4e5c71-4469-425f-8c12-294ce9c75693"
+                                LucilleCore::pressEnterToContinue() 
+                            end
+                        end
+                        if command=="rotate" then
+                            FIFOQueue::takeFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613")
+                        end
+                    },
+                    "target-uuid" => targetuuid
+                }
+            else
+                FIFOQueue::takeFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613") # discarding the targetuuid for which an object could not be found
+                objects << {
+                    "uuid" => "2662371C",
+                    "metric" => metric,
+                    "announce" => "-> stream killer could not retrieve a target object for targetuuid: #{targetuuid}",
+                    "commands" => [],
+                    "command-interpreter" => lambda{|object, command| }
+                }
+            end
+        else
+            objects << {
+                "uuid" => "2662371C",
+                "metric" => metric,
+                "announce" => "-> stream killer could not retrieve a targetuuid",
+                "commands" => [],
+                "command-interpreter" => lambda{|object, command| }
+            }
+        end
         objects
     end
 end
