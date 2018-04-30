@@ -130,7 +130,7 @@ class Today
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
             metric = 0.840 + 0.010*Math.exp(-idx.to_f/10)
-            announce = section.size>1 ? "today:\n#{section.first(4).map{|line| "        #{line}" }.join}".strip : "today: #{section.first}".strip
+            announce = "today: #{section.first}".strip
             objects << {
                 "uuid" => uuid,
                 "metric" => metric,
