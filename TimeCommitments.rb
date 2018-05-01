@@ -84,8 +84,9 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time
 # TimeCommitments::writeDataToDisk(data)
 # TimeCommitments::startItem(item)
 # TimeCommitments::stopItem(item)
-# TimeCommitments::extractNonRunningOverflowingItemOrNull(items)
-# TimeCommitments::extractDifferentItemOrNull(items, item)
+# TimeCommitments::getNonRunningOverflowingItemOrNull(items)
+# TimeCommitments::getDifferentItemOrNull(item, items)
+# TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainItemOrNull(item, items)
 # TimeCommitments::itemToLiveTimespan(item)
 # TimeCommitments::garbageCollectionItems(items)
 # TimeCommitments::garbageCollectionGlobal()
@@ -127,15 +128,24 @@ class TimeCommitments
         item
     end
 
-    def self.extractNonRunningOverflowingItemOrNull(items)
+    def self.getNonRunningOverflowingItemOrNull(items)
         items
             .select{|item| !item["is-running"] }
             .select{|item| item["timespans"].inject(0,:+) >= item["commitment-in-hours"]*3600  }
             .first
     end
 
-    def self.extractDifferentItemOrNull(items, item)
+    def self.getDifferentItemOrNull(item, items)
         items.select{|i| i["uuid"]!=item["uuid"] }.first
+    end
+
+    def self.getDifferentNonRunningUnderflowingOfSameDomainItemOrNull(item, items)
+        items
+            .select{|i| i["uuid"]!=item["uuid"] }
+            .select{|i| !i["is-running"] }
+            .select{|i| i["timespans"].inject(0,:+) < i["commitment-in-hours"]*3600  }
+            .select{|i| i["domain"]==item["domain"] }
+            .first
     end
 
     def self.itemToLiveTimespan(item) 
@@ -150,8 +160,8 @@ class TimeCommitments
                 return
             end
         end
-        if ( overflowingItem = TimeCommitments::extractNonRunningOverflowingItemOrNull(items) ) then
-            if ( recipientItem = TimeCommitments::extractDifferentItemOrNull(items, overflowingItem) ) then
+        if ( overflowingItem = TimeCommitments::getNonRunningOverflowingItemOrNull(items) ) then
+            if ( recipientItem = TimeCommitments::getDifferentItemOrNull(overflowingItem, items) ) then
                 recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
                 TimeCommitments::saveItem(recipientItem)
                 SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
@@ -181,24 +191,28 @@ class TimeCommitments
             metric = item["is-running"] ? 2 : ( item['metric'] ? item['metric'] : ( 0.810 + Math.exp(ratioDone).to_f/1000 ) )
             announce = "[#{uuid}] time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
             announce = item["is-running"] ? announce.green : announce
-            commands = item["is-running"] ? ["stop"] : ["start"]
-            defaultcommands = item["is-running"] ? ["stop"] : ["start"]
+            commands = item["is-running"] ? ["stop", "stop+"] : ["start"]
+            defaultExpression = item["is-running"] ? "stop+" : "start"
             {
                 "uuid" => uuid,
                 "metric" => metric,
                 "announce" => announce,
                 "commands" => commands,
+                "default-expression" => defaultExpression,
                 "command-interpreter" => lambda{|object, command|
                     uuid = object['uuid']
                     if command=='start' then
-                        item = TimeCommitments::getItemByUUID(uuid)
-                        item = TimeCommitments::startItem(item)
-                        TimeCommitments::saveItem(item)
+                        TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
                     end
                     if command=="stop" then
-                        item = TimeCommitments::getItemByUUID(uuid)
-                        item = TimeCommitments::stopItem(item)
-                        TimeCommitments::saveItem(item)
+                        TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
+                    end
+                    if command=="stop+" then
+                        TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
+                        newItemOpt = TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainItemOrNull(item, TimeCommitments::getItems())
+                        if newItemOpt then
+                            TimeCommitments::saveItem(TimeCommitments::startItem(newItemOpt))
+                        end
                     end
                 }
             }
