@@ -208,7 +208,8 @@ class TimeCommitments
                         TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
                     end
                     if command=="stop+" then
-                        TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
+                        item = TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid))
+                        TimeCommitments::saveItem(item)
                         newItemOpt = TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainItemOrNull(item, TimeCommitments::getItems())
                         if newItemOpt then
                             TimeCommitments::saveItem(TimeCommitments::startItem(newItemOpt))
