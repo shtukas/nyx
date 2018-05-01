@@ -113,8 +113,8 @@ class Jupiter
 
         if expression == 'info' then
             puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}".green
-            puts "Stream item count: #{Stream::getUUIDs().size}".green
-            puts "x-laniakea item count: #{FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count}".green
+            puts "Stream count: #{Stream::getUUIDs().size}".green
+            puts "x-laniakea count: #{FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count}".green
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return

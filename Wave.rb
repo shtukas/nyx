@@ -562,7 +562,7 @@ class WaveSchedules
             return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
-            return 1.5 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.9 + WaveSchedules::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
@@ -779,35 +779,17 @@ class WaveInterface
         end
 
         if command=='>lib' then
-            
-            puts "I am copying the wave folder to the Desktop and will rename it to a new atlas reference"
-
-            # Selection of the new atlas reference
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
-
-            puts "atlas reference: #{atlasreference}"
-
-            # Copying the wave folder to the Desktop                    
             sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
             LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
-
-            # Removing wave files.
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(staginglocation)
-
             puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
             LucilleCore::pressEnterToContinue()
-
             LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
-
-            # Copying the staging folder to the timeline
-            targetparentlocation = R136CoreUtils::getNewUniqueDataTimelineIndexSubFolderPathReadyToUse()
-
-            LucilleCore::copyFileSystemLocation(staginglocation, targetparentlocation)
-
+            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
+            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
-
-            puts "Archiving the Wave item"
             WaveTimelineUtils::archiveWaveItems(objectuuid) 
         end
  

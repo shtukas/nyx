@@ -23,27 +23,9 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 # -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
-NINJA_DROPOFF_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Ninja-DropOff"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
 class Ninja
-
-    # Ninja::collectDropOffObjects()
-    def self.collectDropOffObjects()
-        Dir.entries(NINJA_DROPOFF_FOLDERPATH)
-            .select{|filename| filename[0, 1] != '.' }
-            .map{|filename| "#{NINJA_DROPOFF_FOLDERPATH}/#{filename}" }
-            .each{|sourcelocation|
-                folderpath = "#{NINJA_ITEMS_REPOSITORY_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}-ninja"
-                FileUtils.mkpath(folderpath)
-                if File.file?(sourcelocation) then
-                    FileUtils.cp(sourcelocation,folderpath)
-                else
-                    FileUtils.cp_r(sourcelocation,folderpath)
-                end
-                LucilleCore::removeFileSystemLocation(sourcelocation)
-            }
-    end
 
     def self.getFolderpathOrNull()
         folderpath = FIFOQueue::getFirstOrNull(nil, "folderpaths-f363-4a11-9251-b7301406e261")

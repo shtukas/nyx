@@ -32,84 +32,89 @@ require 'colorize'
 
 # -------------------------------------------------------------------------------------
 
-STREAM_PERFECT_NUMBER = 6
+$STREAM_GLOBAL_DATABASE = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "20ac3ba8-7c3b-4f39-9508-4535bf14d204", "{}"))
 
-# StreamClassification::getItemClassificationOrNull(uuid)
-# StreamClassification::setItemClassification(uuid, classification)
-# StreamClassification::updateItemClassification(uuid, classification, totalTimeSpan)
-# StreamClassification::uuidToMetric(uuid)
-# StreamClassification::extractUnClassifiedFolderpaths(folderpaths)
-# StreamClassification::resolveClassificationForThisFolderpath(uuid)
-# StreamClassification::getNumberOfClassificationForThisHour()
-# StreamClassification::increaseNumberOfClassificationForThisHour()
-# StreamClassification::dataManagementClassifying()
+# $STREAM_GLOBAL_DATABASE["stream:times"] : Array[Unixtime, Timespan]
+# $STREAM_GLOBAL_DATABASE["items:times"][uuid] : Array[Unixtime, Timespan] 
+# $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"] : Boolean
+# $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["start-unixtime"]
 
-# classification: ["quicky", "medium", "project"]
+# -------------------------------------------------------------------------------------
 
-class StreamClassification
-    def self.getItemClassificationOrNull(uuid)
-        classification = KeyValueStore::getOrNull(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}")
-        return "quicky" if ![nil, "quicky", "medium", "project"].include?(classification) # because data got corrupted once
-        classification
+# StreamGlobalDataBaseInterface::storeDatabase()
+# StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid)
+# StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek()
+# StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid)
+# StreamGlobalDataBaseInterface::addStreamTimespan(timespanInSeconds)
+# StreamGlobalDataBaseInterface::startItem(uuid)
+# StreamGlobalDataBaseInterface::stopItem(uuid)
+
+class StreamGlobalDataBaseInterface
+
+    def self.storeDatabase()
+        KeyValueStore::set(nil, "20ac3ba8-7c3b-4f39-9508-4535bf14d204", JSON.generate($STREAM_GLOBAL_DATABASE))
     end
 
-    def self.setItemClassification(uuid, classification)
-        KeyValueStore::set(nil, "3dbfc3a1-4434-42b7-8e27-ced389fd2178:#{uuid}", classification)
+    def self.getItemTotalTimeInSecondsLastWeek(uuid)
+        $STREAM_GLOBAL_DATABASE["items:times"] = {} if $STREAM_GLOBAL_DATABASE["items:times"].nil?
+        $STREAM_GLOBAL_DATABASE["items:times"][uuid] = [] if $STREAM_GLOBAL_DATABASE["items:times"][uuid].nil?
+        $STREAM_GLOBAL_DATABASE["items:times"][uuid]
+            .select{|pair| (Time.new.to_i - pair[0]) < 86400 }
+            .map{|pair| pair[1] }
+            .inject(0, :+)
     end
 
-    def self.updateItemClassification(uuid, classification, totalTimeSpan)
-        if classification.nil? then
-            StreamClassification::setItemClassification(uuid, "quicky")
-        end
-        if ( classification == "quicky" ) and ( totalTimeSpan > 3600*2 ) then
-            StreamClassification::setItemClassification(uuid, "medium")
-        end
-        if ( classification == "medium" ) and ( totalTimeSpan > 3600*5 ) then
-            StreamClassification::setItemClassification(uuid, "project") 
-        end
+    def self.getStreamTotalTimeInSecondsLastWeek()
+        $STREAM_GLOBAL_DATABASE["stream:times"] = [] if $STREAM_GLOBAL_DATABASE["stream:times"].nil?
+        $STREAM_GLOBAL_DATABASE["stream:times"]
+            .select{|pair| (Time.new.to_i - pair[0]) < 86400 }
+            .map{|pair| pair[1] }
+            .inject(0, :+)
     end
 
-    def self.uuidToMetric(uuid)
-        classification = StreamClassification::getItemClassificationOrNull(uuid)
-        low, high = 0.0, 0.2 if classification.nil?
-        low, high = 0.1, 0.4 if classification=="project"
-        low, high = 0.3, 0.6 if classification=="medium"
-        low, high = 0.5, 0.8 if classification=="quicky"
-        DRbObject.new(nil, "druby://:10423").metric2(uuid, 7, 3, low, high, 2)
+    def self.trueIfItemIsRunning(uuid)
+        $STREAM_GLOBAL_DATABASE["items:running-status"] = {} if $STREAM_GLOBAL_DATABASE["items:running-status"].nil?
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid] = {} if $STREAM_GLOBAL_DATABASE["items:running-status"][uuid].nil?
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"] = false if $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"].nil?
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"]
     end
 
-    def self.extractUnClassifiedFolderpaths(folderpaths)
-        folderpaths.select{|folderpath| 
-            uuid = Stream::folderpath2uuid(folderpath)
-            StreamClassification::getItemClassificationOrNull(uuid).nil? 
-        }
+    def self.addStreamTimespan(timespanInSeconds)
+        $STREAM_GLOBAL_DATABASE["stream:times"] = [] if $STREAM_GLOBAL_DATABASE["stream:times"].nil?
+        $STREAM_GLOBAL_DATABASE["stream:times"] << [Time.new.to_i, timespanInSeconds]
+        StreamGlobalDataBaseInterface::storeDatabase()
     end
 
-    def self.resolveClassificationForThisFolderpath(folderpath, shouldOpenFolder = true)
-        puts "Stream: resolving clasification for #{folderpath}"
-        LucilleCore::pressEnterToContinue()
-        if shouldOpenFolder then
-            system("open '#{folderpath}'")
-        end
-        classification = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("classification", ["quicky", "medium", "project"])  
-        uuid = Stream::folderpath2uuid(folderpath)
-        StreamClassification::setItemClassification(uuid, classification)
+    def self.startItem(uuid)
+        $STREAM_GLOBAL_DATABASE["items:running-status"] = {} if $STREAM_GLOBAL_DATABASE["items:running-status"].nil?
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid] = {} if $STREAM_GLOBAL_DATABASE["items:running-status"][uuid].nil?
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"] = false if $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"].nil?
+        return if $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"]
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"] = true
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["start-unixtime"] = Time.new.to_i
+        StreamGlobalDataBaseInterface::storeDatabase()
     end
 
-    def self.getNumberOfClassificationForThisHour()
-        KeyValueStore::getOrDefaultValue(nil, "0051e8da-68c6-44df-a3bb-51fcbcd6ed49:#{Time.new.to_s[0,13]}", "0").to_i
-    end
-
-    def self.increaseNumberOfClassificationForThisHour()
-        newcount = StreamClassification::getNumberOfClassificationForThisHour()+1
-        KeyValueStore::set(nil, "0051e8da-68c6-44df-a3bb-51fcbcd6ed49:#{Time.new.to_s[0,13]}", newcount)
-    end
-
+    def self.stopItem(uuid)
+        $STREAM_GLOBAL_DATABASE["items:running-status"] = {} if $STREAM_GLOBAL_DATABASE["items:running-status"].nil?
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid] = {} if $STREAM_GLOBAL_DATABASE["items:running-status"][uuid].nil?
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"] = false if $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"].nil?
+        return if !$STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"]
+        $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["is-running"] = false
+        timespan = Time.new.to_i - $STREAM_GLOBAL_DATABASE["items:running-status"][uuid]["start-unixtime"]
+        $STREAM_GLOBAL_DATABASE["items:times"] = {} if $STREAM_GLOBAL_DATABASE["items:times"].nil?
+        $STREAM_GLOBAL_DATABASE["items:times"][uuid] = [] if $STREAM_GLOBAL_DATABASE["items:times"][uuid].nil?
+        $STREAM_GLOBAL_DATABASE["items:times"][uuid] << [Time.new.to_i, timespan]
+        $STREAM_GLOBAL_DATABASE["stream:times"] = [] if $STREAM_GLOBAL_DATABASE["stream:times"].nil?
+        $STREAM_GLOBAL_DATABASE["stream:times"] << [Time.new.to_i, timespan]
+        StreamGlobalDataBaseInterface::storeDatabase()
+    end    
 end
+
 
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getItemDescription(folderpath)
-# Stream::folderpath2uuid(folderpath)
+# Stream::getuuid(folderpath)
 # Stream::getUUIDs()
 # Stream::simplifyURLCarryingString(string)
 # Stream::naturalTargetUnderLocation(location): (type, address) , where type is "file" or "url"
@@ -118,6 +123,7 @@ end
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjectsFromDisk()
 # Stream::getCatalystObjects()
+# Stream::metric()
 
 class Stream
 
@@ -135,7 +141,7 @@ class Stream
         description = KeyValueStore::getOrDefaultValue(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{folderpath}")
     end
 
-    def self.folderpath2uuid(folderpath)
+    def self.getuuid(folderpath)
         if !File.exist?("#{folderpath}/.uuid") then
             File.open("#{folderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) }
         end
@@ -145,7 +151,7 @@ class Stream
     def self.getUUIDs()
         ["strm1", "strm2"].map{|streamName|
             Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
-            .map{|folderpath| Stream::folderpath2uuid(folderpath) }
+            .map{|folderpath| Stream::getuuid(folderpath) }
         }.flatten
     end
 
@@ -206,23 +212,27 @@ class Stream
         target
     end
 
+    def self.metric(indx, itemTimeInSeconds, streamTimeInSeconds)
+        multiplier1 = Math.exp(-indx.to_f/100)
+        multiplier2 = Math.exp(-itemTimeInSeconds.to_f/(3600*4))
+        multiplier3 = Math.exp(-streamTimeInSeconds.to_f/(3600*10)) 
+        0.8*multiplier1*multiplier2*multiplier3
+    end
+
     def self.folderpathToCatalystObject(folderpath, indx, streamName)
-        uuid = Stream::folderpath2uuid(folderpath)
+        uuid = Stream::getuuid(folderpath)
         description = Stream::getItemDescription(folderpath)
-        classification = StreamClassification::getItemClassificationOrNull(uuid)
-        isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
-        metric = isRunning ? 2 : StreamClassification::uuidToMetric(uuid) * Math.exp(-indx.to_f/20)
-        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">medium", ">project", ">lib"]
-        announce = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))}#{ classification ? " { #{classification} }" : "" } (#{"%.2f" % ( DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7).to_f/3600 )} hours)"
-        if isRunning then
-            announce = announce.green
-        end
+        isRunning = StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid)
+        metric = isRunning ? 2 : Stream::metric(indx, StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid), StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek())
+        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">lib"]
+        defaultExpression = ( isRunning ? "completed" : "start" )
+        announce = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))} (#{"%.2f" % ( StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid).to_f/3600 )} hours past week)"
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => "#{announce}",
+            "announce" => ( metric > 1 ? announce.green : announce ),
             "commands" => commands,
-            "default-expression" => ( commands[0] == "start" ? "start" : "completed" ),
+            "default-expression" => defaultExpression,
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath,
             "item-stream-name" => streamName           
@@ -231,44 +241,19 @@ class Stream
 
     def self.performObjectClosing(object)
         uuid = object['uuid']
-        if DRbObject.new(nil, "druby://:10423").isRunning(uuid) then
-            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-        end
-        timespan = DRbObject.new(nil, "druby://:10423").getEntityTotalTimespanForPeriod(uuid, 7)
-        if timespan>0 then
-            classification = StreamClassification::getItemClassificationOrNull(uuid)
-            streamName = object["item-stream-name"]
-            folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
-                .select{|folderpath|
-                    StreamClassification::getItemClassificationOrNull(Stream::folderpath2uuid(folderpath))==classification
-                }
-                .first(STREAM_PERFECT_NUMBER)
-            if folderpaths.size>0 then
-                count = [STREAM_PERFECT_NUMBER, folderpaths.size].min
-                folderpaths.each{|xfolderpath| 
-                    next if xfolderpath == object['item-folderpath']
-                    xuuid = Stream::folderpath2uuid(xfolderpath)
-                    xtimespan =  timespan.to_f/count
-                    puts "Putting #{xtimespan} seconds for #{xuuid}"
-                    DRbObject.new(nil, "druby://:10423").addTimeSpan(xuuid, xtimespan)
-                }
-            end
-        end
+        StreamGlobalDataBaseInterface::addStreamTimespan(StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid))
         time = Time.new
-        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
-        puts "Source: #{object['item-folderpath']}"
-        puts "Target: #{targetFolder}"
+        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath targetFolder
+        puts "source: #{object['item-folderpath']}"
+        puts "target: #{targetFolder}"
         FileUtils.mkpath(targetFolder)
-        FileUtils.mv("#{object['item-folderpath']}",targetFolder)
+        LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
         LucilleCore::removeFileSystemLocation(object['item-folderpath'])
     end
 
     def self.objectCommandHandlerCore(object, command)
         uuid = object['uuid']
-        StreamClassification::updateItemClassification(
-            uuid, 
-            StreamClassification::getItemClassificationOrNull(uuid), 
-            DRbObject.new(nil, "druby://:10423").getEntityTotalTimespan(uuid))
         if command=='rotate' then
             sourcelocation = object["item-folderpath"]
             targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
@@ -278,11 +263,11 @@ class Stream
             system("open '#{object['item-folderpath']}'")
         end
         if command=='start' then
-            DRbObject.new(nil, "druby://:10423").start(uuid)
+            StreamGlobalDataBaseInterface::startItem(uuid)
             system("open '#{Stream::naturalTargetUnderLocation(object["item-folderpath"])[1]}'")
         end
         if command=='stop' then
-            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+            StreamGlobalDataBaseInterface::stopItem(uuid)
         end
         if command=="completed" then
             Stream::performObjectClosing(object)
@@ -291,33 +276,23 @@ class Stream
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
         end
-        if command=='>medium' then
-            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-            StreamClassification::setItemClassification(uuid, "medium")
-        end
-        if command=='>project' then
-            DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
-            StreamClassification::setItemClassification(uuid, "project")
-        end
         if command=='>lib' then
-            isRunning = DRbObject.new(nil, "druby://:10423").isRunning(uuid)
-            if isRunning then
+            if StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid) then
                 puts "The items is currently running..."
                 if !LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to close it and carry on with the librarian archiving? ") then
                     return
                 end
-                DRbObject.new(nil, "druby://:10423").stopAndAddTimeSpan(uuid)
+                StreamGlobalDataBaseInterface::stopItem(uuid)
             end
             sourcefolderpath = object['item-folderpath']
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
-            puts "atlas reference: #{atlasreference}"
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
             LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
             puts "Stream folder moved to the staging folder (Desktop), edit and press [Enter]"
             LucilleCore::pressEnterToContinue()
             LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
-            targetparentlocation = R136CoreUtils::getNewUniqueDataTimelineIndexSubFolderPathReadyToUse()
-            LucilleCore::copyFileSystemLocation(staginglocation, targetparentlocation)
+            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
+            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::performObjectClosing(object)
         end
