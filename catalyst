@@ -331,7 +331,16 @@ class Jupiter
     def self.main()
         loop {
             WaveDevOps::archivesGarbageCollection(true)
-            Jupiter::interactiveDisplayObjectAndProcessCommand(Jupiter::selectDisplayObjects().first)
+            objects = Jupiter::selectDisplayObjects()
+            firstObject = objects.first
+            if firstObject["metric"]>1 then
+                system("clear")
+                objects.first(Jupiter::screenHeight()-3).each{|object|
+                    puts Jupiter::object2Line_v0(object)[0, Jupiter::screenWidth()-1]
+                }
+                puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
+            end
+            Jupiter::interactiveDisplayObjectAndProcessCommand(firstObject)
         }
     end
 
@@ -353,19 +362,6 @@ RequirementsOperator::init()
 DoNotShowUntil::init()
 
 # -----------------------------------------------------------------
-
-if ARGV[0]=="monitor" then
-    loop {
-        objects = Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3)
-        system("clear")
-        puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
-        objects.each{|object|
-            puts Jupiter::object2Line_v0(object)
-        }
-        sleep 30
-    }
-    exit
-end
 
 Thread.new { 
     sleep 60
