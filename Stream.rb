@@ -111,6 +111,7 @@ class StreamGlobalDataBaseInterface
     end    
 end
 
+# -------------------------------------------------------------------------------------
 
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getItemDescription(folderpath)
