@@ -92,9 +92,11 @@ class Jupiter
         end
 
         if expression == 'top' then
-            selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3), lambda{ |object| Jupiter::object2Line_v0(object) })
-            return if selectedobject.nil?
-            Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            loop {
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3), lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
             return
         end
 
@@ -155,15 +157,13 @@ class Jupiter
 
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
-            searchobjects = CatalystObjects::all()
-                .select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
-            if searchobjects.size>0 then
-                loop {
-                    selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                    break if selectedobject.nil?
-                    Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-                }
-            end
+            loop {
+                searchobjects = CatalystObjects::all().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                break if searchobjects.size==0
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
             return
         end
 
@@ -187,13 +187,12 @@ class Jupiter
 
         if expression.start_with?("show") then
             command, requirement = expression.split(" ")
-            requirementObjects = CatalystObjects::all()
-                .select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                loop {
-                    selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                    break if selectedobject.nil?
-                    Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-                }
+            loop {
+                requirementObjects = CatalystObjects::all().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
             return
         end
 
@@ -301,7 +300,7 @@ class Jupiter
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
-            " #{object['announce'].strip}",
+            " #{object['announce'].lines.first.strip}",
             "#{doNotShowUntilAsString}",
         ].join()
     end
