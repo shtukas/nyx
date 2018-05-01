@@ -222,7 +222,7 @@ class Stream
             "metric" => metric,
             "announce" => "#{announce}",
             "commands" => commands,
-            "default-expression" => ( commands[0] == "start" ? "start" : "" ),
+            "default-expression" => ( commands[0] == "start" ? "start" : "completed" ),
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath,
             "item-stream-name" => streamName           
