@@ -156,7 +156,7 @@ class Jupiter
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             searchobjects = CatalystObjects::all()
-                .select{|object| Jupiter::object2Line_v0(object).include?(pattern.downcase) }
+                .select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
             if searchobjects.size>0 then
                 loop {
                     selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
