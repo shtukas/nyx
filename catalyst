@@ -337,9 +337,9 @@ class Jupiter
         loop {
             WaveDevOps::archivesGarbageCollection(true)
             objects = Jupiter::selectDisplayObjects()
+            system("clear")
             firstObject = objects.first
             if firstObject["metric"]>1 then
-                system("clear")
                 objects.first(Jupiter::screenHeight()-3).each{|object|
                     puts Jupiter::object2Line_v0(object)[0, Jupiter::screenWidth()-1]
                 }
