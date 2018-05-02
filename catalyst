@@ -343,8 +343,8 @@ class Jupiter
                 objects.first(Jupiter::screenHeight()-3).each{|object|
                     puts Jupiter::object2Line_v0(object)[0, Jupiter::screenWidth()-1]
                 }
-                puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             end
+            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             Jupiter::interactiveDisplayObjectAndProcessCommand(firstObject)
         }
     end
