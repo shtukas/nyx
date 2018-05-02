@@ -84,24 +84,16 @@ class CatalystObjects
 
         objects = struct1.map{|s| s["objects"] }.flatten
 
-        if struct1.map{|s| s["time"] }.inject(0, :+) > 1 then
+        if (xtime = struct1.map{|s| s["time"] }.inject(0, :+)) > 1 then
             offender = struct1.sort{|s1,s2| s1["time"]<=>s2["time"] }.last
             objects << {
                 "uuid"                => SecureRandom.hex(4),
-                "metric"              => 0.3,
+                "metric"              => 0.8 - Math.exp(-xtime),
                 "announce"            => "-> Catalyst generation is taking too long for #{offender["domain"]} (#{offender["time"]} seconds)",
                 "commands"            => [],
                 "command-interpreter" => lambda{ |object, command| }
             }
         end
-
-        objects << {
-            "uuid"                => "d341644d",
-            "metric"              => 0.2,
-            "announce"            => "-- sleep time ---------------------------------------------------",
-            "commands"            => [],
-            "command-interpreter" => lambda{ |object, command| }
-        }
 
         objects = DoNotShowUntil::transform(objects)
 

@@ -11,5 +11,4 @@
 0.000 -> 0.800  Stream
 0.200 -> 0.600  Ninja
 0.201 -> 0.501  x-laniakea
-         0.200 -- sleep level --
          0.000  Not To Be Done
