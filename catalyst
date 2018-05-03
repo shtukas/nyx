@@ -42,7 +42,6 @@ require 'digest/sha1'
 
 require 'find'
 
-
 # ----------------------------------------------------------------------
 
 # Jupiter::emailSyncOnSchedule(verbose)
@@ -132,8 +131,9 @@ class Jupiter
 
         if expression.start_with?('+') then
             code = expression
-            datetime = Jupiter::datetimeSpecification2232ToDatetime(code)
-            DoNotShowUntil::set(object["uuid"], datetime)
+            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+                DoNotShowUntil::set(object["uuid"], datetime)
+            end
             return
         end
 
@@ -147,6 +147,12 @@ class Jupiter
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
             File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
             WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
+            if schedule["@"]=="new" then
+                code = LucilleCore::askQuestionAnswerAsString("datecode (or empty): ")
+                if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+                    DoNotShowUntil::set(uuid, datetime)
+                end
+            end
             return
         end
 
@@ -257,7 +263,7 @@ class Jupiter
         objects
     end
 
-    def self.datetimeSpecification2232ToDatetime(code)
+    def self.codeToDatetimeOrNull(code)
         localsuffix = Time.new.to_s[-5,5]
         if code[0,1]=='+' then
             code = code[1,999]
@@ -283,7 +289,7 @@ class Jupiter
                         ( Time.new + code[0,code.size-4].to_f*3600 ).to_s
                     end
                 else
-                    raise "error: Jupiter::datetimeSpecification2232ToDatetime 30c6e629-1d71-4777-aad5-de2a40662623"
+                    nil
                 end
             end
         else
@@ -350,16 +356,6 @@ class Jupiter
     end
 
 end
-
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 days") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1.6 days") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 hours") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 day") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1.6 day") == "#{( DateTime.now + 1.6 ).to_time.to_s}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+0 hour") == "#{DateTime.now.to_time.to_s}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1.6 hour") == "#{( Time.new + 1.6*3600 ).to_s}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("+1@12:32") == "#{( DateTime.now + 1 ).to_date.to_s} 12:32:00 #{Time.new.to_s[-5,5]}")
-LucilleCore::assert(Jupiter::datetimeSpecification2232ToDatetime("2017-06-19@12:32") == "2017-06-19 12:32:00 #{Time.new.to_s[-5,5]}")
 
 # -----------------------------------------------------------------
 
