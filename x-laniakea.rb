@@ -77,6 +77,9 @@ class XLaniakea
                     announce
                 end
             }
+            while (item["metric"]+0.1)<0.5 do
+                item["metric"] = item["metric"]+0.1
+            end
             description = item["announce"]
             description = removeAnnouncePrefix1.call(description)
             description = removeAnnouncePrefix2.call(description)
