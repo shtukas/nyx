@@ -255,7 +255,7 @@ class Jupiter
 
     def self.selectDisplayObjects()
         objects = CatalystObjects::all()
-            .select{|object| object["metric"] > 0.1 }
+            .select{|object| object["metric"] > 0 }
             .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
         objects = DoNotShowUntil::transform(objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
@@ -339,7 +339,18 @@ class Jupiter
         Jupiter::doExecute(object, command)
     end
 
-    def self.main()
+    def self.extractWorkSpace(selectedObjects, remainingObjects)
+        if remainingObjects.size==0 then
+            return selectedObjects
+        end
+        if selectedObjects.select{ |object| object["metric"] <= 1 }.size>=1 then
+            return selectedObjects
+        end
+        object = remainingObjects.shift
+        Jupiter::extractWorkSpace(selectedObjects + [object], remainingObjects)
+    end
+
+    def self.main1()
         loop {
             WaveDevOps::archivesGarbageCollection(true)
             objects = Jupiter::selectDisplayObjects()
@@ -355,6 +366,42 @@ class Jupiter
         }
     end
 
+    def self.main2()
+        indx = 0
+        loop {
+            WaveDevOps::archivesGarbageCollection(true)
+            objects = Jupiter::selectDisplayObjects()
+            objects = Jupiter::extractWorkSpace(objects.take(indx+1), objects.drop(indx+1))
+            system("clear")
+            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
+            selectedObject = objects.drop(indx).first
+            objects.each{|object|
+                if object["uuid"]==selectedObject["uuid"] then
+                    puts "[*] #{Jupiter::object2Line_v1(object)}"
+                else
+                    puts "    #{Jupiter::object2Line_v0(object)}"
+                end
+            }
+            object = selectedObject
+            puts ""
+            print "--> "
+            givenCommand = STDIN.gets().strip
+            if givenCommand=="." then
+                next
+            end
+            if givenCommand=="+" then
+                indx = indx+1
+                next
+            end
+            if givenCommand=="-" then
+                indx = indx-1
+                next
+            end
+            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+            Jupiter::doExecute(object, command)
+        }
+    end
+
 end
 
 # -----------------------------------------------------------------
@@ -365,7 +412,7 @@ DoNotShowUntil::init()
 # -----------------------------------------------------------------
 
 Thread.new { 
-    sleep 60
+    sleep 6
     Jupiter::emailSyncOnSchedule(false)
     loop {
         sleep 1200
@@ -373,4 +420,4 @@ Thread.new {
     }
 }
 
-Jupiter::main()
+Jupiter::main2()
