@@ -37,6 +37,7 @@ require 'digest/sha1'
 # XLaniakea::getCatalystObjects()
 
 class XLaniakea
+
     def self.importData()
         datafilepath = "/Galaxy/DataBank/Catalyst/x-laniakea-genesis.json"
         data = JSON.parse(IO.read(datafilepath))
@@ -53,10 +54,16 @@ class XLaniakea
         }
         [] 
     end
+
+    def self.shouldIgnore(item)
+        return true if item["announce"].include?("http://putlocker")
+        false
+    end
+
     def self.getCatalystObjects()
         item = FIFOQueue::getFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
         if item.nil? then
-            [
+            return [
                 {
                     "uuid"                => "ce253dca",
                     "metric"              => 1,
@@ -65,42 +72,47 @@ class XLaniakea
                     "command-interpreter" => lambda{ |object, command| }
                 }
             ]
-        else
-            removeAnnouncePrefix1 = lambda {|announce|
-                indx = announce.index("}")
-                announce[indx+1,announce.size].strip
-            }
-            removeAnnouncePrefix2 = lambda {|announce|
-                if announce[0,2]=="[]" then
-                    announce[2,announce.size].strip
-                else
-                    announce
-                end
-            }
-            while (item["metric"]+0.1)<0.5 do
-                item["metric"] = item["metric"]+0.1
-            end
-            description = item["announce"]
-            description = removeAnnouncePrefix1.call(description)
-            description = removeAnnouncePrefix2.call(description)
-            item["description"] = description
-            item["announce"] = "(#{"%.3f" % item["metric"]}) [#{item["uuid"]}] x-laniakea: #{description}"
-            item["commands"] = ["done"]
-            item["default-expression"] = nil
-            item["command-interpreter"] = lambda{ |object, command| 
-                if command=="done" then
-                    FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
-                end
-                if command==">stream" then
-                    item = FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
-                    targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
-                    FileUtils.mkpath targetfolderpath
-                    File.open("#{targetfolderpath}/readme.txt", "w"){|f| f.puts(item["description"]) }
-                end
-            }
-            [
-                item
-            ]            
         end
+        if XLaniakea::shouldIgnore(item) then
+            puts "x-laniakea ignoring: #{item["announce"]}"
+            FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
+            return XLaniakea::getCatalystObjects()
+        end
+        removeAnnouncePrefix1 = lambda {|announce|
+            indx = announce.index("}")
+            announce[indx+1,announce.size].strip
+        }
+        removeAnnouncePrefix2 = lambda {|announce|
+            if announce[0,2]=="[]" then
+                announce[2,announce.size].strip
+            else
+                announce
+            end
+        }
+        while (item["metric"]+0.1)<0.5 do
+            item["metric"] = item["metric"]+0.1
+        end
+        description = item["announce"]
+        description = removeAnnouncePrefix1.call(description)
+        description = removeAnnouncePrefix2.call(description)
+        item["description"] = description
+        item["announce"] = "(#{"%.3f" % item["metric"]}) [#{item["uuid"]}] x-laniakea: #{description}"
+        item["commands"] = ["done"]
+        item["default-expression"] = nil
+        item["command-interpreter"] = lambda{ |object, command| 
+            if command=="done" then
+                FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
+            end
+            if command==">stream" then
+                item = FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
+                targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
+                FileUtils.mkpath targetfolderpath
+                File.open("#{targetfolderpath}/readme.txt", "w"){|f| f.puts(item["description"]) }
+            end
+        }
+        [
+            item
+        ]
+
     end
 end
