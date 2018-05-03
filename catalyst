@@ -366,7 +366,7 @@ DoNotShowUntil::init()
 
 Thread.new { 
     sleep 60
-    Jupiter::emailSyncOnSchedule(true)
+    Jupiter::emailSyncOnSchedule(false)
     loop {
         sleep 1200
         Jupiter::emailSyncOnSchedule(false)
