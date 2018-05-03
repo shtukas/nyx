@@ -65,7 +65,7 @@ class Jupiter
             begin
                 newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
                 if newEmailCount>0 then
-                    puts "Retrieved #{newEmailCount} new emails"
+                    #puts "Retrieved #{newEmailCount} new emails"
                 end
                 OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/operator.json")), verbose)
                 # We call again so that the clock restarts at the end of the process
