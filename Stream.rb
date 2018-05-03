@@ -308,7 +308,6 @@ class Stream
     def self.getCatalystObjectsFromDisk()
         ["strm1", "strm2"].map{|streamName|
             folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
-            folderpaths = folderpaths.first(6)
             folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
                 Stream::folderpathToCatalystObject(folderpath, indx, streamName)
             }
