@@ -49,7 +49,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 # -------------------------------------------------------------------------------------
 
-TODAY_PATH_TO_DATA_FILE = "/Galaxy/DataBank/Today+Calendar.txt"
+TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
 
 # Today::section_is_not_empty(section)
 # Today::contents_to_sections(reminaing_lines,sections)
