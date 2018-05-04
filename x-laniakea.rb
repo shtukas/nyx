@@ -60,6 +60,7 @@ class XLaniakea
         return true if item["announce"].include?("haskell-programming-v0.7.0.pdf")
         return true if item["announce"].include?("Problems in Mathematical Analysis")
         return true if item["announce"].include?("learn you a haskell for great good")
+        return true if item["announce"].include?("real world haskell")
         false
     end
 
