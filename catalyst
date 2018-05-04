@@ -44,6 +44,7 @@ require 'find'
 
 # ----------------------------------------------------------------------
 
+# Jupiter::isInteger(str)
 # Jupiter::emailSyncOnSchedule(verbose)
 # Jupiter::screenHeight()
 # Jupiter::screenWidth()
@@ -59,6 +60,10 @@ require 'find'
 # Jupiter::main()
 
 class Jupiter
+    def self.isInteger(str)
+        str.to_i.to_s == str
+    end
+
     def self.emailSyncOnSchedule(verbose)
         if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
             begin
@@ -389,19 +394,14 @@ class Jupiter
             if givenCommand=="." then
                 next
             end
-            if givenCommand=="+" then
-                indx = indx+1
-                next
-            end
-            if givenCommand=="-" then
-                indx = indx-1
+            if Jupiter::isInteger(givenCommand) then
+                indx = [givenCommand.to_i-1, 0].max
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
             Jupiter::doExecute(object, command)
         }
     end
-
 end
 
 # -----------------------------------------------------------------
