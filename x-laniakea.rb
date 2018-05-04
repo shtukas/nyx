@@ -58,6 +58,8 @@ class XLaniakea
     def self.shouldIgnore(item)
         return true if item["announce"].include?("http://putlocker")
         return true if item["announce"].include?("haskell-programming-v0.7.0.pdf")
+        return true if item["announce"].include?("Problems in Mathematical Analysis")
+        return true if item["announce"].include?("learn you a haskell for great good")
         false
     end
 
