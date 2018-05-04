@@ -95,12 +95,20 @@ class XLaniakea
                 announce
             end
         }
+        removeAnnouncePrefix3 = lambda {|announce|
+            if announce[0,4]=="url:" then
+                announce[4,announce.size].strip
+            else
+                announce
+            end
+        }
         while (item["metric"]+0.1)<0.5 do
             item["metric"] = item["metric"]+0.1
         end
         description = item["announce"]
         description = removeAnnouncePrefix1.call(description)
         description = removeAnnouncePrefix2.call(description)
+        description = removeAnnouncePrefix3.call(description)
         item["description"] = description
         item["announce"] = "(#{"%.3f" % item["metric"]}) [#{item["uuid"]}] x-laniakea: #{description}"
         item["commands"] = ["done"]
