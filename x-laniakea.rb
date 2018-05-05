@@ -66,6 +66,20 @@ class XLaniakea
         false
     end
 
+    # XLaniakea::processAnnounce(announce)
+    def self.processAnnounce(announce)
+        if (indx = announce.index("}")) then
+            return XLaniakea::processAnnounce(announce[indx+1,announce.size].strip)
+        end
+        if (announce[0,2]=="[]") then
+            return XLaniakea::processAnnounce(announce[2,announce.size].strip)
+        end
+        if (announce[0,4]=="url:") then
+            return XLaniakea::processAnnounce(announce[4,announce.size].strip)
+        end
+        announce
+    end
+
     def self.getCatalystObjects()
         item = FIFOQueue::getFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
         if item.nil? then
@@ -84,36 +98,22 @@ class XLaniakea
             FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
             return XLaniakea::getCatalystObjects()
         end
-        removeAnnouncePrefix1 = lambda {|announce|
-            indx = announce.index("}")
-            announce[indx+1,announce.size].strip
-        }
-        removeAnnouncePrefix2 = lambda {|announce|
-            if announce[0,2]=="[]" then
-                announce[2,announce.size].strip
-            else
-                announce
-            end
-        }
-        removeAnnouncePrefix3 = lambda {|announce|
-            if announce[0,4]=="url:" then
-                announce[4,announce.size].strip
-            else
-                announce
-            end
-        }
         while (item["metric"]+0.1)<0.5 do
             item["metric"] = item["metric"]+0.1
         end
-        description = item["announce"]
-        description = removeAnnouncePrefix1.call(description)
-        description = removeAnnouncePrefix2.call(description)
-        description = removeAnnouncePrefix3.call(description)
+        description = XLaniakea::processAnnounce(item["announce"])
+        defaultExpression = nil
+        if description.start_with?("http") then
+           defaultExpression = "open done" 
+        end
         item["description"] = description
         item["announce"] = "(#{"%.3f" % item["metric"]}) [#{item["uuid"]}] x-laniakea: #{description}"
-        item["commands"] = ["done"]
-        item["default-expression"] = nil
+        item["commands"] = ["done", ">stream"]
+        item["default-expression"] = defaultExpression
         item["command-interpreter"] = lambda{ |object, command| 
+            if command=="open" then
+                system("open '#{object["description"]}'")
+            end
             if command=="done" then
                 FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
             end
