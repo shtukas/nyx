@@ -244,7 +244,7 @@ class Stream
         uuid = object['uuid']
         StreamGlobalDataBaseInterface::addStreamTimespan(StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid))
         time = Time.new
-        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath targetFolder
         puts "source: #{object['item-folderpath']}"
         puts "target: #{targetFolder}"
