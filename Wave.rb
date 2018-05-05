@@ -68,7 +68,6 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 # WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
 # WaveTimelineUtils::readScheduleFromWaveItemOrNull(uuid)
 # WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(uuid)
-# WaveTimelineUtils::extractCatalystShellDescriptionAtWaveItem(uuid)
 # WaveTimelineUtils::extractNaturalObjectLocationPathAtWaveItem(uuid)
 # WaveTimelineUtils::makeNewSchedule()
 # WaveTimelineUtils::archiveWaveItems(uuid)
@@ -154,7 +153,7 @@ class WaveTimelineUtils
         schedule = JSON.parse(IO.read(filepath))
     end
 
-    def self.extractCatalystDescriptionAtWaveItem(uuid)
+    def self.extractCatalystDescriptionAtWaveItem(uuid) 
 
         folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
         raise "[error] WaveTimelineUtils::extractCatalystDescriptionAtWaveItem for uuid: #{JSON.generate([uuid])}" if folderpath.nil?
@@ -178,8 +177,6 @@ class WaveTimelineUtils
         }
         textfiles = getTextFiles.call(folderpath)
 
-        # below: If there is only one file and that file is the text file and this text file has only one non empty line, use that as the description.
-
         if files.size==0 then
             return "empty item"
         end
@@ -196,46 +193,6 @@ class WaveTimelineUtils
         else
             files[0]
         end
-    end
-
-    def self.extractCatalystShellDescriptionAtWaveItem(uuid)
-
-        folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::extractCatalystShellDescriptionAtWaveItem for uuid: #{uuid}" if folderpath.nil?
-
-        descriptionFilepath = "#{folderpath}/catalyst-description.txt"
-        return IO.read(descriptionFilepath).strip if File.exists?(descriptionFilepath)
-
-        getFiles = lambda {|folderpath|
-            Dir.entries(folderpath)
-            .select{|filename| filename[0, 4] != 'wave' }
-            .select{|filename| filename[0, 1] != '.' }
-            .select{|filename| filename[0, 8] != 'catalyst' }
-        }
-        files = getFiles.call(folderpath)
-
-        getTextFiles = lambda {|folderpath|
-            Dir.entries(folderpath)
-            .select{|filename| filename[0, 4] != 'wave' }
-            .select{|filename| filename[0, 8] != 'catalyst' }
-            .select{|filename| filename[-4,4] == '.txt' }
-        }
-        textfiles = getTextFiles.call(folderpath)
-
-        # below: If there is only one file and that file is the text file and this text file has only one non empty line, use that as the description.
-
-        if files.size == 1 and textfiles.size == 1 then
-            text = IO.read("#{folderpath}/#{textfiles[0]}")
-            if text.lines.select{|line| line.strip.size>0 }.count==1 then
-                return text.lines.first.strip
-            end
-        end
-
-        if files.size>0 then
-            "\n" + files.join("\n")
-        else
-            files[0]
-        end    
     end
 
     def self.extractNaturalObjectLocationPathAtWaveItem(uuid)
