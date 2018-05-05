@@ -49,6 +49,7 @@ require_relative "RequirementsReviewReminder.rb"
 require_relative "Kimchee.rb"
 require_relative "x-laniakea-killer.rb"
 require_relative "Vienna.rb"
+require_relative "ReadingFiFOQueue.rb"
 
 # ----------------------------------------------------------------------
 
@@ -68,7 +69,8 @@ class CatalystObjects
             ["RequirementsReviewReminder", lambda{ RequirementsReviewReminder::getCatalystObjects() }],
             ["Kimchee", lambda{ Kimchee::getCatalystObjects() }],
             ["XLaniakeaKiller", lambda{ XLaniakeaKiller::getCatalystObjects() }],
-            ["Vienna", lambda{ Vienna::getCatalystObjects() }]
+            ["Vienna", lambda{ Vienna::getCatalystObjects() }],
+            ["ReadingFiFOQueue", lambda { ReadingFiFOQueue::getCatalystObjects() }]
         ]
 
         struct1 = sources.map{|pair|
