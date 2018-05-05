@@ -77,6 +77,9 @@ class XLaniakea
         if (announce[0,4]=="url:") then
             return XLaniakea::processAnnounce(announce[4,announce.size].strip)
         end
+        if (announce[0,5]=="line:") then
+            return XLaniakea::processAnnounce(announce[5,announce.size].strip)
+        end
         announce
     end
 
