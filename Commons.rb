@@ -2,6 +2,16 @@
 
 # encoding: UTF-8
 
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+=end
+
+# ----------------------------------------------------------------
+
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
 CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 
@@ -105,5 +115,17 @@ class RequirementsOperator
 
     def self.currentlyUnsatisfifiedRequirements()
         RequirementsOperator::allRequirements().select{|requirement| !RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
+    end
+end
+
+# TodayOrNotToday::notToday(uuid)
+# TodayOrNotToday::todayOk(uuid)
+
+class TodayOrNotToday
+    def self.notToday(uuid)
+        KeyValueStore::set(nil, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}", "!today")
+    end
+    def self.todayOk(uuid)
+        KeyValueStore::getOrNull(nil, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
     end
 end

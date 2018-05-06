@@ -95,6 +95,11 @@ class Jupiter
             return
         end
 
+        if expression == '!today' then
+            TodayOrNotToday::notToday(object["uuid"])
+            return
+        end
+
         if expression == 'top' then
             loop {
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3), lambda{ |object| Jupiter::object2Line_v0(object) })
@@ -116,15 +121,13 @@ class Jupiter
         end
 
         if expression == 'info' then
-            puts [
-                "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}",
-                "Stream:",
-                "    count: #{Stream::getUUIDs().size}",
-                "    hours: #{StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/3600}",
-                "    multiplier: #{Math.exp(-StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/(3600*10))}",
-                "x-laniakea count: #{FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count}",
-                "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}"
-            ].join("\n").green
+            puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}".green
+            puts "Stream:".green
+            puts "    count: #{Stream::getUUIDs().size}".green
+            puts "    hours: #{StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/3600}".green
+            puts "    multiplier: #{Math.exp(-StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/(3600*10))}".green
+            puts "x-laniakea count: #{FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count}".green
+            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -223,18 +226,19 @@ class Jupiter
     def self.putshelp()
         puts "Special General Commands:"
         puts "    help"
+        puts "    clear # clear the screen"
         puts "    top"
+        puts "    wave: <wave description>"
+        puts "    stream: <stream description>"
+        puts "    lib # Invoques the Librarian interactive"
         puts "    search <pattern>"
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
         puts "    show <requirement> # shows all the objects of that requirement"
-        puts "    wave: <wave description>"
-        puts "    stream: <stream description>"
-        puts "    lib # Invoques the Librarian interactive"
-        puts "    clear # clear the screen"
         puts ""
         puts "Special Object Commands:"
         puts "    expose # pring the object"
+        puts "    !today"
         puts "    require <requirement>"
         puts "    command ..."
         puts "    (+)datetimecode"

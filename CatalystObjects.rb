@@ -37,6 +37,8 @@ require 'fileutils'
 
 require 'find'
 
+require_relative "Commons.rb"
+
 require_relative "Wave.rb"
 require_relative "Ninja.rb"
 require_relative "Stream.rb"
@@ -49,7 +51,6 @@ require_relative "RequirementsReviewReminder.rb"
 require_relative "Kimchee.rb"
 require_relative "x-laniakea-killer.rb"
 require_relative "Vienna.rb"
-require_relative "ReadingFiFOQueue.rb"
 
 # ----------------------------------------------------------------------
 
@@ -69,8 +70,7 @@ class CatalystObjects
             ["RequirementsReviewReminder", lambda{ RequirementsReviewReminder::getCatalystObjects() }],
             ["Kimchee", lambda{ Kimchee::getCatalystObjects() }],
             ["XLaniakeaKiller", lambda{ XLaniakeaKiller::getCatalystObjects() }],
-            ["Vienna", lambda{ Vienna::getCatalystObjects() }],
-            ["ReadingFiFOQueue", lambda { ReadingFiFOQueue::getCatalystObjects() }]
+            ["Vienna", lambda{ Vienna::getCatalystObjects() }]
         ]
 
         struct1 = sources.map{|pair|
@@ -96,8 +96,9 @@ class CatalystObjects
                 "command-interpreter" => lambda{ |object, command| }
             }
         end
-
+        
         objects = DoNotShowUntil::transform(objects)
+        objects = objects.select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
 
         objects
     end
