@@ -71,6 +71,11 @@ class Vienna
         `sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'`.lines.map{|line| line.strip }.first
     end
 
+    def self.getUnreadLinks()
+        query = "select link from messages where read_flag=0;"
+        `sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'`.lines.map{|line| line.strip }
+    end
+
     def self.setLinkAsRead(link)
         query = "update messages set read_flag=1 where link=\"#{link}\""
         system("sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'")

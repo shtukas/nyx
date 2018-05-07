@@ -123,10 +123,12 @@ class Jupiter
         if expression == 'info' then
             puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}".green
             puts "Stream:".green
-            puts "    count: #{Stream::getUUIDs().size}".green
+            puts "    count: #{( count1 = Stream::getUUIDs().size )}".green
             puts "    hours: #{StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/3600}".green
             puts "    multiplier: #{Math.exp(-StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/(3600*10))}".green
-            puts "x-laniakea count: #{FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count}".green
+            puts "x-laniakea count: #{( count2 = FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count )}".green
+            puts "vienna count: #{(count3 = Vienna::getUnreadLinks().count)}".green
+            puts "total count: #{(count1+count2+count3)}".green
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
