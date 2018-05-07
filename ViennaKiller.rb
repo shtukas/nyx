@@ -57,30 +57,30 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
     FIFOQueue::takeFirstOrNull(repositorylocation or nil, queueuuid)
 =end
 
-require_relative "x-laniakea.rb"
+require_relative "Vienna.rb"
 
 # -------------------------------------------------------------------------------------
 
-# XLaniakeaKiller::getCatalystObjects()
+# ViennaKiller::getCatalystObjects()
 
-class XLaniakeaKiller
+class ViennaKiller
     def self.getCatalystObjects()
-        currentCount1 = FIFOQueue::size(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
-        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/XLaniakea", currentCount1)
-        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/XLaniakea")
+        currentCount1 = Vienna::getUnreadLinks().size
+        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna", currentCount1)
+        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna")
         idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
-        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1) 
-        targetobject = XLaniakea::getCatalystObjects().first
+        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)        
+        targetobject = Vienna::getCatalystObjects().first
         if targetobject then
             targetobject["metric"] = metric1
-            targetobject["announce"] = "(x-laniakea killer) #{targetobject["announce"]}"
+            targetobject["announce"] = "(vienna killer) #{targetobject["announce"]}"
             [ targetobject ]
         else
             [
                 {
                     "uuid" => SecureRandom.hex(4),
                     "metric" => metric1,
-                    "announce" => "-> x-laniakea killer could not retrieve a targetuuid",
+                    "announce" => "-> vienna killer could not retrieve a targetuuid",
                     "commands" => [],
                     "command-interpreter" => lambda{|object, command| }
                 }

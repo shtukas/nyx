@@ -61,16 +61,16 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 
 # -------------------------------------------------------------------------------------
 
-# metric = f(idealCount*0.9) = 0
-#          f(idealCount)     = 1
-#          slope = 1.to_f/(0.1*idealCount)
-#          f(x) = x.to_f/(0.1*idealCount) + something
-#          something = f(x) - x.to_f/(0.1*idealCount)
-#          something = - (idealCount*0.9).to_f/(0.1*idealCount)
-#          f(x) = x.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-#          check: f(idealCount*0.9) = (idealCount*0.9).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount) = 0
-#          check: f(idealCount)     = idealCount.to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
-#                                   = (idealCount*0.9 + idealCount*0.1).to_f/(0.1*idealCount) - (idealCount*0.9).to_f/(0.1*idealCount)
+# metric1 = f(idealCount1*0.9) = 0
+#          f(idealCount1)     = 1
+#          slope = 1.to_f/(0.1*idealCount1)
+#          f(x) = x.to_f/(0.1*idealCount1) + something
+#          something = f(x) - x.to_f/(0.1*idealCount1)
+#          something = - (idealCount1*0.9).to_f/(0.1*idealCount1)
+#          f(x) = x.to_f/(0.1*idealCount1) - (idealCount1*0.9).to_f/(0.1*idealCount1)
+#          check: f(idealCount1*0.9) = (idealCount1*0.9).to_f/(0.1*idealCount1) - (idealCount1*0.9).to_f/(0.1*idealCount1) = 0
+#          check: f(idealCount1)     = idealCount1.to_f/(0.1*idealCount1) - (idealCount1*0.9).to_f/(0.1*idealCount1)
+#                                   = (idealCount1*0.9 + idealCount1*0.1).to_f/(0.1*idealCount1) - (idealCount1*0.9).to_f/(0.1*idealCount1)
 #                                   = 1
 
 # StreamKiller::getCatalystObjects()
@@ -94,92 +94,27 @@ class StreamKiller
             .first
     end
 
-    def self.getCurve()
-        filename = Dir.entries("/Galaxy/DataBank/Catalyst/StreamKiller")
-            .select{|filename| filename[0,1] != "." }
-            .sort
-            .last
-        JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/StreamKiller/#{filename}"))
-    end
-
-    def self.shiftCurve(curve)
-        curve = curve.clone
-        curve["starting-count"] = curve["starting-count"]-10
-        curve["ending-unixtime"] = curve["ending-unixtime"]-86400
-        curve
-    end
-
-    def self.computeIdealCountFromCurve(curve)
-        curve["starting-count"] - curve["starting-count"]*(Time.new.to_i - curve["starting-unixtime"]).to_f/(curve["ending-unixtime"] - curve["starting-unixtime"])
-    end
-
-    def self.computeMetric(currentCount, idealCount)
-        currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
-    end
-
     def self.getCatalystObjects()
-        curve = StreamKiller::getCurve()
-        idealCount = StreamKiller::computeIdealCountFromCurve(curve)
-        currentCount = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
-        metric = StreamKiller::computeMetric(currentCount, idealCount)
-        if metric < 0.2 then
-            curveX = StreamKiller::shiftCurve(curve)
-            idealCountX  = StreamKiller::computeIdealCountFromCurve(curveX)
-            metricX = StreamKiller::computeMetric(currentCount, idealCountX)
-            if metricX < 0.2 then
-                puts "StreamKiller, shifting curve on disk (metric: #{metric} -> #{metricX})"
-                puts JSON.pretty_generate(curve)
-                puts JSON.pretty_generate(curveX)
-                LucilleCore::pressEnterToContinue()
-                File.open("/Galaxy/DataBank/Catalyst/StreamKiller/curve-#{LucilleCore::timeStringL22()}.json", "w"){|f| f.puts( JSON.pretty_generate(curveX) ) }
-                curve = curveX
-            end
-        end
-        objects = []
-        if (targetuuid = StreamKiller::getTargetUUIDOrNull()) then
-            if (targetobject = StreamKiller::getObjectForTargetUUIDOrNull(targetuuid)) then
-                objects << {
-                    "uuid" => "2662371C",
-                    "metric" => metric,
-                    "announce" => "-> stream killer (ideal: #{idealCount}, ideal-1%: #{idealCount*0.99}, current: #{currentCount}) target uuid: #{targetuuid}",
-                    "commands" => ["->object", "rotate"],
-                    "default-expression" => "->object",
-                    "command-interpreter" => lambda{|object, command| 
-                        if command=="->object" then
-                            targetuuid = object["target-uuid"]
-                            if (targetobject = StreamKiller::getObjectForTargetUUIDOrNull(targetuuid)) then
-                                Jupiter::interactiveDisplayObjectAndProcessCommand(targetobject)
-                            else
-                                puts "StreamKiller: weird case bd4e5c71-4469-425f-8c12-294ce9c75693"
-                                LucilleCore::pressEnterToContinue() 
-                            end
-                        end
-                        if command=="rotate" then
-                            FIFOQueue::takeFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613")
-                        end
-                    },
-                    "target-uuid" => targetuuid
-                }
-            else
-                FIFOQueue::takeFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613") # discarding the targetuuid for which an object could not be found
-                objects << {
-                    "uuid" => "2662371C",
-                    "metric" => metric,
-                    "announce" => "-> stream killer could not retrieve a target object for targetuuid: #{targetuuid}",
+        currentCount1 = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
+        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream", currentCount1)
+        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream")
+        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
+        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
+        targetobject = Stream::getCatalystObjects().sample
+        if targetobject then
+            targetobject["metric"] = metric1
+            targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
+            [ targetobject ]
+        else
+            [
+                {
+                    "uuid" => SecureRandom.hex(4),
+                    "metric" => metric1,
+                    "announce" => "-> stream killer could not retrieve a targetuuid",
                     "commands" => [],
                     "command-interpreter" => lambda{|object, command| }
                 }
-            end
-        else
-            objects << {
-                "uuid" => "2662371C",
-                "metric" => metric,
-                "announce" => "-> stream killer could not retrieve a targetuuid",
-                "commands" => [],
-                "command-interpreter" => lambda{|object, command| }
-            }
+            ]
         end
-        objects
     end
 end
-

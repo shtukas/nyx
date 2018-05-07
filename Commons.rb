@@ -17,6 +17,7 @@ CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream
 
 # Saturn::currentHour()
 # Saturn::currentDay()
+# Saturn::simplifyURLCarryingString(string)
 
 class Saturn
     def self.currentHour()
@@ -24,6 +25,17 @@ class Saturn
     end
     def self.currentDay()
         Time.new.to_s[0,10]
+    end
+    def self.simplifyURLCarryingString(string)
+        return string if /http/.match(string).nil?
+        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
+            .each{|regex|
+                if ( m = regex.match(string) ) then
+                    string = string[m.to_s.size, string.size].strip
+                    return Saturn::simplifyURLCarryingString(string)
+                end
+            }
+        string
     end
 end
 
@@ -127,5 +139,66 @@ class TodayOrNotToday
     end
     def self.todayOk(uuid)
         KeyValueStore::getOrNull(nil, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
+    end
+end
+
+# KillersCurvesManagement::getCurve(folderpath)
+# KillersCurvesManagement::shiftCurve(curve)
+# KillersCurvesManagement::computeIdealCountFromCurve(curve)
+# KillersCurvesManagement::computeMetric(currentCount, idealCount)
+# KillersCurvesManagement::shiftCurveIfOpportunity(folderpath, currentCount1)
+
+# KillersCurvesManagement::trueIfCanShiftCurveForFolderpath(folderpath)
+# KillersCurvesManagement::setLastCurveChangeDateForFolderpath(folderpath, date)
+
+class KillersCurvesManagement
+    def self.trueIfCanShiftCurveForFolderpath(folderpath)
+        KeyValueStore::getOrNull(nil, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}") != Saturn::currentDay()
+    end
+
+    def self.setLastCurveChangeDateForFolderpath(folderpath, date)
+        KeyValueStore::set(nil, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}", date)
+    end
+
+    def self.getCurve(folderpath)
+        filename = Dir.entries(folderpath)
+            .select{|filename| filename[0,1] != "." }
+            .sort
+            .last
+        JSON.parse(IO.read("#{folderpath}/#{filename}"))
+    end
+
+    def self.shiftCurve(curve)
+        curve = curve.clone
+        curve["starting-count"] = curve["starting-count"]-10
+        curve
+    end
+
+    def self.computeIdealCountFromCurve(curve)
+        curve["starting-count"] - curve["starting-count"]*(Time.new.to_i - curve["starting-unixtime"]).to_f/(curve["ending-unixtime"] - curve["starting-unixtime"])
+    end
+
+    def self.computeMetric(currentCount, idealCount)
+        currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
+    end
+
+    def self.shiftCurveIfOpportunity(folderpath, currentCount1)
+        return if !KillersCurvesManagement::trueIfCanShiftCurveForFolderpath(folderpath)
+        curve1 = KillersCurvesManagement::getCurve(folderpath)
+        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
+        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
+        if metric1 < 0.2 then
+            curve2 = KillersCurvesManagement::shiftCurve(curve1)
+            idealCount2 = KillersCurvesManagement::computeIdealCountFromCurve(curve2)
+            metric2 = KillersCurvesManagement::computeMetric(currentCount1, idealCount2)
+            if metric2 < 0.2 then
+                puts "#{folderpath}, shifting curve on disk (metric1: #{metric1} -> #{metric2})"
+                puts JSON.pretty_generate(curve1)
+                puts JSON.pretty_generate(curve2)
+                LucilleCore::pressEnterToContinue()
+                File.open("#{folderpath}/curve-#{LucilleCore::timeStringL22()}.json", "w"){|f| f.puts( JSON.pretty_generate(curve2) ) }
+                KillersCurvesManagement::setLastCurveChangeDateForFolderpath(folderpath, Saturn::currentDay())
+            end
+        end
     end
 end

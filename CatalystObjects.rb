@@ -51,6 +51,7 @@ require_relative "RequirementsReviewReminder.rb"
 require_relative "Kimchee.rb"
 require_relative "x-laniakea-killer.rb"
 require_relative "Vienna.rb"
+require_relative "ViennaKiller.rb"
 
 # ----------------------------------------------------------------------
 
@@ -70,7 +71,8 @@ class CatalystObjects
             ["RequirementsReviewReminder", lambda{ RequirementsReviewReminder::getCatalystObjects() }],
             ["Kimchee", lambda{ Kimchee::getCatalystObjects() }],
             ["XLaniakeaKiller", lambda{ XLaniakeaKiller::getCatalystObjects() }],
-            ["Vienna", lambda{ Vienna::getCatalystObjects() }]
+            ["Vienna", lambda{ Vienna::getCatalystObjects() }],
+            ["ViennaKiller", lambda{ ViennaKiller::getCatalystObjects() }]
         ]
 
         struct1 = sources.map{|pair|
@@ -99,6 +101,7 @@ class CatalystObjects
         
         objects = DoNotShowUntil::transform(objects)
         objects = objects.select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
+        objects = objects.select{|object| object["metric"] >= 0.2 }
 
         objects
     end

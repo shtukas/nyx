@@ -37,6 +37,13 @@ require 'digest/sha1'
 # XLaniakea::getCatalystObjects()
 
 class XLaniakea
+    def self.todayCount()
+        KeyValueStore::getOrDefaultValue(nil, "fa2e35f5-2a0d-4ecd-b66c-df47fcafc61e:#{Saturn::currentDay()}", "0").to_i
+    end
+
+    def self.increaseTodayCount()
+        KeyValueStore::set(nil, "fa2e35f5-2a0d-4ecd-b66c-df47fcafc61e:#{Saturn::currentDay()}", XLaniakea::todayCount()+1)
+    end
 
     def self.importData()
         datafilepath = "/Galaxy/DataBank/Catalyst/x-laniakea-genesis.json"
@@ -63,24 +70,8 @@ class XLaniakea
         return true if item["announce"].include?("real world haskell")
         return true if item["announce"].include?("Data-Islands/Mathematics")
         return true if item["announce"].include?("1.Education/3.Undergraduate")
+        return true if item["announce"].include?("Functional Analisys (R&S)")
         false
-    end
-
-    # XLaniakea::processAnnounce(announce)
-    def self.processAnnounce(announce)
-        if (indx = announce.index("}")) then
-            return XLaniakea::processAnnounce(announce[indx+1,announce.size].strip)
-        end
-        if (announce[0,2]=="[]") then
-            return XLaniakea::processAnnounce(announce[2,announce.size].strip)
-        end
-        if (announce[0,4]=="url:") then
-            return XLaniakea::processAnnounce(announce[4,announce.size].strip)
-        end
-        if (announce[0,5]=="line:") then
-            return XLaniakea::processAnnounce(announce[5,announce.size].strip)
-        end
-        announce
     end
 
     def self.getCatalystObjects()
@@ -101,17 +92,16 @@ class XLaniakea
             FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
             return XLaniakea::getCatalystObjects()
         end
-        while (item["metric"]+0.1)<0.5 do
-            item["metric"] = item["metric"]+0.1
-        end
-        description = XLaniakea::processAnnounce(item["announce"])
+        item["today-count"] = XLaniakea::todayCount()
+        item["metric"] = 0.5*Math.exp(-XLaniakea::todayCount().to_f/20)
+        description = Saturn::simplifyURLCarryingString(item["announce"])
         defaultExpression = nil
         if description.start_with?("http") then
            defaultExpression = "open done" 
         end
         item["description"] = description
-        item["announce"] = "(#{"%.3f" % item["metric"]}) [#{item["uuid"]}] x-laniakea: #{description}"
-        item["commands"] = ["done", ">stream"]
+        item["announce"] = "x-laniakea: #{description}"
+        item["commands"] = ["open", "done", ">stream"]
         item["default-expression"] = defaultExpression
         item["command-interpreter"] = lambda{ |object, command| 
             if command=="open" then
@@ -119,6 +109,7 @@ class XLaniakea
             end
             if command=="done" then
                 FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
+                XLaniakea::increaseTodayCount()
             end
             if command==">stream" then
                 item = FIFOQueue::takeFirstOrNull(nil, "2477F469-6A18-4CAF-838A-E05703585A28")
@@ -127,9 +118,6 @@ class XLaniakea
                 File.open("#{targetfolderpath}/readme.txt", "w"){|f| f.puts(item["description"]) }
             end
         }
-        [
-            item
-        ]
-
+        [ item ]
     end
 end

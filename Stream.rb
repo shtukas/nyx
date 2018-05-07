@@ -59,7 +59,7 @@ class StreamGlobalDataBaseInterface
         $STREAM_GLOBAL_DATABASE["items:times"] = {} if $STREAM_GLOBAL_DATABASE["items:times"].nil?
         $STREAM_GLOBAL_DATABASE["items:times"][uuid] = [] if $STREAM_GLOBAL_DATABASE["items:times"][uuid].nil?
         $STREAM_GLOBAL_DATABASE["items:times"][uuid]
-            .select{|pair| (Time.new.to_i - pair[0]) < 86400 }
+            .select{|pair| (Time.new.to_i - pair[0]) < 86400*7 }
             .map{|pair| pair[1] }
             .inject(0, :+)
     end
@@ -67,7 +67,7 @@ class StreamGlobalDataBaseInterface
     def self.getStreamTotalTimeInSecondsLastWeek()
         $STREAM_GLOBAL_DATABASE["stream:times"] = [] if $STREAM_GLOBAL_DATABASE["stream:times"].nil?
         $STREAM_GLOBAL_DATABASE["stream:times"]
-            .select{|pair| (Time.new.to_i - pair[0]) < 86400 }
+            .select{|pair| (Time.new.to_i - pair[0]) < 86400*7 }
             .map{|pair| pair[1] }
             .inject(0, :+)
     end
@@ -117,7 +117,6 @@ end
 # Stream::getItemDescription(folderpath)
 # Stream::getuuid(folderpath)
 # Stream::getUUIDs()
-# Stream::simplifyURLCarryingString(string)
 # Stream::naturalTargetUnderLocation(location): (type, address) , where type is "file" or "url"
 # Stream::folderpathToCatalystObject(folderpath, indx, streamName)
 # Stream::performObjectClosing(object)
@@ -156,18 +155,6 @@ class Stream
         }.flatten
     end
 
-    def self.simplifyURLCarryingString(string)
-        return string if /http/.match(string).nil?
-        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
-            .each{|regex|
-                if ( m = regex.match(string) ) then
-                    string = string[m.to_s.size, string.size].strip
-                    return Stream::simplifyURLCarryingString(string)
-                end
-            }
-        string
-    end
-
     def self.naturalTargetUnderLocation(location)
         value = @@naturalTargets[location]
         return value if value
@@ -183,7 +170,7 @@ class Stream
                     if filepath[-4,4]==".txt" then
                         if IO.read(filepath).strip.lines.to_a.size==1 then
                             line = IO.read(filepath).strip
-                            line = Stream::simplifyURLCarryingString(line)
+                            line = Saturn::simplifyURLCarryingString(line)
                             if line.start_with?("http") then
                                 ["url", line]
                             else
@@ -225,7 +212,7 @@ class Stream
         description = Stream::getItemDescription(folderpath)
         isRunning = StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid)
         metric = isRunning ? 2 : Stream::metric(indx, StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid), StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek())
-        commands = ( isRunning ? ['stop'] : ['start'] ) + ["folder", "completed", "set-description", "rotate", ">lib"]
+        commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "set-description", "rotate", ">lib"]
         defaultExpression = ( isRunning ? "" : "start" )
         announce = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))} (#{"%.2f" % ( StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid).to_f/3600 )} hours past week)"
         {
@@ -236,7 +223,9 @@ class Stream
             "default-expression" => defaultExpression,
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "item-folderpath" => folderpath,
-            "item-stream-name" => streamName           
+            "item-stream-name" => streamName,
+            "item-indx" => indx,
+            "item-not-on-day:eae1e24c" => KeyValueStore::getOrNull(nil, "796c6f6b-bc6b-4a55-b576-09c7494be23d:#{uuid}")           
         }
     end
 
@@ -255,17 +244,21 @@ class Stream
 
     def self.objectCommandHandlerCore(object, command)
         uuid = object['uuid']
-        if command=='rotate' then
-            sourcelocation = object["item-folderpath"]
-            targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
-            FileUtils.mv(sourcelocation, targetfolderpath)
+        if command=='set-description' then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
+            Jupiter::interactiveDisplayObjectAndProcessCommand(folderpathToCatalystObject(object["item-folderpath"], object["item-indx"], object["item-stream-name"]))
         end
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
+            Jupiter::interactiveDisplayObjectAndProcessCommand(folderpathToCatalystObject(object["item-folderpath"], object["item-indx"], object["item-stream-name"]))
         end
         if command=='start' then
             StreamGlobalDataBaseInterface::startItem(uuid)
-            system("open '#{Stream::naturalTargetUnderLocation(object["item-folderpath"])[1]}'")
+            ntargetpair = Stream::naturalTargetUnderLocation(object["item-folderpath"])
+            if ["url", "file"].include?(ntargetpair[0]) then
+                system("open '#{ntargetpair[1]}'")
+            end
         end
         if command=='stop' then
             StreamGlobalDataBaseInterface::stopItem(uuid)
@@ -273,9 +266,10 @@ class Stream
         if command=="completed" then
             Stream::performObjectClosing(object)
         end
-        if command=='set-description' then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
+        if command=='rotate' then
+            sourcelocation = object["item-folderpath"]
+            targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
+            FileUtils.mv(sourcelocation, targetfolderpath)
         end
         if command=='>lib' then
             if StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid) then
@@ -306,12 +300,14 @@ class Stream
     end
 
     def self.getCatalystObjectsFromDisk()
-        ["strm1", "strm2"].map{|streamName|
-            folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
-            folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
-                Stream::folderpathToCatalystObject(folderpath, indx, streamName)
+        ["strm1", "strm2"]
+            .map{|streamName|
+                folderpaths = Stream::folderpaths("#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{streamName}")
+                folderpaths.zip((0..folderpaths.size)).map{|folderpath, indx|
+                    Stream::folderpathToCatalystObject(folderpath, indx, streamName)
+                }
             }
-        }.flatten
+            .flatten
     end
 
     def self.getCatalystObjects()
@@ -328,4 +324,3 @@ end
 KeyValueStore::set(nil, "7DC2D872-1045-41B8-AE85-9F81F7699B7A", JSON.generate(Stream::getCatalystObjectsFromDisk()))
 
 # -------------------------------------------------------------------------------------
-
