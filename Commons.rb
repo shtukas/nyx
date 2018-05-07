@@ -193,9 +193,6 @@ class KillersCurvesManagement
             metric2 = KillersCurvesManagement::computeMetric(currentCount1, idealCount2)
             if metric2 < 0.2 then
                 puts "#{folderpath}, shifting curve on disk (metric1: #{metric1} -> #{metric2})"
-                puts JSON.pretty_generate(curve1)
-                puts JSON.pretty_generate(curve2)
-                LucilleCore::pressEnterToContinue()
                 File.open("#{folderpath}/curve-#{LucilleCore::timeStringL22()}.json", "w"){|f| f.puts( JSON.pretty_generate(curve2) ) }
                 KillersCurvesManagement::setLastCurveChangeDateForFolderpath(folderpath, Saturn::currentDay())
             end
