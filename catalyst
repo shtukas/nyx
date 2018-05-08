@@ -362,11 +362,19 @@ class Jupiter
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             selectedObject = objects.last
             objects.each{|object|
-                if object["uuid"]==selectedObject["uuid"] then
-                    puts "[*] #{Jupiter::object2Line_v1(object)}"
-                else
-                    puts "    #{Jupiter::object2Line_v0(object)}"
-                end
+                string =
+                    if object["uuid"]==selectedObject["uuid"] then
+                        "[*] #{Jupiter::object2Line_v1(object)}"
+                    else
+                        "    #{Jupiter::object2Line_v0(object)}"
+                    end
+                string =
+                    if object["is-running"] then
+                        string.green
+                    else
+                        string
+                    end
+                puts string
             }
             object = selectedObject
             puts ""

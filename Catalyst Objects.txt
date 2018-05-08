@@ -8,4 +8,5 @@
     "commands"            : Array[String]
     "default-expression"  : Null or String
     "command-interpreter" : (object, command)
+    "is-running"          : Boolean # optional
 }

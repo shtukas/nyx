@@ -211,7 +211,7 @@ class Stream
         uuid = Stream::getuuid(folderpath)
         description = Stream::getItemDescription(folderpath)
         isRunning = StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid)
-        metric = isRunning ? 2 : Stream::metric(indx, StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid), StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek())
+        metric = Stream::metric(indx, StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid), StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek())
         commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "set-description", "rotate", ">lib"]
         defaultExpression = ( isRunning ? "" : "start" )
         announce = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))} (#{"%.2f" % ( StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid).to_f/3600 )} hours past week)"
@@ -222,10 +222,12 @@ class Stream
             "commands" => commands,
             "default-expression" => defaultExpression,
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
+            "is-running" => isRunning,
             "item-folderpath" => folderpath,
             "item-stream-name" => streamName,
             "item-indx" => indx,
-            "item-not-on-day:eae1e24c" => KeyValueStore::getOrNull(nil, "796c6f6b-bc6b-4a55-b576-09c7494be23d:#{uuid}")           
+            "item-not-on-day:eae1e24c" => KeyValueStore::getOrNull(nil, "796c6f6b-bc6b-4a55-b576-09c7494be23d:#{uuid}") 
+
         }
     end
 
