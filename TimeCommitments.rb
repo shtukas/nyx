@@ -184,7 +184,7 @@ class TimeCommitments
 
     def self.getCatalystObjects()
         TimeCommitments::garbageCollectionGlobal()
-        TimeCommitments::getItems()
+        objects = TimeCommitments::getItems()
         .map{|item|
             uuid = item['uuid']
             ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
@@ -218,6 +218,11 @@ class TimeCommitments
                 }
             }
         }
+        if objects.select{|object| object["metric"]>1 }.size>0 then
+            objects.select{|object| object["metric"]>1 }
+        else
+            objects
+        end
     end
 end
 
