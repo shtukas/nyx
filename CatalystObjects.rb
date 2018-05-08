@@ -100,9 +100,6 @@ class CatalystObjects
         end
         
         objects = DoNotShowUntil::transform(objects)
-        objects = objects.select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
-        objects = objects.select{|object| object["metric"] >= 0.2 }
-
         objects
     end
 end

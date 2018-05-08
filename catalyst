@@ -48,16 +48,17 @@ require 'find'
 # Jupiter::emailSyncOnSchedule(verbose)
 # Jupiter::screenHeight()
 # Jupiter::screenWidth()
-# Jupiter::object2Line_v0(object)
-# Jupiter::object2Line_v1(object)
+# Jupiter::doExecute(object, expression)
 # Jupiter::putshelp()
 # Jupiter::editTextUsingTextmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-# Jupiter::selectDisplayObjects()
+# Jupiter::codeToDatetimeOrNull(code)
+# Jupiter::object2Line_v0(object)
 # Jupiter::object2Line_v1(object)
 # Jupiter::interactiveDisplayObjectAndProcessCommand(object)
-# Jupiter::doExecute(object, expression)
-# Jupiter::main()
+# Jupiter::selectDisplayObjects()
+# Jupiter::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
+# Jupiter::main2()
 
 class Jupiter
     def self.isInteger(str)
@@ -122,13 +123,14 @@ class Jupiter
 
         if expression == 'info' then
             puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}".green
-            puts "Stream:".green
-            puts "    count: #{( count1 = Stream::getUUIDs().size )}".green
-            puts "    hours: #{StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/3600}".green
-            puts "    multiplier: #{Math.exp(-StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/(3600*10))}".green
-            puts "x-laniakea count: #{( count2 = FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count )}".green
-            puts "vienna count: #{(count3 = Vienna::getUnreadLinks().count)}".green
-            puts "total count: #{(count1+count2+count3)}".green
+            puts "Todolists".green
+            puts "    Stream:".green
+            puts "        count: #{( count1 = Stream::getUUIDs().size )}".green
+            puts "        hours: #{StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/3600}".green
+            puts "        multiplier: #{Math.exp(-StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek().to_f/(3600*10))}".green
+            puts "    x-laniakea count: #{( count2 = FIFOQueue::values(nil, "2477F469-6A18-4CAF-838A-E05703585A28").count )}".green
+            puts "    vienna count: #{(count3 = Vienna::getUnreadLinks().count)}".green
+            puts "Todolists total count: #{(count1+count2+count3)}".green
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
@@ -264,16 +266,6 @@ class Jupiter
         end
     end
 
-    def self.selectDisplayObjects()
-        objects = CatalystObjects::all()
-            .select{|object| object["metric"] > 0 }
-            .select{ |object| RequirementsOperator::meetRequirements(object['uuid']) }
-        objects = DoNotShowUntil::transform(objects)
-            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-            .reverse
-        objects
-    end
-
     def self.codeToDatetimeOrNull(code)
         localsuffix = Time.new.to_s[-5,5]
         if code[0,1]=='+' then
@@ -350,39 +342,22 @@ class Jupiter
         Jupiter::doExecute(object, command)
     end
 
-    def self.extractWorkSpace(selectedObjects, remainingObjects)
-        if remainingObjects.size==0 then
-            return selectedObjects
-        end
-        if selectedObjects.select{ |object| object["metric"] <= 1 }.size>=1 then
-            return selectedObjects
-        end
-        object = remainingObjects.shift
-        Jupiter::extractWorkSpace(selectedObjects + [object], remainingObjects)
-    end
-
-    def self.main1()
-        loop {
-            WaveDevOps::archivesGarbageCollection(true)
-            objects = Jupiter::selectDisplayObjects()
-            system("clear")
-            firstObject = objects.first
-            if firstObject["metric"]>1 then
-                objects.first(Jupiter::screenHeight()-3).each{|object|
-                    puts Jupiter::object2Line_v0(object)[0, Jupiter::screenWidth()-1]
-                }
-            end
-            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
-            Jupiter::interactiveDisplayObjectAndProcessCommand(firstObject)
-        }
+    def self.selectDisplayObjects()
+        objects = CatalystObjects::all()
+            .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
+            .select{|object| RequirementsOperator::meetRequirements(object['uuid']) }
+            .select{|object| object["metric"] >= 0.2 }
+        DoNotShowUntil::transform(objects)
+            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+            .reverse
     end
 
     def self.main2()
-        size = 1
+        workspaceSize = 1
         loop {
             WaveDevOps::archivesGarbageCollection(true)
             objects = Jupiter::selectDisplayObjects()
-            objects = objects.take(size)
+            objects = objects.take(workspaceSize)
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             selectedObject = objects.last
@@ -397,11 +372,16 @@ class Jupiter
             puts ""
             print "--> "
             givenCommand = STDIN.gets().strip
-            if givenCommand=="." then
+            if givenCommand=="+" then
+                workspaceSize = workspaceSize+1
+                next
+            end
+            if givenCommand=="-" then
+                workspaceSize = [workspaceSize-1, 1].max
                 next
             end
             if Jupiter::isInteger(givenCommand) then
-                size = [givenCommand.to_i, 1].max
+                workspaceSize = [givenCommand.to_i, 1].max
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
