@@ -198,6 +198,7 @@ class TimeCommitments
             uuid = item['uuid']
             ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
             metric = item['metric'] ? item['metric'] : ( 0.810 + Math.exp(ratioDone).to_f/1000 )
+            metric = 2 if item["is-running"]
             announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
             announce = item["is-running"] ? announce.green : announce
             commands = item["is-running"] ? ["stop", "stop+"] : ["start"]

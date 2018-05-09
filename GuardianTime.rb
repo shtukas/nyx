@@ -32,20 +32,16 @@ class GuardianTime
             end
             numberOfHours = numberOfHours.to_f
             if numberOfHours>0 then
-                10.times {|indx|
-                    item = {
-                        "uuid"                => SecureRandom.hex(4),
-                        "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                        "description"         => "Guardian",
-                        "commitment-in-hours" => numberOfHours/10,
-                        "timespans"           => [],
-                        "is-running"          => false,
-                        "last-start-unixtime" => 0,
-                        "metric"              => 1 - 0.05*indx
-                    }
-                    TimeCommitments::saveItem(item)
+                item = {
+                    "uuid"                => SecureRandom.hex(4),
+                    "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
+                    "description"         => "Guardian",
+                    "commitment-in-hours" => numberOfHours,
+                    "timespans"           => [],
+                    "is-running"          => false,
+                    "last-start-unixtime" => 0
                 }
-
+                TimeCommitments::saveItem(item)
             end
             KeyValueStore::set(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}","done")
         end

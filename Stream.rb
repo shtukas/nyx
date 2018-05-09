@@ -212,6 +212,7 @@ class Stream
         description = Stream::getItemDescription(folderpath)
         isRunning = StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid)
         metric = Stream::metric(indx, StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid), StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek())
+        metric = 2 if isRunning
         commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "set-description", "rotate", ">lib"]
         defaultExpression = ( isRunning ? "" : "start" )
         announce = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))} (#{"%.2f" % ( StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid).to_f/3600 )} hours past week)"
