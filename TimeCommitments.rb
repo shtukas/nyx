@@ -86,7 +86,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time
 # TimeCommitments::stopItem(item)
 # TimeCommitments::getNonRunningOverflowingItemOrNull(items)
 # TimeCommitments::getDifferentItemOrNull(item, items)
-# TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainItemOrNull(item, items)
+# TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainOfMaxMetricItemOrNull(items, domain)
 # TimeCommitments::itemToLiveTimespan(item)
 # TimeCommitments::garbageCollectionItems(items)
 # TimeCommitments::garbageCollectionGlobal()
@@ -139,12 +139,21 @@ class TimeCommitments
         items.select{|i| i["uuid"]!=item["uuid"] }.first
     end
 
-    def self.getDifferentNonRunningUnderflowingOfSameDomainItemOrNull(item, items)
+    def self.getNonRunningUnderflowingItemOfGivenDomainOfMaxMetricOrNull(items, domain)
         items
-            .select{|i| i["uuid"]!=item["uuid"] }
             .select{|i| !i["is-running"] }
             .select{|i| i["timespans"].inject(0,:+) < i["commitment-in-hours"]*3600  }
-            .select{|i| i["domain"]==item["domain"] }
+            .select{|i| i["domain"]==domain }
+            .map{|i|
+                i["metric-temp"] = i["metric"] ? i["metric"] : 0
+                i
+            }
+            .sort{|i1, i2| i1["metric-temp"]<=>i2["metric-temp"] }
+            .map{|i|
+                i.delete("metric-temp")
+                i
+            }
+            .reverse
             .first
     end
 
@@ -210,7 +219,7 @@ class TimeCommitments
                     if command=="stop+" then
                         item = TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid))
                         TimeCommitments::saveItem(item)
-                        newItemOpt = TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainItemOrNull(item, TimeCommitments::getItems())
+                        newItemOpt = TimeCommitments::getNonRunningUnderflowingItemOfGivenDomainOfMaxMetricOrNull(TimeCommitments::getItems(), item["domain"])
                         if newItemOpt then
                             TimeCommitments::saveItem(TimeCommitments::startItem(newItemOpt))
                         end
@@ -226,4 +235,3 @@ class TimeCommitments
         end
     end
 end
-
