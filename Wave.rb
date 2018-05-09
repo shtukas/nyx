@@ -493,7 +493,7 @@ class WaveSchedules
     end
 
     def self.traceToMetricShift(trace)
-        0.000001*WaveSchedules::traceToRealInUnitInterval(trace)
+        0.001*WaveSchedules::traceToRealInUnitInterval(trace)
     end
 
     def self.scheduleToMetric(schedule)

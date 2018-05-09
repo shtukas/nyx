@@ -136,6 +136,11 @@ class RequirementsOperator
     def self.currentlyUnsatisfifiedRequirements()
         RequirementsOperator::allRequirements().select{|requirement| !RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
     end
+
+    def self.selectExistingRequirement()
+        requirements = @@data['requirements-status-timeline'].keys
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", requirements)
+    end
 end
 
 # TodayOrNotToday::notToday(uuid)

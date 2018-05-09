@@ -141,7 +141,21 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("c:view") then
+        if expression.start_with?("r:show") then
+            requirement = expression[6, expression.size].strip
+            if requirement.size==0 then
+                requirement = RequirementsOperator::selectExistingRequirement()
+            end
+            loop {
+                requirementObjects = CatalystObjects::all().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        if expression.start_with?("c:show") then
             collection = expression[6, expression.size].strip
             if collection.size==0 then
                 collection = Collections::selectExistingCollection()
@@ -214,13 +228,13 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("require") then
+        if expression.start_with?("r:add") then
             requirement = expression[7,expression.size].strip
             RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
             return
         end
 
-        if expression.start_with?("unrequire") then
+        if expression.start_with?("r:remove") then
             requirement = expression[9,expression.size].strip
             RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
             return
@@ -238,17 +252,6 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("show") then
-            command, requirement = expression.split(" ")
-            loop {
-                requirementObjects = CatalystObjects::all().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-            }
-            return
-        end
-
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|token| object['command-interpreter'].call(object, token) }
@@ -258,24 +261,28 @@ class Jupiter
     end
 
     def self.putshelp()
-        puts "Special General Commands:"
+        puts "Special General Commands (view)"
         puts "    help"
-        puts "    clear # clear the screen"
         puts "    top"
+        puts "    search <pattern>"
+        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    c:show [collection]  # optional parameter # shows all the objects of that collection"
+        puts ""
+        puts "Special General Commands (inserts)"
         puts "    wave: <wave description>"
         puts "    stream: <stream description>"
+        puts ""
+        puts "Special General Commands (special circumstances)"
+        puts "    clear # clear the screen"
         puts "    lib # Invoques the Librarian interactive"
-        puts "    search <pattern>"
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
-        puts "    show <requirement> # shows all the objects of that requirement"
-        puts "    c:view [collection] # optional parameter # access a collection through parameter or selection"
         puts ""
         puts "Special Object Commands:"
-        puts "    expose # pring the object"
+        puts "    expose # print the object"
         puts "    !today"
-        puts "    require <requirement>"
-        puts "    unrequire <requirement>"
+        puts "    r:add <requirement>"
+        puts "    r:remove <requirement>"
         puts "    c:add [collection] # optional parameter # send to a collection"
         puts "    command ..."
         puts "    (+)datetimecode"
@@ -425,6 +432,16 @@ class Jupiter
             end
             if Jupiter::isInteger(givenCommand) then
                 workspaceSize = [givenCommand.to_i, 1].max
+                next
+            end
+            if givenCommand.start_with?(":") then
+                suffix = givenCommand[1,givenCommand.size]
+                if Jupiter::isInteger(suffix) then
+                    object = objects.drop(suffix.to_i-1).first
+                    if object then
+                        Jupiter::interactiveDisplayObjectAndProcessCommand(object)
+                    end
+                end
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
