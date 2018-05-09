@@ -141,8 +141,8 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("->") then
-            collection = expression[2, expression.size].strip
+        if expression.start_with?("c:view") then
+            collection = expression[6, expression.size].strip
             if collection.size==0 then
                 collection = Collections::selectExistingCollection()
             end
@@ -156,8 +156,8 @@ class Jupiter
             return
         end
 
-        if expression.start_with?(">>")  then
-            collection = expression[2, expression.size].strip
+        if expression.start_with?("c:add")  then
+            collection = expression[5, expression.size].strip
             if collection.size==0 then
                 collection = Collections::selectExistingOrNewCollection()
             end
@@ -269,14 +269,14 @@ class Jupiter
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
         puts "    show <requirement> # shows all the objects of that requirement"
-        puts "    -> [collection] # optional parameter # access a collection through parameter or selection"
+        puts "    c:view [collection] # optional parameter # access a collection through parameter or selection"
         puts ""
         puts "Special Object Commands:"
         puts "    expose # pring the object"
         puts "    !today"
         puts "    require <requirement>"
         puts "    unrequire <requirement>"
-        puts "    >> [collection] # optional parameter # send to a collection"
+        puts "    c:add [collection] # optional parameter # send to a collection"
         puts "    command ..."
         puts "    (+)datetimecode"
     end
