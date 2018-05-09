@@ -141,6 +141,30 @@ class Jupiter
             return
         end
 
+        if expression.start_with?("->") then
+            collection = expression[2, expression.size].strip
+            if collection.size==0 then
+                collection = Collections::selectExistingCollection()
+            end
+            loop {
+                uuids = Collections::getCollectionUUIDs(collection)
+                objects = CatalystObjects::all().select{|object| uuids.include?(object["uuid"]) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        if expression.start_with?(">>")  then
+            collection = expression[2, expression.size].strip
+            if collection.size==0 then
+                collection = Collections::selectExistingOrNewCollection()
+            end
+            Collections::addObjectToCollection(object["uuid"], collection)
+            return
+        end
+
         if expression.start_with?('+') then
             code = expression
             if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
@@ -196,6 +220,12 @@ class Jupiter
             return
         end
 
+        if expression.start_with?("unrequire") then
+            requirement = expression[9,expression.size].strip
+            RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
+            return
+        end
+
         if expression.start_with?("on") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setRequirementOn(requirement)
@@ -239,11 +269,14 @@ class Jupiter
         puts "    on <requirement>"
         puts "    off <requirement> <number of hours>"
         puts "    show <requirement> # shows all the objects of that requirement"
+        puts "    -> [collection] # optional parameter # access a collection through parameter or selection"
         puts ""
         puts "Special Object Commands:"
         puts "    expose # pring the object"
         puts "    !today"
         puts "    require <requirement>"
+        puts "    unrequire <requirement>"
+        puts "    >> [collection] # optional parameter # send to a collection"
         puts "    command ..."
         puts "    (+)datetimecode"
     end
@@ -345,7 +378,8 @@ class Jupiter
     def self.selectDisplayObjects()
         objects = CatalystObjects::all()
             .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
-            .select{|object| RequirementsOperator::meetRequirements(object['uuid']) }
+            .select{|object| RequirementsOperator::meetRequirements(object["uuid"]) }
+            .select{|object| Collections::objectIsNotInAnyCollection(object["uuid"]) }
             .select{|object| object["metric"] >= 0.2 }
         DoNotShowUntil::transform(objects)
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
@@ -360,6 +394,7 @@ class Jupiter
             objects = objects.take(workspaceSize)
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
+            puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".yellow
             selectedObject = objects.last
             objects.each{|object|
                 string =
@@ -402,6 +437,7 @@ end
 
 RequirementsOperator::init()
 DoNotShowUntil::init()
+Collections::init()
 
 # -----------------------------------------------------------------
 

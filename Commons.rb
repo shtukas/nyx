@@ -111,6 +111,14 @@ class RequirementsOperator
         RequirementsOperator::saveDataToDisk()
     end
 
+    def self.removeObjectRequirement(uuid,requirement)
+        requirements = @@data['items-requirements-distribution'][uuid] || []
+        requirements.delete(requirement)
+        requirements = requirements.uniq.sort
+        @@data['items-requirements-distribution'][uuid] = requirements
+        RequirementsOperator::saveDataToDisk()
+    end
+
     def self.setRequirementOn(requirement)
         @@data['requirements-status-timeline'][requirement] = true
         RequirementsOperator::saveDataToDisk()
@@ -199,3 +207,60 @@ class KillersCurvesManagement
         end
     end
 end
+
+# Collections::init()
+# Collections::addObjectToCollection(uuid, collection)
+# Collections::getCollectionUUIDs(collection)
+# Collections::getCollections()
+# Collections::selectExistingCollection()
+# Collections::selectExistingOrNewCollection()
+# Collections::objectIsNotInAnyCollection(uuid)
+
+class Collections
+    @@pathToDataFile = nil
+    @@data = nil
+
+    def self.init()
+        @@pathToDataFile = "/Galaxy/DataBank/Catalyst/collections.json"
+        @@data = JSON.parse(IO.read(@@pathToDataFile))
+    end
+
+    def self.saveDataToDisk()
+        File.open(@@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@@data)) }
+    end
+
+    def self.addObjectToCollection(uuid, collection)
+        @@data[collection] = [] if @@data[collection].nil?
+        @@data[collection] << uuid 
+        @@data[collection] = @@data[collection].uniq
+        Collections::saveDataToDisk()
+    end
+
+    def self.getCollectionUUIDs(collection)
+        @@data[collection]
+    end
+
+    def self.getCollections()
+        @@data.keys
+    end
+
+    def self.selectExistingCollection()
+        collections = @@data.keys
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collection", collections)
+    end
+
+    def self.selectExistingOrNewCollection()
+        collections = @@data.keys
+        collection = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collection", collections)
+        if collection.nil? then
+            collection = LucilleCore::askQuestionAnswerAsString("new collection: ")
+        end
+        collection
+    end
+
+    def self.objectIsNotInAnyCollection(uuid)
+        @@data.keys.all?{|collection| !@@data[collection].include?(uuid) }
+    end
+
+end
+

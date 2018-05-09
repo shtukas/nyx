@@ -55,8 +55,9 @@ require_relative "ViennaKiller.rb"
 
 # ----------------------------------------------------------------------
 
+# CatalystObjects::all()
+
 class CatalystObjects
-    # CatalystObjects::all()
     def self.all()
 
         sources = [
