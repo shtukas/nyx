@@ -444,8 +444,10 @@ class Jupiter
                 end
                 next
             end
-            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-            Jupiter::doExecute(object, command)
+            if givenCommand=="." then
+                givenCommand = object["default-expression"] ? object["default-expression"] : ""
+            end
+            Jupiter::doExecute(object, givenCommand)
         }
     end
 end
