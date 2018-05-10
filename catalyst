@@ -209,7 +209,7 @@ class Jupiter
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
+            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             puts "created item: #{folderpath}"

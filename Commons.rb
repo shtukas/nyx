@@ -82,7 +82,7 @@ class RequirementsOperator
     @@data = nil
 
     def self.init()
-        @@pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements/requirements-structure.json"
+        @@pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements.json"
         @@data = JSON.parse(IO.read(@@pathToDataFile))
     end
 

@@ -621,7 +621,7 @@ class WaveInterface
 
         if command=='>stream' then
             sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/strm2/#{LucilleCore::timeStringL22()}"
+            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
             WaveTimelineUtils::archiveWaveItems(objectuuid) 

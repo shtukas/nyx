@@ -46,9 +46,7 @@ require_relative "Today.rb"
 require_relative "TimeCommitments.rb"
 require_relative "StreamKiller.rb"
 require_relative "GuardianTime.rb"
-require_relative "x-laniakea.rb"
 require_relative "Kimchee.rb"
-require_relative "x-laniakea-killer.rb"
 require_relative "Vienna.rb"
 require_relative "ViennaKiller.rb"
 require_relative "OpenProjects.rb"
@@ -68,9 +66,7 @@ class CatalystObjects
             ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
             ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],
             ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }],
-            ["XLaniakea", lambda { XLaniakea::getCatalystObjects() }],
             ["Kimchee", lambda{ Kimchee::getCatalystObjects() }],
-            ["XLaniakeaKiller", lambda{ XLaniakeaKiller::getCatalystObjects() }],
             ["Vienna", lambda{ Vienna::getCatalystObjects() }],
             ["ViennaKiller", lambda{ ViennaKiller::getCatalystObjects() }],
             ["OpenProjects", lambda{ OpenProjects::getCatalystObjects() }]
