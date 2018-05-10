@@ -61,7 +61,7 @@ class CatalystObjects
         sources = [
             ["Wave", lambda { WaveInterface::getCatalystObjects() }],
             ["Ninja", lambda { Ninja::getCatalystObjects() }],
-            ["Stream", lambda { Stream::getCatalystObjectsFirst6() }],
+            ["Stream", lambda { Stream::getCatalystObjectsSix() }],
             ["Today", lambda { Today::getCatalystObjects() }],
             ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
             ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],

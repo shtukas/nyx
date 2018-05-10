@@ -143,8 +143,15 @@ class Stream
             .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
     end
 
-    def self.getCatalystObjectsFirst6()
+    def self.getCatalystObjectsSix()
         Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+            .first(6)
+            .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
+    end
+
+    def self.getCatalystObjectsSixToTwelve()
+        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+            .drop(6)
             .first(6)
             .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
     end

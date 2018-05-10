@@ -100,7 +100,7 @@ class StreamKiller
         curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream")
         idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
         metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
-        targetobject = Stream::getCatalystObjects().sample
+        targetobject = Stream::getCatalystObjectsSixToTwelve().sample
         if targetobject then
             targetobject["metric"] = metric1
             targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
