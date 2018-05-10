@@ -435,7 +435,6 @@ class Jupiter
                 puts string
             }
             object = selectedObject
-            puts ""
             print "--> "
             givenCommand = STDIN.gets().strip
             if givenCommand=="+" then
