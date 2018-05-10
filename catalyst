@@ -485,7 +485,15 @@ Thread.new {
 Thread.new {
     loop {
         sleep 600
-        CatalystArchivesOps::archivesGarbageCollection(true)
+        count = CatalystArchivesOps::archivesGarbageCollection(false)
+        if count>0 then
+            description = "#{Time.new.to_s} : CatalystArchivesOps::archivesGarbageCollection: #{count} files"
+            uuid = SecureRandom.hex(4)
+            folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        end
     }
 }
 
