@@ -74,42 +74,26 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 #                                   = 1
 
 # StreamKiller::getCatalystObjects()
-# StreamKiller::getTargetUUIDOrNull()
-# StreamKiller::getObjectForTargetUUIDOrNull(targetuuid)
 
 class StreamKiller
-    def self.getTargetUUIDOrNull()
-        targetuuid = FIFOQueue::getFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613")
-        if targetuuid.nil? then
-            Stream::getUUIDs().shuffle.each{|uuid|
-                FIFOQueue::push(nil, "6e724d6b-8273-49cb-8115-c7de81125613", uuid)
-            }
-        end
-        FIFOQueue::getFirstOrNull(nil, "6e724d6b-8273-49cb-8115-c7de81125613")
+    @@killerMetric = nil
+    def self.setKillerMetric(metric)
+        @@killerMetric = metric
     end
-
-    def self.getObjectForTargetUUIDOrNull(targetuuid)
-        Stream::getCatalystObjects()
-            .select{|object| object["uuid"]==targetuuid }
-            .first
-    end
-
     def self.getCatalystObjects()
-        currentCount1 = Dir.entries("/Galaxy/DataBank/Catalyst/Stream").size
-        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream", currentCount1)
-        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream")
-        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
-        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
-        targetobject = Stream::getCatalystObjectsLastFew().sample
+        if @@killerMetric.nil? then
+            return []
+        end
+        targetobject = Stream::getCatalystObjects().sample
         if targetobject then
-            targetobject["metric"] = metric1
+            targetobject["metric"] = @@killerMetric
             targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
             [ targetobject ]
         else
             [
                 {
                     "uuid" => SecureRandom.hex(4),
-                    "metric" => metric1,
+                    "metric" => @@killerMetric,
                     "announce" => "-> stream killer could not retrieve a targetuuid",
                     "commands" => [],
                     "command-interpreter" => lambda{|object, command| }
@@ -118,3 +102,17 @@ class StreamKiller
         end
     end
 end
+
+Thread.new {
+    loop {
+        sleep 43
+        currentCount1 = Dir.entries("/Galaxy/DataBank/Catalyst/Stream").size
+        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream", currentCount1)
+        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream")
+        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
+        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
+        StreamKiller::setKillerMetric(metric1)
+    }
+}
+
+

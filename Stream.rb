@@ -144,14 +144,6 @@ class Stream
             .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
     end
 
-    def self.getCatalystObjectsLastFew()
-        folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-        folderpaths
-            .drop(folderpaths.size-100)
-            .sample(10)
-            .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
-    end
-
 end
 
 # -------------------------------------------------------------------------------------

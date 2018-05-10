@@ -64,22 +64,24 @@ require_relative "Vienna.rb"
 # ViennaKiller::getCatalystObjects()
 
 class ViennaKiller
+    @@killerMetric = nil
+    def self.setKillerMetric(metric)
+        @@killerMetric = metric
+    end
     def self.getCatalystObjects()
-        currentCount1 = Vienna::getUnreadLinks().size
-        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna", currentCount1)
-        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna")
-        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
-        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)        
+        if @@killerMetric.nil? then
+            return []
+        end
         targetobject = Vienna::getCatalystObjects().first
         if targetobject then
-            targetobject["metric"] = metric1
+            targetobject["metric"] = @@killerMetric
             targetobject["announce"] = "(vienna killer) #{targetobject["announce"]}"
             [ targetobject ]
         else
             [
                 {
                     "uuid" => SecureRandom.hex(4),
-                    "metric" => metric1,
+                    "metric" => @@killerMetric,
                     "announce" => "-> vienna killer could not retrieve a targetuuid",
                     "commands" => [],
                     "command-interpreter" => lambda{|object, command| }
@@ -88,4 +90,16 @@ class ViennaKiller
         end
     end
 end
+
+Thread.new {
+    loop {
+        sleep 37
+        currentCount1 = Vienna::getUnreadLinks().size
+        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna", currentCount1)
+        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna")
+        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
+        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
+        ViennaKiller::setKillerMetric(metric1)
+    }
+}
 
