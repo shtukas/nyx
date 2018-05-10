@@ -81,7 +81,8 @@ class Stream
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "is-running" => isRunning,
             "item-folderpath" => folderpath,
-            "item-folder-probe-metadata" => folderProbeMetadata
+            "item-folder-probe-metadata" => folderProbeMetadata,
+            "item-status" => status
         }
     end
 
@@ -143,16 +144,11 @@ class Stream
             .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
     end
 
-    def self.getCatalystObjectsSix()
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-            .first(6)
-            .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
-    end
-
-    def self.getCatalystObjectsSixToTwelve()
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-            .drop(6)
-            .first(6)
+    def self.getCatalystObjectsLastFew()
+        folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+        folderpaths
+            .drop(folderpaths.size-100)
+            .sample(10)
             .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
     end
 
