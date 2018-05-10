@@ -122,7 +122,7 @@ class Jupiter
         end
 
         if expression == 'info' then
-            puts "WaveDevOps::getArchiveSizeInMegaBytes(): #{WaveDevOps::getArchiveSizeInMegaBytes()}".green
+            puts "CatalystArchivesOps::getArchiveSizeInMegaBytes(): #{CatalystArchivesOps::getArchiveSizeInMegaBytes()}".green
             puts "Todolists".green
             puts "    Stream: count: #{( count1 = Stream::getUUIDs().size )}".green
             puts "    Vienna count: #{(count3 = Vienna::getUnreadLinks().count)}".green
@@ -412,7 +412,7 @@ class Jupiter
     def self.main2()
         workspaceSize = 1
         loop {
-            WaveDevOps::archivesGarbageCollection(true)
+            CatalystArchivesOps::archivesGarbageCollection(true)
             objects = Jupiter::selectDisplayObjects()
             objects = objects.take(workspaceSize)
             system("clear")

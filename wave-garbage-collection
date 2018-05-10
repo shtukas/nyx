@@ -6,6 +6,6 @@ require_relative "Wave.rb"
 
 # ----------------------------------------------------------------------------
 
-puts WaveDevOps::getArchiveSizeInMegaBytes()
-WaveDevOps::archivesGarbageCollection(true)
+puts CatalystArchivesOps::getArchiveSizeInMegaBytes()
+CatalystArchivesOps::archivesGarbageCollection(true)
 

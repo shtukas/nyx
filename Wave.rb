@@ -458,55 +458,9 @@ class WaveSchedules
     end
 end
 
-# WaveDevOps::today()
-# WaveDevOps::getArchiveSizeInMegaBytes()
-# WaveDevOps::getFirstDiveFirstLocationAtLocation(location)
-# WaveDevOps::archivesGarbageCollection(verbose): Int # number of items removed
 # WaveDevOps::collectWaveObjects()
 
 class WaveDevOps
-
-    def self.today()
-        DateTime.now.to_date.to_s
-    end
-
-    def self.getArchiveSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
-    end
-
-    def self.getFirstDiveFirstLocationAtLocation(location)
-        if File.file?(location) then
-            location
-        else
-            locations = Dir.entries(location)
-                .select{|filename| filename!='.' and filename!='..' }
-                .sort
-                .map{|filename| "#{location}/#{filename}" }
-            if locations.size==0 then
-                location
-            else
-                locationsdirectories = locations.select{|location| File.directory?(location) }
-                if locationsdirectories.size>0 then
-                    WaveDevOps::getFirstDiveFirstLocationAtLocation(locationsdirectories.first)
-                else
-                    locations.first
-                end
-            end
-        end
-    end
-
-    def self.archivesGarbageCollection(verbose)
-        answer = 0
-        while WaveDevOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = WaveDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
-            break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
-            puts "Garbage Collection: Removing: #{location}" if verbose
-            LucilleCore::removeFileSystemLocation(location)
-            answer = answer + 1
-        end
-        answer
-    end
-
     def self.collectWaveObjects()
         Dir.entries(WAVE_DROPOFF_FOLDERPATH)
             .select{|filename| filename[0, 1] != '.' }
