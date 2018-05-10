@@ -77,7 +77,7 @@ class Jupiter
                 LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
             rescue
             end
-        end    
+        end
     end
 
     def self.screenHeight()
@@ -261,7 +261,7 @@ class Jupiter
         end
 
         if expression.start_with?("off") then
-            command, requirement = expression.split(" ")    
+            command, requirement = expression.split(" ")
             RequirementsOperator::setRequirementOff(requirement)
             return
         end
@@ -306,11 +306,11 @@ class Jupiter
     def self.editTextUsingTextmate(text)
       filename = SecureRandom.hex
       filepath = "/tmp/#{filename}"
-      File.open(filepath, 'w') {|f| f.write(text)}  
+      File.open(filepath, 'w') {|f| f.write(text)}
       system("/usr/local/bin/mate \"#{filepath}\"")
       print "> press enter when done: "
       input = STDIN.gets
-      IO.read(filepath)  
+      IO.read(filepath)
     end
 
     def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
@@ -351,7 +351,7 @@ class Jupiter
                 end
             end
         else
-            # Here we expect "YYYY-MM-DD" or "YYYY-MM-DD@HH:MM" 
+            # Here we expect "YYYY-MM-DD" or "YYYY-MM-DD@HH:MM"
             if code.index('@') then
                 part1 = code[0,10]
                 part2 = code[11,999]
@@ -475,7 +475,7 @@ Collections::init()
 
 # -----------------------------------------------------------------
 
-Thread.new { 
+Thread.new {
     sleep 6
     Jupiter::emailSyncOnSchedule(false)
     loop {
