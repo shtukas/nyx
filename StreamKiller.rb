@@ -95,7 +95,7 @@ class StreamKiller
     end
 
     def self.getCatalystObjects()
-        currentCount1 = Dir.entries("/Galaxy/DataBank/Catalyst/Stream/strm1").size
+        currentCount1 = Dir.entries("/Galaxy/DataBank/Catalyst/Stream").size
         KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream", currentCount1)
         curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream")
         idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)

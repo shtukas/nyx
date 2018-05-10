@@ -350,16 +350,24 @@ class Jupiter
     end
 
     def self.object2Line_v0(object)
+        announce = object['announce'].lines.first.strip
+        if object["metric"]>1 then
+            announce = announce.green
+        end
         doNotShowUntilAsString = object["do-not-show-until-datetime"] ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
-            " #{object['announce'].lines.first.strip}",
+            " #{announce}",
             "#{doNotShowUntilAsString}",
         ].join()
     end
 
     def self.object2Line_v1(object)
+        announce = object['announce'].strip
+        if object["metric"]>1 then
+            announce = announce.green
+        end
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
@@ -367,7 +375,7 @@ class Jupiter
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
-            " #{object['announce'].strip}",
+            " #{announce}",
             "#{requirementsAsString.green}",
             "#{doNotShowUntilAsString}",
             " (#{object["commands"].join(" ").red})",
@@ -410,12 +418,6 @@ class Jupiter
                     else
                         "    #{Jupiter::object2Line_v0(object)}"
                     end
-                string =
-                    if object["metric"]>1 then
-                        string.green
-                    else
-                        string
-                    end
                 puts string
             }
             object = selectedObject
@@ -444,10 +446,8 @@ class Jupiter
                 end
                 next
             end
-            if givenCommand=="." then
-                givenCommand = object["default-expression"] ? object["default-expression"] : ""
-            end
-            Jupiter::doExecute(object, givenCommand)
+            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+            Jupiter::doExecute(object, command)
         }
     end
 end
