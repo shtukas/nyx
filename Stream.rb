@@ -183,8 +183,8 @@ Stream::setObjectsCache(
 
 Thread.new {
     loop {
-        sleep 143
         Stream::setObjectsCache(Stream::getCatalystObjectsFromDisk())
+        sleep 143
     }
 }
 

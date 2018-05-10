@@ -171,7 +171,7 @@ OpenProjects::setObjectsCache(
 
 Thread.new {
     loop {
-        sleep 73
         OpenProjects::setObjectsCache(OpenProjects::getCatalystObjectsFromDisk())
+        sleep 73
     }
 }

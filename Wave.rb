@@ -408,7 +408,7 @@ class WaveObjects
         ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", ">open-projects", '>lib']
     end
 
-    def self.defaultExpression(folderProbeMetadata)
+    def self.defaultExpression(folderProbeMetadata, schedule)
         if folderProbeMetadata["target-type"] == "openable-file" then
             return "open done"
         end
@@ -417,6 +417,18 @@ class WaveObjects
         end
         if folderProbeMetadata["target-type"] == "folder" then
             return "open"
+        end
+        if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "every-n-hours" then
+            return "done"
+        end
+        if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "every-n-days" then
+            return "done"
+        end
+        if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "every-this-day-of-the-month" then
+            return "done"
+        end
+        if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "every-this-day-of-the-week" then
+            return "done"
         end
         nil
     end
@@ -437,7 +449,7 @@ class WaveObjects
         object['metric'] = metric
         object['announce'] = announce
         object['commands'] = WaveObjects::commands(folderProbeMetadata)
-        object["default-expression"] = WaveObjects::defaultExpression(folderProbeMetadata)
+        object["default-expression"] = WaveObjects::defaultExpression(folderProbeMetadata, schedule)
         object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
         object['schedule'] = schedule
         object["item-folder-probe-metadata"] = folderProbeMetadata
@@ -601,7 +613,7 @@ WaveObjects::setObjectsCache(
 
 Thread.new {
     loop {
-        sleep 143
         WaveObjects::setObjectsCache(WaveObjects::getCatalystObjectsFromDisk())
+        sleep 143
     }
 }
