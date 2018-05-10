@@ -35,7 +35,7 @@ require 'colorize'
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getuuid(folderpath)
 # Stream::getUUIDs()
-# Stream::folderpathToCatalystObject(folderpath, indx, streamName)
+# Stream::folderpathToCatalystObject(folderpath)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjectsFromDisk()
@@ -102,7 +102,7 @@ class Stream
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
-            Jupiter::interactiveDisplayObjectAndProcessCommand(folderpathToCatalystObject(object["item-folderpath"], object["item-indx"], object["item-stream-name"]))
+            Jupiter::interactiveDisplayObjectAndProcessCommand(folderpathToCatalystObject(object["item-folderpath"]))
         end
         if command=='start' then
             metadata = object["item-folder-probe-metadata"]
