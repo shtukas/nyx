@@ -486,6 +486,7 @@ class WaveInterface
         if command=='open' then
             metadata = object["item-folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
+            WaveObjects::updateObjectsCacheOnThisObject(object)
         end
 
         if command=='done' then
@@ -526,6 +527,8 @@ class WaveInterface
                 schedule = WaveSchedules::cycleSchedule(schedule)
                 WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
+
+            WaveObjects::updateObjectsCacheOnThisObject(object)
         end
 
         if command=='recast' then
@@ -533,6 +536,7 @@ class WaveInterface
             objectuuid = object['uuid']
             schedule = WaveObjects::makeNewSchedule()
             WaveObjects::writeScheduleToDisk(objectuuid, schedule)
+            WaveObjects::updateObjectsCacheOnThisObject(object)
         end
 
         if command=='folder' then
@@ -545,6 +549,7 @@ class WaveInterface
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 WaveObjects::archiveWaveItems(objectuuid)
             end
+            WaveObjects::updateObjectsCacheOnThisObject(object)
         end
 
         if command=='>stream' then
@@ -553,6 +558,7 @@ class WaveInterface
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveObjects::removeWaveMetadataFilesAtLocation(targetfolderpath)
             WaveObjects::archiveWaveItems(objectuuid)
+            WaveObjects::updateObjectsCacheOnThisObject(object)
         end
 
         if command=='>open-projects' then
@@ -561,6 +567,7 @@ class WaveInterface
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveObjects::removeWaveMetadataFilesAtLocation(targetfolderpath)
             WaveObjects::archiveWaveItems(objectuuid)
+            WaveObjects::updateObjectsCacheOnThisObject(object)
         end
 
         if command=='>lib' then
@@ -576,6 +583,7 @@ class WaveInterface
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             WaveObjects::archiveWaveItems(objectuuid)
+            WaveObjects::updateObjectsCacheOnThisObject(object)
         end
 
         nil

@@ -62,6 +62,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 OpenProjects_PATH_TO_REPOSITORY = "/Galaxy/DataBank/Catalyst/Open-Projects"
 
+# OpenProjects::updateObjectsCacheOnThisObject(object)
 # OpenProjects::getCatalystObjects()
 
 # OpenProjects::folderpaths(itemsfolderpath)
@@ -143,13 +144,16 @@ class OpenProjects
             metadata = object["item-folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(object["uuid"])
+            OpenProjects::updateObjectsCacheOnThisObject(object)
         end
         if command=='stop' then
             GenericTimeTracking::stop(object["uuid"])
+            OpenProjects::updateObjectsCacheOnThisObject(object)
         end
         if command=="completed" then
             GenericTimeTracking::stop(object["uuid"])
             OpenProjects::performObjectClosing(object)
+            OpenProjects::updateObjectsCacheOnThisObject(object)
         end
         if command=="folder" then
             system("open '#{object["item-folderpath"]}'")
