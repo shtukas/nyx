@@ -90,7 +90,7 @@ class CatalystObjects
             objects << {
                 "uuid"                => SecureRandom.hex(4),
                 "metric"              => 0.8 - Math.exp(-xtime),
-                "announce"            => "-> Catalyst generation is taking too long for #{offender["domain"]} (#{offender["time"]} seconds)",
+                "announce"            => "-> #{offender["domain"]} generation is taking too long (#{offender["time"]} seconds)",
                 "commands"            => [],
                 "command-interpreter" => lambda{ |object, command| }
             }
