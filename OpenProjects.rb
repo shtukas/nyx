@@ -80,6 +80,17 @@ class OpenProjects
         IO.read("#{folderpath}/.uuid").strip
     end
 
+    def self.performObjectClosing(object)
+        time = Time.new
+        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath targetFolder
+        puts "source: #{object['item-folderpath']}"
+        puts "target: #{targetFolder}"
+        FileUtils.mkpath(targetFolder)
+        LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
+        LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+    end
+
     def self.getCatalystObjects()
         OpenProjects::folderpaths(OpenProjects_PATH_TO_REPOSITORY)
         .map{|folderpath|
@@ -92,7 +103,7 @@ class OpenProjects
                 "uuid" => uuid,
                 "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1),
                 "announce" => announce,
-                "commands" => isRunning ? ["stop"] : ["start"],
+                "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed"],
                 "command-interpreter" => lambda{|object, command|
                     if command=='start' then
                         metadata = object["item-folder-probe-metadata"]
@@ -101,6 +112,10 @@ class OpenProjects
                     end
                     if command=='stop' then
                         GenericTimeTracking::stop(object["uuid"])
+                    end
+                    if command=="completed" then
+                        GenericTimeTracking::stop(object["uuid"])
+                        OpenProjects::performObjectClosing(object)
                     end
                 },
                 "item-folder-probe-metadata" => folderProbeMetadata
