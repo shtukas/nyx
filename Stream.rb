@@ -60,7 +60,7 @@ class Stream
     end
 
     def self.getUUIDs()
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER)
+        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
             .map{|folderpath| Stream::getuuid(folderpath) }
     end
 
@@ -117,7 +117,7 @@ class Stream
         end
         if command=='rotate' then
             sourcelocation = object["item-folderpath"]
-            targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{LucilleCore::timeStringL22()}"
+            targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
         end
         if command=='>lib' then
@@ -137,12 +137,12 @@ class Stream
     end
 
     def self.getCatalystObjects()
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER)
+        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
             .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
     end
 
     def self.getCatalystObjectsFirst6()
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER)
+        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
             .first(6)
             .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
     end

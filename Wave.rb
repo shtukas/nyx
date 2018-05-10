@@ -164,7 +164,7 @@ class WaveTimelineUtils
     end
 
     def self.commands(folderProbeMetadata)
-        ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", '>lib']
+        ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", ">open-projects", '>lib']
     end
 
     def self.defaultExpression(folderProbeMetadata)
@@ -621,7 +621,15 @@ class WaveInterface
 
         if command=='>stream' then
             sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{LucilleCore::timeStringL22()}"
+            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mv(sourcelocation, targetfolderpath)
+            WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
+            WaveTimelineUtils::archiveWaveItems(objectuuid) 
+        end
+
+        if command=='>open-projects' then
+            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
             WaveTimelineUtils::archiveWaveItems(objectuuid) 

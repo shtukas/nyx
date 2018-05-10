@@ -13,7 +13,8 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 # ----------------------------------------------------------------
 
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
-CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
+CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
+CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Open-Projects"
 
 # Saturn::currentHour()
 # Saturn::currentDay()

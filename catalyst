@@ -209,7 +209,17 @@ class Jupiter
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DOMAIN_FOLDER}/#{LucilleCore::timeStringL22()}"
+            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            puts "created item: #{folderpath}"
+            return
+        end
+
+        if expression.start_with?('open-project:') then
+            description = expression[7, expression.size].strip
+            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             puts "created item: #{folderpath}"
@@ -269,8 +279,9 @@ class Jupiter
         puts "    c:show [collection]  # optional parameter # shows all the objects of that collection"
         puts ""
         puts "Special General Commands (inserts)"
-        puts "    wave: <wave description>"
-        puts "    stream: <stream description>"
+        puts "    wave: <description>"
+        puts "    stream: <description>"
+        puts "    open-project: <description>"
         puts ""
         puts "Special General Commands (special circumstances)"
         puts "    clear # clear the screen"
