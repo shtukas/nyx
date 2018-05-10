@@ -105,6 +105,7 @@ class OpenProjects
                 "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1),
                 "announce" => announce,
                 "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
+                "default-expression" => isRunning ? "" : "start",
                 "command-interpreter" => lambda{|object, command|
                     if command=='start' then
                         metadata = object["item-folder-probe-metadata"]
