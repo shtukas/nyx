@@ -114,6 +114,7 @@ class Stream
         puts "source: #{object['item-folderpath']}"
         puts "target: #{targetFolder}"
         FileUtils.mkpath(targetFolder)
+        return if !File.exists?(object['item-folderpath'])
         LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
         LucilleCore::removeFileSystemLocation(object['item-folderpath'])
     end
@@ -122,7 +123,9 @@ class Stream
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
-            Jupiter::interactiveDisplayObjectAndProcessCommand(folderpathToCatalystObject(object["item-folderpath"]))
+            object1 = Stream::folderpathToCatalystObjectOrNull(object["item-folderpath"])
+            return if object1.nil?
+            Jupiter::interactiveDisplayObjectAndProcessCommand(object1)
         end
         if command=='start' then
             metadata = object["item-folder-probe-metadata"]
@@ -142,7 +145,7 @@ class Stream
         end
         if command=='rotate' then
             sourcelocation = object["item-folderpath"]
-            targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             Stream::updateObjectsCacheOnThisObject(object)
         end
