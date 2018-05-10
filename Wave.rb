@@ -397,8 +397,9 @@ class WaveObjects
     def self.archiveWaveItems(uuid)
         folderpath = WaveObjects::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
+        retrun if !File.exists?(folderpath)
         time = Time.new
-        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
+        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(targetFolder)
         FileUtils.mv("#{folderpath}",targetFolder)
     end
