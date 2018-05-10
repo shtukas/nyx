@@ -54,10 +54,10 @@ require_relative "OpenProjects.rb"
 # ----------------------------------------------------------------------
 
 # CatalystObjects::all()
+# CatalystObjects::structure1()
 
 class CatalystObjects
-    def self.all()
-
+    def self.structure1()
         sources = [
             ["Wave", lambda { WaveInterface::getCatalystObjects() }],
             ["Ninja", lambda { Ninja::getCatalystObjects() }],
@@ -71,8 +71,7 @@ class CatalystObjects
             ["ViennaKiller", lambda{ ViennaKiller::getCatalystObjects() }],
             ["OpenProjects", lambda{ OpenProjects::getCatalystObjects() }]
         ]
-
-        struct1 = sources.map{|pair|
+        sources.map{|pair|
             startTime = Time.new.to_f
             xobjects  = pair[1].call()
             queryTime = Time.new.to_f - startTime
@@ -81,10 +80,11 @@ class CatalystObjects
                 "objects" => xobjects,
                 "time"    => queryTime
             }
-        }
-
+        }        
+    end
+    def self.all()
+        struct1 = CatalystObjects::structure1()
         objects = struct1.map{|s| s["objects"] }.flatten
-
         if (xtime = struct1.map{|s| s["time"] }.inject(0, :+)) > 1 then
             offender = struct1.sort{|s1,s2| s1["time"]<=>s2["time"] }.last
             objects << {
@@ -95,7 +95,6 @@ class CatalystObjects
                 "command-interpreter" => lambda{ |object, command| }
             }
         end
-        
         objects = DoNotShowUntil::transform(objects)
         objects
     end

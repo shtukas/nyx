@@ -123,10 +123,14 @@ class Jupiter
 
         if expression == 'info' then
             puts "CatalystArchivesOps::getArchiveSizeInMegaBytes(): #{CatalystArchivesOps::getArchiveSizeInMegaBytes()}".green
-            puts "Todolists".green
+            puts "Todolists:".green
             puts "    Stream: count: #{( count1 = Stream::getUUIDs().size )}".green
             puts "    Vienna count: #{(count3 = Vienna::getUnreadLinks().count)}".green
             puts "Todolists total count: #{(count1+count3)}".green
+            puts "Domains:".green
+            CatalystObjects::structure1()
+                .sort{|s1,s2| s1["time"]<=>s2["time"] }
+                .each{|s| puts "    #{s["domain"].ljust(20)}: #{("%.3f" % s["time"])} : #{"%5d" % s["objects"].count} objects".green }
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
             puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".green
             LucilleCore::pressEnterToContinue()
