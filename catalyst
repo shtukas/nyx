@@ -193,11 +193,11 @@ class Jupiter
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             uuid = SecureRandom.hex(4)
             schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
-            folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-            File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
-            WaveTimelineUtils::writeScheduleToDisk(uuid, schedule)
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            WaveObjects::writeScheduleToDisk(uuid, schedule)
             if schedule["@"]=="new" then
                 code = LucilleCore::askQuestionAnswerAsString("datecode (or empty): ")
                 if (datetime = Jupiter::codeToDatetimeOrNull(code)) then

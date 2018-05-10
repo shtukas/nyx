@@ -54,35 +54,44 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
-WAVE_TIME_COMMITMENT_BASE_METRIC = 0.3
-WAVE_TIME_COMMITMENT_RUN_METRIC = 2.2
 WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # ----------------------------------------------------------------------
 
-# WaveTimelineUtils::catalystActiveOpsLineFolderPath()
-# WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-# WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-# WaveTimelineUtils::catalystUUIDsEnumerator()
-# WaveTimelineUtils::timestring22ToFolderpath(timestring22)
-# WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
-# WaveTimelineUtils::readScheduleFromWaveItemOrNull(uuid)
-# WaveTimelineUtils::makeNewSchedule()
-# WaveTimelineUtils::archiveWaveItems(uuid)
-# WaveTimelineUtils::commands(schedule)
-# WaveTimelineUtils::objectuuidToCatalystObject(objectuuid)
-# WaveTimelineUtils::getCatalystObjects()
-# WaveTimelineUtils::objectUUIDToAnnounce(object,schedule)
-# WaveTimelineUtils::removeWaveMetadataFilesAtLocation(location)
+# WaveObjects::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+# WaveObjects::catalystUUIDToItemFolderPathOrNull(uuid)
+# WaveObjects::catalystUUIDsEnumerator()
+# WaveObjects::timestring22ToFolderpath(timestring22)
+# WaveObjects::writeScheduleToDisk(uuid,schedule)
+# WaveObjects::readScheduleFromWaveItemOrNull(uuid)
+# WaveObjects::makeNewSchedule()
+# WaveObjects::archiveWaveItems(uuid)
+# WaveObjects::commands(schedule)
+# WaveObjects::objectuuidToCatalystObjectOrNull(objectuuid)
+# WaveObjects::getCatalystObjects()
+# WaveObjects::objectUUIDToAnnounce(object,schedule)
+# WaveObjects::removeWaveMetadataFilesAtLocation(location)
 
-class WaveTimelineUtils
+class WaveObjects
 
-    def self.catalystActiveOpsLineFolderPath()
-        "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active"
+    @@objectsCache = []
+
+    def self.setObjectsCache(envelop)
+        @@objectsCache = envelop
+    end
+
+    def self.updateObjectsCacheOnThisObject(object)
+        thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
+        newObject = WaveObjects::objectuuidToCatalystObjectOrNull(object["uuid"])
+        @@objectsCache = (theOtherOnes + [newObject]).compact
+    end
+
+    def self.getCatalystObjects()
+        @@objectsCache
     end
 
     def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        Find.find(WaveTimelineUtils::catalystActiveOpsLineFolderPath()) do |path|
+        Find.find("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") do |path|
             next if !File.file?(path)
             next if File.basename(path)!='catalyst-uuid'
             thisUUID = IO.read(path).strip
@@ -103,15 +112,15 @@ class WaveTimelineUtils
                 end
             end
         end
-        #puts "WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
-        maybepath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+        #puts "WaveObjects::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
+        maybepath = WaveObjects::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         KeyValueStore::set(nil, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
         maybepath
     end
 
     def self.catalystUUIDsEnumerator()
         Enumerator.new do |uuids|
-            Find.find(WaveTimelineUtils::catalystActiveOpsLineFolderPath()) do |path|
+            Find.find("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") do |path|
                 next if !File.file?(path)
                 next if File.basename(path) != 'catalyst-uuid'
                 uuids << IO.read(path).strip
@@ -120,24 +129,18 @@ class WaveTimelineUtils
     end
 
     def self.timestring22ToFolderpath(timestring22) # 20170923-143534-341733
-        "#{WaveTimelineUtils::catalystActiveOpsLineFolderPath()}/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
+        "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
     end
 
     def self.writeScheduleToDisk(uuid,schedule)
-        folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::writeScheduleToDisk for uuid: #{uuid}" if folderpath.nil?
-
-        # There is in principle no reason why the following test would be there, but when 
-        # I manually remove a folder and press [enter], since [enter] updates catalyst-schedule.json the program crashes.
+        folderpath = WaveObjects::catalystUUIDToItemFolderPathOrNull(uuid)
         return if !File.exists?(folderpath)
-
         LucilleCore::removeFileSystemLocation("#{folderpath}/catalyst-schedule.json")
         File.open("#{folderpath}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
     end
 
     def self.readScheduleFromWaveItemOrNull(uuid)
-        folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::readScheduleFromWaveItemOrNull for uuid: #{uuid}" if folderpath.nil?
+        folderpath = WaveObjects::catalystUUIDToItemFolderPathOrNull(uuid)
         filepath = 
             if File.exists?("#{folderpath}/wave-schedule.json") then
                 "#{folderpath}/wave-schedule.json"
@@ -155,7 +158,7 @@ class WaveTimelineUtils
     end
 
     def self.archiveWaveItems(uuid)
-        folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = WaveObjects::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         time = Time.new
         targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
@@ -180,35 +183,33 @@ class WaveTimelineUtils
         "done"
     end
 
-    def self.objectuuidToCatalystObject(objectuuid)
-        location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-        if location.nil? then
-            puts "Could not find location for uuid: #{location}"
-            exit
-        end
-        schedule = WaveTimelineUtils::readScheduleFromWaveItemOrNull(objectuuid)
+    def self.objectuuidToCatalystObjectOrNull(objectuuid)
+        location = WaveObjects::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        return nil if location.nil?
+        schedule = WaveObjects::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
             puts "Could not find schedule for location: #{location}"
             exit
         end
         folderProbeMetadata = FolderProbe::folderpath2metadata(location)
         metric = WaveSchedules::scheduleToMetric(schedule)
-        announce = WaveTimelineUtils::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        announce = WaveObjects::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object = {}
         object['uuid'] = objectuuid
         object['metric'] = metric
         object['announce'] = announce
-        object['commands'] = WaveTimelineUtils::commands(folderProbeMetadata)
-        object["default-expression"] = WaveTimelineUtils::defaultExpression(folderProbeMetadata)
+        object['commands'] = WaveObjects::commands(folderProbeMetadata)
+        object["default-expression"] = WaveObjects::defaultExpression(folderProbeMetadata)
         object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
         object['schedule'] = schedule
         object["item-folder-probe-metadata"] = folderProbeMetadata
         object
     end
 
-    def self.getCatalystObjects()
-        WaveTimelineUtils::catalystUUIDsEnumerator()
-            .map{|objectuuid| WaveTimelineUtils::objectuuidToCatalystObject(objectuuid) }
+    def self.getCatalystObjectsFromDisk()
+        WaveObjects::catalystUUIDsEnumerator()
+            .map{|objectuuid| WaveObjects::objectuuidToCatalystObjectOrNull(objectuuid) }
+            .compact
     end
 
     def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
@@ -236,20 +237,9 @@ end
 # WaveSchedules::scheduleToAnnounce(schedule)
 # WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
 # WaveSchedules::cycleSchedule(schedule)
-# WaveSchedules::traceToRealInUnitInterval(trace)
-# WaveSchedules::traceToMetricShift(trace)
 # WaveSchedules::scheduleToMetric(schedule)
 
 class WaveSchedules
-
-    def self.makeScheduleObjectNew()
-        {
-            "uuid" => SecureRandom.hex,
-            "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-            "@"    => "new",
-            "unixtime" => Time.new.to_i
-        }
-    end
 
     def self.makeScheduleObjectInteractivelyOrNull()
 
@@ -330,8 +320,6 @@ class WaveSchedules
 
     def self.scheduleToAnnounce(schedule)
 
-        raise "WaveSchedules::scheduleToAnnounce doesn't accept null schedules" if schedule.nil?
-
         if schedule['@'] == 'new' then
             return "new"
         end
@@ -365,11 +353,6 @@ class WaveSchedules
     end
 
     def self.cycleSchedule(schedule)
-
-        raise "WaveSchedules::cycleSchedule doesn't accept null schedules" if schedule.nil?
-
-        # The "do-not-show-until-datetime" kills the metric
-
         if schedule['@'] == 'sticky' then
             schedule["do-not-show-until-datetime"] = LucilleCore::datetimeAtComingMidnight()
         end
@@ -398,14 +381,6 @@ class WaveSchedules
         schedule
     end
 
-    def self.traceToRealInUnitInterval(trace)
-        ( '0.'+trace.gsub(/[^\d]/, '') ).to_f
-    end
-
-    def self.traceToMetricShift(trace)
-        0.001*WaveSchedules::traceToRealInUnitInterval(trace)
-    end
-
     def self.scheduleToMetric(schedule)
 
         # Special Circumstances
@@ -429,30 +404,30 @@ class WaveSchedules
             return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
-            return 0.9 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.9 + Saturn::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.77 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+                return 0.77 + Saturn::traceToMetricShift(schedule['uuid'])
             end
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.78 + WaveSchedules::traceToMetricShift(schedule['uuid'])
+            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
         end
         1
     end
@@ -468,10 +443,10 @@ class WaveDevOps
             .each{|sourcelocation|
                 uuid = SecureRandom.hex(4)
                 schedule = WaveSchedules::makeScheduleObjectNew()
-                folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-                WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
+                WaveObjects::writeScheduleToDisk(uuid,schedule)
                 if File.file?(sourcelocation) then
                     FileUtils.cp(sourcelocation,folderpath)
                 else
@@ -484,27 +459,15 @@ class WaveDevOps
 end
 
 # WaveInterface::getCatalystObjects()
-# WaveInterface::interpreter(object, command): (directive, value)
-    # (null, false)
-    # (null, true)
-    # ("object-to-display", object)
+# WaveInterface::interpreter(object, command)
 
 class WaveInterface
-
     def self.getCatalystObjects()
         WaveDevOps::collectWaveObjects()
-        WaveTimelineUtils::getCatalystObjects()
+        WaveObjects::getCatalystObjects()
     end
 
     def self.interpreter(object, command)
-
-        xobject1 = WaveInterface::getCatalystObjects().select{|object| object['uuid']==command }.first
-        if xobject1 then
-            return ["object-to-display", xobject1]
-        end      
-
-        # ------------------------------------------
-        # 
 
         schedule = object['schedule']
         objectuuid = object['uuid']
@@ -517,91 +480,91 @@ class WaveInterface
         if command=='done' then
 
             if schedule['@'] == 'new' then
-                WaveTimelineUtils::archiveWaveItems(objectuuid)        
+                WaveObjects::archiveWaveItems(objectuuid)        
             end
             if schedule['@'] == 'today' then
-                WaveTimelineUtils::archiveWaveItems(objectuuid)
+                WaveObjects::archiveWaveItems(objectuuid)
             end
             if schedule['@'] == 'queue' then
-                WaveTimelineUtils::archiveWaveItems(objectuuid)
+                WaveObjects::archiveWaveItems(objectuuid)
             end
             if schedule['@'] == 'sticky' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
+                WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
             if schedule['@'] == 'check' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
+                WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
             if schedule['@'] == 'ondate' then
-                WaveTimelineUtils::archiveWaveItems(objectuuid)        
+                WaveObjects::archiveWaveItems(objectuuid)        
             end
             if schedule['@'] == 'every-n-hours' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
+                WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
             if schedule['@'] == 'every-n-days' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
+                WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
             if schedule['@'] == 'every-this-day-of-the-month' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
+                WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
             if schedule['@'] == 'every-this-day-of-the-week' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
-                WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
+                WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
         end
 
         if command=='recast' then
             schedule = object['schedule']
             objectuuid = object['uuid']
-            schedule = WaveTimelineUtils::makeNewSchedule()
-            WaveTimelineUtils::writeScheduleToDisk(objectuuid, schedule)
+            schedule = WaveObjects::makeNewSchedule()
+            WaveObjects::writeScheduleToDisk(objectuuid, schedule)
         end
 
         if command=='folder' then
-            location = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+            location = WaveObjects::catalystUUIDToItemFolderPathOrNull(objectuuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
         end
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
-                WaveTimelineUtils::archiveWaveItems(objectuuid)                       
+                WaveObjects::archiveWaveItems(objectuuid)                       
             end
         end
 
         if command=='>stream' then
-            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+            sourcelocation = WaveObjects::catalystUUIDToItemFolderPathOrNull(objectuuid)
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
-            WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            WaveTimelineUtils::archiveWaveItems(objectuuid) 
+            WaveObjects::removeWaveMetadataFilesAtLocation(targetfolderpath)
+            WaveObjects::archiveWaveItems(objectuuid) 
         end
 
         if command=='>open-projects' then
-            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+            sourcelocation = WaveObjects::catalystUUIDToItemFolderPathOrNull(objectuuid)
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
-            WaveTimelineUtils::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            WaveTimelineUtils::archiveWaveItems(objectuuid) 
+            WaveObjects::removeWaveMetadataFilesAtLocation(targetfolderpath)
+            WaveObjects::archiveWaveItems(objectuuid) 
         end
 
         if command=='>lib' then
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
-            sourcelocation = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+            sourcelocation = WaveObjects::catalystUUIDToItemFolderPathOrNull(objectuuid)
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
             LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
-            WaveTimelineUtils::removeWaveMetadataFilesAtLocation(staginglocation)
+            WaveObjects::removeWaveMetadataFilesAtLocation(staginglocation)
             puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
             LucilleCore::pressEnterToContinue()
             LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
             targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
-            WaveTimelineUtils::archiveWaveItems(objectuuid) 
+            WaveObjects::archiveWaveItems(objectuuid) 
         end
  
         nil

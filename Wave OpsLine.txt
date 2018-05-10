@@ -7,7 +7,7 @@ catalyst-schedule.json:
     Schedule objects go to file
 
 
-catalyst-description.txt:
+description.txt:
     Descriptions that override the name of the folder for the display in Catalyst 
 
 wave-target-filename.txt:

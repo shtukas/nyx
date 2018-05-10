@@ -10,6 +10,10 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorypath or nil, key)
 =end
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
 # ----------------------------------------------------------------
 
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
@@ -19,6 +23,8 @@ CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/O
 # Saturn::currentHour()
 # Saturn::currentDay()
 # Saturn::simplifyURLCarryingString(string)
+# Saturn::traceToRealInUnitInterval(trace)
+# Saturn::traceToMetricShift(trace)
 
 class Saturn
     def self.currentHour()
@@ -37,6 +43,13 @@ class Saturn
                 end
             }
         string
+    end
+    def self.traceToRealInUnitInterval(trace)
+        ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
+    end
+
+    def self.traceToMetricShift(trace)
+        0.001*Saturn::traceToRealInUnitInterval(trace)
     end
 end
 
@@ -311,8 +324,8 @@ class FolderProbe
         if folderpath.include?("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") then
             metadata = {}
             filepaths = FolderProbe::nonDotFilespathsAtFolder(folderpath)
-            if filepaths.any?{|filepath| File.basename(filepath)=="catalyst-description.txt" } then
-                metadata["announce"] = IO.read(filepaths.select{|filepath| File.basename(filepath)=="catalyst-description.txt" }.first).strip
+            if filepaths.any?{|filepath| File.basename(filepath)=="description.txt" } then
+                metadata["announce"] = IO.read(filepaths.select{|filepath| File.basename(filepath)=="description.txt" }.first).strip
             end
             filepaths = filepaths
                 .select{|filename| File.basename(filename)[0, 4] != 'wave' }
@@ -325,7 +338,7 @@ class FolderProbe
                 else
                     metadata["target-type"] = "virtually-empty-wave-folder"
                     if metadata["announce"].nil? then
-                        metadata["announce"] = "virtually-empty-wave-folder without catalyst-description.txt"
+                        metadata["announce"] = "virtually-empty-wave-folder without description.txt"
                     end
                     return metadata
                 end
@@ -351,7 +364,7 @@ class FolderProbe
                 metadata["target-type"] = "folder"
                 metadata["target-location"] = "folderpath" 
                 if metadata["announce"].nil? then
-                    metadata["announce"] = "file-occupied wave-folder without catalyst-description.txt"
+                    metadata["announce"] = "file-occupied wave-folder without description.txt"
                 end
                 metadata["filepaths"] = filepaths
                 return metadata

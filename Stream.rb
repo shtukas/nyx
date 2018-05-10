@@ -32,8 +32,8 @@ require 'colorize'
 
 # -------------------------------------------------------------------------------------
 
-# Stream::setEnvelop(envelop)
-# Stream::updateEnvelopsOnThisObject(object)
+# Stream::setObjectsCache(envelop)
+# Stream::updateObjectsCacheOnThisObject(object)
 # Stream::getCatalystObjects()
 
 # Stream::folderpaths(itemsfolderpath)
@@ -46,20 +46,20 @@ require 'colorize'
 
 class Stream
 
-    @@Envelops = []
+    @@objectsCache = []
 
-    def self.setEnvelop(envelop)
-        @@Envelops = envelop
+    def self.setObjectsCache(envelop)
+        @@objectsCache = envelop
     end
 
-    def self.updateEnvelopsOnThisObject(object)
-        thisOne, theOtherOnes = @@Envelops.partition{|object| object["uuid"]==uuid }
+    def self.updateObjectsCacheOnThisObject(object)
+        thisOne, theOtherOnes = @@objectsCache.partition{|object| object["uuid"]==uuid }
         newObject = Stream::folderpathToCatalystObjectOrNull(object["item-folderpath"])
-        @@Envelops = (theOtherOnes + [newObject]).compact
+        @@objectsCache = (theOtherOnes + [newObject]).compact
     end
 
     def self.getCatalystObjects()
-        @@Envelops
+        @@objectsCache
     end
 
     def self.folderpaths(itemsfolderpath)
@@ -128,22 +128,22 @@ class Stream
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(uuid)
             GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-            Stream::updateEnvelopsOnThisObject(object)
+            Stream::updateObjectsCacheOnThisObject(object)
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-            Stream::updateEnvelopsOnThisObject(object)
+            Stream::updateObjectsCacheOnThisObject(object)
         end
         if command=="completed" then
             Stream::performObjectClosing(object)
-            Stream::updateEnvelopsOnThisObject(object)
+            Stream::updateObjectsCacheOnThisObject(object)
         end
         if command=='rotate' then
             sourcelocation = object["item-folderpath"]
             targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
-            Stream::updateEnvelopsOnThisObject(object)
+            Stream::updateObjectsCacheOnThisObject(object)
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
@@ -158,7 +158,7 @@ class Stream
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::performObjectClosing(object)
-            Stream::updateEnvelopsOnThisObject(object)
+            Stream::updateObjectsCacheOnThisObject(object)
         end
     end
 
@@ -172,7 +172,7 @@ end
 Thread.new {
     loop {
         sleep 143
-        Stream::setEnvelop(Stream::getCatalystObjectsFromDisk())
+        Stream::setObjectsCache(Stream::getCatalystObjectsFromDisk())
     }
 }
 
