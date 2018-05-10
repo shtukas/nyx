@@ -64,6 +64,7 @@ OpenProjects_PATH_TO_REPOSITORY = "/Galaxy/DataBank/Catalyst/Open-Projects"
 
 # OpenProjects::folderpaths(itemsfolderpath)
 # OpenProjects::getuuid(folderpath)
+# OpenProjects::getCatalystObjects()
 
 class OpenProjects
     def self.folderpaths(itemsfolderpath)

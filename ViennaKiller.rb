@@ -81,7 +81,7 @@ class ViennaKiller
             [
                 {
                     "uuid" => SecureRandom.hex(4),
-                    "metric" => @@killerMetric,
+                    "metric" => 0.5,
                     "announce" => "-> vienna killer could not retrieve a targetuuid",
                     "commands" => [],
                     "command-interpreter" => lambda{|object, command| }

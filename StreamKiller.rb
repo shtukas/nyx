@@ -93,7 +93,7 @@ class StreamKiller
             [
                 {
                     "uuid" => SecureRandom.hex(4),
-                    "metric" => @@killerMetric,
+                    "metric" => 0.5,
                     "announce" => "-> stream killer could not retrieve a targetuuid",
                     "commands" => [],
                     "command-interpreter" => lambda{|object, command| }
