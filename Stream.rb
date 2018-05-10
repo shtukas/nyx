@@ -32,18 +32,35 @@ require 'colorize'
 
 # -------------------------------------------------------------------------------------
 
+# Stream::setEnvelop(envelop)
+# Stream::updateEnvelopsOnThisObject(object)
+# Stream::getCatalystObjects()
+
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getuuid(folderpath)
 # Stream::getUUIDs()
-# Stream::folderpathToCatalystObject(folderpath)
+# Stream::folderpathToCatalystObjectOrNull(folderpath)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::getCatalystObjectsFromDisk()
-# Stream::getCatalystObjects()
 
 class Stream
 
-    @@naturalTargets = {}
+    @@Envelops = []
+
+    def self.setEnvelop(envelop)
+        @@Envelops = envelop
+    end
+
+    def self.updateEnvelopsOnThisObject(object)
+        thisOne, theOtherOnes = @@Envelops.partition{|object| object["uuid"]==uuid }
+        newObject = Stream::folderpathToCatalystObjectOrNull(object["item-folderpath"])
+        @@Envelops = (theOtherOnes + [newObject]).compact
+    end
+
+    def self.getCatalystObjects()
+        @@Envelops
+    end
 
     def self.folderpaths(itemsfolderpath)
         Dir.entries(itemsfolderpath)
@@ -64,7 +81,8 @@ class Stream
             .map{|folderpath| Stream::getuuid(folderpath) }
     end
 
-    def self.folderpathToCatalystObject(folderpath)
+    def self.folderpathToCatalystObjectOrNull(folderpath)
+        return nil if !File.exist?(folderpath)
         uuid = Stream::getuuid(folderpath)
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
         status = GenericTimeTracking::status(uuid)
@@ -110,18 +128,22 @@ class Stream
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(uuid)
             GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            Stream::updateEnvelopsOnThisObject(object)
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            Stream::updateEnvelopsOnThisObject(object)
         end
         if command=="completed" then
             Stream::performObjectClosing(object)
+            Stream::updateEnvelopsOnThisObject(object)
         end
         if command=='rotate' then
             sourcelocation = object["item-folderpath"]
             targetfolderpath  = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
+            Stream::updateEnvelopsOnThisObject(object)
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
@@ -136,14 +158,22 @@ class Stream
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::performObjectClosing(object)
+            Stream::updateEnvelopsOnThisObject(object)
         end
     end
 
-    def self.getCatalystObjects()
+    def self.getCatalystObjectsFromDisk()
         Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-            .map{|folderpath| Stream::folderpathToCatalystObject(folderpath)}
+            .map{|folderpath| Stream::folderpathToCatalystObjectOrNull(folderpath)}
     end
 
 end
+
+Thread.new {
+    loop {
+        sleep 143
+        Stream::setEnvelop(Stream::getCatalystObjectsFromDisk())
+    }
+}
 
 # -------------------------------------------------------------------------------------
