@@ -404,7 +404,7 @@ class Jupiter
     def self.selectDisplayObjects()
         objects = CatalystObjects::all()
             .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
-            .select{|object| RequirementsOperator::meetRequirements(object["uuid"]) }
+            .select{|object| RequirementsOperator::objectMeetsRequirements(object["uuid"]) }
             .select{|object| Collections::objectIsNotInAnyCollection(object["uuid"]) }
             .select{|object| object["metric"] >= 0.2 }
         DoNotShowUntil::transform(objects)

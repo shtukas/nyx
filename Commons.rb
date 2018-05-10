@@ -99,7 +99,7 @@ class RequirementsOperator
         @@data['requirements-status-timeline'][requirement].nil? or @@data['requirements-status-timeline'][requirement]
     end
 
-    def self.meetRequirements(uuid)
+    def self.objectMeetsRequirements(uuid)
         RequirementsOperator::getObjectRequirements(uuid)
             .all?{|requirement| RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
     end
