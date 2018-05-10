@@ -103,7 +103,7 @@ class OpenProjects
                 "uuid" => uuid,
                 "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1),
                 "announce" => announce,
-                "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed"],
+                "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
                 "command-interpreter" => lambda{|object, command|
                     if command=='start' then
                         metadata = object["item-folder-probe-metadata"]
@@ -117,8 +117,12 @@ class OpenProjects
                         GenericTimeTracking::stop(object["uuid"])
                         OpenProjects::performObjectClosing(object)
                     end
+                    if command=="folder" then
+                        system("open '#{object["item-folderpath"]}'")
+                    end
                 },
-                "item-folder-probe-metadata" => folderProbeMetadata
+                "item-folder-probe-metadata" => folderProbeMetadata,
+                "item-folderpath" => folderpath
             }
         }
     end
