@@ -51,6 +51,7 @@ require_relative "Kimchee.rb"
 require_relative "x-laniakea-killer.rb"
 require_relative "Vienna.rb"
 require_relative "ViennaKiller.rb"
+require_relative "OpenProjects.rb"
 
 # ----------------------------------------------------------------------
 
@@ -71,7 +72,8 @@ class CatalystObjects
             ["Kimchee", lambda{ Kimchee::getCatalystObjects() }],
             ["XLaniakeaKiller", lambda{ XLaniakeaKiller::getCatalystObjects() }],
             ["Vienna", lambda{ Vienna::getCatalystObjects() }],
-            ["ViennaKiller", lambda{ ViennaKiller::getCatalystObjects() }]
+            ["ViennaKiller", lambda{ ViennaKiller::getCatalystObjects() }],
+            ["OpenProjects", lambda{ OpenProjects::getCatalystObjects() }]
         ]
 
         struct1 = sources.map{|pair|

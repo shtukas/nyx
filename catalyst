@@ -411,7 +411,7 @@ class Jupiter
                         "    #{Jupiter::object2Line_v0(object)}"
                     end
                 string =
-                    if object["is-running"] then
+                    if object["metric"]>1 then
                         string.green
                     else
                         string

@@ -5,9 +5,10 @@
 0.860 -> 0.900  Incoming Emails operator@alseyn.net
 0.840 -> 0.850  Today+Calendar
 0.820 -> 0.830  Wave: new
-0.300 -> 0.810  TimeCommitments (unless specified by the item itself)
 0.750 -> 0.800  Wave: today, ondate, repeats
+0.300 -> 0.800  TimeCommitments (unless specified by the item itself)
 0.200 -> 0.800  Vienna
+0.100 -> 0.800  Open Projects
 0.000 -> 0.800  Stream
 0.200 -> 0.600  Ninja
 0.000 -> 0.500  x-laniakea

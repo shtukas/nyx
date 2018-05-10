@@ -38,7 +38,6 @@ class GuardianTime
                     "description"         => "Guardian",
                     "commitment-in-hours" => numberOfHours,
                     "timespans"           => [],
-                    "is-running"          => false,
                     "last-start-unixtime" => 0
                 }
                 TimeCommitments::saveItem(item)

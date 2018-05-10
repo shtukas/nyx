@@ -114,7 +114,6 @@ end
 # -------------------------------------------------------------------------------------
 
 # Stream::folderpaths(itemsfolderpath)
-# Stream::getItemDescription(folderpath)
 # Stream::getuuid(folderpath)
 # Stream::getUUIDs()
 # Stream::folderpathToCatalystObject(folderpath, indx, streamName)
@@ -135,11 +134,6 @@ class Stream
             .map{|filename| "#{itemsfolderpath}/#{filename}" }
     end
 
-    def self.getItemDescription(folderpath)
-        uuid = IO.read("#{folderpath}/.uuid").strip
-        description = KeyValueStore::getOrDefaultValue(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{folderpath}")
-    end
-
     def self.getuuid(folderpath)
         if !File.exist?("#{folderpath}/.uuid") then
             File.open("#{folderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) }
@@ -154,14 +148,6 @@ class Stream
         }.flatten
     end
 
-    def self.naturalTargetToDisplayName(pair)
-        return pair[1] if pair[0]=="line"
-        return pair[1] if pair[0]=="url"
-        target = pair[1]
-        return File.basename(target) if target[-7,7]==".webloc" 
-        target
-    end
-
     def self.metric(indx, itemTimeInSeconds, streamTimeInSeconds)
         multiplier1 = Math.exp(-indx.to_f/100)
         multiplier2 = Math.exp(-itemTimeInSeconds.to_f/(3600*4))
@@ -172,17 +158,16 @@ class Stream
     def self.folderpathToCatalystObject(folderpath, indx, streamName)
         uuid = Stream::getuuid(folderpath)
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath) 
-        description = Stream::getItemDescription(folderpath)
         isRunning = StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid)
         metric = Stream::metric(indx, StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid), StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek())
         metric = 2 if isRunning
-        commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "set-description", "rotate", ">lib"]
+        commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">lib"]
         defaultExpression = ( isRunning ? "" : "start" )
         announce = "stream: #{folderProbeMetadata["announce"]} (#{"%.2f" % ( StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid).to_f/3600 )} hours past week)"
         {
             "uuid" => uuid,
             "metric" => metric,
-            "announce" => ( metric > 1 ? announce.green : announce ),
+            "announce" => announce,
             "commands" => commands,
             "default-expression" => defaultExpression,
             "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
@@ -210,11 +195,6 @@ class Stream
 
     def self.objectCommandHandlerCore(object, command)
         uuid = object['uuid']
-        if command=='set-description' then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            KeyValueStore::set(nil, "c441a43a-bb70-4850-b23c-1db5f5665c9a:#{uuid}", "#{description}")
-            Jupiter::interactiveDisplayObjectAndProcessCommand(folderpathToCatalystObject(object["item-folderpath"], object["item-indx"], object["item-stream-name"]))
-        end
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
             Jupiter::interactiveDisplayObjectAndProcessCommand(folderpathToCatalystObject(object["item-folderpath"], object["item-indx"], object["item-stream-name"]))
