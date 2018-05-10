@@ -130,17 +130,32 @@ class Today
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
             metric = 0.840 + 0.010*Math.exp(-idx.to_f/10)
-            announce = "today: #{section.first}".strip
+            announce = "today: #{section.join()}".strip
             objects << {
                 "uuid" => uuid,
                 "metric" => metric,
                 "announce" => announce,
-                "commands" => ['done'],
+                "commands" => ['done', ">stream", ">open-projects"],
                 "command-interpreter" => lambda{|object, command|
                     if command=='done' then
                         Today::removeSectionFromFile(object['uuid'])
                     end
-                }
+                    if command=='>stream' then
+                        description = object["item-section"]
+                        folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+                        FileUtils.mkpath folderpath
+                        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+                        Today::removeSectionFromFile(object['uuid'])
+                    end
+                    if command=='>open-projects' then
+                        description = object["item-section"]
+                        folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+                        FileUtils.mkpath folderpath
+                        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+                        Today::removeSectionFromFile(object['uuid'])
+                    end
+                },
+                "item-section" => section.join()
             }
         }  
         objects

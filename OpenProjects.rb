@@ -96,7 +96,7 @@ class OpenProjects
         .map{|folderpath|
             uuid = OpenProjects::getuuid(folderpath)
             folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-            announce = "open project: " + folderProbeMetadata["announce"]
+            announce = "(open) project: " + folderProbeMetadata["announce"]
             status = GenericTimeTracking::status(uuid)
             isRunning = status[0]
             {
