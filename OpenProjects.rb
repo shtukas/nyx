@@ -62,11 +62,32 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 OpenProjects_PATH_TO_REPOSITORY = "/Galaxy/DataBank/Catalyst/Open-Projects"
 
-# OpenProjects::folderpaths(itemsfolderpath)
-# OpenProjects::getuuid(folderpath)
 # OpenProjects::getCatalystObjects()
 
+# OpenProjects::folderpaths(itemsfolderpath)
+# OpenProjects::getuuid(folderpath)
+# OpenProjects::folderpath2CatalystObjectOrNull(folderpath)
+# OpenProjects::getCatalystObjectsFromDisk()
+
+
 class OpenProjects
+
+    @@objectsCache = []
+
+    def self.setObjectsCache(envelop)
+        @@objectsCache = envelop
+    end
+
+    def self.updateObjectsCacheOnThisObject(object)
+        thisOne, theOtherOnes = @@objectsCache.partition{|object| object["uuid"]==uuid }
+        newObject = OpenProjects::folderpath2CatalystObjectOrNull(object["item-folderpath"])
+        @@objectsCache = (theOtherOnes + [newObject]).compact
+    end
+
+    def self.getCatalystObjects()
+        @@objectsCache
+    end
+
     def self.folderpaths(itemsfolderpath)
         Dir.entries(itemsfolderpath)
             .select{|filename| filename[0,1]!='.' }
@@ -92,40 +113,51 @@ class OpenProjects
         LucilleCore::removeFileSystemLocation(object['item-folderpath'])
     end
 
-    def self.getCatalystObjects()
+    def self.folderpath2CatalystObjectOrNull(folderpath)
+        uuid = OpenProjects::getuuid(folderpath)
+        folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
+        announce = "(open) project: " + folderProbeMetadata["announce"]
+        status = GenericTimeTracking::status(uuid)
+        isRunning = status[0]
+        {
+            "uuid" => uuid,
+            "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1),
+            "announce" => announce,
+            "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
+            "default-expression" => isRunning ? "" : "start",
+            "command-interpreter" => lambda{|object, command|
+                if command=='start' then
+                    metadata = object["item-folder-probe-metadata"]
+                    FolderProbe::openActionOnMetadata(metadata)
+                    GenericTimeTracking::start(object["uuid"])
+                end
+                if command=='stop' then
+                    GenericTimeTracking::stop(object["uuid"])
+                end
+                if command=="completed" then
+                    GenericTimeTracking::stop(object["uuid"])
+                    OpenProjects::performObjectClosing(object)
+                end
+                if command=="folder" then
+                    system("open '#{object["item-folderpath"]}'")
+                end
+            },
+            "item-folder-probe-metadata" => folderProbeMetadata,
+            "item-folderpath" => folderpath
+        }        
+    end
+
+    def self.getCatalystObjectsFromDisk()
         OpenProjects::folderpaths(OpenProjects_PATH_TO_REPOSITORY)
-        .map{|folderpath|
-            uuid = OpenProjects::getuuid(folderpath)
-            folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-            announce = "(open) project: " + folderProbeMetadata["announce"]
-            status = GenericTimeTracking::status(uuid)
-            isRunning = status[0]
-            {
-                "uuid" => uuid,
-                "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1),
-                "announce" => announce,
-                "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
-                "default-expression" => isRunning ? "" : "start",
-                "command-interpreter" => lambda{|object, command|
-                    if command=='start' then
-                        metadata = object["item-folder-probe-metadata"]
-                        FolderProbe::openActionOnMetadata(metadata)
-                        GenericTimeTracking::start(object["uuid"])
-                    end
-                    if command=='stop' then
-                        GenericTimeTracking::stop(object["uuid"])
-                    end
-                    if command=="completed" then
-                        GenericTimeTracking::stop(object["uuid"])
-                        OpenProjects::performObjectClosing(object)
-                    end
-                    if command=="folder" then
-                        system("open '#{object["item-folderpath"]}'")
-                    end
-                },
-                "item-folder-probe-metadata" => folderProbeMetadata,
-                "item-folderpath" => folderpath
-            }
-        }
+            .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
+            .compact
     end
 end
+
+Thread.new {
+    loop {
+        sleep 73
+        OpenProjects::setObjectsCache(OpenProjects::getCatalystObjectsFromDisk())
+    }
+}
+
