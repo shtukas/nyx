@@ -504,7 +504,7 @@ class CatalystArchivesOps
         end
     end
 
-    def self.archivesGarbageCollection(verbose)
+    def self.archivesGarbageCollectionStandard(verbose)
         answer = 0
         while CatalystArchivesOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
@@ -512,6 +512,31 @@ class CatalystArchivesOps
             puts "Garbage Collection: Removing: #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
             answer = answer + 1
+        end
+        answer
+    end
+
+    def self.archivesGarbageCollectionFast(verbose, sizeEstimationInMegaBytes)
+        answer = 0
+        while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
+            location = CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
+            break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
+            if File.file?(location) then
+                sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
+            end
+            puts "Garbage Collection: Removing: #{location}" if verbose
+            LucilleCore::removeFileSystemLocation(location)
+            answer = answer + 1
+        end
+        answer
+    end
+
+    def self.archivesGarbageCollection(verbose)
+        answer = 0
+        while CatalystArchivesOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
+            location = CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
+            break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
+            answer = answer + CatalystArchivesOps::archivesGarbageCollectionFast(verbose, CatalystArchivesOps::getArchiveSizeInMegaBytes())
         end
         answer
     end
