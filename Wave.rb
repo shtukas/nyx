@@ -175,7 +175,7 @@ class WaveTimelineUtils
             return "open done"
         end
         if folderProbeMetadata["target-type"] == "folder" then
-            return "open done"
+            return "open"
         end
         "done"
     end

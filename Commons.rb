@@ -321,19 +321,31 @@ class FolderProbe
                 if metadata["announce"].start_with?("http") then 
                     metadata["target-type"] = "url"
                     metadata["url"] = metadata["announce"]
+                    return metadata
                 else
                     metadata["target-type"] = "virtually-empty-wave-folder"
                     if metadata["announce"].nil? then
                         metadata["announce"] = "virtually-empty-wave-folder without catalyst-description.txt"
                     end
+                    return metadata
                 end
             end
             if filepaths.size == 1 then
+                filepath = filepaths[0]
+                if filepath[-4,4]==".eml" then
+                    metadata["target-type"] = "openable-file"
+                    metadata["target-location"] = filepath
+                    if metadata["announce"].nil? then
+                        metadata["announce"] = "#{File.basename(filepaths[0])}"
+                    end
+                    return metadata
+                end                
                 metadata["target-type"] = "folder"
                 metadata["target-location"] = folderpath 
                 if metadata["announce"].nil? then
                     metadata["announce"] = "#{File.basename(filepaths[0])}"
                 end
+                return metadata
             end
             if filepaths.size > 1 then
                 metadata["target-type"] = "folder"
@@ -342,6 +354,7 @@ class FolderProbe
                     metadata["announce"] = "file-occupied wave-folder without catalyst-description.txt"
                 end
                 metadata["filepaths"] = filepaths
+                return metadata
             end
             return metadata
         end
