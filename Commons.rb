@@ -321,103 +321,138 @@ class FolderProbe
 
     def self.folderpath2metadata(folderpath)
 
-        if folderpath.include?("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") then
-            metadata = {}
+        metadata = {}
+
+        # --------------------------------------------------------------------
+        # Trying to read a description file
+
+        getDescriptionFilepathMaybe = lambda{|folderpath|
             filepaths = FolderProbe::nonDotFilespathsAtFolder(folderpath)
-            if filepaths.any?{|filepath| File.basename(filepath)=="description.txt" } then
-                metadata["announce"] = IO.read(filepaths.select{|filepath| File.basename(filepath)=="description.txt" }.first).strip
+            if filepaths.any?{|filepath| File.basename(filepath).include?("description.txt") } then
+                filepaths.select{|filepath| File.basename(filepath).include?("description.txt") }.first
+            else
+                nil
             end
-            filepaths = filepaths
-                .select{|filename| File.basename(filename)[0, 4] != 'wave' }
-                .select{|filename| File.basename(filename)[0, 8] != 'catalyst' }
-            if filepaths.size == 0 then
-                if metadata["announce"].start_with?("http") then 
-                    metadata["target-type"] = "url"
-                    metadata["url"] = metadata["announce"]
-                    return metadata
-                else
-                    metadata["target-type"] = "virtually-empty-wave-folder"
-                    if metadata["announce"].nil? then
-                        metadata["announce"] = "virtually-empty-wave-folder without description.txt"
-                    end
-                    return metadata
-                end
+        }
+
+        getDescriptionFromDescriptionFileMaybe = lambda{|folderpath|
+            filepathOpt = getDescriptionFilepathMaybe.call(folderpath)
+            if filepathOpt then
+                IO.read(filepathOpt).strip
+            else
+                nil
             end
-            if filepaths.size == 1 then
-                filepath = filepaths[0]
-                if filepath[-4,4]==".eml" then
-                    metadata["target-type"] = "openable-file"
-                    metadata["target-location"] = filepath
-                    if metadata["announce"].nil? then
-                        metadata["announce"] = "#{File.basename(filepaths[0])}"
-                    end
-                    return metadata
-                end                
-                metadata["target-type"] = "folder"
-                metadata["target-location"] = folderpath 
-                if metadata["announce"].nil? then
-                    metadata["announce"] = "#{File.basename(filepaths[0])}"
-                end
-                return metadata
-            end
-            if filepaths.size > 1 then
-                metadata["target-type"] = "folder"
-                metadata["target-location"] = "folderpath" 
-                if metadata["announce"].nil? then
-                    metadata["announce"] = "file-occupied wave-folder without description.txt"
-                end
-                metadata["filepaths"] = filepaths
-                return metadata
-            end
-            return metadata
+        }
+
+        descriptionOpt = getDescriptionFromDescriptionFileMaybe.call(folderpath)
+        if descriptionOpt then
+            metadata["announce"] = descriptionOpt
         end
 
-        filepaths = FolderProbe::nonDotFilespathsAtFolder(folderpath)
-        if filepaths.size==1 then
-            filepath = filepaths[0]
-            if filepath[-4,4]==".txt" then
-                if IO.read(filepath).strip.lines.to_a.size==1 then
-                    line = IO.read(filepath).strip
-                    line = Saturn::simplifyURLCarryingString(line)
-                    if line.start_with?("http") then
-                        return {
-                            "target-type" => "url",
-                            "url" => line,
-                            "announce" => line
-                        }
-                    else
-                        return {
-                            "target-type" => "line",
-                            "text" => line,
-                            "announce" => "line: #{line}"
-                        }
-                    end
-                else
-                    return {
-                        "target-type" => "openable-file",
-                        "target-location" => filepath,
-                        "announce" => File.basename(filepath)
-                    }
-                end
+        # --------------------------------------------------------------------
+        # 
+
+        files = FolderProbe::nonDotFilespathsAtFolder(folderpath)
+                .select{|filepath| !File.basename(filepath).start_with?('wave') }
+                .select{|filepath| !File.basename(filepath).start_with?('catalyst') }
+
+        fileIsOpenable = lambda {|filepath|
+            File.basename(filepath)[-4,4]==".txt" or 
+            File.basename(filepath)[-4,4]==".eml" or 
+            File.basename(filepath)[-4,4]==".jpg" or 
+            File.basename(filepath)[-4,4]==".png" or 
+            File.basename(filepath)[-4,4]==".gif" or
+            File.basename(filepath)[-7,7]==".webloc"
+        }
+
+        openableFiles = files
+                .select{|filepath| fileIsOpenable.call(filepath) }
+
+
+        filesWithoutTheDescription = files
+                .select{|filepath| !File.basename(filepath).include?('description.txt') }
+
+        extractURLFromFileMaybe = lambda{|filepath|
+            return nil if filepath[-4,4] != ".txt"
+            contents = IO.read(filepath)
+            return nil if contents.lines.to_a.size != 1
+            line = contents.lines.first.strip
+            return nil if !line.start_with?("http")
+            line
+        }
+
+        extractLineFromFileMaybe = lambda{|filepath|
+            return nil if filepath[-4,4] != ".txt"
+            contents = IO.read(filepath)
+            return nil if contents.lines.to_a.size != 1
+            contents.lines.first.strip
+        }
+
+        if files.size==0 then
+            # There is one open able file in the folder
+            metadata["target-type"] = "virtually-empty-wave-folder"
+            if metadata["announce"].nil? then
+                metadata["announce"] = folderpath
             end
-            if filepath[-7,7]==".webloc" and !filepath.include?("'") then
-                return {
-                    "target-type" => "openable-file",
-                    "target-location" => filepath,
-                    "announce" => File.basename(filepath)
-                }
+            return metadata     
+        end 
+
+        if files.size==1 and ( url = extractURLFromFileMaybe.call(files[0]) ) then
+            filepath = files.first
+            metadata["target-type"] = "url"
+            metadata["url"] = url
+            if metadata["announce"].nil? then
+                metadata["announce"] = url
             end
-            return {
-                "target-type" => "folder",
-                "target-location" => folderpath,
-                "announce" => File.basename(filepath)
-            }
-        else
-            return {
-                "target-type" => "folder",
-                "target-location" => folderpath,
-                "announce" => "multiple files in #{File.basename(folderpath)}"
-            }
+            return metadata     
+        end
+
+        if files.size==1 and ( line = extractLineFromFileMaybe.call(files[0]) ) then
+            filepath = files.first
+            metadata["target-type"] = "line"
+            metadata["text"] = line
+            if metadata["announce"].nil? then
+                metadata["announce"] = line
+            end
+            return metadata     
+        end
+
+        if files.size==1 and openableFiles.size==1 then
+            filepath = files.first
+            metadata["target-type"] = "openable-file"
+            metadata["target-location"] = filepath
+            if metadata["announce"].nil? then
+                metadata["announce"] = File.basename(filepath)
+            end
+            return metadata     
+        end
+
+        if files.size==1 and openableFiles.size!=1 then
+            filepath = files.first
+            metadata["target-type"] = "folder"
+            metadata["target-location"] = folderpath
+            if metadata["announce"].nil? then
+                metadata["announce"] = "One non-openable file in #{File.basename(folderpath)}"
+            end
+            return metadata     
+        end
+
+        if files.size > 1 and filesWithoutTheDescription.size==1 and fileIsOpenable.call(filesWithoutTheDescription.first) then
+            metadata["target-type"] = "openable-file"
+            metadata["target-location"] = filesWithoutTheDescription.first
+            if metadata["announce"].nil? then
+                metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
+            end
+            return metadata     
+        end
+
+        if files.size > 1 then
+            metadata["target-type"] = "folder"
+            metadata["target-location"] = folderpath
+            if metadata["announce"].nil? then
+                metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
+            end
+            return metadata     
         end
     end
 
