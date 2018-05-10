@@ -419,7 +419,6 @@ class Jupiter
     def self.main2()
         workspaceSize = 1
         loop {
-            CatalystArchivesOps::archivesGarbageCollection(true)
             objects = Jupiter::selectDisplayObjects()
             objects = objects.take(workspaceSize)
             system("clear")
@@ -481,6 +480,13 @@ Thread.new {
     loop {
         sleep 1200
         Jupiter::emailSyncOnSchedule(false)
+    }
+}
+
+Thread.new {
+    loop {
+        sleep 600
+        CatalystArchivesOps::archivesGarbageCollection(true)
     }
 }
 
