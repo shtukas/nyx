@@ -89,7 +89,7 @@ class CatalystObjects
             offender = struct1.sort{|s1,s2| s1["time"]<=>s2["time"] }.last
             objects << {
                 "uuid"                => SecureRandom.hex(4),
-                "metric"              => 0.8 - Math.exp(-xtime),
+                "metric"              => 1,
                 "announce"            => "-> #{offender["domain"]} generation is taking too long (#{offender["time"]} seconds)",
                 "commands"            => [],
                 "command-interpreter" => lambda{ |object, command| }
