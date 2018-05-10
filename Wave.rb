@@ -58,8 +58,8 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # ----------------------------------------------------------------------
 
-# WaveSchedules::scheduleTypeNew()
-# WaveSchedules::makeScheduleObjectNew()
+# WaveSchedules::makeScheduleObjectTypeNew()
+# WaveSchedules::makeScheduleObjectTypeNew()
 # WaveSchedules::makeScheduleObjectInteractivelyOrNull()
 # WaveSchedules::scheduleToAnnounce(schedule)
 # WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
@@ -68,7 +68,7 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 class WaveSchedules
 
-    def self.scheduleTypeNew()
+    def self.makeScheduleObjectTypeNew()
         {
             "uuid" => SecureRandom.hex,
             "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
@@ -278,7 +278,7 @@ class WaveDevOps
             .map{|filename| "#{WAVE_DROPOFF_FOLDERPATH}/#{filename}" }
             .each{|sourcelocation|
                 uuid = SecureRandom.hex(4)
-                schedule = WaveSchedules::makeScheduleObjectNew()
+                schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
@@ -288,7 +288,6 @@ class WaveDevOps
                 else
                     FileUtils.cp_r(sourcelocation,folderpath)
                 end
-                File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(File.basename(sourcelocation)) }
                 LucilleCore::removeFileSystemLocation(sourcelocation)
             }
     end
@@ -438,7 +437,7 @@ class WaveObjects
         return nil if location.nil?
         schedule = WaveObjects::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
-            schedule = WaveSchedules::scheduleTypeNew()
+            schedule = WaveSchedules::makeScheduleObjectTypeNew()
             File.open("#{location}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
         end
         folderProbeMetadata = FolderProbe::folderpath2metadata(location)

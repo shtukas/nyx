@@ -208,6 +208,8 @@ class GeneralEmailClient
                 folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
 
+                FileUtils.touch("#{folderpath}/EmailImportProgressMarker")
+
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
 
                 emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
@@ -224,17 +226,18 @@ class GeneralEmailClient
                 puts JSON.pretty_generate(emailpoint) if verbose
                 EmailMetadataManagement::storeMetadataObject(emailpoint)
 
-                schedule = WaveSchedules::makeScheduleObjectNew()
+                schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule['metric'] = 0.900 - LucilleCore::nextInteger("14b3e2b4-1365-4ca4-b081-cf0ae0daad5f").to_f/1000000
                 WaveObjects::writeScheduleToDisk(catalystuuid,schedule)
 
-                File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(emailFilename) }
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
 
                 statusobjectuuid = "#{emailpoint['uuid']}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
                 statusobject = EmailStatusManagement::makeStatusObject(statusobjectuuid, "init")
                 puts JSON.pretty_generate(statusobject) if verbose
                 EmailMetadataManagement::storeMetadataObject(statusobject)
+
+                FileUtils.rm("#{folderpath}/EmailImportProgressMarker")
 
                 next
             end
@@ -331,10 +334,9 @@ class OperatorEmailDownloader
                 emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
                 emailFilePath = "#{folderpath}/#{emailFilename}"
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
-                schedule = WaveSchedules::makeScheduleObjectNew()
+                schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
                 WaveObjects::writeScheduleToDisk(catalystuuid, schedule)
-                File.open("#{folderpath}/wave-target-filename.txt", 'w') {|f| f.write(emailFilename) }
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
             else
                 puts "[operator@alseyn.net] Importing email as subjectline" if verbose
@@ -342,7 +344,7 @@ class OperatorEmailDownloader
                 folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
-                schedule = WaveSchedules::makeScheduleObjectNew()
+                schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
                 WaveObjects::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net (subject line): #{subjectline}") }

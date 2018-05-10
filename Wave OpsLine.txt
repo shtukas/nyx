@@ -2,14 +2,8 @@
 catalyst-uuid:
     As it says on the tin.
 
-
 catalyst-schedule.json:
     Schedule objects go to file
 
-
 description.txt:
     Descriptions that override the name of the folder for the display in Catalyst 
-
-wave-target-filename.txt:
-    The natural filename, if there is one, goes to file 
-
