@@ -269,3 +269,146 @@ class Collections
 
 end
 
+# FolderProbe::nonDotFilespathsAtFolder(folderpath)
+# FolderProbe::folderpath2metadata(folderpath)
+    #    {
+    #        "target-type" => "folder"
+    #        "target-location" => 
+    #        "announce" => 
+    #    }
+    #    {
+    #        "target-type" => "openable-file"
+    #        "target-location" => 
+    #        "announce" => 
+    #    }
+    #    {
+    #        "target-type" => "line",
+    #        "text" => line
+    #        "announce" => 
+    #    }
+    #    {
+    #        "target-type" => "url",
+    #        "url" => 
+    #        "announce" => 
+    #    }
+    #    {
+    #        "target-type" => "virtually-empty-wave-folder",
+    #        "announce" => 
+    #    }
+
+# FolderProbe::openActionOnMetadata(metadata)
+
+class FolderProbe
+    def self.nonDotFilespathsAtFolder(folderpath)
+        Dir.entries(folderpath)
+            .select{|filename| filename[0,1]!="." }
+            .map{|filename| "#{folderpath}/#{filename}" }
+    end
+
+    def self.folderpath2metadata(folderpath)
+
+        if folderpath.include?("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") then
+            metadata = {}
+            filepaths = FolderProbe::nonDotFilespathsAtFolder(folderpath)
+            if filepaths.any?{|filepath| File.basename(filepath)=="catalyst-description.txt" } then
+                metadata["announce"] = IO.read(filepaths.select{|filepath| File.basename(filepath)=="catalyst-description.txt" }.first).strip
+            end
+            filepaths = filepaths
+                .select{|filename| File.basename(filename)[0, 4] != 'wave' }
+                .select{|filename| File.basename(filename)[0, 8] != 'catalyst' }
+            if filepaths.size == 0 then
+                if metadata["announce"].start_with?("http") then 
+                    metadata["target-type"] = "url"
+                    metadata["url"] = metadata["announce"]
+                else
+                    metadata["target-type"] = "virtually-empty-wave-folder"
+                    if metadata["announce"].nil? then
+                        metadata["announce"] = "virtually-empty-wave-folder without catalyst-description.txt"
+                    end
+                end
+            end
+            if filepaths.size == 1 then
+                metadata["target-type"] = "folder"
+                metadata["target-location"] = folderpath 
+                if metadata["announce"].nil? then
+                    metadata["announce"] = "#{File.basename(filepaths[0])}"
+                end
+            end
+            if filepaths.size > 1 then
+                metadata["target-type"] = "folder"
+                metadata["target-location"] = "folderpath" 
+                if metadata["announce"].nil? then
+                    metadata["announce"] = "file-occupied wave-folder without catalyst-description.txt"
+                end
+                metadata["filepaths"] = filepaths
+            end
+            return metadata
+        end
+
+        filepaths = FolderProbe::nonDotFilespathsAtFolder(folderpath)
+        if filepaths.size==1 then
+            filepath = filepaths[0]
+            if filepath[-4,4]==".txt" then
+                if IO.read(filepath).strip.lines.to_a.size==1 then
+                    line = IO.read(filepath).strip
+                    line = Saturn::simplifyURLCarryingString(line)
+                    if line.start_with?("http") then
+                        return {
+                            "target-type" => "url",
+                            "url" => line,
+                            "announce" => line
+                        }
+                    else
+                        return {
+                            "target-type" => "line",
+                            "text" => line,
+                            "announce" => "line: #{line}"
+                        }
+                    end
+                else
+                    return {
+                        "target-type" => "openable-file",
+                        "target-location" => filepath,
+                        "announce" => File.basename(filepath)
+                    }
+                end
+            end
+            if filepath[-7,7]==".webloc" and !filepath.include?("'") then
+                return {
+                    "target-type" => "openable-file",
+                    "target-location" => filepath,
+                    "announce" => File.basename(filepath)
+                }
+            end
+            return {
+                "target-type" => "folder",
+                "target-location" => folderpath,
+                "announce" => File.basename(filepath)
+            }
+        else
+            return {
+                "target-type" => "folder",
+                "target-location" => folderpath,
+                "announce" => "multiple files in #{File.basename(folderpath)}"
+            }
+        end
+    end
+
+    def self.openActionOnMetadata(metadata)
+        if metadata["target-type"]=="folder" then
+            system("open '#{metadata["target-location"]}'")
+        end
+        if metadata["target-type"]=="openable-file" then
+            system("open '#{metadata["target-location"]}'")
+        end
+        if metadata["target-type"]=="line" then
+            puts metadata["text"]
+        end
+        if metadata["target-type"]=="url" then
+            system("open '#{metadata["url"]}'")
+        end
+        if metadata["target-type"]=="virtually-empty-wave-folder" then
+            puts metadata["announce"]
+        end
+    end
+end

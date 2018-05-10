@@ -117,7 +117,6 @@ end
 # Stream::getItemDescription(folderpath)
 # Stream::getuuid(folderpath)
 # Stream::getUUIDs()
-# Stream::naturalTargetUnderLocation(location): (type, address) , where type is "file" or "url"
 # Stream::folderpathToCatalystObject(folderpath, indx, streamName)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
@@ -155,43 +154,6 @@ class Stream
         }.flatten
     end
 
-    def self.naturalTargetUnderLocation(location)
-        value = @@naturalTargets[location]
-        return value if value
-        value =
-            if File.file?(location) then
-                ["file", location]
-            else
-                nonDotFilespaths = Dir.entries(location)
-                    .select{|filename| filename[0,1]!="." }
-                    .map{|filename| "#{location}/#{filename}" }
-                if nonDotFilespaths.size==1 then
-                    filepath = nonDotFilespaths[0]
-                    if filepath[-4,4]==".txt" then
-                        if IO.read(filepath).strip.lines.to_a.size==1 then
-                            line = IO.read(filepath).strip
-                            line = Saturn::simplifyURLCarryingString(line)
-                            if line.start_with?("http") then
-                                ["url", line]
-                            else
-                                ["line", line]
-                            end
-                        else
-                            ["file", filepath]
-                        end
-                    elsif filepath[-7,7]==".webloc" and !filepath.include?("'") then
-                        ["file", filepath]
-                    else
-                        ["file", location]
-                    end
-                else
-                    ["file", location]
-                end
-            end
-        @@naturalTargets[location] = value
-        value
-    end
-
     def self.naturalTargetToDisplayName(pair)
         return pair[1] if pair[0]=="line"
         return pair[1] if pair[0]=="url"
@@ -209,13 +171,14 @@ class Stream
 
     def self.folderpathToCatalystObject(folderpath, indx, streamName)
         uuid = Stream::getuuid(folderpath)
+        folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath) 
         description = Stream::getItemDescription(folderpath)
         isRunning = StreamGlobalDataBaseInterface::trueIfItemIsRunning(uuid)
         metric = Stream::metric(indx, StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid), StreamGlobalDataBaseInterface::getStreamTotalTimeInSecondsLastWeek())
         metric = 2 if isRunning
         commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "set-description", "rotate", ">lib"]
         defaultExpression = ( isRunning ? "" : "start" )
-        announce = "stream: #{Stream::naturalTargetToDisplayName(Stream::naturalTargetUnderLocation(folderpath))} (#{"%.2f" % ( StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid).to_f/3600 )} hours past week)"
+        announce = "stream: #{folderProbeMetadata["announce"]} (#{"%.2f" % ( StreamGlobalDataBaseInterface::getItemTotalTimeInSecondsLastWeek(uuid).to_f/3600 )} hours past week)"
         {
             "uuid" => uuid,
             "metric" => metric,
@@ -227,8 +190,8 @@ class Stream
             "item-folderpath" => folderpath,
             "item-stream-name" => streamName,
             "item-indx" => indx,
-            "item-not-on-day:eae1e24c" => KeyValueStore::getOrNull(nil, "796c6f6b-bc6b-4a55-b576-09c7494be23d:#{uuid}") 
-
+            "item-not-on-day:eae1e24c" => KeyValueStore::getOrNull(nil, "796c6f6b-bc6b-4a55-b576-09c7494be23d:#{uuid}"), 
+            "item-folder-probe-metadata" => folderProbeMetadata
         }
     end
 
@@ -258,10 +221,8 @@ class Stream
         end
         if command=='start' then
             StreamGlobalDataBaseInterface::startItem(uuid)
-            ntargetpair = Stream::naturalTargetUnderLocation(object["item-folderpath"])
-            if ["url", "file"].include?(ntargetpair[0]) then
-                system("open '#{ntargetpair[1]}'")
-            end
+            metadata = object["item-folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)
         end
         if command=='stop' then
             StreamGlobalDataBaseInterface::stopItem(uuid)

@@ -67,12 +67,9 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 # WaveTimelineUtils::timestring22ToFolderpath(timestring22)
 # WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
 # WaveTimelineUtils::readScheduleFromWaveItemOrNull(uuid)
-# WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(uuid)
-# WaveTimelineUtils::extractNaturalObjectLocationPathAtWaveItem(uuid)
 # WaveTimelineUtils::makeNewSchedule()
 # WaveTimelineUtils::archiveWaveItems(uuid)
 # WaveTimelineUtils::commands(schedule)
-# WaveTimelineUtils::extractFirstURLOrNUll(string)
 # WaveTimelineUtils::objectuuidToCatalystObject(objectuuid)
 # WaveTimelineUtils::getCatalystObjects()
 # WaveTimelineUtils::objectUUIDToAnnounce(object,schedule)
@@ -153,81 +150,6 @@ class WaveTimelineUtils
         schedule = JSON.parse(IO.read(filepath))
     end
 
-    def self.extractCatalystDescriptionAtWaveItem(uuid) 
-
-        folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::extractCatalystDescriptionAtWaveItem for uuid: #{JSON.generate([uuid])}" if folderpath.nil?
-
-        descriptionFilepath = "#{folderpath}/catalyst-description.txt"
-        return IO.read(descriptionFilepath).strip if File.exists?(descriptionFilepath)
-
-        getFiles = lambda {|folderpath|
-            Dir.entries(folderpath)
-            .select{|filename| filename[0, 1] != '.' }
-            .select{|filename| filename[0, 4] != 'wave' }
-            .select{|filename| filename[0, 8] != 'catalyst' }
-        }
-        files = getFiles.call(folderpath)
-
-        getTextFiles = lambda {|folderpath|
-            Dir.entries(folderpath)
-            .select{|filename| filename[0, 4] != 'wave' }
-            .select{|filename| filename[0, 8] != 'catalyst' }
-            .select{|filename| filename[-4,4] == '.txt' }
-        }
-        textfiles = getTextFiles.call(folderpath)
-
-        if files.size==0 then
-            return "empty item"
-        end
-
-        if files.size == 1 and textfiles.size == 1 then
-            text = IO.read("#{folderpath}/#{textfiles[0]}")
-            if text.lines.select{|line| line.strip.size>0 }.count==1 then
-                return text.lines.first.strip
-            end
-        end
-
-        if files.size>1 then
-            "\n" + files.map{|file| "          "+file }.join("\n")
-        else
-            files[0]
-        end
-    end
-
-    def self.extractNaturalObjectLocationPathAtWaveItem(uuid)
-        folderpath = WaveTimelineUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        raise "[error] WaveTimelineUtils::extractNaturalObjectLocationPathAtWaveItem for uuid: #{uuid}" if folderpath.nil?
-
-        filepath = "#{folderpath}/wave-target-filename.txt"
-        return  "#{folderpath}/#{IO.read(filepath).strip}" if File.exists?(filepath)
-
-        filepath = "#{folderpath}/catalyst-natural-target.txt"
-        return  "#{folderpath}/#{IO.read(filepath).strip}" if File.exists?(filepath)
-
-        filepath = "#{folderpath}/catalyst-description.txt"
-        if File.exists?(filepath) then
-            description =  IO.read("#{folderpath}/catalyst-description.txt").strip
-            if File.exists?("#{folderpath}/#{description}") then
-                File.open("#{folderpath}/wave-target-filename.txt",'w'){|f| f.write(description) }
-            end
-        end
-        return filepath if File.exists?(filepath) 
-
-        getFiles = lambda {|folderpath|
-            Dir.entries("#{folderpath}")
-            .select{|filename| filename[0, 1] != '.' }
-            .select{|filename| filename[0, 8] != 'catalyst' }
-            .select{|filename| filename[0, 4] != 'wave' }
-        }
-        files = getFiles.call(folderpath)
-        if files.size == 1 then
-            return "#{folderpath}/#{files[0]}"
-        end               
-
-        "#{folderpath}"
-    end
-
     def self.makeNewSchedule()
         WaveSchedules::makeScheduleObjectInteractivelyOrNull()
     end
@@ -241,31 +163,21 @@ class WaveTimelineUtils
         FileUtils.mv("#{folderpath}",targetFolder)
     end
 
-    def self.commands(schedule)
+    def self.commands(folderProbeMetadata)
         ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", '>lib']
     end
 
-    def self.defaultExpression(announce, schedule)
-        if schedule["@"].start_with?("every") then
-            if announce.include?("http") then
-                "open done"
-            else
-                "done"
-            end
-        else
-            "open done"
+    def self.defaultExpression(folderProbeMetadata)
+        if folderProbeMetadata["target-type"] == "openable-file" then
+            return "open done"
         end
-    end
-
-    def self.extractFirstURLOrNUll(string)
-        return nil if !string.include?('http')
-        while string.include?('http') and !string.start_with?('http') do
-            string = string[1,string.length]
+        if folderProbeMetadata["target-type"] == "url" then
+            return "open done"
         end
-        if string.include?(' ') then
-            string = string[0,string.index(' ')]
+        if folderProbeMetadata["target-type"] == "folder" then
+            return "open done"
         end
-        string
+        "done"
     end
 
     def self.objectuuidToCatalystObject(objectuuid)
@@ -279,16 +191,18 @@ class WaveTimelineUtils
             puts "Could not find schedule for location: #{location}"
             exit
         end
+        folderProbeMetadata = FolderProbe::folderpath2metadata(location)
         metric = WaveSchedules::scheduleToMetric(schedule)
-        announce = WaveTimelineUtils::objectUUIDToAnnounce(objectuuid, schedule)
+        announce = WaveTimelineUtils::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object = {}
         object['uuid'] = objectuuid
         object['metric'] = metric
         object['announce'] = announce
-        object['commands'] = WaveTimelineUtils::commands(schedule)
-        object["default-expression"] = WaveTimelineUtils::defaultExpression(announce, schedule)
+        object['commands'] = WaveTimelineUtils::commands(folderProbeMetadata)
+        object["default-expression"] = WaveTimelineUtils::defaultExpression(folderProbeMetadata)
         object['command-interpreter'] = lambda {|object, command| WaveInterface::interpreter(object, command) }
         object['schedule'] = schedule
+        object["item-folder-probe-metadata"] = folderProbeMetadata
         object
     end
 
@@ -297,18 +211,14 @@ class WaveTimelineUtils
             .map{|objectuuid| WaveTimelineUtils::objectuuidToCatalystObject(objectuuid) }
     end
 
-    def self.objectUUIDToAnnounce(objectuuid,schedule)
-        output = []        
-        p4 = WaveTimelineUtils::extractCatalystDescriptionAtWaveItem(objectuuid)
-        p4 = p4.size==0 ? "" : " #{p4}"
-        p5 = WaveSchedules::scheduleToAnnounce(schedule)
+    def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
         p6 = 
             if schedule["do-not-show-until-datetime"] and ( schedule["do-not-show-until-datetime"] > Time.new.to_s ) then
                 " (not shown until #{schedule["do-not-show-until-datetime"]})"
             else
                 ""
             end
-        "{#{p5}}#{p4}#{p6}"    
+        "[#{WaveSchedules::scheduleToAnnounce(schedule)}] #{folderProbeMetadata["announce"]}#{p6}"
     end
 
     def self.removeWaveMetadataFilesAtLocation(location)
@@ -603,17 +513,10 @@ class WaveDevOps
             .map{|filename| "#{WAVE_DROPOFF_FOLDERPATH}/#{filename}" }
             .each{|sourcelocation|
                 uuid = SecureRandom.hex(4)
-                description = 
-                    if sourcelocation[-4,4] == '.txt' and IO.read(sourcelocation).lines.to_a.size == 1 then
-                        IO.read(sourcelocation).strip
-                    else
-                        File.basename(sourcelocation)
-                    end
                 schedule = WaveSchedules::makeScheduleObjectNew()
                 folderpath = WaveTimelineUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-                File.open("#{folderpath}/catalyst-description.txt", 'w') {|f| f.write(description) }
                 WaveTimelineUtils::writeScheduleToDisk(uuid,schedule)
                 if File.file?(sourcelocation) then
                     FileUtils.cp(sourcelocation,folderpath)
@@ -653,19 +556,8 @@ class WaveInterface
         objectuuid = object['uuid']
 
         if command=='open' then
-            objectuuid = object['uuid']
-            naturalobjectlocation = WaveTimelineUtils::extractNaturalObjectLocationPathAtWaveItem(objectuuid)
-            if File.file?(naturalobjectlocation) and naturalobjectlocation[-4,4] == '.txt' and IO.read(naturalobjectlocation).strip.lines.to_a.size == 1 and IO.read(naturalobjectlocation).strip.start_with?('http') then
-                url = IO.read(naturalobjectlocation).strip
-                system("open -a Safari '#{url}'")
-                return
-            end            
-            if File.file?(naturalobjectlocation) then
-                system("open '#{naturalobjectlocation}'")
-                return
-            end
-            puts "Opening #{naturalobjectlocation}"
-            system("open '#{naturalobjectlocation}'")
+            metadata = object["item-folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)            
         end
 
         if command=='done' then
