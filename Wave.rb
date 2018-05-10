@@ -417,7 +417,7 @@ class WaveObjects
         if folderProbeMetadata["target-type"] == "folder" then
             return "open"
         end
-        "done"
+        nil
     end
 
     def self.objectuuidToCatalystObjectOrNull(objectuuid)
