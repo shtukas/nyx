@@ -76,10 +76,11 @@ class OpenProjects
 
     def self.setObjectsCache(envelop)
         @@objectsCache = envelop
+        KeyValueStore::set(nil, "e16bf2b1-5e81-4b55-a676-d6ac068fb6b6", JSON.generate(envelop))
     end
 
     def self.updateObjectsCacheOnThisObject(object)
-        thisOne, theOtherOnes = @@objectsCache.partition{|object| object["uuid"]==uuid }
+        thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
         newObject = OpenProjects::folderpath2CatalystObjectOrNull(object["item-folderpath"])
         @@objectsCache = (theOtherOnes + [newObject]).compact
     end
@@ -125,23 +126,7 @@ class OpenProjects
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
             "default-expression" => isRunning ? "" : "start",
-            "command-interpreter" => lambda{|object, command|
-                if command=='start' then
-                    metadata = object["item-folder-probe-metadata"]
-                    FolderProbe::openActionOnMetadata(metadata)
-                    GenericTimeTracking::start(object["uuid"])
-                end
-                if command=='stop' then
-                    GenericTimeTracking::stop(object["uuid"])
-                end
-                if command=="completed" then
-                    GenericTimeTracking::stop(object["uuid"])
-                    OpenProjects::performObjectClosing(object)
-                end
-                if command=="folder" then
-                    system("open '#{object["item-folderpath"]}'")
-                end
-            },
+            "command-interpreter" => lambda{|object, command| OpenProjects::objectCommandHandler(object, command) },
             "item-folder-probe-metadata" => folderProbeMetadata,
             "item-folderpath" => folderpath
         }        
@@ -152,7 +137,33 @@ class OpenProjects
             .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
             .compact
     end
+
+    def self.objectCommandHandler(object, command)
+        if command=='start' then
+            metadata = object["item-folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)
+            GenericTimeTracking::start(object["uuid"])
+        end
+        if command=='stop' then
+            GenericTimeTracking::stop(object["uuid"])
+        end
+        if command=="completed" then
+            GenericTimeTracking::stop(object["uuid"])
+            OpenProjects::performObjectClosing(object)
+        end
+        if command=="folder" then
+            system("open '#{object["item-folderpath"]}'")
+        end
+    end
 end
+
+OpenProjects::setObjectsCache(
+    JSON.parse(KeyValueStore::getOrDefaultValue(nil, "e16bf2b1-5e81-4b55-a676-d6ac068fb6b6", "[]"))
+    .map{|object|
+        object['command-interpreter'] = lambda{|object, command| OpenProjects::objectCommandHandler(object, command) }
+        object
+    }    
+)
 
 Thread.new {
     loop {

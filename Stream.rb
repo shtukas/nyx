@@ -50,10 +50,11 @@ class Stream
 
     def self.setObjectsCache(envelop)
         @@objectsCache = envelop
+        KeyValueStore::set(nil, "c53e0f2c-d9cf-4a8e-b14e-07034070a978", JSON.generate(envelop))
     end
 
     def self.updateObjectsCacheOnThisObject(object)
-        thisOne, theOtherOnes = @@objectsCache.partition{|object| object["uuid"]==uuid }
+        thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
         newObject = Stream::folderpathToCatalystObjectOrNull(object["item-folderpath"])
         @@objectsCache = (theOtherOnes + [newObject]).compact
     end
@@ -168,6 +169,14 @@ class Stream
     end
 
 end
+
+Stream::setObjectsCache(
+    JSON.parse(KeyValueStore::getOrDefaultValue(nil, "c53e0f2c-d9cf-4a8e-b14e-07034070a978", "[]"))
+    .map{|object|
+        object['command-interpreter'] = lambda{|object, command| Stream::objectCommandHandler(object, command) }
+        object
+    }
+)
 
 Thread.new {
     loop {
