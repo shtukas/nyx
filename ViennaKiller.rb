@@ -74,7 +74,7 @@ class ViennaKiller
         end
         targetobject = Vienna::getCatalystObjects().first
         if targetobject then
-            targetobject["metric"] = @@killerMetric
+            targetobject["metric"] = [@@killerMetric, 0.99].min
             targetobject["announce"] = "(vienna killer) #{targetobject["announce"]}"
             [ targetobject ]
         else

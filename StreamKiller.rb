@@ -86,7 +86,7 @@ class StreamKiller
         end
         targetobject = Stream::getCatalystObjects().sample
         if targetobject then
-            targetobject["metric"] = @@killerMetric
+            targetobject["metric"] = [@@killerMetric, 0.99].min
             targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
             [ targetobject ]
         else
