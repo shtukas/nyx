@@ -60,6 +60,8 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 # -------------------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
+$VIENNA_LINKS = []
+
 
 # select link from messages where read_flag=0;
 # update messages set read_flag=1 where link="https://www.schneier.com/blog/archives/2018/04/security_vulner_14.html"
@@ -87,12 +89,16 @@ class Vienna
         system("sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'")
     end
 
-    def self.getCatalystObjects()
+    def self.metric()
         FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        link = Vienna::getUnreadLinkOrNull()
+        metric = 0.2 + 0.6*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20)
+    end
+
+    def self.getCatalystObjects()
+        link = $VIENNA_LINKS.first
         return [] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
-        metric = 0.2 + 0.6*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20)
+        metric = Vienna::metric()
         [
             {
                 "uuid" => uuid,
@@ -105,7 +111,11 @@ class Vienna
                         system("open '#{object["link"]}'")
                     end
                     if command=='done' then
-                        Vienna::setLinkAsRead(object["link"])
+                        link = object["link"]
+                        $VIENNA_LINKS.delete(link)
+                        Thread.new { 
+                            Vienna::setLinkAsRead(link)
+                        }
                         FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
                     end
                 },
@@ -115,3 +125,8 @@ class Vienna
     end
 
 end
+
+Thread.new { 
+    $VIENNA_LINKS = Vienna::getUnreadLinks()
+}
+
