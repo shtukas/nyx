@@ -112,7 +112,7 @@ class Today
             todaysections2 = todaysections1.select{|section|
                 Today::sectionToLength8UUID(section) != uuid
             }
-            File.open(TODAY_PATH_TO_DATA_FILE, 'w') {|f| 
+            File.open(TODAY_PATH_TO_DATA_FILE, 'w') {|f|
                 todaysections2.each{|section|
                     f.puts(Today::section_to_string(section))
                 }
@@ -157,7 +157,7 @@ class Today
                 },
                 "item-section" => section.join()
             }
-        }  
+        }
         objects
     end
 

@@ -80,7 +80,7 @@ class CatalystObjects
                 "objects" => xobjects,
                 "time"    => queryTime
             }
-        }        
+        }
     end
     def self.all()
         struct1 = CatalystObjects::structure1()
@@ -99,4 +99,3 @@ class CatalystObjects
         objects
     end
 end
-

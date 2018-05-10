@@ -250,7 +250,7 @@ class Collections
 
     def self.addObjectToCollection(uuid, collection)
         @@data[collection] = [] if @@data[collection].nil?
-        @@data[collection] << uuid 
+        @@data[collection] << uuid
         @@data[collection] = @@data[collection].uniq
         Collections::saveDataToDisk()
     end
@@ -287,27 +287,27 @@ end
 # FolderProbe::folderpath2metadata(folderpath)
     #    {
     #        "target-type" => "folder"
-    #        "target-location" => 
-    #        "announce" => 
+    #        "target-location" =>
+    #        "announce" =>
     #    }
     #    {
     #        "target-type" => "openable-file"
-    #        "target-location" => 
-    #        "announce" => 
+    #        "target-location" =>
+    #        "announce" =>
     #    }
     #    {
     #        "target-type" => "line",
     #        "text" => line
-    #        "announce" => 
+    #        "announce" =>
     #    }
     #    {
     #        "target-type" => "url",
-    #        "url" => 
-    #        "announce" => 
+    #        "url" =>
+    #        "announce" =>
     #    }
     #    {
     #        "target-type" => "virtually-empty-wave-folder",
-    #        "announce" => 
+    #        "announce" =>
     #    }
 
 # FolderProbe::openActionOnMetadata(metadata)
@@ -350,17 +350,17 @@ class FolderProbe
         end
 
         # --------------------------------------------------------------------
-        # 
+        #
 
         files = FolderProbe::nonDotFilespathsAtFolder(folderpath)
                 .select{|filepath| !File.basename(filepath).start_with?('wave') }
                 .select{|filepath| !File.basename(filepath).start_with?('catalyst') }
 
         fileIsOpenable = lambda {|filepath|
-            File.basename(filepath)[-4,4]==".txt" or 
-            File.basename(filepath)[-4,4]==".eml" or 
-            File.basename(filepath)[-4,4]==".jpg" or 
-            File.basename(filepath)[-4,4]==".png" or 
+            File.basename(filepath)[-4,4]==".txt" or
+            File.basename(filepath)[-4,4]==".eml" or
+            File.basename(filepath)[-4,4]==".jpg" or
+            File.basename(filepath)[-4,4]==".png" or
             File.basename(filepath)[-4,4]==".gif" or
             File.basename(filepath)[-7,7]==".webloc"
         }
@@ -394,8 +394,8 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = folderpath
             end
-            return metadata     
-        end 
+            return metadata
+        end
 
         if files.size==1 and ( url = extractURLFromFileMaybe.call(files[0]) ) then
             filepath = files.first
@@ -404,7 +404,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = url
             end
-            return metadata     
+            return metadata
         end
 
         if files.size==1 and ( line = extractLineFromFileMaybe.call(files[0]) ) then
@@ -414,7 +414,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = line
             end
-            return metadata     
+            return metadata
         end
 
         if files.size==1 and openableFiles.size==1 then
@@ -424,7 +424,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = File.basename(filepath)
             end
-            return metadata     
+            return metadata
         end
 
         if files.size==1 and openableFiles.size!=1 then
@@ -434,7 +434,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = "One non-openable file in #{File.basename(folderpath)}"
             end
-            return metadata     
+            return metadata
         end
 
         if files.size > 1 and filesWithoutTheDescription.size==1 and fileIsOpenable.call(filesWithoutTheDescription.first) then
@@ -443,7 +443,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
             end
-            return metadata     
+            return metadata
         end
 
         if files.size > 1 then
@@ -452,7 +452,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
             end
-            return metadata     
+            return metadata
         end
     end
 

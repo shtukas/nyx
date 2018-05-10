@@ -51,7 +51,7 @@ class Ninja
                 "metric" => metric,
                 "announce" => "ninja: folderpath: #{File.basename(folderpath)}",
                 "commands" => [],
-                "command-interpreter" => lambda{|object, command| 
+                "command-interpreter" => lambda{|object, command|
                     folderpath = object["ninja-folderpath"]
                     system("ninja api:play-folderpath '#{folderpath}'")
                     FIFOQueue::takeFirstOrNull(nil, "folderpaths-f363-4a11-9251-b7301406e261")

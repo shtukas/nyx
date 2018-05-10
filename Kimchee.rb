@@ -29,7 +29,7 @@ class Kimchee
                         "metric"              => 1,
                         "announce"            => "Well done for making it to #{timespan.to_f/(86400*7)} weeks (^_^) 💕",
                         "commands"            => ["love"],
-                        "command-interpreter" => lambda{ |object, command| 
+                        "command-interpreter" => lambda{ |object, command|
                             if command=="love" then
                                 KeyValueStore::set(nil, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}", "done")
                                 return [nil, false]

@@ -113,7 +113,7 @@ class Vienna
                     if command=='done' then
                         link = object["link"]
                         $VIENNA_LINKS.delete(link)
-                        Thread.new { 
+                        Thread.new {
                             Vienna::setLinkAsRead(link)
                         }
                         FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
@@ -126,7 +126,6 @@ class Vienna
 
 end
 
-Thread.new { 
+Thread.new {
     $VIENNA_LINKS = Vienna::getUnreadLinks()
 }
-

@@ -102,4 +102,3 @@ Thread.new {
         ViennaKiller::setKillerMetric(metric1)
     }
 }
-

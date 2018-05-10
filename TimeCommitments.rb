@@ -110,7 +110,7 @@ class TimeCommitments
 
     def self.writeDataToDisk(data)
         data.each{|item|
-            SetsOperator::insert(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"], item)    
+            SetsOperator::insert(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"], item)
         }
     end
 
@@ -157,7 +157,7 @@ class TimeCommitments
             .first
     end
 
-    def self.itemToLiveTimespan(item) 
+    def self.itemToLiveTimespan(item)
         item["timespans"].inject(0,:+) + ( item["is-running"] ? Time.new.to_i - item["last-start-unixtime"] : 0 )
     end
 
@@ -181,7 +181,7 @@ class TimeCommitments
     def self.garbageCollectionGlobal()
         items = TimeCommitments::getItems()
         domains = TimeCommitments::getUniqueDomains(items)
-        domains.each{|domain|  
+        domains.each{|domain|
             domainItems = items.select{|item| item["domain"]==domain }
             TimeCommitments::garbageCollectionItems(domainItems)
         }

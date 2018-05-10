@@ -44,6 +44,6 @@ class GuardianTime
             end
             KeyValueStore::set(nil, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}","done")
         end
-        [] 
+        []
     end
 end

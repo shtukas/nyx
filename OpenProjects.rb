@@ -129,7 +129,7 @@ class OpenProjects
             "command-interpreter" => lambda{|object, command| OpenProjects::objectCommandHandler(object, command) },
             "item-folder-probe-metadata" => folderProbeMetadata,
             "item-folderpath" => folderpath
-        }        
+        }
     end
 
     def self.getCatalystObjectsFromDisk()
@@ -162,7 +162,7 @@ OpenProjects::setObjectsCache(
     .map{|object|
         object['command-interpreter'] = lambda{|object, command| OpenProjects::objectCommandHandler(object, command) }
         object
-    }    
+    }
 )
 
 Thread.new {
@@ -171,4 +171,3 @@ Thread.new {
         OpenProjects::setObjectsCache(OpenProjects::getCatalystObjectsFromDisk())
     }
 }
-

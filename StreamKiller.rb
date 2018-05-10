@@ -114,5 +114,3 @@ Thread.new {
         StreamKiller::setKillerMetric(metric1)
     }
 }
-
-

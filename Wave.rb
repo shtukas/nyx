@@ -109,7 +109,7 @@ class WaveSchedules
         if scheduleType=='date' then
             puts "date:"
             puts "    format: YYYY-MM-DD"
-            puts "    format: +<integer, nb of days>" 
+            puts "    format: +<integer, nb of days>"
             print "> "
             date = STDIN.gets().strip
             if date[0, 1] == '+' then
@@ -161,7 +161,7 @@ class WaveSchedules
         end
         if schedule['@'] == 'today' then
             return "today"
-        end          
+        end
         if schedule['@'] == 'sticky' then
             return "sticky"
         end
@@ -334,7 +334,7 @@ class WaveObjects
             thisUUID = IO.read(path).strip
             next if thisUUID!=uuid
             return File.dirname(path)
-        end        
+        end
         nil
     end
 
@@ -378,7 +378,7 @@ class WaveObjects
 
     def self.readScheduleFromWaveItemOrNull(uuid)
         folderpath = WaveObjects::catalystUUIDToItemFolderPathOrNull(uuid)
-        filepath = 
+        filepath =
             if File.exists?("#{folderpath}/wave-schedule.json") then
                 "#{folderpath}/wave-schedule.json"
             elsif File.exists?("#{folderpath}/catalyst-schedule.json") then
@@ -444,7 +444,7 @@ class WaveObjects
     end
 
     def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
-        p6 = 
+        p6 =
             if schedule["do-not-show-until-datetime"] and ( schedule["do-not-show-until-datetime"] > Time.new.to_s ) then
                 " (not shown until #{schedule["do-not-show-until-datetime"]})"
             else
@@ -485,13 +485,13 @@ class WaveInterface
 
         if command=='open' then
             metadata = object["item-folder-probe-metadata"]
-            FolderProbe::openActionOnMetadata(metadata)            
+            FolderProbe::openActionOnMetadata(metadata)
         end
 
         if command=='done' then
 
             if schedule['@'] == 'new' then
-                WaveObjects::archiveWaveItems(objectuuid)        
+                WaveObjects::archiveWaveItems(objectuuid)
             end
             if schedule['@'] == 'today' then
                 WaveObjects::archiveWaveItems(objectuuid)
@@ -508,7 +508,7 @@ class WaveInterface
                 WaveObjects::writeScheduleToDisk(objectuuid, schedule)
             end
             if schedule['@'] == 'ondate' then
-                WaveObjects::archiveWaveItems(objectuuid)        
+                WaveObjects::archiveWaveItems(objectuuid)
             end
             if schedule['@'] == 'every-n-hours' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
@@ -543,7 +543,7 @@ class WaveInterface
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
-                WaveObjects::archiveWaveItems(objectuuid)                       
+                WaveObjects::archiveWaveItems(objectuuid)
             end
         end
 
@@ -552,7 +552,7 @@ class WaveInterface
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveObjects::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            WaveObjects::archiveWaveItems(objectuuid) 
+            WaveObjects::archiveWaveItems(objectuuid)
         end
 
         if command=='>open-projects' then
@@ -560,7 +560,7 @@ class WaveInterface
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             WaveObjects::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            WaveObjects::archiveWaveItems(objectuuid) 
+            WaveObjects::archiveWaveItems(objectuuid)
         end
 
         if command=='>lib' then
@@ -575,9 +575,9 @@ class WaveInterface
             targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
-            WaveObjects::archiveWaveItems(objectuuid) 
+            WaveObjects::archiveWaveItems(objectuuid)
         end
- 
+
         nil
     end
 end
@@ -596,4 +596,3 @@ Thread.new {
         WaveObjects::setObjectsCache(WaveObjects::getCatalystObjectsFromDisk())
     }
 }
-

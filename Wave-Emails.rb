@@ -70,7 +70,7 @@ class EmailUtils
         filename = "#{filetrace}.eml"
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(msg) }
-        mailObject = Mail.read(filepath) 
+        mailObject = Mail.read(filepath)
         FileUtils.rm(filepath)
         mailObject.subject
     end
@@ -81,7 +81,7 @@ class EmailUtils
         filename = "#{filetrace}.eml"
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(msg) }
-        mailObject = Mail.read(filepath) 
+        mailObject = Mail.read(filepath)
         FileUtils.rm(filepath)
         mailObject.body.decoded
     end
@@ -92,7 +92,7 @@ class EmailUtils
         filename = "#{filetrace}.eml"
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(msg) }
-        mailObject = Mail.read(filepath) 
+        mailObject = Mail.read(filepath)
         mailObject.from
     end
 end
@@ -138,7 +138,7 @@ class EmailStatusManagement
             "uuid"   => objectuuid,
             "type"   => "email-imap-sync-status-af214081-ad91-4e1a-8422-682a2cffc60b",
             "status" => status
-        }        
+        }
     end
 
     # EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid, verbose)
@@ -156,9 +156,9 @@ class EmailStatusManagement
                 targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
                 FileUtils.mkpath(targetFolder)
                 FileUtils.mv(folderpath,targetFolder)
-            end            
+            end
         end
-        
+
         statusobjectuuid = "#{emailuid}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
 
         EmailMetadataManagement::objectsDestroyObject(statusobjectuuid )
@@ -293,7 +293,7 @@ class GeneralEmailClient
                 puts "email agent: We have a local init email that is not longer on the server. Removing email point: emailuid: #{emailuid}" if verbose
                 EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid,verbose)
                 next
-            end            
+            end
         }
 
         imap.expunge # delete all messages marked for deletion
@@ -360,4 +360,3 @@ class OperatorEmailDownloader
 end
 
 # -------------------------------------------------------------------------------------
-

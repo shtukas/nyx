@@ -9,4 +9,3 @@ require_relative "CatalystObjects.rb"
 CatalystObjects::all().each{|object|
     puts "#{object['announce'].lines.first}"
 }
-
