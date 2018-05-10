@@ -417,7 +417,7 @@ end
 # GenericTimeTracking::status(uuid): [boolean, null or unixtime]
 # GenericTimeTracking::start(uuid)
 # GenericTimeTracking::stop(uuid)
-# GenericTimeTracking::metric(uuid)
+# GenericTimeTracking::metric2(uuid, low, high, hourstoMinusOne)
 
 class GenericTimeTracking
     def self.status(uuid)
@@ -440,7 +440,7 @@ class GenericTimeTracking
         KeyValueStore::set(nil, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
-    def self.metric(uuid)
+    def self.metric2(uuid, low, high, hourstoMinusOne)
         adaptedTimespanInSeconds = FIFOQueue::values(nil, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
             .map{|pair|
                 unixtime = pair[0]
@@ -451,6 +451,6 @@ class GenericTimeTracking
             }
             .inject(0, :+)
         adaptedTimespanInHours = adaptedTimespanInSeconds.to_f/3600
-        0.1 + 0.7*Math.exp(-adaptedTimespanInHours)
+        low + (high-low)*Math.exp(-adaptedTimespanInHours.to_f/hourstoMinusOne)
     end
 end

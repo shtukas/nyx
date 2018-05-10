@@ -74,7 +74,7 @@ class Stream
         announce = "stream: #{folderProbeMetadata["announce"]}"
         {
             "uuid" => uuid,
-            "metric" => isRunning ? 2 : GenericTimeTracking::metric(uuid),
+            "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0, 0.7, 1) * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8),
             "announce" => announce,
             "commands" => commands,
             "default-expression" => defaultExpression,
@@ -108,9 +108,11 @@ class Stream
             metadata = object["item-folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(uuid)
+            GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
+            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
         end
         if command=="completed" then
             Stream::performObjectClosing(object)

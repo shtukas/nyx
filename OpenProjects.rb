@@ -90,7 +90,7 @@ class OpenProjects
             isRunning = status[0]
             {
                 "uuid" => uuid,
-                "metric" => isRunning ? 2 : GenericTimeTracking::metric(uuid),
+                "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1),
                 "announce" => announce,
                 "commands" => isRunning ? ["stop"] : ["start"],
                 "command-interpreter" => lambda{|object, command|
