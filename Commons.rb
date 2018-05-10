@@ -347,6 +347,11 @@ class FolderProbe
         descriptionOpt = getDescriptionFromDescriptionFileMaybe.call(folderpath)
         if descriptionOpt then
             metadata["announce"] = descriptionOpt
+            if descriptionOpt.start_with?("http") then
+                metadata["target-type"] = "url"
+                metadata["url"] = descriptionOpt
+                return metadata
+            end
         end
 
         # --------------------------------------------------------------------
