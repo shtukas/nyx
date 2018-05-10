@@ -83,7 +83,7 @@ class OpenProjects
     def self.updateObjectsCacheOnThisObject(object)
         thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
         newObject = OpenProjects::folderpath2CatalystObjectOrNull(object["item-folderpath"])
-        @@objectsCache = (theOtherOnes + [newObject]).compact
+        OpenProjects::setObjectsCache((theOtherOnes + [newObject]).compact)
     end
 
     def self.getCatalystObjects()

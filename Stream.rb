@@ -56,7 +56,7 @@ class Stream
     def self.updateObjectsCacheOnThisObject(object)
         thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
         newObject = Stream::folderpathToCatalystObjectOrNull(object["item-folderpath"])
-        @@objectsCache = (theOtherOnes + [newObject]).compact
+        Stream::setObjectsCache((theOtherOnes + [newObject]).compact)
     end
 
     def self.getCatalystObjects()

@@ -320,7 +320,7 @@ class WaveObjects
     def self.updateObjectsCacheOnThisObject(object)
         thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
         newObject = WaveObjects::objectuuidToCatalystObjectOrNull(object["uuid"])
-        @@objectsCache = (theOtherOnes + [newObject]).compact
+        WaveObjects::setObjectsCache((theOtherOnes + [newObject]).compact)
     end
 
     def self.getCatalystObjects()
