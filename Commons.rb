@@ -412,3 +412,44 @@ class FolderProbe
         end
     end
 end
+
+# GenericTimeTracking::status(uuid): [boolean, null or unixtime]
+# GenericTimeTracking::start(uuid)
+# GenericTimeTracking::stop(uuid)
+# GenericTimeTracking::metric(uuid)
+
+class GenericTimeTracking
+    def self.status(uuid)
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
+    end
+
+    def self.start(uuid)
+        status = GenericTimeTracking::status(uuid)
+        return if status[0]
+        status = [true, Time.new.to_i]
+        KeyValueStore::set(nil, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+    end
+
+    def self.stop(uuid)
+        status = GenericTimeTracking::status(uuid)
+        return if !status[0]
+        timespan = Time.new.to_i - status[1]
+        FIFOQueue::push(nil, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
+        status = [false, nil]
+        KeyValueStore::set(nil, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+    end
+
+    def self.metric(uuid)
+        adaptedTimespanInSeconds = FIFOQueue::values(nil, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+            .map{|pair|
+                unixtime = pair[0]
+                timespan = pair[1]
+                ageInSeconds = Time.new.to_i - unixtime
+                ageInDays = ageInSeconds.to_f/86400
+                timespan * Math.exp(ageInDays*2)
+            }
+            .inject(0, :+)
+        adaptedTimespanInHours = adaptedTimespanInSeconds.to_f/3600
+        0.1 + 0.7*Math.exp(-adaptedTimespanInHours)
+    end
+end
