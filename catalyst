@@ -412,8 +412,8 @@ class Jupiter
                 .reverse
             objects = objects.take(workspaceSize)
             system("clear")
-            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".yellow
+            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             selectedObject = objects.last
             objects.each_with_index{|object, index|
                 string =
