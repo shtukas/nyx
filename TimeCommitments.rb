@@ -197,7 +197,7 @@ class TimeCommitments
         .map{|item|
             uuid = item['uuid']
             ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-            metric = item['metric'] ? item['metric'] : ( 0.3 + 0.5*Math.exp(-ratioDone*2) )
+            metric = item['metric'] ? item['metric'] : ( 0.3 + 0.5*Math.exp(-ratioDone*2) + Saturn::traceToMetricShift(uuid) )
             metric = 2 if item["is-running"]
             announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
             commands = item["is-running"] ? ["stop", "stop+"] : ["start"]

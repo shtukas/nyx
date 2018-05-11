@@ -86,14 +86,14 @@ class StreamKiller
         end
         targetobject = Stream::getCatalystObjects().sample
         if targetobject then
-            targetobject["metric"] = [@@killerMetric, 0.99].min
+            targetobject["metric"] = [@@killerMetric, 1].min - Saturn::traceToMetricShift("ec47ddf3-3040-4c7d-85ce-6c5db280f4a6")
             targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
             [ targetobject ]
         else
             [
                 {
                     "uuid" => SecureRandom.hex(4),
-                    "metric" => 0.5,
+                    "metric" => 0.5 + Saturn::traceToMetricShift("ec47ddf3-3040-4c7d-85ce-6c5db280f4a6"),
                     "announce" => "-> stream killer could not retrieve a targetuuid",
                     "commands" => [],
                     "command-interpreter" => lambda{|object, command| }

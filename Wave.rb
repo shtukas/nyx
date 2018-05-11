@@ -240,30 +240,30 @@ class WaveSchedules
             return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
-            return 0.9 + Saturn::traceToMetricShift(schedule['uuid'])
+            return 0.9
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.77 + Saturn::traceToMetricShift(schedule['uuid'])
+                return 0.77
             end
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
+            return 0.78
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
+            return 0.78
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
+            return 0.78
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.78 + Saturn::traceToMetricShift(schedule['uuid'])
+            return 0.78
         end
         1
     end
@@ -445,7 +445,7 @@ class WaveObjects
         announce = WaveObjects::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object = {}
         object['uuid'] = objectuuid
-        object['metric'] = metric
+        object['metric'] = metric + Saturn::traceToMetricShift(objectuuid)
         object['announce'] = announce
         object['commands'] = WaveObjects::commands(folderProbeMetadata)
         object["default-expression"] = WaveObjects::defaultExpression(folderProbeMetadata, schedule)

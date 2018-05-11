@@ -125,7 +125,7 @@ class OpenProjects
         isRunning = status[0]
         {
             "uuid" => uuid,
-            "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1),
+            "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0.1, 0.8, 1) + Saturn::traceToMetricShift(uuid),
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
             "default-expression" => isRunning ? "" : "start",

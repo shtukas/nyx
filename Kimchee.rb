@@ -26,7 +26,7 @@ class Kimchee
                 [
                     {
                         "uuid"                => "46f97eb4",
-                        "metric"              => 1,
+                        "metric"              => 1-Saturn::traceToMetricShift("1d510e86-c171-4964-a170-1bc61c6a3201"),
                         "announce"            => "Well done for making it to #{timespan.to_f/(86400*7)} weeks (^_^) 💕",
                         "commands"            => ["love"],
                         "command-interpreter" => lambda{ |object, command|

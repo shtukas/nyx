@@ -93,7 +93,7 @@ class Stream
         announce = "stream: #{Saturn::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
         {
             "uuid" => uuid,
-            "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0, 0.7, 1) * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8),
+            "metric" => isRunning ? 2 : GenericTimeTracking::metric2(uuid, 0, 0.7, 1) * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid),
             "announce" => announce,
             "commands" => commands,
             "default-expression" => defaultExpression,
