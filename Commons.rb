@@ -101,6 +101,22 @@ class RequirementsOperator
     end
 
     def self.saveDataToDisk()
+        objects = CatalystObjects::all()
+        uuidsInFile = @@data["items-requirements-distribution"].keys
+        uuidsInFile.each{|uuid|
+            if !objects.map{|object| object["uuid"] }.include?(uuid) then
+                @@data["items-requirements-distribution"].delete(uuid)
+            end
+            if @@data["items-requirements-distribution"][uuid].size==0 then
+                @@data["items-requirements-distribution"].delete(uuid)
+            end
+        }
+        requirements = @@data['items-requirements-distribution'].values.flatten.uniq
+        @@data['requirements-status'].keys.each{|r|
+            if !requirements.include?(r) then
+                @@data['requirements-status'].delete(r)
+            end
+        }
         File.open(@@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@@data)) }
     end
 
@@ -109,7 +125,7 @@ class RequirementsOperator
     end
 
     def self.requirementIsCurrentlySatisfied(requirement)
-        @@data['requirements-status-timeline'][requirement].nil? or @@data['requirements-status-timeline'][requirement]
+        @@data['requirements-status'][requirement].nil? or @@data['requirements-status'][requirement]
     end
 
     def self.objectMeetsRequirements(uuid)
@@ -134,12 +150,12 @@ class RequirementsOperator
     end
 
     def self.setRequirementOn(requirement)
-        @@data['requirements-status-timeline'][requirement] = true
+        @@data['requirements-status'][requirement] = true
         RequirementsOperator::saveDataToDisk()
     end
 
     def self.setRequirementOff(requirement)
-        @@data['requirements-status-timeline'][requirement] = false
+        @@data['requirements-status'][requirement] = false
         RequirementsOperator::saveDataToDisk()
     end
 
@@ -152,7 +168,7 @@ class RequirementsOperator
     end
 
     def self.selectExistingRequirement()
-        requirements = @@data['requirements-status-timeline'].keys
+        requirements = @@data['requirements-status'].keys
         LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", requirements)
     end
 end

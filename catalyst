@@ -135,44 +135,6 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("r:show") then
-            requirement = expression[6, expression.size].strip
-            if requirement.size==0 then
-                requirement = RequirementsOperator::selectExistingRequirement()
-            end
-            loop {
-                requirementObjects = CatalystObjects::all().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-            }
-            return
-        end
-
-        if expression.start_with?("c:show") then
-            collection = expression[6, expression.size].strip
-            if collection.size==0 then
-                collection = Collections::selectExistingCollection()
-            end
-            loop {
-                uuids = Collections::getCollectionUUIDs(collection)
-                objects = CatalystObjects::all().select{|object| uuids.include?(object["uuid"]) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-            }
-            return
-        end
-
-        if expression.start_with?("c:add")  then
-            collection = expression[5, expression.size].strip
-            if collection.size==0 then
-                collection = Collections::selectExistingOrNewCollection()
-            end
-            Collections::addObjectToCollection(object["uuid"], collection)
-            return
-        end
-
         if expression.start_with?('+') then
             code = expression
             if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
@@ -224,6 +186,68 @@ class Jupiter
             return
         end
 
+        if expression.start_with?("r:on") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::setRequirementOn(requirement)
+            return
+        end
+
+        if expression.start_with?("r:off") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::setRequirementOff(requirement)
+            return
+        end
+
+        if expression.start_with?("r:add") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("r:remove") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("r:show") then
+            command, requirement = expression.split(" ")
+            if requirement.size==0 then
+                requirement = RequirementsOperator::selectExistingRequirement()
+            end
+            loop {
+                requirementObjects = CatalystObjects::all().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        if expression.start_with?("c:show") then
+            command, collection = expression.split(" ")
+            if collection.size==0 then
+                collection = Collections::selectExistingCollection()
+            end
+            loop {
+                uuids = Collections::getCollectionUUIDs(collection)
+                objects = CatalystObjects::all().select{|object| uuids.include?(object["uuid"]) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        if expression.start_with?("c:add")  then
+            command, collection = expression.split(" ")
+            if collection.size==0 then
+                collection = Collections::selectExistingOrNewCollection()
+            end
+            Collections::addObjectToCollection(object["uuid"], collection)
+            return
+        end
+
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
@@ -233,30 +257,6 @@ class Jupiter
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
-            return
-        end
-
-        if expression.start_with?("r:add") then
-            requirement = expression[7,expression.size].strip
-            RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
-            return
-        end
-
-        if expression.start_with?("r:remove") then
-            requirement = expression[9,expression.size].strip
-            RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
-            return
-        end
-
-        if expression.start_with?("on") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::setRequirementOn(requirement)
-            return
-        end
-
-        if expression.start_with?("off") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::setRequirementOff(requirement)
             return
         end
 
@@ -273,6 +273,8 @@ class Jupiter
         puts "    help"
         puts "    top"
         puts "    search <pattern>"
+        puts "    r:on <requirement>"
+        puts "    r:off <requirement>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
         puts "    c:show [collection]  # optional parameter # shows all the objects of that collection"
         puts ""
@@ -284,8 +286,6 @@ class Jupiter
         puts "Special General Commands (special circumstances)"
         puts "    clear # clear the screen"
         puts "    lib # Invoques the Librarian interactive"
-        puts "    on <requirement>"
-        puts "    off <requirement> <number of hours>"
         puts ""
         puts "Special Object Commands:"
         puts "    expose # print the object"
