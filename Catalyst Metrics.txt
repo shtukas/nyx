@@ -1,8 +1,8 @@
 
-         2.000 running items
-0.900 -> 1.000  Incoming Emails General
+         2.000- running items
+         0.950- Incoming Emails General
          0.900  Wave: stickies
-0.860 -> 0.900  Incoming Emails operator@alseyn.net
+         0.850- Incoming Emails operator@alseyn.net
 0.840 -> 0.850  Today+Calendar
 0.820 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats

@@ -198,7 +198,7 @@ class TimeCommitments
             uuid = item['uuid']
             ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
             metric = item['metric'] ? item['metric'] : ( 0.7 + 0.1*Math.exp(-ratioDone*3) + Saturn::traceToMetricShift(uuid) )
-            metric = 2 if item["is-running"]
+            metric = 2 - Saturn::traceToMetricShift(uuid) if item["is-running"]
             announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
             commands = item["is-running"] ? ["stop", "stop+"] : ["start"]
             defaultExpression = item["is-running"] ? "stop+" : "start"

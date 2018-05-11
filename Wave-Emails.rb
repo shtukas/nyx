@@ -227,7 +227,7 @@ class GeneralEmailClient
                 EmailMetadataManagement::storeMetadataObject(emailpoint)
 
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule['metric'] = 0.900 - LucilleCore::nextInteger("14b3e2b4-1365-4ca4-b081-cf0ae0daad5f").to_f/1000000
+                schedule['metric'] = 0.950 - LucilleCore::nextInteger("14b3e2b4-1365-4ca4-b081-cf0ae0daad5f").to_f/1000000
                 WaveObjects::writeScheduleToDisk(catalystuuid,schedule)
 
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
