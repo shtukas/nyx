@@ -245,6 +245,11 @@ class Collections
     end
 
     def self.saveDataToDisk()
+        objects = CatalystObjects::all()
+        collections = @@data.keys
+        collections.each{|collection|
+            @@data[collection] = @@data[collection].select{|uuid| objects.map{|object| object["uuid"] }.include?(uuid) }
+        }
         File.open(@@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@@data)) }
     end
 
