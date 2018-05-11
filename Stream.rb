@@ -169,6 +169,7 @@ class Stream
     def self.getCatalystObjectsFromDisk()
         Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
             .map{|folderpath| Stream::folderpathToCatalystObjectOrNull(folderpath)}
+            .compact
     end
 
 end
