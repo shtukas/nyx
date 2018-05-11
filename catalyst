@@ -56,7 +56,6 @@ require 'find'
 # Jupiter::object2Line_v0(object)
 # Jupiter::object2Line_v1(object)
 # Jupiter::interactiveDisplayObjectAndProcessCommand(object)
-# Jupiter::selectDisplayObjects()
 # Jupiter::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
 # Jupiter::main2()
 
@@ -400,21 +399,17 @@ class Jupiter
         Jupiter::doExecute(object, command)
     end
 
-    def self.selectDisplayObjects()
-        objects = CatalystObjects::all()
-            .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
-            .select{|object| RequirementsOperator::objectMeetsRequirements(object["uuid"]) }
-            .select{|object| Collections::objectIsNotInAnyCollection(object["uuid"]) }
-            .select{|object| object["metric"] >= 0.2 }
-        DoNotShowUntil::transform(objects)
-            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-            .reverse
-    end
-
     def self.main2()
         workspaceSize = 1
         loop {
-            objects = Jupiter::selectDisplayObjects()
+            objects = CatalystObjects::all()
+                .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
+                .select{|object| RequirementsOperator::objectMeetsRequirements(object["uuid"]) }
+                .select{|object| Collections::objectIsNotInAnyCollection(object["uuid"]) }
+                .select{|object| object["metric"] >= 0.2 }
+            objects = DoNotShowUntil::transform(objects)
+                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                .reverse
             objects = objects.take(workspaceSize)
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
