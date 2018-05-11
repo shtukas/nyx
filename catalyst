@@ -207,6 +207,8 @@ class Jupiter
                     DoNotShowUntil::set(uuid, datetime)
                 end
             end
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -217,6 +219,7 @@ class Jupiter
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -227,6 +230,7 @@ class Jupiter
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
             return
         end
 
