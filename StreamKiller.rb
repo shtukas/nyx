@@ -84,7 +84,7 @@ class StreamKiller
         if @@killerMetric.nil? then
             return []
         end
-        targetobject = Stream::getCatalystObjects().select{|object| object["metric"]==0 }.sample
+        targetobject = Stream::getCatalystObjects().select{|object| object["metric"]==0 }.sample.clone
         if targetobject then
             targetobject["metric"] = [@@killerMetric, 1].min - Saturn::traceToMetricShift("ec47ddf3-3040-4c7d-85ce-6c5db280f4a6")
             targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
@@ -105,12 +105,12 @@ end
 
 Thread.new {
     loop {
-        sleep 43
         currentCount1 = Dir.entries("/Galaxy/DataBank/Catalyst/Stream").size
         KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream", currentCount1)
         curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream")
         idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
         metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
         StreamKiller::setKillerMetric(metric1)
+        sleep 43
     }
 }

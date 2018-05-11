@@ -72,7 +72,7 @@ class ViennaKiller
         if @@killerMetric.nil? then
             return []
         end
-        targetobject = Vienna::getCatalystObjects().first
+        targetobject = Vienna::getCatalystObjects().first.clone
         if targetobject then
             targetobject["metric"] = [@@killerMetric, 0.99].min
             targetobject["announce"] = "(vienna killer) #{targetobject["announce"]}"
@@ -93,12 +93,12 @@ end
 
 Thread.new {
     loop {
-        sleep 37
         currentCount1 = Vienna::getUnreadLinks().size
         KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna", currentCount1)
         curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna")
         idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
         metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
         ViennaKiller::setKillerMetric(metric1)
+        sleep 37
     }
 }
