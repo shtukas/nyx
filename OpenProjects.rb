@@ -66,7 +66,7 @@ OpenProjects_PATH_TO_REPOSITORY = "/Galaxy/DataBank/Catalyst/Open-Projects"
 # OpenProjects::getCatalystObjects()
 
 # OpenProjects::folderpaths(itemsfolderpath)
-# OpenProjects::getuuid(folderpath)
+# OpenProjects::getuuidOrNull(folderpath)
 # OpenProjects::folderpath2CatalystObjectOrNull(folderpath)
 # OpenProjects::getCatalystObjectsFromDisk()
 
@@ -97,7 +97,8 @@ class OpenProjects
             .map{|filename| "#{itemsfolderpath}/#{filename}" }
     end
 
-    def self.getuuid(folderpath)
+    def self.getuuidOrNull(folderpath)
+        return nil if !File.exist?(folderpath)
         if !File.exist?("#{folderpath}/.uuid") then
             File.open("#{folderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) }
         end
@@ -116,7 +117,8 @@ class OpenProjects
     end
 
     def self.folderpath2CatalystObjectOrNull(folderpath)
-        uuid = OpenProjects::getuuid(folderpath)
+        uuid = OpenProjects::getuuidOrNull(folderpath)
+        return nil if uuid.nil?
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
         announce = "(open) project: " + folderProbeMetadata["announce"]
         status = GenericTimeTracking::status(uuid)

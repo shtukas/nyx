@@ -101,15 +101,6 @@ class Jupiter
             return
         end
 
-        if expression == 'top' then
-            loop {
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", Jupiter::selectDisplayObjects().first(Jupiter::screenHeight()-3), lambda{ |object| Jupiter::object2Line_v0(object) })
-                break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-            }
-            return
-        end
-
         if expression == 'clear' then
             system("clear")
             return
@@ -224,7 +215,7 @@ class Jupiter
         end
 
         if expression.start_with?('open-project:') then
-            description = expression[7, expression.size].strip
+            description = expression[13, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
@@ -429,12 +420,12 @@ class Jupiter
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".yellow
             selectedObject = objects.last
-            objects.each{|object|
+            objects.each_with_index{|object, index|
                 string =
                     if object["uuid"]==selectedObject["uuid"] then
-                        "[*] #{Jupiter::object2Line_v1(object)}"
+                        "#{"%2d" % (index+1)} [*] #{Jupiter::object2Line_v1(object)}"
                     else
-                        "    #{Jupiter::object2Line_v0(object)}"
+                        "#{"%2d" % (index+1)}     #{Jupiter::object2Line_v0(object)}"
                     end
                 puts string
             }
