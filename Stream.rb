@@ -167,8 +167,16 @@ class Stream
     end
 
     def self.getCatalystObjectsFromDisk()
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-            .map{|folderpath| Stream::folderpathToCatalystObjectOrNull(folderpath)}
+        folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+        folderpaths.zip((1..folderpaths.size))
+            .map{|folderpath, indx|
+                object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+                 # We focus on the first six objects
+                if object and indx > 6 then
+                    object["metric"] = 0
+                end
+                object
+            }
             .compact
     end
 
