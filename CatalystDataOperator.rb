@@ -142,10 +142,10 @@ class CatalystDataOperator
 
     def self.loadAgent(agentinterface)
         startTime = Time.new.to_f
-        print "CatalystDataOperator: loading: #{agentinterface["agent-name"]}"
+        print "CatalystDataOperator: loading: #{agentinterface["agent-name"]} "
         @@structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
         loadTime = Time.new.to_f - startTime
-        puts " in #{"%.2f" % loadTime} seconds"
+        puts "in #{"%.2f" % loadTime} seconds"
     end
 
     def self.catalystObjects()
