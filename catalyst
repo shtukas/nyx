@@ -29,13 +29,6 @@ require_relative "Wave-Emails.rb"
 require_relative "Commons.rb"
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 
 require 'digest/sha1'

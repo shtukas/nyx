@@ -40,24 +40,8 @@ require 'find'
 require_relative "Commons.rb"
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require 'colorize'
-
 require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
-=begin
-    # setuuids are used as namespace, therefore the same uuid in different sets are different values.
-    SetsOperator::insert(repositorylocation or nil, setuuid, valueuuid, value)
-    SetsOperator::getOrNull(repositorylocation or nil, setuuid, valueuuid)
-    SetsOperator::delete(repositorylocation or nil, setuuid, valueuuid)
-    SetsOperator::values(repositorylocation or nil, setuuid)
-=end
-
 # -------------------------------------------------------------------------------------
 
 GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1"

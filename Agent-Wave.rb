@@ -42,13 +42,6 @@ require 'drb/drb'
 require_relative "Commons.rb"
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 
 # ----------------------------------------------------------------------
@@ -436,7 +429,7 @@ class Wave
     end
 
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = KeyValueStore::getOrNull(nil, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = KeyValueStore::getOrNull(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -448,7 +441,7 @@ class Wave
         end
         #puts "Wave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        KeyValueStore::set(nil, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
+        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
         maybepath
     end
 

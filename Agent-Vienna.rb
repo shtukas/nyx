@@ -64,7 +64,7 @@ VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages
 # select link from messages where read_flag=0;
 # update messages set read_flag=1 where link="https://www.schneier.com/blog/archives/2018/04/security_vulner_14.html"
 
-# Vienna::getUnreadLinks()
+# Vienna::processObject(object, command)
 # Vienna::getUnreadLinks()
 
 class Vienna
