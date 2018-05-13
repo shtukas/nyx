@@ -16,10 +16,12 @@ require 'digest/sha1'
 
 # ----------------------------------------------------------------
 
+CATALYST_COMMON_AGENT_DATA_FOLDERPATH = "/Galaxy/Catalyst-Data/Agents-Data"
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/Catalyst-Data/Archives-Timeline"
-CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
-CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Open-Projects"
-CATALYST_COMMON_PATH_TO_DATA_LOG = "/Galaxy/DataBank/Catalyst/DataLog"
+CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream"
+CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
+CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
+
 
 # DataLogUtils::pathToActiveDataLogIndexFolder()
 # DataLogUtils::commitCatalystObjectToDisk(object)
@@ -120,12 +122,12 @@ class DoNotShowUntil
     @@mapping = {}
 
     def self.init()
-        @@mapping = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/do-not-show-until.json"))
+        @@mapping = JSON.parse(IO.read("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/do-not-show-until.json"))
     end
 
     def self.set(uuid, datetime)
         @@mapping[uuid] = datetime
-        File.open("/Galaxy/DataBank/Catalyst/do-not-show-until.json", "w"){|f| f.puts(JSON.pretty_generate(@@mapping)) }
+        File.open("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/do-not-show-until.json", "w"){|f| f.puts(JSON.pretty_generate(@@mapping)) }
     end
 
     def self.isactive(object)
@@ -156,7 +158,7 @@ class RequirementsOperator
     @@data = nil
 
     def self.init()
-        @@pathToDataFile = "/Galaxy/DataBank/Catalyst/requirements.json"
+        @@pathToDataFile = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/requirements.json"
         @@data = JSON.parse(IO.read(@@pathToDataFile))
     end
 
@@ -316,7 +318,7 @@ class Collections
     @@data = nil
 
     def self.init()
-        @@pathToDataFile = "/Galaxy/DataBank/Catalyst/collections.json"
+        @@pathToDataFile = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/collections.json"
         @@data = JSON.parse(IO.read(@@pathToDataFile))
     end
 

@@ -53,7 +53,7 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 
 # ----------------------------------------------------------------------
 
-WAVE_DATABANK_WAVE_FOLDER_PATH = "/Galaxy/DataBank/Catalyst/Wave"
+WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Wave"
 WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # ----------------------------------------------------------------------

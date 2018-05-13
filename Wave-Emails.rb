@@ -53,7 +53,7 @@ require_relative "Commons.rb"
 
 # -------------------------------------------------------------------------------------
 
-EMAIL_METADATA_OBJECTS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Wave/Emails-Metadata-Objects"
+EMAIL_METADATA_OBJECTS_FOLDERPATH = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Wave/Emails-Metadata-Objects"
 
 class EmailUtils
 

@@ -36,7 +36,7 @@ class Kimchee
             []
         else
             if KeyValueStore::getOrNull(nil, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}").nil? then
-                genesisUnixtime = DateTime.parse(IO.read("/Galaxy/DataBank/Catalyst/kimchee-genesis-datetime")).to_time.to_i
+                genesisUnixtime = DateTime.parse(IO.read("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/kimchee-genesis-datetime")).to_time.to_i
                 timespan = Time.new.to_i - genesisUnixtime
                 [
                     {

@@ -61,7 +61,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 # -------------------------------------------------------------------------------------
 
 GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1"
-GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time-commitments/items"
+GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/time-commitments/items"
 
 =begin
     Data

@@ -60,7 +60,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 # -------------------------------------------------------------------------------------
 
-OpenProjects_PATH_TO_REPOSITORY = "/Galaxy/DataBank/Catalyst/Open-Projects"
+OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
 
 # OpenProjects::getCatalystObjects()
 
@@ -159,7 +159,7 @@ class OpenProjects
     end
 
     def self.getCatalystObjects()
-        OpenProjects::folderpaths(OpenProjects_PATH_TO_REPOSITORY)
+        OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
             .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
             .compact
     end

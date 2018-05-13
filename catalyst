@@ -26,6 +26,8 @@ require_relative "CatalystObjects.rb"
 
 require_relative "Wave-Emails.rb"
 
+require_relative "Commons.rb"
+
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorypath or nil, key, value)
@@ -67,11 +69,11 @@ class Jupiter
     def self.emailSyncOnSchedule(verbose)
         if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
             begin
-                newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
+                newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
                 if newEmailCount>0 then
                     #puts "Retrieved #{newEmailCount} new emails"
                 end
-                OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Wave/Wave-Email-Config/operator.json")), verbose)
+                OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Wave/Wave-Email-Config/operator.json")), verbose)
                 # We call again so that the clock restarts at the end of the process
                 LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
             rescue

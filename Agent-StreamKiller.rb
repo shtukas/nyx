@@ -86,9 +86,9 @@ class StreamKiller
     end
 
     def self.metric()
-        currentCount1 = Dir.entries("/Galaxy/DataBank/Catalyst/Stream").size
-        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream", currentCount1)
-        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Stream")
+        currentCount1 = Dir.entries("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream").size
+        KillersCurvesManagement::shiftCurveIfOpportunity("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Killers-Curves/Stream", currentCount1)
+        curve1 = KillersCurvesManagement::getCurve("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Killers-Curves/Stream")
         idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
         metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
         metric1
