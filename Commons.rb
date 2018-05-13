@@ -3,16 +3,10 @@
 # encoding: UTF-8
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
+require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 # ----------------------------------------------------------------
 

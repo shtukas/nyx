@@ -32,7 +32,8 @@ require 'colorize'
 
 # -------------------------------------------------------------------------------------
 
-# Stream::getCatalystObjects()
+# Stream::agentuuid()
+# Stream::processObject(object, command)
 
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getuuid(folderpath)
@@ -40,7 +41,7 @@ require 'colorize'
 # Stream::folderpathToCatalystObjectOrNull(folderpath)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
-# Stream::getCatalystObjectsFromDisk()
+# Stream::getCatalystObjects()
 
 class Stream
 

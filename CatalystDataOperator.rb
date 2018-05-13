@@ -37,8 +37,6 @@ require 'fileutils'
 
 require 'find'
 
-require_relative "Commons.rb"
-
 require_relative "Agent-Wave.rb"
 require_relative "Agent-Ninja.rb"
 require_relative "Agent-Stream.rb"

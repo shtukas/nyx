@@ -67,7 +67,7 @@ OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Ope
 # OpenProjects::folderpaths(itemsfolderpath)
 # OpenProjects::getuuidOrNull(folderpath)
 # OpenProjects::folderpath2CatalystObjectOrNull(folderpath)
-# OpenProjects::getCatalystObjectsFromDisk()
+# OpenProjects::getCatalystObjects()
 
 
 class OpenProjects
