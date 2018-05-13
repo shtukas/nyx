@@ -1,22 +1,9 @@
 
-Catalyst agents must have the following methods implemented
+Standard interface for a Catalyst Agent
 
 agentuuid(): String
     Returns the unique id of the agent. Should never change as it is hardcoded in the stored objects
 
-getNewOrTransientObjects(dataSet): Array[object]
-    Returns
-        - new objects, or
-        - objects which only exists in memory and do not have a presence in the DataLog.
+getCatalystObjects(): Array[CatalystObject]
 
-processObject(object, command): Null | updated object | death object
-    Return
-        - Null if there was no update to the object (for instance, calling "folder")
-        - An object with udpated fields
-        - A death object (for instance, when the object is "done")
-
-
-
-
-
-
+processObject(object, command): Array[AgentUUID] # list of the agents to get data from when this operation terminates

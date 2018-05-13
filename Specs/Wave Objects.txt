@@ -2,15 +2,13 @@
 # --------------------------------------------------------------------
 
 {
-
     "uuid" : (uuid)
     "metric" : (real)
     "announce" : ""
     "commands" : Array[String]
-    "command-interpreter": (object, command) -> Action
-
+    "default-expression"  : Null or String
+    "agent-uid"           : String (uuid)
     "schedule" : (schedule-7da672d1-6e30-4af8-a641-e4760c3963e6)
-
 }
 
 # --------------------------------------------------------------------
@@ -59,4 +57,3 @@
 
 Optional attributes 
     "metric" which when present overrides the schedule metric.
-    "do-not-show-until-datetime": "2017-10-02 15:59:34 +0100"

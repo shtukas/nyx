@@ -7,5 +7,5 @@
     "announce"            : String
     "commands"            : Array[String]
     "default-expression"  : Null or String
-    "command-interpreter" : (object, command)
+    "agent-uid"           : String (uuid)
 }
