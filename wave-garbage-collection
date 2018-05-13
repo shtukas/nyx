@@ -6,6 +6,6 @@ require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------------------
 
-puts CatalystArchivesOps::getArchiveSizeInMegaBytes()
-CatalystArchivesOps::archivesGarbageCollection(true)
+puts CatalystDevOps::getArchiveSizeInMegaBytes()
+CatalystDevOps::archivesGarbageCollection(true)
 

@@ -12,7 +12,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 CATALYST_COMMON_AGENT_DATA_FOLDERPATH = "/Galaxy/Catalyst-Data/Agents-Data"
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/Catalyst-Data/Archives-Timeline"
-CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY = "/Galaxy/Catalyst-Data/KeyValueStore-Data"
+CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY = "/Galaxy/Catalyst-Data/xcache"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
 CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
@@ -602,19 +602,15 @@ class GenericTimeTracking
     end
 end
 
-# CatalystArchivesOps::today()
-# CatalystArchivesOps::getArchiveSizeInMegaBytes()
-# CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(location)
-# CatalystArchivesOps::archivesGarbageCollection(verbose): Int # number of items removed
+# CatalystDevOps::today()
+# CatalystDevOps::getArchiveSizeInMegaBytes()
+# CatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
+# CatalystDevOps::archivesGarbageCollection(verbose): Int # number of items removed
 
-class CatalystArchivesOps
+class CatalystDevOps
 
     def self.today()
         DateTime.now.to_date.to_s
-    end
-
-    def self.getArchiveSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
     def self.getFirstDiveFirstLocationAtLocation(location)
@@ -630,7 +626,7 @@ class CatalystArchivesOps
             else
                 locationsdirectories = locations.select{|location| File.directory?(location) }
                 if locationsdirectories.size>0 then
-                    CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(locationsdirectories.first)
+                    CatalystDevOps::getFirstDiveFirstLocationAtLocation(locationsdirectories.first)
                 else
                     locations.first
                 end
@@ -638,10 +634,17 @@ class CatalystArchivesOps
         end
     end
 
+    def self.getArchiveSizeInMegaBytes()
+        LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
+    end
+
+    # -------------------------------------------
+    # Archives
+
     def self.archivesGarbageCollectionStandard(verbose)
         answer = 0
-        while CatalystArchivesOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
+        while CatalystDevOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
+            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
             puts "Garbage Collection: Removing: #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
@@ -653,7 +656,7 @@ class CatalystArchivesOps
     def self.archivesGarbageCollectionFast(verbose, sizeEstimationInMegaBytes)
         answer = 0
         while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
-            location = CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
+            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
             if File.file?(location) then
                 sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
@@ -667,12 +670,17 @@ class CatalystArchivesOps
 
     def self.archivesGarbageCollection(verbose)
         answer = 0
-        while CatalystArchivesOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = CatalystArchivesOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
+        while CatalystDevOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
+            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
-            answer = answer + CatalystArchivesOps::archivesGarbageCollectionFast(verbose, CatalystArchivesOps::getArchiveSizeInMegaBytes())
+            answer = answer + CatalystDevOps::archivesGarbageCollectionFast(verbose, CatalystDevOps::getArchiveSizeInMegaBytes())
         end
         answer
     end
+
+    # -------------------------------------------
+    # Archives
+
+    
 
 end
