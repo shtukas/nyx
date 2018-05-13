@@ -22,7 +22,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require_relative "CatalystObjects.rb"
+require_relative "CatalystDataOperator.rb"
 
 require_relative "Wave-Emails.rb"
 
@@ -218,7 +218,7 @@ class Jupiter
                 requirement = RequirementsOperator::selectExistingRequirement()
             end
             loop {
-                requirementObjects = CatalystObjects::all().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = CatalystDataOperator::catalystObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -233,7 +233,7 @@ class Jupiter
             end
             loop {
                 uuids = Collections::getCollectionUUIDs(collection)
-                objects = CatalystObjects::all().select{|object| uuids.include?(object["uuid"]) }
+                objects = CatalystDataOperator::catalystObjects().select{|object| uuids.include?(object["uuid"]) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| Jupiter::object2Line_v0(object) })
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -253,7 +253,7 @@ class Jupiter
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = CatalystObjects::all().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = CatalystDataOperator::catalystObjects().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -264,13 +264,11 @@ class Jupiter
 
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
-            .each{|token| 
-                processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
-                processor.call(object, token)
+            .each{|command|
+                CatalystDataOperator::processObject(object, command)
             }
         else
-            processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
-            processor.call(object, "")
+            CatalystDataOperator::processObject(object, "")
         end
     end
 
@@ -408,7 +406,7 @@ class Jupiter
     def self.main2()
         workspaceSize = 1
         loop {
-            objects = CatalystObjects::all()
+            objects = CatalystDataOperator::catalystObjects()
                 .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
                 .select{|object| RequirementsOperator::objectMeetsRequirements(object["uuid"]) }
                 .select{|object| Collections::objectIsNotInAnyCollection(object["uuid"]) }
@@ -469,6 +467,7 @@ end
 RequirementsOperator::init()
 DoNotShowUntil::init()
 Collections::init()
+CatalystDataOperator::init()
 
 # -----------------------------------------------------------------
 

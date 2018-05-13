@@ -22,6 +22,7 @@ CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDE
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
 CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
 
+# ----------------------------------------------------------------
 
 # DataLogUtils::pathToActiveDataLogIndexFolder()
 # DataLogUtils::commitCatalystObjectToDisk(object)
@@ -163,7 +164,7 @@ class RequirementsOperator
     end
 
     def self.saveDataToDisk()
-        objects = CatalystObjects::all()
+        objects = CatalystDataOperator::catalystObjects()
         uuidsInFile = @@data["items-requirements-distribution"].keys
         uuidsInFile.each{|uuid|
             if !objects.map{|object| object["uuid"] }.include?(uuid) then
@@ -323,7 +324,7 @@ class Collections
     end
 
     def self.saveDataToDisk()
-        objects = CatalystObjects::all()
+        objects = CatalystDataOperator::catalystObjects()
         collections = @@data.keys
         collections.each{|collection|
             @@data[collection] = @@data[collection].select{|uuid| objects.map{|object| object["uuid"] }.include?(uuid) }
@@ -675,43 +676,6 @@ class CatalystArchivesOps
             answer = answer + CatalystArchivesOps::archivesGarbageCollectionFast(verbose, CatalystArchivesOps::getArchiveSizeInMegaBytes())
         end
         answer
-    end
-
-end
-
-# CatalystDataOperator::dataSources()
-# CatalystDataOperator::agentuuid2objectProcessor(agentuuid)
-
-class CatalystDataOperator
-    @@structure = nil
-    def self.init()
-        # Here we load data from the Agents (or we could use cached data)
-
-    end
-
-    def self.dataSources()
-        [
-            ["11fa1438-122e-4f2d-9778-64b55a11ddc2", lambda { GuardianTime::getCatalystObjects() },    lambda{|object, command| GuardianTime::processObject(object, command) }],
-            ["b343bc48-82db-4fa3-ac56-3b5a31ff214f", lambda { Kimchee::getCatalystObjects() } ,        lambda{|object, command| Kimchee::processObject(object, command) }],
-            ["d3d1d26e-68b5-4a99-a372-db8eb6c5ba58", lambda { Ninja::getCatalystObjects() },           lambda{|object, command| Ninja::processObject(object, command) }],
-            ["30ff0f4d-7420-432d-b75b-826a2a8bc7cf", lambda { OpenProjects::getCatalystObjects() },    lambda{|object, command| OpenProjects::processObject(object, command) }],
-            ["73290154-191f-49de-ab6a-5e5a85c6af3a", lambda { Stream::getCatalystObjects() },          lambda{|object, command| Stream::processObject(object, command) }],
-            ["e16a03ac-ac2c-441a-912e-e18086addba1", lambda { StreamKiller::getCatalystObjects() },    lambda{|object, command| StreamKiller::processObject(object, command) }],
-            ["03a8bff4-a2a4-4a2b-a36f-635714070d1d", lambda { TimeCommitments::getCatalystObjects() }, lambda{|object, command| TimeCommitments::processObject(object, command) }],
-            ["f989806f-dc62-4942-b484-3216f7efbbd9", lambda { Today::getCatalystObjects() },           lambda{|object, command| Today::processObject(object, command) }],
-            ["2ba71d5b-f674-4daf-8106-ce213be2fb0e", lambda { Vienna::getCatalystObjects() },          lambda{|object, command| Vienna::processObject(object, command) }],
-            ["7cbbde0d-e5d6-4be9-b00d-8b8011f7173f", lambda { ViennaKiller::getCatalystObjects() },    lambda{|object, command| ViennaKiller::processObject(object, command) }],
-            ["283d34dd-c871-4a55-8610-31e7c762fb0d", lambda { Wave::getCatalystObjects() },            lambda{|object, command| Wave::processObject(object, command) }],
-        ]
-    end
-
-    def self.agentuuid2objectProcessor(agentuuid)
-        CatalystDataOperator::dataSources()
-            .select{|tuple| tuple[0]==agentuuid }
-            .each{|tuple|
-                return tuple[2]
-            }
-        raise "looking up processor for unknown agent uuid #{agentuuid}"
     end
 
 end
