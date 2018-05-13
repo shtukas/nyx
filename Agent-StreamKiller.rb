@@ -59,14 +59,8 @@ class StreamKiller
     end
 
     def self.getCatalystObjects()
-        targetobject = Stream::getCatalystObjects().sample
-        if targetobject then
-            targetobject = targetobject.clone
-            targetobject["agent-uid"] = self.agentuuid()
-            targetobject["metric"] = [self.metric(), 1].min - Saturn::traceToMetricShift("ec47ddf3-3040-4c7d-85ce-6c5db280f4a6")
-            targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
-            [ targetobject ]
-        else
+        objects = Stream::getCatalystObjects()
+        if objects.size==0 then
             [
                 {
                     "uuid" => SecureRandom.hex(4),
@@ -76,6 +70,13 @@ class StreamKiller
                     "agent-uid" => self.agentuuid()
                 }
             ]
+        else
+            targetobject = objects.drop((objects.size.to_f/2).to_i).first
+            targetobject = targetobject.clone
+            targetobject["agent-uid"] = self.agentuuid()
+            targetobject["metric"] = [self.metric(), 1].min - Saturn::traceToMetricShift("ec47ddf3-3040-4c7d-85ce-6c5db280f4a6")
+            targetobject["announce"] = "(stream killer) #{targetobject["announce"]}"
+            [ targetobject ]
         end
     end
 end
