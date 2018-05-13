@@ -52,6 +52,7 @@ require_relative "Agent-OpenProjects.rb"
 # ----------------------------------------------------------------------
 
 # CatalystDataOperator::dataSources()
+# CatalystDataOperator::loadAgent(agentinterface)
 # CatalystDataOperator::catalystObjects()
 # CatalystDataOperator::catalystObjectsFromStructureAlpha()
 # CatalystDataOperator::processObject(object, command)
@@ -62,12 +63,10 @@ class CatalystDataOperator
     @@structureAlpha = nil # {"agent-uid" => Array[Agent Object]}
 
     def self.init()
-        structureAlpha = {}
+        @@structureAlpha = {}
         CatalystDataOperator::dataSources().each{|agentinterface|
-            puts "CatalystDataOperator: loading: #{agentinterface["agent-name"]}"
-            structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
+            CatalystDataOperator::loadAgent(agentinterface)
         }
-        @@structureAlpha = structureAlpha
     end
 
     def self.dataSources()
@@ -141,6 +140,14 @@ class CatalystDataOperator
         ]
     end
 
+    def self.loadAgent(agentinterface)
+        startTime = Time.new.to_f
+        print "CatalystDataOperator: loading: #{agentinterface["agent-name"]}"
+        @@structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
+        loadTime = Time.new.to_f - startTime
+        puts " in #{"%.2f" % loadTime} seconds"
+    end
+
     def self.catalystObjects()
         objects = CatalystDataOperator::catalystObjectsFromStructureAlpha()
         objects = DoNotShowUntil::transform(objects)
@@ -156,13 +163,11 @@ class CatalystDataOperator
         agentsToReload = processor.call(object, command)
         CatalystDataOperator::dataSources().each{|agentinterface|
             next if !agentsToReload.include?(agentinterface["agent-uid"])
-            puts "CatalystDataOperator: loading: #{agentinterface["agent-name"]}"
-            @@structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
+            CatalystDataOperator::loadAgent(agentinterface)
         }
         if LucilleCore::trueNoMoreOftenThanNEverySeconds("2704d558-139d-453d-aa4f-056d863d5aa9", 3600) then
             CatalystDataOperator::dataSources().each{|agentinterface|
-                puts "CatalystDataOperator: loading: #{agentinterface["agent-name"]}"
-                @@structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
+                CatalystDataOperator::loadAgent(agentinterface)
             }
         end
     end
