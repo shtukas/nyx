@@ -271,8 +271,16 @@ class KillersCurvesManagement
     end
 
     def self.shiftCurve(curve)
+        computeSlope = lambda {|curve| (curve["ending-count"] - curve["starting-count"]).to_f/(curve["ending-unixtime"] - curve["starting-unixtime"]) }
         curve = curve.clone
+        originalslope = computeSlope.call(curve)
         curve["starting-count"] = curve["starting-count"]-10
+        # (curve["ending-count"] - curve["starting-count"]).to_f/(X - curve["starting-unixtime"]) = originalslope
+        # (curve["ending-count"] - curve["starting-count"]) = originalslope*(curve["ending-unixtime"] - curve["starting-unixtime"])
+        # (curve["ending-count"] - curve["starting-count"]) = originalslope*curve["ending-unixtime"] - originalslope*curve["starting-unixtime"]
+        # curve["ending-count"] - curve["starting-count"] + originalslope*curve["starting-unixtime"] = originalslope*curve["ending-unixtime"]
+        # ( curve["ending-count"] - curve["starting-count"] + originalslope*curve["starting-unixtime"] ).to_f/originalslope = curve["ending-unixtime"]
+        curve["ending-unixtime"] =  ( curve["ending-count"] - curve["starting-count"] + originalslope*curve["starting-unixtime"] ).to_f/originalslope
         curve
     end
 
