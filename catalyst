@@ -410,6 +410,9 @@ class Jupiter
             if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) then
                 CatalystDevOps::archivesGarbageCollection(false)
             end
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) then
+                CatalystDevOps::xcacheGarbageCollection()
+            end
             selectedObject = objects.last
             objects.each_with_index{|object, index|
                 string =

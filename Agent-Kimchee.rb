@@ -22,7 +22,7 @@ class Kimchee
 
     def self.processObject(object, command)
         if command=="love" then
-            KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5CB", Kimchee::weeksValue())
+            KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5CB", Kimchee::weeksValue())
         end
         [ self.agentuuid() ]
     end
@@ -50,7 +50,7 @@ class Kimchee
     end
 
     def self.lastKnownweeksValueInteger()
-        KeyValueStore::getOrDefaultValue(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5CB", "0").to_i
+        KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5CB", "0").to_i
     end
 
     def self.getCatalystObjects()

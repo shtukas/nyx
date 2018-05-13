@@ -12,7 +12,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 CATALYST_COMMON_AGENT_DATA_FOLDERPATH = "/Galaxy/Catalyst-Data/Agents-Data"
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/Catalyst-Data/Archives-Timeline"
-CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY = "/Galaxy/Catalyst-Data/xcache"
+CATALYST_COMMON_XCACHE_REPOSITORY = "/Galaxy/Catalyst-Data/xcache"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
 CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
@@ -237,10 +237,10 @@ end
 
 class TodayOrNotToday
     def self.notToday(uuid)
-        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}", "!today")
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}", "!today")
     end
     def self.todayOk(uuid)
-        KeyValueStore::getOrNull(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
+        KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
     end
 end
 
@@ -255,11 +255,11 @@ end
 
 class KillersCurvesManagement
     def self.trueIfCanShiftCurveForFolderpath(folderpath)
-        KeyValueStore::getOrNull(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}") != Saturn::currentDay()
+        KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}") != Saturn::currentDay()
     end
 
     def self.setLastCurveChangeDateForFolderpath(folderpath, date)
-        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}", date)
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}", date)
     end
 
     def self.getCurve(folderpath)
@@ -568,27 +568,27 @@ end
 
 class GenericTimeTracking
     def self.status(uuid)
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
     end
 
     def self.start(uuid)
         status = GenericTimeTracking::status(uuid)
         return if status[0]
         status = [true, Time.new.to_i]
-        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.stop(uuid)
         status = GenericTimeTracking::status(uuid)
         return if !status[0]
         timespan = Time.new.to_i - status[1]
-        FIFOQueue::push(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
+        FIFOQueue::push(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
         status = [false, nil]
-        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.metric2(uuid, low, high, hourstoMinusOne)
-        adaptedTimespanInSeconds = FIFOQueue::values(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+        adaptedTimespanInSeconds = FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
             .map{|pair|
                 unixtime = pair[0]
                 timespan = pair[1]
@@ -606,6 +606,7 @@ end
 # CatalystDevOps::getArchiveSizeInMegaBytes()
 # CatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
 # CatalystDevOps::archivesGarbageCollection(verbose): Int # number of items removed
+# CatalystDevOps::xcacheGarbageCollection()
 
 class CatalystDevOps
 
@@ -634,12 +635,16 @@ class CatalystDevOps
         end
     end
 
-    def self.getArchiveSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
+    def self.getFilepathAgeInDays(filepath)
+        (Time.new.to_i - File.mtime(filepath).to_i).to_f/86400
     end
 
     # -------------------------------------------
     # Archives
+
+    def self.getArchiveSizeInMegaBytes()
+        LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
+    end
 
     def self.archivesGarbageCollectionStandard(verbose)
         answer = 0
@@ -681,6 +686,23 @@ class CatalystDevOps
     # -------------------------------------------
     # Archives
 
-    
+    def self.xcacheDataFilepathEnumerator()
+        Enumerator.new do |filepaths|
+            Find.find(CATALYST_COMMON_XCACHE_REPOSITORY) do |path|
+                if path[-5, 5] == '.data' then
+                    filepaths << path
+                end
+            end
+        end
+    end
+
+    def self.xcacheGarbageCollection()
+        CatalystDevOps::xcacheDataFilepathEnumerator.each{|filepath|
+            if CatalystDevOps::getFilepathAgeInDays(filepath) > 60 then
+                puts "removing: #{filepath}"
+                FileUtils.rm(filepath)
+            end
+        }
+    end
 
 end
