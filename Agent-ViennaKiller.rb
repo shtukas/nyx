@@ -35,6 +35,7 @@ class ViennaKiller
 
     def self.processObject(object, command)
         Vienna::processObject(object, command)
+        [ self.agentuuid(), "2ba71d5b-f674-4daf-8106-ce213be2fb0e" ] # self and Vienna
     end
 
     def self.metric()

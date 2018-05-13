@@ -294,69 +294,58 @@ class Wave
         if command=='open' then
             metadata = object["item-folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
-            return nil
+            return []
         end
 
         if command=='done' then
 
             if schedule['@'] == 'new' then
                 Wave::archiveWaveItems(uuid)
-                return Saturn::deathObject(uuid)
             end
             if schedule['@'] == 'today' then
                 Wave::archiveWaveItems(uuid)
-                return Saturn::deathObject(uuid)
             end
             if schedule['@'] == 'sticky' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
                 Wave::writeScheduleToDisk(uuid, schedule)
-                return Wave::objectuuidToCatalystObjectOrNull(uuid)
             end
             if schedule['@'] == 'ondate' then
                 Wave::archiveWaveItems(uuid)
-                return Wave::objectuuidToCatalystObjectOrNull(uuid)
             end
             if schedule['@'] == 'every-n-hours' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
                 Wave::writeScheduleToDisk(uuid, schedule)
-                return Wave::objectuuidToCatalystObjectOrNull(uuid)
             end
             if schedule['@'] == 'every-n-days' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
                 Wave::writeScheduleToDisk(uuid, schedule)
-                return Wave::objectuuidToCatalystObjectOrNull(uuid)
             end
             if schedule['@'] == 'every-this-day-of-the-month' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
                 Wave::writeScheduleToDisk(uuid, schedule)
-                return Wave::objectuuidToCatalystObjectOrNull(uuid)
             end
             if schedule['@'] == 'every-this-day-of-the-week' then
                 schedule = WaveSchedules::cycleSchedule(schedule)
                 Wave::writeScheduleToDisk(uuid, schedule)
-                return Wave::objectuuidToCatalystObjectOrNull(uuid)
             end
         end
 
         if command=='recast' then
             schedule = Wave::makeNewSchedule()
             Wave::writeScheduleToDisk(uuid, schedule)
-            return Wave::objectuuidToCatalystObjectOrNull(uuid)
         end
 
         if command=='folder' then
             location = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
-            return nil
+            return []
         end
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 Wave::archiveWaveItems(uuid)
             end
-            return Saturn::deathObject(uuid)
-
         end
 
         if command=='>stream' then
@@ -365,7 +354,6 @@ class Wave
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
             Wave::archiveWaveItems(uuid)
-            return Saturn::deathObject(uuid)
         end
 
         if command=='>open-projects' then
@@ -374,7 +362,6 @@ class Wave
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
             Wave::archiveWaveItems(uuid)
-            return Saturn::deathObject(uuid)
         end
 
         if command=='>lib' then
@@ -390,10 +377,10 @@ class Wave
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Wave::archiveWaveItems(uuid)
-            return Saturn::deathObject(uuid)
         end
 
-        nil
+        [ self.agentuuid() ]
+
     end
 
     def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)

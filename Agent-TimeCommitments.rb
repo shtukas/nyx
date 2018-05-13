@@ -68,25 +68,11 @@ class TimeCommitments
         uuid = object['uuid']
         if command=='start' then
             TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
-            item = TimeCommitments::getItemByUUID(uuid)
-            ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-            metric = 2 - Saturn::traceToMetricShift(uuid) if item["is-running"]
-            object["announce"] = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
-            object["commands"] = ["stop"]
-            object["default-expression"] = "stop"
-            return object
         end
         if command=="stop" then
             TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
-            item = TimeCommitments::getItemByUUID(uuid)
-            ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-            metric = 0.7 + 0.1*Math.exp(-ratioDone*3) + Saturn::traceToMetricShift(uuid)
-            object["announce"] = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
-            object["commands"] = ["start"]
-            object["default-expression"] = "start"
-            return object
         end
-        nil
+        [ self.agentuuid() ]
     end
 
     def self.getItems()

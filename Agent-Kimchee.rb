@@ -18,9 +18,8 @@ class Kimchee
     def self.processObject(object, command)
         if command=="love" then
             KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}", "done")
-            return Saturn::deathObject(object["uuid"])
         end
-        nil
+        [ self.agentuuid() ]
     end
 
     def self.getCatalystObjects()

@@ -40,31 +40,17 @@ class Stream
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object['item-folderpath']}'")
-            return nil
+            return []
         end
         if command=='start' then
             metadata = object["item-folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(uuid)
             GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-            folderpath = object["item-folderpath"]
-            folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-            commands = ["stop", "folder", "completed", "rotate", ">lib"]
-            defaultExpression = ""
-            object["metric"] = 2 - Saturn::traceToMetricShift(uuid)
-            object["is-running"] = true
-            return object
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-            folderpath = object["item-folderpath"]
-            folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-            commands = ["stop", "folder", "completed", "rotate", ">lib"]
-            defaultExpression = ""
-            object["metric"] = GenericTimeTracking::metric2(uuid, 0, 0.7, 1) * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid)
-            object["is-running"] = false
-            return object
         end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
@@ -78,7 +64,6 @@ class Stream
                 LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
                 LucilleCore::removeFileSystemLocation(object['item-folderpath'])
             end
-            return Saturn::deathObject(object["uuid"])
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
@@ -93,9 +78,8 @@ class Stream
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::performObjectClosing(object)
-            return Saturn::deathObject(object["uuid"])
         end
-        nil
+        [ self.agentuuid() ]
     end
     
     def self.folderpaths(itemsfolderpath)

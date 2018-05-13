@@ -22,7 +22,7 @@ class Ninja
         system("ninja api:play-folderpath '#{folderpath}'")
         FIFOQueue::takeFirstOrNull(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "folderpaths-f363-4a11-9251-b7301406e261")
         FIFOQueue::push(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
-        nil
+        [ self.agentuuid() ]
     end
 
     def self.getFolderpathOrNull()

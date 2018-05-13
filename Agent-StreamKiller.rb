@@ -46,6 +46,7 @@ class StreamKiller
 
     def self.processObject(object, command)
         Stream::processObject(object, command)
+        [ self.agentuuid(), "73290154-191f-49de-ab6a-5e5a85c6af3a" ] # self and Stream
     end
 
     def self.metric()

@@ -45,18 +45,9 @@ class OpenProjects
             metadata = object["item-folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(object["uuid"])
-            object["metric"] = 2 - Saturn::traceToMetricShift(uuid)
-            object["commands"] = ["stop", "completed", "folder"]
-            object["default-expression"] = ""
-            return object
         end
         if command=='stop' then
             GenericTimeTracking::stop(object["uuid"])
-            status = GenericTimeTracking::status(uuid)
-            object["metric"] = GenericTimeTracking::metric2(uuid, 0.2, 0.8, 1) + Saturn::traceToMetricShift(uuid)
-            object["commands"] = ["start", "completed", "folder"]
-            object["default-expression"] = "start"
-            return object
         end
         if command=="completed" then
             GenericTimeTracking::stop(object["uuid"])
@@ -68,13 +59,12 @@ class OpenProjects
             FileUtils.mkpath(targetFolder)
             LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
             LucilleCore::removeFileSystemLocation(object['item-folderpath'])
-            return Saturn::deathObject(object["uuid"])
         end
         if command=="folder" then
             system("open '#{object["item-folderpath"]}'")
-            return nil
+            return []
         end
-        nil
+        [ self.agentuuid() ]
     end
 
     def self.folderpaths(itemsfolderpath)

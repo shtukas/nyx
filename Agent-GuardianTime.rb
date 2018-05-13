@@ -19,7 +19,7 @@ class GuardianTime
     end
 
     def self.processObject(object, command)
-        Nil
+        ["03a8bff4-a2a4-4a2b-a36f-635714070d1d"] # TimeCommitments
     end
 
     def self.getCatalystObjects()

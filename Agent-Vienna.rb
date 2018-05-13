@@ -43,11 +43,10 @@ class Vienna
             system("open '#{object["link"]}'")
         end
         if command=='done' then
-            link = object["link"]
-            Vienna::setLinkAsRead(link)
+            Vienna::setLinkAsRead(object["link"])
             FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
         end
-        nil
+        [ self.agentuuid() ]
     end
 
     def self.getUnreadLinks()
