@@ -4,7 +4,6 @@
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require 'date'
-
 # -------------------------------------------------------------------------------------
 
 # Kimchee::agentuuid()
