@@ -38,7 +38,6 @@ class Kimchee
 
     def self.monthsValues()
         genesisDateTime = Kimchee::genesisDatetime()
-        puts genesisDateTime.to_s
         datetimes = LucilleCore::integerEnumerator()
             .take_while{|int| DateTime.now > genesisDateTime + int  }
             .map{|int| (genesisDateTime + int)  }
