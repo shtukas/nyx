@@ -684,7 +684,7 @@ class CatalystDevOps
     end
 
     # -------------------------------------------
-    # Archives
+    # xcache
 
     def self.xcacheDataFilepathEnumerator()
         Enumerator.new do |filepaths|
