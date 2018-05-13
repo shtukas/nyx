@@ -95,6 +95,35 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "/Galaxy/DataBank/Catalyst/time
 
 class TimeCommitments
 
+    def self.agentuuid()
+        "03a8bff4-a2a4-4a2b-a36f-635714070d1d"
+    end
+
+    def self.processObject(object, command)
+        uuid = object['uuid']
+        if command=='start' then
+            TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
+            item = TimeCommitments::getItemByUUID(uuid)
+            ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
+            metric = 2 - Saturn::traceToMetricShift(uuid) if item["is-running"]
+            object["announce"] = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
+            object["commands"] = ["stop"]
+            object["default-expression"] = "stop"
+            return object
+        end
+        if command=="stop" then
+            TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
+            item = TimeCommitments::getItemByUUID(uuid)
+            ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
+            metric = 0.7 + 0.1*Math.exp(-ratioDone*3) + Saturn::traceToMetricShift(uuid)
+            object["announce"] = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
+            object["commands"] = ["start"]
+            object["default-expression"] = "start"
+            return object
+        end
+        nil
+    end
+
     def self.getItems()
         SetsOperator::values(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID)
             .compact
@@ -200,31 +229,15 @@ class TimeCommitments
             metric = item['metric'] ? item['metric'] : ( 0.7 + 0.1*Math.exp(-ratioDone*3) + Saturn::traceToMetricShift(uuid) )
             metric = 2 - Saturn::traceToMetricShift(uuid) if item["is-running"]
             announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
-            commands = item["is-running"] ? ["stop", "stop+"] : ["start"]
-            defaultExpression = item["is-running"] ? "stop+" : "start"
+            commands = item["is-running"] ? ["stop"] : ["start"]
+            defaultExpression = item["is-running"] ? "stop" : "start"
             {
                 "uuid" => uuid,
                 "metric" => metric,
                 "announce" => announce,
                 "commands" => commands,
                 "default-expression" => defaultExpression,
-                "command-interpreter" => lambda{|object, command|
-                    uuid = object['uuid']
-                    if command=='start' then
-                        TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
-                    end
-                    if command=="stop" then
-                        TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
-                    end
-                    if command=="stop+" then
-                        item = TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid))
-                        TimeCommitments::saveItem(item)
-                        newItemOpt = TimeCommitments::getNonRunningUnderflowingItemOfGivenDomainOfMaxMetricOrNull(TimeCommitments::getItems(), item["domain"])
-                        if newItemOpt then
-                            TimeCommitments::saveItem(TimeCommitments::startItem(newItemOpt))
-                        end
-                    end
-                }
+                "agent-uid" => self.agentuuid()
             }
         }
         if objects.select{|object| object["metric"]>1 }.size>0 then

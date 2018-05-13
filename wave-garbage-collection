@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "Wave.rb"
+require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------------------
 

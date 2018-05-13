@@ -18,7 +18,7 @@ require 'colorize'
 
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
-require_relative "Wave.rb"
+require_relative "Agent-Wave.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -150,7 +150,7 @@ class EmailStatusManagement
             puts "email-agent api:destroy could not find an emailpoint for emailuid: #{emailuid}" if verbose
         else
             catalystuuid = emailpoint['catalyst-uuid']
-            folderpath = WaveObjects::catalystUUIDToItemFolderPathOrNull(catalystuuid)
+            folderpath = Wave::catalystUUIDToItemFolderPathOrNull(catalystuuid)
             if !folderpath.nil? and File.exists?(folderpath) then
                 time = Time.new
                 targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
@@ -205,7 +205,7 @@ class GeneralEmailClient
                 newEmailCount = newEmailCount+1
                 puts "[email agent] This is a new email on the server. Downloading." if verbose
                 catalystuuid = SecureRandom.hex(4)
-                folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
 
                 FileUtils.touch("#{folderpath}/EmailImportProgressMarker")
@@ -228,7 +228,7 @@ class GeneralEmailClient
 
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule['metric'] = 0.950 - LucilleCore::nextInteger("14b3e2b4-1365-4ca4-b081-cf0ae0daad5f").to_f/1000000
-                WaveObjects::writeScheduleToDisk(catalystuuid,schedule)
+                Wave::writeScheduleToDisk(catalystuuid,schedule)
 
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
 
@@ -265,7 +265,7 @@ class GeneralEmailClient
         EmailMetadataManagement::getObjectsOfGivenType("email-point-fa50bfd3-24e9-4072-8610-03108990a6dd")
         .each{|point|
             catalystuuid = point['catalyst-uuid']
-            if WaveObjects::catalystUUIDToItemFolderPathOrNull(catalystuuid).nil? then
+            if Wave::catalystUUIDToItemFolderPathOrNull(catalystuuid).nil? then
                 # Email has been deleted on local
                 emailuid = point['emailuid']
                 if emailuidsCurrentlyOnServer.include?(emailuid) then
@@ -328,7 +328,7 @@ class OperatorEmailDownloader
             if subjectline.nil? or subjectline.strip.size==0 or EmailUtils::msgToBody(msg).to_s.size>0 then
                 puts "[operator@alseyn.net] Importing email as full object" if verbose
                 catalystuuid = SecureRandom.hex(4)
-                folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
@@ -336,17 +336,17 @@ class OperatorEmailDownloader
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
-                WaveObjects::writeScheduleToDisk(catalystuuid, schedule)
+                Wave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
             else
                 puts "[operator@alseyn.net] Importing email as subjectline" if verbose
                 catalystuuid = SecureRandom.hex(4)
-                folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
-                WaveObjects::writeScheduleToDisk(catalystuuid, schedule)
+                Wave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net (subject line): #{subjectline}") }
             end
 

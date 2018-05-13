@@ -62,7 +62,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 OpenProjects_PATH_TO_REPOSITORY = "/Galaxy/DataBank/Catalyst/Open-Projects"
 
-# OpenProjects::updateObjectsCacheOnThisObject(object)
 # OpenProjects::getCatalystObjects()
 
 # OpenProjects::folderpaths(itemsfolderpath)
@@ -73,21 +72,45 @@ OpenProjects_PATH_TO_REPOSITORY = "/Galaxy/DataBank/Catalyst/Open-Projects"
 
 class OpenProjects
 
-    @@objectsCache = []
-
-    def self.setObjectsCache(envelop)
-        @@objectsCache = envelop
-        KeyValueStore::set(nil, "e16bf2b1-5e81-4b55-a676-d6ac068fb6b6", JSON.generate(envelop))
+    def self.agentuuid()
+        "30ff0f4d-7420-432d-b75b-826a2a8bc7cf"
     end
 
-    def self.updateObjectsCacheOnThisObject(object)
-        thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
-        newObject = OpenProjects::folderpath2CatalystObjectOrNull(object["item-folderpath"])
-        OpenProjects::setObjectsCache((theOtherOnes + [newObject]).compact)
-    end
-
-    def self.getCatalystObjects()
-        @@objectsCache
+    def self.processObject(object, command)
+        if command=='start' then
+            metadata = object["item-folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)
+            GenericTimeTracking::start(object["uuid"])
+            object["metric"] = 2 - Saturn::traceToMetricShift(uuid)
+            object["commands"] = ["stop", "completed", "folder"]
+            object["default-expression"] = ""
+            return object
+        end
+        if command=='stop' then
+            GenericTimeTracking::stop(object["uuid"])
+            status = GenericTimeTracking::status(uuid)
+            object["metric"] = GenericTimeTracking::metric2(uuid, 0.2, 0.8, 1) + Saturn::traceToMetricShift(uuid)
+            object["commands"] = ["start", "completed", "folder"]
+            object["default-expression"] = "start"
+            return object
+        end
+        if command=="completed" then
+            GenericTimeTracking::stop(object["uuid"])
+            time = Time.new
+            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+            FileUtils.mkpath targetFolder
+            puts "source: #{object['item-folderpath']}"
+            puts "target: #{targetFolder}"
+            FileUtils.mkpath(targetFolder)
+            LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
+            LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+            return Saturn::deathObject(object["uuid"])
+        end
+        if command=="folder" then
+            system("open '#{object["item-folderpath"]}'")
+            return nil
+        end
+        nil
     end
 
     def self.folderpaths(itemsfolderpath)
@@ -129,51 +152,15 @@ class OpenProjects
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
             "default-expression" => isRunning ? "" : "start",
-            "command-interpreter" => lambda{|object, command| OpenProjects::objectCommandHandler(object, command) },
             "item-folder-probe-metadata" => folderProbeMetadata,
-            "item-folderpath" => folderpath
+            "item-folderpath" => folderpath,
+            "agent-uid" => self.agentuuid()
         }
     end
 
-    def self.getCatalystObjectsFromDisk()
+    def self.getCatalystObjects()
         OpenProjects::folderpaths(OpenProjects_PATH_TO_REPOSITORY)
             .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
             .compact
     end
-
-    def self.objectCommandHandler(object, command)
-        if command=='start' then
-            metadata = object["item-folder-probe-metadata"]
-            FolderProbe::openActionOnMetadata(metadata)
-            GenericTimeTracking::start(object["uuid"])
-            OpenProjects::updateObjectsCacheOnThisObject(object)
-        end
-        if command=='stop' then
-            GenericTimeTracking::stop(object["uuid"])
-            OpenProjects::updateObjectsCacheOnThisObject(object)
-        end
-        if command=="completed" then
-            GenericTimeTracking::stop(object["uuid"])
-            OpenProjects::performObjectClosing(object)
-            OpenProjects::updateObjectsCacheOnThisObject(object)
-        end
-        if command=="folder" then
-            system("open '#{object["item-folderpath"]}'")
-        end
-    end
 end
-
-OpenProjects::setObjectsCache(
-    JSON.parse(KeyValueStore::getOrDefaultValue(nil, "e16bf2b1-5e81-4b55-a676-d6ac068fb6b6", "[]"))
-    .map{|object|
-        object['command-interpreter'] = lambda{|object, command| OpenProjects::objectCommandHandler(object, command) }
-        object
-    }
-)
-
-Thread.new {
-    loop {
-        OpenProjects::setObjectsCache(OpenProjects::getCatalystObjectsFromDisk())
-        sleep 73
-    }
-}

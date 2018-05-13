@@ -62,6 +62,31 @@ TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
 
 class Today
 
+    def self.agentuuid()
+        "f989806f-dc62-4942-b484-3216f7efbbd9"
+    end
+
+    def self.processObject(object, command)
+        if command=='done' then
+            Today::removeSectionFromFile(object['uuid'])
+        end
+        if command=='>stream' then
+            description = object["item-section"]
+            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            Today::removeSectionFromFile(object['uuid'])
+        end
+        if command=='>open-projects' then
+            description = object["item-section"]
+            folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            Today::removeSectionFromFile(object['uuid'])
+        end
+        nil
+    end
+
     # -------------------------------------------------------------------------------------
     def self.section_is_not_empty(section)
         section.any?{|line| line.strip.size>0 }
@@ -136,26 +161,8 @@ class Today
                 "metric" => metric,
                 "announce" => announce,
                 "commands" => ['done', ">stream", ">open-projects"],
-                "command-interpreter" => lambda{|object, command|
-                    if command=='done' then
-                        Today::removeSectionFromFile(object['uuid'])
-                    end
-                    if command=='>stream' then
-                        description = object["item-section"]
-                        folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-                        FileUtils.mkpath folderpath
-                        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-                        Today::removeSectionFromFile(object['uuid'])
-                    end
-                    if command=='>open-projects' then
-                        description = object["item-section"]
-                        folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-                        FileUtils.mkpath folderpath
-                        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-                        Today::removeSectionFromFile(object['uuid'])
-                    end
-                },
-                "item-section" => section.join()
+                "item-section" => section.join(),
+                "agent-uid" => self.agentuuid()
             }
         }
         objects

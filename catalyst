@@ -148,11 +148,11 @@ class Jupiter
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             uuid = SecureRandom.hex(4)
             schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
-            folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-            WaveObjects::writeScheduleToDisk(uuid, schedule)
+            Wave::writeScheduleToDisk(uuid, schedule)
             if schedule["@"]=="new" then
                 code = LucilleCore::askQuestionAnswerAsString("datecode (or empty): ")
                 if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
@@ -414,6 +414,9 @@ class Jupiter
             system("clear")
             puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".yellow
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) then
+                CatalystArchivesOps::archivesGarbageCollection(false)
+            end
             selectedObject = objects.last
             objects.each_with_index{|object, index|
                 string =
@@ -450,7 +453,8 @@ class Jupiter
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-            Jupiter::doExecute(object, command)
+            processor = Saturn::agentuuid2objectProcessorOrNull(object["agent-uid"])
+            processor.call(object, command)
         }
     end
 end
@@ -469,21 +473,6 @@ Thread.new {
     loop {
         sleep 1200
         Jupiter::emailSyncOnSchedule(false)
-    }
-}
-
-Thread.new {
-    loop {
-        sleep 600
-        count = CatalystArchivesOps::archivesGarbageCollection(false)
-        if count>0 then
-            description = "#{Time.new.to_s} : CatalystArchivesOps::archivesGarbageCollection: #{count} files"
-            uuid = SecureRandom.hex(4)
-            folderpath = WaveObjects::timestring22ToFolderpath(LucilleCore::timeStringL22())
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        end
     }
 }
 

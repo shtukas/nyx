@@ -32,8 +32,6 @@ require 'colorize'
 
 # -------------------------------------------------------------------------------------
 
-# Stream::setObjectsCache(envelop)
-# Stream::updateObjectsCacheOnThisObject(object)
 # Stream::getCatalystObjects()
 
 # Stream::folderpaths(itemsfolderpath)
@@ -46,23 +44,72 @@ require 'colorize'
 
 class Stream
 
-    @@objectsCache = []
-
-    def self.setObjectsCache(envelop)
-        @@objectsCache = envelop
-        KeyValueStore::set(nil, "c53e0f2c-d9cf-4a8e-b14e-07034070a978", JSON.generate(envelop))
+    def self.agentuuid()
+        "73290154-191f-49de-ab6a-5e5a85c6af3a"
     end
 
-    def self.updateObjectsCacheOnThisObject(object)
-        thisOne, theOtherOnes = @@objectsCache.partition{|o| o["uuid"]==object["uuid"] }
-        newObject = Stream::folderpathToCatalystObjectOrNull(object["item-folderpath"])
-        Stream::setObjectsCache((theOtherOnes + [newObject]).compact)
+    def self.processObject(object, command)
+        uuid = object['uuid']
+        if command=='folder' then
+            system("open '#{object['item-folderpath']}'")
+            return nil
+        end
+        if command=='start' then
+            metadata = object["item-folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)
+            GenericTimeTracking::start(uuid)
+            GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            folderpath = object["item-folderpath"]
+            folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
+            commands = ["stop", "folder", "completed", "rotate", ">lib"]
+            defaultExpression = ""
+            object["metric"] = 2 - Saturn::traceToMetricShift(uuid)
+            object["is-running"] = true
+            return object
+        end
+        if command=='stop' then
+            GenericTimeTracking::stop(uuid)
+            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            folderpath = object["item-folderpath"]
+            folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
+            commands = ["stop", "folder", "completed", "rotate", ">lib"]
+            defaultExpression = ""
+            object["metric"] = GenericTimeTracking::metric2(uuid, 0, 0.7, 1) * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid)
+            object["is-running"] = false
+            return object
+        end
+        if command=="completed" then
+            GenericTimeTracking::stop(uuid)
+            time = Time.new
+            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+            FileUtils.mkpath targetFolder
+            puts "source: #{object['item-folderpath']}"
+            puts "target: #{targetFolder}"
+            FileUtils.mkpath(targetFolder)
+            if File.exists?(object['item-folderpath']) then
+                LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
+                LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+            end
+            return Saturn::deathObject(object["uuid"])
+        end
+        if command=='>lib' then
+            GenericTimeTracking::stop(uuid)
+            sourcefolderpath = object['item-folderpath']
+            atlasreference = "atlas-#{SecureRandom.hex(8)}"
+            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
+            LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
+            puts "Stream folder moved to the staging folder (Desktop), edit and press [Enter]"
+            LucilleCore::pressEnterToContinue()
+            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
+            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
+            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
+            LucilleCore::removeFileSystemLocation(staginglocation)
+            Stream::performObjectClosing(object)
+            return Saturn::deathObject(object["uuid"])
+        end
+        nil
     end
-
-    def self.getCatalystObjects()
-        @@objectsCache
-    end
-
+    
     def self.folderpaths(itemsfolderpath)
         Dir.entries(itemsfolderpath)
             .select{|filename| filename[0,1]!='.' }
@@ -97,11 +144,11 @@ class Stream
             "announce" => announce,
             "commands" => commands,
             "default-expression" => defaultExpression,
-            "command-interpreter" => lambda{|object, command| Stream::objectCommandHandler(object, command) },
             "is-running" => isRunning,
             "item-folderpath" => folderpath,
             "item-folder-probe-metadata" => folderProbeMetadata,
-            "item-status" => status
+            "item-status" => status,
+            "agent-uid" => self.agentuuid()
         }
     end
 
@@ -119,82 +166,13 @@ class Stream
         LucilleCore::removeFileSystemLocation(object['item-folderpath'])
     end
 
-    def self.objectCommandHandler(object, command)
-        uuid = object['uuid']
-        if command=='folder' then
-            system("open '#{object['item-folderpath']}'")
-            object1 = Stream::folderpathToCatalystObjectOrNull(object["item-folderpath"])
-            return if object1.nil?
-            Jupiter::interactiveDisplayObjectAndProcessCommand(object1)
-        end
-        if command=='start' then
-            metadata = object["item-folder-probe-metadata"]
-            FolderProbe::openActionOnMetadata(metadata)
-            GenericTimeTracking::start(uuid)
-            GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-            Stream::updateObjectsCacheOnThisObject(object)
-        end
-        if command=='stop' then
-            GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-            Stream::updateObjectsCacheOnThisObject(object)
-        end
-        if command=="completed" then
-            Stream::performObjectClosing(object)
-            Stream::updateObjectsCacheOnThisObject(object)
-        end
-        if command=='rotate' then
-            sourcelocation = object["item-folderpath"]
-            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mv(sourcelocation, targetfolderpath)
-            Stream::updateObjectsCacheOnThisObject(object)
-        end
-        if command=='>lib' then
-            GenericTimeTracking::stop(uuid)
-            sourcefolderpath = object['item-folderpath']
-            atlasreference = "atlas-#{SecureRandom.hex(8)}"
-            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
-            LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
-            puts "Stream folder moved to the staging folder (Desktop), edit and press [Enter]"
-            LucilleCore::pressEnterToContinue()
-            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
-            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
-            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
-            LucilleCore::removeFileSystemLocation(staginglocation)
-            Stream::performObjectClosing(object)
-            Stream::updateObjectsCacheOnThisObject(object)
-        end
-    end
-
-    def self.getCatalystObjectsFromDisk()
+    def self.getCatalystObjects()
         folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
         folderpaths.zip((1..folderpaths.size))
-            .map{|folderpath, indx|
-                object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-                 # We focus on the first six objects
-                if object and indx > 6 then
-                    object["metric"] = 0
-                end
-                object
-            }
+            .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath) }
             .compact
     end
 
 end
-
-Stream::setObjectsCache(
-    JSON.parse(KeyValueStore::getOrDefaultValue(nil, "c53e0f2c-d9cf-4a8e-b14e-07034070a978", "[]"))
-    .map{|object|
-        object['command-interpreter'] = lambda{|object, command| Stream::objectCommandHandler(object, command) }
-        object
-    }
-)
-
-Thread.new {
-    loop {
-        Stream::setObjectsCache(Stream::getCatalystObjectsFromDisk())
-        sleep 143
-    }
-}
 
 # -------------------------------------------------------------------------------------

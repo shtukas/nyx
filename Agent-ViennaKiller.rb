@@ -57,24 +57,36 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
     FIFOQueue::takeFirstOrNull(repositorylocation or nil, queueuuid)
 =end
 
-require_relative "Vienna.rb"
+require_relative "Agent-Vienna.rb"
 
 # -------------------------------------------------------------------------------------
 
 # ViennaKiller::getCatalystObjects()
 
 class ViennaKiller
-    @@killerMetric = nil
-    def self.setKillerMetric(metric)
-        @@killerMetric = metric
+
+    def self.agentuuid()
+        "7cbbde0d-e5d6-4be9-b00d-8b8011f7173f"
     end
+
+    def self.processObject(object, command)
+        Nil
+    end
+
+    def self.metric()
+        currentCount1 = Vienna::getUnreadLinks().size
+        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna", currentCount1)
+        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna")
+        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
+        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
+        metric1
+    end
+
     def self.getCatalystObjects()
-        if @@killerMetric.nil? then
-            return []
-        end
-        targetobject = Vienna::getCatalystObjects().first.clone
+        targetobject = Vienna::getCatalystObjects().first
         if targetobject then
-            targetobject["metric"] = [@@killerMetric, 0.99].min
+            targetobject = targetobject.clone
+            targetobject["metric"] = [self.metric(), 0.99].min
             targetobject["announce"] = "(vienna killer) #{targetobject["announce"]}"
             [ targetobject ]
         else
@@ -84,21 +96,10 @@ class ViennaKiller
                     "metric" => 0.5,
                     "announce" => "-> vienna killer could not retrieve a targetuuid",
                     "commands" => [],
-                    "command-interpreter" => lambda{|object, command| }
+                    "agent-uid" => self.agentuuid()
                 }
             ]
         end
     end
 end
 
-Thread.new {
-    loop {
-        currentCount1 = Vienna::getUnreadLinks().size
-        KillersCurvesManagement::shiftCurveIfOpportunity("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna", currentCount1)
-        curve1 = KillersCurvesManagement::getCurve("/Galaxy/DataBank/Catalyst/Killers-Curves/Vienna")
-        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
-        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
-        ViennaKiller::setKillerMetric(metric1)
-        sleep 37
-    }
-}

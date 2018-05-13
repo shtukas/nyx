@@ -14,8 +14,23 @@ require 'date'
 
 # -------------------------------------------------------------------------------------
 
+# Kimchee::agentuuid()
+# Kimchee::getCatalystObjects()
+
 class Kimchee
-    # Kimchee::getCatalystObjects()
+
+    def self.agentuuid()
+        "b343bc48-82db-4fa3-ac56-3b5a31ff214f"
+    end
+
+    def self.processObject(object, command)
+        if command=="love" then
+            KeyValueStore::set(nil, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}", "done")
+            return Saturn::deathObject(object["uuid"])
+        end
+        nil
+    end
+
     def self.getCatalystObjects()
         if Time.new.wday!=0 then
             []
@@ -29,13 +44,7 @@ class Kimchee
                         "metric"              => 1-Saturn::traceToMetricShift("1d510e86-c171-4964-a170-1bc61c6a3201"),
                         "announce"            => "Well done for making it to #{timespan.to_f/(86400*7)} weeks (^_^) 💕",
                         "commands"            => ["love"],
-                        "command-interpreter" => lambda{ |object, command|
-                            if command=="love" then
-                                KeyValueStore::set(nil, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}", "done")
-                                return [nil, false]
-                            end
-                            [nil, false]
-                        }
+                        "agent-uid" => self.agentuuid()
                     }
                 ]
             else

@@ -60,8 +60,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 # -------------------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
-$VIENNA_LINKS = []
-
 
 # select link from messages where read_flag=0;
 # update messages set read_flag=1 where link="https://www.schneier.com/blog/archives/2018/04/security_vulner_14.html"
@@ -69,6 +67,22 @@ $VIENNA_LINKS = []
 # Vienna::getUnreadLinks()
 
 class Vienna
+
+    def self.agentuuid()
+        "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
+    end
+
+    def self.processObject(object, command)
+        if command=='open' then
+            system("open '#{object["link"]}'")
+        end
+        if command=='done' then
+            link = object["link"]
+            Vienna::setLinkAsRead(link)
+            FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
+        end
+        nil
+    end
 
     def self.getUnreadLinks()
         query = "select link from messages where read_flag=0;"
@@ -95,7 +109,7 @@ class Vienna
     end
 
     def self.getCatalystObjects()
-        link = $VIENNA_LINKS.first
+        link = Vienna::getUnreadLinks().first
         return [] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
         metric = Vienna::metric(uuid)
@@ -106,26 +120,10 @@ class Vienna
                 "announce" => "vienna: #{link}",
                 "commands" => ['open', 'done'],
                 "default-expression" => "open done",
-                "command-interpreter" => lambda{|object, command|
-                    if command=='open' then
-                        system("open '#{object["link"]}'")
-                    end
-                    if command=='done' then
-                        link = object["link"]
-                        $VIENNA_LINKS.delete(link)
-                        Thread.new {
-                            Vienna::setLinkAsRead(link)
-                        }
-                        FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
-                    end
-                },
-                "link" => link
+                "link" => link,
+                "agent-uid" => self.agentuuid()
             }
         ]
     end
 
 end
-
-Thread.new {
-    $VIENNA_LINKS = Vienna::getUnreadLinks()
-}

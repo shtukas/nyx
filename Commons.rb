@@ -19,20 +19,73 @@ require 'digest/sha1'
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Open-Projects"
+CATALYST_COMMON_PATH_TO_DATA_LOG = "/Galaxy/DataBank/Catalyst/DataLog"
+
+# DataLogUtils::pathToActiveDataLogIndexFolder()
+# DataLogUtils::commitCatalystObjectToDisk(object)
+# DataLogUtils::getDataLog()
+# DataLogUtils::dataLog2IntermediaryStructure(dataLog)
+# DataLogUtils::intermediaryStructure2DataSet(intermediaryStructure)
+# DataLogUtils::getDataSetFromDisk()
+
+class DataLogUtils
+    def self.pathToActiveDataLogIndexFolder()
+        LucilleCore::indexsubfolderpath(CATALYST_COMMON_PATH_TO_DATA_LOG)
+    end
+
+    def self.commitCatalystObjectToDisk(object)
+        folderpath = DataLogUtils::pathToActiveDataLogIndexFolder()
+        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(object)) }
+    end
+
+    def self.getDataLog()
+        objects = []
+        Find.find(CATALYST_COMMON_PATH_TO_DATA_LOG) do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-5,5] != '.json'
+            objects << JSON.parse(IO.read(path))
+        end
+        objects
+    end
+
+    def self.dataLog2IntermediaryStructure(dataLog)
+        structure = {}
+        dataLog.each{|object|
+            structure[object["uuid"]] = object # Here we do not really need to check relative times because objects are naturally ordered by creation time due to ordering in the file system
+        }
+        structure
+    end
+
+    def self.intermediaryStructure2DataSet(intermediaryStructure)
+        intermediaryStructure.values
+    end
+
+    def self.getDataSetFromDisk()
+        dataLog = DataLogUtils::getDataLog()
+        intermediaryStructure = DataLogUtils::dataLog2IntermediaryStructure(dataLog)
+        DataLogUtils::intermediaryStructure2DataSet(intermediaryStructure)
+    end
+end
 
 # Saturn::currentHour()
 # Saturn::currentDay()
 # Saturn::simplifyURLCarryingString(string)
 # Saturn::traceToRealInUnitInterval(trace)
 # Saturn::traceToMetricShift(trace)
+# Saturn::deathObject(uuid)
+# Saturn::agentuuid2objectProcessorOrNull(agentuuid)
 
 class Saturn
+
     def self.currentHour()
         Time.new.to_s[0,13]
     end
+
     def self.currentDay()
         Time.new.to_s[0,10]
     end
+
     def self.simplifyURLCarryingString(string)
         return string if /http/.match(string).nil?
         [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
@@ -44,12 +97,34 @@ class Saturn
             }
         string
     end
+
     def self.traceToRealInUnitInterval(trace)
         ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
     end
 
     def self.traceToMetricShift(trace)
         0.001*Saturn::traceToRealInUnitInterval(trace)
+    end
+
+    def self.deathObject(uuid)
+        {
+            "uuid"  => uuid,
+            "death" => true
+        }
+    end
+
+    def self.agentuuid2objectProcessorOrNull(agentuuid)
+        return lambda{|object, command| GuardianTime::processObject(object, command) }    if agentuuid=="11fa1438-122e-4f2d-9778-64b55a11ddc2"
+        return lambda{|object, command| Kimchee::processObject(object, command) }         if agentuuid=="b343bc48-82db-4fa3-ac56-3b5a31ff214f"
+        return lambda{|object, command| Ninja::processObject(object, command) }           if agentuuid=="d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
+        return lambda{|object, command| OpenProjects::processObject(object, command) }    if agentuuid=="30ff0f4d-7420-432d-b75b-826a2a8bc7cf"
+        return lambda{|object, command| Stream::processObject(object, command) }          if agentuuid=="73290154-191f-49de-ab6a-5e5a85c6af3a"
+        return lambda{|object, command| StreamKiller::processObject(object, command) }    if agentuuid=="e16a03ac-ac2c-441a-912e-e18086addba1"
+        return lambda{|object, command| TimeCommitments::processObject(object, command) } if agentuuid=="03a8bff4-a2a4-4a2b-a36f-635714070d1d"
+        return lambda{|object, command| Today::processObject(object, command) }           if agentuuid=="f989806f-dc62-4942-b484-3216f7efbbd9"
+        return lambda{|object, command| Vienna::processObject(object, command) }          if agentuuid=="2ba71d5b-f674-4daf-8106-ce213be2fb0e"
+        return lambda{|object, command| ViennaKiller::processObject(object, command) }    if agentuuid=="7cbbde0d-e5d6-4be9-b00d-8b8011f7173f"
+        return lambda{|object, command| Wave::processObject(object, command) }            if agentuuid=="283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
 end
 

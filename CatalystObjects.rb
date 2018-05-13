@@ -39,17 +39,17 @@ require 'find'
 
 require_relative "Commons.rb"
 
-require_relative "Wave.rb"
-require_relative "Ninja.rb"
-require_relative "Stream.rb"
-require_relative "Today.rb"
-require_relative "TimeCommitments.rb"
-require_relative "StreamKiller.rb"
-require_relative "GuardianTime.rb"
-require_relative "Kimchee.rb"
-require_relative "Vienna.rb"
-require_relative "ViennaKiller.rb"
-require_relative "OpenProjects.rb"
+require_relative "Agent-Wave.rb"
+require_relative "Agent-Ninja.rb"
+require_relative "Agent-Stream.rb"
+require_relative "Agent-Today.rb"
+require_relative "Agent-TimeCommitments.rb"
+require_relative "Agent-StreamKiller.rb"
+require_relative "Agent-GuardianTime.rb"
+require_relative "Agent-Kimchee.rb"
+require_relative "Agent-Vienna.rb"
+require_relative "Agent-ViennaKiller.rb"
+require_relative "Agent-OpenProjects.rb"
 
 # ----------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ require_relative "OpenProjects.rb"
 class CatalystObjects
     def self.structure1()
         sources = [
-            ["Wave", lambda { WaveInterface::getCatalystObjects() }],
+            ["Wave", lambda { Wave::getCatalystObjects() }],
             ["Ninja", lambda { Ninja::getCatalystObjects() }],
             ["Stream", lambda { Stream::getCatalystObjects() }],
             ["Today", lambda { Today::getCatalystObjects() }],
@@ -72,29 +72,15 @@ class CatalystObjects
             ["OpenProjects", lambda{ OpenProjects::getCatalystObjects() }]
         ]
         sources.map{|pair|
-            startTime = Time.new.to_f
             xobjects  = pair[1].call()
-            queryTime = Time.new.to_f - startTime
             {
                 "domain"  => pair[0],
                 "objects" => xobjects,
-                "time"    => queryTime
             }
         }
     end
     def self.all()
-        struct1 = CatalystObjects::structure1()
-        objects = struct1.map{|s| s["objects"] }.flatten
-        if (xtime = struct1.map{|s| s["time"] }.inject(0, :+)) > 1 then
-            offender = struct1.sort{|s1,s2| s1["time"]<=>s2["time"] }.last
-            objects << {
-                "uuid"                => SecureRandom.hex(4),
-                "metric"              => 1,
-                "announce"            => "-> #{offender["domain"]} generation is taking too long (#{offender["time"]} seconds)",
-                "commands"            => [],
-                "command-interpreter" => lambda{ |object, command| }
-            }
-        end
+        objects = CatalystObjects::structure1().map{|s| s["objects"] }.flatten
         objects = DoNotShowUntil::transform(objects)
         objects
     end

@@ -25,7 +25,21 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
+# Ninja::getCatalystObjects()
+
 class Ninja
+
+    def self.agentuuid()
+        "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
+    end
+
+    def self.processObject(object, command)
+        folderpath = object["ninja-folderpath"]
+        system("ninja api:play-folderpath '#{folderpath}'")
+        FIFOQueue::takeFirstOrNull(nil, "folderpaths-f363-4a11-9251-b7301406e261")
+        FIFOQueue::push(nil, "timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
+        nil
+    end
 
     def self.getFolderpathOrNull()
         folderpath = FIFOQueue::getFirstOrNull(nil, "folderpaths-f363-4a11-9251-b7301406e261")
@@ -37,7 +51,6 @@ class Ninja
         FIFOQueue::getFirstOrNull(nil, "folderpaths-f363-4a11-9251-b7301406e261")
     end
 
-    # Ninja::getCatalystObjects()
     def self.getCatalystObjects()
         FIFOQueue::takeWhile(nil, "timestamps-5bd4-431b-9eef-24ca1d005a3c", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
         folderpath = Ninja::getFolderpathOrNull()
@@ -51,12 +64,7 @@ class Ninja
                 "metric" => metric,
                 "announce" => "ninja: folderpath: #{File.basename(folderpath)}",
                 "commands" => [],
-                "command-interpreter" => lambda{|object, command|
-                    folderpath = object["ninja-folderpath"]
-                    system("ninja api:play-folderpath '#{folderpath}'")
-                    FIFOQueue::takeFirstOrNull(nil, "folderpaths-f363-4a11-9251-b7301406e261")
-                    FIFOQueue::push(nil, "timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
-                },
+                "agent-uid" => self.agentuuid(),
                 "ninja-folderpath" => folderpath
             }
         ]
