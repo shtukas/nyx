@@ -60,7 +60,7 @@ require_relative "Agent-OpenProjects.rb"
 
 class CatalystDataOperator
 
-    @@structureAlpha = nil # {"agent-uid" => Array[Agent Object]}
+    @@structureAlpha = nil # { "agent-uid" => Array[Agent Object] }
 
     def self.init()
         @@structureAlpha = {}

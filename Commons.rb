@@ -462,6 +462,7 @@ class FolderProbe
             contents = IO.read(filepath)
             return nil if contents.lines.to_a.size != 1
             line = contents.lines.first.strip
+            line = Saturn::simplifyURLCarryingString(line)
             return nil if !line.start_with?("http")
             line
         }
