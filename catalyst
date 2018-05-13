@@ -264,9 +264,13 @@ class Jupiter
 
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
-            .each{|token| object['command-interpreter'].call(object, token) }
+            .each{|token| 
+                processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
+                processor.call(object, token)
+            }
         else
-            object['command-interpreter'].call(object, "")
+            processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
+            processor.call(object, "")
         end
     end
 
@@ -455,8 +459,7 @@ class Jupiter
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-            processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
-            processor.call(object, command)
+            Jupiter::doExecute(object, command)
         }
     end
 end
