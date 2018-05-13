@@ -138,7 +138,7 @@ class Jupiter
             description = expression[5, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             uuid = SecureRandom.hex(4)
-            schedule = WaveSchedules::makeScheduleObjectInteractivelyOrNull()
+            schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
             folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
