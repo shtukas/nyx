@@ -8,7 +8,7 @@
 0.750 -> 0.800  Wave: today, ondate, repeats
 0.700 -> 0.800  TimeCommitments (unless specified by the item itself)
 0.200 -> 0.800  Vienna
-0.200 -> 0.800  Open Projects
+0.190 -> 0.790  Open Projects
 0.000 -> 0.700  Stream
 0.200 -> 0.600  Ninja
 0.000 -> 0.500  x-laniakea
