@@ -65,25 +65,69 @@ class CatalystDataOperator
 
     def self.init()
         structureAlpha = {}
-        CatalystDataOperator::dataSources().each{|tuple|
-            structureAlpha[tuple[0]] = tuple[1].call()
+        CatalystDataOperator::dataSources().each{|agentinterface|
+            structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
         }
         @@structureAlpha = structureAlpha
     end
 
     def self.dataSources()
         [
-            ["11fa1438-122e-4f2d-9778-64b55a11ddc2", lambda { GuardianTime::getCatalystObjects() },    lambda{|object, command| GuardianTime::processObject(object, command) }],
-            ["b343bc48-82db-4fa3-ac56-3b5a31ff214f", lambda { Kimchee::getCatalystObjects() } ,        lambda{|object, command| Kimchee::processObject(object, command) }],
-            ["d3d1d26e-68b5-4a99-a372-db8eb6c5ba58", lambda { Ninja::getCatalystObjects() },           lambda{|object, command| Ninja::processObject(object, command) }],
-            ["30ff0f4d-7420-432d-b75b-826a2a8bc7cf", lambda { OpenProjects::getCatalystObjects() },    lambda{|object, command| OpenProjects::processObject(object, command) }],
-            ["73290154-191f-49de-ab6a-5e5a85c6af3a", lambda { Stream::getCatalystObjects() },          lambda{|object, command| Stream::processObject(object, command) }],
-            ["e16a03ac-ac2c-441a-912e-e18086addba1", lambda { StreamKiller::getCatalystObjects() },    lambda{|object, command| StreamKiller::processObject(object, command) }],
-            ["03a8bff4-a2a4-4a2b-a36f-635714070d1d", lambda { TimeCommitments::getCatalystObjects() }, lambda{|object, command| TimeCommitments::processObject(object, command) }],
-            ["f989806f-dc62-4942-b484-3216f7efbbd9", lambda { Today::getCatalystObjects() },           lambda{|object, command| Today::processObject(object, command) }],
-            ["2ba71d5b-f674-4daf-8106-ce213be2fb0e", lambda { Vienna::getCatalystObjects() },          lambda{|object, command| Vienna::processObject(object, command) }],
-            ["7cbbde0d-e5d6-4be9-b00d-8b8011f7173f", lambda { ViennaKiller::getCatalystObjects() },    lambda{|object, command| ViennaKiller::processObject(object, command) }],
-            ["283d34dd-c871-4a55-8610-31e7c762fb0d", lambda { Wave::getCatalystObjects() },            lambda{|object, command| Wave::processObject(object, command) }],
+            {
+                "agent-uid"        => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
+                "objects-maker"    => lambda { GuardianTime::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| GuardianTime::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "b343bc48-82db-4fa3-ac56-3b5a31ff214f",
+                "objects-maker"    => lambda { Kimchee::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| Kimchee::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
+                "objects-maker"    => lambda { Ninja::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| Ninja::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "30ff0f4d-7420-432d-b75b-826a2a8bc7cf",
+                "objects-maker"    => lambda { OpenProjects::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| OpenProjects::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "73290154-191f-49de-ab6a-5e5a85c6af3a",
+                "objects-maker"    => lambda { Stream::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| Stream::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "e16a03ac-ac2c-441a-912e-e18086addba1",
+                "objects-maker"    => lambda { StreamKiller::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| StreamKiller::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
+                "objects-maker"    => lambda { TimeCommitments::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| TimeCommitments::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "f989806f-dc62-4942-b484-3216f7efbbd9",
+                "objects-maker"    => lambda { Today::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| Today::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
+                "objects-maker"    => lambda { Vienna::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| Vienna::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "7cbbde0d-e5d6-4be9-b00d-8b8011f7173f",
+                "objects-maker"    => lambda { ViennaKiller::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| ViennaKiller::processObject(object, command) }
+            },
+            {
+                "agent-uid"        => "283d34dd-c871-4a55-8610-31e7c762fb0d",
+                "objects-maker"    => lambda { Wave::getCatalystObjects() },
+                "object-processor" => lambda{|object, command| Wave::processObject(object, command) }
+            }
         ]
     end
 
@@ -101,22 +145,22 @@ class CatalystDataOperator
         processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
         processor.call(object, command)
         if LucilleCore::trueNoMoreOftenThanNEverySeconds("2704d558-139d-453d-aa4f-056d863d5aa9", 3600) then
-            CatalystDataOperator::dataSources().each{|tuple|
-                @@structureAlpha[tuple[0]] = tuple[1].call()
+            CatalystDataOperator::dataSources().each{|agentinterface|
+                @@structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
             }
         else
-            CatalystDataOperator::dataSources().each{|tuple|
-                next if object["agent-uid"] != tuple[0]
-                @@structureAlpha[tuple[0]] = tuple[1].call()
+            CatalystDataOperator::dataSources().each{|agentinterface|
+                next if object["agent-uid"] != agentinterface["agent-uid"]
+                @@structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
             }
         end
     end
 
     def self.agentuuid2objectProcessor(agentuuid)
         CatalystDataOperator::dataSources()
-            .select{|tuple| tuple[0]==agentuuid }
-            .each{|tuple|
-                return tuple[2]
+            .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
+            .each{|agentinterface|
+                return agentinterface["object-processor"]
             }
         raise "looking up processor for unknown agent uuid #{agentuuid}"
     end

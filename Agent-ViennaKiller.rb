@@ -86,7 +86,8 @@ class ViennaKiller
         targetobject = Vienna::getCatalystObjects().first
         if targetobject then
             targetobject = targetobject.clone
-            targetobject["metric"] = [self.metric(), 0.99].min
+            targetobject["agent-uid"] = self.agentuuid()
+            targetobject["metric"] = [self.metric(), 0.99].min - Saturn::traceToMetricShift("ecfa02cd-ac2c-4a1f-9e6a-78ee55dc61d2")
             targetobject["announce"] = "(vienna killer) #{targetobject["announce"]}"
             [ targetobject ]
         else
