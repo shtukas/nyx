@@ -74,7 +74,6 @@ end
 # Saturn::traceToRealInUnitInterval(trace)
 # Saturn::traceToMetricShift(trace)
 # Saturn::deathObject(uuid)
-# Saturn::agentuuid2objectProcessorOrNull(agentuuid)
 
 class Saturn
 
@@ -111,20 +110,6 @@ class Saturn
             "uuid"  => uuid,
             "death" => true
         }
-    end
-
-    def self.agentuuid2objectProcessorOrNull(agentuuid)
-        return lambda{|object, command| GuardianTime::processObject(object, command) }    if agentuuid=="11fa1438-122e-4f2d-9778-64b55a11ddc2"
-        return lambda{|object, command| Kimchee::processObject(object, command) }         if agentuuid=="b343bc48-82db-4fa3-ac56-3b5a31ff214f"
-        return lambda{|object, command| Ninja::processObject(object, command) }           if agentuuid=="d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
-        return lambda{|object, command| OpenProjects::processObject(object, command) }    if agentuuid=="30ff0f4d-7420-432d-b75b-826a2a8bc7cf"
-        return lambda{|object, command| Stream::processObject(object, command) }          if agentuuid=="73290154-191f-49de-ab6a-5e5a85c6af3a"
-        return lambda{|object, command| StreamKiller::processObject(object, command) }    if agentuuid=="e16a03ac-ac2c-441a-912e-e18086addba1"
-        return lambda{|object, command| TimeCommitments::processObject(object, command) } if agentuuid=="03a8bff4-a2a4-4a2b-a36f-635714070d1d"
-        return lambda{|object, command| Today::processObject(object, command) }           if agentuuid=="f989806f-dc62-4942-b484-3216f7efbbd9"
-        return lambda{|object, command| Vienna::processObject(object, command) }          if agentuuid=="2ba71d5b-f674-4daf-8106-ce213be2fb0e"
-        return lambda{|object, command| ViennaKiller::processObject(object, command) }    if agentuuid=="7cbbde0d-e5d6-4be9-b00d-8b8011f7173f"
-        return lambda{|object, command| Wave::processObject(object, command) }            if agentuuid=="283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
 end
 
@@ -688,6 +673,43 @@ class CatalystArchivesOps
             answer = answer + CatalystArchivesOps::archivesGarbageCollectionFast(verbose, CatalystArchivesOps::getArchiveSizeInMegaBytes())
         end
         answer
+    end
+
+end
+
+# CatalystDataOperator::dataSources()
+# CatalystDataOperator::agentuuid2objectProcessor(agentuuid)
+
+class CatalystDataOperator
+    @@structure = nil
+    def self.init()
+        # Here we load data from the Agents (or we could use cached data)
+
+    end
+
+    def self.dataSources()
+        [
+            ["11fa1438-122e-4f2d-9778-64b55a11ddc2", lambda { GuardianTime::getCatalystObjects() },    lambda{|object, command| GuardianTime::processObject(object, command) }],
+            ["b343bc48-82db-4fa3-ac56-3b5a31ff214f", lambda { Kimchee::getCatalystObjects() } ,        lambda{|object, command| Kimchee::processObject(object, command) }],
+            ["d3d1d26e-68b5-4a99-a372-db8eb6c5ba58", lambda { Ninja::getCatalystObjects() },           lambda{|object, command| Ninja::processObject(object, command) }],
+            ["30ff0f4d-7420-432d-b75b-826a2a8bc7cf", lambda { OpenProjects::getCatalystObjects() },    lambda{|object, command| OpenProjects::processObject(object, command) }],
+            ["73290154-191f-49de-ab6a-5e5a85c6af3a", lambda { Stream::getCatalystObjects() },          lambda{|object, command| Stream::processObject(object, command) }],
+            ["e16a03ac-ac2c-441a-912e-e18086addba1", lambda { StreamKiller::getCatalystObjects() },    lambda{|object, command| StreamKiller::processObject(object, command) }],
+            ["03a8bff4-a2a4-4a2b-a36f-635714070d1d", lambda { TimeCommitments::getCatalystObjects() }, lambda{|object, command| TimeCommitments::processObject(object, command) }],
+            ["f989806f-dc62-4942-b484-3216f7efbbd9", lambda { Today::getCatalystObjects() },           lambda{|object, command| Today::processObject(object, command) }],
+            ["2ba71d5b-f674-4daf-8106-ce213be2fb0e", lambda { Vienna::getCatalystObjects() },          lambda{|object, command| Vienna::processObject(object, command) }],
+            ["7cbbde0d-e5d6-4be9-b00d-8b8011f7173f", lambda { ViennaKiller::getCatalystObjects() },    lambda{|object, command| ViennaKiller::processObject(object, command) }],
+            ["283d34dd-c871-4a55-8610-31e7c762fb0d", lambda { Wave::getCatalystObjects() },            lambda{|object, command| Wave::processObject(object, command) }],
+        ]
+    end
+
+    def self.agentuuid2objectProcessor(agentuuid)
+        CatalystDataOperator::dataSources()
+            .select{|tuple| tuple[0]==agentuuid }
+            .each{|tuple|
+                return tuple[2]
+            }
+        raise "looking up processor for unknown agent uuid #{agentuuid}"
     end
 
 end

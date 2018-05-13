@@ -453,7 +453,7 @@ class Jupiter
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-            processor = Saturn::agentuuid2objectProcessorOrNull(object["agent-uid"])
+            processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
             processor.call(object, command)
         }
     end

@@ -58,29 +58,14 @@ require_relative "Agent-OpenProjects.rb"
 
 class CatalystObjects
     def self.structure1()
-        sources = [
-            ["Wave", lambda { Wave::getCatalystObjects() }],
-            ["Ninja", lambda { Ninja::getCatalystObjects() }],
-            ["Stream", lambda { Stream::getCatalystObjects() }],
-            ["Today", lambda { Today::getCatalystObjects() }],
-            ["TimeCommitments", lambda { TimeCommitments::getCatalystObjects() }],
-            ["StreamKiller", lambda { StreamKiller::getCatalystObjects() }],
-            ["GuardianTime", lambda { GuardianTime::getCatalystObjects() }],
-            ["Kimchee", lambda{ Kimchee::getCatalystObjects() }],
-            ["Vienna", lambda{ Vienna::getCatalystObjects() }],
-            ["ViennaKiller", lambda{ ViennaKiller::getCatalystObjects() }],
-            ["OpenProjects", lambda{ OpenProjects::getCatalystObjects() }]
-        ]
-        sources.map{|pair|
-            xobjects  = pair[1].call()
-            {
-                "domain"  => pair[0],
-                "objects" => xobjects,
-            }
+        structure1 = {}
+        CatalystDataOperator::dataSources().each{|tuple|
+            structure1[tuple[0]] = tuple[1].call()
         }
+        structure1
     end
     def self.all()
-        objects = CatalystObjects::structure1().map{|s| s["objects"] }.flatten
+        objects = CatalystObjects::structure1().values.flatten
         objects = DoNotShowUntil::transform(objects)
         objects
     end
