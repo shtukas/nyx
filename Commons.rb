@@ -16,7 +16,7 @@ require 'digest/sha1'
 
 # ----------------------------------------------------------------
 
-CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
+CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/Catalyst-Data/Archives-Timeline"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Open-Projects"
 CATALYST_COMMON_PATH_TO_DATA_LOG = "/Galaxy/DataBank/Catalyst/DataLog"
