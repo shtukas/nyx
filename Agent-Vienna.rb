@@ -40,23 +40,7 @@ require 'find'
 require_relative "Commons.rb"
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
-=begin
-    # The set of values that we support is whatever that can be json serialisable.
-    FIFOQueue::size(repositorylocation or nil, queueuuid)
-    FIFOQueue::values(repositorylocation or nil, queueuuid)
-    FIFOQueue::push(repositorylocation or nil, queueuuid, value)
-    FIFOQueue::getFirstOrNull(repositorylocation or nil, queueuuid)
-    FIFOQueue::takeFirstOrNull(repositorylocation or nil, queueuuid)
-=end
-
 # -------------------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
@@ -79,7 +63,7 @@ class Vienna
         if command=='done' then
             link = object["link"]
             Vienna::setLinkAsRead(link)
-            FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
+            FIFOQueue::push(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
         end
         nil
     end
@@ -104,8 +88,8 @@ class Vienna
     end
 
     def self.metric(uuid)
-        FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.2 + 0.6*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
+        FIFOQueue::takeWhile(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
+        metric = 0.2 + 0.6*Math.exp(-FIFOQueue::size(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
     end
 
     def self.getCatalystObjects()

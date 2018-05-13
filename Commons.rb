@@ -3,13 +3,6 @@
 # encoding: UTF-8
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
@@ -18,9 +11,11 @@ require 'digest/sha1'
 
 CATALYST_COMMON_AGENT_DATA_FOLDERPATH = "/Galaxy/Catalyst-Data/Agents-Data"
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/Catalyst-Data/Archives-Timeline"
+CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY = "/Galaxy/Catalyst-Data/KeyValueStore-Data"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
 CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
+
 
 
 # DataLogUtils::pathToActiveDataLogIndexFolder()
@@ -240,10 +235,10 @@ end
 
 class TodayOrNotToday
     def self.notToday(uuid)
-        KeyValueStore::set(nil, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}", "!today")
+        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}", "!today")
     end
     def self.todayOk(uuid)
-        KeyValueStore::getOrNull(nil, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
+        KeyValueStore::getOrNull(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
     end
 end
 
@@ -258,11 +253,11 @@ end
 
 class KillersCurvesManagement
     def self.trueIfCanShiftCurveForFolderpath(folderpath)
-        KeyValueStore::getOrNull(nil, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}") != Saturn::currentDay()
+        KeyValueStore::getOrNull(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}") != Saturn::currentDay()
     end
 
     def self.setLastCurveChangeDateForFolderpath(folderpath, date)
-        KeyValueStore::set(nil, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}", date)
+        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}", date)
     end
 
     def self.getCurve(folderpath)
@@ -570,27 +565,27 @@ end
 
 class GenericTimeTracking
     def self.status(uuid)
-        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
     end
 
     def self.start(uuid)
         status = GenericTimeTracking::status(uuid)
         return if status[0]
         status = [true, Time.new.to_i]
-        KeyValueStore::set(nil, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.stop(uuid)
         status = GenericTimeTracking::status(uuid)
         return if !status[0]
         timespan = Time.new.to_i - status[1]
-        FIFOQueue::push(nil, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
+        FIFOQueue::push(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
         status = [false, nil]
-        KeyValueStore::set(nil, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.metric2(uuid, low, high, hourstoMinusOne)
-        adaptedTimespanInSeconds = FIFOQueue::values(nil, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+        adaptedTimespanInSeconds = FIFOQueue::values(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
             .map{|pair|
                 unixtime = pair[0]
                 timespan = pair[1]

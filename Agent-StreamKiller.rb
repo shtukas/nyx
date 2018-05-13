@@ -36,29 +36,10 @@ require 'fileutils'
 # FileUtils.rm_rf('dir/to/remove')
 
 require 'find'
-
 require_relative "Commons.rb"
-
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require_relative "Agent-Stream.rb"
-
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    # The set of values that we support is whatever that can be json serialisable.
-    FIFOQueue::size(repositorylocation or nil, queueuuid)
-    FIFOQueue::values(repositorylocation or nil, queueuuid)
-    FIFOQueue::push(repositorylocation or nil, queueuuid, value)
-    FIFOQueue::getFirstOrNull(repositorylocation or nil, queueuuid)
-    FIFOQueue::takeFirstOrNull(repositorylocation or nil, queueuuid)
-=end
-
 # -------------------------------------------------------------------------------------
 
 # metric1 = f(idealCount1*0.9) = 0

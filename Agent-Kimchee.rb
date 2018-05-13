@@ -3,13 +3,6 @@
 # encoding: UTF-8
 
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorypath or nil, key, value)
-    KeyValueStore::getOrNull(repositorypath or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorypath or nil, key)
-=end
-
 require 'date'
 
 # -------------------------------------------------------------------------------------
@@ -25,7 +18,7 @@ class Kimchee
 
     def self.processObject(object, command)
         if command=="love" then
-            KeyValueStore::set(nil, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}", "done")
+            KeyValueStore::set(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}", "done")
             return Saturn::deathObject(object["uuid"])
         end
         nil
@@ -35,7 +28,7 @@ class Kimchee
         if Time.new.wday!=0 then
             []
         else
-            if KeyValueStore::getOrNull(nil, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}").nil? then
+            if KeyValueStore::getOrNull(CATALYST_COMMON_KEY_VALUE_STORE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5C9:#{Time.new.to_s[0,10]}").nil? then
                 genesisUnixtime = DateTime.parse(IO.read("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/kimchee-genesis-datetime")).to_time.to_i
                 timespan = Time.new.to_i - genesisUnixtime
                 [
