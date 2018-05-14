@@ -573,6 +573,7 @@ end
 # GenericTimeTracking::start(uuid)
 # GenericTimeTracking::stop(uuid)
 # GenericTimeTracking::metric2(uuid, low, high, hourstoMinusOne)
+# GenericTimeTracking::timings(uuid)
 
 class GenericTimeTracking
     def self.status(uuid)
@@ -602,12 +603,17 @@ class GenericTimeTracking
                 timespan = pair[1]
                 ageInSeconds = Time.new.to_i - unixtime
                 ageInDays = ageInSeconds.to_f/86400
-                timespan * Math.exp(ageInDays*2)
+                timespan * Math.exp(-ageInDays)
             }
             .inject(0, :+)
         adaptedTimespanInHours = adaptedTimespanInSeconds.to_f/3600
         low + (high-low)*Math.exp(-adaptedTimespanInHours.to_f/hourstoMinusOne)
     end
+
+    def self.timings(uuid)
+        FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+    end
+
 end
 
 # CatalystDevOps::today()

@@ -108,7 +108,8 @@ class OpenProjects
             "default-expression" => isRunning ? "" : "start",
             "item-folder-probe-metadata" => folderProbeMetadata,
             "item-folderpath" => folderpath,
-            "agent-uid" => self.agentuuid()
+            "agent-uid" => self.agentuuid(),
+            "item-timings" => GenericTimeTracking::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
         }
     end
 
