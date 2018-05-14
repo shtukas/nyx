@@ -84,25 +84,16 @@ class Jupiter
 
     def self.doExecute(object, expression)
 
+        # no object needed
+
         if expression == 'help' then
             Jupiter::putshelp()
             LucilleCore::pressEnterToContinue()
             return
         end
 
-        if expression == '!today' then
-            TodayOrNotToday::notToday(object["uuid"])
-            return
-        end
-
         if expression == 'clear' then
             system("clear")
-            return
-        end
-
-        if expression == 'expose' then
-            puts JSON.pretty_generate(object)
-            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -123,14 +114,6 @@ class Jupiter
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
-            return
-        end
-
-        if expression.start_with?('+') then
-            code = expression
-            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
-                DoNotShowUntil::set(object["uuid"], datetime)
-            end
             return
         end
 
@@ -189,18 +172,6 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("r:add") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
-            return
-        end
-
-        if expression.start_with?("r:remove") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
-            return
-        end
-
         if expression.start_with?("r:show") then
             command, requirement = expression.split(" ")
             if requirement.size==0 then
@@ -230,15 +201,6 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("c:add")  then
-            command, collection = expression.split(" ")
-            if collection.size==0 then
-                collection = Collections::selectExistingOrNewCollection()
-            end
-            Collections::addObjectToCollection(object["uuid"], collection)
-            return
-        end
-
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
@@ -248,6 +210,50 @@ class Jupiter
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
+            return
+        end
+
+        return if object.nil?
+
+        # object needed
+
+        if expression == '!today' then
+            TodayOrNotToday::notToday(object["uuid"])
+            return
+        end
+
+        if expression == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('+') then
+            code = expression
+            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+                DoNotShowUntil::set(object["uuid"], datetime)
+            end
+            return
+        end
+
+        if expression.start_with?("r:add") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("r:remove") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("c:add")  then
+            command, collection = expression.split(" ")
+            if collection.size==0 then
+                collection = Collections::selectExistingOrNewCollection()
+            end
+            Collections::addObjectToCollection(object["uuid"], collection)
             return
         end
 
@@ -409,11 +415,18 @@ class Jupiter
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) then
                 puts "Archives timeline garbage collection"
-                CatalystDevOps::archivesGarbageCollection(false)
+                CatalystDevOps::archivesGarbageCollection(true)
             end
             if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) then
                 puts "xcache garbage collection"
                 CatalystDevOps::xcacheGarbageCollection()
+            end
+            if objects.empty? then
+                puts "No active object above 0.2. Try 'search project' for project, if not relax (^_^)"
+                print "--> "
+                givenCommand = STDIN.gets().strip
+                Jupiter::doExecute(nil, command)
+                next
             end
             selectedObject = objects.last
             objects.each_with_index{|object, index|

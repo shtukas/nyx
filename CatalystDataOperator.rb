@@ -149,6 +149,11 @@ class CatalystDataOperator
     end
 
     def self.catalystObjects()
+        if LucilleCore::trueNoMoreOftenThanNEverySeconds("2704d558-139d-453d-aa4f-056d863d5aa9", 3600) then
+            CatalystDataOperator::dataSources().each{|agentinterface|
+                CatalystDataOperator::loadAgent(agentinterface)
+            }
+        end
         objects = CatalystDataOperator::catalystObjectsFromStructureAlpha()
         objects = DoNotShowUntil::transform(objects)
         objects
@@ -165,11 +170,6 @@ class CatalystDataOperator
             next if !agentsToReload.include?(agentinterface["agent-uid"])
             CatalystDataOperator::loadAgent(agentinterface)
         }
-        if LucilleCore::trueNoMoreOftenThanNEverySeconds("2704d558-139d-453d-aa4f-056d863d5aa9", 3600) then
-            CatalystDataOperator::dataSources().each{|agentinterface|
-                CatalystDataOperator::loadAgent(agentinterface)
-            }
-        end
     end
 
     def self.agentuuid2objectProcessor(agentuuid)
