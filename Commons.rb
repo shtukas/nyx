@@ -716,9 +716,9 @@ class CatalystDevOps
     # -------------------------------------------
     # xcache
 
-    def self.xcacheDataFilepathEnumerator()
+    def self.xcacheDataFilepathEnumerator(subfolder)
         Enumerator.new do |filepaths|
-            Find.find(CATALYST_COMMON_XCACHE_REPOSITORY) do |path|
+            Find.find("#{CATALYST_COMMON_XCACHE_REPOSITORY}/#{subfolder}") do |path|
                 if path[-5, 5] == '.data' then
                     filepaths << path
                 end
@@ -726,12 +726,25 @@ class CatalystDevOps
         end
     end
 
-    def self.xcacheGarbageCollection()
-        CatalystDevOps::xcacheDataFilepathEnumerator.each{|filepath|
+    def self.xcacheFolderpathEnumerator(subfolder)
+        Enumerator.new do |paths|
+            Find.find("#{CATALYST_COMMON_XCACHE_REPOSITORY}/#{subfolder}") do |path|
+                next if !File.directory?(path)
+                paths << path
+            end
+        end
+    end
+
+    def self.xcacheGarbageCollection(subfolder = "")
+        CatalystDevOps::xcacheDataFilepathEnumerator(subfolder).each{|filepath|
             if CatalystDevOps::getFilepathAgeInDays(filepath) > 60 then
                 puts "removing: #{filepath}"
                 FileUtils.rm(filepath)
             end
+        }
+        CatalystDevOps::xcacheFolderpathEnumerator(subfolder).each{|path|
+            next if Dir.entries(path).select{|filepath| filepath[0,1]!="." }.size>0
+            LucilleCore::removeFileSystemLocation(path)
         }
     end
 
