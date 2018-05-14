@@ -32,7 +32,7 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # WaveSchedules::makeScheduleObjectTypeNew()
 # WaveSchedules::makeScheduleObjectTypeNew()
-# WaveSchedules::makeScheduleObjectInteractivelyOrNull()
+# WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
 # WaveSchedules::scheduleToAnnounce(schedule)
 # WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
 # WaveSchedules::cycleSchedule(schedule)
@@ -49,7 +49,7 @@ class WaveSchedules
         }
     end
 
-    def self.makeScheduleObjectInteractivelyOrNull()
+    def self.makeScheduleObjectInteractivelyEnsureChoice()
 
         scheduleTypes = ['new', 'today', 'sticky', 'date', 'repeat']
         scheduleType = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
@@ -447,7 +447,7 @@ class Wave
     end
 
     def self.makeNewSchedule()
-        WaveSchedules::makeScheduleObjectInteractivelyOrNull()
+        WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
     end
 
     def self.archiveWaveItems(uuid)
