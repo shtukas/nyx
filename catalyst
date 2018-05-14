@@ -479,6 +479,7 @@ CatalystDataOperator::init()
 # -----------------------------------------------------------------
 
 Thread.new {
+    exit if ENV["COMPUTERLUCILLENAME"]!="Lucille18"
     sleep 6
     Jupiter::emailSyncOnSchedule(false)
     loop {
