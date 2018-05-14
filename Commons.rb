@@ -16,9 +16,20 @@ CATALYST_COMMON_XCACHE_REPOSITORY = "/Galaxy/Catalyst-Data/xcache"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
 CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
+CATALYST_COMMON_CONFIG_FILEPATH = "/Galaxy/Catalyst-Data/Config.json"
 
 # ----------------------------------------------------------------
 
+# Config::get(keyname)
+
+class Config
+    def self.getConfig()
+        JSON.parse(IO.read(CATALYST_COMMON_CONFIG_FILEPATH))
+    end
+    def self.get(keyname)
+        self.getConfig()[keyname]
+    end
+end
 
 # DataLogUtils::pathToActiveDataLogIndexFolder()
 # DataLogUtils::commitCatalystObjectToDisk(object)
@@ -67,6 +78,7 @@ class DataLogUtils
     end
 end
 
+# Saturn::isPrimaryComputer()
 # Saturn::currentHour()
 # Saturn::currentDay()
 # Saturn::simplifyURLCarryingString(string)
@@ -75,6 +87,10 @@ end
 # Saturn::deathObject(uuid)
 
 class Saturn
+
+    def self.isPrimaryComputer()
+        ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
+    end
 
     def self.currentHour()
         Time.new.to_s[0,13]

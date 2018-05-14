@@ -48,7 +48,7 @@ class ViennaKiller
     end
 
     def self.getCatalystObjects()
-        return [] if ENV["COMPUTERLUCILLENAME"]!="Lucille18"
+        return [] if !Saturn::isPrimaryComputer()
         objects = Vienna::getCatalystObjects()
         if objects.size==0 then
             [

@@ -413,11 +413,11 @@ class Jupiter
             system("clear")
             puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".yellow
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and ENV["COMPUTERLUCILLENAME"]=="Lucille18" then
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Saturn::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
                 CatalystDevOps::archivesGarbageCollection(true)
             end
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) and ENV["COMPUTERLUCILLENAME"]=="Lucille18" then
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) and Saturn::isPrimaryComputer() then
                 puts "xcache garbage collection"
                 CatalystDevOps::xcacheGarbageCollection()
             end
@@ -478,14 +478,15 @@ CatalystDataOperator::init()
 
 # -----------------------------------------------------------------
 
-Thread.new {
-    exit if ENV["COMPUTERLUCILLENAME"]!="Lucille18"
-    sleep 6
-    Jupiter::emailSyncOnSchedule(false)
-    loop {
-        sleep 1200
+if Saturn::isPrimaryComputer() then
+    Thread.new {
+        sleep 6
         Jupiter::emailSyncOnSchedule(false)
+        loop {
+            sleep 1200
+            Jupiter::emailSyncOnSchedule(false)
+        }
     }
-}
+end
 
 Jupiter::main2()

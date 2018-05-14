@@ -74,7 +74,7 @@ class Vienna
     end
 
     def self.getCatalystObjects()
-        return [] if ENV["COMPUTERLUCILLENAME"]!="Lucille18"
+        return [] if !Saturn::isPrimaryComputer()
         link = Vienna::getUnreadLinks().first
         return [] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
