@@ -105,7 +105,7 @@ class Jupiter
             puts "Todolists total count: #{(count1+count3)}".green
             puts "Open Projects:".green
             OpenProjects::getCatalystObjects()
-                .each{|object| puts "    #{object["announce"]}".green }
+                .each{|object| puts "    " + Jupiter::object2Line_v0(object) }
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
             puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".green
             LucilleCore::pressEnterToContinue()
