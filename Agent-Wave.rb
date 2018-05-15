@@ -467,6 +467,18 @@ class Wave
         if folderProbeMetadata["target-type"] == "openable-file" then
             return "open"
         end
+        if folderProbeMetadata["target-type"] == "url" and schedule["@"] == "every-n-hours" then
+            return "open done"
+        end
+        if folderProbeMetadata["target-type"] == "url" and schedule["@"] == "every-n-days" then
+            return "open done"
+        end
+        if folderProbeMetadata["target-type"] == "url" and schedule["@"] == "every-this-day-of-the-month" then
+            return "open done"
+        end
+        if folderProbeMetadata["target-type"] == "url" and schedule["@"] == "every-this-day-of-the-week" then
+            return "open done"
+        end 
         if folderProbeMetadata["target-type"] == "url" then
             return "open"
         end
