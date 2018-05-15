@@ -100,7 +100,7 @@ class Stream
             .map{|folderpath| Stream::getuuid(folderpath) }
     end
 
-    def self.folderpathToCatalystObjectOrNull(folderpath)
+    def self.folderpathToCatalystObjectOrNull(folderpath, indx, size)
         return nil if !File.exist?(folderpath)
         uuid = Stream::getuuid(folderpath)
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
@@ -108,10 +108,12 @@ class Stream
         isRunning = status[0]
         commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">lib"]
         defaultExpression = ( isRunning ? "" : "start" )
+        metric = 0.2 + 0.5*Saturn::realNumbersToZeroOne(size, 100, 50)*Math.exp(-indx.to_f/100)*GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid)
+        metric = isRunning ? 2 - Saturn::traceToMetricShift(uuid) : metric
         announce = "stream: #{Saturn::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
         {
             "uuid" => uuid,
-            "metric" => isRunning ? 2 - Saturn::traceToMetricShift(uuid) : GenericTimeTracking::metric2(uuid, 0, 0.7, 1) * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid),
+            "metric" => metric,
             "announce" => announce,
             "commands" => commands,
             "default-expression" => defaultExpression,
@@ -139,8 +141,9 @@ class Stream
 
     def self.getCatalystObjects()
         folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-        folderpaths.zip((1..folderpaths.size))
-            .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath) }
+        size = folderpaths.size
+        folderpaths.zip((1..size))
+            .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)}
             .compact
     end
 

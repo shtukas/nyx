@@ -42,7 +42,6 @@ require_relative "Agent-Ninja.rb"
 require_relative "Agent-Stream.rb"
 require_relative "Agent-Today.rb"
 require_relative "Agent-TimeCommitments.rb"
-require_relative "Agent-StreamKiller.rb"
 require_relative "Agent-GuardianTime.rb"
 require_relative "Agent-Kimchee.rb"
 require_relative "Agent-Vienna.rb"
@@ -88,12 +87,6 @@ class CatalystDataOperator
                 "agent-uid"        => "73290154-191f-49de-ab6a-5e5a85c6af3a",
                 "objects-maker"    => lambda { Stream::getCatalystObjects() },
                 "object-processor" => lambda{|object, command| Stream::processObject(object, command) }
-            },
-            {
-                "agent-name"       => "StreamKiller",
-                "agent-uid"        => "e16a03ac-ac2c-441a-912e-e18086addba1",
-                "objects-maker"    => lambda { StreamKiller::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| StreamKiller::processObject(object, command) }
             },
             {
                 "agent-name"       => "TimeCommitments",
