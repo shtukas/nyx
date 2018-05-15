@@ -119,19 +119,7 @@ class Jupiter
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            uuid = SecureRandom.hex(4)
-            schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-            folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-            Wave::writeScheduleToDisk(uuid, schedule)
-            if schedule["@"]=="new" then
-                code = LucilleCore::askQuestionAnswerAsString("datecode (or empty): ")
-                if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
-                    DoNotShowUntil::set(uuid, datetime)
-                end
-            end
+            folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return
@@ -140,9 +128,7 @@ class Jupiter
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            folderpath = Stream::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return
@@ -151,9 +137,7 @@ class Jupiter
         if expression.start_with?('open-project:') then
             description = expression[13, expression.size].strip
             description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            folderpath = OpenProjects::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return

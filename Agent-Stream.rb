@@ -28,6 +28,8 @@ require_relative "Commons.rb"
 # Stream::folderpathToCatalystObjectOrNull(folderpath)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
+# Stream::issueNewItemFromDescription(description)
+# Stream::getCatalystObjects()
 # Stream::getCatalystObjectsFirstN(12)
 
 class Stream
@@ -137,6 +139,13 @@ class Stream
         return if !File.exists?(object['item-folderpath'])
         LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
         LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+    end
+
+    def self.issueNewItemFromDescription(description)
+        folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        folderpath
     end
 
     def self.getCatalystObjects()

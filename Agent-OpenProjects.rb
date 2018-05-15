@@ -31,8 +31,8 @@ OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Da
 # OpenProjects::folderpaths(itemsfolderpath)
 # OpenProjects::getuuidOrNull(folderpath)
 # OpenProjects::folderpath2CatalystObjectOrNull(folderpath)
+# OpenProjects::issueNewItemFromDescription(description)
 # OpenProjects::getCatalystObjects()
-
 
 class OpenProjects
 
@@ -110,6 +110,13 @@ class OpenProjects
             "agent-uid" => self.agentuuid(),
             "item-timings" => GenericTimeTracking::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
         }
+    end
+
+    def self.issueNewItemFromDescription(description)
+        folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        folderpath
     end
 
     def self.getCatalystObjects()

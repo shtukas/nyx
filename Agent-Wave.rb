@@ -265,6 +265,8 @@ class WaveDevOps
     end
 end
 
+# Wave::agentuuid()
+# Wave::processObject(object, command)
 # Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
 # Wave::catalystUUIDToItemFolderPathOrNull(uuid)
 # Wave::catalystUUIDsEnumerator()
@@ -279,7 +281,7 @@ end
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
 # Wave::getCatalystObjects()
-# Wave::interpreter(object, command)
+# Wave::issueNewItemFromDescriptionInteractive(description)
 
 class Wave
 
@@ -525,6 +527,23 @@ class Wave
             .select{|filename| (filename.start_with?('catalyst-') or filename.start_with?('wave-')) and !filename.include?("description") }
             .map{|filename| "#{location}/#{filename}" }
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
+    end
+
+    def self.issueNewItemFromDescriptionInteractive(description)
+        uuid = SecureRandom.hex(4)
+        schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        Wave::writeScheduleToDisk(uuid, schedule)
+        if schedule["@"]=="new" then
+            code = LucilleCore::askQuestionAnswerAsString("datecode (or empty): ")
+            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+                DoNotShowUntil::set(uuid, datetime)
+            end
+        end
+        folderpath
     end
 
     def self.getCatalystObjects()
