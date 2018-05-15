@@ -466,10 +466,10 @@ class Wave
 
     def self.defaultExpression(folderProbeMetadata, schedule)
         if folderProbeMetadata["target-type"] == "openable-file" then
-            return "open done"
+            return "open"
         end
         if folderProbeMetadata["target-type"] == "url" then
-            return "open done"
+            return "open"
         end
         if folderProbeMetadata["target-type"] == "folder" then
             return "open"
