@@ -110,7 +110,7 @@ class Stream
         isRunning = status[0]
         commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">lib"]
         defaultExpression = ( isRunning ? "" : "start" )
-        metric = 0.2 + 0.5*Saturn::realNumbersToZeroOne(size, 100, 50)*Math.exp(-indx.to_f/100)*GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid)
+        metric = 0.195 + 0.5*Saturn::realNumbersToZeroOne(size, 100, 50)*Math.exp(-indx.to_f/100)*GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid)
         metric = isRunning ? 2 - Saturn::traceToMetricShift(uuid) : metric
         announce = "stream: #{Saturn::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
         {

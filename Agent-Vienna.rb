@@ -69,7 +69,7 @@ class Vienna
 
     def self.metric(uuid, unreadlinks)
         FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.2 + 0.6*Saturn::realNumbersToZeroOne(unreadlinks.count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
+        metric = 0.195 + 0.6*Saturn::realNumbersToZeroOne(unreadlinks.count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
     end
 
     def self.getCatalystObjects()
