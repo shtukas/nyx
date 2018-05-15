@@ -446,7 +446,6 @@ end
 
 RequirementsOperator::init()
 DoNotShowUntil::init()
-CatalystDataOperator::init()
 
 # -----------------------------------------------------------------
 

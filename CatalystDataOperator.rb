@@ -51,25 +51,14 @@ require_relative "Agent-OpenProjects.rb"
 
 # ----------------------------------------------------------------------
 
-# CatalystDataOperator::dataSources()
-# CatalystDataOperator::loadAgent(agentinterface)
-# CatalystDataOperator::catalystObjects()
-# CatalystDataOperator::catalystObjectsFromStructureAlpha()
-# CatalystDataOperator::processObject(object, command)
+# CatalystDataOperator::agentsInterfaces()
 # CatalystDataOperator::agentuuid2objectProcessor(agentuuid)
+# CatalystDataOperator::catalystObjects()
+# CatalystDataOperator::processObject(object, command)
 
 class CatalystDataOperator
 
-    @@structureAlpha = nil # { "agent-uid" => Array[Agent Object] }
-
-    def self.init()
-        @@structureAlpha = {}
-        CatalystDataOperator::dataSources().each{|agentinterface|
-            CatalystDataOperator::loadAgent(agentinterface)
-        }
-    end
-
-    def self.dataSources()
+    def self.agentsInterfaces()
         [
             {
                 "agent-name"       => "GuardianTime",
@@ -140,45 +129,23 @@ class CatalystDataOperator
         ]
     end
 
-    def self.loadAgent(agentinterface)
-        startTime = Time.new.to_f
-        print "CatalystDataOperator: loading: #{agentinterface["agent-name"]} "
-        @@structureAlpha[agentinterface["agent-uid"]] = agentinterface["objects-maker"].call()
-        loadTime = Time.new.to_f - startTime
-        puts "in #{"%.3f" % loadTime} seconds"
-    end
-
-    def self.catalystObjects()
-        if LucilleCore::trueNoMoreOftenThanNEverySeconds("2704d558-139d-453d-aa4f-056d863d5aa9", 3600) then
-            CatalystDataOperator::dataSources().each{|agentinterface|
-                CatalystDataOperator::loadAgent(agentinterface)
-            }
-        end
-        objects = CatalystDataOperator::catalystObjectsFromStructureAlpha()
-        objects = DoNotShowUntil::transform(objects)
-        objects
-    end
-
-    def self.catalystObjectsFromStructureAlpha()
-        @@structureAlpha.values.flatten
-    end
-
-    def self.processObject(object, command)
-        processor = CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"])
-        agentsToReload = processor.call(object, command)
-        CatalystDataOperator::dataSources().each{|agentinterface|
-            next if !agentsToReload.include?(agentinterface["agent-uid"])
-            CatalystDataOperator::loadAgent(agentinterface)
-        }
-    end
-
     def self.agentuuid2objectProcessor(agentuuid)
-        CatalystDataOperator::dataSources()
+        CatalystDataOperator::agentsInterfaces()
             .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
             .each{|agentinterface|
                 return agentinterface["object-processor"]
             }
         raise "looking up processor for unknown agent uuid #{agentuuid}"
+    end
+
+    def self.catalystObjects()
+        objects = CatalystDataOperator::agentsInterfaces().map{|agentinterface| agentinterface["objects-maker"].call() }.flatten
+        objects = DoNotShowUntil::transform(objects)
+        objects
+    end
+
+    def self.processObject(object, command)
+        CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"]).call(object, command)
     end
 
 end

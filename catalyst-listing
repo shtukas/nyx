@@ -5,7 +5,7 @@
 require_relative "CatalystDataOperator.rb"
 
 # -------------------------------------------------------------------------------------
-CatalystDataOperator::init()
+
 CatalystDataOperator::catalystObjects().each{|object|
     puts "#{object['announce'].lines.first}"
 }
