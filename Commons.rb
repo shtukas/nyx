@@ -93,32 +93,28 @@ class Saturn
 end
 
 # DoNotShowUntil::set(uuid, datetime)
+# DoNotShowUntil::getDatetime(uuid)
 # DoNotShowUntil::transform(objects)
 
 class DoNotShowUntil
-    @@mapping = {}
-
-    def self.init()
-        @@mapping = JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/do-not-show-until.json"))
+    def self.set(uuid, datetime)
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "7abd0c37-ef4f-4214-843b-c5c0f09b8e72:#{uuid}", datetime)
     end
 
-    def self.set(uuid, datetime)
-        @@mapping[uuid] = datetime
-        File.open("#{CATALYST_COMMON_DATA_FOLDERPATH}/do-not-show-until.json", "w"){|f| f.puts(JSON.pretty_generate(@@mapping)) }
+    def self.getDatetime(uuid)
+        KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "7abd0c37-ef4f-4214-843b-c5c0f09b8e72:#{uuid}", "2018-01-01 00:00:00 +0000")
     end
 
     def self.isactive(object)
-        return true if @@mapping[object["uuid"]].nil?
-        return true if DateTime.now() >= DateTime.parse(@@mapping[object["uuid"]])
-        false
+        Time.new.to_i >= DateTime.parse(DoNotShowUntil::getDatetime(object["uuid"])).to_time.to_i
     end
 
     def self.transform(objects)
         objects.map{|object|
             if !DoNotShowUntil::isactive(object) then
-                object["do-not-show-metric"] = object["metric"]
-                object["do-not-show-until-datetime"] = @@mapping[object["uuid"]]
-                # next we try to promote any do-not-show-until-datetime contained in a shceduler of a wave item, with a target in the future
+                object["metric-before-do-not-show"] = object["metric"]
+                object["do-not-show-until-datetime"] = DoNotShowUntil::getDatetime(object["uuid"])
+                # next we try to promote any do-not-show-until-datetime contained in a scheduler of a wave item, with a target in the future
                 if object["do-not-show-until-datetime"].nil? and object["schedule"] and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
                     object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
                 end
@@ -129,42 +125,57 @@ class DoNotShowUntil
     end
 end
 
+# RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
+# RequirementsOperator::setUnsatisfiedRequirement(requirement)
+# RequirementsOperator::setSatisfifiedRequirement(requirement)
+# RequirementsOperator::requirementIsCurrentlySatisfied(requirement)
+
+# RequirementsOperator::getObjectRequirements(uuid)
+# RequirementsOperator::setObjectRequirements(uuid, requirements)
+# RequirementsOperator::addRequirementToObject(uuid,requirement)
+# RequirementsOperator::removeRequirementFromObject(uuid,requirement)
+# RequirementsOperator::objectMeetsRequirements(uuid)
+
+# RequirementsOperator::getAllRequirements()
+
 class RequirementsOperator
 
-    @@pathToDataFile = nil
-    @@data = nil
-
-    def self.init()
-        @@pathToDataFile = "#{CATALYST_COMMON_DATA_FOLDERPATH}/requirements.json"
-        @@data = JSON.parse(IO.read(@@pathToDataFile))
+    def self.getCurrentlyUnsatisfiedRequirements()
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
     end
 
-    def self.saveDataToDisk()
-        objects = CatalystDataOperator::catalystObjects()
-        uuidsInFile = @@data["items-requirements-distribution"].keys
-        uuidsInFile.each{|uuid|
-            if !objects.map{|object| object["uuid"] }.include?(uuid) then
-                @@data["items-requirements-distribution"].delete(uuid)
-            end
-            if @@data["items-requirements-distribution"][uuid].size==0 then
-                @@data["items-requirements-distribution"].delete(uuid)
-            end
-        }
-        requirements = @@data['items-requirements-distribution'].values.flatten.uniq
-        @@data['requirements-status'].keys.each{|r|
-            if !requirements.include?(r) then
-                @@data['requirements-status'].delete(r)
-            end
-        }
-        File.open(@@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@@data)) }
+    def self.setUnsatisfiedRequirement(requirement)
+        rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
+        rs = (rs + [ requirement ]).uniq
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
     end
 
-    def self.getObjectRequirements(uuid)
-        @@data['items-requirements-distribution'][uuid] || []
+    def self.setSatisfifiedRequirement(requirement)
+        rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
+        rs = rs.reject{|r| r==requirement }
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
     end
 
     def self.requirementIsCurrentlySatisfied(requirement)
-        @@data['requirements-status'][requirement].nil? or @@data['requirements-status'][requirement]
+        !RequirementsOperator::getCurrentlyUnsatisfiedRequirements().include?(requirement)
+    end
+
+    # objects
+
+    def self.getObjectRequirements(uuid)
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
+    end
+
+    def self.setObjectRequirements(uuid, requirements)
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
+    end
+
+    def self.addRequirementToObject(uuid,requirement)
+        RequirementsOperator::setObjectRequirements(uuid, (RequirementsOperator::getObjectRequirements(uuid) + [requirement]).uniq)
+    end
+
+    def self.removeRequirementFromObject(uuid,requirement)
+        RequirementsOperator::setObjectRequirements(uuid, (RequirementsOperator::getObjectRequirements(uuid).reject{|r| r==requirement }))
     end
 
     def self.objectMeetsRequirements(uuid)
@@ -172,43 +183,12 @@ class RequirementsOperator
             .all?{|requirement| RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
     end
 
-    def self.addObjectRequirement(uuid,requirement)
-        requirements = @@data['items-requirements-distribution'][uuid] || []
-        requirements << requirement
-        requirements = requirements.uniq.sort
-        @@data['items-requirements-distribution'][uuid] = requirements
-        RequirementsOperator::saveDataToDisk()
+    def self.getAllRequirements()
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", "[]"))
     end
 
-    def self.removeObjectRequirement(uuid,requirement)
-        requirements = @@data['items-requirements-distribution'][uuid] || []
-        requirements.delete(requirement)
-        requirements = requirements.uniq.sort
-        @@data['items-requirements-distribution'][uuid] = requirements
-        RequirementsOperator::saveDataToDisk()
-    end
-
-    def self.setRequirementOn(requirement)
-        @@data['requirements-status'][requirement] = true
-        RequirementsOperator::saveDataToDisk()
-    end
-
-    def self.setRequirementOff(requirement)
-        @@data['requirements-status'][requirement] = false
-        RequirementsOperator::saveDataToDisk()
-    end
-
-    def self.allRequirements()
-        @@data['items-requirements-distribution'].values.flatten.uniq
-    end
-
-    def self.currentlyUnsatisfifiedRequirements()
-        RequirementsOperator::allRequirements().select{|requirement| !RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
-    end
-
-    def self.selectExistingRequirement()
-        requirements = @@data['requirements-status'].keys
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", requirements)
+    def self.selectRequirementFromExistingRequirementsOrNull()
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
 end
 

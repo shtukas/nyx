@@ -100,13 +100,17 @@ class Jupiter
         if expression == 'info' then
             puts "CatalystDevOps::getArchiveSizeInMegaBytes(): #{CatalystDevOps::getArchiveSizeInMegaBytes()}".green
             puts "Todolists:".green
-            puts "    Stream: count: #{( count1 = Stream::getUUIDs().size )}".green
-            puts "    Vienna count: #{(count3 = Vienna::getUnreadLinks().count)}".green
-            puts "Todolists total count: #{(count1+count3)}".green
+            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
+            puts "    Vienna count : #{(count3 = Vienna::getUnreadLinks().count)}".green
+            puts "    Total        : #{(count1+count3)}".green
             puts "Open Projects:".green
             OpenProjects::getCatalystObjects()
-                .each{|object| puts "    " + Jupiter::object2Line_v0(object) }
-            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
+                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                .reverse
+                .each{|object| puts "    " + Jupiter::object2Line_v0(object).green }
+            puts "Requirements:".green
+            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -145,20 +149,20 @@ class Jupiter
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ")
-            RequirementsOperator::setRequirementOn(requirement)
+            RequirementsOperator::setSatisfifiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("r:off") then
             command, requirement = expression.split(" ")
-            RequirementsOperator::setRequirementOff(requirement)
+            RequirementsOperator::setUnsatisfiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("r:show") then
             command, requirement = expression.split(" ")
             if requirement.size==0 then
-                requirement = RequirementsOperator::selectExistingRequirement()
+                requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
                 requirementObjects = CatalystDataOperator::catalystObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
@@ -206,13 +210,13 @@ class Jupiter
 
         if expression.start_with?("r:add") then
             command, requirement = expression.split(" ")
-            RequirementsOperator::addObjectRequirement(object['uuid'],requirement)
+            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
             return
         end
 
         if expression.start_with?("r:remove") then
             command, requirement = expression.split(" ")
-            RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
+            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
             return
         end
 
@@ -361,7 +365,9 @@ class Jupiter
         workspaceSize = 1
         loop {
             objects = CatalystDataOperator::catalystObjects()
-                .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
+            allrequirements = objects.map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+            KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
+            objects = objects.select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
                 .select{|object| RequirementsOperator::objectMeetsRequirements(object["uuid"]) }
                 .select{|object| object["metric"] >= 0.2 }
             objects = DoNotShowUntil::transform(objects)
@@ -369,7 +375,7 @@ class Jupiter
                 .reverse
             objects = objects.take(workspaceSize)
             system("clear")
-            puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
+            puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Saturn::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
                 CatalystDevOps::archivesGarbageCollection(true)
@@ -425,11 +431,6 @@ class Jupiter
         }
     end
 end
-
-# -----------------------------------------------------------------
-
-RequirementsOperator::init()
-DoNotShowUntil::init()
 
 # -----------------------------------------------------------------
 
