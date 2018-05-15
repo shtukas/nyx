@@ -27,7 +27,7 @@ class Kimchee
     end
 
     def self.genesisDatetime()
-        DateTime.parse(IO.read("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/kimchee-genesis-datetime")+" +0100")
+        DateTime.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/kimchee-genesis-datetime")+" +0100")
     end
 
     def self.weeksValue()

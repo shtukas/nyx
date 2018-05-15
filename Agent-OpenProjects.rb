@@ -24,7 +24,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
-OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
+OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Open-Projects"
 
 # OpenProjects::getCatalystObjects()
 

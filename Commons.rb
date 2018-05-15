@@ -10,13 +10,13 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 # ----------------------------------------------------------------
 
-CATALYST_COMMON_AGENT_DATA_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Agents-Data"
-CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
-CATALYST_COMMON_XCACHE_REPOSITORY = "/Galaxy/DataBank/Catalyst/xcache"
-CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream"
-CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
-CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
-CATALYST_COMMON_CONFIG_FILEPATH = "/Galaxy/DataBank/Catalyst/Config.json"
+CATALYST_COMMON_DATA_FOLDERPATH = "/Galaxy/DataBank/Catalyst"
+CATALYST_COMMON_CONFIG_FILEPATH = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Config.json"
+CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Archives-Timeline"
+CATALYST_COMMON_XCACHE_REPOSITORY = "#{CATALYST_COMMON_DATA_FOLDERPATH}/xcache"
+CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Stream"
+CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Open-Projects"
+
 
 # ----------------------------------------------------------------
 
@@ -28,53 +28,6 @@ class Config
     end
     def self.get(keyname)
         self.getConfig()[keyname]
-    end
-end
-
-# DataLogUtils::pathToActiveDataLogIndexFolder()
-# DataLogUtils::commitCatalystObjectToDisk(object)
-# DataLogUtils::getDataLog()
-# DataLogUtils::dataLog2IntermediaryStructure(dataLog)
-# DataLogUtils::intermediaryStructure2DataSet(intermediaryStructure)
-# DataLogUtils::getDataSetFromDisk()
-
-class DataLogUtils
-    def self.pathToActiveDataLogIndexFolder()
-        LucilleCore::indexsubfolderpath(CATALYST_COMMON_PATH_TO_DATA_LOG)
-    end
-
-    def self.commitCatalystObjectToDisk(object)
-        folderpath = DataLogUtils::pathToActiveDataLogIndexFolder()
-        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(object)) }
-    end
-
-    def self.getDataLog()
-        objects = []
-        Find.find(CATALYST_COMMON_PATH_TO_DATA_LOG) do |path|
-            next if !File.file?(path)
-            next if File.basename(path)[-5,5] != '.json'
-            objects << JSON.parse(IO.read(path))
-        end
-        objects
-    end
-
-    def self.dataLog2IntermediaryStructure(dataLog)
-        structure = {}
-        dataLog.each{|object|
-            structure[object["uuid"]] = object # Here we do not really need to check relative times because objects are naturally ordered by creation time due to ordering in the file system
-        }
-        structure
-    end
-
-    def self.intermediaryStructure2DataSet(intermediaryStructure)
-        intermediaryStructure.values
-    end
-
-    def self.getDataSetFromDisk()
-        dataLog = DataLogUtils::getDataLog()
-        intermediaryStructure = DataLogUtils::dataLog2IntermediaryStructure(dataLog)
-        DataLogUtils::intermediaryStructure2DataSet(intermediaryStructure)
     end
 end
 
@@ -146,12 +99,12 @@ class DoNotShowUntil
     @@mapping = {}
 
     def self.init()
-        @@mapping = JSON.parse(IO.read("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/do-not-show-until.json"))
+        @@mapping = JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/do-not-show-until.json"))
     end
 
     def self.set(uuid, datetime)
         @@mapping[uuid] = datetime
-        File.open("#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/do-not-show-until.json", "w"){|f| f.puts(JSON.pretty_generate(@@mapping)) }
+        File.open("#{CATALYST_COMMON_DATA_FOLDERPATH}/do-not-show-until.json", "w"){|f| f.puts(JSON.pretty_generate(@@mapping)) }
     end
 
     def self.isactive(object)
@@ -182,7 +135,7 @@ class RequirementsOperator
     @@data = nil
 
     def self.init()
-        @@pathToDataFile = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/requirements.json"
+        @@pathToDataFile = "#{CATALYST_COMMON_DATA_FOLDERPATH}/requirements.json"
         @@data = JSON.parse(IO.read(@@pathToDataFile))
     end
 
