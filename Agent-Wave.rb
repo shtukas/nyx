@@ -378,9 +378,6 @@ class Wave
             LucilleCore::removeFileSystemLocation(staginglocation)
             Wave::archiveWaveItems(uuid)
         end
-
-        [ self.agentuuid() ]
-
     end
 
     def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)

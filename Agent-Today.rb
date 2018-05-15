@@ -58,7 +58,6 @@ class Today
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             Today::removeSectionFromFile(object['uuid'])
         end
-        [ self.agentuuid() ]
     end
 
     # -------------------------------------------------------------------------------------

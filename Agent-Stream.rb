@@ -79,7 +79,6 @@ class Stream
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::performObjectClosing(object)
         end
-        [ self.agentuuid() ]
     end
     
     def self.folderpaths(itemsfolderpath)

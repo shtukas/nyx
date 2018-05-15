@@ -72,7 +72,6 @@ class TimeCommitments
         if command=="stop" then
             TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
         end
-        [ self.agentuuid() ]
     end
 
     def self.getItems()

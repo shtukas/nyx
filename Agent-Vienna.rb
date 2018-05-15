@@ -46,7 +46,6 @@ class Vienna
             Vienna::setLinkAsRead(object["link"])
             FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
         end
-        [ self.agentuuid() ]
     end
 
     def self.getUnreadLinks()

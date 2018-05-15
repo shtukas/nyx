@@ -64,7 +64,6 @@ class OpenProjects
             system("open '#{object["item-folderpath"]}'")
             return []
         end
-        [ self.agentuuid() ]
     end
 
     def self.folderpaths(itemsfolderpath)

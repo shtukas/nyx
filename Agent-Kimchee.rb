@@ -24,7 +24,6 @@ class Kimchee
         if command=="love" then
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5CB", Kimchee::weeksValue())
         end
-        [ self.agentuuid() ]
     end
 
     def self.genesisDatetime()
