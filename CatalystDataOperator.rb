@@ -46,7 +46,6 @@ require_relative "Agent-StreamKiller.rb"
 require_relative "Agent-GuardianTime.rb"
 require_relative "Agent-Kimchee.rb"
 require_relative "Agent-Vienna.rb"
-require_relative "Agent-ViennaKiller.rb"
 require_relative "Agent-OpenProjects.rb"
 
 # ----------------------------------------------------------------------
@@ -113,12 +112,6 @@ class CatalystDataOperator
                 "agent-uid"        => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
                 "objects-maker"    => lambda { Vienna::getCatalystObjects() },
                 "object-processor" => lambda{|object, command| Vienna::processObject(object, command) }
-            },
-            {
-                "agent-name"       => "ViennaKiller",
-                "agent-uid"        => "7cbbde0d-e5d6-4be9-b00d-8b8011f7173f",
-                "objects-maker"    => lambda { ViennaKiller::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| ViennaKiller::processObject(object, command) }
             },
             {
                 "agent-name"       => "Wave",

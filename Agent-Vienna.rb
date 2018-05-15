@@ -68,17 +68,18 @@ class Vienna
         system("sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'")
     end
 
-    def self.metric(uuid)
+    def self.metric(uuid, unreadlinks)
         FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.2 + 0.6*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
+        metric = 0.2 + 0.6*Saturn::realNumbersToZeroOne(unreadlinks.count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
     end
 
     def self.getCatalystObjects()
         return [] if !Saturn::isPrimaryComputer()
-        link = Vienna::getUnreadLinks().first
-        return [] if link.nil?
+        links = Vienna::getUnreadLinks()
+        return [] if links.empty?
+        link = links.first
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
-        metric = Vienna::metric(uuid)
+        metric = Vienna::metric(uuid, links)
         [
             {
                 "uuid" => uuid,

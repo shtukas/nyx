@@ -85,6 +85,7 @@ end
 # Saturn::traceToRealInUnitInterval(trace)
 # Saturn::traceToMetricShift(trace)
 # Saturn::deathObject(uuid)
+# Saturn::realNumbersToZeroOne(x, origin, unit)
 
 class Saturn
 
@@ -125,6 +126,16 @@ class Saturn
             "uuid"  => uuid,
             "death" => true
         }
+    end
+
+    def self.realNumbersToZeroOne(x, origin, unit)
+        alpha =
+            if x >= origin then
+                2-Math.exp(-(x-origin).to_f/unit)
+            else
+                Math.exp((x-origin).to_f/unit)
+            end
+        alpha.to_f/2
     end
 end
 
