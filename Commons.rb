@@ -391,13 +391,13 @@ class FolderProbe
             system("open '#{metadata["target-location"]}'")
         end
         if metadata["target-type"]=="line" then
-            puts metadata["text"]
+
         end
         if metadata["target-type"]=="url" then
             system("open '#{metadata["url"]}'")
         end
         if metadata["target-type"]=="virtually-empty-wave-folder" then
-            puts metadata["announce"]
+
         end
     end
 end
