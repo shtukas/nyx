@@ -10,13 +10,13 @@ require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 
 # ----------------------------------------------------------------
 
-CATALYST_COMMON_AGENT_DATA_FOLDERPATH = "/Galaxy/Catalyst-Data/Agents-Data"
-CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/Catalyst-Data/Archives-Timeline"
-CATALYST_COMMON_XCACHE_REPOSITORY = "/Galaxy/Catalyst-Data/xcache"
+CATALYST_COMMON_AGENT_DATA_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Agents-Data"
+CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Archives-Timeline"
+CATALYST_COMMON_XCACHE_REPOSITORY = "/Galaxy/DataBank/Catalyst/xcache"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/Open-Projects"
 CATALYST_COMMON_PATH_TO_DATA_LOG = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/DataLog"
-CATALYST_COMMON_CONFIG_FILEPATH = "/Galaxy/Catalyst-Data/Config.json"
+CATALYST_COMMON_CONFIG_FILEPATH = "/Galaxy/DataBank/Catalyst/Config.json"
 
 # ----------------------------------------------------------------
 
