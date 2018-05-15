@@ -60,7 +60,7 @@ class Jupiter
     end
 
     def self.emailSyncOnSchedule(verbose)
-        if LucilleCore::trueNoMoreOftenThanNEverySeconds("29a504de-7985-493b-b809-332357bda3a7", 1200) then
+        if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "29a504de-7985-493b-b809-332357bda3a7", 1200) then
             begin
                 newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
                 if newEmailCount>0 then
@@ -68,7 +68,7 @@ class Jupiter
                 end
                 OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
                 # We call again so that the clock restarts at the end of the process
-                LucilleCore::trueNoMoreOftenThanNEverySecondsReset("29a504de-7985-493b-b809-332357bda3a7")
+                LucilleCore::trueNoMoreOftenThanNEverySecondsReset_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "29a504de-7985-493b-b809-332357bda3a7")
             rescue
             end
         end
@@ -382,11 +382,11 @@ class Jupiter
             objects = objects.take(workspaceSize)
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Saturn::isPrimaryComputer() then
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Saturn::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
                 CatalystDevOps::archivesGarbageCollection(true)
             end
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) and Saturn::isPrimaryComputer() then
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) and Saturn::isPrimaryComputer() then
                 puts "xcache garbage collection"
                 CatalystDevOps::xcacheGarbageCollection()
             end
