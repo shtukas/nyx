@@ -326,67 +326,6 @@ class KillersCurvesManagement
     end
 end
 
-# Collections::init()
-# Collections::addObjectToCollection(uuid, collection)
-# Collections::getCollectionUUIDs(collection)
-# Collections::getCollections()
-# Collections::selectExistingCollection()
-# Collections::selectExistingOrNewCollection()
-# Collections::objectIsNotInAnyCollection(uuid)
-
-class Collections
-    @@pathToDataFile = nil
-    @@data = nil
-
-    def self.init()
-        @@pathToDataFile = "#{CATALYST_COMMON_AGENT_DATA_FOLDERPATH}/collections.json"
-        @@data = JSON.parse(IO.read(@@pathToDataFile))
-    end
-
-    def self.saveDataToDisk()
-        objects = CatalystDataOperator::catalystObjects()
-        collections = @@data.keys
-        collections.each{|collection|
-            @@data[collection] = @@data[collection].select{|uuid| objects.map{|object| object["uuid"] }.include?(uuid) }
-        }
-        File.open(@@pathToDataFile, 'w') {|f| f.puts(JSON.pretty_generate(@@data)) }
-    end
-
-    def self.addObjectToCollection(uuid, collection)
-        @@data[collection] = [] if @@data[collection].nil?
-        @@data[collection] << uuid
-        @@data[collection] = @@data[collection].uniq
-        Collections::saveDataToDisk()
-    end
-
-    def self.getCollectionUUIDs(collection)
-        @@data[collection]
-    end
-
-    def self.getCollections()
-        @@data.keys
-    end
-
-    def self.selectExistingCollection()
-        collections = @@data.keys
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collection", collections)
-    end
-
-    def self.selectExistingOrNewCollection()
-        collections = @@data.keys
-        collection = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collection", collections)
-        if collection.nil? then
-            collection = LucilleCore::askQuestionAnswerAsString("new collection: ")
-        end
-        collection
-    end
-
-    def self.objectIsNotInAnyCollection(uuid)
-        @@data.keys.all?{|collection| !@@data[collection].include?(uuid) }
-    end
-
-end
-
 # FolderProbe::nonDotFilespathsAtFolder(folderpath)
 # FolderProbe::folderpath2metadata(folderpath)
     #    {

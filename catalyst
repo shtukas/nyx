@@ -107,7 +107,6 @@ class Jupiter
             OpenProjects::getCatalystObjects()
                 .each{|object| puts "    " + Jupiter::object2Line_v0(object) }
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".green
-            puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -186,21 +185,6 @@ class Jupiter
             return
         end
 
-        if expression.start_with?("c:show") then
-            command, collection = expression.split(" ")
-            if collection.size==0 then
-                collection = Collections::selectExistingCollection()
-            end
-            loop {
-                uuids = Collections::getCollectionUUIDs(collection)
-                objects = CatalystDataOperator::catalystObjects().select{|object| uuids.include?(object["uuid"]) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-            }
-            return
-        end
-
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
@@ -245,15 +229,6 @@ class Jupiter
         if expression.start_with?("r:remove") then
             command, requirement = expression.split(" ")
             RequirementsOperator::removeObjectRequirement(object['uuid'],requirement)
-            return
-        end
-
-        if expression.start_with?("c:add")  then
-            command, collection = expression.split(" ")
-            if collection.size==0 then
-                collection = Collections::selectExistingOrNewCollection()
-            end
-            Collections::addObjectToCollection(object["uuid"], collection)
             return
         end
 
@@ -404,14 +379,12 @@ class Jupiter
             objects = CatalystDataOperator::catalystObjects()
                 .select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
                 .select{|object| RequirementsOperator::objectMeetsRequirements(object["uuid"]) }
-                .select{|object| Collections::objectIsNotInAnyCollection(object["uuid"]) }
                 .select{|object| object["metric"] >= 0.2 }
             objects = DoNotShowUntil::transform(objects)
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
             objects = objects.take(workspaceSize)
             system("clear")
-            puts "COLLECTIONS     : #{Collections::getCollections().join(", ")}".yellow
             puts "REQUIREMENTS OFF: #{RequirementsOperator::currentlyUnsatisfifiedRequirements().join(", ")}".yellow
             if LucilleCore::trueNoMoreOftenThanNEverySeconds("68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Saturn::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
@@ -473,7 +446,6 @@ end
 
 RequirementsOperator::init()
 DoNotShowUntil::init()
-Collections::init()
 CatalystDataOperator::init()
 
 # -----------------------------------------------------------------
