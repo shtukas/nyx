@@ -28,7 +28,7 @@ require_relative "Commons.rb"
 # Stream::folderpathToCatalystObjectOrNull(folderpath)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
-# Stream::getCatalystObjects()
+# Stream::getCatalystObjectsFirstN(12)
 
 class Stream
 
@@ -141,6 +141,14 @@ class Stream
 
     def self.getCatalystObjects()
         folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+        size = folderpaths.size
+        folderpaths.zip((1..size))
+            .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)}
+            .compact
+    end
+
+    def self.getCatalystObjectsFirstN(count)
+        folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER).first(count)
         size = folderpaths.size
         folderpaths.zip((1..size))
             .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)}
