@@ -104,7 +104,7 @@ class OpenProjects
             "metric" => isRunning ? 2 - Saturn::traceToMetricShift(uuid) : GenericTimeTracking::metric2(uuid, 0.19, 0.79, 2) + Saturn::traceToMetricShift(uuid),
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
-            "default-expression" => isRunning ? "" : "start",
+            "default-expression" => isRunning ? "stop" : "start",
             "item-folder-probe-metadata" => folderProbeMetadata,
             "item-folderpath" => folderpath,
             "agent-uid" => self.agentuuid(),
