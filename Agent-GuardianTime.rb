@@ -44,4 +44,8 @@ class GuardianTime
         end
         []
     end
+
+    def self.interface()
+        
+    end
 end

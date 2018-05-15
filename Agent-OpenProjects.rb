@@ -124,4 +124,8 @@ class OpenProjects
             .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
             .compact
     end
+
+    def self.interface()
+        
+    end
 end

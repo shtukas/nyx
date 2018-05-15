@@ -97,6 +97,11 @@ class Jupiter
             return
         end
 
+        if expression=="interface" then
+            CatalystDataOperator::selectAgentAndRunInterface()
+            return
+        end
+
         if expression == 'info' then
             puts "CatalystDevOps::getArchiveSizeInMegaBytes(): #{CatalystDevOps::getArchiveSizeInMegaBytes()}".green
             puts "Todolists:".green
@@ -247,6 +252,7 @@ class Jupiter
         puts ""
         puts "Special General Commands (special circumstances)"
         puts "    clear # clear the screen"
+        puts "    interface # run the interface of a given agent"
         puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special Object Commands:"

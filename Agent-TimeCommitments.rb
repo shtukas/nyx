@@ -196,4 +196,8 @@ class TimeCommitments
             objects
         end
     end
+
+    def self.interface()
+        
+    end
 end

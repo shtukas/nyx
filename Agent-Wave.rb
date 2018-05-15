@@ -565,4 +565,8 @@ class Wave
             .compact
     end
 
+    def self.interface()
+        puts "You are interfacing with Wave"
+        LucilleCore::pressEnterToContinue()
+    end
 end

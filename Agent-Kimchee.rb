@@ -68,4 +68,8 @@ class Kimchee
             [] 
         end
     end
+
+    def self.interface()
+        
+    end
 end

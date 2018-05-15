@@ -92,4 +92,7 @@ class Vienna
         ]
     end
 
+    def self.interface()
+        
+    end
 end

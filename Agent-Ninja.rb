@@ -52,4 +52,8 @@ class Ninja
             }
         ]
     end
+
+    def self.interface()
+        
+    end
 end
