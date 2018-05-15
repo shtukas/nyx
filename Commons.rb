@@ -271,72 +271,6 @@ class TodayOrNotToday
     end
 end
 
-# KillersCurvesManagement::getCurve(folderpath)
-# KillersCurvesManagement::shiftCurve(curve)
-# KillersCurvesManagement::computeIdealCountFromCurve(curve)
-# KillersCurvesManagement::computeMetric(currentCount, idealCount)
-# KillersCurvesManagement::shiftCurveIfOpportunity(folderpath, currentCount1)
-
-# KillersCurvesManagement::trueIfCanShiftCurveForFolderpath(folderpath)
-# KillersCurvesManagement::setLastCurveChangeDateForFolderpath(folderpath, date)
-
-class KillersCurvesManagement
-    def self.trueIfCanShiftCurveForFolderpath(folderpath)
-        KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}") != Saturn::currentDay()
-    end
-
-    def self.setLastCurveChangeDateForFolderpath(folderpath, date)
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "53f628bf-a119-4d9d-b48c-664c81b69047:#{folderpath}", date)
-    end
-
-    def self.getCurve(folderpath)
-        filename = Dir.entries(folderpath)
-            .select{|filename| filename[0,1] != "." }
-            .sort
-            .last
-        JSON.parse(IO.read("#{folderpath}/#{filename}"))
-    end
-
-    def self.shiftCurve(curve)
-        computeSlope = lambda {|curve| (curve["ending-count"] - curve["starting-count"]).to_f/(curve["ending-unixtime"] - curve["starting-unixtime"]) }
-        curve = curve.clone
-        originalslope = computeSlope.call(curve)
-        curve["starting-count"] = curve["starting-count"]-10
-        # (curve["ending-count"] - curve["starting-count"]).to_f/(X - curve["starting-unixtime"]) = originalslope
-        # (curve["ending-count"] - curve["starting-count"]) = originalslope*(curve["ending-unixtime"] - curve["starting-unixtime"])
-        # (curve["ending-count"] - curve["starting-count"]) = originalslope*curve["ending-unixtime"] - originalslope*curve["starting-unixtime"]
-        # curve["ending-count"] - curve["starting-count"] + originalslope*curve["starting-unixtime"] = originalslope*curve["ending-unixtime"]
-        # ( curve["ending-count"] - curve["starting-count"] + originalslope*curve["starting-unixtime"] ).to_f/originalslope = curve["ending-unixtime"]
-        curve["ending-unixtime"] =  ( curve["ending-count"] - curve["starting-count"] + originalslope*curve["starting-unixtime"] ).to_f/originalslope
-        curve
-    end
-
-    def self.computeIdealCountFromCurve(curve)
-        curve["starting-count"] - curve["starting-count"]*(Time.new.to_i - curve["starting-unixtime"]).to_f/(curve["ending-unixtime"] - curve["starting-unixtime"])
-    end
-
-    def self.computeMetric(currentCount, idealCount)
-        currentCount.to_f/(0.01*idealCount) - (idealCount*0.99).to_f/(0.01*idealCount)
-    end
-
-    def self.shiftCurveIfOpportunity(folderpath, currentCount1)
-        return if !KillersCurvesManagement::trueIfCanShiftCurveForFolderpath(folderpath)
-        curve1 = KillersCurvesManagement::getCurve(folderpath)
-        idealCount1 = KillersCurvesManagement::computeIdealCountFromCurve(curve1)
-        metric1 = KillersCurvesManagement::computeMetric(currentCount1, idealCount1)
-        if metric1 < 0.2 then
-            curve2 = KillersCurvesManagement::shiftCurve(curve1)
-            idealCount2 = KillersCurvesManagement::computeIdealCountFromCurve(curve2)
-            metric2 = KillersCurvesManagement::computeMetric(currentCount1, idealCount2)
-            if metric2 < 0.2 then
-                puts "#{folderpath}, shifting curve on disk (metric1: #{metric1} -> #{metric2})"
-                File.open("#{folderpath}/curve-#{LucilleCore::timeStringL22()}.json", "w"){|f| f.puts( JSON.pretty_generate(curve2) ) }
-                KillersCurvesManagement::setLastCurveChangeDateForFolderpath(folderpath, Saturn::currentDay())
-            end
-        end
-    end
-end
-
 # FolderProbe::nonDotFilespathsAtFolder(folderpath)
 # FolderProbe::folderpath2metadata(folderpath)
     #    {
@@ -579,7 +513,6 @@ class GenericTimeTracking
     def self.timings(uuid)
         FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
     end
-
 end
 
 # CatalystDevOps::today()
