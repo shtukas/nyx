@@ -485,6 +485,9 @@ class Wave
         if folderProbeMetadata["target-type"] == "folder" then
             return "open"
         end
+        if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "sticky" then
+            return "done"
+        end
         if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "every-n-hours" then
             return "done"
         end
