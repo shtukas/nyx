@@ -55,6 +55,8 @@ require_relative "Agent-OpenProjects.rb"
 # CatalystDataOperator::processCommand(object, command)
 # CatalystDataOperator::selectAgentAndRunInterface()
 
+# CatalystDataOperator::doExecute(object, expression, flock)
+
 class CatalystDataOperator
 
     def self.agents()
@@ -147,6 +149,154 @@ class CatalystDataOperator
     def self.selectAgentAndRunInterface()
         agent = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", CatalystDataOperator::agents(), lambda{ |agent| agent["agent-name"] })
         agent["interface"].call()
+    end
+
+    def self.doExecute(object, expression, flock)
+
+        # no object needed
+
+        if expression == 'help' then
+            Jupiter::putshelp()
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'clear' then
+            system("clear")
+            return
+        end
+
+        if expression=="interface" then
+            CatalystDataOperator::selectAgentAndRunInterface()
+            return
+        end
+
+        if expression == 'info' then
+            puts "CatalystDevOps::getArchiveSizeInMegaBytes(): #{CatalystDevOps::getArchiveSizeInMegaBytes()}".green
+            puts "Todolists:".green
+            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
+            puts "    Vienna count : #{(count3 = Vienna::getUnreadLinks().count)}".green
+            puts "    Total        : #{(count1+count3)}".green
+            puts "Requirements:".green
+            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'lib' then
+            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
+        end
+
+        if expression.start_with?('wave:') then
+            description = expression[5, expression.size].strip
+            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('stream:') then
+            description = expression[7, expression.size].strip
+            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Stream::issueNewItemFromDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('open-project:') then
+            description = expression[13, expression.size].strip
+            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = OpenProjects::issueNewItemFromDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?("r:on") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::setSatisfifiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:off") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::setUnsatisfiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:show") then
+            command, requirement = expression.split(" ")
+            if requirement.size==0 then
+                requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
+            end
+            loop {
+                requirementObjects = CatalystDataOperator::catalystObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
+            }
+            return
+        end
+
+        if expression.start_with?("search") then
+            pattern = expression[6,expression.size].strip
+            loop {
+                searchobjects = CatalystDataOperator::catalystObjects().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                break if searchobjects.size==0
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
+            }
+            return
+        end
+
+        return if object.nil?
+
+        # object needed
+
+        if expression == '!today' then
+            TodayOrNotToday::notToday(object["uuid"])
+            return
+        end
+
+        if expression == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('+') then
+            code = expression
+            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+                DoNotShowUntil::set(object["uuid"], datetime)
+            end
+            return
+        end
+
+        if expression.start_with?("r:add") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("r:remove") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.size > 0 then
+            tokens = expression.split(" ").map{|t| t.strip }
+            .each{|command|
+                CatalystDataOperator::processCommand(object, command, flock)
+            }
+        else
+            CatalystDataOperator::processCommand(object, "", flock)
+        end
     end
 
 end

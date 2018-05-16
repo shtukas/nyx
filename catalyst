@@ -43,7 +43,6 @@ require 'find'
 # Jupiter::emailSyncOnSchedule(verbose)
 # Jupiter::screenHeight()
 # Jupiter::screenWidth()
-# Jupiter::doExecute(object, expression)
 # Jupiter::putshelp()
 # Jupiter::editTextUsingTextmate(text)
 # Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
@@ -80,154 +79,6 @@ class Jupiter
 
     def self.screenWidth()
         `/usr/bin/env tput cols`.to_i
-    end
-
-    def self.doExecute(object, expression)
-
-        # no object needed
-
-        if expression == 'help' then
-            Jupiter::putshelp()
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression == 'clear' then
-            system("clear")
-            return
-        end
-
-        if expression=="interface" then
-            CatalystDataOperator::selectAgentAndRunInterface()
-            return
-        end
-
-        if expression == 'info' then
-            puts "CatalystDevOps::getArchiveSizeInMegaBytes(): #{CatalystDevOps::getArchiveSizeInMegaBytes()}".green
-            puts "Todolists:".green
-            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
-            puts "    Vienna count : #{(count3 = Vienna::getUnreadLinks().count)}".green
-            puts "    Total        : #{(count1+count3)}".green
-            puts "Requirements:".green
-            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
-            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression == 'lib' then
-            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
-            return
-        end
-
-        if expression.start_with?('wave:') then
-            description = expression[5, expression.size].strip
-            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
-            puts "created item: #{folderpath}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?('stream:') then
-            description = expression[7, expression.size].strip
-            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = Stream::issueNewItemFromDescription(description)
-            puts "created item: #{folderpath}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?('open-project:') then
-            description = expression[13, expression.size].strip
-            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = OpenProjects::issueNewItemFromDescription(description)
-            puts "created item: #{folderpath}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?("r:on") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::setSatisfifiedRequirement(requirement)
-            return
-        end
-
-        if expression.start_with?("r:off") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::setUnsatisfiedRequirement(requirement)
-            return
-        end
-
-        if expression.start_with?("r:show") then
-            command, requirement = expression.split(" ")
-            if requirement.size==0 then
-                requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
-            end
-            loop {
-                requirementObjects = CatalystDataOperator::catalystObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-            }
-            return
-        end
-
-        if expression.start_with?("search") then
-            pattern = expression[6,expression.size].strip
-            loop {
-                searchobjects = CatalystDataOperator::catalystObjects().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
-                break if searchobjects.size==0
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
-                break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject)
-            }
-            return
-        end
-
-        return if object.nil?
-
-        # object needed
-
-        if expression == '!today' then
-            TodayOrNotToday::notToday(object["uuid"])
-            return
-        end
-
-        if expression == 'expose' then
-            puts JSON.pretty_generate(object)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?('+') then
-            code = expression
-            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
-                DoNotShowUntil::set(object["uuid"], datetime)
-            end
-            return
-        end
-
-        if expression.start_with?("r:add") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
-            return
-        end
-
-        if expression.start_with?("r:remove") then
-            command, requirement = expression.split(" ")
-            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
-            return
-        end
-
-        if expression.size > 0 then
-            tokens = expression.split(" ").map{|t| t.strip }
-            .each{|command|
-                CatalystDataOperator::processCommand(object, command, nil)
-            }
-        else
-            CatalystDataOperator::processCommand(object, "", nil)
-        end
     end
 
     def self.putshelp()
@@ -355,23 +206,27 @@ class Jupiter
         ].join()
     end
 
-    def self.interactiveDisplayObjectAndProcessCommand(object)
+    def self.interactiveDisplayObjectAndProcessCommand(object, flock)
         print Jupiter::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
         command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        Jupiter::doExecute(object, command)
+        CatalystDataOperator::doExecute(object, command, flock)
     end
 
     def self.main2()
+
+        flock = {}
+        flock["objects"] = CatalystDataOperator::catalystObjects()
+
         workspaceSize = 1
         loop {
-            objects = CatalystDataOperator::catalystObjects()
-            objects = TodayOrNotToday::transform(objects)
-            objects = RequirementsOperator::transform(objects)
-            objects = DoNotShowUntil::transform(objects)
+            objectsall = CatalystDataOperator::catalystObjects()
+            objectsall = TodayOrNotToday::transform(objectsall)
+            objectsall = RequirementsOperator::transform(objectsall)
+            objectsall = DoNotShowUntil::transform(objectsall)
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
-            allrequirements = objects.map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+            allrequirements = objectsall.map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
@@ -383,17 +238,17 @@ class Jupiter
                 puts "xcache garbage collection"
                 CatalystDevOps::xcacheGarbageCollection()
             end
-            selectedObject = objects.take(workspaceSize).last
-            objects.take(workspaceSize).each_with_index{|object, index|
+            objectsallelected = objectsall.take(workspaceSize).last
+            objectsall.take(workspaceSize).each_with_index{|object, index|
                 string =
-                    if object["uuid"]==selectedObject["uuid"] then
+                    if object["uuid"]==objectsallelected["uuid"] then
                         "#{"%2d" % (index+1)} [*] #{Jupiter::object2Line_v1(object)}"
                     else
                         "#{"%2d" % (index+1)}     #{Jupiter::object2Line_v0(object)}"
                     end
                 puts string
             }
-            object = selectedObject
+            object = objectsallelected
             print "--> "
             givenCommand = STDIN.gets().strip
             if givenCommand=="+" then
@@ -411,15 +266,15 @@ class Jupiter
             if givenCommand.start_with?(":") then
                 suffix = givenCommand[1,givenCommand.size]
                 if Jupiter::isInteger(suffix) then
-                    object = objects.drop(suffix.to_i-1).first
+                    object = objectsall.drop(suffix.to_i-1).first
                     if object then
-                        Jupiter::interactiveDisplayObjectAndProcessCommand(object)
+                        Jupiter::interactiveDisplayObjectAndProcessCommand(object, flock)
                     end
                 end
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-            Jupiter::doExecute(object, command)
+            CatalystDataOperator::doExecute(object, command, flock)
         }
     end
 end
