@@ -173,6 +173,7 @@ end
 # RequirementsOperator::objectMeetsRequirements(uuid)
 
 # RequirementsOperator::getAllRequirements()
+# RequirementsOperator::transform(objects)
 
 class RequirementsOperator
 
@@ -226,10 +227,20 @@ class RequirementsOperator
     def self.selectRequirementFromExistingRequirementsOrNull()
         LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
+
+    def self.transform(objects)
+        objects.map{|object|
+            if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) then
+                object["metric"] = 0
+            end
+            object
+        }
+    end
 end
 
 # TodayOrNotToday::notToday(uuid)
 # TodayOrNotToday::todayOk(uuid)
+# TodayOrNotToday::transform(objects)
 
 class TodayOrNotToday
     def self.notToday(uuid)
@@ -237,6 +248,14 @@ class TodayOrNotToday
     end
     def self.todayOk(uuid)
         KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
+    end
+    def self.transform(objects)
+        objects.map{|object|
+            if !TodayOrNotToday::todayOk(object["uuid"]) then
+                object["metric"] = 0
+            end
+            object
+        }
     end
 end
 

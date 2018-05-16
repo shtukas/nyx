@@ -366,15 +366,13 @@ class Jupiter
         workspaceSize = 1
         loop {
             objects = CatalystDataOperator::catalystObjects()
-            allrequirements = objects.map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
-            KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
-            objects = objects.select{|object| TodayOrNotToday::todayOk(object["uuid"]) }
-                .select{|object| RequirementsOperator::objectMeetsRequirements(object["uuid"]) }
-                .select{|object| object["metric"] >= 0.2 }
+            objects = TodayOrNotToday::transform(objects)
+            objects = RequirementsOperator::transform(objects)
             objects = DoNotShowUntil::transform(objects)
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
-            objects = objects.take(workspaceSize)
+            allrequirements = objects.map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+            KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Saturn::isPrimaryComputer() then
@@ -385,15 +383,8 @@ class Jupiter
                 puts "xcache garbage collection"
                 CatalystDevOps::xcacheGarbageCollection()
             end
-            if objects.empty? then
-                puts "No active object above 0.2. Try 'search project' for project, if not relax (^_^)"
-                print "--> "
-                givenCommand = STDIN.gets().strip
-                Jupiter::doExecute(nil, givenCommand)
-                next
-            end
-            selectedObject = objects.last
-            objects.each_with_index{|object, index|
+            selectedObject = objects.take(workspaceSize).last
+            objects.take(workspaceSize).each_with_index{|object, index|
                 string =
                     if object["uuid"]==selectedObject["uuid"] then
                         "#{"%2d" % (index+1)} [*] #{Jupiter::object2Line_v1(object)}"
