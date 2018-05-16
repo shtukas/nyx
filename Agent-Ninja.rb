@@ -44,10 +44,10 @@ class Ninja
         [
             {
                 "uuid" => "96287511",
+                "agent-uid" => self.agentuuid(),
                 "metric" => metric,
                 "announce" => "ninja: folderpath: #{File.basename(folderpath)}",
                 "commands" => [],
-                "agent-uid" => self.agentuuid(),
                 "ninja-folderpath" => folderpath
             }
         ]

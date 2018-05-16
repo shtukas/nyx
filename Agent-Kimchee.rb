@@ -58,10 +58,10 @@ class Kimchee
             [
                 {
                     "uuid"                => "46f97eb4",
+                    "agent-uid" => self.agentuuid(),
                     "metric"              => 1-Saturn::traceToMetricShift("1d510e86-c171-4964-a170-1bc61c6a3201"),
                     "announce"            => "Well done for making it to #{"%.3f" % weekValue} weeks { #{monthValues[0]} months and #{monthValues[1].to_i} days } (^_^) 💕",
-                    "commands"            => ["love"],
-                    "agent-uid" => self.agentuuid()
+                    "commands"            => ["love"]
                 }
             ]
         else

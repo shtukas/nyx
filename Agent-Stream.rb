@@ -115,6 +115,7 @@ class Stream
         announce = "stream: #{Saturn::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
         {
             "uuid" => uuid,
+            "agent-uid" => self.agentuuid(),
             "metric" => metric,
             "announce" => announce,
             "commands" => commands,
@@ -122,8 +123,7 @@ class Stream
             "is-running" => isRunning,
             "item-folderpath" => folderpath,
             "item-folder-probe-metadata" => folderProbeMetadata,
-            "item-status" => status,
-            "agent-uid" => self.agentuuid()
+            "item-status" => status
         }
     end
 

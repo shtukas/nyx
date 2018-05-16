@@ -82,12 +82,12 @@ class Vienna
         [
             {
                 "uuid" => uuid,
+                "agent-uid" => self.agentuuid(),
                 "metric" => metric,
                 "announce" => "vienna: #{link}",
                 "commands" => ['open', 'done'],
                 "default-expression" => "open done",
-                "link" => link,
-                "agent-uid" => self.agentuuid()
+                "link" => link
             }
         ]
     end

@@ -101,13 +101,13 @@ class OpenProjects
         isRunning = status[0]
         {
             "uuid" => uuid,
+            "agent-uid" => self.agentuuid(),
             "metric" => isRunning ? 2 - Saturn::traceToMetricShift(uuid) : GenericTimeTracking::metric2(uuid, 0.19, 0.79, 2) + Saturn::traceToMetricShift(uuid),
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
             "default-expression" => isRunning ? "stop" : "start",
             "item-folder-probe-metadata" => folderProbeMetadata,
             "item-folderpath" => folderpath,
-            "agent-uid" => self.agentuuid(),
             "item-timings" => GenericTimeTracking::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
         }
     end

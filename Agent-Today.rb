@@ -131,11 +131,11 @@ class Today
             announce = "today: #{section.join()}".strip
             objects << {
                 "uuid" => uuid,
+                "agent-uid" => self.agentuuid(),
                 "metric" => metric,
                 "announce" => announce,
                 "commands" => ['done', ">stream", ">open-projects"],
-                "item-section" => section.join(),
-                "agent-uid" => self.agentuuid()
+                "item-section" => section.join()
             }
         }
         objects

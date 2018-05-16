@@ -183,11 +183,11 @@ class TimeCommitments
             defaultExpression = item["is-running"] ? "stop" : "start"
             {
                 "uuid" => uuid,
+                "agent-uid" => self.agentuuid(),
                 "metric" => metric,
                 "announce" => announce,
                 "commands" => commands,
-                "default-expression" => defaultExpression,
-                "agent-uid" => self.agentuuid()
+                "default-expression" => defaultExpression
             }
         }
         if objects.select{|object| object["metric"]>1 }.size>0 then
