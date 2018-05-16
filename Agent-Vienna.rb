@@ -40,10 +40,10 @@ class Vienna
 
     def self.processObject(object, command)
         if command=='open' then
-            system("open '#{object["link"]}'")
+            system("open '#{object["item-data"]["link"]}'")
         end
         if command=='done' then
-            Vienna::setLinkAsRead(object["link"])
+            Vienna::setLinkAsRead(object["item-data"]["link"])
             FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
         end
     end
@@ -87,7 +87,9 @@ class Vienna
                 "announce" => "vienna: #{link}",
                 "commands" => ['open', 'done'],
                 "default-expression" => "open done",
-                "link" => link
+                "item-data" => {
+                    "link" => link
+                }
             }
         ]
     end

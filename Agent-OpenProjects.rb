@@ -42,7 +42,7 @@ class OpenProjects
 
     def self.processObject(object, command)
         if command=='start' then
-            metadata = object["item-folder-probe-metadata"]
+            metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(object["uuid"])
         end
@@ -54,14 +54,14 @@ class OpenProjects
             time = Time.new
             targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
             FileUtils.mkpath targetFolder
-            puts "source: #{object['item-folderpath']}"
+            puts "source: #{object["item-data"]["folderpath"]}"
             puts "target: #{targetFolder}"
             FileUtils.mkpath(targetFolder)
-            LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
-            LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+            LucilleCore::copyFileSystemLocation(object["item-data"]['folderpath'], targetFolder)
+            LucilleCore::removeFileSystemLocation(object["item-data"]['folderpath'])
         end
         if command=="folder" then
-            system("open '#{object["item-folderpath"]}'")
+            system("open '#{object["item-data"]["folderpath"]}'")
             return []
         end
     end
@@ -85,11 +85,11 @@ class OpenProjects
         time = Time.new
         targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath targetFolder
-        puts "source: #{object['item-folderpath']}"
+        puts "source: #{object["item-data"]['folderpath']}"
         puts "target: #{targetFolder}"
         FileUtils.mkpath(targetFolder)
-        LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
-        LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+        LucilleCore::copyFileSystemLocation(object["item-data"]['folderpath'], targetFolder)
+        LucilleCore::removeFileSystemLocation(object["item-data"]['folderpath'])
     end
 
     def self.folderpath2CatalystObjectOrNull(folderpath)
@@ -99,17 +99,19 @@ class OpenProjects
         announce = "(open) project: " + folderProbeMetadata["announce"]
         status = GenericTimeTracking::status(uuid)
         isRunning = status[0]
-        {
+        object = {
             "uuid" => uuid,
             "agent-uid" => self.agentuuid(),
             "metric" => isRunning ? 2 - Saturn::traceToMetricShift(uuid) : GenericTimeTracking::metric2(uuid, 0.19, 0.79, 2) + Saturn::traceToMetricShift(uuid),
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
-            "default-expression" => isRunning ? "stop" : "start",
-            "item-folder-probe-metadata" => folderProbeMetadata,
-            "item-folderpath" => folderpath,
-            "item-timings" => GenericTimeTracking::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
+            "default-expression" => isRunning ? "stop" : "start"
         }
+        object["item-data"] = {}
+        object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
+        object["item-data"]["folderpath"] = folderpath
+        object["item-data"]["timings"] = GenericTimeTracking::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
+        object
     end
 
     def self.issueNewItemFromDescription(description)

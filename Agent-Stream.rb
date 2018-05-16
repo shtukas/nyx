@@ -41,11 +41,11 @@ class Stream
     def self.processObject(object, command)
         uuid = object['uuid']
         if command=='folder' then
-            system("open '#{object['item-folderpath']}'")
+            system("open '#{object["item-data"]["folderpath"]}'")
             return []
         end
         if command=='start' then
-            metadata = object["item-folder-probe-metadata"]
+            metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(uuid)
             GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
@@ -59,17 +59,17 @@ class Stream
             time = Time.new
             targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
             FileUtils.mkpath targetFolder
-            puts "source: #{object['item-folderpath']}"
+            puts "source: #{object["item-data"]["folderpath"]}"
             puts "target: #{targetFolder}"
             FileUtils.mkpath(targetFolder)
-            if File.exists?(object['item-folderpath']) then
-                LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
-                LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+            if File.exists?(object["item-data"]["folderpath"]) then
+                LucilleCore::copyFileSystemLocation(object["item-data"]["folderpath"], targetFolder)
+                LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
             end
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
-            sourcefolderpath = object['item-folderpath']
+            sourcefolderpath = object["item-data"]["folderpath"]
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
             LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
@@ -113,18 +113,20 @@ class Stream
         metric = 0.195 + 0.5*Saturn::realNumbersToZeroOne(size, 100, 50)*Math.exp(-indx.to_f/100)*GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Saturn::traceToMetricShift(uuid)
         metric = isRunning ? 2 - Saturn::traceToMetricShift(uuid) : metric
         announce = "stream: #{Saturn::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
-        {
+        object = {
             "uuid" => uuid,
             "agent-uid" => self.agentuuid(),
             "metric" => metric,
             "announce" => announce,
             "commands" => commands,
             "default-expression" => defaultExpression,
-            "is-running" => isRunning,
-            "item-folderpath" => folderpath,
-            "item-folder-probe-metadata" => folderProbeMetadata,
-            "item-status" => status
+            "is-running" => isRunning
         }
+        object["item-data"] = {}
+        object["item-data"]["folderpath"] = folderpath
+        object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
+        object["item-data"]["status"] = status
+        object
     end
 
     def self.performObjectClosing(object)
@@ -133,12 +135,12 @@ class Stream
         time = Time.new
         targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath targetFolder
-        puts "source: #{object['item-folderpath']}"
+        puts "source: #{object["item-data"]["folderpath"]}"
         puts "target: #{targetFolder}"
         FileUtils.mkpath(targetFolder)
-        return if !File.exists?(object['item-folderpath'])
-        LucilleCore::copyFileSystemLocation(object['item-folderpath'], targetFolder)
-        LucilleCore::removeFileSystemLocation(object['item-folderpath'])
+        return if !File.exists?(object["item-data"]["folderpath"])
+        LucilleCore::copyFileSystemLocation(object["item-data"]["folderpath"], targetFolder)
+        LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
     end
 
     def self.issueNewItemFromDescription(description)

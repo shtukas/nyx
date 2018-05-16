@@ -294,7 +294,7 @@ class Wave
         uuid = object['uuid']
 
         if command=='open' then
-            metadata = object["item-folder-probe-metadata"]
+            metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             return []
         end
@@ -522,7 +522,8 @@ class Wave
         object['commands'] = Wave::commands(folderProbeMetadata)
         object["default-expression"] = Wave::defaultExpression(folderProbeMetadata, schedule)
         object['schedule'] = schedule
-        object["item-folder-probe-metadata"] = folderProbeMetadata
+        object["item-data"] = {}
+        object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
         object
     end
 

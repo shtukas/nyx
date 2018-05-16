@@ -45,14 +45,14 @@ class Today
             Today::removeSectionFromFile(object['uuid'])
         end
         if command=='>stream' then
-            description = object["item-section"]
+            description = object["item-data"]["section"]
             folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             Today::removeSectionFromFile(object['uuid'])
         end
         if command=='>open-projects' then
-            description = object["item-section"]
+            description = object["item-data"]["section"]
             folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
@@ -135,7 +135,9 @@ class Today
                 "metric" => metric,
                 "announce" => announce,
                 "commands" => ['done', ">stream", ">open-projects"],
-                "item-section" => section.join()
+                "item-data" => {
+                    "section" => section.join()
+                }
             }
         }
         objects
