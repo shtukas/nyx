@@ -126,6 +126,13 @@ class OpenProjects
     end
 
     def self.interface()
-        
+        puts "Agent: OpenProjects"
+        OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
+            .each{|folderpath|
+                folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
+                announce = "(open) project: " + folderProbeMetadata["announce"]
+                puts "    #{announce}"
+            }
+        LucilleCore::pressEnterToContinue()
     end
 end

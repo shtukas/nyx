@@ -108,11 +108,6 @@ class Jupiter
             puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
             puts "    Vienna count : #{(count3 = Vienna::getUnreadLinks().count)}".green
             puts "    Total        : #{(count1+count3)}".green
-            puts "Open Projects:".green
-            OpenProjects::getCatalystObjects()
-                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                .reverse
-                .each{|object| puts "    " + Jupiter::object2Line_v0(object).green }
             puts "Requirements:".green
             puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
             puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
