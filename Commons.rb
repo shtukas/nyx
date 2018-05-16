@@ -92,6 +92,32 @@ class Saturn
     end
 end
 
+# EventsLogReadWrite::pathToActiveDataLogIndexFolder()
+# EventsLogReadWrite::commitEventToDisk(object)
+# EventsLogReadWrite::eventsEnumerator()
+
+class EventsLogReadWrite
+    def self.pathToActiveDataLogIndexFolder()
+        LucilleCore::indexsubfolderpath(CATALYST_COMMON_PATH_TO_DATA_LOG)
+    end
+
+    def self.commitEventToDisk(object)
+        folderpath = EventsLogReadWrite::pathToActiveDataLogIndexFolder()
+        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(object)) }
+    end
+
+    def self.eventsEnumerator()
+        Enumerator.new do |events|
+            Find.find(CATALYST_COMMON_PATH_TO_DATA_LOG) do |path|
+                next if !File.file?(path)
+                next if File.basename(path)[-5,5] != '.json'
+                events << JSON.parse(IO.read(path))
+            end
+        end
+    end
+end
+
 # DoNotShowUntil::set(uuid, datetime)
 # DoNotShowUntil::getDatetime(uuid)
 # DoNotShowUntil::transform(objects)
