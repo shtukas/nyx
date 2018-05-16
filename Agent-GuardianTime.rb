@@ -18,7 +18,7 @@ class GuardianTime
         "11fa1438-122e-4f2d-9778-64b55a11ddc2"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         
     end
 

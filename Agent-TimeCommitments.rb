@@ -64,7 +64,7 @@ class TimeCommitments
         "03a8bff4-a2a4-4a2b-a36f-635714070d1d"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         uuid = object['uuid']
         if command=='start' then
             TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))

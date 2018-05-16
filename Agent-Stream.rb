@@ -20,7 +20,7 @@ require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
 # Stream::agentuuid()
-# Stream::processObject(object, command)
+# Stream::processCommand(object, command, flock)
 
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getuuid(folderpath)
@@ -37,7 +37,7 @@ class Stream
         "73290154-191f-49de-ab6a-5e5a85c6af3a"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object["item-data"]["folderpath"]}'")

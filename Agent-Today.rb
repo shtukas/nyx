@@ -40,7 +40,7 @@ class Today
         "f989806f-dc62-4942-b484-3216f7efbbd9"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         if command=='done' then
             Today::removeSectionFromFile(object['uuid'])
         end

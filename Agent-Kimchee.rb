@@ -20,7 +20,7 @@ class Kimchee
         "b343bc48-82db-4fa3-ac56-3b5a31ff214f"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         if command=="love" then
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "F98F50E6-E076-40FB-8F91-C553153CA5CB", Kimchee::weeksValue())
         end

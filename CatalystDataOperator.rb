@@ -52,7 +52,7 @@ require_relative "Agent-OpenProjects.rb"
 # CatalystDataOperator::agents()
 # CatalystDataOperator::agentuuid2objectProcessor(agentuuid)
 # CatalystDataOperator::catalystObjects()
-# CatalystDataOperator::processObject(object, command)
+# CatalystDataOperator::processCommand(object, command)
 # CatalystDataOperator::selectAgentAndRunInterface()
 
 class CatalystDataOperator
@@ -63,63 +63,63 @@ class CatalystDataOperator
                 "agent-name"       => "GuardianTime",
                 "agent-uid"        => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
                 "objects-get"      => lambda { GuardianTime::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| GuardianTime::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| GuardianTime::processCommand(object, command, flock) },
                 "interface"        => lambda{ GuardianTime::interface() }
             },
             {
                 "agent-name"       => "Kimchee",
                 "agent-uid"        => "b343bc48-82db-4fa3-ac56-3b5a31ff214f",
                 "objects-get"      => lambda { Kimchee::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| Kimchee::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| Kimchee::processCommand(object, command, flock) },
                 "interface"        => lambda{ Kinchee::interface() }
             },
             {
                 "agent-name"       => "Ninja",
                 "agent-uid"        => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
                 "objects-get"      => lambda { Ninja::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| Ninja::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| Ninja::processCommand(object, command, flock) },
                 "interface"        => lambda{ Ninja::interface() }
             },
             {
                 "agent-name"       => "OpenProjects",
                 "agent-uid"        => "30ff0f4d-7420-432d-b75b-826a2a8bc7cf",
                 "objects-get"      => lambda { OpenProjects::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| OpenProjects::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| OpenProjects::processCommand(object, command, flock) },
                 "interface"        => lambda{ OpenProjects::interface() }
             },
             {
                 "agent-name"       => "Stream",
                 "agent-uid"        => "73290154-191f-49de-ab6a-5e5a85c6af3a",
                 "objects-get"      => lambda { Stream::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| Stream::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| Stream::processCommand(object, command, flock) },
                 "interface"        => lambda{ Stream::interface() }
             },
             {
                 "agent-name"       => "TimeCommitments",
                 "agent-uid"        => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
                 "objects-get"      => lambda { TimeCommitments::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| TimeCommitments::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| TimeCommitments::processCommand(object, command, flock) },
                 "interface"        => lambda{ TimeCommitments::interface() }
             },
             {
                 "agent-name"       => "Today",
                 "agent-uid"        => "f989806f-dc62-4942-b484-3216f7efbbd9",
                 "objects-get"      => lambda { Today::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| Today::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| Today::processCommand(object, command, flock) },
                 "interface"        => lambda{ Today::interface() }
             },
             {
                 "agent-name"       => "Vienna",
                 "agent-uid"        => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
                 "objects-get"      => lambda { Vienna::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| Vienna::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| Vienna::processCommand(object, command, flock) },
                 "interface"        => lambda{ Vienna::interface() }
             },
             {
                 "agent-name"       => "Wave",
                 "agent-uid"        => "283d34dd-c871-4a55-8610-31e7c762fb0d",
                 "objects-get"      => lambda { Wave::getCatalystObjects() },
-                "object-processor" => lambda{|object, command| Wave::processObject(object, command) },
+                "object-processor" => lambda{|object, command, flock| Wave::processCommand(object, command, flock) },
                 "interface"        => lambda{ Wave::interface() }
             }
         ]
@@ -140,8 +140,8 @@ class CatalystDataOperator
         objects
     end
 
-    def self.processObject(object, command)
-        CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"]).call(object, command)
+    def self.processCommand(object, command, flock)
+        CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"]).call(object, command, flock)
     end
 
     def self.selectAgentAndRunInterface()

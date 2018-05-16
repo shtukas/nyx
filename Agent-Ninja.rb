@@ -17,7 +17,7 @@ class Ninja
         "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
         FIFOQueue::takeFirstOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "folderpaths-f363-4a11-9251-b7301406e261")

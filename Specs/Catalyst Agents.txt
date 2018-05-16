@@ -6,4 +6,4 @@ agentuuid(): String
 
 getCatalystObjects(): Array[CatalystObject]
 
-processObject(object, command): Array[AgentUUID] # list of the agents to get data from when this operation terminates
+processCommand(object, command): Array[AgentUUID] # list of the agents to get data from when this operation terminates

@@ -40,7 +40,7 @@ class OpenProjects
         "30ff0f4d-7420-432d-b75b-826a2a8bc7cf"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)

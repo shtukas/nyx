@@ -266,7 +266,7 @@ class WaveDevOps
 end
 
 # Wave::agentuuid()
-# Wave::processObject(object, command)
+# Wave::processCommand(object, command, flock)
 # Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
 # Wave::catalystUUIDToItemFolderPathOrNull(uuid)
 # Wave::catalystUUIDsEnumerator()
@@ -289,7 +289,7 @@ class Wave
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         schedule = object['schedule']
         uuid = object['uuid']
 

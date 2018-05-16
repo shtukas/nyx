@@ -223,10 +223,10 @@ class Jupiter
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                CatalystDataOperator::processObject(object, command)
+                CatalystDataOperator::processCommand(object, command, nil)
             }
         else
-            CatalystDataOperator::processObject(object, "")
+            CatalystDataOperator::processCommand(object, "", nil)
         end
     end
 

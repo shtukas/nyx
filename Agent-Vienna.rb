@@ -29,7 +29,7 @@ VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages
 # select link from messages where read_flag=0;
 # update messages set read_flag=1 where link="https://www.schneier.com/blog/archives/2018/04/security_vulner_14.html"
 
-# Vienna::processObject(object, command)
+# Vienna::processCommand(object, command, flock)
 # Vienna::getUnreadLinks()
 
 class Vienna
@@ -38,7 +38,7 @@ class Vienna
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
     end
 
-    def self.processObject(object, command)
+    def self.processCommand(object, command, flock)
         if command=='open' then
             system("open '#{object["item-data"]["link"]}'")
         end
