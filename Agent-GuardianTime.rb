@@ -23,7 +23,7 @@ class GuardianTime
     end
 
     def self.getCatalystObjects()
-        if KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=10 then
+        if KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=8 then
             numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
             if numberOfHours.strip.size==0 then
                 numberOfHours = "5"
