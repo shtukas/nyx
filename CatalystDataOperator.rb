@@ -90,7 +90,7 @@ class CatalystDataOperator
             {
                 "agent-name"       => "Stream",
                 "agent-uid"        => "73290154-191f-49de-ab6a-5e5a85c6af3a",
-                "objects-get"      => lambda { Stream::getCatalystObjectsFirstN(12) },
+                "objects-get"      => lambda { Stream::getCatalystObjects() },
                 "object-processor" => lambda{|object, command| Stream::processObject(object, command) },
                 "interface"        => lambda{ Stream::interface() }
             },

@@ -16,7 +16,8 @@ CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_DATA_FOLDERPAT
 CATALYST_COMMON_XCACHE_REPOSITORY = "#{CATALYST_COMMON_DATA_FOLDERPATH}/XCACHE"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Open-Projects"
-
+CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE = "/Galaxy/DataBank/Catalyst/Events-Timeline"
+CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN = "/Galaxy/DataBank/Catalyst/Events-Buffer-In"
 
 # ----------------------------------------------------------------
 
@@ -92,24 +93,31 @@ class Saturn
     end
 end
 
-# EventsLogReadWrite::pathToActiveDataLogIndexFolder()
-# EventsLogReadWrite::commitEventToDisk(object)
+# EventsLogReadWrite::pathToActiveEventsIndexFolder()
+# EventsLogReadWrite::commitEventToTimeline(object)
 # EventsLogReadWrite::eventsEnumerator()
 
 class EventsLogReadWrite
-    def self.pathToActiveDataLogIndexFolder()
-        LucilleCore::indexsubfolderpath(CATALYST_COMMON_PATH_TO_DATA_LOG)
+    def self.pathToActiveEventsIndexFolder()
+        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
+        FileUtils.mkpath folder1 if !File.exists?(folder1)
+        LucilleCore::indexsubfolderpath(folder1)
     end
 
-    def self.commitEventToDisk(object)
-        folderpath = EventsLogReadWrite::pathToActiveDataLogIndexFolder()
+    def self.commitEventToTimeline(event)
+        folderpath = EventsLogReadWrite::pathToActiveEventsIndexFolder()
         filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(object)) }
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+    end
+
+    def self.commitEventToBufferIn(event)
+        filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
     end
 
     def self.eventsEnumerator()
         Enumerator.new do |events|
-            Find.find(CATALYST_COMMON_PATH_TO_DATA_LOG) do |path|
+            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
                 next if !File.file?(path)
                 next if File.basename(path)[-5,5] != '.json'
                 events << JSON.parse(IO.read(path))
@@ -120,6 +128,7 @@ end
 
 # DoNotShowUntil::set(uuid, datetime)
 # DoNotShowUntil::getDatetime(uuid)
+# DoNotShowUntil::isactive(object)
 # DoNotShowUntil::transform(objects)
 
 class DoNotShowUntil
@@ -132,7 +141,8 @@ class DoNotShowUntil
     end
 
     def self.isactive(object)
-        Time.new.to_i >= DateTime.parse(DoNotShowUntil::getDatetime(object["uuid"])).to_time.to_i
+        datetime = DoNotShowUntil::getDatetime(object["uuid"])
+        Time.new.to_i >= DateTime.parse(datetime).to_time.to_i
     end
 
     def self.transform(objects)
