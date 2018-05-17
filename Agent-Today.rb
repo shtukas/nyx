@@ -133,7 +133,6 @@ class Today
         if command=='done' then
             Today::removeSectionFromFile(object['uuid'])
             flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object['uuid'])
-            return [flock, []] # we do not need to emit a cancel because the object was virtual
         end
         if command=='>stream' then
             return [flock, []]
@@ -151,6 +150,6 @@ class Today
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             Today::removeSectionFromFile(object['uuid'])
         end
-        return [flock, []]
+        return [flock, []] # we do not need to emit events because the objects are transcient
     end
 end
