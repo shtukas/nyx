@@ -107,24 +107,15 @@ class OpenProjects
     end    
 
     def self.flockGeneralUpgrade(flock)
-        return [flock, []]
         objects = OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
             .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
             .compact
+        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
         flock["objects"] = flock["objects"] + objects
-        [
-            flock,
-            objects.map{|o|  
-                {
-                    "event-type" => "Catalyst:Catalyst-Object:1",
-                    "object"     => o
-                }                
-            }   
-        ]
+        [flock, []] # We do not emit an event as the object is transcient (this is fine as there aren't many)
     end
 
     def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
@@ -146,7 +137,7 @@ class OpenProjects
         end
         if command=="folder" then
             system("open '#{object["item-data"]["folderpath"]}'")
-            return []
         end
+        return [flock, []]
     end
 end

@@ -197,6 +197,11 @@ class Mercury
                 flock["objects"] << object
                 next
             end
+            if event["event-type"] == "Catalyst:Destroy-Catalyst-Object:1" then
+                objectuuid = event["object-uuid"]
+                flock["objects"].reject!{|o| o["uuid"]==objectuuid }
+                next
+            end
             if event["event-type"] == "Catalyst:Metadata:DoNotShowUntilDateTime:1" then
                 flock["do-not-show-until-datetime-distribution"][event["object-uuid"]] = event["datetime"]
                 next
