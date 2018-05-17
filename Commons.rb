@@ -32,16 +32,16 @@ class Config
     end
 end
 
-# Saturn::isPrimaryComputer()
-# Saturn::currentHour()
-# Saturn::currentDay()
-# Saturn::simplifyURLCarryingString(string)
-# Saturn::traceToRealInUnitInterval(trace)
-# Saturn::traceToMetricShift(trace)
-# Saturn::realNumbersToZeroOne(x, origin, unit)
-# Saturn::codeToDatetimeOrNull(code)
+# Jupiter::isPrimaryComputer()
+# Jupiter::currentHour()
+# Jupiter::currentDay()
+# Jupiter::simplifyURLCarryingString(string)
+# Jupiter::traceToRealInUnitInterval(trace)
+# Jupiter::traceToMetricShift(trace)
+# Jupiter::realNumbersToZeroOne(x, origin, unit)
+# Jupiter::codeToDatetimeOrNull(code)
 
-class Saturn
+class Jupiter
 
     def self.isPrimaryComputer()
         ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
@@ -61,7 +61,7 @@ class Saturn
             .each{|regex|
                 if ( m = regex.match(string) ) then
                     string = string[m.to_s.size, string.size].strip
-                    return Saturn::simplifyURLCarryingString(string)
+                    return Jupiter::simplifyURLCarryingString(string)
                 end
             }
         string
@@ -72,7 +72,7 @@ class Saturn
     end
 
     def self.traceToMetricShift(trace)
-        0.001*Saturn::traceToRealInUnitInterval(trace)
+        0.001*Jupiter::traceToRealInUnitInterval(trace)
     end
 
     def self.realNumbersToZeroOne(x, origin, unit)
@@ -248,10 +248,10 @@ end
 
 class TodayOrNotToday
     def self.notToday(uuid)
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}", "!today")
+        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}", "!today")
     end
     def self.todayOk(uuid)
-        KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Saturn::currentDay()}:#{uuid}").nil?
+        KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}").nil?
     end
     def self.transform(objects)
         objects.map{|object|
@@ -362,7 +362,7 @@ class FolderProbe
             contents = IO.read(filepath)
             return nil if contents.lines.to_a.size != 1
             line = contents.lines.first.strip
-            line = Saturn::simplifyURLCarryingString(line)
+            line = Jupiter::simplifyURLCarryingString(line)
             return nil if !line.start_with?("http")
             line
         }

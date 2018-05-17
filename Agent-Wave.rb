@@ -424,7 +424,7 @@ class Wave
         object = {}
         object['uuid'] = objectuuid
         object["agent-uid"] = self.agentuuid()
-        object['metric'] = metric + Saturn::traceToMetricShift(objectuuid)
+        object['metric'] = metric + Jupiter::traceToMetricShift(objectuuid)
         object['announce'] = announce
         object['commands'] = Wave::commands(folderProbeMetadata)
         object["default-expression"] = Wave::defaultExpression(folderProbeMetadata, schedule)

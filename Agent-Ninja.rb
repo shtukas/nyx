@@ -38,7 +38,7 @@ class Ninja
         if folderpath.nil? then
             return [flock, []]
         end
-        metric = 0.195 + 0.4*Math.exp(-FIFOQueue::size(CATALYST_COMMON_XCACHE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c").to_f/16) + Saturn::traceToMetricShift("deb58288-31e9-4d20-848d-8ac33d3701ee")
+        metric = 0.195 + 0.4*Math.exp(-FIFOQueue::size(CATALYST_COMMON_XCACHE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c").to_f/16) + Jupiter::traceToMetricShift("deb58288-31e9-4d20-848d-8ac33d3701ee")
         objects = [
             {
                 "uuid" => "96287511",
