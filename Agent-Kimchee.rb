@@ -50,6 +50,7 @@ class Kimchee
     end
 
     def self.flockGeneralUpgrade(flock)
+        return [flock, []] if !Jupiter::isPrimaryComputer()
         if Kimchee::weeksValue().to_i > Kimchee::lastKnownweeksValueInteger() then
             weekValue = Kimchee::weeksValue()
             monthValues = Kimchee::monthsValues()
