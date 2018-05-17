@@ -40,27 +40,6 @@ class Today
         "f989806f-dc62-4942-b484-3216f7efbbd9"
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
-        if command=='done' then
-            Today::removeSectionFromFile(object['uuid'])
-        end
-        if command=='>stream' then
-            description = object["item-data"]["section"]
-            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-            Today::removeSectionFromFile(object['uuid'])
-        end
-        if command=='>open-projects' then
-            description = object["item-data"]["section"]
-            folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-            Today::removeSectionFromFile(object['uuid'])
-        end
-    end
-
     # -------------------------------------------------------------------------------------
     def self.section_is_not_empty(section)
         section.any?{|line| line.strip.size>0 }
@@ -123,6 +102,10 @@ class Today
         end
     end
 
+    def self.interface()
+        
+    end
+
     def self.flockGeneralUpgrade(flock)
         return [flock, []]
         objects = []
@@ -155,7 +138,24 @@ class Today
         ]
     end
 
-    def self.interface()
-        
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
+        if command=='done' then
+            Today::removeSectionFromFile(object['uuid'])
+        end
+        if command=='>stream' then
+            description = object["item-data"]["section"]
+            folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            Today::removeSectionFromFile(object['uuid'])
+        end
+        if command=='>open-projects' then
+            description = object["item-data"]["section"]
+            folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            Today::removeSectionFromFile(object['uuid'])
+        end
     end
 end

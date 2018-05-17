@@ -40,33 +40,6 @@ class OpenProjects
         "30ff0f4d-7420-432d-b75b-826a2a8bc7cf"
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
-        if command=='start' then
-            metadata = object["item-data"]["folder-probe-metadata"]
-            FolderProbe::openActionOnMetadata(metadata)
-            GenericTimeTracking::start(object["uuid"])
-        end
-        if command=='stop' then
-            GenericTimeTracking::stop(object["uuid"])
-        end
-        if command=="completed" then
-            GenericTimeTracking::stop(object["uuid"])
-            time = Time.new
-            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-            FileUtils.mkpath targetFolder
-            puts "source: #{object["item-data"]["folderpath"]}"
-            puts "target: #{targetFolder}"
-            FileUtils.mkpath(targetFolder)
-            LucilleCore::copyFileSystemLocation(object["item-data"]['folderpath'], targetFolder)
-            LucilleCore::removeFileSystemLocation(object["item-data"]['folderpath'])
-        end
-        if command=="folder" then
-            system("open '#{object["item-data"]["folderpath"]}'")
-            return []
-        end
-    end
-
     def self.folderpaths(itemsfolderpath)
         Dir.entries(itemsfolderpath)
             .select{|filename| filename[0,1]!='.' }
@@ -122,6 +95,17 @@ class OpenProjects
         folderpath
     end
 
+    def self.interface()
+        puts "Agent: OpenProjects"
+        OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
+            .each{|folderpath|
+                folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
+                announce = "(open) project: " + folderProbeMetadata["announce"]
+                puts "    #{announce}"
+            }
+        LucilleCore::pressEnterToContinue()
+    end    
+
     def self.flockGeneralUpgrade(flock)
         return [flock, []]
         objects = OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
@@ -139,14 +123,30 @@ class OpenProjects
         ]
     end
 
-    def self.interface()
-        puts "Agent: OpenProjects"
-        OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
-            .each{|folderpath|
-                folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-                announce = "(open) project: " + folderProbeMetadata["announce"]
-                puts "    #{announce}"
-            }
-        LucilleCore::pressEnterToContinue()
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
+        if command=='start' then
+            metadata = object["item-data"]["folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)
+            GenericTimeTracking::start(object["uuid"])
+        end
+        if command=='stop' then
+            GenericTimeTracking::stop(object["uuid"])
+        end
+        if command=="completed" then
+            GenericTimeTracking::stop(object["uuid"])
+            time = Time.new
+            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+            FileUtils.mkpath targetFolder
+            puts "source: #{object["item-data"]["folderpath"]}"
+            puts "target: #{targetFolder}"
+            FileUtils.mkpath(targetFolder)
+            LucilleCore::copyFileSystemLocation(object["item-data"]['folderpath'], targetFolder)
+            LucilleCore::removeFileSystemLocation(object["item-data"]['folderpath'])
+        end
+        if command=="folder" then
+            system("open '#{object["item-data"]["folderpath"]}'")
+            return []
+        end
     end
 end

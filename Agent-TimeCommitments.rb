@@ -64,17 +64,6 @@ class TimeCommitments
         "03a8bff4-a2a4-4a2b-a36f-635714070d1d"
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
-        uuid = object['uuid']
-        if command=='start' then
-            TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
-        end
-        if command=="stop" then
-            TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
-        end
-    end
-
     def self.getItems()
         SetsOperator::values(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID)
             .compact
@@ -171,6 +160,10 @@ class TimeCommitments
         items.map{|item| item["domain"] }.uniq
     end
 
+    def self.interface()
+        
+    end
+
     def self.flockGeneralUpgrade(flock)
         return [flock, []]
         TimeCommitments::garbageCollectionGlobal()
@@ -210,7 +203,14 @@ class TimeCommitments
         ]
     end
 
-    def self.interface()
-        
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
+        uuid = object['uuid']
+        if command=='start' then
+            TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
+        end
+        if command=="stop" then
+            TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
+        end
     end
 end

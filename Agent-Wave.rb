@@ -288,100 +288,6 @@ class Wave
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
-        schedule = object['schedule']
-        uuid = object['uuid']
-
-        if command=='open' then
-            metadata = object["item-data"]["folder-probe-metadata"]
-            FolderProbe::openActionOnMetadata(metadata)
-            return []
-        end
-
-        if command=='done' then
-
-            if schedule['@'] == 'new' then
-                Wave::archiveWaveItems(uuid)
-            end
-            if schedule['@'] == 'today' then
-                Wave::archiveWaveItems(uuid)
-            end
-            if schedule['@'] == 'sticky' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-            end
-            if schedule['@'] == 'ondate' then
-                Wave::archiveWaveItems(uuid)
-            end
-            if schedule['@'] == 'every-n-hours' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-            end
-            if schedule['@'] == 'every-n-days' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-            end
-            if schedule['@'] == 'every-this-day-of-the-month' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-            end
-            if schedule['@'] == 'every-this-day-of-the-week' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-            end
-        end
-
-        if command=='recast' then
-            schedule = Wave::makeNewSchedule()
-            Wave::writeScheduleToDisk(uuid, schedule)
-        end
-
-        if command=='folder' then
-            location = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
-            puts "Opening folder #{location}"
-            system("open '#{location}'")
-            return []
-        end
-
-        if command=='destroy' then
-            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
-                Wave::archiveWaveItems(uuid)
-            end
-        end
-
-        if command=='>stream' then
-            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
-            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mv(sourcelocation, targetfolderpath)
-            Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            Wave::archiveWaveItems(uuid)
-        end
-
-        if command=='>open-projects' then
-            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
-            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mv(sourcelocation, targetfolderpath)
-            Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            Wave::archiveWaveItems(uuid)
-        end
-
-        if command=='>lib' then
-            atlasreference = "atlas-#{SecureRandom.hex(8)}"
-            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
-            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
-            LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
-            Wave::removeWaveMetadataFilesAtLocation(staginglocation)
-            puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
-            LucilleCore::pressEnterToContinue()
-            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
-            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
-            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
-            LucilleCore::removeFileSystemLocation(staginglocation)
-            Wave::archiveWaveItems(uuid)
-        end
-    end
-
     def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         Find.find("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") do |path|
             next if !File.file?(path)
@@ -562,6 +468,11 @@ class Wave
         folderpath
     end
 
+    def self.interface()
+        puts "You are interfacing with Wave"
+        LucilleCore::pressEnterToContinue()
+    end
+
     def self.flockGeneralUpgrade(flock)
         return [flock, []]
         WaveDevOps::collectWave()
@@ -580,8 +491,97 @@ class Wave
         ]
     end
 
-    def self.interface()
-        puts "You are interfacing with Wave"
-        LucilleCore::pressEnterToContinue()
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
+        schedule = object['schedule']
+        uuid = object['uuid']
+
+        if command=='open' then
+            metadata = object["item-data"]["folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)
+            return []
+        end
+
+        if command=='done' then
+
+            if schedule['@'] == 'new' then
+                Wave::archiveWaveItems(uuid)
+            end
+            if schedule['@'] == 'today' then
+                Wave::archiveWaveItems(uuid)
+            end
+            if schedule['@'] == 'sticky' then
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+            end
+            if schedule['@'] == 'ondate' then
+                Wave::archiveWaveItems(uuid)
+            end
+            if schedule['@'] == 'every-n-hours' then
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+            end
+            if schedule['@'] == 'every-n-days' then
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+            end
+            if schedule['@'] == 'every-this-day-of-the-month' then
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+            end
+            if schedule['@'] == 'every-this-day-of-the-week' then
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+            end
+        end
+
+        if command=='recast' then
+            schedule = Wave::makeNewSchedule()
+            Wave::writeScheduleToDisk(uuid, schedule)
+        end
+
+        if command=='folder' then
+            location = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            puts "Opening folder #{location}"
+            system("open '#{location}'")
+            return []
+        end
+
+        if command=='destroy' then
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
+                Wave::archiveWaveItems(uuid)
+            end
+        end
+
+        if command=='>stream' then
+            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mv(sourcelocation, targetfolderpath)
+            Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
+            Wave::archiveWaveItems(uuid)
+        end
+
+        if command=='>open-projects' then
+            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mv(sourcelocation, targetfolderpath)
+            Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
+            Wave::archiveWaveItems(uuid)
+        end
+
+        if command=='>lib' then
+            atlasreference = "atlas-#{SecureRandom.hex(8)}"
+            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
+            LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
+            Wave::removeWaveMetadataFilesAtLocation(staginglocation)
+            puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
+            LucilleCore::pressEnterToContinue()
+            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
+            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
+            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
+            LucilleCore::removeFileSystemLocation(staginglocation)
+            Wave::archiveWaveItems(uuid)
+        end
     end
 end

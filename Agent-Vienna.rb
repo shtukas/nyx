@@ -38,17 +38,6 @@ class Vienna
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
-        if command=='open' then
-            system("open '#{object["item-data"]["link"]}'")
-        end
-        if command=='done' then
-            Vienna::setLinkAsRead(object["item-data"]["link"])
-            FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
-        end
-    end
-
     def self.getUnreadLinks()
         query = "select link from messages where read_flag=0;"
         `sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'`.lines.map{|line| line.strip }
@@ -71,6 +60,10 @@ class Vienna
     def self.metric(uuid, unreadlinks)
         FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
         metric = 0.195 + 0.6*Saturn::realNumbersToZeroOne(unreadlinks.count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
+    end
+
+    def self.interface()
+        
     end
 
     def self.flockGeneralUpgrade(flock)
@@ -106,7 +99,14 @@ class Vienna
         ]
     end
 
-    def self.interface()
-        
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
+        if command=='open' then
+            system("open '#{object["item-data"]["link"]}'")
+        end
+        if command=='done' then
+            Vienna::setLinkAsRead(object["item-data"]["link"])
+            FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
+        end
     end
 end

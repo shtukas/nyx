@@ -36,52 +36,6 @@ class Stream
     def self.agentuuid()
         "73290154-191f-49de-ab6a-5e5a85c6af3a"
     end
-
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
-        uuid = object['uuid']
-        if command=='folder' then
-            system("open '#{object["item-data"]["folderpath"]}'")
-            return []
-        end
-        if command=='start' then
-            metadata = object["item-data"]["folder-probe-metadata"]
-            FolderProbe::openActionOnMetadata(metadata)
-            GenericTimeTracking::start(uuid)
-            GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-        end
-        if command=='stop' then
-            GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-        end
-        if command=="completed" then
-            GenericTimeTracking::stop(uuid)
-            time = Time.new
-            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-            FileUtils.mkpath targetFolder
-            puts "source: #{object["item-data"]["folderpath"]}"
-            puts "target: #{targetFolder}"
-            FileUtils.mkpath(targetFolder)
-            if File.exists?(object["item-data"]["folderpath"]) then
-                LucilleCore::copyFileSystemLocation(object["item-data"]["folderpath"], targetFolder)
-                LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
-            end
-        end
-        if command=='>lib' then
-            GenericTimeTracking::stop(uuid)
-            sourcefolderpath = object["item-data"]["folderpath"]
-            atlasreference = "atlas-#{SecureRandom.hex(8)}"
-            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
-            LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
-            puts "Stream folder moved to the staging folder (Desktop), edit and press [Enter]"
-            LucilleCore::pressEnterToContinue()
-            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
-            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
-            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
-            LucilleCore::removeFileSystemLocation(staginglocation)
-            Stream::performObjectClosing(object)
-        end
-    end
     
     def self.folderpaths(itemsfolderpath)
         Dir.entries(itemsfolderpath)
@@ -150,6 +104,10 @@ class Stream
         folderpath
     end
 
+    def self.interface()
+        
+    end
+
     def self.flockGeneralUpgrade(flock)
         return [flock, []]
         folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
@@ -169,8 +127,50 @@ class Stream
         ]
     end
 
-    def self.interface()
-        
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
+        uuid = object['uuid']
+        if command=='folder' then
+            system("open '#{object["item-data"]["folderpath"]}'")
+            return []
+        end
+        if command=='start' then
+            metadata = object["item-data"]["folder-probe-metadata"]
+            FolderProbe::openActionOnMetadata(metadata)
+            GenericTimeTracking::start(uuid)
+            GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+        end
+        if command=='stop' then
+            GenericTimeTracking::stop(uuid)
+            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+        end
+        if command=="completed" then
+            GenericTimeTracking::stop(uuid)
+            time = Time.new
+            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+            FileUtils.mkpath targetFolder
+            puts "source: #{object["item-data"]["folderpath"]}"
+            puts "target: #{targetFolder}"
+            FileUtils.mkpath(targetFolder)
+            if File.exists?(object["item-data"]["folderpath"]) then
+                LucilleCore::copyFileSystemLocation(object["item-data"]["folderpath"], targetFolder)
+                LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
+            end
+        end
+        if command=='>lib' then
+            GenericTimeTracking::stop(uuid)
+            sourcefolderpath = object["item-data"]["folderpath"]
+            atlasreference = "atlas-#{SecureRandom.hex(8)}"
+            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
+            LucilleCore::copyFileSystemLocation(sourcefolderpath, staginglocation)
+            puts "Stream folder moved to the staging folder (Desktop), edit and press [Enter]"
+            LucilleCore::pressEnterToContinue()
+            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
+            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
+            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
+            LucilleCore::removeFileSystemLocation(staginglocation)
+            Stream::performObjectClosing(object)
+        end
     end
 end
 

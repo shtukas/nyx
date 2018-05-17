@@ -17,14 +17,6 @@ class Ninja
         "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
-        folderpath = object["item-data"]["ninja-folderpath"]
-        system("ninja api:play-folderpath '#{folderpath}'")
-        FIFOQueue::takeFirstOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "folderpaths-f363-4a11-9251-b7301406e261")
-        FIFOQueue::push(CATALYST_COMMON_XCACHE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
-    end
-
     def self.getFolderpathOrNull()
         folderpath = FIFOQueue::getFirstOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "folderpaths-f363-4a11-9251-b7301406e261")
         if folderpath.nil? then
@@ -33,6 +25,10 @@ class Ninja
             }
         end
         FIFOQueue::getFirstOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "folderpaths-f363-4a11-9251-b7301406e261")
+    end
+
+    def self.interface()
+        
     end
 
     def self.flockGeneralUpgrade(flock)
@@ -67,7 +63,11 @@ class Ninja
         ]
     end
 
-    def self.interface()
-        
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
+        folderpath = object["item-data"]["ninja-folderpath"]
+        system("ninja api:play-folderpath '#{folderpath}'")
+        FIFOQueue::takeFirstOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "folderpaths-f363-4a11-9251-b7301406e261")
+        FIFOQueue::push(CATALYST_COMMON_XCACHE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
     end
 end
