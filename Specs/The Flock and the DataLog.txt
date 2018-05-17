@@ -1,0 +1,67 @@
+
+# ----------------------------------------
+# Introduction
+
+The "Flock" refers to the collection of all objects in their latest version.
+
+At startup: Events are read from the file system and a view of the system is built. In essence every mutation of the system is represented as an Event. Events are JSON objects
+
+The Flock is sent to the UI subsystem fo display
+
+User actions from the UI are represented as Events.
+
+And event has a primary target that is either Catalyst itself or an Agent referred to by it agent-uid, and a secondary target that is often a an object, referred to by its object uuid.
+
+Before every UI display the events in the buffer are processed.
+
+The processing of each UI event is received by an Operator which sends it either to the Catalyst Processor or to an agent's Processor. In every case the Processor takes the event and the Flock as parameters and emit a new Flock and a sequence of events that need to be written to disk.
+
+Then the Operator sends the entire Flock to each agent to give each agent an opportunity to update the existing objects and emit new Events. 
+
+# -----------------------------------------
+Flock:
+
+{
+    "objects" : Array[Catalyst Object]
+}
+
+# -----------------------------------------
+# Catalyst Objects:
+
+{
+    "uuid"                : String (uuid)
+    "agent-uid"           : String (uuid)
+    "metric"              : Float
+    "announce"            : String
+    "commands"            : Array[String]
+    "default-expression"  : Null or String
+    "item-data"           : () # Agent specific metadata
+}
+
+
+# -----------------------------------------
+Events:
+
+{
+    "event-type" : "Catalyst:Catalyst-Object:1"
+    "object"     : (object)
+}
+
+{
+    "event-type"  : "Catalyst:Destroy-Catalyst-Object:1"
+    "object-uuid" : String
+}
+
+{
+    "event-type"    : "Agent:283d34dd-c871-4a55-8610-31e7c762fb0d:New-Item-Specified-By-Location:1"
+    "item-location" : String
+}
+
+{
+    "event-type"  : "Catalyst:Metadata:DoNotShowUntilDateTime:1"
+    "object-uuid" : String
+    "datetime"    : datetime (string)
+}
+
+
+
