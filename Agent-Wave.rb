@@ -469,21 +469,7 @@ class Wave
     end
 
     def self.flockGeneralUpgrade(flock)
-        return [flock, []]
-        WaveDevOps::collectWave()
-        objects = Wave::catalystUUIDsEnumerator()
-            .map{|objectuuid| Wave::objectuuidToCatalystObjectOrNull(objectuuid) }
-            .compact
-        flock["objects"] = flock["objects"] + objects
-        [
-            flock,
-            objects.map{|o|  
-                {
-                    "event-type" => "Catalyst:Catalyst-Object:1",
-                    "object"     => o
-                }                
-            }   
-        ]
+        [ flock, [] ] # No change in the existing distribution, TODO: what happens when a new item is added ?
     end
 
     def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
