@@ -26,13 +26,13 @@ require_relative "Commons.rb"
 
 OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Open-Projects"
 
-# OpenProjects::getCatalystObjects()
+# OpenProjects::flockGeneralUpgrade()
 
 # OpenProjects::folderpaths(itemsfolderpath)
 # OpenProjects::getuuidOrNull(folderpath)
 # OpenProjects::folderpath2CatalystObjectOrNull(folderpath)
 # OpenProjects::issueNewItemFromDescription(description)
-# OpenProjects::getCatalystObjects()
+# OpenProjects::flockGeneralUpgrade(flock)
 
 class OpenProjects
 
@@ -40,7 +40,8 @@ class OpenProjects
         "30ff0f4d-7420-432d-b75b-826a2a8bc7cf"
     end
 
-    def self.processCommand(object, command, flock)
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
@@ -121,10 +122,21 @@ class OpenProjects
         folderpath
     end
 
-    def self.getCatalystObjects()
-        OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
+    def self.flockGeneralUpgrade(flock)
+        return [flock, []]
+        objects = OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
             .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
             .compact
+        flock["objects"] = flock["objects"] + objects
+        [
+            flock,
+            objects.map{|o|  
+                {
+                    "event-type" => "Catalyst:Catalyst-Object:1",
+                    "object"     => o
+                }                
+            }   
+        ]
     end
 
     def self.interface()

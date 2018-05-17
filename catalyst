@@ -22,7 +22,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require_relative "CatalystDataOperator.rb"
+require_relative "TheOperator.rb"
 
 require_relative "Wave-Emails.rb"
 
@@ -210,23 +210,33 @@ class Jupiter
         print Jupiter::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
         command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        CatalystDataOperator::doExecute(object, command, flock)
+        TheOperator::upgradeFlockUsingObjectAndCommand(flock, object, command)
     end
 
     def self.main2()
 
         flock = {}
-        flock["objects"] = CatalystDataOperator::catalystObjects()
+        flock["objects"] = []
+
+        EventsLogReadWrite::eventsEnumerator().each{|event|
+            if event["event-type"] == "Catalyst:Catalyst-Object:1" then
+                object = event["object"]
+                flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
+                flock["objects"] << object
+                next
+            end
+            raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
+        }
+
+        #flock = TheOperator::flockGeneralUpgrade(flock)
 
         workspaceSize = 1
         loop {
-            objectsall = CatalystDataOperator::catalystObjects()
-            objectsall = TodayOrNotToday::transform(objectsall)
-            objectsall = RequirementsOperator::transform(objectsall)
-            objectsall = DoNotShowUntil::transform(objectsall)
-                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-                .reverse
-            allrequirements = objectsall.map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+            flock["objects"] = TodayOrNotToday::transform(flock["objects"])
+            flock["objects"] = RequirementsOperator::transform(flock["objects"])
+            flock["objects"] = DoNotShowUntil::transform(flock["objects"])
+            flock["objects"] = flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
+            allrequirements = flock["objects"].map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
@@ -238,17 +248,16 @@ class Jupiter
                 puts "xcache garbage collection"
                 CatalystDevOps::xcacheGarbageCollection()
             end
-            objectsallelected = objectsall.take(workspaceSize).last
-            objectsall.take(workspaceSize).each_with_index{|object, index|
+            objectselected = flock["objects"].take(workspaceSize).last.clone
+            flock["objects"].take(workspaceSize).each_with_index{|o, index|
                 string =
-                    if object["uuid"]==objectsallelected["uuid"] then
-                        "#{"%2d" % (index+1)} [*] #{Jupiter::object2Line_v1(object)}"
+                    if o["uuid"]==objectselected["uuid"] then
+                        "#{"%2d" % (index+1)} [*] #{Jupiter::object2Line_v1(o)}"
                     else
-                        "#{"%2d" % (index+1)}     #{Jupiter::object2Line_v0(object)}"
+                        "#{"%2d" % (index+1)}     #{Jupiter::object2Line_v0(o)}"
                     end
                 puts string
             }
-            object = objectsallelected
             print "--> "
             givenCommand = STDIN.gets().strip
             if givenCommand=="+" then
@@ -266,22 +275,22 @@ class Jupiter
             if givenCommand.start_with?(":") then
                 suffix = givenCommand[1,givenCommand.size]
                 if Jupiter::isInteger(suffix) then
-                    object = objectsall.drop(suffix.to_i-1).first
-                    if object then
-                        Jupiter::interactiveDisplayObjectAndProcessCommand(object, flock)
+                    objectselected = objectsall.drop(suffix.to_i-1).first.clone
+                    if objectselected then
+                        Jupiter::interactiveDisplayObjectAndProcessCommand(objectselected, flock)
                     end
                 end
                 next
             end
-            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-            CatalystDataOperator::doExecute(object, command, flock)
+            command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
+            TheOperator::upgradeFlockUsingObjectAndCommand(flock, objectselected, command)
         }
     end
 end
 
 # -----------------------------------------------------------------
 
-if Saturn::isPrimaryComputer() then
+if false and Saturn::isPrimaryComputer() then
     Thread.new {
         sleep 6
         Jupiter::emailSyncOnSchedule(false)

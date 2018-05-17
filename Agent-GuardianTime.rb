@@ -11,18 +11,19 @@ require 'securerandom'
 require_relative "Agent-TimeCommitments.rb"
 # -------------------------------------------------------------------------------------
 
-# GuardianTime::getCatalystObjects()
+# GuardianTime::flockGeneralUpgrade(flock)
 
 class GuardianTime
     def self.agentuuid()
         "11fa1438-122e-4f2d-9778-64b55a11ddc2"
     end
 
-    def self.processCommand(object, command, flock)
+    def self.interface()
         
     end
 
-    def self.getCatalystObjects()
+    def self.flockGeneralUpgrade(flock)
+        return [flock, []]
         if KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=8 then
             numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
             if numberOfHours.strip.size==0 then
@@ -42,10 +43,9 @@ class GuardianTime
             end
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}","done")
         end
-        []
     end
 
-    def self.interface()
-        
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
     end
 end

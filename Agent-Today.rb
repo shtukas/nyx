@@ -32,7 +32,7 @@ TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
 # Today::sectionToLength8UUID(section)
 # Today::todaySectionsUUIDs()
 # Today::removeSectionFromFile(uuid)
-# Today::getCatalystObjects()
+# Today::flockGeneralUpgrade(flock)
 
 class Today
 
@@ -40,7 +40,8 @@ class Today
         "f989806f-dc62-4942-b484-3216f7efbbd9"
     end
 
-    def self.processCommand(object, command, flock)
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
         if command=='done' then
             Today::removeSectionFromFile(object['uuid'])
         end
@@ -122,7 +123,8 @@ class Today
         end
     end
 
-    def self.getCatalystObjects()
+    def self.flockGeneralUpgrade(flock)
+        return [flock, []]
         objects = []
         todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
@@ -141,6 +143,16 @@ class Today
             }
         }
         objects
+        flock["objects"] = flock["objects"] + objects
+        [
+            flock,
+            objects.map{|o|  
+                {
+                    "event-type" => "Catalyst:Catalyst-Object:1",
+                    "object"     => o
+                }                
+            }   
+        ]
     end
 
     def self.interface()

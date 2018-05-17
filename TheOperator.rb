@@ -49,126 +49,126 @@ require_relative "Agent-OpenProjects.rb"
 
 # ----------------------------------------------------------------------
 
-# CatalystDataOperator::agents()
-# CatalystDataOperator::agentuuid2objectProcessor(agentuuid)
-# CatalystDataOperator::catalystObjects()
-# CatalystDataOperator::processCommand(object, command)
-# CatalystDataOperator::selectAgentAndRunInterface()
+# TheOperator::agents()
+# TheOperator::agentuuid2FlockObjectCommandProcessor(agentuuid)
+# TheOperator::flockGeneralUpgrade(flock)
+# TheOperator::upgradeFlockUsingObjectAndCommand(object, command)
+# TheOperator::selectAgentAndRunInterface()
 
-# CatalystDataOperator::doExecute(object, expression, flock)
+# TheOperator::upgradeFlockUsingObjectAndCommand(flock, object, command)
 
-class CatalystDataOperator
+class TheOperator
 
     def self.agents()
         [
             {
                 "agent-name"       => "GuardianTime",
                 "agent-uid"        => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
-                "objects-get"      => lambda { GuardianTime::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| GuardianTime::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| GuardianTime::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| GuardianTime::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ GuardianTime::interface() }
             },
             {
                 "agent-name"       => "Kimchee",
                 "agent-uid"        => "b343bc48-82db-4fa3-ac56-3b5a31ff214f",
-                "objects-get"      => lambda { Kimchee::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| Kimchee::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| Kimchee::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| Kimchee::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Kinchee::interface() }
             },
             {
                 "agent-name"       => "Ninja",
                 "agent-uid"        => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
-                "objects-get"      => lambda { Ninja::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| Ninja::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| Ninja::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| Ninja::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Ninja::interface() }
             },
             {
                 "agent-name"       => "OpenProjects",
                 "agent-uid"        => "30ff0f4d-7420-432d-b75b-826a2a8bc7cf",
-                "objects-get"      => lambda { OpenProjects::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| OpenProjects::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| OpenProjects::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| OpenProjects::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ OpenProjects::interface() }
             },
             {
                 "agent-name"       => "Stream",
                 "agent-uid"        => "73290154-191f-49de-ab6a-5e5a85c6af3a",
-                "objects-get"      => lambda { Stream::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| Stream::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| Stream::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| Stream::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Stream::interface() }
             },
             {
                 "agent-name"       => "TimeCommitments",
                 "agent-uid"        => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
-                "objects-get"      => lambda { TimeCommitments::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| TimeCommitments::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| TimeCommitments::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| TimeCommitments::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ TimeCommitments::interface() }
             },
             {
                 "agent-name"       => "Today",
                 "agent-uid"        => "f989806f-dc62-4942-b484-3216f7efbbd9",
-                "objects-get"      => lambda { Today::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| Today::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| Today::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| Today::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Today::interface() }
             },
             {
                 "agent-name"       => "Vienna",
                 "agent-uid"        => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
-                "objects-get"      => lambda { Vienna::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| Vienna::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| Vienna::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| Vienna::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Vienna::interface() }
             },
             {
                 "agent-name"       => "Wave",
                 "agent-uid"        => "283d34dd-c871-4a55-8610-31e7c762fb0d",
-                "objects-get"      => lambda { Wave::getCatalystObjects() },
-                "object-processor" => lambda{|object, command, flock| Wave::processCommand(object, command, flock) },
+                "flock-general-upgrade"      => lambda { |flock| Wave::flockGeneralUpgrade(flock) },
+                "flock-object-command" => lambda{ |flock, object, command| Wave::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Wave::interface() }
             }
         ]
     end
 
-    def self.agentuuid2objectProcessor(agentuuid)
-        CatalystDataOperator::agents()
+    def self.agentuuid2FlockObjectCommandProcessor(agentuuid)
+        TheOperator::agents()
             .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
             .each{|agentinterface|
-                return agentinterface["object-processor"]
+                return agentinterface["flock-object-command"]
             }
         raise "looking up processor for unknown agent uuid #{agentuuid}"
     end
 
-    def self.catalystObjects()
-        objects = CatalystDataOperator::agents().map{|agentinterface| agentinterface["objects-get"].call() }.flatten
-        objects = DoNotShowUntil::transform(objects)
-        objects
-    end
-
-    def self.processCommand(object, command, flock)
-        CatalystDataOperator::agentuuid2objectProcessor(object["agent-uid"]).call(object, command, flock)
+    def self.flockGeneralUpgrade(flock)
+        TheOperator::agents().each{|agentinterface|
+            flock, events = agentinterface["flock-general-upgrade"].call(flock)
+            events.each{|event|
+                EventsLogReadWrite::commitEventToTimeline(event)
+            }
+        }
+        flock
     end
 
     def self.selectAgentAndRunInterface()
-        agent = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", CatalystDataOperator::agents(), lambda{ |agent| agent["agent-name"] })
+        agent = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", TheOperator::agents(), lambda{ |agent| agent["agent-name"] })
         agent["interface"].call()
     end
 
-    def self.doExecute(object, expression, flock)
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, expression)
 
         # no object needed
 
         if expression == 'help' then
             Jupiter::putshelp()
             LucilleCore::pressEnterToContinue()
-            return
+            return [flock, []]
         end
 
         if expression == 'clear' then
             system("clear")
-            return
+            return [flock, []]
         end
 
         if expression=="interface" then
-            CatalystDataOperator::selectAgentAndRunInterface()
-            return
+            TheOperator::selectAgentAndRunInterface()
+            return [flock, []]
         end
 
         if expression == 'info' then
@@ -181,12 +181,12 @@ class CatalystDataOperator
             puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
             puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
-            return
+            return [flock, []]
         end
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
-            return
+            return [flock, []]
         end
 
         if expression.start_with?('wave:') then
@@ -195,7 +195,7 @@ class CatalystDataOperator
             folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
-            return
+            return [flock, []]
         end
 
         if expression.start_with?('stream:') then
@@ -204,7 +204,7 @@ class CatalystDataOperator
             folderpath = Stream::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
-            return
+            return [flock, []]
         end
 
         if expression.start_with?('open-project:') then
@@ -213,19 +213,19 @@ class CatalystDataOperator
             folderpath = OpenProjects::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
-            return
+            return [flock, []]
         end
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setSatisfifiedRequirement(requirement)
-            return
+            return [flock, []]
         end
 
         if expression.start_with?("r:off") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setUnsatisfiedRequirement(requirement)
-            return
+            return [flock, []]
         end
 
         if expression.start_with?("r:show") then
@@ -234,39 +234,39 @@ class CatalystDataOperator
                 requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = CatalystDataOperator::catalystObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = TheOperator::flockGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
             }
-            return
+            return [flock, []]
         end
 
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = CatalystDataOperator::catalystObjects().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = TheOperator::flockGeneralUpgrade().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
             }
-            return
+            return [flock, []]
         end
 
-        return if object.nil?
+        return [flock, []] if object.nil?
 
         # object needed
 
         if expression == '!today' then
             TodayOrNotToday::notToday(object["uuid"])
-            return
+            return [flock, []]
         end
 
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
-            return
+            return [flock, []]
         end
 
         if expression.start_with?('+') then
@@ -274,28 +274,34 @@ class CatalystDataOperator
             if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
                 DoNotShowUntil::set(object["uuid"], datetime)
             end
-            return
+            return [flock, []]
         end
 
         if expression.start_with?("r:add") then
             command, requirement = expression.split(" ")
             RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
-            return
+            return [flock, []]
         end
 
         if expression.start_with?("r:remove") then
             command, requirement = expression.split(" ")
             RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
-            return
+            return [flock, []]
         end
 
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                CatalystDataOperator::processCommand(object, command, flock)
+                flock, events = TheOperator::agentuuid2FlockObjectCommandProcessor(object["agent-uid"]).call(flock, object, command)
+                events.each{|event|
+                    EventsLogReadWrite::commitEventToTimeline(event)
+                }
             }
         else
-            CatalystDataOperator::processCommand(object, "", flock)
+            flock, events = TheOperator::agentuuid2FlockObjectCommandProcessor(object["agent-uid"]).call(flock, object, "")
+            events.each{|event|
+                EventsLogReadWrite::commitEventToTimeline(event)
+            }
         end
     end
 

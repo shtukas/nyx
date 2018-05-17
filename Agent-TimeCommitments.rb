@@ -56,7 +56,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATA_FOLDERP
 # TimeCommitments::garbageCollectionItems(items)
 # TimeCommitments::garbageCollectionGlobal()
 # TimeCommitments::getUniqueDomains(items)
-# TimeCommitments::getCatalystObjects()
+# TimeCommitments::flockGeneralUpgrade(flock)
 
 class TimeCommitments
 
@@ -64,7 +64,8 @@ class TimeCommitments
         "03a8bff4-a2a4-4a2b-a36f-635714070d1d"
     end
 
-    def self.processCommand(object, command, flock)
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
         uuid = object['uuid']
         if command=='start' then
             TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
@@ -170,7 +171,8 @@ class TimeCommitments
         items.map{|item| item["domain"] }.uniq
     end
 
-    def self.getCatalystObjects()
+    def self.flockGeneralUpgrade(flock)
+        return [flock, []]
         TimeCommitments::garbageCollectionGlobal()
         objects = TimeCommitments::getItems()
         .map{|item|
@@ -190,11 +192,22 @@ class TimeCommitments
                 "default-expression" => defaultExpression
             }
         }
-        if objects.select{|object| object["metric"]>1 }.size>0 then
-            objects.select{|object| object["metric"]>1 }
-        else
-            objects
-        end
+        objects = 
+            if objects.select{|object| object["metric"]>1 }.size>0 then
+                objects.select{|object| object["metric"]>1 }
+            else
+                objects
+            end
+        flock["objects"] = flock["objects"] + objects
+        [
+            flock,
+            objects.map{|o|  
+                {
+                    "event-type" => "Catalyst:Catalyst-Object:1",
+                    "object"     => o
+                }                
+            }   
+        ]
     end
 
     def self.interface()

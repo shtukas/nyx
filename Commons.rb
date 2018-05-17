@@ -94,7 +94,7 @@ class Saturn
 end
 
 # EventsLogReadWrite::pathToActiveEventsIndexFolder()
-# EventsLogReadWrite::commitEventToTimeline(object)
+# EventsLogReadWrite::commitEventToTimeline(event)
 # EventsLogReadWrite::eventsEnumerator()
 
 class EventsLogReadWrite

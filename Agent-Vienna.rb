@@ -29,7 +29,7 @@ VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages
 # select link from messages where read_flag=0;
 # update messages set read_flag=1 where link="https://www.schneier.com/blog/archives/2018/04/security_vulner_14.html"
 
-# Vienna::processCommand(object, command, flock)
+# Vienna::upgradeFlockUsingObjectAndCommand(flock, object, command)
 # Vienna::getUnreadLinks()
 
 class Vienna
@@ -38,7 +38,8 @@ class Vienna
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
     end
 
-    def self.processCommand(object, command, flock)
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
         if command=='open' then
             system("open '#{object["item-data"]["link"]}'")
         end
@@ -72,14 +73,15 @@ class Vienna
         metric = 0.195 + 0.6*Saturn::realNumbersToZeroOne(unreadlinks.count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Saturn::traceToMetricShift(uuid)
     end
 
-    def self.getCatalystObjects()
-        return [] if !Saturn::isPrimaryComputer()
+    def self.flockGeneralUpgrade(flock)
+        return [flock, []]
+        return [flock, []] if !Saturn::isPrimaryComputer()
         links = Vienna::getUnreadLinks()
-        return [] if links.empty?
+        return [flock, []] if links.empty?
         link = links.first
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
         metric = Vienna::metric(uuid, links)
-        [
+        objects = [
             {
                 "uuid" => uuid,
                 "agent-uid" => self.agentuuid(),
@@ -91,6 +93,16 @@ class Vienna
                     "link" => link
                 }
             }
+        ]
+        flock["objects"] = flock["objects"] + objects
+        [
+            flock,
+            objects.map{|o|  
+                {
+                    "event-type" => "Catalyst:Catalyst-Object:1",
+                    "object"     => o
+                }                
+            }   
         ]
     end
 

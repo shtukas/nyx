@@ -20,7 +20,7 @@ require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
 # Stream::agentuuid()
-# Stream::processCommand(object, command, flock)
+# Stream::upgradeFlockUsingObjectAndCommand(flock, object, command)
 
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getuuid(folderpath)
@@ -29,7 +29,7 @@ require_relative "Commons.rb"
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::issueNewItemFromDescription(description)
-# Stream::getCatalystObjects()
+# Stream::flockGeneralUpgrade(flock)
 
 class Stream
 
@@ -37,7 +37,8 @@ class Stream
         "73290154-191f-49de-ab6a-5e5a85c6af3a"
     end
 
-    def self.processCommand(object, command, flock)
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object["item-data"]["folderpath"]}'")
@@ -149,12 +150,23 @@ class Stream
         folderpath
     end
 
-    def self.getCatalystObjects()
+    def self.flockGeneralUpgrade(flock)
+        return [flock, []]
         folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
         size = folderpaths.size
-        folderpaths.zip((1..size))
+        objects = folderpaths.zip((1..size))
             .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)}
             .compact
+        flock["objects"] = flock["objects"] + objects
+        [
+            flock,
+            objects.map{|o|  
+                {
+                    "event-type" => "Catalyst:Catalyst-Object:1",
+                    "object"     => o
+                }                
+            }   
+        ]
     end
 
     def self.interface()

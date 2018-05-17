@@ -4,6 +4,6 @@ Standard interface for a Catalyst Agent
 agentuuid(): String
     Returns the unique id of the agent. Should never change as it is hardcoded in the stored objects
 
-getCatalystObjects(): Array[CatalystObject]
+flockGeneralUpgrade(flock): [Flock, Array[event]]
 
-processCommand(object, command): Array[AgentUUID] # list of the agents to get data from when this operation terminates
+upgradeFlockUsingObjectAndCommand(Flock, object, command): [Flock, Array[event]]

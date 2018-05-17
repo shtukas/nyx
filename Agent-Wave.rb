@@ -266,7 +266,7 @@ class WaveDevOps
 end
 
 # Wave::agentuuid()
-# Wave::processCommand(object, command, flock)
+# Wave::upgradeFlockUsingObjectAndCommand(flock, object, command)
 # Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
 # Wave::catalystUUIDToItemFolderPathOrNull(uuid)
 # Wave::catalystUUIDsEnumerator()
@@ -277,10 +277,9 @@ end
 # Wave::archiveWaveItems(uuid)
 # Wave::commands(schedule)
 # Wave::objectuuidToCatalystObjectOrNull(objectuuid)
-# Wave::getCatalystObjects()
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
-# Wave::getCatalystObjects()
+# Wave::flockGeneralUpgrade(flock)
 # Wave::issueNewItemFromDescriptionInteractive(description)
 
 class Wave
@@ -289,7 +288,8 @@ class Wave
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
 
-    def self.processCommand(object, command, flock)
+    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+        return [flock, []]
         schedule = object['schedule']
         uuid = object['uuid']
 
@@ -562,11 +562,22 @@ class Wave
         folderpath
     end
 
-    def self.getCatalystObjects()
+    def self.flockGeneralUpgrade(flock)
+        return [flock, []]
         WaveDevOps::collectWave()
-        Wave::catalystUUIDsEnumerator()
+        objects = Wave::catalystUUIDsEnumerator()
             .map{|objectuuid| Wave::objectuuidToCatalystObjectOrNull(objectuuid) }
             .compact
+        flock["objects"] = flock["objects"] + objects
+        [
+            flock,
+            objects.map{|o|  
+                {
+                    "event-type" => "Catalyst:Catalyst-Object:1",
+                    "object"     => o
+                }                
+            }   
+        ]
     end
 
     def self.interface()
