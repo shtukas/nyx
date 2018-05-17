@@ -39,21 +39,37 @@ require 'find'
 
 # ----------------------------------------------------------------------
 
-# Jupiter::isInteger(str)
-# Jupiter::emailSyncOnSchedule(verbose)
-# Jupiter::screenHeight()
-# Jupiter::screenWidth()
-# Jupiter::putshelp()
-# Jupiter::editTextUsingTextmate(text)
-# Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-# Jupiter::codeToDatetimeOrNull(code)
-# Jupiter::object2Line_v0(object)
-# Jupiter::object2Line_v1(object)
-# Jupiter::interactiveDisplayObjectAndProcessCommand(object): Flock
-# Jupiter::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
-# Jupiter::main2()
+# Mercury::flockTransform(flock)
+# Mercury::isInteger(str)
+# Mercury::emailSyncOnSchedule(verbose)
+# Mercury::screenHeight()
+# Mercury::screenWidth()
+# Mercury::putshelp()
+# Mercury::editTextUsingTextmate(text)
+# Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+# Mercury::object2Line_v0(object)
+# Mercury::object2Line_v1(object)
+# Mercury::interactiveDisplayObjectAndProcessCommand(object): Flock
+# Mercury::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
+# Mercury::main2()
 
-class Jupiter
+class Mercury
+
+    def self.flockTransform(flock)
+        flock["objects"] = flock["objects"].map{|object|
+            if !flock["do-not-show-until-datetime-distribution"][object["uuid"]].nil? and (Time.new.to_s < flock["do-not-show-until-datetime-distribution"][object["uuid"]]) then
+                object["do-not-show-until-datetime"] = flock["do-not-show-until-datetime-distribution"][object["uuid"]]
+                object["metric"] = 0
+            end
+            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
+                object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
+                object["metric"] = 0
+            end
+            object
+        }
+        flock
+    end
+
     def self.isInteger(str)
         str.to_i.to_s == str
     end
@@ -129,49 +145,6 @@ class Jupiter
         end
     end
 
-    def self.codeToDatetimeOrNull(code)
-        localsuffix = Time.new.to_s[-5,5]
-        if code[0,1]=='+' then
-            code = code[1,999]
-            if code.index('@') then
-                # The first part is an integer and the second HH:MM
-                part1 = code[0,code.index('@')]
-                part2 = code[code.index('@')+1,999]
-                "#{( DateTime.now + part1.to_i ).to_date.to_s} #{part2}:00 #{localsuffix}"
-            else
-                if code.include?('days') or code.include?('day') then
-                    if code.include?('days') then
-                        # The entire string is to be interpreted as a number of days from now
-                        "#{( DateTime.now + code[0,code.size-4].to_f ).to_time.to_s}"
-                    else
-                        # The entire string is to be interpreted as a number of days from now
-                        "#{( DateTime.now + code[0,code.size-3].to_f ).to_time.to_s}"
-                    end
-
-                elsif code.include?('hours') or code.include?('hour') then
-                    if code.include?('hours') then
-                        ( Time.new + code[0,code.size-5].to_f*3600 ).to_s
-                    else
-                        ( Time.new + code[0,code.size-4].to_f*3600 ).to_s
-                    end
-                else
-                    nil
-                end
-            end
-        else
-            # Here we expect "YYYY-MM-DD" or "YYYY-MM-DD@HH:MM"
-            if code.index('@') then
-                part1 = code[0,10]
-                part2 = code[11,999]
-                "#{part1} #{part2}:00 #{localsuffix}"
-            else
-                part1 = code[0,10]
-                part2 = code[11,999]
-                "#{part1} 00:00:00 #{localsuffix}"
-            end
-        end
-    end
-
     def self.object2Line_v0(object)
         announce = object['announce'].lines.first.strip
         if object["metric"]>1 then
@@ -207,7 +180,7 @@ class Jupiter
     end
 
     def self.interactiveDisplayObjectAndProcessCommand(object, flock)
-        print Jupiter::object2Line_v1(object) + " : "
+        print Mercury::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
         command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
         TheOperator::upgradeFlockUsingObjectAndCommand(flock, object, command)
@@ -235,7 +208,7 @@ class Jupiter
             flock = TheOperator::flockGeneralUpgrade(flock)
             flock["objects"] = TodayOrNotToday::transform(flock["objects"])
             flock["objects"] = RequirementsOperator::transform(flock["objects"])
-            flock = DoNotShowUntil::transform(flock)
+            flock = Mercury::flockTransform(flock)
             flock["objects"] = flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             allrequirements = flock["objects"].map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
@@ -253,9 +226,9 @@ class Jupiter
             flock["objects"].take(workspaceSize).each_with_index{|o, index|
                 string =
                     if o["uuid"]==objectselected["uuid"] then
-                        "#{"%2d" % (index+1)} [*] #{Jupiter::object2Line_v1(o)}"
+                        "#{"%2d" % (index+1)} [*] #{Mercury::object2Line_v1(o)}"
                     else
-                        "#{"%2d" % (index+1)}     #{Jupiter::object2Line_v0(o)}"
+                        "#{"%2d" % (index+1)}     #{Mercury::object2Line_v0(o)}"
                     end
                 puts string
             }
@@ -269,16 +242,16 @@ class Jupiter
                 workspaceSize = [workspaceSize-1, 1].max
                 next
             end
-            if Jupiter::isInteger(givenCommand) then
+            if Mercury::isInteger(givenCommand) then
                 workspaceSize = [givenCommand.to_i, 1].max
                 next
             end
             if givenCommand.start_with?(":") then
                 suffix = givenCommand[1,givenCommand.size]
-                if Jupiter::isInteger(suffix) then
+                if Mercury::isInteger(suffix) then
                     objectselected = objectsall.drop(suffix.to_i-1).first.clone
                     if objectselected then
-                        flock = Jupiter::interactiveDisplayObjectAndProcessCommand(objectselected, flock)
+                        flock = Mercury::interactiveDisplayObjectAndProcessCommand(objectselected, flock)
                     end
                 end
                 next
@@ -294,12 +267,12 @@ end
 if false and Saturn::isPrimaryComputer() then
     Thread.new {
         sleep 6
-        Jupiter::emailSyncOnSchedule(false)
+        Mercury::emailSyncOnSchedule(false)
         loop {
             sleep 1200
-            Jupiter::emailSyncOnSchedule(false)
+            Mercury::emailSyncOnSchedule(false)
         }
     }
 end
 
-Jupiter::main2()
+Mercury::main2()

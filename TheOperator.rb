@@ -155,7 +155,7 @@ class TheOperator
         # no object needed
 
         if expression == 'help' then
-            Jupiter::putshelp()
+            Mercury::putshelp()
             LucilleCore::pressEnterToContinue()
             return flock
         end
@@ -190,7 +190,7 @@ class TheOperator
 
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
-            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
@@ -199,7 +199,7 @@ class TheOperator
 
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
-            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = Stream::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
@@ -208,7 +208,7 @@ class TheOperator
 
         if expression.start_with?('open-project:') then
             description = expression[13, expression.size].strip
-            description = Jupiter::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = OpenProjects::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
@@ -234,9 +234,9 @@ class TheOperator
             end
             loop {
                 requirementObjects = TheOperator::flockGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
+                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
             }
             return flock
         end
@@ -244,11 +244,11 @@ class TheOperator
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = TheOperator::flockGeneralUpgrade().select{|object| Jupiter::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = TheOperator::flockGeneralUpgrade().select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Jupiter::object2Line_v0(object) })
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
-                Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
+                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
             }
             return flock
         end
@@ -270,7 +270,7 @@ class TheOperator
 
         if expression.start_with?('+') then
             code = expression
-            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+            if (datetime = Saturn::codeToDatetimeOrNull(code)) then
                 flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
                 EventsLogReadWrite::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end

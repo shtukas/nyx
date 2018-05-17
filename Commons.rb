@@ -39,6 +39,7 @@ end
 # Saturn::traceToRealInUnitInterval(trace)
 # Saturn::traceToMetricShift(trace)
 # Saturn::realNumbersToZeroOne(x, origin, unit)
+# Saturn::codeToDatetimeOrNull(code)
 
 class Saturn
 
@@ -83,6 +84,49 @@ class Saturn
             end
         alpha.to_f/2
     end
+
+    def self.codeToDatetimeOrNull(code)
+        localsuffix = Time.new.to_s[-5,5]
+        if code[0,1]=='+' then
+            code = code[1,999]
+            if code.index('@') then
+                # The first part is an integer and the second HH:MM
+                part1 = code[0,code.index('@')]
+                part2 = code[code.index('@')+1,999]
+                "#{( DateTime.now + part1.to_i ).to_date.to_s} #{part2}:00 #{localsuffix}"
+            else
+                if code.include?('days') or code.include?('day') then
+                    if code.include?('days') then
+                        # The entire string is to be interpreted as a number of days from now
+                        "#{( DateTime.now + code[0,code.size-4].to_f ).to_time.to_s}"
+                    else
+                        # The entire string is to be interpreted as a number of days from now
+                        "#{( DateTime.now + code[0,code.size-3].to_f ).to_time.to_s}"
+                    end
+
+                elsif code.include?('hours') or code.include?('hour') then
+                    if code.include?('hours') then
+                        ( Time.new + code[0,code.size-5].to_f*3600 ).to_s
+                    else
+                        ( Time.new + code[0,code.size-4].to_f*3600 ).to_s
+                    end
+                else
+                    nil
+                end
+            end
+        else
+            # Here we expect "YYYY-MM-DD" or "YYYY-MM-DD@HH:MM"
+            if code.index('@') then
+                part1 = code[0,10]
+                part2 = code[11,999]
+                "#{part1} #{part2}:00 #{localsuffix}"
+            else
+                part1 = code[0,10]
+                part2 = code[11,999]
+                "#{part1} 00:00:00 #{localsuffix}"
+            end
+        end
+    end
 end
 
 # EventsLogReadWrite::pathToActiveEventsIndexFolder()
@@ -118,45 +162,6 @@ class EventsLogReadWrite
                 events << JSON.parse(IO.read(path))
             end
         end
-    end
-end
-
-# DoNotShowUntil::set(uuid, datetime)
-# DoNotShowUntil::getDatetime(uuid)
-# DoNotShowUntil::isactive(object)
-# DoNotShowUntil::transform(flock)
-
-class DoNotShowUntil
-    def self.set(uuid, datetime)
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "7abd0c37-ef4f-4214-843b-c5c0f09b8e72:#{uuid}", datetime)
-    end
-
-    def self.getDatetime(uuid)
-        KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "7abd0c37-ef4f-4214-843b-c5c0f09b8e72:#{uuid}", "2018-01-01 00:00:00 +0000")
-    end
-
-    def self.isactive(object)
-        datetime = DoNotShowUntil::getDatetime(object["uuid"])
-        Time.new.to_i >= DateTime.parse(datetime).to_time.to_i
-    end
-
-    def self.transform(flock)
-        flock["objects"] = flock["objects"].map{|object|
-            if !flock["do-not-show-until-datetime-distribution"][object["uuid"]].nil? and (Time.new.to_s < flock["do-not-show-until-datetime-distribution"][object["uuid"]]) then
-                object["do-not-show-until-datetime"] = flock["do-not-show-until-datetime-distribution"][object["uuid"]]
-                object["metric"] = 0
-            end
-            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
-                object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
-                object["metric"] = 0
-            end
-            if !DoNotShowUntil::isactive(object) then
-                object["do-not-show-until-datetime"] = DoNotShowUntil::getDatetime(object["uuid"])
-                object["metric"] = 0
-            end
-            object
-        }
-        flock
     end
 end
 

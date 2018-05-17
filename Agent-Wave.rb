@@ -460,12 +460,6 @@ class Wave
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         Wave::writeScheduleToDisk(uuid, schedule)
-        if schedule["@"]=="new" then
-            code = LucilleCore::askQuestionAnswerAsString("datecode (or empty): ")
-            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
-                DoNotShowUntil::set(uuid, datetime)
-            end
-        end
         folderpath
     end
 
