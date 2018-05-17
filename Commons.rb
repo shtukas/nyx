@@ -141,9 +141,6 @@ class EventsLogReadWrite
     end
 
     def self.commitEventToTimeline(event)
-        puts "EventsLogReadWrite::commitEventToTimeline(event):"
-        puts JSON.pretty_generate(event)
-        LucilleCore::pressEnterToContinue()
         folderpath = EventsLogReadWrite::pathToActiveEventsIndexFolder()
         filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
         File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
