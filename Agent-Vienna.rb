@@ -67,18 +67,16 @@ class Vienna
     end
 
     def self.flockGeneralUpgrade(flock)
-        return [flock, []]
         return [flock, []] if !Saturn::isPrimaryComputer()
         links = Vienna::getUnreadLinks()
         return [flock, []] if links.empty?
         link = links.first
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
-        metric = Vienna::metric(uuid, links)
-        objects = [
+        object = 
             {
                 "uuid" => uuid,
                 "agent-uid" => self.agentuuid(),
-                "metric" => metric,
+                "metric" => Vienna::metric(uuid, links),
                 "announce" => "vienna: #{link}",
                 "commands" => ['open', 'done'],
                 "default-expression" => "open done",
@@ -86,27 +84,20 @@ class Vienna
                     "link" => link
                 }
             }
-        ]
-        flock["objects"] = flock["objects"] + objects
-        [
-            flock,
-            objects.map{|o|  
-                {
-                    "event-type" => "Catalyst:Catalyst-Object:1",
-                    "object"     => o
-                }                
-            }   
-        ]
+        flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+        [ flock, [] ] # We emit no event because Vienna objects are not stored on disk
     end
 
     def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
         if command=='open' then
             system("open '#{object["item-data"]["link"]}'")
+            return [flock, []]
         end
         if command=='done' then
             Vienna::setLinkAsRead(object["item-data"]["link"])
             FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
+            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
+            return [flock, []]
         end
     end
 end

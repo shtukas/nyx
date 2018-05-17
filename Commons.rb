@@ -142,17 +142,16 @@ class DoNotShowUntil
 
     def self.transform(flock)
         flock["objects"] = flock["objects"].map{|object|
-            if !DoNotShowUntil::isactive(object) then
-                object["metric-before-do-not-show"] = object["metric"]
-                object["do-not-show-until-datetime"] = DoNotShowUntil::getDatetime(object["uuid"])
+            if !flock["do-not-show-until-datetime-distribution"][object["uuid"]].nil? and (Time.new.to_s < flock["do-not-show-until-datetime-distribution"][object["uuid"]]) then
+                object["do-not-show-until-datetime"] = flock["do-not-show-until-datetime-distribution"][object["uuid"]]
                 object["metric"] = 0
             end
             if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
                 object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
                 object["metric"] = 0
             end
-            if !flock["do-not-show-until-datetime-distribution"][object["uuid"]].nil? and (Time.new.to_s < flock["do-not-show-until-datetime-distribution"][object["uuid"]]) then
-                object["do-not-show-until-datetime"] = flock["do-not-show-until-datetime-distribution"][object["uuid"]]
+            if !DoNotShowUntil::isactive(object) then
+                object["do-not-show-until-datetime"] = DoNotShowUntil::getDatetime(object["uuid"])
                 object["metric"] = 0
             end
             object
