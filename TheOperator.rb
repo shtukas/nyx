@@ -270,7 +270,7 @@ class TheOperator
 
         if expression.start_with?('+') then
             code = expression
-            if (datetime = Saturn::codeToDatetimeOrNull(code)) then
+            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
                 flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
                 EventsLogReadWrite::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end

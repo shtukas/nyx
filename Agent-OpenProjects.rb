@@ -76,7 +76,7 @@ class OpenProjects
         object = {
             "uuid" => uuid,
             "agent-uid" => self.agentuuid(),
-            "metric" => isRunning ? 2 - Saturn::traceToMetricShift(uuid) : GenericTimeTracking::metric2(uuid, 0.19, 0.79, 2) + Saturn::traceToMetricShift(uuid),
+            "metric" => isRunning ? 2 - Jupiter::traceToMetricShift(uuid) : GenericTimeTracking::metric2(uuid, 0.19, 0.79, 2) + Jupiter::traceToMetricShift(uuid),
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
             "default-expression" => isRunning ? "stop" : "start"

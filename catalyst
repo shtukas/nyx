@@ -214,11 +214,11 @@ class Mercury
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Saturn::isPrimaryComputer() then
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Jupiter::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
                 CatalystDevOps::archivesGarbageCollection(true)
             end
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) and Saturn::isPrimaryComputer() then
+            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) and Jupiter::isPrimaryComputer() then
                 puts "xcache garbage collection"
                 CatalystDevOps::xcacheGarbageCollection()
             end
@@ -264,7 +264,7 @@ end
 
 # -----------------------------------------------------------------
 
-if false and Saturn::isPrimaryComputer() then
+if false and Jupiter::isPrimaryComputer() then
     Thread.new {
         sleep 6
         Mercury::emailSyncOnSchedule(false)
