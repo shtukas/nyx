@@ -25,7 +25,7 @@ require_relative "Commons.rb"
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getuuid(folderpath)
 # Stream::getUUIDs()
-# Stream::folderpathToCatalystObjectOrNull(folderpath)
+# Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::issueNewItemFromDescription(description)

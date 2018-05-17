@@ -49,13 +49,48 @@ require_relative "Agent-OpenProjects.rb"
 
 # ----------------------------------------------------------------------
 
+# EventsLogReadWrite::pathToActiveEventsIndexFolder()
+# EventsLogReadWrite::commitEventToTimeline(event)
+# EventsLogReadWrite::eventsEnumerator()
+
+class EventsLogReadWrite
+    def self.pathToActiveEventsIndexFolder()
+        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H")}"
+        FileUtils.mkpath folder1 if !File.exists?(folder1)
+        LucilleCore::indexsubfolderpath(folder1)
+    end
+
+    def self.commitEventToTimeline(event)
+        puts "EventsLogReadWrite::commitEventToTimeline(event):"
+        puts JSON.pretty_generate(event)
+        LucilleCore::pressEnterToContinue()
+        folderpath = EventsLogReadWrite::pathToActiveEventsIndexFolder()
+        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+    end
+
+    def self.commitEventToBufferIn(event)
+        filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+    end
+
+    def self.eventsEnumerator()
+        Enumerator.new do |events|
+            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
+                next if !File.file?(path)
+                next if File.basename(path)[-5,5] != '.json'
+                events << JSON.parse(IO.read(path))
+            end
+        end
+    end
+end
+
 # TheOperator::agents()
 # TheOperator::agentuuid2FlockObjectCommandProcessor(agentuuid)
-# TheOperator::flockGeneralUpgrade(flock)
-# TheOperator::upgradeFlockUsingObjectAndCommand(object, command)
 # TheOperator::selectAgentAndRunInterface()
 
-# TheOperator::upgradeFlockUsingObjectAndCommand(flock, object, command)
+# TheOperator::flockGeneralUpgrade(flock): Flock
+# TheOperator::upgradeFlockUsingObjectAndCommand(flock, object, command): Flock
 
 class TheOperator
 
@@ -64,64 +99,64 @@ class TheOperator
             {
                 "agent-name"       => "GuardianTime",
                 "agent-uid"        => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
-                "flock-general-upgrade"      => lambda { |flock| GuardianTime::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| GuardianTime::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| GuardianTime::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| GuardianTime::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ GuardianTime::interface() }
             },
             {
                 "agent-name"       => "Kimchee",
                 "agent-uid"        => "b343bc48-82db-4fa3-ac56-3b5a31ff214f",
-                "flock-general-upgrade"      => lambda { |flock| Kimchee::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| Kimchee::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| Kimchee::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| Kimchee::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Kinchee::interface() }
             },
             {
                 "agent-name"       => "Ninja",
                 "agent-uid"        => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
-                "flock-general-upgrade"      => lambda { |flock| Ninja::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| Ninja::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| Ninja::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| Ninja::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Ninja::interface() }
             },
             {
                 "agent-name"       => "OpenProjects",
                 "agent-uid"        => "30ff0f4d-7420-432d-b75b-826a2a8bc7cf",
-                "flock-general-upgrade"      => lambda { |flock| OpenProjects::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| OpenProjects::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| OpenProjects::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| OpenProjects::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ OpenProjects::interface() }
             },
             {
                 "agent-name"       => "Stream",
                 "agent-uid"        => "73290154-191f-49de-ab6a-5e5a85c6af3a",
-                "flock-general-upgrade"      => lambda { |flock| Stream::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| Stream::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| Stream::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| Stream::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Stream::interface() }
             },
             {
                 "agent-name"       => "TimeCommitments",
                 "agent-uid"        => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
-                "flock-general-upgrade"      => lambda { |flock| TimeCommitments::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| TimeCommitments::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| TimeCommitments::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| TimeCommitments::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ TimeCommitments::interface() }
             },
             {
                 "agent-name"       => "Today",
                 "agent-uid"        => "f989806f-dc62-4942-b484-3216f7efbbd9",
-                "flock-general-upgrade"      => lambda { |flock| Today::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| Today::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| Today::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| Today::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Today::interface() }
             },
             {
                 "agent-name"       => "Vienna",
                 "agent-uid"        => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
-                "flock-general-upgrade"      => lambda { |flock| Vienna::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| Vienna::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| Vienna::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| Vienna::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Vienna::interface() }
             },
             {
                 "agent-name"       => "Wave",
                 "agent-uid"        => "283d34dd-c871-4a55-8610-31e7c762fb0d",
-                "flock-general-upgrade"      => lambda { |flock| Wave::flockGeneralUpgrade(flock) },
-                "flock-object-command" => lambda{ |flock, object, command| Wave::upgradeFlockUsingObjectAndCommand(flock, object, command) },
+                "flock-general-upgrade" => lambda { |flock| Wave::flockGeneralUpgrade(flock) },
+                "flock-object-command"  => lambda{ |flock, object, command| Wave::upgradeFlockUsingObjectAndCommand(flock, object, command) },
                 "interface"        => lambda{ Wave::interface() }
             }
         ]
@@ -158,17 +193,17 @@ class TheOperator
         if expression == 'help' then
             Jupiter::putshelp()
             LucilleCore::pressEnterToContinue()
-            return [flock, []]
+            return flock
         end
 
         if expression == 'clear' then
             system("clear")
-            return [flock, []]
+            return flock
         end
 
         if expression=="interface" then
             TheOperator::selectAgentAndRunInterface()
-            return [flock, []]
+            return flock
         end
 
         if expression == 'info' then
@@ -186,7 +221,7 @@ class TheOperator
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?('wave:') then
@@ -195,7 +230,7 @@ class TheOperator
             folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?('stream:') then
@@ -204,7 +239,7 @@ class TheOperator
             folderpath = Stream::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?('open-project:') then
@@ -213,19 +248,19 @@ class TheOperator
             folderpath = OpenProjects::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setSatisfifiedRequirement(requirement)
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?("r:off") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setUnsatisfiedRequirement(requirement)
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?("r:show") then
@@ -239,7 +274,7 @@ class TheOperator
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
             }
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?("search") then
@@ -251,7 +286,7 @@ class TheOperator
                 break if selectedobject.nil?
                 Jupiter::interactiveDisplayObjectAndProcessCommand(selectedobject, flock)
             }
-            return [flock, []]
+            return flock
         end
 
         return [flock, []] if object.nil?
@@ -260,13 +295,13 @@ class TheOperator
 
         if expression == '!today' then
             TodayOrNotToday::notToday(object["uuid"])
-            return [flock, []]
+            return flock
         end
 
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?('+') then
@@ -274,19 +309,19 @@ class TheOperator
             if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
                 DoNotShowUntil::set(object["uuid"], datetime)
             end
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?("r:add") then
             command, requirement = expression.split(" ")
             RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
-            return [flock, []]
+            return flock
         end
 
         if expression.start_with?("r:remove") then
             command, requirement = expression.split(" ")
             RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
-            return [flock, []]
+            return flock
         end
 
         if expression.size > 0 then
@@ -297,11 +332,13 @@ class TheOperator
                     EventsLogReadWrite::commitEventToTimeline(event)
                 }
             }
+            return flock
         else
             flock, events = TheOperator::agentuuid2FlockObjectCommandProcessor(object["agent-uid"]).call(flock, object, "")
             events.each{|event|
                 EventsLogReadWrite::commitEventToTimeline(event)
             }
+            return flock
         end
     end
 

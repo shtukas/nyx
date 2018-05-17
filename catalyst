@@ -49,7 +49,7 @@ require 'find'
 # Jupiter::codeToDatetimeOrNull(code)
 # Jupiter::object2Line_v0(object)
 # Jupiter::object2Line_v1(object)
-# Jupiter::interactiveDisplayObjectAndProcessCommand(object)
+# Jupiter::interactiveDisplayObjectAndProcessCommand(object): Flock
 # Jupiter::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
 # Jupiter::main2()
 
@@ -214,10 +214,8 @@ class Jupiter
     end
 
     def self.main2()
-
         flock = {}
         flock["objects"] = []
-
         EventsLogReadWrite::eventsEnumerator().each{|event|
             if event["event-type"] == "Catalyst:Catalyst-Object:1" then
                 object = event["object"]
@@ -227,11 +225,9 @@ class Jupiter
             end
             raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
         }
-
-        #flock = TheOperator::flockGeneralUpgrade(flock)
-
         workspaceSize = 1
         loop {
+            flock = TheOperator::flockGeneralUpgrade(flock)
             flock["objects"] = TodayOrNotToday::transform(flock["objects"])
             flock["objects"] = RequirementsOperator::transform(flock["objects"])
             flock["objects"] = DoNotShowUntil::transform(flock["objects"])
@@ -277,13 +273,13 @@ class Jupiter
                 if Jupiter::isInteger(suffix) then
                     objectselected = objectsall.drop(suffix.to_i-1).first.clone
                     if objectselected then
-                        Jupiter::interactiveDisplayObjectAndProcessCommand(objectselected, flock)
+                        flock = Jupiter::interactiveDisplayObjectAndProcessCommand(objectselected, flock)
                     end
                 end
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
-            TheOperator::upgradeFlockUsingObjectAndCommand(flock, objectselected, command)
+            flock = TheOperator::upgradeFlockUsingObjectAndCommand(flock, objectselected, command)
         }
     end
 end

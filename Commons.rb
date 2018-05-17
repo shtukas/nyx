@@ -93,39 +93,6 @@ class Saturn
     end
 end
 
-# EventsLogReadWrite::pathToActiveEventsIndexFolder()
-# EventsLogReadWrite::commitEventToTimeline(event)
-# EventsLogReadWrite::eventsEnumerator()
-
-class EventsLogReadWrite
-    def self.pathToActiveEventsIndexFolder()
-        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
-        FileUtils.mkpath folder1 if !File.exists?(folder1)
-        LucilleCore::indexsubfolderpath(folder1)
-    end
-
-    def self.commitEventToTimeline(event)
-        folderpath = EventsLogReadWrite::pathToActiveEventsIndexFolder()
-        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
-    end
-
-    def self.commitEventToBufferIn(event)
-        filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
-    end
-
-    def self.eventsEnumerator()
-        Enumerator.new do |events|
-            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
-                next if !File.file?(path)
-                next if File.basename(path)[-5,5] != '.json'
-                events << JSON.parse(IO.read(path))
-            end
-        end
-    end
-end
-
 # DoNotShowUntil::set(uuid, datetime)
 # DoNotShowUntil::getDatetime(uuid)
 # DoNotShowUntil::isactive(object)
@@ -150,12 +117,12 @@ class DoNotShowUntil
             if !DoNotShowUntil::isactive(object) then
                 object["metric-before-do-not-show"] = object["metric"]
                 object["do-not-show-until-datetime"] = DoNotShowUntil::getDatetime(object["uuid"])
-                # next we try to promote any do-not-show-until-datetime contained in a scheduler of a wave item, with a target in the future
-                if object["do-not-show-until-datetime"].nil? and object["schedule"] and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
-                    object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
-                end
                 object["metric"] = 0
             end
+            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
+                object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
+                object["metric"] = 0
+            end 
             object
         }
     end
@@ -500,6 +467,40 @@ class GenericTimeTracking
 
     def self.timings(uuid)
         FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+    end
+end
+
+# FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid): Flock
+# FlockPureTransformations::addOrUpdateObject(flock, object): Flock
+
+class FlockPureTransformations
+    def self.removeObjectIdentifiedByUUID(flock, uuid)
+        flock["objects"].reject!{|o| o["uuid"]==uuid }
+        flock
+    end
+    def self.addOrUpdateObject(flock, object)
+        flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
+        flock["objects"] << object
+        flock
+    end
+end
+
+# EventsMaker::destroyCatalystObject(uuid)
+# EventsMaker::catalystObject(object)
+
+class EventsMaker
+    def self.destroyCatalystObject(uuid)
+        {
+            "event-type"  => "Catalyst:Destroy-Catalyst-Object:1",
+            "object-uuid" => uuid
+        }
+    end
+
+    def self.catalystObject(object)
+        {
+            "event-type" => "Catalyst:Catalyst-Object:1",
+            "object"     => object
+        }
     end
 end
 
