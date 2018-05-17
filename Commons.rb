@@ -508,6 +508,7 @@ class GenericTimeTracking
 end
 
 # FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid): Flock
+# FlockPureTransformations::removeObjectsFromAgent(flock, agentuuid): Flock
 # FlockPureTransformations::addOrUpdateObject(flock, object): Flock
 
 class FlockPureTransformations
@@ -515,6 +516,12 @@ class FlockPureTransformations
         flock["objects"].reject!{|o| o["uuid"]==uuid }
         flock
     end
+
+    def self.removeObjectsFromAgent(flock, agentuuid)
+        flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
+        flock
+    end
+
     def self.addOrUpdateObject(flock, object)
         flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
         flock["objects"] << object

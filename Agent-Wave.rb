@@ -616,5 +616,6 @@ class Wave
             event = EventsMaker::destroyCatalystObject(uuid)
             return [flock, [event]]
         end
+        return [flock, []]
     end
 end

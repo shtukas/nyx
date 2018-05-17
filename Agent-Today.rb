@@ -107,7 +107,6 @@ class Today
     end
 
     def self.flockGeneralUpgrade(flock)
-        return [flock, []]
         objects = []
         todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
@@ -125,25 +124,19 @@ class Today
                 }
             }
         }
-        objects
+        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
         flock["objects"] = flock["objects"] + objects
-        [
-            flock,
-            objects.map{|o|  
-                {
-                    "event-type" => "Catalyst:Catalyst-Object:1",
-                    "object"     => o
-                }                
-            }   
-        ]
+        [ flock, [] ] # We do not emit any event because the objects are generated on the fly
     end
 
     def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
         if command=='done' then
             Today::removeSectionFromFile(object['uuid'])
+            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object['uuid'])
+            return [flock, []] # we do not need to emit a cancel because the object was virtual
         end
         if command=='>stream' then
+            return [flock, []]
             description = object["item-data"]["section"]
             folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
@@ -151,11 +144,13 @@ class Today
             Today::removeSectionFromFile(object['uuid'])
         end
         if command=='>open-projects' then
+            return [flock, []]
             description = object["item-data"]["section"]
             folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             Today::removeSectionFromFile(object['uuid'])
         end
+        return [flock, []]
     end
 end

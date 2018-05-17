@@ -99,5 +99,6 @@ class Vienna
             flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
             return [flock, []]
         end
+        return [flock, []]
     end
 end
