@@ -29,8 +29,30 @@ VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages
 # select link from messages where read_flag=0;
 # update messages set read_flag=1 where link="https://www.schneier.com/blog/archives/2018/04/security_vulner_14.html"
 
+class ViennaLinkFeeder
+    def initialize()
+        @links = []
+    end
+    def next()
+        if @links.empty? then
+            query = "select link from messages where read_flag=0;"
+            @links = `sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'`.lines.map{|line| line.strip }
+        end
+        @links[0]
+    end
+    def links()
+        @links
+    end
+    def done(link)
+        query = "update messages set read_flag=1 where link=\"#{link}\""
+        system("sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'")
+        @links.shift
+    end
+end
+
+$viennaLinkFeeder = ViennaLinkFeeder.new()
+
 # Vienna::upgradeFlockUsingObjectAndCommand(flock, object, command)
-# Vienna::getUnreadLinks()
 
 class Vienna
 
@@ -38,28 +60,13 @@ class Vienna
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
     end
 
-    def self.getUnreadLinks()
-        query = "select link from messages where read_flag=0;"
-        `sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'`.lines.map{|line| line.strip }
-    end
-
-    def self.getUnreadLinkOrNull()
-        Vienna::getUnreadLinks().first
-    end
-
-    def self.getUnreadLinks()
-        query = "select link from messages where read_flag=0;"
-        `sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'`.lines.map{|line| line.strip }
-    end
-
     def self.setLinkAsRead(link)
-        query = "update messages set read_flag=1 where link=\"#{link}\""
-        system("sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'")
+
     end
 
-    def self.metric(uuid, unreadlinks)
+    def self.metric(uuid)
         FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.195 + 0.6*Jupiter::realNumbersToZeroOne(unreadlinks.count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Jupiter::traceToMetricShift(uuid)
+        metric = 0.195 + 0.6*Jupiter::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Jupiter::traceToMetricShift(uuid)
     end
 
     def self.interface()
@@ -68,15 +75,14 @@ class Vienna
 
     def self.flockGeneralUpgrade(flock)
         return [flock, []] if !Jupiter::isPrimaryComputer()
-        links = Vienna::getUnreadLinks()
-        return [flock, []] if links.empty?
-        link = links.first
+        link = $viennaLinkFeeder.next()
+        return [flock, []] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
         object = 
             {
                 "uuid" => uuid,
                 "agent-uid" => self.agentuuid(),
-                "metric" => Vienna::metric(uuid, links),
+                "metric" => Vienna::metric(uuid),
                 "announce" => "vienna: #{link}",
                 "commands" => ['open', 'done'],
                 "default-expression" => "open done",
@@ -84,6 +90,7 @@ class Vienna
                     "link" => link
                 }
             }
+        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
         flock = FlockPureTransformations::addOrUpdateObject(flock, object)
         [ flock, [] ] # We emit no event because Vienna objects are not stored on disk
     end
@@ -91,14 +98,11 @@ class Vienna
     def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
         if command=='open' then
             system("open '#{object["item-data"]["link"]}'")
-            return [flock, []]
         end
         if command=='done' then
-            Vienna::setLinkAsRead(object["item-data"]["link"])
+            $viennaLinkFeeder.done(object["item-data"]["link"])
             FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
-            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
-            return [flock, []]
         end
-        return [flock, []]
+        [flock, []]
     end
 end
