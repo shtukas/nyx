@@ -165,7 +165,7 @@ class TimeCommitments
     end
 
     def self.flockGeneralUpgrade(flock)
-        return [flock, []]
+        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
         TimeCommitments::garbageCollectionGlobal()
         objects = TimeCommitments::getItems()
         .map{|item|
@@ -192,19 +192,10 @@ class TimeCommitments
                 objects
             end
         flock["objects"] = flock["objects"] + objects
-        [
-            flock,
-            objects.map{|o|  
-                {
-                    "event-type" => "Catalyst:Catalyst-Object:1",
-                    "object"     => o
-                }                
-            }   
-        ]
+        [ flock, [] ] # We do not emit an event as the objects are transcient (for the moment)
     end
 
     def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
         uuid = object['uuid']
         if command=='start' then
             TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
@@ -212,5 +203,6 @@ class TimeCommitments
         if command=="stop" then
             TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
         end
+        return [flock, []] # We do not emit an event as the object are transcient
     end
 end
