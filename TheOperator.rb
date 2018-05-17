@@ -49,42 +49,6 @@ require_relative "Agent-OpenProjects.rb"
 
 # ----------------------------------------------------------------------
 
-# EventsLogReadWrite::pathToActiveEventsIndexFolder()
-# EventsLogReadWrite::commitEventToTimeline(event)
-# EventsLogReadWrite::eventsEnumerator()
-
-class EventsLogReadWrite
-    def self.pathToActiveEventsIndexFolder()
-        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H")}"
-        FileUtils.mkpath folder1 if !File.exists?(folder1)
-        LucilleCore::indexsubfolderpath(folder1)
-    end
-
-    def self.commitEventToTimeline(event)
-        puts "EventsLogReadWrite::commitEventToTimeline(event):"
-        puts JSON.pretty_generate(event)
-        LucilleCore::pressEnterToContinue()
-        folderpath = EventsLogReadWrite::pathToActiveEventsIndexFolder()
-        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
-    end
-
-    def self.commitEventToBufferIn(event)
-        filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
-    end
-
-    def self.eventsEnumerator()
-        Enumerator.new do |events|
-            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
-                next if !File.file?(path)
-                next if File.basename(path)[-5,5] != '.json'
-                events << JSON.parse(IO.read(path))
-            end
-        end
-    end
-end
-
 # TheOperator::agents()
 # TheOperator::agentuuid2FlockObjectCommandProcessor(agentuuid)
 # TheOperator::selectAgentAndRunInterface()
@@ -307,7 +271,8 @@ class TheOperator
         if expression.start_with?('+') then
             code = expression
             if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
-                DoNotShowUntil::set(object["uuid"], datetime)
+                flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
+                EventsLogReadWrite::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return flock
         end

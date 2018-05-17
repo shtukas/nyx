@@ -38,7 +38,6 @@ end
 # Saturn::simplifyURLCarryingString(string)
 # Saturn::traceToRealInUnitInterval(trace)
 # Saturn::traceToMetricShift(trace)
-# Saturn::deathObject(uuid)
 # Saturn::realNumbersToZeroOne(x, origin, unit)
 
 class Saturn
@@ -75,13 +74,6 @@ class Saturn
         0.001*Saturn::traceToRealInUnitInterval(trace)
     end
 
-    def self.deathObject(uuid)
-        {
-            "uuid"  => uuid,
-            "death" => true
-        }
-    end
-
     def self.realNumbersToZeroOne(x, origin, unit)
         alpha =
             if x >= origin then
@@ -93,10 +85,46 @@ class Saturn
     end
 end
 
+# EventsLogReadWrite::pathToActiveEventsIndexFolder()
+# EventsLogReadWrite::commitEventToTimeline(event)
+# EventsLogReadWrite::eventsEnumerator()
+
+class EventsLogReadWrite
+    def self.pathToActiveEventsIndexFolder()
+        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H")}"
+        FileUtils.mkpath folder1 if !File.exists?(folder1)
+        LucilleCore::indexsubfolderpath(folder1)
+    end
+
+    def self.commitEventToTimeline(event)
+        puts "EventsLogReadWrite::commitEventToTimeline(event):"
+        puts JSON.pretty_generate(event)
+        LucilleCore::pressEnterToContinue()
+        folderpath = EventsLogReadWrite::pathToActiveEventsIndexFolder()
+        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+    end
+
+    def self.commitEventToBufferIn(event)
+        filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+    end
+
+    def self.eventsEnumerator()
+        Enumerator.new do |events|
+            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
+                next if !File.file?(path)
+                next if File.basename(path)[-5,5] != '.json'
+                events << JSON.parse(IO.read(path))
+            end
+        end
+    end
+end
+
 # DoNotShowUntil::set(uuid, datetime)
 # DoNotShowUntil::getDatetime(uuid)
 # DoNotShowUntil::isactive(object)
-# DoNotShowUntil::transform(objects)
+# DoNotShowUntil::transform(flock)
 
 class DoNotShowUntil
     def self.set(uuid, datetime)
@@ -112,8 +140,8 @@ class DoNotShowUntil
         Time.new.to_i >= DateTime.parse(datetime).to_time.to_i
     end
 
-    def self.transform(objects)
-        objects.map{|object|
+    def self.transform(flock)
+        flock["objects"] = flock["objects"].map{|object|
             if !DoNotShowUntil::isactive(object) then
                 object["metric-before-do-not-show"] = object["metric"]
                 object["do-not-show-until-datetime"] = DoNotShowUntil::getDatetime(object["uuid"])
@@ -122,9 +150,14 @@ class DoNotShowUntil
             if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) then
                 object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
                 object["metric"] = 0
-            end 
+            end
+            if !flock["do-not-show-until-datetime-distribution"][object["uuid"]].nil? and (Time.new.to_s < flock["do-not-show-until-datetime-distribution"][object["uuid"]]) then
+                object["do-not-show-until-datetime"] = flock["do-not-show-until-datetime-distribution"][object["uuid"]]
+                object["metric"] = 0
+            end
             object
         }
+        flock
     end
 end
 
@@ -487,6 +520,7 @@ end
 
 # EventsMaker::destroyCatalystObject(uuid)
 # EventsMaker::catalystObject(object)
+# EventsMaker::doNotShowUntilDateTime(uuid, datetime)
 
 class EventsMaker
     def self.destroyCatalystObject(uuid)
@@ -500,6 +534,14 @@ class EventsMaker
         {
             "event-type" => "Catalyst:Catalyst-Object:1",
             "object"     => object
+        }
+    end
+
+    def self.doNotShowUntilDateTime(uuid, datetime)
+        {
+            "event-type"  => "Catalyst:Metadata:DoNotShowUntilDateTime:1",
+            "object-uuid" => uuid,
+            "datetime"    => datetime
         }
     end
 end

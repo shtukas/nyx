@@ -216,11 +216,16 @@ class Jupiter
     def self.main2()
         flock = {}
         flock["objects"] = []
+        flock["do-not-show-until-datetime-distribution"] = {}
         EventsLogReadWrite::eventsEnumerator().each{|event|
             if event["event-type"] == "Catalyst:Catalyst-Object:1" then
                 object = event["object"]
                 flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
                 flock["objects"] << object
+                next
+            end
+            if event["event-type"] == "Catalyst:Metadata:DoNotShowUntilDateTime:1" then
+                flock["do-not-show-until-datetime-distribution"][event["object-uuid"]] = event["datetime"]
                 next
             end
             raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
@@ -230,7 +235,7 @@ class Jupiter
             flock = TheOperator::flockGeneralUpgrade(flock)
             flock["objects"] = TodayOrNotToday::transform(flock["objects"])
             flock["objects"] = RequirementsOperator::transform(flock["objects"])
-            flock["objects"] = DoNotShowUntil::transform(flock["objects"])
+            flock = DoNotShowUntil::transform(flock)
             flock["objects"] = flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             allrequirements = flock["objects"].map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
             KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
