@@ -572,12 +572,7 @@ class Wave
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
             Wave::archiveWaveItems(uuid)
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-            event1 = EventsMaker::destroyCatalystObject(uuid)
-            EventsManager::commitEventToTimeline(event1)
-            object2 = Stream::folderpathToCatalystObjectOrNull(targetfolderpath, 100, 100)
-            FlockTransformations::addOrUpdateObject(object2)
-            event2 = EventsMaker::catalystObject(object)
-            EventsManager::commitEventToTimeline(event2)
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
 
         if command=='>open-projects' then
@@ -587,12 +582,7 @@ class Wave
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
             Wave::archiveWaveItems(uuid)
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-            event1 = EventsMaker::destroyCatalystObject(uuid)
-            EventsManager::commitEventToTimeline(event1)
-            object2 = Stream::folderpath2CatalystObjectOrNull(targetfolderpath)
-            FlockTransformations::addOrUpdateObject(object2)
-            event2 = EventsMaker::catalystObject(object)
-            EventsManager::commitEventToTimeline(event2)
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
 
         if command=='>lib' then
@@ -609,8 +599,7 @@ class Wave
             LucilleCore::removeFileSystemLocation(staginglocation)
             Wave::archiveWaveItems(uuid)
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-            event = EventsMaker::destroyCatalystObject(uuid)
-            EventsManager::commitEventToTimeline(event)
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
     end
 end

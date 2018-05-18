@@ -227,7 +227,7 @@ class Mercury
             if givenCommand.start_with?(":") then
                 suffix = givenCommand[1,givenCommand.size]
                 if Mercury::isInteger(suffix) then
-                    objectselected = objectsall.drop(suffix.to_i-1).first.clone
+                    objectselected = $flock["objects"].drop(suffix.to_i-1).first.clone
                     if objectselected then
                         Mercury::interactiveDisplayObjectAndProcessCommand(objectselected)
                     end

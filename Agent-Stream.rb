@@ -16,15 +16,18 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require 'colorize'
 require_relative "Commons.rb"
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
 # -------------------------------------------------------------------------------------
 
 # Stream::agentuuid()
 # Stream::processObjectAndCommand(object, command)
 
 # Stream::folderpaths(itemsfolderpath)
-# Stream::getuuid(folderpath)
+# Stream::folderpath2uuid(folderpath)
 # Stream::getUUIDs()
-# Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)
+# Stream::folderpathToCatalystObjectOrNull(folderpath)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::issueNewItemFromDescription(description)
@@ -43,7 +46,7 @@ class Stream
             .map{|filename| "#{itemsfolderpath}/#{filename}" }
     end
 
-    def self.getuuid(folderpath)
+    def self.folderpath2uuid(folderpath)
         if !File.exist?("#{folderpath}/.uuid") then
             File.open("#{folderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) }
         end
@@ -52,33 +55,50 @@ class Stream
 
     def self.getUUIDs()
         Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-            .map{|folderpath| Stream::getuuid(folderpath) }
+            .map{|folderpath| Stream::folderpath2uuid(folderpath) }
     end
 
-    def self.folderpathToCatalystObjectOrNull(folderpath, indx, size)
+    def self.uuid2folderpathOrNull(uuid)
+        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+            .each{|folderpath|
+                if Stream::folderpath2uuid(folderpath)==uuid then
+                    return folderpath
+                end
+            }
+        nil
+    end
+
+    def self.uuid2metric(uuid, status)
+        metric = 0.40 + 0.25*Math.sin( (Time.new.to_f/86400)+Jupiter::traceToRealInUnitInterval(Digest::SHA1.hexdigest(uuid)*3.14*2) )
+        metric = metric * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8)
+        metric = status[0] ? 2 - Jupiter::traceToMetricShift(uuid) : metric
+    end
+
+    def self.uuid2commands(uuid, status)
+        ( status[0] ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">lib"]
+    end
+
+    def self.uuid2defaultExpression(uuid, status)
+        ( status[0] ? "" : "start" )
+    end
+
+    def self.folderpathToCatalystObjectOrNull(folderpath)
         return nil if !File.exist?(folderpath)
-        uuid = Stream::getuuid(folderpath)
+        uuid = Stream::folderpath2uuid(folderpath)
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-        status = GenericTimeTracking::status(uuid)
-        isRunning = status[0]
-        commands = ( isRunning ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">lib"]
-        defaultExpression = ( isRunning ? "" : "start" )
-        metric = 0.195 + 0.5*Jupiter::realNumbersToZeroOne(size, 100, 50)*Math.exp(-indx.to_f/100)*GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8) + Jupiter::traceToMetricShift(uuid)
-        metric = isRunning ? 2 - Jupiter::traceToMetricShift(uuid) : metric
         announce = "stream: #{Jupiter::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
-        object = {
-            "uuid" => uuid,
-            "agent-uid" => self.agentuuid(),
-            "metric" => metric,
-            "announce" => announce,
-            "commands" => commands,
-            "default-expression" => defaultExpression,
-            "is-running" => isRunning
-        }
+        object = {}
+        object["uuid"] = uuid
+        object["agent-uid"] = self.agentuuid()
+        object["metric"] = 1                 # overriden during general update
+        object["announce"] = announce
+        object["commands"] = []              # overriden during general update
+        object["default-expression"] = ""    # overriden during general update
+        object["is-running"] = false         # overriden during general update
         object["item-data"] = {}
         object["item-data"]["folderpath"] = folderpath
         object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
-        object["item-data"]["status"] = status
+        object["item-data"]["status"] = nil  # overriden during general update
         object
     end
 
@@ -91,9 +111,12 @@ class Stream
         puts "source: #{object["item-data"]["folderpath"]}"
         puts "target: #{targetFolder}"
         FileUtils.mkpath(targetFolder)
-        return if !File.exists?(object["item-data"]["folderpath"])
-        LucilleCore::copyFileSystemLocation(object["item-data"]["folderpath"], targetFolder)
-        LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
+        if File.exists?(object["item-data"]["folderpath"]) then
+            LucilleCore::copyFileSystemLocation(object["item-data"]["folderpath"], targetFolder)
+            LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
+        end
+        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+        FlockTransformations::removeObjectIdentifiedByUUID(uuid)
     end
 
     def self.issueNewItemFromDescription(description)
@@ -108,13 +131,29 @@ class Stream
     end
 
     def self.generalUpgrade()
-        return
-        folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-        size = folderpaths.size
-        objects = folderpaths.zip((1..size))
-            .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)}
-            .compact
-        FlockTransformations::addOrUpdateObjects(objects)
+        existingUUIDsFromFlock = $flock["objects"]
+            .select{|object| object["agent-uid"]==self.agentuuid() }
+            .map{|object| object["uuid"] }
+        existingUUIDsFromDisk = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER).map{|folderpath| Stream::folderpath2uuid(folderpath) }
+        unregisteredUUIDs = existingUUIDsFromDisk - existingUUIDsFromFlock
+        unregisteredUUIDs.each{|uuid|
+            # We need to build the object, then make a Flock update and emit an event
+            folderpath = Stream::uuid2folderpathOrNull(uuid)
+            object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            FlockTransformations::addOrUpdateObject(object)
+        }
+        objects = $flock["objects"].select{|object| object["agent-uid"]==self.agentuuid() }
+        objects.each{|object|
+            uuid = object["uuid"]
+            status = GenericTimeTracking::status(uuid)
+            object["metric"]              = Stream::uuid2metric(uuid, status)
+            object["commands"]            = Stream::uuid2commands(uuid, status)
+            object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
+            object["item-data"]["status"] = status
+            object["is-running"]          = status[0]
+            FlockTransformations::addOrUpdateObject(object)
+        }
     end
 
     def self.processObjectAndCommand(object, command)
@@ -127,23 +166,22 @@ class Stream
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(uuid)
             GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            folderpath = object["item-data"]["folderpath"]
+            object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+            FlockTransformations::addOrUpdateObject(object)
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            folderpath = object["item-data"]["folderpath"]
+            object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+            FlockTransformations::addOrUpdateObject(object)
         end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
-            time = Time.new
-            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-            FileUtils.mkpath targetFolder
-            puts "source: #{object["item-data"]["folderpath"]}"
-            puts "target: #{targetFolder}"
-            FileUtils.mkpath(targetFolder)
-            if File.exists?(object["item-data"]["folderpath"]) then
-                LucilleCore::copyFileSystemLocation(object["item-data"]["folderpath"], targetFolder)
-                LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
-            end
+            Stream::performObjectClosing(object)
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
@@ -158,6 +196,8 @@ class Stream
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::performObjectClosing(object)
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
         end
     end
 end

@@ -65,7 +65,7 @@ class Vienna
 
     def self.metric(uuid)
         MiniFIFOQ::takeWhile("timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.195 + 0.6*Jupiter::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Jupiter::traceToMetricShift(uuid)
+        metric = 0.150 + 0.6*Jupiter::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Jupiter::traceToMetricShift(uuid)
     end
 
     def self.interface()
