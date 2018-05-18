@@ -2,18 +2,16 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-require_relative "FIFOQueue.rb"
+require_relative "MiniFIFOQ.rb"
 
 # ----------------------------------------------------------------
 
 CATALYST_COMMON_DATA_FOLDERPATH = "/Galaxy/DataBank/Catalyst"
 CATALYST_COMMON_CONFIG_FILEPATH = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Config.json"
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Bin-Timeline"
-CATALYST_COMMON_XCACHE_REPOSITORY = "#{CATALYST_COMMON_DATA_FOLDERPATH}/XCACHE"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Stream"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Open-Projects"
 CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE = "/Galaxy/DataBank/Catalyst/Events-Timeline"
@@ -236,14 +234,7 @@ end
 
 class FKVStore
     def self.getOrNull(key)
-        value = $flock["kvstore"][key]
-        return value if value
-        value = KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, key)
-        if value then
-            $flock["kvstore"][key] = value
-            EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
-        end
-        value
+        $flock["kvstore"][key]
     end
 
     def self.getOrDefaultValue(key, defaultValue)
@@ -829,13 +820,13 @@ class GenericTimeTracking
         status = GenericTimeTracking::status(uuid)
         return if !status[0]
         timespan = Time.new.to_i - status[1]
-        FIFOQueue::push(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
+        MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
         status = [false, nil]
         FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.metric2(uuid, low, high, hourstoMinusOne)
-        adaptedTimespanInSeconds = FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+        adaptedTimespanInSeconds = MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
             .map{|pair|
                 unixtime = pair[0]
                 timespan = pair[1]
@@ -849,7 +840,7 @@ class GenericTimeTracking
     end
 
     def self.timings(uuid)
-        FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+        MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
     end
 end
 
@@ -933,40 +924,4 @@ class CatalystDevOps
         end
         answer
     end
-
-    # -------------------------------------------
-    # xcache
-
-    def self.xcacheDataFilepathEnumerator(subfolder)
-        Enumerator.new do |filepaths|
-            Find.find("#{CATALYST_COMMON_XCACHE_REPOSITORY}/#{subfolder}") do |path|
-                if path[-5, 5] == '.data' then
-                    filepaths << path
-                end
-            end
-        end
-    end
-
-    def self.xcacheFolderpathEnumerator(subfolder)
-        Enumerator.new do |paths|
-            Find.find("#{CATALYST_COMMON_XCACHE_REPOSITORY}/#{subfolder}") do |path|
-                next if !File.directory?(path)
-                paths << path
-            end
-        end
-    end
-
-    def self.xcacheGarbageCollection(subfolder = "")
-        CatalystDevOps::xcacheDataFilepathEnumerator(subfolder).each{|filepath|
-            if CatalystDevOps::getFilepathAgeInDays(filepath) > 60 then
-                puts "removing: #{filepath}"
-                FileUtils.rm(filepath)
-            end
-        }
-        CatalystDevOps::xcacheFolderpathEnumerator(subfolder).each{|path|
-            next if Dir.entries(path).select{|filepath| filepath[0,1]!="." }.size>0
-            LucilleCore::removeFileSystemLocation(path)
-        }
-    end
-
 end

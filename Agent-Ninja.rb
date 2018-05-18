@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "FIFOQueue.rb"
+require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
@@ -26,11 +26,11 @@ $ninjaFolderPathFeeder = NinjaFolderPathFeeder.new()
 
 class NinjaTimestampManager
     def addTimestamp()
-        FIFOQueue::push(CATALYST_COMMON_XCACHE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
+        MiniFIFOQ::push("timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
     end
     def getTimestamps()
-        FIFOQueue::takeWhile(CATALYST_COMMON_XCACHE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timestamps-5bd4-431b-9eef-24ca1d005a3c")
+        MiniFIFOQ::takeWhile("timestamps-5bd4-431b-9eef-24ca1d005a3c", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
+        MiniFIFOQ::values("timestamps-5bd4-431b-9eef-24ca1d005a3c")
     end
 end
 

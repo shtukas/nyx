@@ -19,7 +19,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require_relative "FIFOQueue.rb"
+require_relative "MiniFIFOQ.rb"
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
@@ -64,8 +64,8 @@ class Vienna
     end
 
     def self.metric(uuid)
-        FIFOQueue::takeWhile(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.195 + 0.6*Jupiter::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-FIFOQueue::size(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Jupiter::traceToMetricShift(uuid)
+        MiniFIFOQ::takeWhile("timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
+        metric = 0.195 + 0.6*Jupiter::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Jupiter::traceToMetricShift(uuid)
     end
 
     def self.interface()
@@ -99,7 +99,7 @@ class Vienna
         end
         if command=='done' then
             $viennaLinkFeeder.done(object["item-data"]["link"])
-            FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
+            MiniFIFOQ::push("timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
         end
     end
 end

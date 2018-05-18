@@ -44,7 +44,7 @@ require_relative "Agent-OpenProjects.rb"
 
 # Mercury::fDoNotShowUntilDateTimeTransform()
 # Mercury::isInteger(str)
-# Mercury::emailSyncOnSchedule(verbose)
+# Mercury::emailSync(verbose)
 # Mercury::screenHeight()
 # Mercury::screenWidth()
 # Mercury::putshelp()
@@ -76,18 +76,14 @@ class Mercury
         str.to_i.to_s == str
     end
 
-    def self.emailSyncOnSchedule(verbose)
-        if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "29a504de-7985-493b-b809-332357bda3a7", 1200) then
-            begin
-                newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
-                if newEmailCount>0 then
-                    #puts "Retrieved #{newEmailCount} new emails"
-                end
-                OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
-                # We call again so that the clock restarts at the end of the process
-                LucilleCore::trueNoMoreOftenThanNEverySecondsReset_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "29a504de-7985-493b-b809-332357bda3a7")
-            rescue
+    def self.emailSync(verbose)
+        begin
+            newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
+            if newEmailCount>0 then
+                #puts "Retrieved #{newEmailCount} new emails"
             end
+            OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
+        rescue
         end
     end
 
@@ -190,6 +186,7 @@ class Mercury
 
     def self.main2()
         workspaceSize = 1
+        lastTimelineGarbageCollectionUnixtime = Time.new.to_i
         loop {
             Saturn::generalUpgrade()
             TodayOrNotToday::transform()
@@ -198,13 +195,10 @@ class Mercury
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Jupiter::isPrimaryComputer() then
+            if (Time.new.to_i-lastTimelineGarbageCollectionUnixtime)>3600 and Jupiter::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
                 CatalystDevOps::archivesGarbageCollection(true)
-            end
-            if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 86400) and Jupiter::isPrimaryComputer() then
-                puts "xcache garbage collection"
-                CatalystDevOps::xcacheGarbageCollection()
+                lastTimelineGarbageCollectionUnixtime = Time.new.to_i
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
             $flock["objects"].take(workspaceSize).each_with_index{|o, index|
@@ -251,10 +245,10 @@ end
 if Jupiter::isPrimaryComputer() then
     Thread.new {
         sleep 6
-        Mercury::emailSyncOnSchedule(false)
+        Mercury::emailSync(false)
         loop {
             sleep 1200
-            Mercury::emailSyncOnSchedule(false)
+            Mercury::emailSync(false)
         }
     }
 end
