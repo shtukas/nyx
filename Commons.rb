@@ -196,7 +196,9 @@ class EventsManager
             Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
                 next if !File.file?(path)
                 next if File.basename(path)[-5,5] != '.json'
-                events << JSON.parse(IO.read(path))
+                event = JSON.parse(IO.read(path))
+                event[":filepath:"] = path
+                events << event
             end
         end
     end
@@ -254,7 +256,6 @@ end
 # FlockLoader::loadFlockFromDisk()
 
 class FlockLoader
-
     def self.loadFlockFromDisk()
         flock = {}
         flock["objects"] = []
@@ -288,12 +289,12 @@ end
 
 FlockLoader::loadFlockFromDisk()
 
-# Saturn::agents()
-# Saturn::agentuuid2AgentData(agentuuid)
-# Saturn::generalUpgrade()
-# Saturn::processObjectAndCommand(object, command)
+# AgentsManager::agents()
+# AgentsManager::agentuuid2AgentData(agentuuid)
+# AgentsManager::generalUpgrade()
+# AgentsManager::processObjectAndCommand(object, command)
 
-class Saturn
+class AgentsManager
 
     def self.agents()
         [
@@ -364,13 +365,13 @@ class Saturn
     end
 
     def self.agentuuid2AgentData(agentuuid)
-        Saturn::agents()
+        AgentsManager::agents()
             .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
             .first
     end
 
     def self.generalUpgrade()
-        Saturn::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
+        AgentsManager::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -387,7 +388,7 @@ class Saturn
         end
 
         if expression=="interface" then
-            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", Saturn::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", AgentsManager::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
         end
 
         if expression == 'info' then
@@ -446,7 +447,7 @@ class Saturn
                 requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = Saturn::fGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = AgentsManager::fGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
                 Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -456,7 +457,7 @@ class Saturn
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = Saturn::fGeneralUpgrade().select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = AgentsManager::fGeneralUpgrade().select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -498,10 +499,10 @@ class Saturn
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                Saturn::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+                AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
             }
         else
-            Saturn::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+            AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
         end
     end
 end
@@ -849,10 +850,10 @@ class GenericTimeTracking
 end
 
 # CatalystDevOps::today()
-# CatalystDevOps::getArchiveSizeInMegaBytes()
 # CatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
+# CatalystDevOps::getArchiveSizeInMegaBytes()
 # CatalystDevOps::archivesGarbageCollection(verbose): Int # number of items removed
-# CatalystDevOps::xcacheGarbageCollection()
+# CatalystDevOps::eventsTimelineGarbageCollection(verbose= false)
 
 class CatalystDevOps
 
@@ -927,5 +928,36 @@ class CatalystDevOps
             answer = answer + CatalystDevOps::archivesGarbageCollectionFast(verbose, CatalystDevOps::getArchiveSizeInMegaBytes())
         end
         answer
+    end
+
+    # -------------------------------------------
+    # Events Timeline
+
+    def self.canRemoveEvent(head, tail)
+        if head["event-type"] == "Catalyst:Catalyst-Object:1" then
+            return tail.any?{|e| e["event-type"]=="Catalyst:Catalyst-Object:1" and e["object"]["uuid"]==head["object"]["uuid"] }
+        end
+        if head["event-type"] == "Catalyst:Destroy-Catalyst-Object:1" then
+            return tail.any?{|e| e["event-type"]=="Catalyst:Catalyst-Object:1" and e["object"]["uuid"]==head["object-uuid"] }
+        end
+        if head["event-type"] == "Catalyst:Metadata:DoNotShowUntilDateTime:1" then
+            return DateTime.parse(head["datetime"]).to_time.to_i < Time.new.to_i
+        end
+        if head["event-type"] == "Flock:KeyValueStore:Set:1" then
+            return tail.any?{|e| e["event-type"]=="Flock:KeyValueStore:Set:1" and e["key"]==head["key"] }
+        end
+        raise "Don't know how to garbage collect head: \n#{JSON.pretty_generate(head)}"
+    end
+
+    def self.eventsTimelineGarbageCollection(verbose)
+        events = EventsManager::eventsEnumerator().to_a
+        while events.size>=2 do
+            event = events.shift
+            if CatalystDevOps::canRemoveEvent(event, events) then
+                eventfilepath = event[":filepath:"]
+                puts "CatalystDevOps::eventsTimelineGarbageCollection(verbose): #{eventfilepath}" if verbose
+                FileUtils.rm(eventfilepath)
+            end
+        end
     end
 end
