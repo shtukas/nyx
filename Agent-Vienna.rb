@@ -65,7 +65,7 @@ class Vienna
 
     def self.metric(uuid)
         MiniFIFOQ::takeWhile("timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.150 + 0.6*Jupiter::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + Jupiter::traceToMetricShift(uuid)
+        metric = 0.150 + 0.6*CommonsUtils::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + CommonsUtils::traceToMetricShift(uuid)
     end
 
     def self.interface()
@@ -73,7 +73,7 @@ class Vienna
     end
 
     def self.generalUpgrade()
-        return [] if !Jupiter::isPrimaryComputer()
+        return [] if !CommonsUtils::isPrimaryComputer()
         link = $viennaLinkFeeder.next()
         return [] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]

@@ -69,9 +69,9 @@ class Stream
     end
 
     def self.uuid2metric(uuid, status)
-        metric = 0.40 + 0.25*Math.sin( (Time.new.to_f/86400)+Jupiter::traceToRealInUnitInterval(Digest::SHA1.hexdigest(uuid)*3.14*2) )
+        metric = 0.40 + 0.25*Math.sin( (Time.new.to_f/86400)+CommonsUtils::traceToRealInUnitInterval(Digest::SHA1.hexdigest(uuid)*3.14*2) )
         metric = metric * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8)
-        metric = status[0] ? 2 - Jupiter::traceToMetricShift(uuid) : metric
+        metric = status[0] ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric
     end
 
     def self.uuid2commands(uuid, status)
@@ -86,7 +86,7 @@ class Stream
         return nil if !File.exist?(folderpath)
         uuid = Stream::folderpath2uuid(folderpath)
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-        announce = "stream: #{Jupiter::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
+        announce = "stream: #{CommonsUtils::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
         object = {}
         object["uuid"] = uuid
         object["agent-uid"] = self.agentuuid()

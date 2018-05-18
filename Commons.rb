@@ -34,16 +34,16 @@ class Config
     end
 end
 
-# Jupiter::isPrimaryComputer()
-# Jupiter::currentHour()
-# Jupiter::currentDay()
-# Jupiter::simplifyURLCarryingString(string)
-# Jupiter::traceToRealInUnitInterval(trace)
-# Jupiter::traceToMetricShift(trace)
-# Jupiter::realNumbersToZeroOne(x, origin, unit)
-# Jupiter::codeToDatetimeOrNull(code)
+# CommonsUtils::isPrimaryComputer()
+# CommonsUtils::currentHour()
+# CommonsUtils::currentDay()
+# CommonsUtils::simplifyURLCarryingString(string)
+# CommonsUtils::traceToRealInUnitInterval(trace)
+# CommonsUtils::traceToMetricShift(trace)
+# CommonsUtils::realNumbersToZeroOne(x, origin, unit)
+# CommonsUtils::codeToDatetimeOrNull(code)
 
-class Jupiter
+class CommonsUtils
 
     def self.isPrimaryComputer()
         ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
@@ -63,7 +63,7 @@ class Jupiter
             .each{|regex|
                 if ( m = regex.match(string) ) then
                     string = string[m.to_s.size, string.size].strip
-                    return Jupiter::simplifyURLCarryingString(string)
+                    return CommonsUtils::simplifyURLCarryingString(string)
                 end
             }
         string
@@ -74,7 +74,7 @@ class Jupiter
     end
 
     def self.traceToMetricShift(trace)
-        0.001*Jupiter::traceToRealInUnitInterval(trace)
+        0.001*CommonsUtils::traceToRealInUnitInterval(trace)
     end
 
     def self.realNumbersToZeroOne(x, origin, unit)
@@ -251,13 +251,9 @@ class FKVStore
     end
 end
 
-# Saturn::loadFlockFromDisk()
-# Saturn::agents()
-# Saturn::agentuuid2AgentData(agentuuid)
-# Saturn::generalUpgrade()
-# Saturn::processObjectAndCommand(object, command)
+# FlockLoader::loadFlockFromDisk()
 
-class Saturn
+class FlockLoader
 
     def self.loadFlockFromDisk()
         flock = {}
@@ -288,6 +284,16 @@ class Saturn
         }
         $flock = flock
     end
+end
+
+FlockLoader::loadFlockFromDisk()
+
+# Saturn::agents()
+# Saturn::agentuuid2AgentData(agentuuid)
+# Saturn::generalUpgrade()
+# Saturn::processObjectAndCommand(object, command)
+
+class Saturn
 
     def self.agents()
         [
@@ -473,7 +479,7 @@ class Saturn
 
         if expression.start_with?('+') then
             code = expression
-            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
                 $flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
@@ -499,8 +505,6 @@ class Saturn
         end
     end
 end
-
-Saturn::loadFlockFromDisk()
 
 # RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
 # RequirementsOperator::setUnsatisfiedRequirement(requirement)
@@ -585,10 +589,10 @@ end
 
 class TodayOrNotToday
     def self.notToday(uuid)
-        FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}", "!today")
+        FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}", "!today")
     end
     def self.todayOk(uuid)
-        FKVStore::getOrNull("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}").nil?
+        FKVStore::getOrNull("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}").nil?
     end
     def self.transform()
         $flock["objects"] = $flock["objects"].map{|object|
@@ -699,7 +703,7 @@ class FolderProbe
             contents = IO.read(filepath)
             return nil if contents.lines.to_a.size != 1
             line = contents.lines.first.strip
-            line = Jupiter::simplifyURLCarryingString(line)
+            line = CommonsUtils::simplifyURLCarryingString(line)
             return nil if !line.start_with?("http")
             line
         }

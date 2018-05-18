@@ -195,7 +195,7 @@ class Mercury
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            if (Time.new.to_i-lastTimelineGarbageCollectionUnixtime)>3600 and Jupiter::isPrimaryComputer() then
+            if (Time.new.to_i-lastTimelineGarbageCollectionUnixtime)>3600 and CommonsUtils::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
                 CatalystDevOps::archivesGarbageCollection(true)
                 lastTimelineGarbageCollectionUnixtime = Time.new.to_i
@@ -242,7 +242,7 @@ end
 
 # -----------------------------------------------------------------
 
-if Jupiter::isPrimaryComputer() then
+if CommonsUtils::isPrimaryComputer() then
     Thread.new {
         sleep 6
         Mercury::emailSync(false)
@@ -256,7 +256,7 @@ end
 Thread.new {
     loop {
         sleep 300
-        Saturn::loadFlockFromDisk()
+        FlockLoader::loadFlockFromDisk()
     }
 }
 
