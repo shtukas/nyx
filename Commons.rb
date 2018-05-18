@@ -6,7 +6,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
+require_relative "FIFOQueue.rb"
 
 # ----------------------------------------------------------------
 

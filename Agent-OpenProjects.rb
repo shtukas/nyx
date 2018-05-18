@@ -19,7 +19,6 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 

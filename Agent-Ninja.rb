@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
+require_relative "FIFOQueue.rb"
 # -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
