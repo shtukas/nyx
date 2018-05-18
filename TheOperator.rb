@@ -258,7 +258,7 @@ class TheOperator
         # object needed
 
         if expression == '!today' then
-            TodayOrNotToday::notToday(object["uuid"])
+            flock = TodayOrNotToday::notToday(flock, object["uuid"])
             return flock
         end
 

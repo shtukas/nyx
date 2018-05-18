@@ -162,6 +162,86 @@ class EventsLogReadWrite
     end
 end
 
+# FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid): Flock
+# FlockPureTransformations::removeObjectsFromAgent(flock, agentuuid): Flock
+# FlockPureTransformations::addOrUpdateObject(flock, object): Flock
+
+class FlockPureTransformations
+    def self.removeObjectIdentifiedByUUID(flock, uuid)
+        flock["objects"].reject!{|o| o["uuid"]==uuid }
+        flock
+    end
+
+    def self.removeObjectsFromAgent(flock, agentuuid)
+        flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
+        flock
+    end
+
+    def self.addOrUpdateObject(flock, object)
+        flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
+        flock["objects"] << object
+        flock
+    end
+end
+
+# EventsMaker::destroyCatalystObject(uuid)
+# EventsMaker::catalystObject(object)
+# EventsMaker::doNotShowUntilDateTime(uuid, datetime)
+# EventsMaker::flockKeyValueStoreSet(key, value)
+
+class EventsMaker
+    def self.destroyCatalystObject(uuid)
+        {
+            "event-type"  => "Catalyst:Destroy-Catalyst-Object:1",
+            "object-uuid" => uuid
+        }
+    end
+
+    def self.catalystObject(object)
+        {
+            "event-type" => "Catalyst:Catalyst-Object:1",
+            "object"     => object
+        }
+    end
+
+    def self.doNotShowUntilDateTime(uuid, datetime)
+        {
+            "event-type"  => "Catalyst:Metadata:DoNotShowUntilDateTime:1",
+            "object-uuid" => uuid,
+            "datetime"    => datetime
+        }
+    end
+
+    def self.flockKeyValueStoreSet(key, value)
+        {
+            "event-type" => "Flock:KeyValueStore:Set:1",
+            "key"        => key,
+            "value"      => value
+        }
+    end
+end
+
+# FKVStore::getOrNull(flock, key): [Flock, value]
+# FKVStore::set(flock, key, value): Flock
+
+class FKVStore
+    def self.getOrNull(flock, key)
+        value = flock["kvstore"][key]
+        return value if value
+        value = KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, key)
+        if value then
+            flock["kvstore"][key] = value
+            EventsLogReadWrite::commitEventToTimeline(EventsMaker::flockKeyValueStoreSet(key, value))
+        end
+        [flock, value]
+    end
+    def self.set(flock, key, value)
+        flock["kvstore"][key] = value
+        EventsLogReadWrite::commitEventToTimeline(EventsMaker::flockKeyValueStoreSet(key, value))
+        flock
+    end
+end
+
 # RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
 # RequirementsOperator::setUnsatisfiedRequirement(requirement)
 # RequirementsOperator::setSatisfifiedRequirement(requirement)
@@ -175,6 +255,9 @@ end
 
 # RequirementsOperator::getAllRequirements()
 # RequirementsOperator::transform(objects)
+
+# FKVStore::getOrNull(flock, key): [Flock, value]
+# FKVStore::set(flock, key, value): Flock
 
 class RequirementsOperator
 
@@ -239,20 +322,21 @@ class RequirementsOperator
     end
 end
 
-# TodayOrNotToday::notToday(uuid)
+# TodayOrNotToday::notToday(flock, uuid): Flock
 # TodayOrNotToday::todayOk(uuid)
-# TodayOrNotToday::transform(objects)
+# TodayOrNotToday::transform(flock, objects): Array[object]
 
 class TodayOrNotToday
-    def self.notToday(uuid)
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}", "!today")
+    def self.notToday(flock, uuid)
+        FKVStore::set(flock, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}", "!today")
     end
-    def self.todayOk(uuid)
-        KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}").nil?
+    def self.todayOk(flock, uuid)
+        flock, value = FKVStore::getOrNull(flock, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}")
+        value.nil?
     end
-    def self.transform(objects)
+    def self.transform(flock, objects)
         objects.map{|object|
-            if !TodayOrNotToday::todayOk(object["uuid"]) then
+            if !TodayOrNotToday::todayOk(flock, object["uuid"]) then
                 object["metric"] = 0
             end
             object
@@ -501,56 +585,6 @@ class GenericTimeTracking
 
     def self.timings(uuid)
         FIFOQueue::values(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
-    end
-end
-
-# FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid): Flock
-# FlockPureTransformations::removeObjectsFromAgent(flock, agentuuid): Flock
-# FlockPureTransformations::addOrUpdateObject(flock, object): Flock
-
-class FlockPureTransformations
-    def self.removeObjectIdentifiedByUUID(flock, uuid)
-        flock["objects"].reject!{|o| o["uuid"]==uuid }
-        flock
-    end
-
-    def self.removeObjectsFromAgent(flock, agentuuid)
-        flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
-        flock
-    end
-
-    def self.addOrUpdateObject(flock, object)
-        flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
-        flock["objects"] << object
-        flock
-    end
-end
-
-# EventsMaker::destroyCatalystObject(uuid)
-# EventsMaker::catalystObject(object)
-# EventsMaker::doNotShowUntilDateTime(uuid, datetime)
-
-class EventsMaker
-    def self.destroyCatalystObject(uuid)
-        {
-            "event-type"  => "Catalyst:Destroy-Catalyst-Object:1",
-            "object-uuid" => uuid
-        }
-    end
-
-    def self.catalystObject(object)
-        {
-            "event-type" => "Catalyst:Catalyst-Object:1",
-            "object"     => object
-        }
-    end
-
-    def self.doNotShowUntilDateTime(uuid, datetime)
-        {
-            "event-type"  => "Catalyst:Metadata:DoNotShowUntilDateTime:1",
-            "object-uuid" => uuid,
-            "datetime"    => datetime
-        }
     end
 end
 
