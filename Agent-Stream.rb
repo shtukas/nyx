@@ -10,7 +10,6 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'drb/drb'
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
@@ -20,7 +19,7 @@ require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
 # Stream::agentuuid()
-# Stream::upgradeFlockUsingObjectAndCommand(flock, object, command)
+# Stream::processObjectAndCommand(object, command)
 
 # Stream::folderpaths(itemsfolderpath)
 # Stream::getuuid(folderpath)
@@ -29,7 +28,7 @@ require_relative "Commons.rb"
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::issueNewItemFromDescription(description)
-# Stream::flockGeneralUpgrade(flock)
+# Stream::generalUpgrade()
 
 class Stream
 
@@ -108,31 +107,20 @@ class Stream
         
     end
 
-    def self.flockGeneralUpgrade(flock)
-        return [flock, []]
+    def self.generalUpgrade()
+        return
         folderpaths = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
         size = folderpaths.size
         objects = folderpaths.zip((1..size))
             .map{|folderpath, indx| Stream::folderpathToCatalystObjectOrNull(folderpath, indx, size)}
             .compact
-        flock["objects"] = flock["objects"] + objects
-        [
-            flock,
-            objects.map{|o|  
-                {
-                    "event-type" => "Catalyst:Catalyst-Object:1",
-                    "object"     => o
-                }                
-            }   
-        ]
+        FlockTransformations::addOrUpdateObjects(objects)
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
-        return [flock, []]
+    def self.processObjectAndCommand(object, command)
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object["item-data"]["folderpath"]}'")
-            return []
         end
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]

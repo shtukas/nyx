@@ -2,7 +2,6 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require 'date'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 # -------------------------------------------------------------------------------------
@@ -12,7 +11,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 # Kimchee::weeksValue()
 # Kimchee::monthsValues()
 # Kimchee::lastKnownweeksValueInteger()
-# Kimchee::flockGeneralUpgrade(flock)
+# Kimchee::generalUpgrade()
 
 class Kimchee
 
@@ -42,15 +41,15 @@ class Kimchee
     end
 
     def self.lastKnownweeksValueInteger()
-        KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "Last-Known-Weeks-Value-Integer-F98F50E6-E076-40FB-8F91-C553153CA5CB", "0").to_i
+        FKVStore::getOrDefaultValue("Last-Known-Weeks-Value-Integer-F98F50E6-E076-40FB-8F91-C553153CA5CB", "0").to_i
     end
 
     def self.interface()
         
     end
 
-    def self.flockGeneralUpgrade(flock)
-        return [flock, []] if !Jupiter::isPrimaryComputer()
+    def self.generalUpgrade()
+        return [] if !Jupiter::isPrimaryComputer()
         if Kimchee::weeksValue().to_i > Kimchee::lastKnownweeksValueInteger() then
             weekValue = Kimchee::weeksValue()
             monthValues = Kimchee::monthsValues()
@@ -61,16 +60,14 @@ class Kimchee
                 "announce"  => "Well done for making it to #{"%.3f" % weekValue} weeks { #{monthValues[0]} months and #{monthValues[1].to_i} days } (^_^) 💕",
                 "commands"  => ["love"]
             }
-            flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+            FlockTransformations::addOrUpdateObject(object)
         end
-        [flock, []] # We do not emit an event as the object is transcient
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+    def self.processObjectAndCommand(object, command)
         if command=="love" then
-            KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Last-Known-Weeks-Value-Integer-F98F50E6-E076-40FB-8F91-C553153CA5CB", Kimchee::weeksValue())
-            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
+            FKVStore::set("Last-Known-Weeks-Value-Integer-F98F50E6-E076-40FB-8F91-C553153CA5CB", Kimchee::weeksValue())
+            FlockTransformations::removeObjectIdentifiedByUUID(object["uuid"])
         end
-        return [flock, []] # We do not need to emit a deletion event as the object was transcient
     end
 end

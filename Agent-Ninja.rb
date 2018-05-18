@@ -2,14 +2,13 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 # -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
-# Ninja::flockGeneralUpgrade(flock)
+# Ninja::generalUpgrade()
 
 class NinjaFolderPathFeeder
     def initialize()
@@ -47,10 +46,10 @@ class Ninja
         
     end
 
-    def self.flockGeneralUpgrade(flock)
+    def self.generalUpgrade()
         folderpath = $ninjaFolderPathFeeder.next()
         if folderpath.nil? then
-            return [flock, []]
+            return []
         end
         metric = 0.195 + 0.4*Math.exp(-$ninjaTimestampManager.getTimestamps().size.to_f/16) + Jupiter::traceToMetricShift("deb58288-31e9-4d20-848d-8ac33d3701ee")
         object = {
@@ -63,14 +62,13 @@ class Ninja
                 "ninja-folderpath" => folderpath
             }
         }
-        flock = FlockPureTransformations::addOrUpdateObject(flock, object)
-        [flock, []] # We do not emit an event as the object is transcient
+        FlockTransformations::addOrUpdateObject(object)
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+    def self.processObjectAndCommand(object, command)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
         $ninjaTimestampManager.addTimestamp()
-        return [flock, []]
+        FlockTransformations::removeObjectIdentifiedByUUID(object["uuid"])
     end
 end

@@ -19,7 +19,6 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
@@ -32,7 +31,7 @@ TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
 # Today::sectionToLength8UUID(section)
 # Today::todaySectionsUUIDs()
 # Today::removeSectionFromFile(uuid)
-# Today::flockGeneralUpgrade(flock)
+# Today::generalUpgrade()
 
 class Today
 
@@ -106,7 +105,7 @@ class Today
         
     end
 
-    def self.flockGeneralUpgrade(flock)
+    def self.generalUpgrade()
         objects = []
         todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
@@ -124,18 +123,16 @@ class Today
                 }
             }
         }
-        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
-        flock["objects"] = flock["objects"] + objects
-        [ flock, [] ] # We do not emit any event because the objects are generated on the fly
+        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
+        FlockTransformations::addOrUpdateObjects(objects)
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+    def self.processObjectAndCommand(object, command)
         if command=='done' then
             Today::removeSectionFromFile(object['uuid'])
-            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object['uuid'])
         end
         if command=='>stream' then
-            return [flock, []]
+            return []
             description = object["item-data"]["section"]
             folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
@@ -143,13 +140,12 @@ class Today
             Today::removeSectionFromFile(object['uuid'])
         end
         if command=='>open-projects' then
-            return [flock, []]
+            return []
             description = object["item-data"]["section"]
             folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             Today::removeSectionFromFile(object['uuid'])
         end
-        return [flock, []] # we do not need to emit events because the objects are transcient
     end
 end

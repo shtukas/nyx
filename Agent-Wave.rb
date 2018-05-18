@@ -20,7 +20,6 @@ require 'fileutils'
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
 require 'drb/drb'
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "Commons.rb"
 # ----------------------------------------------------------------------
@@ -280,8 +279,8 @@ end
 # Wave::removeWaveMetadataFilesAtLocation(location)
 # Wave::issueNewItemFromDescriptionInteractive(description)
 # Wave::interface()
-# Wave::flockGeneralUpgrade(flock)
-# Wave::upgradeFlockUsingObjectAndCommand(flock, object, command)
+# Wave::generalUpgrade()
+# Wave::processObjectAndCommand(object, command)
 
 class Wave
 
@@ -301,7 +300,7 @@ class Wave
     end
 
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = FKVStore::getOrNull("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -313,7 +312,7 @@ class Wave
         end
         #puts "Wave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
+        FKVStore::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
         maybepath
     end
 
@@ -468,92 +467,91 @@ class Wave
         LucilleCore::pressEnterToContinue()
     end
 
-    def self.flockGeneralUpgrade(flock)
-        [ flock, [] ] # No change in the existing distribution, TODO: what happens when a new item is added ?
+    def self.generalUpgrade()
+        [] # No change in the existing distribution, TODO: what happens when a new item is added ?
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+    def self.processObjectAndCommand(object, command)
         schedule = object['schedule']
         uuid = object['uuid']
 
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
-            return [flock, []]
+            return []
         end
 
         if command=='done' then
 
             if schedule['@'] == 'new' then
                 Wave::archiveWaveItems(uuid)
-                flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid)
+                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
                 event = EventsMaker::destroyCatalystObject(uuid)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
             if schedule['@'] == 'today' then
                 Wave::archiveWaveItems(uuid)
-                flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid)
+                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
                 event = EventsMaker::destroyCatalystObject(uuid)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
             if schedule['@'] == 'ondate' then
                 Wave::archiveWaveItems(uuid)
-                flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid)
+                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
                 event = EventsMaker::destroyCatalystObject(uuid)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
             if schedule['@'] == 'sticky' then
                 object['schedule'] = WaveSchedules::cycleSchedule(schedule)
-                flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+                FlockTransformations::addOrUpdateObject(object)
                 event = EventsMaker::catalystObject(object)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
             if schedule['@'] == 'every-n-hours' then
                 object['schedule'] = WaveSchedules::cycleSchedule(schedule)
-                flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+                FlockTransformations::addOrUpdateObject(object)
                 event = EventsMaker::catalystObject(object)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
             if schedule['@'] == 'every-n-days' then
                 object['schedule'] = WaveSchedules::cycleSchedule(schedule)
-                flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+                FlockTransformations::addOrUpdateObject(object)
                 event = EventsMaker::catalystObject(object)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
             if schedule['@'] == 'every-this-day-of-the-month' then
                 object['schedule'] = WaveSchedules::cycleSchedule(schedule)
-                flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+                FlockTransformations::addOrUpdateObject(object)
                 event = EventsMaker::catalystObject(object)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
             if schedule['@'] == 'every-this-day-of-the-week' then
                 object['schedule'] = WaveSchedules::cycleSchedule(schedule)
-                flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+                FlockTransformations::addOrUpdateObject(object)
                 event = EventsMaker::catalystObject(object)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
         end
 
         if command=='recast' then
             object['schedule'] = WaveSchedules::cycleSchedule(schedule)
-            flock = FlockPureTransformations::addOrUpdateObject(flock, object)
+            FlockTransformations::addOrUpdateObject(object)
             event = EventsMaker::catalystObject(object)
-            return [flock, [event]]
+            EventsManager::commitEventToTimeline(event)
         end
 
         if command=='folder' then
             location = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
-            return [flock, []]
         end
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 Wave::archiveWaveItems(uuid)
-                flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid)
+                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
                 event = EventsMaker::destroyCatalystObject(uuid)
-                return [flock, [event]]
+                EventsManager::commitEventToTimeline(event)
             end
         end
 
@@ -563,12 +561,13 @@ class Wave
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
             Wave::archiveWaveItems(uuid)
-            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid)
+            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
             event1 = EventsMaker::destroyCatalystObject(uuid)
+            EventsManager::commitEventToTimeline(event1)
             object2 = Stream::folderpathToCatalystObjectOrNull(targetfolderpath, 100, 100)
-            flock = FlockPureTransformations::addOrUpdateObject(flock, object2)
+            FlockTransformations::addOrUpdateObject(object2)
             event2 = EventsMaker::catalystObject(object)
-            return [flock, [event1, event2]]
+            EventsManager::commitEventToTimeline(event2)
         end
 
         if command=='>open-projects' then
@@ -577,12 +576,13 @@ class Wave
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
             Wave::archiveWaveItems(uuid)
-            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid)
+            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
             event1 = EventsMaker::destroyCatalystObject(uuid)
+            EventsManager::commitEventToTimeline(event1)
             object2 = Stream::folderpath2CatalystObjectOrNull(targetfolderpath)
-            flock = FlockPureTransformations::addOrUpdateObject(flock, object2)
+            FlockTransformations::addOrUpdateObject(object2)
             event2 = EventsMaker::catalystObject(object)
-            return [flock, [event1, event2]]
+            EventsManager::commitEventToTimeline(event2)
         end
 
         if command=='>lib' then
@@ -598,10 +598,9 @@ class Wave
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Wave::archiveWaveItems(uuid)
-            flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid)
+            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
             event = EventsMaker::destroyCatalystObject(uuid)
-            return [flock, [event]]
+            EventsManager::commitEventToTimeline(event)
         end
-        return [flock, []]
     end
 end

@@ -19,20 +19,19 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
 OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Open-Projects"
 
-# OpenProjects::flockGeneralUpgrade()
+# OpenProjects::fGeneralUpgrade()
 
 # OpenProjects::folderpaths(itemsfolderpath)
 # OpenProjects::getuuidOrNull(folderpath)
 # OpenProjects::folderpath2CatalystObjectOrNull(folderpath)
 # OpenProjects::issueNewItemFromDescription(description)
-# OpenProjects::flockGeneralUpgrade(flock)
+# OpenProjects::generalUpgrade()
 
 class OpenProjects
 
@@ -106,16 +105,15 @@ class OpenProjects
         LucilleCore::pressEnterToContinue()
     end    
 
-    def self.flockGeneralUpgrade(flock)
+    def self.generalUpgrade()
         objects = OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
             .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
             .compact
-        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
-        flock["objects"] = flock["objects"] + objects
-        [flock, []] # We do not emit an event as the object is transcient (this is fine as there aren't many)
+        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
+        FlockTransformations::addOrUpdateObjects(objects)
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+    def self.processObjectAndCommand(object, command)
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
@@ -138,6 +136,5 @@ class OpenProjects
         if command=="folder" then
             system("open '#{object["item-data"]["folderpath"]}'")
         end
-        return [flock, []]
     end
 end

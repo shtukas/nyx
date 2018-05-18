@@ -19,7 +19,6 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require "/Galaxy/local-resources/Ruby-Libraries/FIFOQueue.rb"
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
@@ -52,7 +51,7 @@ end
 
 $viennaLinkFeeder = ViennaLinkFeeder.new()
 
-# Vienna::upgradeFlockUsingObjectAndCommand(flock, object, command)
+# Vienna::processObjectAndCommand(object, command)
 
 class Vienna
 
@@ -73,10 +72,10 @@ class Vienna
         
     end
 
-    def self.flockGeneralUpgrade(flock)
-        return [flock, []] if !Jupiter::isPrimaryComputer()
+    def self.generalUpgrade()
+        return [] if !Jupiter::isPrimaryComputer()
         link = $viennaLinkFeeder.next()
-        return [flock, []] if link.nil?
+        return [] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
         object = 
             {
@@ -90,12 +89,11 @@ class Vienna
                     "link" => link
                 }
             }
-        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
-        flock = FlockPureTransformations::addOrUpdateObject(flock, object)
-        [ flock, [] ] # We emit no event because Vienna objects are not stored on disk
+        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
+        FlockTransformations::addOrUpdateObject(object)
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+    def self.processObjectAndCommand(object, command)
         if command=='open' then
             system("open '#{object["item-data"]["link"]}'")
         end
@@ -103,6 +101,5 @@ class Vienna
             $viennaLinkFeeder.done(object["item-data"]["link"])
             FIFOQueue::push(nil, "timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
         end
-        [flock, []]
     end
 end

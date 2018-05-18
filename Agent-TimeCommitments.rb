@@ -19,7 +19,6 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require 'colorize'
 require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 require_relative "Commons.rb"
@@ -56,7 +55,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATA_FOLDERP
 # TimeCommitments::garbageCollectionItems(items)
 # TimeCommitments::garbageCollectionGlobal()
 # TimeCommitments::getUniqueDomains(items)
-# TimeCommitments::flockGeneralUpgrade(flock)
+# TimeCommitments::generalUpgrade()
 
 class TimeCommitments
 
@@ -164,8 +163,7 @@ class TimeCommitments
         
     end
 
-    def self.flockGeneralUpgrade(flock)
-        flock = FlockPureTransformations::removeObjectsFromAgent(flock, self.agentuuid())
+    def self.generalUpgrade()
         TimeCommitments::garbageCollectionGlobal()
         objects = TimeCommitments::getItems()
         .map{|item|
@@ -191,11 +189,11 @@ class TimeCommitments
             else
                 objects
             end
-        flock["objects"] = flock["objects"] + objects
-        [ flock, [] ] # We do not emit an event as the objects are transcient (for the moment)
+        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
+        FlockTransformations::addOrUpdateObjects(objects)
     end
 
-    def self.upgradeFlockUsingObjectAndCommand(flock, object, command)
+    def self.processObjectAndCommand(object, command)
         uuid = object['uuid']
         if command=='start' then
             TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
@@ -203,6 +201,5 @@ class TimeCommitments
         if command=="stop" then
             TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
         end
-        return [flock, []] # We do not emit an event as the object are transcient
     end
 end

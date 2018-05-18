@@ -21,6 +21,13 @@ CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN = "/Galaxy/DataBank/Catalyst/Events-Buf
 
 # ----------------------------------------------------------------
 
+$flock = {}
+$flock["objects"] = []
+$flock["do-not-show-until-datetime-distribution"] = {}
+$flock["kvstore"] = {}
+
+# ----------------------------------------------------------------
+
 # Config::get(keyname)
 
 class Config
@@ -129,65 +136,10 @@ class Jupiter
     end
 end
 
-# EventsLogReadWrite::pathToActiveEventsIndexFolder()
-# EventsLogReadWrite::commitEventToTimeline(event)
-# EventsLogReadWrite::eventsEnumerator()
-
-class EventsLogReadWrite
-    def self.pathToActiveEventsIndexFolder()
-        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H")}"
-        FileUtils.mkpath folder1 if !File.exists?(folder1)
-        LucilleCore::indexsubfolderpath(folder1)
-    end
-
-    def self.commitEventToTimeline(event)
-        folderpath = EventsLogReadWrite::pathToActiveEventsIndexFolder()
-        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
-    end
-
-    def self.commitEventToBufferIn(event) # To be read only by Lucille18
-        filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
-    end
-
-    def self.eventsEnumerator()
-        Enumerator.new do |events|
-            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
-                next if !File.file?(path)
-                next if File.basename(path)[-5,5] != '.json'
-                events << JSON.parse(IO.read(path))
-            end
-        end
-    end
-end
-
-# FlockPureTransformations::removeObjectIdentifiedByUUID(flock, uuid): Flock
-# FlockPureTransformations::removeObjectsFromAgent(flock, agentuuid): Flock
-# FlockPureTransformations::addOrUpdateObject(flock, object): Flock
-
-class FlockPureTransformations
-    def self.removeObjectIdentifiedByUUID(flock, uuid)
-        flock["objects"].reject!{|o| o["uuid"]==uuid }
-        flock
-    end
-
-    def self.removeObjectsFromAgent(flock, agentuuid)
-        flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
-        flock
-    end
-
-    def self.addOrUpdateObject(flock, object)
-        flock = FlockPureTransformations::removeObjectIdentifiedByUUID(flock, object["uuid"])
-        flock["objects"] << object
-        flock
-    end
-end
-
 # EventsMaker::destroyCatalystObject(uuid)
 # EventsMaker::catalystObject(object)
 # EventsMaker::doNotShowUntilDateTime(uuid, datetime)
-# EventsMaker::flockKeyValueStoreSet(key, value)
+# EventsMaker::fKeyValueStoreSet(key, value)
 
 class EventsMaker
     def self.destroyCatalystObject(uuid)
@@ -212,7 +164,7 @@ class EventsMaker
         }
     end
 
-    def self.flockKeyValueStoreSet(key, value)
+    def self.fKeyValueStoreSet(key, value)
         {
             "event-type" => "Flock:KeyValueStore:Set:1",
             "key"        => key,
@@ -221,24 +173,92 @@ class EventsMaker
     end
 end
 
-# FKVStore::getOrNull(flock, key): [Flock, value]
-# FKVStore::set(flock, key, value): Flock
+# EventsManager::pathToActiveEventsIndexFolder()
+# EventsManager::commitEventToTimeline(event)
+# EventsManager::eventsEnumerator()
+
+class EventsManager
+    def self.pathToActiveEventsIndexFolder()
+        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H")}"
+        FileUtils.mkpath folder1 if !File.exists?(folder1)
+        LucilleCore::indexsubfolderpath(folder1)
+    end
+
+    def self.commitEventToTimeline(event)
+        folderpath = EventsManager::pathToActiveEventsIndexFolder()
+        filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+    end
+
+    def self.commitEventToBufferIn(event) # To be read only by Lucille18
+        filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+    end
+
+    def self.eventsEnumerator()
+        Enumerator.new do |events|
+            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
+                next if !File.file?(path)
+                next if File.basename(path)[-5,5] != '.json'
+                events << JSON.parse(IO.read(path))
+            end
+        end
+    end
+end
+
+# FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+# FlockTransformations::removeObjectsFromAgent(agentuuid)
+# FlockTransformations::addOrUpdateObject(object)
+# FlockTransformations::addOrUpdateObjects(objects)
+
+class FlockTransformations
+    def self.removeObjectIdentifiedByUUID(uuid)
+        $flock["objects"].reject!{|o| o["uuid"]==uuid }
+    end
+
+    def self.removeObjectsFromAgent(agentuuid)
+        $flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
+    end
+
+    def self.addOrUpdateObject(object)
+        FlockTransformations::removeObjectIdentifiedByUUID(object["uuid"])
+        $flock["objects"] << object
+    end
+
+    def self.addOrUpdateObjects(objects)
+        objects.each{|object|
+            FlockTransformations::addOrUpdateObject(object)
+        }
+    end    
+end
+
+# FKVStore::getOrNull(key): value
+# FKVStore::getOrDefaultValue(key, defaultValue): value
+# FKVStore::set(key, value)
 
 class FKVStore
-    def self.getOrNull(flock, key)
-        value = flock["kvstore"][key]
+    def self.getOrNull(key)
+        value = $flock["kvstore"][key]
         return value if value
         value = KeyValueStore::getOrNull(CATALYST_COMMON_XCACHE_REPOSITORY, key)
         if value then
-            flock["kvstore"][key] = value
-            EventsLogReadWrite::commitEventToTimeline(EventsMaker::flockKeyValueStoreSet(key, value))
+            $flock["kvstore"][key] = value
+            EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
         end
-        [flock, value]
+        value
     end
-    def self.set(flock, key, value)
-        flock["kvstore"][key] = value
-        EventsLogReadWrite::commitEventToTimeline(EventsMaker::flockKeyValueStoreSet(key, value))
-        flock
+
+    def self.getOrDefaultValue(key, defaultValue)
+        value = FKVStore::getOrNull(key)
+        if value.nil? then
+            value = defaultValue
+        end
+        value
+    end
+
+    def self.set(key, value)
+        $flock["kvstore"][key] = value
+        EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
     end
 end
 
@@ -254,27 +274,24 @@ end
 # RequirementsOperator::objectMeetsRequirements(uuid)
 
 # RequirementsOperator::getAllRequirements()
-# RequirementsOperator::transform(objects)
-
-# FKVStore::getOrNull(flock, key): [Flock, value]
-# FKVStore::set(flock, key, value): Flock
+# RequirementsOperator::transform()
 
 class RequirementsOperator
 
     def self.getCurrentlyUnsatisfiedRequirements()
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
+        JSON.parse(FKVStore::getOrDefaultValue("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
     end
 
     def self.setUnsatisfiedRequirement(requirement)
         rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = (rs + [ requirement ]).uniq
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+        FKVStore::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
     end
 
     def self.setSatisfifiedRequirement(requirement)
         rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = rs.reject{|r| r==requirement }
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+        FKVStore::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
     end
 
     def self.requirementIsCurrentlySatisfied(requirement)
@@ -284,11 +301,11 @@ class RequirementsOperator
     # objects
 
     def self.getObjectRequirements(uuid)
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
+        JSON.parse(FKVStore::getOrDefaultValue("Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
     end
 
     def self.setObjectRequirements(uuid, requirements)
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
+        FKVStore::set("Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
     end
 
     def self.addRequirementToObject(uuid,requirement)
@@ -305,15 +322,15 @@ class RequirementsOperator
     end
 
     def self.getAllRequirements()
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", "[]"))
+        JSON.parse(FKVStore::getOrDefaultValue("Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", "[]"))
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
         LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
 
-    def self.transform(objects)
-        objects.map{|object|
+    def self.transform()
+        $flock["objects"] = $flock["objects"].map{|object|
             if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) then
                 object["metric"] = 0
             end
@@ -322,21 +339,20 @@ class RequirementsOperator
     end
 end
 
-# TodayOrNotToday::notToday(flock, uuid): Flock
+# TodayOrNotToday::notToday(uuid)
 # TodayOrNotToday::todayOk(uuid)
-# TodayOrNotToday::transform(flock, objects): Array[object]
+# TodayOrNotToday::transform()
 
 class TodayOrNotToday
-    def self.notToday(flock, uuid)
-        FKVStore::set(flock, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}", "!today")
+    def self.notToday(uuid)
+        FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}", "!today")
     end
-    def self.todayOk(flock, uuid)
-        flock, value = FKVStore::getOrNull(flock, "9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}")
-        value.nil?
+    def self.todayOk(uuid)
+        FKVStore::getOrNull("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{Jupiter::currentDay()}:#{uuid}").nil?
     end
-    def self.transform(flock, objects)
-        objects.map{|object|
-            if !TodayOrNotToday::todayOk(flock, object["uuid"]) then
+    def self.transform()
+        $flock["objects"] = $flock["objects"].map{|object|
+            if !TodayOrNotToday::todayOk(object["uuid"]) then
                 object["metric"] = 0
             end
             object
@@ -550,14 +566,14 @@ end
 
 class GenericTimeTracking
     def self.status(uuid)
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_XCACHE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
+        JSON.parse(FKVStore::getOrDefaultValue("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
     end
 
     def self.start(uuid)
         status = GenericTimeTracking::status(uuid)
         return if status[0]
         status = [true, Time.new.to_i]
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.stop(uuid)
@@ -566,7 +582,7 @@ class GenericTimeTracking
         timespan = Time.new.to_i - status[1]
         FIFOQueue::push(CATALYST_COMMON_XCACHE_REPOSITORY, "timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
         status = [false, nil]
-        KeyValueStore::set(CATALYST_COMMON_XCACHE_REPOSITORY, "status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.metric2(uuid, low, high, hourstoMinusOne)

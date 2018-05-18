@@ -21,9 +21,10 @@ Then the Operator sends the entire Flock to each agent to give each agent an opp
 # -----------------------------------------
 Flock:
 
-{
-    "objects" : Array[Catalyst Object]
-}
+$flock = {}
+$flock["objects"] = []
+$flock["do-not-show-until-datetime-distribution"] = {}
+$flock["kvstore"] = {}
 
 # -----------------------------------------
 # Catalyst Objects:
@@ -63,5 +64,10 @@ Events:
     "datetime"    : datetime (string)
 }
 
+{
+    "event-type" => "Flock:KeyValueStore:Set:1",
+    "key"        => key,
+    "value"      => value
+}
 
 
