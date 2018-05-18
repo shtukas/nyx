@@ -248,7 +248,7 @@ end
 
 # -----------------------------------------------------------------
 
-if false and Jupiter::isPrimaryComputer() then
+if Jupiter::isPrimaryComputer() then
     Thread.new {
         sleep 6
         Mercury::emailSyncOnSchedule(false)
@@ -258,5 +258,12 @@ if false and Jupiter::isPrimaryComputer() then
         }
     }
 end
+
+Thread.new {
+    loop {
+        sleep 300
+        Saturn::loadFlockFromDisk()
+    }
+}
 
 Mercury::main2()

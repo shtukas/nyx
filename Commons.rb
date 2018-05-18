@@ -21,10 +21,7 @@ CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN = "/Galaxy/DataBank/Catalyst/Events-Buf
 
 # ----------------------------------------------------------------
 
-$flock = {}
-$flock["objects"] = []
-$flock["do-not-show-until-datetime-distribution"] = {}
-$flock["kvstore"] = {}
+$flock = nil
 
 # ----------------------------------------------------------------
 
@@ -263,6 +260,7 @@ class FKVStore
     end
 end
 
+# Saturn::loadFlockFromDisk()
 # Saturn::agents()
 # Saturn::agentuuid2AgentData(agentuuid)
 # Saturn::generalUpgrade()
@@ -271,28 +269,33 @@ end
 class Saturn
 
     def self.loadFlockFromDisk()
+        flock = {}
+        flock["objects"] = []
+        flock["do-not-show-until-datetime-distribution"] = {}
+        flock["kvstore"] = {}
         EventsManager::eventsEnumerator().each{|event|
             if event["event-type"] == "Catalyst:Catalyst-Object:1" then
                 object = event["object"]
-                $flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
-                $flock["objects"] << object
+                flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
+                flock["objects"] << object
                 next
             end
             if event["event-type"] == "Catalyst:Destroy-Catalyst-Object:1" then
                 objectuuid = event["object-uuid"]
-                $flock["objects"].reject!{|o| o["uuid"]==objectuuid }
+                flock["objects"].reject!{|o| o["uuid"]==objectuuid }
                 next
             end
             if event["event-type"] == "Catalyst:Metadata:DoNotShowUntilDateTime:1" then
-                $flock["do-not-show-until-datetime-distribution"][event["object-uuid"]] = event["datetime"]
+                flock["do-not-show-until-datetime-distribution"][event["object-uuid"]] = event["datetime"]
                 next
             end
             if event["event-type"] == "Flock:KeyValueStore:Set:1" then
-                $flock["kvstore"][event["key"]] = event["value"]
+                flock["kvstore"][event["key"]] = event["value"]
                 next
             end
             raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
         }
+        $flock = flock
     end
 
     def self.agents()
