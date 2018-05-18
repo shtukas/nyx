@@ -322,7 +322,7 @@ class RequirementsOperator
     end
 
     def self.getAllRequirements()
-        JSON.parse(FKVStore::getOrDefaultValue("Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", "[]"))
+        $flock["objects"].map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()

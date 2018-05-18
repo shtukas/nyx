@@ -440,8 +440,6 @@ class Mercury
             RequirementsOperator::transform()
             Mercury::fDoNotShowUntilDateTimeTransform()
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
-            allrequirements = $flock["objects"].map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
-            FKVStore::set("Externally-Set-All-Requirements-23922D81-25EB-4C19-845D-22D9475E2196", JSON.generate(allrequirements))
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2(CATALYST_COMMON_XCACHE_REPOSITORY, "68c517b7-1a10-430c-9ff7-58e05b0a3cd4", 3600) and Jupiter::isPrimaryComputer() then
