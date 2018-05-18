@@ -468,7 +468,17 @@ class Wave
     end
 
     def self.generalUpgrade()
-        [] # No change in the existing distribution, TODO: what happens when a new item is added ?
+        existingUUIDsFromFlock = $flock["objects"]
+            .select{|object| object["agent-uid"]==self.agentuuid() }
+            .map{|object| object["uuid"] }
+        existingUUIDsFromDisk = Wave::catalystUUIDsEnumerator().to_a
+        unregisteredUUIDs = existingUUIDsFromDisk - existingUUIDsFromFlock
+        unregisteredUUIDs.each{|uuid|
+            # We need to build the object, then make a Flock update and emit an event
+            object = Wave::objectuuidToCatalystObjectOrNull(uuid)
+            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            FlockTransformations::addOrUpdateObject(object)
+        }
     end
 
     def self.processObjectAndCommand(object, command)

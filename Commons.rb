@@ -175,6 +175,7 @@ end
 
 # EventsManager::pathToActiveEventsIndexFolder()
 # EventsManager::commitEventToTimeline(event)
+# EventsManager::commitEventToBufferIn(event)
 # EventsManager::eventsEnumerator()
 
 class EventsManager
@@ -261,6 +262,251 @@ class FKVStore
         EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
     end
 end
+
+# Saturn::agents()
+# Saturn::agentuuid2AgentData(agentuuid)
+# Saturn::generalUpgrade()
+# Saturn::processObjectAndCommand(object, command)
+
+class Saturn
+
+    def self.loadFlockFromDisk()
+        EventsManager::eventsEnumerator().each{|event|
+            if event["event-type"] == "Catalyst:Catalyst-Object:1" then
+                object = event["object"]
+                $flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
+                $flock["objects"] << object
+                next
+            end
+            if event["event-type"] == "Catalyst:Destroy-Catalyst-Object:1" then
+                objectuuid = event["object-uuid"]
+                $flock["objects"].reject!{|o| o["uuid"]==objectuuid }
+                next
+            end
+            if event["event-type"] == "Catalyst:Metadata:DoNotShowUntilDateTime:1" then
+                $flock["do-not-show-until-datetime-distribution"][event["object-uuid"]] = event["datetime"]
+                next
+            end
+            if event["event-type"] == "Flock:KeyValueStore:Set:1" then
+                $flock["kvstore"][event["key"]] = event["value"]
+                next
+            end
+            raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
+        }
+    end
+
+    def self.agents()
+        [
+            {
+                "agent-name"      => "GuardianTime",
+                "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
+                "general-upgrade" => lambda { GuardianTime::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| GuardianTime::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ GuardianTime::interface() }
+            },
+            {
+                "agent-name"      => "Kimchee",
+                "agent-uid"       => "b343bc48-82db-4fa3-ac56-3b5a31ff214f",
+                "general-upgrade" => lambda { Kimchee::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Kimchee::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Kinchee::interface() }
+            },
+            {
+                "agent-name"      => "Ninja",
+                "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
+                "general-upgrade" => lambda { Ninja::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Ninja::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Ninja::interface() }
+            },
+            {
+                "agent-name"      => "OpenProjects",
+                "agent-uid"       => "30ff0f4d-7420-432d-b75b-826a2a8bc7cf",
+                "general-upgrade" => lambda { OpenProjects::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| OpenProjects::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ OpenProjects::interface() }
+            },
+            {
+                "agent-name"      => "Stream",
+                "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
+                "general-upgrade" => lambda { Stream::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Stream::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Stream::interface() }
+            },
+            {
+                "agent-name"      => "TimeCommitments",
+                "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
+                "general-upgrade" => lambda { TimeCommitments::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| TimeCommitments::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ TimeCommitments::interface() }
+            },
+            {
+                "agent-name"      => "Today",
+                "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
+                "general-upgrade" => lambda { Today::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Today::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Today::interface() }
+            },
+            {
+                "agent-name"      => "Vienna",
+                "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
+                "general-upgrade" => lambda { Vienna::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Vienna::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Vienna::interface() }
+            },
+            {
+                "agent-name"      => "Wave",
+                "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
+                "general-upgrade" => lambda { Wave::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Wave::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Wave::interface() }
+            }
+        ]
+    end
+
+    def self.agentuuid2AgentData(agentuuid)
+        Saturn::agents()
+            .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
+            .first
+    end
+
+    def self.generalUpgrade()
+        Saturn::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
+    end
+
+    def self.processObjectAndCommand(object, expression)
+
+        # no object needed
+
+        if expression == 'help' then
+            Mercury::putshelp()
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if expression == 'clear' then
+            system("clear")
+        end
+
+        if expression=="interface" then
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", Saturn::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+        end
+
+        if expression == 'info' then
+            puts "CatalystDevOps::getArchiveSizeInMegaBytes(): #{CatalystDevOps::getArchiveSizeInMegaBytes()}".green
+            puts "Todolists:".green
+            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
+            puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
+            puts "    Total        : #{(count1+count3)}".green
+            puts "Requirements:".green
+            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if expression == 'lib' then
+            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+        end
+
+        if expression.start_with?('wave:') then
+            description = expression[5, expression.size].strip
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if expression.start_with?('stream:') then
+            description = expression[7, expression.size].strip
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Stream::issueNewItemFromDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if expression.start_with?('open-project:') then
+            description = expression[13, expression.size].strip
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = OpenProjects::issueNewItemFromDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if expression.start_with?("r:on") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::setSatisfifiedRequirement(requirement)
+        end
+
+        if expression.start_with?("r:off") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::setUnsatisfiedRequirement(requirement)
+        end
+
+        if expression.start_with?("r:show") then
+            command, requirement = expression.split(" ")
+            if requirement.size==0 then
+                requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
+            end
+            loop {
+                requirementObjects = Saturn::fGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+        end
+
+        if expression.start_with?("search") then
+            pattern = expression[6,expression.size].strip
+            loop {
+                searchobjects = Saturn::fGeneralUpgrade().select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                break if searchobjects.size==0
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+        end
+
+        return if object.nil?
+
+        # object needed
+
+        if expression == '!today' then
+            TodayOrNotToday::notToday(object["uuid"])
+        end
+
+        if expression == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if expression.start_with?('+') then
+            code = expression
+            if (datetime = Jupiter::codeToDatetimeOrNull(code)) then
+                $flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
+            end
+        end
+
+        if expression.start_with?("r:add") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
+        end
+
+        if expression.start_with?("r:remove") then
+            command, requirement = expression.split(" ")
+            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
+        end
+
+        if expression.size > 0 then
+            tokens = expression.split(" ").map{|t| t.strip }
+            .each{|command|
+                Saturn::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+            }
+        else
+            Saturn::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+        end
+    end
+end
+
+Saturn::loadFlockFromDisk()
 
 # RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
 # RequirementsOperator::setUnsatisfiedRequirement(requirement)
