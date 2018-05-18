@@ -312,7 +312,7 @@ class Wave
         end
         #puts "Wave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        FKVStore::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath]))
+        FKVStore::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
         maybepath
     end
 
