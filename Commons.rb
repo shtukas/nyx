@@ -146,7 +146,7 @@ class EventsLogReadWrite
         File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
     end
 
-    def self.commitEventToBufferIn(event)
+    def self.commitEventToBufferIn(event) # To be read only by Lucille18
         filepath = "#{CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN}/#{LucilleCore::timeStringL22()}.json"
         File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
     end
