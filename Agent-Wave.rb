@@ -332,6 +332,7 @@ class Wave
 
     def self.writeScheduleToDisk(uuid,schedule)
         folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+        return if folderpath.nil?
         return if !File.exists?(folderpath)
         LucilleCore::removeFileSystemLocation("#{folderpath}/catalyst-schedule.json")
         File.open("#{folderpath}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
@@ -339,6 +340,7 @@ class Wave
 
     def self.readScheduleFromWaveItemOrNull(uuid)
         folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+        return nil if folderpath.nil?
         filepath =
             if File.exists?("#{folderpath}/wave-schedule.json") then
                 "#{folderpath}/wave-schedule.json"
