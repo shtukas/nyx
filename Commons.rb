@@ -384,14 +384,43 @@ class AgentsManager
         if expression == 'help' then
             Mercury::putshelp()
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if expression == 'clear' then
             system("clear")
+            return
         end
 
         if expression=="interface" then
             LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", AgentsManager::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            return
+        end
+
+        if expression=="l:add" then
+            domain = LucilleCore::interactivelySelectValueStringFromListOfValueStringsOrCreateNewValueString("domain", Lava::domains())
+            return if domain.nil?
+            object[":lava:"] = { "domain" => domain , "ordinal" => Time.new.to_i }
+            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            FlockTransformations::addOrUpdateObject(object)
+            return
+        end
+
+        if expression=="l:show" then
+            loop {
+                domain = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("domain", Lava::domains())
+                break if domain.nil?
+                loop {
+                    xobjects = $flock["objects"]
+                                .select{|object| object[":lava:"] }
+                                .select{|object| object[":lava:"]["domain"]==domain }
+                                .sort{|o1, o2| o1[":lava:"]["ordinal"]<=>o2[":lava:"]["ordinal"] }
+                    xobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", xobjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                    break if xobject.nil?
+                    Mercury::interactiveDisplayObjectAndProcessCommand(xobject)
+                }
+            }
+            return
         end
 
         if expression == 'info' then
@@ -404,10 +433,12 @@ class AgentsManager
             puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
             puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
         end
 
         if expression.start_with?('wave:') then
@@ -416,6 +447,7 @@ class AgentsManager
             folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if expression.start_with?('stream:') then
@@ -424,6 +456,7 @@ class AgentsManager
             folderpath = Stream::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if expression.start_with?('open-project:') then
@@ -432,16 +465,19 @@ class AgentsManager
             folderpath = OpenProjects::issueNewItemFromDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setSatisfifiedRequirement(requirement)
+            return
         end
 
         if expression.start_with?("r:off") then
             command, requirement = expression.split(" ")
             RequirementsOperator::setUnsatisfiedRequirement(requirement)
+            return
         end
 
         if expression.start_with?("r:show") then
@@ -455,6 +491,7 @@ class AgentsManager
                 break if selectedobject.nil?
                 Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
+            return
         end
 
         if expression.start_with?("search") then
@@ -466,6 +503,7 @@ class AgentsManager
                 break if selectedobject.nil?
                 Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
+            return
         end
 
         return if object.nil?
@@ -474,11 +512,13 @@ class AgentsManager
 
         if expression == '!today' then
             TodayOrNotToday::notToday(object["uuid"])
+            return
         end
 
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if expression.start_with?('+') then
@@ -487,16 +527,19 @@ class AgentsManager
                 $flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
+            return
         end
 
         if expression.start_with?("r:add") then
             command, requirement = expression.split(" ")
             RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
+            return
         end
 
         if expression.start_with?("r:remove") then
             command, requirement = expression.split(" ")
             RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
+            return
         end
 
         if expression.size > 0 then
@@ -507,6 +550,18 @@ class AgentsManager
         else
             AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
         end
+    end
+end
+
+# Lava::domains()
+
+class Lava
+    def self.domains()
+        $flock["objects"]
+            .select{|object| object[":lava:"] }
+            .map{|object| object[":lava:"]["domain"] }
+            .uniq
+            .sort
     end
 end
 

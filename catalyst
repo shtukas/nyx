@@ -30,15 +30,15 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "Wave-Emails.rb"
 require_relative "Commons.rb"
 
-require_relative "Agent-Wave.rb"
-require_relative "Agent-Ninja.rb"
-require_relative "Agent-Stream.rb"
-require_relative "Agent-Today.rb"
-require_relative "Agent-TimeCommitments.rb"
 require_relative "Agent-GuardianTime.rb"
 require_relative "Agent-Kimchee.rb"
-require_relative "Agent-Vienna.rb"
+require_relative "Agent-Ninja.rb"
 require_relative "Agent-OpenProjects.rb"
+require_relative "Agent-Stream.rb"
+require_relative "Agent-TimeCommitments.rb"
+require_relative "Agent-Today.rb"
+require_relative "Agent-Vienna.rb"
+require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------------
 
@@ -100,6 +100,7 @@ class Mercury
         puts "    help"
         puts "    top"
         puts "    search <pattern>"
+        puts "    l:show"
         puts "    r:on <requirement>"
         puts "    r:off <requirement>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
@@ -118,6 +119,7 @@ class Mercury
         puts "Special Object Commands:"
         puts "    expose # print the object"
         puts "    !today"
+        puts "    l:add"
         puts "    r:add <requirement>"
         puts "    r:remove <requirement>"
         puts "    c:add [collection] # optional parameter # send to a collection"
@@ -191,6 +193,10 @@ class Mercury
             TodayOrNotToday::transform()
             RequirementsOperator::transform()
             Mercury::fDoNotShowUntilDateTimeTransform()
+            $flock["objects"].map{|object|
+                next if object[":lava:"].nil?
+                object["metric"] = 0
+            }
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
