@@ -264,7 +264,7 @@ class FlockLoader
         flock["objects"] = []
         flock["do-not-show-until-datetime-distribution"] = {}
         flock["kvstore"] = {}
-        EventsManager::eventsEnumerator().each{|event|
+        EventsManager::eventsEnumerator().each{|event| # for the moment we rely on the fact that they are loaded in the right order
             if event["event-type"] == "Catalyst:Catalyst-Object:1" then
                 object = event["object"]
                 flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
