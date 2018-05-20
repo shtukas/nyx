@@ -424,7 +424,7 @@ class AgentsManager
         end
 
         if expression == 'info' then
-            puts "CatalystDevOps::getArchiveSizeInMegaBytes(): #{CatalystDevOps::getArchiveSizeInMegaBytes()}".green
+            puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
             puts "Todolists:".green
             puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
             puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
@@ -909,8 +909,9 @@ end
 
 # CatalystDevOps::today()
 # CatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
-# CatalystDevOps::getArchiveSizeInMegaBytes()
-# CatalystDevOps::archivesGarbageCollection(verbose): Int # number of items removed
+# CatalystDevOps::getArchiveTimelineSizeInMegaBytes()
+# CatalystDevOps::archivesTimelineGarbageCollection(verbose): Int # number of items removed
+
 # CatalystDevOps::eventsTimelineGarbageCollection(verbose= false)
 
 class CatalystDevOps
@@ -947,13 +948,13 @@ class CatalystDevOps
     # -------------------------------------------
     # Archives
 
-    def self.getArchiveSizeInMegaBytes()
+    def self.getArchiveTimelineSizeInMegaBytes()
         LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
-    def self.archivesGarbageCollectionStandard(verbose)
+    def self.archivesTimelineGarbageCollectionStandard(verbose)
         answer = 0
-        while CatalystDevOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
+        while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
             puts "Garbage Collection: Removing: #{location}" if verbose
@@ -963,7 +964,7 @@ class CatalystDevOps
         answer
     end
 
-    def self.archivesGarbageCollectionFast(verbose, sizeEstimationInMegaBytes)
+    def self.archivesTimelineGarbageCollectionFast(verbose, sizeEstimationInMegaBytes)
         answer = 0
         while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
@@ -978,12 +979,12 @@ class CatalystDevOps
         answer
     end
 
-    def self.archivesGarbageCollection(verbose)
+    def self.archivesTimelineGarbageCollection(verbose)
         answer = 0
-        while CatalystDevOps::getArchiveSizeInMegaBytes() > 1024 do # Gigabytes of Archives
+        while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
-            answer = answer + CatalystDevOps::archivesGarbageCollectionFast(verbose, CatalystDevOps::getArchiveSizeInMegaBytes())
+            answer = answer + CatalystDevOps::archivesTimelineGarbageCollectionFast(verbose, CatalystDevOps::getArchiveTimelineSizeInMegaBytes())
         end
         answer
     end
