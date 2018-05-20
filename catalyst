@@ -78,11 +78,11 @@ class Mercury
 
     def self.emailSync(verbose)
         begin
-            newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
+            newEmailCount = GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
             if newEmailCount>0 then
                 #puts "Retrieved #{newEmailCount} new emails"
             end
-            OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
+            OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
         rescue
         end
     end

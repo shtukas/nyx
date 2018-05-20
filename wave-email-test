@@ -6,6 +6,6 @@ require_relative "Wave-Emails.rb"
 
 # ----------------------------------------------------------------------------
 
-GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), true)
-OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATA_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), true)
+GeneralEmailClient::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), true)
+OperatorEmailDownloader::syncEmailDataWithServer(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), true)
 
