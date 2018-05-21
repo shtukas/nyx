@@ -10,31 +10,18 @@ NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
 # Ninja::generalUpgrade()
 
-class NinjaFolderPathFeeder
-    def initialize()
-        @folderpaths = []
-    end
-    def next()
-        if @folderpaths.empty? then
-            @folderpaths = JSON.parse(`ninja api:pending`).shuffle
+class NinjaCLIProxy
+    @@packet = nil
+    def self.packet()
+        if @@packet.nil? then
+            @@packet = JSON.parse(`ninja api:next-folderpath-or-null`)[0]
         end
-        @folderpaths.shift
+        @@packet
+    end
+    def self.reset()
+        @@packet = nil
     end
 end
-
-$ninjaFolderPathFeeder = NinjaFolderPathFeeder.new()
-
-class NinjaTimestampManager
-    def addTimestamp()
-        MiniFIFOQ::push("timestamps-5bd4-431b-9eef-24ca1d005a3c", Time.new.to_i)
-    end
-    def getTimestamps()
-        MiniFIFOQ::takeWhile("timestamps-5bd4-431b-9eef-24ca1d005a3c", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        MiniFIFOQ::values("timestamps-5bd4-431b-9eef-24ca1d005a3c")
-    end
-end
-
-$ninjaTimestampManager = NinjaTimestampManager.new()
 
 class Ninja
 
@@ -47,19 +34,16 @@ class Ninja
     end
 
     def self.generalUpgrade()
-        folderpath = $ninjaFolderPathFeeder.next()
-        if folderpath.nil? then
-            return []
-        end
-        metric = 0.20 + 0.4*Math.exp(-$ninjaTimestampManager.getTimestamps().size.to_f/16) + CommonsUtils::traceToMetricShift("deb58288-31e9-4d20-848d-8ac33d3701ee")
+        packet = NinjaCLIProxy::packet()
+        return if packet.nil?
         object = {
             "uuid" => "96287511",
             "agent-uid" => self.agentuuid(),
-            "metric" => metric,
-            "announce" => "ninja: folderpath: #{File.basename(folderpath)}",
+            "metric" => packet["metric"],
+            "announce" => "ninja: folderpath: #{packet["folderpath"]}",
             "commands" => [],
             "item-data" => {
-                "ninja-folderpath" => folderpath
+                "ninja-folderpath" => packet["folderpath"]
             }
         }
         FlockTransformations::addOrUpdateObject(object)
@@ -68,7 +52,7 @@ class Ninja
     def self.processObjectAndCommand(object, command)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
-        $ninjaTimestampManager.addTimestamp()
+        NinjaCLIProxy::reset()
         FlockTransformations::removeObjectIdentifiedByUUID(object["uuid"])
     end
 end
