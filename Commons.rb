@@ -1013,7 +1013,7 @@ class CatalystDevOps
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
-            lines << "Garbage Collection: Removing: #{location}"
+            lines << location
             LucilleCore::removeFileSystemLocation(location)
         end
         lines
@@ -1027,7 +1027,7 @@ class CatalystDevOps
             if File.file?(location) then
                 sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
             end
-            lines << "Garbage Collection: Removing: #{location}"
+            lines << location
             LucilleCore::removeFileSystemLocation(location)
         end
         line
@@ -1070,7 +1070,7 @@ class CatalystDevOps
             event = events.shift
             if CatalystDevOps::canRemoveEvent(event, events) then
                 eventfilepath = event[":filepath:"]
-                lines << "CatalystDevOps::eventsTimelineGarbageCollection(verbose): #{eventfilepath}"
+                lines << eventfilepath
                 FileUtils.rm(eventfilepath)
             end
         end
