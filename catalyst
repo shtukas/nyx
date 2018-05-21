@@ -53,6 +53,7 @@ require_relative "Agent-Wave.rb"
 # Mercury::object2Line_v1(object)
 # Mercury::interactiveDisplayObjectAndProcessCommand(object)
 # Mercury::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
+# Mercury::processObjectAndCommand(object, command)
 # Mercury::main2()
 
 class Mercury
@@ -150,7 +151,197 @@ class Mercury
         print Mercury::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
         command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        PrimaryOperator::processObjectAndCommand(object, command)
+        Mercury::processObjectAndCommand(object, command)
+    end
+
+    def self.processObjectAndCommand(object, expression)
+
+        # no object needed
+
+        if expression == 'help' then
+            PrimaryOperator::putshelp()
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'clear' then
+            system("clear")
+            return
+        end
+
+        if expression == "interface" then
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", PrimaryOperator::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            return
+        end
+
+        if expression == 'info' then
+            puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
+            puts "Todolists:".green
+            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
+            puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
+            puts "    Total        : #{(count1+count3)}".green
+            puts "Requirements:".green
+            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'lib' then
+            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
+        end
+
+        if expression.start_with?("l:add") then
+            command, maybedomain = expression.split(" ").map{|t| t.strip }
+            domain = 
+                if maybedomain.size>0 then
+                    maybedomain
+                else
+                    LucilleCore::interactivelySelectValueStringFromListOfValueStringsOrCreateNewValueString("domain", Lava::domains())
+                end
+            return if domain.nil?
+            object[":lava:"] = { "domain" => domain , "ordinal" => Time.new.to_i }
+            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            FlockTransformations::addOrUpdateObject(object)
+            FKVStore::set("0cda77d7-1c03-4adb-9e36-655df4ff0d8d:#{domain}", Time.new.to_i)
+            return
+        end
+
+        if expression.start_with?("l:show") then
+            showDomainInLoop = lambda {|domain|
+                loop {
+                    xobjects = $flock["objects"]
+                                .select{|object| object[":lava:"] }
+                                .select{|object| object[":lava:"]["domain"]==domain }
+                                .sort{|o1, o2| o1[":lava:"]["ordinal"]<=>o2[":lava:"]["ordinal"] }
+                    xobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", xobjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                    break if xobject.nil?
+                    Mercury::interactiveDisplayObjectAndProcessCommand(xobject)
+                }
+            }
+            command, maybedomain = expression.split(" ").map{|t| t.strip }
+            if maybedomain and maybedomain.size>0 then
+                showDomainInLoop.call(maybedomain)
+            else
+                loop {
+                    domain = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("domain", Lava::domains())
+                    break if domain.nil?
+                    showDomainInLoop.call(domain)
+                }
+            end
+            return
+        end
+
+        if expression.start_with?('wave:') then
+            description = expression[5, expression.size].strip
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('stream:') then
+            description = expression[7, expression.size].strip
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Stream::issueNewItemFromDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('open-project:') then
+            description = expression[13, expression.size].strip
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = OpenProjects::issueNewItemFromDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?("r:on") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::setSatisfifiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:off") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::setUnsatisfiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:show") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            if requirement.nil? or requirement.size==0 then
+                requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
+            end
+            loop {
+                requirementObjects = $flock["objects"].select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        if expression.start_with?("search") then
+            pattern = expression[6,expression.size].strip
+            loop {
+                searchobjects = $flock["objects"].select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                break if searchobjects.size==0
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                break if selectedobject.nil?
+                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        return if object.nil?
+
+        # object needed
+
+        if expression == '!today' then
+            TodayOrNotToday::notToday(object["uuid"])
+            return
+        end
+
+        if expression == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('+') then
+            code = expression
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
+                $flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
+            end
+            return
+        end
+
+        if expression.start_with?("r:add") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("r:remove") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.size > 0 then
+            tokens = expression.split(" ").map{|t| t.strip }
+            .each{|command|
+                PrimaryOperator::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+            }
+        else
+            PrimaryOperator::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+        end
     end
 
     def self.main2()
@@ -223,7 +414,7 @@ class Mercury
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
-            PrimaryOperator::processObjectAndCommand(objectselected, command)
+            Mercury::processObjectAndCommand(objectselected, command)
         }
     end
 end
