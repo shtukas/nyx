@@ -705,7 +705,12 @@ class FolderProbe
 
     def self.openActionOnMetadata(metadata)
         if metadata["target-type"]=="folder" then
-            system("open '#{metadata["target-location"]}'")
+            if File.exists?(metadata["target-location"]) then
+                system("open '#{metadata["target-location"]}'")
+            else
+                puts "Error: folder #{metadata["target-location"]} doesn't exist."
+                LucilleCore::pressEnterToContinue()
+            end
         end
         if metadata["target-type"]=="openable-file" then
             system("open '#{metadata["target-location"]}'")
