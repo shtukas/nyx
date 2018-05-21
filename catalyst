@@ -170,11 +170,23 @@ class Mercury
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             if SecureRandom.random_number<0.01 and CommonsUtils::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
-                CatalystDevOps::archivesGarbageCollection(true)
+                lines = CatalystDevOps::archivesTimelineGarbageCollection()
+                if lines.size>0 then
+                    lines.each{|line|
+                        puts line
+                    }
+                end
+                LucilleCore::pressEnterToContinue()
             end
             if SecureRandom.random_number<0.01 and CommonsUtils::isPrimaryComputer() then
                 puts "Events timeline garbage collection"
-                CatalystDevOps::eventsTimelineGarbageCollection(true)
+                lines = CatalystDevOps::eventsTimelineGarbageCollection()
+                if lines.size>0 then
+                    lines.each{|line|
+                        puts line
+                    }
+                end
+                LucilleCore::pressEnterToContinue()                
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
             $flock["objects"].take(workspaceSize).each_with_index{|o, index|

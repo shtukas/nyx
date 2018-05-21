@@ -961,10 +961,14 @@ end
 
 # CatalystDevOps::today()
 # CatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
-# CatalystDevOps::getArchiveTimelineSizeInMegaBytes()
-# CatalystDevOps::archivesTimelineGarbageCollection(verbose): Int # number of items removed
+# CatalystDevOps::getFilepathAgeInDays(filepath)
 
-# CatalystDevOps::eventsTimelineGarbageCollection(verbose= false)
+# CatalystDevOps::getArchiveTimelineSizeInMegaBytes()
+# CatalystDevOps::archivesTimelineGarbageCollectionStandard(): Array[String] 
+# CatalystDevOps::archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes): Array[String] 
+# CatalystDevOps::archivesTimelineGarbageCollection(): Array[String]
+
+# CatalystDevOps::eventsTimelineGarbageCollection()
 
 class CatalystDevOps
 
@@ -1004,41 +1008,40 @@ class CatalystDevOps
         LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
-    def self.archivesTimelineGarbageCollectionStandard(verbose)
-        answer = 0
+    def self.archivesTimelineGarbageCollectionStandard()
+        lines = []
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
-            puts "Garbage Collection: Removing: #{location}" if verbose
+            lines << "Garbage Collection: Removing: #{location}"
             LucilleCore::removeFileSystemLocation(location)
-            answer = answer + 1
         end
-        answer
+        lines
     end
 
-    def self.archivesTimelineGarbageCollectionFast(verbose, sizeEstimationInMegaBytes)
-        answer = 0
+    def self.archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes)
+        lines = []
         while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
             if File.file?(location) then
                 sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
             end
-            puts "Garbage Collection: Removing: #{location}" if verbose
+            lines << "Garbage Collection: Removing: #{location}"
             LucilleCore::removeFileSystemLocation(location)
-            answer = answer + 1
         end
-        answer
+        line
     end
 
-    def self.archivesTimelineGarbageCollection(verbose)
-        answer = 0
+    def self.archivesTimelineGarbageCollection()
+        lines = []
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
-            answer = answer + CatalystDevOps::archivesTimelineGarbageCollectionFast(verbose, CatalystDevOps::getArchiveTimelineSizeInMegaBytes())
+            CatalystDevOps::archivesTimelineGarbageCollectionFast(CatalystDevOps::getArchiveTimelineSizeInMegaBytes())
+                .each{|line| lines << line }
         end
-        answer
+        lines
     end
 
     # -------------------------------------------
@@ -1060,15 +1063,17 @@ class CatalystDevOps
         raise "Don't know how to garbage collect head: \n#{JSON.pretty_generate(head)}"
     end
 
-    def self.eventsTimelineGarbageCollection(verbose)
+    def self.eventsTimelineGarbageCollection()
+        lines = []
         events = EventsManager::eventsEnumerator().to_a
         while events.size>=2 do
             event = events.shift
             if CatalystDevOps::canRemoveEvent(event, events) then
                 eventfilepath = event[":filepath:"]
-                puts "CatalystDevOps::eventsTimelineGarbageCollection(verbose): #{eventfilepath}" if verbose
+                lines << "CatalystDevOps::eventsTimelineGarbageCollection(verbose): #{eventfilepath}"
                 FileUtils.rm(eventfilepath)
             end
         end
+        lines
     end
 end
