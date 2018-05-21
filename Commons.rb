@@ -295,6 +295,7 @@ FlockLoader::loadFlockFromDisk()
 # PrimaryOperator::agents()
 # PrimaryOperator::agentuuid2AgentData(agentuuid)
 # PrimaryOperator::generalUpgrade()
+# PrimaryOperator::putshelp()
 # PrimaryOperator::processObjectAndCommand(object, command)
 
 class PrimaryOperator
@@ -377,12 +378,42 @@ class PrimaryOperator
         PrimaryOperator::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
     end
 
+    def self.putshelp()
+        puts "Special General Commands (view)"
+        puts "    help"
+        puts "    top"
+        puts "    search <pattern>"
+        puts "    l:show"
+        puts "    r:on <requirement>"
+        puts "    r:off <requirement>"
+        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts ""
+        puts "Special General Commands (inserts)"
+        puts "    wave: <description>"
+        puts "    stream: <description>"
+        puts "    open-project: <description>"
+        puts ""
+        puts "Special General Commands (special circumstances)"
+        puts "    clear # clear the screen"
+        puts "    interface # run the interface of a given agent"
+        puts "    lib # Invoques the Librarian interactive"
+        puts ""
+        puts "Special Object Commands:"
+        puts "    expose # pretty print the object"
+        puts "    !today"
+        puts "    l:add"
+        puts "    r:add <requirement>"
+        puts "    r:remove <requirement>"
+        puts "    command ..."
+        puts "    (+)datetimecode"
+    end
+
     def self.processObjectAndCommand(object, expression)
 
         # no object needed
 
         if expression == 'help' then
-            Mercury::putshelp()
+            PrimaryOperator::putshelp()
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -397,19 +428,24 @@ class PrimaryOperator
             return
         end
 
-        if expression=="l:add" then
-            domain = LucilleCore::interactivelySelectValueStringFromListOfValueStringsOrCreateNewValueString("domain", Lava::domains())
+        if expression.start_with?("l:add") then
+            command, maybedomain = expression.split(" ").map{|t| t.strip }
+            domain = 
+                if maybedomain.size>0 then
+                    maybedomain
+                else
+                    LucilleCore::interactivelySelectValueStringFromListOfValueStringsOrCreateNewValueString("domain", Lava::domains())
+                end
             return if domain.nil?
             object[":lava:"] = { "domain" => domain , "ordinal" => Time.new.to_i }
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             FlockTransformations::addOrUpdateObject(object)
+            FKVStore::set("0cda77d7-1c03-4adb-9e36-655df4ff0d8d:#{domain}", Time.new.to_i)
             return
         end
 
-        if expression=="l:show" then
-            loop {
-                domain = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("domain", Lava::domains())
-                break if domain.nil?
+        if expression.start_with?("l:show") then
+            showDomainInLoop = lambda {|domain|
                 loop {
                     xobjects = $flock["objects"]
                                 .select{|object| object[":lava:"] }
@@ -420,6 +456,16 @@ class PrimaryOperator
                     Mercury::interactiveDisplayObjectAndProcessCommand(xobject)
                 }
             }
+            command, maybedomain = expression.split(" ").map{|t| t.strip }
+            if maybedomain and maybedomain.size>0 then
+                showDomainInLoop.call(maybedomain)
+            else
+                loop {
+                    domain = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("domain", Lava::domains())
+                    break if domain.nil?
+                    showDomainInLoop.call(domain)
+                }
+            end
             return
         end
 
@@ -469,24 +515,24 @@ class PrimaryOperator
         end
 
         if expression.start_with?("r:on") then
-            command, requirement = expression.split(" ")
+            command, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::setSatisfifiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("r:off") then
-            command, requirement = expression.split(" ")
+            command, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::setUnsatisfiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("r:show") then
-            command, requirement = expression.split(" ")
-            if requirement.size==0 then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            if requirement.nil? or requirement.size==0 then
                 requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = PrimaryOperator::fGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = $flock["objects"].select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
                 Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -497,7 +543,7 @@ class PrimaryOperator
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = PrimaryOperator::fGeneralUpgrade().select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = $flock["objects"].select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -531,13 +577,13 @@ class PrimaryOperator
         end
 
         if expression.start_with?("r:add") then
-            command, requirement = expression.split(" ")
+            command, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
             return
         end
 
         if expression.start_with?("r:remove") then
-            command, requirement = expression.split(" ")
+            command, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
             return
         end
@@ -554,14 +600,20 @@ class PrimaryOperator
 end
 
 # Lava::domains()
+# Lava::getDomainActivityLastUnixtime(domain)
 
 class Lava
     def self.domains()
-        $flock["objects"]
+        domains = $flock["objects"]
             .select{|object| object[":lava:"] }
             .map{|object| object[":lava:"]["domain"] }
             .uniq
-            .sort
+        domains
+            .sort{|d1, d2| Lava::getDomainActivityLastUnixtime(d1)<=>Lava::getDomainActivityLastUnixtime(d2) }
+            .reverse
+    end
+    def self.getDomainActivityLastUnixtime(domain)
+        FKVStore::getOrDefaultValue("0cda77d7-1c03-4adb-9e36-655df4ff0d8d:#{domain}", "0").to_i
     end
 end
 

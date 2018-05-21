@@ -47,7 +47,6 @@ require_relative "Agent-Wave.rb"
 # Mercury::emailSync(verbose)
 # Mercury::screenHeight()
 # Mercury::screenWidth()
-# Mercury::putshelp()
 # Mercury::editTextUsingTextmate(text)
 # Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
 # Mercury::object2Line_v0(object)
@@ -93,38 +92,6 @@ class Mercury
 
     def self.screenWidth()
         `/usr/bin/env tput cols`.to_i
-    end
-
-    def self.putshelp()
-        puts "Special General Commands (view)"
-        puts "    help"
-        puts "    top"
-        puts "    search <pattern>"
-        puts "    l:show"
-        puts "    r:on <requirement>"
-        puts "    r:off <requirement>"
-        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    c:show [collection]  # optional parameter # shows all the objects of that collection"
-        puts ""
-        puts "Special General Commands (inserts)"
-        puts "    wave: <description>"
-        puts "    stream: <description>"
-        puts "    open-project: <description>"
-        puts ""
-        puts "Special General Commands (special circumstances)"
-        puts "    clear # clear the screen"
-        puts "    interface # run the interface of a given agent"
-        puts "    lib # Invoques the Librarian interactive"
-        puts ""
-        puts "Special Object Commands:"
-        puts "    expose # print the object"
-        puts "    !today"
-        puts "    l:add"
-        puts "    r:add <requirement>"
-        puts "    r:remove <requirement>"
-        puts "    c:add [collection] # optional parameter # send to a collection"
-        puts "    command ..."
-        puts "    (+)datetimecode"
     end
 
     def self.editTextUsingTextmate(text)
@@ -199,6 +166,7 @@ class Mercury
             }
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
+            puts "LAVA            : #{Lava::domains().join(", ")}".yellow
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             if SecureRandom.random_number<0.01 and CommonsUtils::isPrimaryComputer() then
                 puts "Archives timeline garbage collection"
