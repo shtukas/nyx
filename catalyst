@@ -366,8 +366,8 @@ class Mercury
                     lines.each{|line|
                         puts line
                     }
+                    LucilleCore::pressEnterToContinue()
                 end
-                LucilleCore::pressEnterToContinue()
             end
             if SecureRandom.random_number<0.01 and CommonsUtils::isPrimaryComputer() then
                 puts "Events timeline garbage collection"
@@ -376,8 +376,8 @@ class Mercury
                     lines.each{|line|
                         puts line
                     }
+                    LucilleCore::pressEnterToContinue()
                 end
-                LucilleCore::pressEnterToContinue()                
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
             $flock["objects"].take(workspaceSize).each_with_index{|o, index|
