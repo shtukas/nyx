@@ -42,6 +42,7 @@ class Ninja
             "metric" => packet["metric"],
             "announce" => "ninja: folderpath: #{packet["folderpath"]}",
             "commands" => [],
+            "default-expression" => "play",
             "item-data" => {
                 "ninja-folderpath" => packet["folderpath"]
             }
