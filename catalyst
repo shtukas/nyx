@@ -183,13 +183,13 @@ class Mercury
         print Mercury::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
         command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        AgentsManager::processObjectAndCommand(object, command)
+        PrimaryOperator::processObjectAndCommand(object, command)
     end
 
     def self.main2()
         workspaceSize = 1
         loop {
-            AgentsManager::generalUpgrade()
+            PrimaryOperator::generalUpgrade()
             TodayOrNotToday::transform()
             RequirementsOperator::transform()
             Mercury::fDoNotShowUntilDateTimeTransform()
@@ -243,7 +243,7 @@ class Mercury
                 next
             end
             command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
-            AgentsManager::processObjectAndCommand(objectselected, command)
+            PrimaryOperator::processObjectAndCommand(objectselected, command)
         }
     end
 end

@@ -292,12 +292,12 @@ end
 
 FlockLoader::loadFlockFromDisk()
 
-# AgentsManager::agents()
-# AgentsManager::agentuuid2AgentData(agentuuid)
-# AgentsManager::generalUpgrade()
-# AgentsManager::processObjectAndCommand(object, command)
+# PrimaryOperator::agents()
+# PrimaryOperator::agentuuid2AgentData(agentuuid)
+# PrimaryOperator::generalUpgrade()
+# PrimaryOperator::processObjectAndCommand(object, command)
 
-class AgentsManager
+class PrimaryOperator
 
     def self.agents()
         [
@@ -368,13 +368,13 @@ class AgentsManager
     end
 
     def self.agentuuid2AgentData(agentuuid)
-        AgentsManager::agents()
+        PrimaryOperator::agents()
             .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
             .first
     end
 
     def self.generalUpgrade()
-        AgentsManager::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
+        PrimaryOperator::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -393,7 +393,7 @@ class AgentsManager
         end
 
         if expression=="interface" then
-            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", AgentsManager::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", PrimaryOperator::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
             return
         end
 
@@ -486,7 +486,7 @@ class AgentsManager
                 requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = AgentsManager::fGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = PrimaryOperator::fGeneralUpgrade().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
                 Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -497,7 +497,7 @@ class AgentsManager
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = AgentsManager::fGeneralUpgrade().select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = PrimaryOperator::fGeneralUpgrade().select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Mercury::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -545,10 +545,10 @@ class AgentsManager
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+                PrimaryOperator::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
             }
         else
-            AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+            PrimaryOperator::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
         end
     end
 end
