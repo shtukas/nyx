@@ -348,9 +348,10 @@ class Mercury
 
     def self.main2()
         workspaceSize = 1
-        garbageSchedule = {}
-        garbageSchedule["archives"] = Time.new.to_i + Random::rand*86400
-        garbageSchedule["events"]   = Time.new.to_i + Random::rand*86400
+        mainschedule = {}
+        mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
+        mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
+        mainschedule["lava-domains-review"] = 0
         loop {
             PrimaryOperator::generalUpgrade()
             TodayOrNotToday::transform()
@@ -364,23 +365,40 @@ class Mercury
             system("clear")
             puts "LAVA            : #{Lava::domains().join(", ")}".yellow
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            if ( Time.new.to_i > garbageSchedule["archives"] ) and CommonsUtils::isPrimaryComputer() then
+            if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isPrimaryComputer() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"
                 lines.each{|line|
                     puts "    - #{line}"
                 }
                 LucilleCore::pressEnterToContinue() if lines.size>0
-                garbageSchedule["archives"] = Time.new.to_i + Random::rand*86400
+                mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
             end
-            if ( Time.new.to_i > garbageSchedule["events"] ) and CommonsUtils::isPrimaryComputer() then
+            if ( Time.new.to_i > mainschedule["events-gc"] ) and CommonsUtils::isPrimaryComputer() then
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
                 puts "Events timeline garbage collection: #{lines.size}"
                 lines.each{|line|
                     puts "    - #{line}"
                 }
                 LucilleCore::pressEnterToContinue() if lines.size>0
-                garbageSchedule["events"] = Time.new.to_i + Random::rand*86400
+                mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
+            end
+            if ( Time.new.to_i > mainschedule["lava-domains-review"] ) then
+                Lava::domains().each{|domain|
+                    puts ""
+                    puts "Showing #{domain}"
+                    loop {
+                        xobjects = $flock["objects"]
+                                    .select{|object| object[":lava:"] }
+                                    .select{|object| object[":lava:"]["domain"]==domain }
+                                    .sort{|o1, o2| o1[":lava:"]["ordinal"]<=>o2[":lava:"]["ordinal"] }
+                        xobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", xobjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                        break if xobject.nil?
+                        Mercury::interactiveDisplayObjectAndProcessCommand(xobject)
+                    }
+                }
+                mainschedule["lava-domains-review"] = Time.new.to_i + Random::rand*3600*6
+                next
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
             $flock["objects"].take(workspaceSize).each_with_index{|o, index|
