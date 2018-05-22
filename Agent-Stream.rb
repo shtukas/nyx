@@ -75,7 +75,7 @@ class Stream
     end
 
     def self.uuid2commands(uuid, status)
-        ( status[0] ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">lib"]
+        ( status[0] ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">open-projects", ">lib"]
     end
 
     def self.uuid2defaultExpression(uuid, status)
@@ -183,6 +183,14 @@ class Stream
             Stream::performObjectClosing(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+        end
+        if command=='>open-projects' then
+            sourcelocation = object["item-data"]["folderpath"]
+            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mv(sourcelocation, targetfolderpath)
+            File.open("#{targetfolderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) } # Both Stream and Open Projects use the same convention for uuids
+            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)

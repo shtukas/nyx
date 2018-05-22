@@ -572,7 +572,6 @@ class Wave
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            Wave::archiveWaveItems(uuid)
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
@@ -582,7 +581,7 @@ class Wave
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            Wave::archiveWaveItems(uuid)
+            File.open("#{targetfolderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) } # Both Stream and Open Projects use the same convention for uuids
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
