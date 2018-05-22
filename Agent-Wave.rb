@@ -184,7 +184,6 @@ class WaveSchedules
             end
             schedule["do-not-show-until-datetime"] = Time.at(cursor).to_s
         end
-
         schedule
     end
 
@@ -484,13 +483,12 @@ class Wave
     end
 
     def self.processObjectAndCommand(object, command)
-        schedule = object['schedule']
         uuid = object['uuid']
+        schedule = object['schedule']
 
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
-            return []
         end
 
         if command=='done' then
@@ -498,58 +496,61 @@ class Wave
             if schedule['@'] == 'new' then
                 Wave::archiveWaveItems(uuid)
                 FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-                event = EventsMaker::destroyCatalystObject(uuid)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
             if schedule['@'] == 'today' then
                 Wave::archiveWaveItems(uuid)
                 FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-                event = EventsMaker::destroyCatalystObject(uuid)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
             if schedule['@'] == 'ondate' then
                 Wave::archiveWaveItems(uuid)
                 FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-                event = EventsMaker::destroyCatalystObject(uuid)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
             if schedule['@'] == 'sticky' then
-                object['schedule'] = WaveSchedules::cycleSchedule(schedule)
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+                object['schedule'] = schedule
                 FlockTransformations::addOrUpdateObject(object)
-                event = EventsMaker::catalystObject(object)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             end
             if schedule['@'] == 'every-n-hours' then
-                object['schedule'] = WaveSchedules::cycleSchedule(schedule)
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+                object['schedule'] = schedule
                 FlockTransformations::addOrUpdateObject(object)
-                event = EventsMaker::catalystObject(object)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             end
             if schedule['@'] == 'every-n-days' then
-                object['schedule'] = WaveSchedules::cycleSchedule(schedule)
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+                object['schedule'] = schedule
                 FlockTransformations::addOrUpdateObject(object)
-                event = EventsMaker::catalystObject(object)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             end
             if schedule['@'] == 'every-this-day-of-the-month' then
-                object['schedule'] = WaveSchedules::cycleSchedule(schedule)
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+                object['schedule'] = schedule
                 FlockTransformations::addOrUpdateObject(object)
-                event = EventsMaker::catalystObject(object)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             end
             if schedule['@'] == 'every-this-day-of-the-week' then
-                object['schedule'] = WaveSchedules::cycleSchedule(schedule)
+                schedule = WaveSchedules::cycleSchedule(schedule)
+                Wave::writeScheduleToDisk(uuid, schedule)
+                object['schedule'] = schedule
                 FlockTransformations::addOrUpdateObject(object)
-                event = EventsMaker::catalystObject(object)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             end
         end
 
         if command=='recast' then
-            object['schedule'] = WaveSchedules::cycleSchedule(schedule)
+            schedule = WaveSchedules::cycleSchedule(schedule)
+            Wave::writeScheduleToDisk(uuid, schedule)
+            object['schedule'] = schedule
             FlockTransformations::addOrUpdateObject(object)
-            event = EventsMaker::catalystObject(object)
-            EventsManager::commitEventToTimeline(event)
+            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 
         if command=='folder' then
@@ -562,8 +563,7 @@ class Wave
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 Wave::archiveWaveItems(uuid)
                 FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-                event = EventsMaker::destroyCatalystObject(uuid)
-                EventsManager::commitEventToTimeline(event)
+                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
         end
 
