@@ -348,6 +348,8 @@ class Mercury
 
     def self.main2()
         workspaceSize = 1
+        archivesTimelineGarbageTimes = {}
+        eventsTimelineGarbageTimes = {}
         loop {
             PrimaryOperator::generalUpgrade()
             TodayOrNotToday::transform()
@@ -361,24 +363,24 @@ class Mercury
             system("clear")
             puts "LAVA            : #{Lava::domains().join(", ")}".yellow
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            if SecureRandom.random_number<0.01 and CommonsUtils::isPrimaryComputer() then
-                puts "Archives timeline garbage collection"
+            if archivesTimelineGarbageTimes[CommonsUtils::currentHour()].nil? and CommonsUtils::isPrimaryComputer() then
+                archivesTimelineGarbageTimes[CommonsUtils::currentHour()] = true
+                print "Archives timeline garbage collection"
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 if lines.size>0 then
-                    lines.each{|line|
-                        puts line
-                    }
-                    LucilleCore::pressEnterToContinue()
+                    puts ": #{lines.size}"
+                else
+                    puts ""
                 end
             end
-            if SecureRandom.random_number<0.01 and CommonsUtils::isPrimaryComputer() then
-                puts "Events timeline garbage collection"
+            if eventsTimelineGarbageTimes[CommonsUtils::currentHour()].nil? and CommonsUtils::isPrimaryComputer() then
+                eventsTimelineGarbageTimes[CommonsUtils::currentHour()] = true
+                print "Events   timeline garbage collection"
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
                 if lines.size>0 then
-                    lines.each{|line|
-                        puts line
-                    }
-                    LucilleCore::pressEnterToContinue()
+                    puts ": #{lines.size}"
+                else
+                    puts ""
                 end
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
