@@ -179,6 +179,7 @@ class Stream
         end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
+            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
             Stream::performObjectClosing(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
