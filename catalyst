@@ -370,7 +370,7 @@ class Mercury
                 lines.each{|line|
                     puts "    - #{line}"
                 }
-                LucilleCore::pressEnterToContinue()
+                LucilleCore::pressEnterToContinue() if lines.size>0
                 garbageSchedule["archives"] = Time.new.to_i + Random::rand*86400
             end
             if ( Time.new.to_i > garbageSchedule["events"] ) and CommonsUtils::isPrimaryComputer() then
@@ -379,7 +379,7 @@ class Mercury
                 lines.each{|line|
                     puts "    - #{line}"
                 }
-                LucilleCore::pressEnterToContinue()
+                LucilleCore::pressEnterToContinue() if lines.size>0
                 garbageSchedule["events"] = Time.new.to_i + Random::rand*86400
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
