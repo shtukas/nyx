@@ -365,22 +365,22 @@ class Mercury
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             if archivesTimelineGarbageTimes[CommonsUtils::currentHour()].nil? and CommonsUtils::isPrimaryComputer() then
                 archivesTimelineGarbageTimes[CommonsUtils::currentHour()] = true
-                print "Archives timeline garbage collection"
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 if lines.size>0 then
-                    puts ": #{lines.size}"
-                else
-                    puts ""
+                    puts "Archives timeline garbage collection: #{lines.size}"
+                    lines.each{|line|
+                        puts "    #{line}"
+                    }
                 end
             end
             if eventsTimelineGarbageTimes[CommonsUtils::currentHour()].nil? and CommonsUtils::isPrimaryComputer() then
                 eventsTimelineGarbageTimes[CommonsUtils::currentHour()] = true
-                print "Events   timeline garbage collection"
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
                 if lines.size>0 then
-                    puts ": #{lines.size}"
-                else
-                    puts ""
+                    puts "Events timeline garbage collection: #{lines.size}"
+                    lines.each{|line|
+                        puts "    #{line}"
+                    }
                 end
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
