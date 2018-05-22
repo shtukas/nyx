@@ -351,7 +351,7 @@ class Mercury
         mainschedule = {}
         mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
-        mainschedule["lava-domains-review"] = 0
+        mainschedule["lava-domains-review"] = Time.new.to_i + Random::rand*3600*6
         loop {
             PrimaryOperator::generalUpgrade()
             TodayOrNotToday::transform()
