@@ -371,6 +371,7 @@ class Mercury
                     lines.each{|line|
                         puts "    #{line}"
                     }
+                    LucilleCore::pressEnterToContinue()
                 end
             end
             if eventsTimelineGarbageTimes[CommonsUtils::currentHour()].nil? and CommonsUtils::isPrimaryComputer() then
@@ -381,6 +382,7 @@ class Mercury
                     lines.each{|line|
                         puts "    #{line}"
                     }
+                    LucilleCore::pressEnterToContinue()
                 end
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
