@@ -348,8 +348,9 @@ class Mercury
 
     def self.main2()
         workspaceSize = 1
-        archivesTimelineGarbageTimes = {}
-        eventsTimelineGarbageTimes = {}
+        garbageSchedule = {}
+        garbageSchedule["archives"] = Time.new.to_i + Random::rand*86400
+        garbageSchedule["events"]   = Time.new.to_i + Random::rand*86400
         loop {
             PrimaryOperator::generalUpgrade()
             TodayOrNotToday::transform()
@@ -363,27 +364,23 @@ class Mercury
             system("clear")
             puts "LAVA            : #{Lava::domains().join(", ")}".yellow
             puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            if archivesTimelineGarbageTimes[CommonsUtils::currentHour()].nil? and CommonsUtils::isPrimaryComputer() then
-                archivesTimelineGarbageTimes[CommonsUtils::currentHour()] = true
+            if ( Time.new.to_i > garbageSchedule["archives"] ) and CommonsUtils::isPrimaryComputer() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
-                if lines.size>0 then
-                    puts "Archives timeline garbage collection: #{lines.size}"
-                    lines.each{|line|
-                        puts "    #{line}"
-                    }
-                    LucilleCore::pressEnterToContinue()
-                end
+                puts "Archives timeline garbage collection: #{lines.size}"
+                lines.each{|line|
+                    puts "    - #{line}"
+                }
+                LucilleCore::pressEnterToContinue()
+                garbageSchedule["archives"] = Time.new.to_i + Random::rand*86400
             end
-            if eventsTimelineGarbageTimes[CommonsUtils::currentHour()].nil? and CommonsUtils::isPrimaryComputer() then
-                eventsTimelineGarbageTimes[CommonsUtils::currentHour()] = true
+            if ( Time.new.to_i > garbageSchedule["events"] ) and CommonsUtils::isPrimaryComputer() then
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
-                if lines.size>0 then
-                    puts "Events timeline garbage collection: #{lines.size}"
-                    lines.each{|line|
-                        puts "    #{line}"
-                    }
-                    LucilleCore::pressEnterToContinue()
-                end
+                puts "Events timeline garbage collection: #{lines.size}"
+                lines.each{|line|
+                    puts "    - #{line}"
+                }
+                LucilleCore::pressEnterToContinue()
+                garbageSchedule["events"] = Time.new.to_i + Random::rand*86400
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
             $flock["objects"].take(workspaceSize).each_with_index{|o, index|
