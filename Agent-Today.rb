@@ -23,6 +23,7 @@ require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
 TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
+TODAY_SEPARATION_TOKEN = "@notes"
 
 # Today::section_is_not_empty(section)
 # Today::contents_to_sections(reminaing_lines,sections)
@@ -70,7 +71,7 @@ class Today
     end
 
     def self.todaySectionsUUIDs()
-        todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
+        todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).map{|section|
             Today::sectionToLength8UUID(section)
         }
@@ -83,8 +84,8 @@ class Today
             FileUtils.mkpath(targetFolder)
             FileUtils.cp(TODAY_PATH_TO_DATA_FILE,"#{targetFolder}/Today+Calendar.txt")
 
-            todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
-            calendarcontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[1].strip
+            todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[0].strip
+            calendarcontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[1].strip
             todaysections1 = Today::contents_to_sections(todaycontents.lines.to_a, [])
             todaysections2 = todaysections1.select{|section|
                 Today::sectionToLength8UUID(section) != uuid
@@ -94,7 +95,7 @@ class Today
                     f.puts(Today::section_to_string(section))
                 }
                 f.puts ""
-                f.puts "@calendar"
+                f.puts "#{TODAY_SEPARATION_TOKEN}"
                 f.puts ""
                 f.puts calendarcontents
             }
@@ -107,7 +108,7 @@ class Today
 
     def self.generalUpgrade()
         objects = []
-        todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split('@calendar')[0].strip
+        todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|
             uuid = Today::sectionToLength8UUID(section)
             metric = 0.840 + 0.010*Math.exp(-idx.to_f/10)
