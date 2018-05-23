@@ -10,6 +10,7 @@
 0.190 -> 0.790  Open Projects
 0.150 -> 0.750  Vienna
 0.150 -> 0.650  Stream
+0.300 -> 0.600  Stream
 0.200 -> 0.600  Ninja
          0.200  -- water level -- 
          0.000  Not To Be Done

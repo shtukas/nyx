@@ -69,7 +69,9 @@ class Stream
     end
 
     def self.uuid2metric(uuid, status)
-        metric = 0.40 + 0.25*Math.sin( (Time.new.to_f/86400)+CommonsUtils::traceToRealInUnitInterval(Digest::SHA1.hexdigest(uuid)*3.14*2) )
+        base   = FKVStore::getOrNull("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}").nil? ? 0.4 : 0.5
+        width  = FKVStore::getOrNull("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}").nil? ? 0.25 : 0.15
+        metric = base + width*Math.sin( (Time.new.to_f/86400)+CommonsUtils::traceToRealInUnitInterval(Digest::SHA1.hexdigest(uuid)*3.14*2) )
         metric = metric * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8)
         metric = status[0] ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric
     end
@@ -127,7 +129,8 @@ class Stream
     end
 
     def self.interface()
-        
+        puts "Stream metric multiplier: #{GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8)}"
+        LucilleCore::pressEnterToContinue()
     end
 
     def self.generalUpgrade()
@@ -169,6 +172,7 @@ class Stream
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
+            FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
