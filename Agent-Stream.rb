@@ -184,6 +184,7 @@ class Stream
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", [Time.new.to_i, 600]) # special circumstances
             Stream::performObjectClosing(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
