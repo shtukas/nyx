@@ -16,6 +16,7 @@ CATALYST_COMMON_DATABANK_FOLDERPATH = "/Galaxy/DataBank/Catalyst"
 CATALYST_COMMON_CONFIG_FILEPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Config.json"
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Bin-Timeline"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Stream"
+CATALYST_COMMON_PATH_TO_SWAT_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/SWAT"
 CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Open-Projects"
 CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE = "/Galaxy/DataBank/Catalyst/Events-Timeline"
 CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN = "/Galaxy/DataBank/Catalyst/Events-Buffer-In"
@@ -732,6 +733,7 @@ end
 # GenericTimeTracking::status(uuid): [boolean, null or unixtime]
 # GenericTimeTracking::start(uuid)
 # GenericTimeTracking::stop(uuid)
+# GenericTimeTracking::adaptedTimespanInSeconds(uuid)
 # GenericTimeTracking::metric2(uuid, low, high, hourstoMinusOne)
 # GenericTimeTracking::timings(uuid)
 
@@ -756,7 +758,7 @@ class GenericTimeTracking
         FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
-    def self.metric2(uuid, low, high, hourstoMinusOne)
+    def self.adaptedTimespanInSeconds(uuid)
         adaptedTimespanInSeconds = MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
             .map{|pair|
                 unixtime = pair[0]
@@ -766,6 +768,10 @@ class GenericTimeTracking
                 timespan * Math.exp(-ageInDays)
             }
             .inject(0, :+)
+    end
+
+    def self.metric2(uuid, low, high, hourstoMinusOne)
+        adaptedTimespanInSeconds = GenericTimeTracking::adaptedTimespanInSeconds(uuid)
         adaptedTimespanInHours = adaptedTimespanInSeconds.to_f/3600
         low + (high-low)*Math.exp(-adaptedTimespanInHours.to_f/hourstoMinusOne)
     end

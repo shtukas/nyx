@@ -22,14 +22,12 @@ require 'find'
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
-OPEN_PROJECTS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Open-Projects"
-
 # OpenProjects::fGeneralUpgrade()
 
 # OpenProjects::folderpaths(itemsfolderpath)
 # OpenProjects::getuuidOrNull(folderpath)
-# OpenProjects::folderpath2CatalystObjectOrNull(folderpath)
-# OpenProjects::issueNewItemFromDescription(description)
+# OpenProjects::makeCatalystObjectOrNull(folderpath)
+# OpenProjects::issueNewItemWithDescription(description)
 # OpenProjects::generalUpgrade()
 
 class OpenProjects
@@ -64,17 +62,25 @@ class OpenProjects
         LucilleCore::removeFileSystemLocation(object["item-data"]['folderpath'])
     end
 
-    def self.folderpath2CatalystObjectOrNull(folderpath)
+    def self.agentMetric()
+        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C").to_f/3600 ).to_f/3
+    end
+
+    def self.objectMetric(uuid)
+        Math.exp(-GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600).to_f/100
+    end
+
+    def self.makeCatalystObjectOrNull(folderpath)
         uuid = OpenProjects::getuuidOrNull(folderpath)
         return nil if uuid.nil?
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-        announce = "(open) project: " + folderProbeMetadata["announce"]
+        announce = "open project: " + folderProbeMetadata["announce"]
         status = GenericTimeTracking::status(uuid)
         isRunning = status[0]
         object = {
             "uuid" => uuid,
             "agent-uid" => self.agentuuid(),
-            "metric" => isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : GenericTimeTracking::metric2(uuid, 0.19, 0.79, 3) + CommonsUtils::traceToMetricShift(uuid),
+            "metric" => isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + self.objectMetric(uuid),
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
             "default-expression" => isRunning ? "stop" : "start"
@@ -86,7 +92,7 @@ class OpenProjects
         object
     end
 
-    def self.issueNewItemFromDescription(description)
+    def self.issueNewItemWithDescription(description)
         folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
@@ -95,18 +101,18 @@ class OpenProjects
 
     def self.interface()
         puts "Agent: OpenProjects"
-        OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
+        OpenProjects::folderpaths(CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER)
             .each{|folderpath|
                 folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-                announce = "(open) project: " + folderProbeMetadata["announce"]
+                announce = "open project: " + folderProbeMetadata["announce"]
                 puts "    #{announce}"
             }
         LucilleCore::pressEnterToContinue()
     end    
 
     def self.generalUpgrade()
-        objects = OpenProjects::folderpaths(OPEN_PROJECTS_PATH_TO_REPOSITORY)
-            .map{|folderpath| OpenProjects::folderpath2CatalystObjectOrNull(folderpath) }
+        objects = OpenProjects::folderpaths(CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER)
+            .map{|folderpath| OpenProjects::makeCatalystObjectOrNull(folderpath) }
             .compact
         FlockTransformations::removeObjectsFromAgent(self.agentuuid())
         FlockTransformations::addOrUpdateObjects(objects)
@@ -117,12 +123,15 @@ class OpenProjects
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(object["uuid"])
+            GenericTimeTracking::start("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C")
         end
         if command=='stop' then
             GenericTimeTracking::stop(object["uuid"])
+            GenericTimeTracking::stop("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C")
         end
         if command=="completed" then
             GenericTimeTracking::stop(object["uuid"])
+            GenericTimeTracking::stop("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C")
             time = Time.new
             targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
             FileUtils.mkpath targetFolder

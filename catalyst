@@ -238,7 +238,7 @@ class Mercury
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = Wave::issueNewItemFromDescriptionInteractive(description)
+            folderpath = Wave::issueNewItemWithDescriptionInteractive(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return
@@ -247,7 +247,7 @@ class Mercury
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = Stream::issueNewItemFromDescription(description)
+            folderpath = Stream::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return
@@ -256,7 +256,16 @@ class Mercury
         if expression.start_with?('open-project:') then
             description = expression[13, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = OpenProjects::issueNewItemFromDescription(description)
+            folderpath = OpenProjects::issueNewItemWithDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('swat:') then
+            description = expression[5, expression.size].strip
+            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = SWAT::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return

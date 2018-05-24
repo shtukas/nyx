@@ -30,7 +30,7 @@ require 'digest/sha1'
 # Stream::folderpathToCatalystObjectOrNull(folderpath)
 # Stream::performObjectClosing(object)
 # Stream::objectCommandHandler(object, command)
-# Stream::issueNewItemFromDescription(description)
+# Stream::issueNewItemWithDescription(description)
 # Stream::generalUpgrade()
 
 class Stream
@@ -66,14 +66,6 @@ class Stream
                 end
             }
         nil
-    end
-
-    def self.uuid2metric(uuid, status)
-        base   = FKVStore::getOrNull("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}").nil? ? 0.4 : 0.5
-        width  = FKVStore::getOrNull("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}").nil? ? 0.25 : 0.15
-        metric = base + width*Math.sin( (Time.new.to_f/86400)+CommonsUtils::traceToRealInUnitInterval(Digest::SHA1.hexdigest(uuid)*3.14*2) )
-        metric = metric * GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8)
-        metric = status[0] ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric
     end
 
     def self.uuid2commands(uuid, status)
@@ -121,7 +113,7 @@ class Stream
         FlockTransformations::removeObjectIdentifiedByUUID(uuid)
     end
 
-    def self.issueNewItemFromDescription(description)
+    def self.issueNewItemWithDescription(description)
         folderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
@@ -129,34 +121,39 @@ class Stream
     end
 
     def self.interface()
-        puts "Stream metric multiplier: #{GenericTimeTracking::metric2("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", 0, 1, 8)}"
-        LucilleCore::pressEnterToContinue()
+        
+    end
+
+    def self.agentMetric()
+        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds("2EECA0DE-F4BD-471C-A26A-3F2670C07A69").to_f/3600 ).to_f/3
     end
 
     def self.generalUpgrade()
-        existingUUIDsFromFlock = $flock["objects"]
+
+        # Adding the next object if there isn't one
+        if $flock["objects"].select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
+            Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+                .first(1)
+                .each{|folderpath|
+                    object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+                    EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+                    FlockTransformations::addOrUpdateObject(object)
+                }
+        end
+
+        # Updating the objects
+        $flock["objects"]
             .select{|object| object["agent-uid"]==self.agentuuid() }
-            .map{|object| object["uuid"] }
-        existingUUIDsFromDisk = Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER).map{|folderpath| Stream::folderpath2uuid(folderpath) }
-        unregisteredUUIDs = existingUUIDsFromDisk - existingUUIDsFromFlock
-        unregisteredUUIDs.each{|uuid|
-            # We need to build the object, then make a Flock update and emit an event
-            folderpath = Stream::uuid2folderpathOrNull(uuid)
-            object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            FlockTransformations::addOrUpdateObject(object)
-        }
-        objects = $flock["objects"].select{|object| object["agent-uid"]==self.agentuuid() }
-        objects.each{|object|
-            uuid = object["uuid"]
-            status = GenericTimeTracking::status(uuid)
-            object["metric"]              = Stream::uuid2metric(uuid, status)
-            object["commands"]            = Stream::uuid2commands(uuid, status)
-            object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
-            object["item-data"]["status"] = status
-            object["is-running"]          = status[0]
-            FlockTransformations::addOrUpdateObject(object)
-        }
+            .each{|object|
+                uuid = object["uuid"]
+                status = GenericTimeTracking::status(uuid)
+                object["metric"]              = self.agentMetric()
+                object["commands"]            = Stream::uuid2commands(uuid, status)
+                object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
+                object["item-data"]["status"] = status
+                object["is-running"]          = status[0]
+                FlockTransformations::addOrUpdateObject(object)
+            }
     end
 
     def self.processObjectAndCommand(object, command)
@@ -167,24 +164,21 @@ class Stream
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
-            GenericTimeTracking::start(uuid)
-            GenericTimeTracking::start("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            GenericTimeTracking::start("2EECA0DE-F4BD-471C-A26A-3F2670C07A69")
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
             FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
-            GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
+            GenericTimeTracking::stop("2EECA0DE-F4BD-471C-A26A-3F2670C07A69")
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
         end
         if command=="completed" then
-            GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop("stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17")
-            MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:stream-common-time:4259DED9-7C9D-4F91-96ED-A8A63FD3AE17", [Time.new.to_i, 600]) # special circumstances
+            GenericTimeTracking::stop("2EECA0DE-F4BD-471C-A26A-3F2670C07A69")
+            MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:2EECA0DE-F4BD-471C-A26A-3F2670C07A69", [Time.new.to_i, 600]) # special circumstances
             Stream::performObjectClosing(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)

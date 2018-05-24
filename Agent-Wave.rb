@@ -276,7 +276,7 @@ end
 # Wave::objectuuidToCatalystObjectOrNull(objectuuid)
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
-# Wave::issueNewItemFromDescriptionInteractive(description)
+# Wave::issueNewItemWithDescriptionInteractive(description)
 # Wave::interface()
 # Wave::generalUpgrade()
 # Wave::processObjectAndCommand(object, command)
@@ -452,7 +452,7 @@ class Wave
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
     end
 
-    def self.issueNewItemFromDescriptionInteractive(description)
+    def self.issueNewItemWithDescriptionInteractive(description)
         uuid = SecureRandom.hex(4)
         schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
         folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
