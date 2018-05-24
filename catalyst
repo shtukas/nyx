@@ -410,6 +410,7 @@ class Mercury
                                     .select{|object| object[":lava:"] }
                                     .select{|object| object[":lava:"]["domain"]==domain }
                                     .sort{|o1, o2| o1[":lava:"]["ordinal"]<=>o2[":lava:"]["ordinal"] }
+                        break if xobjects.empty?
                         xobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", xobjects, lambda{ |object| Mercury::object2Line_v0(object) })
                         break if xobject.nil?
                         Mercury::interactiveDisplayObjectAndProcessCommand(xobject)
