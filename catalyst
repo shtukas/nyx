@@ -33,7 +33,7 @@ require_relative "Commons.rb"
 require_relative "Agent-GuardianTime.rb"
 require_relative "Agent-Kimchee.rb"
 require_relative "Agent-Ninja.rb"
-require_relative "Agent-OpenProjects.rb"
+require_relative "Agent-Projects.rb"
 require_relative "Agent-Stream.rb"
 require_relative "Agent-TimeCommitments.rb"
 require_relative "Agent-Today.rb"
@@ -256,7 +256,7 @@ class Mercury
         if expression.start_with?('open-project:') then
             description = expression[13, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = OpenProjects::issueNewItemWithDescription(description)
+            folderpath = Projects::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return

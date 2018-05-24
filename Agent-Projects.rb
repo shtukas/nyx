@@ -22,15 +22,15 @@ require 'find'
 require_relative "Commons.rb"
 # -------------------------------------------------------------------------------------
 
-# OpenProjects::fGeneralUpgrade()
+# Projects::fGeneralUpgrade()
 
-# OpenProjects::folderpaths(itemsfolderpath)
-# OpenProjects::getuuidOrNull(folderpath)
-# OpenProjects::makeCatalystObjectOrNull(folderpath)
-# OpenProjects::issueNewItemWithDescription(description)
-# OpenProjects::generalUpgrade()
+# Projects::folderpaths(itemsfolderpath)
+# Projects::getuuidOrNull(folderpath)
+# Projects::makeCatalystObjectOrNull(folderpath)
+# Projects::issueNewItemWithDescription(description)
+# Projects::generalUpgrade()
 
-class OpenProjects
+class Projects
 
     def self.agentuuid()
         "30ff0f4d-7420-432d-b75b-826a2a8bc7cf"
@@ -71,10 +71,10 @@ class OpenProjects
     end
 
     def self.makeCatalystObjectOrNull(folderpath)
-        uuid = OpenProjects::getuuidOrNull(folderpath)
+        uuid = Projects::getuuidOrNull(folderpath)
         return nil if uuid.nil?
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-        announce = "open project: " + folderProbeMetadata["announce"]
+        announce = "project: " + folderProbeMetadata["announce"]
         status = GenericTimeTracking::status(uuid)
         isRunning = status[0]
         object = {
@@ -100,19 +100,19 @@ class OpenProjects
     end
 
     def self.interface()
-        puts "Agent: OpenProjects"
-        OpenProjects::folderpaths(CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER)
+        puts "Agent: Projects"
+        Projects::folderpaths(CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER)
             .each{|folderpath|
                 folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
-                announce = "open project: " + folderProbeMetadata["announce"]
+                announce = "project: " + folderProbeMetadata["announce"]
                 puts "    #{announce}"
             }
         LucilleCore::pressEnterToContinue()
     end    
 
     def self.generalUpgrade()
-        objects = OpenProjects::folderpaths(CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER)
-            .map{|folderpath| OpenProjects::makeCatalystObjectOrNull(folderpath) }
+        objects = Projects::folderpaths(CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER)
+            .map{|folderpath| Projects::makeCatalystObjectOrNull(folderpath) }
             .compact
         FlockTransformations::removeObjectsFromAgent(self.agentuuid())
         FlockTransformations::addOrUpdateObjects(objects)

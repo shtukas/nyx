@@ -17,7 +17,7 @@ CATALYST_COMMON_CONFIG_FILEPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Config
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Bin-Timeline"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Stream"
 CATALYST_COMMON_PATH_TO_SWAT_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/SWAT"
-CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Open-Projects"
+CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Projects"
 CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE = "/Galaxy/DataBank/Catalyst/Events-Timeline"
 CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN = "/Galaxy/DataBank/Catalyst/Events-Buffer-In"
 
@@ -324,11 +324,11 @@ class PrimaryOperator
                 "interface"       => lambda{ Ninja::interface() }
             },
             {
-                "agent-name"      => "OpenProjects",
+                "agent-name"      => "Projects",
                 "agent-uid"       => "30ff0f4d-7420-432d-b75b-826a2a8bc7cf",
-                "general-upgrade" => lambda { OpenProjects::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| OpenProjects::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ OpenProjects::interface() }
+                "general-upgrade" => lambda { Projects::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Projects::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Projects::interface() }
             },
             {
                 "agent-name"      => "Stream",
