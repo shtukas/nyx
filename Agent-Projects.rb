@@ -80,7 +80,7 @@ class Projects
         object = {
             "uuid" => uuid,
             "agent-uid" => self.agentuuid(),
-            "metric" => isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + self.objectMetric(uuid),
+            "metric" => isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + self.objectMetric(uuid) + CommonsUtils::traceToMetricShift(uuid),
             "announce" => announce,
             "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
             "default-expression" => isRunning ? "stop" : "start"
