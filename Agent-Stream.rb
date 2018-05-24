@@ -147,7 +147,7 @@ class Stream
             .each{|object|
                 uuid = object["uuid"]
                 status = GenericTimeTracking::status(uuid)
-                object["metric"]              = self.agentMetric()
+                object["metric"]              = self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
                 object["commands"]            = Stream::uuid2commands(uuid, status)
                 object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
                 object["item-data"]["status"] = status
