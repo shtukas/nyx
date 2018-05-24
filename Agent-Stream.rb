@@ -125,7 +125,7 @@ class Stream
     end
 
     def self.agentMetric()
-        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds("2EECA0DE-F4BD-471C-A26A-3F2670C07A69").to_f/3600 ).to_f/3
+        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
     end
 
     def self.generalUpgrade()
@@ -164,21 +164,21 @@ class Stream
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
-            GenericTimeTracking::start("2EECA0DE-F4BD-471C-A26A-3F2670C07A69")
+            GenericTimeTracking::start(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
             FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
-            GenericTimeTracking::stop("2EECA0DE-F4BD-471C-A26A-3F2670C07A69")
+            GenericTimeTracking::stop(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
         end
         if command=="completed" then
-            GenericTimeTracking::stop("2EECA0DE-F4BD-471C-A26A-3F2670C07A69")
-            MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:2EECA0DE-F4BD-471C-A26A-3F2670C07A69", [Time.new.to_i, 600]) # special circumstances
+            GenericTimeTracking::stop(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
+            MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY}", [Time.new.to_i, 600]) # special circumstances
             Stream::performObjectClosing(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)

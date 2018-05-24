@@ -63,7 +63,7 @@ class Projects
     end
 
     def self.agentMetric()
-        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C").to_f/3600 ).to_f/3
+        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
     end
 
     def self.objectMetric(uuid)
@@ -123,15 +123,15 @@ class Projects
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(object["uuid"])
-            GenericTimeTracking::start("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C")
+            GenericTimeTracking::start(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
         end
         if command=='stop' then
             GenericTimeTracking::stop(object["uuid"])
-            GenericTimeTracking::stop("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C")
+            GenericTimeTracking::stop(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
         end
         if command=="completed" then
             GenericTimeTracking::stop(object["uuid"])
-            GenericTimeTracking::stop("91FF0E39-CFE2-4581-A4FB-8F9059FDA10C")
+            GenericTimeTracking::stop(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
             time = Time.new
             targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
             FileUtils.mkpath targetFolder
