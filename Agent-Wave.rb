@@ -367,7 +367,7 @@ class Wave
     end
 
     def self.commands(folderProbeMetadata)
-        ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", ">open-projects", '>lib']
+        ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", ">projects", '>lib']
     end
 
     def self.defaultExpression(folderProbeMetadata, schedule)
@@ -576,7 +576,7 @@ class Wave
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
 
-        if command=='>open-projects' then
+        if command=='>projects' then
             sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)

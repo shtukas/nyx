@@ -118,7 +118,7 @@ class Today
                 "agent-uid" => self.agentuuid(),
                 "metric" => metric,
                 "announce" => announce,
-                "commands" => ['done', ">stream", ">open-projects"],
+                "commands" => ['done', ">stream", ">projects"],
                 "item-data" => {
                     "section" => section.join()
                 }
@@ -140,7 +140,7 @@ class Today
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
             Today::removeSectionFromFile(object['uuid'])
         end
-        if command=='>open-projects' then
+        if command=='>projects' then
             return []
             description = object["item-data"]["section"]
             folderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"

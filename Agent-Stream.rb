@@ -69,7 +69,7 @@ class Stream
     end
 
     def self.uuid2commands(uuid, status)
-        ( status[0] ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">open-projects", ">lib"]
+        ( status[0] ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">projects", ">lib"]
     end
 
     def self.uuid2defaultExpression(uuid, status)
@@ -183,7 +183,7 @@ class Stream
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
         end
-        if command=='>open-projects' then
+        if command=='>projects' then
             sourcelocation = object["item-data"]["folderpath"]
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
