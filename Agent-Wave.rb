@@ -30,7 +30,6 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 # ----------------------------------------------------------------------
 
 # WaveSchedules::makeScheduleObjectTypeNew()
-# WaveSchedules::makeScheduleObjectTypeNew()
 # WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
 # WaveSchedules::scheduleToAnnounce(schedule)
 # WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
@@ -276,7 +275,6 @@ end
 # Wave::objectuuidToCatalystObjectOrNull(objectuuid)
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
-# Wave::issueNewItemWithDescriptionInteractive(description)
 # Wave::interface()
 # Wave::generalUpgrade()
 # Wave::processObjectAndCommand(object, command)
@@ -450,17 +448,6 @@ class Wave
             .select{|filename| (filename.start_with?('catalyst-') or filename.start_with?('wave-')) and !filename.include?("description") }
             .map{|filename| "#{location}/#{filename}" }
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
-    end
-
-    def self.issueNewItemWithDescriptionInteractive(description)
-        uuid = SecureRandom.hex(4)
-        schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        Wave::writeScheduleToDisk(uuid, schedule)
-        folderpath
     end
 
     def self.interface()

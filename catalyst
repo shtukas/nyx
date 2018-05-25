@@ -42,6 +42,109 @@ require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------------
 
+THREADS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Threads"
+
+# ----------------------------------------------------------------------
+
+# ThreadOperator::threadFolderpaths()
+# ThreadOperator::folderPath2ThreadObject(folderpath)
+# ThreadOperator::threadNames()
+# ThreadOperator::threadObjects()
+# ThreadOperator::threadUUID2FolderpathOrNull(uuid)
+# ThreadOperator::addCatalystObjectUUIDToThread(objectuuid, threaduuid)
+# ThreadOperator::threadCatalystObjectUUIDs(threaduuid)
+# ThreadOperator::allThreadsCatalystUUIDs()
+
+class ThreadOperator
+    def self.threadFolderpaths()
+        Dir.entries(THREADS_PATH_TO_REPOSITORY)
+            .sort
+            .select{|filename| filename[0,1]!="." }
+            .map{|filename| "#{THREADS_PATH_TO_REPOSITORY}/#{filename}" }
+    end
+
+    def self.folderPath2ThreadObject(folderpath)
+        JSON.parse(IO.read("#{folderpath}/thread-object.json"))
+    end
+
+    def self.threadNames()
+        ThreadOperator::threadFolderpaths()
+            .map{|folderpath| ThreadOperator::folderPath2ThreadObject(folderpath)["thread-name"] }
+    end
+
+    def self.threadObjects()
+        ThreadOperator::threadFolderpaths()
+            .map{|folderpath| ThreadOperator::folderPath2ThreadObject(folderpath) }
+    end
+
+    def self.threadUUID2FolderpathOrNull(uuid)
+        ThreadOperator::threadFolderpaths()
+            .each{|folderpath|
+                return folderpath if ThreadOperator::folderPath2ThreadObject(folderpath)["thread-uuid"]==uuid
+            }
+        nil
+    end
+
+    def self.addCatalystObjectUUIDToThread(objectuuid, threaduuid)
+        folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threaduuid)
+        arrayFilepath = "#{folderpath}/thread-catalyst-uuids.json"
+        array = JSON.parse(IO.read(arrayFilepath))
+        array << objectuuid 
+        array = array.uniq
+        File.open(arrayFilepath, "w"){|f| f.puts(JSON.generate(array)) }
+    end
+
+    def self.threadCatalystObjectUUIDs(threaduuid)
+        folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threaduuid)
+        JSON.parse(IO.read("#{folderpath}/thread-catalyst-uuids.json"))
+    end
+
+    def self.allThreadsCatalystUUIDs()
+        ThreadOperator::threadFolderpaths()
+            .map{|folderpath| JSON.parse(IO.read("#{folderpath}/thread-catalyst-uuids.json")) }
+            .flatten
+    end
+
+    def self.createNewThreadWithName(threadname)
+        foldername = LucilleCore::timeStringL22()
+        folderpath = "#{THREADS_PATH_TO_REPOSITORY}/#{foldername}"
+        FileUtils.mkpath folderpath
+        FileUtils.mkpath "#{folderpath}/documents"
+        File.open("#{folderpath}/thread-catalyst-uuids.json", "w"){|f| f.puts(JSON.generate([])) }
+        FileUtils.touch("#{folderpath}/thread-text.txt")
+        threadObject = {}
+        threadObject["thread-uuid"] = SecureRandom.uuid
+        threadObject["thread-name"] = threadname
+        File.open("#{folderpath}/thread-object.json", "w"){|f| f.puts(JSON.pretty_generate(threadObject)) }
+        threadObject
+    end
+
+    def self.transform()
+        uuids = self.allThreadsCatalystUUIDs()
+        $flock["objects"] = $flock["objects"].map{|object|
+            if uuids.include?(object["uuid"]) then
+                object["metric"] = 0
+            end
+            object
+        }
+    end
+
+    def self.moveObjectUUIDToAThread(objectuuid)
+        threadObjects = ThreadOperator::threadObjects()
+        threadObject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", threadObjects, lambda{ |object| object["thread-name"] })
+        if threadObject.nil? then
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new thread ? ") then
+                threadname = LucilleCore::askQuestionAnswerAsString("thread name: ")
+                threadObject = ThreadOperator::createNewThreadWithName(threadname)
+            else
+                return
+            end
+        end
+        ThreadOperator::addCatalystObjectUUIDToThread(objectuuid, threadObject["thread-uuid"])
+        threadObject
+    end
+end
+
 # Mercury::putshelp()
 # Mercury::fDoNotShowUntilDateTimeTransform()
 # Mercury::isInteger(str)
@@ -68,10 +171,9 @@ class Mercury
         puts "    r:on <requirement>"
         puts "    r:off <requirement>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    >>  # threads"
+        puts "    >>> # new thread"
         puts ""
-        puts "File"
-        puts "    file new"
-        puts "    file open"
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description>"
@@ -86,12 +188,12 @@ class Mercury
         puts "Special Object Commands:"
         puts "    (+)datetimecode"
         puts "    expose # pretty print the object"
+        puts "    > # send to a thread"
         puts "    !today"
         puts "    l:add"
         puts "    r:add <requirement>"
         puts "    r:remove <requirement>"
         puts "    command ..."
-
     end
 
     def self.fDoNotShowUntilDateTimeTransform()
@@ -207,6 +309,52 @@ class Mercury
             return
         end
 
+        if expression == ">>" then
+            threadObjects = ThreadOperator::threadObjects()
+            threadObject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", threadObjects, lambda{ |object| object["thread-name"] })
+            return if threadObject.nil?
+            loop {
+                puts JSON.pretty_generate(threadObject)
+                menuOptions = ["open file", "visit folder", "objects"]
+                menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
+                if menuChoice=="open file" then
+                    folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threadObject["thread-uuid"])
+                    system("open '#{folderpath}/thread-text.txt'")
+                    next
+                end
+                if menuChoice=="visit documents" then
+                    folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threadObject["thread-uuid"])
+                    system("open '#{folderpath}/documents'")
+                    next
+                end
+                if menuChoice=="objects" then
+                    loop {
+                        threaduuids = ThreadOperator::threadCatalystObjectUUIDs(threadObject["thread-uuid"])
+                        objects = $flock["objects"]
+                            .select{|object| threaduuids.include?(object["uuid"]) }
+                            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                            .reverse
+                        object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| Mercury::object2Line_v0(object) })
+                        break if object.nil?
+                        puts Mercury::object2Line_v1(object)
+                        print "--> "
+                        givenCommand = STDIN.gets().strip
+                        command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
+                        Mercury::processObjectAndCommand(objectselected, command)
+                    }
+                    next
+                end
+                break
+            }
+            return
+        end
+
+        if expression == ">>>" then
+            threadname = LucilleCore::askQuestionAnswerAsString("thread name: ")
+            ThreadOperator::createNewThreadWithName(threadname)
+            return
+        end
+
         if expression == "interface" then
             LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", PrimaryOperator::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
             return
@@ -230,69 +378,39 @@ class Mercury
             return
         end
 
-        if expression == 'file new' then
-            filecorename = LucilleCore::askQuestionAnswerAsString("Name: ")
-            filepath = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles/#{LucilleCore::timeStringL22()}-#{filecorename}.txt"
-            FileUtils.touch(filepath)
-            system("open '#{filepath}'")
-            return
-        end
-
-        if expression == 'file open' then
-            filepaths = Dir.entries("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles").select{|filename| filename[-4, 4]==".txt" }.map{|filename| "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles/#{filename}" }
-            return if filepaths.size==0
-            filepath = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("open:", filepaths, lambda{ |filepath| File.basename(filepath)[23, File.basename(filepath).size-27] })
-            return if filepath.nil?
-            system("open '#{filepath}'")
-            return
-        end
-
-        if expression.start_with?("l:add") then
-            command, maybedomain = expression.split(" ").map{|t| t.strip }
-            domain = 
-                if maybedomain.size>0 then
-                    maybedomain
-                else
-                    LucilleCore::interactivelySelectValueStringFromListOfValueStringsOrCreateNewValueString("domain", Lava::domains())
-                end
-            return if domain.nil?
-            object[":lava:"] = { "domain" => domain , "ordinal" => Time.new.to_i }
-            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            FlockTransformations::addOrUpdateObject(object)
-            FKVStore::set("0cda77d7-1c03-4adb-9e36-655df4ff0d8d:#{domain}", Time.new.to_i)
-            return
-        end
-
-        if expression.start_with?("l:show") then
-            showDomainInLoop = lambda {|domain|
-                loop {
-                    xobjects = $flock["objects"]
-                                .select{|object| object[":lava:"] }
-                                .select{|object| object[":lava:"]["domain"]==domain }
-                                .sort{|o1, o2| o1[":lava:"]["ordinal"]<=>o2[":lava:"]["ordinal"] }
-                    xobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", xobjects, lambda{ |object| Mercury::object2Line_v0(object) })
-                    break if xobject.nil?
-                    Mercury::interactiveDisplayObjectAndProcessCommand(xobject)
-                }
-            }
-            command, maybedomain = expression.split(" ").map{|t| t.strip }
-            if maybedomain and maybedomain.size>0 then
-                showDomainInLoop.call(maybedomain)
-            else
-                loop {
-                    domain = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("domain", Lava::domains())
-                    break if domain.nil?
-                    showDomainInLoop.call(domain)
-                }
-            end
-            return
-        end
-
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = Wave::issueNewItemWithDescriptionInteractive(description)
-            puts "created item: #{folderpath}"
+            uuid = SecureRandom.hex(4)
+            folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
+            answer = STDIN.gets().strip 
+            schedule = 
+                if answer=="yes" then
+                    WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+                else
+                    {
+                        "uuid" => SecureRandom.hex,
+                        "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
+                        "@"    => "today",
+                        "unixtime" => Time.new.to_i
+                    }
+                end
+            Wave::writeScheduleToDisk(uuid,schedule)
+            if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
+                if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                    $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
+                    EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+                end
+            end
+            print "Move to a thread ? [yes/no] (default: no): "
+            answer = STDIN.gets().strip 
+            if answer=="yes" then
+                ThreadOperator::moveObjectUUIDToAThread(uuid)
+            end
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -366,6 +484,11 @@ class Mercury
 
         # object needed
 
+        if expression == ">" then
+            ThreadOperator::moveObjectUUIDToAThread(object["uuid"])
+            return
+        end
+
         if expression == '!today' then
             TodayOrNotToday::notToday(object["uuid"])
             return
@@ -413,26 +536,18 @@ class Mercury
         mainschedule = {}
         mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
-        mainschedule["lava-domains-review"] = Time.new.to_i + Random::rand*3600*6
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
             PrimaryOperator::generalUpgrade()
             TodayOrNotToday::transform()
             RequirementsOperator::transform()
             Mercury::fDoNotShowUntilDateTimeTransform()
-            $flock["objects"].map{|object|
-                next if object[":lava:"].nil?
-                object["metric"] = 0
-            }
+            ThreadOperator::transform()
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
-            puts  "LAVA            : #{Lava::domains().join(", ")}".yellow
-            puts  "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            print "Files           : ".yellow
-            userFriendlyFilenames = Dir.entries("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles")
-                .select{|filename| filename[-4, 4]==".txt" }
-                .map{|filename| filename[23, filename.size-27] }
-            puts userFriendlyFilenames.join(", ").yellow
+            puts "THREADS          : #{ThreadOperator::threadNames().join(", ")}".yellow
+            puts "REQUIREMENTS OFF : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+
             dayprogression = {
                 "projects" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3,
                 "stream"   => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
@@ -460,30 +575,13 @@ class Mercury
                 LucilleCore::pressEnterToContinue() if lines.size>0
                 mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
             end
-            if ( Time.new.to_i > mainschedule["lava-domains-review"] ) then
-                Lava::domains().each{|domain|
-                    puts ""
-                    puts "Showing #{domain}"
-                    loop {
-                        xobjects = $flock["objects"]
-                                    .select{|object| object[":lava:"] }
-                                    .select{|object| object[":lava:"]["domain"]==domain }
-                                    .sort{|o1, o2| o1[":lava:"]["ordinal"]<=>o2[":lava:"]["ordinal"] }
-                        break if xobjects.empty?
-                        xobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", xobjects, lambda{ |object| Mercury::object2Line_v0(object) })
-                        break if xobject.nil?
-                        Mercury::interactiveDisplayObjectAndProcessCommand(xobject)
-                    }
-                }
-                mainschedule["lava-domains-review"] = Time.new.to_i + Random::rand*3600*6
-                next
-            end
             if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
                 puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
                 LucilleCore::pressEnterToContinue()
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
+            puts ""
             objectselected = $flock["objects"].take(workspaceSize).last.clone
             $flock["objects"].take(workspaceSize).each_with_index{|o, index|
                 string =

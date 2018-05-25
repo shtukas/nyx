@@ -385,24 +385,6 @@ class PrimaryOperator
     end
 end
 
-# Lava::domains()
-# Lava::getDomainActivityLastUnixtime(domain)
-
-class Lava
-    def self.domains()
-        domains = $flock["objects"]
-            .select{|object| object[":lava:"] }
-            .map{|object| object[":lava:"]["domain"] }
-            .uniq
-        domains
-            .sort{|d1, d2| Lava::getDomainActivityLastUnixtime(d1)<=>Lava::getDomainActivityLastUnixtime(d2) }
-            .reverse
-    end
-    def self.getDomainActivityLastUnixtime(domain)
-        FKVStore::getOrDefaultValue("0cda77d7-1c03-4adb-9e36-655df4ff0d8d:#{domain}", "0").to_i
-    end
-end
-
 # RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
 # RequirementsOperator::setUnsatisfiedRequirement(requirement)
 # RequirementsOperator::setSatisfifiedRequirement(requirement)
