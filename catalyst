@@ -253,7 +253,7 @@ class Mercury
             return
         end
 
-        if expression.start_with?('open-project:') then
+        if expression.start_with?('project:') then
             description = expression[13, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = Projects::issueNewItemWithDescription(description)

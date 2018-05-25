@@ -393,7 +393,7 @@ class PrimaryOperator
         puts "Special General Commands (inserts)"
         puts "    wave: <description>"
         puts "    stream: <description>"
-        puts "    open-project: <description>"
+        puts "    project: <description>"
         puts ""
         puts "Special General Commands (special circumstances)"
         puts "    clear # clear the screen"
