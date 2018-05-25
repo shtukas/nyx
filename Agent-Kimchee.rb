@@ -49,7 +49,7 @@ class Kimchee
     end
 
     def self.generalUpgrade()
-        return [] if !CommonsUtils::isPrimaryComputer()
+        return [] if !CommonsUtils::isLucille18()
         if Kimchee::weeksValue().to_i > Kimchee::lastKnownweeksValueInteger() then
             weekValue = Kimchee::weeksValue()
             monthValues = Kimchee::monthsValues()

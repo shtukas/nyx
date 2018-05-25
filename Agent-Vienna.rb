@@ -73,7 +73,7 @@ class Vienna
     end
 
     def self.generalUpgrade()
-        return [] if !CommonsUtils::isPrimaryComputer()
+        return [] if !CommonsUtils::isLucille18()
         link = $viennaLinkFeeder.next()
         return [] if link.nil?
         uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]

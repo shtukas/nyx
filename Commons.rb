@@ -40,7 +40,8 @@ class Config
     end
 end
 
-# CommonsUtils::isPrimaryComputer()
+# CommonsUtils::isLucille18()
+# CommonsUtils::isActiveInstance(runId)
 # CommonsUtils::currentHour()
 # CommonsUtils::currentDay()
 # CommonsUtils::simplifyURLCarryingString(string)
@@ -51,8 +52,12 @@ end
 
 class CommonsUtils
 
-    def self.isPrimaryComputer()
+    def self.isLucille18()
         ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
+    end
+
+    def self.isActiveInstance(runId)
+        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data")==runId
     end
 
     def self.currentHour()
@@ -693,7 +698,7 @@ class FolderProbe
 
         end
         if metadata["target-type"]=="url" then
-            if CommonsUtils::isPrimaryComputer() then
+            if CommonsUtils::isLucille18() then
                 system("open '#{metadata["url"]}'")
             else
                 system("open -na 'Google Chrome' --args --new-window '#{metadata["url"]}'")

@@ -72,6 +72,7 @@ class Mercury
         puts "File"
         puts "    file new"
         puts "    file open"
+        puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description>"
         puts "    stream: <description>"
@@ -83,13 +84,14 @@ class Mercury
         puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special Object Commands:"
+        puts "    (+)datetimecode"
         puts "    expose # pretty print the object"
         puts "    !today"
         puts "    l:add"
         puts "    r:add <requirement>"
         puts "    r:remove <requirement>"
         puts "    command ..."
-        puts "    (+)datetimecode"
+
     end
 
     def self.fDoNotShowUntilDateTimeTransform()
@@ -406,7 +408,7 @@ class Mercury
         end
     end
 
-    def self.main2()
+    def self.main2(runId)
         workspaceSize = 1
         mainschedule = {}
         mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
@@ -434,7 +436,7 @@ class Mercury
             else
                 puts "DAY PROGRESSION : Projects: #{ (100*dayprogression["projects"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".red
             end
-            if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isPrimaryComputer() then
+            if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"
                 lines.each{|line|
@@ -443,7 +445,7 @@ class Mercury
                 LucilleCore::pressEnterToContinue() if lines.size>0
                 mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
             end
-            if ( Time.new.to_i > mainschedule["events-gc"] ) and CommonsUtils::isPrimaryComputer() then
+            if ( Time.new.to_i > mainschedule["events-gc"] ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
                 puts "Events timeline garbage collection: #{lines.size}"
                 lines.each{|line|
@@ -494,34 +496,16 @@ class Mercury
                 workspaceSize = [givenCommand.to_i, 1].max
                 next
             end
-            if givenCommand.start_with?(":") then
-                suffix = givenCommand[1,givenCommand.size]
-                if Mercury::isInteger(suffix) then
-                    objectselected = $flock["objects"].drop(suffix.to_i-1).first.clone
-                    if objectselected then
-                        Mercury::interactiveDisplayObjectAndProcessCommand(objectselected)
-                    end
-                end
-                next
-            end
             command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
             Mercury::processObjectAndCommand(objectselected, command)
+            File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
     end
 end
 
 # -----------------------------------------------------------------
 
-if CommonsUtils::isPrimaryComputer() then
-    Thread.new {
-        sleep 6
-        Mercury::emailSync(false)
-        loop {
-            sleep 1200
-            Mercury::emailSync(false)
-        }
-    }
-end
+runId = SecureRandom.hex
 
 Thread.new {
     loop {
@@ -530,4 +514,13 @@ Thread.new {
     }
 }
 
-Mercury::main2()
+Thread.new {
+    loop {
+        if CommonsUtils::isActiveInstance(runId) then
+            Mercury::emailSync(false)
+        end
+        sleep 1200
+    }
+}
+
+Mercury::main2(runId)
