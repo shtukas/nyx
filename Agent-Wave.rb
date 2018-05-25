@@ -492,8 +492,9 @@ class Wave
             .clone
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object|
+                uuid = object["uuid"]
                 schedule = object["schedule"]
-                object["metric"] = WaveSchedules::scheduleToMetric(schedule)
+                object["metric"] = WaveSchedules::scheduleToMetric(schedule) + CommonsUtils::traceToMetricShift(uuid)
                 FlockTransformations::addOrUpdateObject(object)
             }
     end
