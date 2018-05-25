@@ -16,10 +16,6 @@ require 'date'
 
 require 'colorize'
 
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
-require_relative "Agent-Wave.rb"
-
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
@@ -49,14 +45,20 @@ require 'mail'
     mail.body.decoded    #=> 'This is the body of the email...
 =end
 
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+
 require_relative "Commons.rb"
+require_relative "Agent-Wave.rb"
 
 # -------------------------------------------------------------------------------------
 
 EMAIL_METADATA_OBJECTS_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Emails-Metadata-Objects"
 
-class EmailUtils
+# EmailUtils::msgToSubject(msg)
+# EmailUtils::msgToBody(msg)
+# EmailUtils::msgToFromAddresses(msg)
 
+class EmailUtils
     def self.sanitizestring(uid)
         uid = uid.gsub(">",'')
         uid = uid.gsub('<','')
@@ -64,7 +66,6 @@ class EmailUtils
         uid
     end
 
-    # EmailUtils::msgToSubject(msg)
     def self.msgToSubject(msg)
         filetrace = Digest::SHA1.hexdigest(msg)+'-c17ca0729774b7b982632bf19db2504c'
         filename = "#{filetrace}.eml"
@@ -75,7 +76,6 @@ class EmailUtils
         mailObject.subject
     end
 
-    # EmailUtils::msgToBody(msg)
     def self.msgToBody(msg)
         filetrace = Digest::SHA1.hexdigest(msg)+'-c17ca0729774b7b982632bf19db2504c'
         filename = "#{filetrace}.eml"
@@ -86,7 +86,6 @@ class EmailUtils
         mailObject.body.decoded
     end
 
-    # EmailUtils::msgToFromAddresses(msg)
     def self.msgToFromAddresses(msg)
         filetrace = Digest::SHA1.hexdigest(msg)+'-c17ca0729774b7b982632bf19db2504c'
         filename = "#{filetrace}.eml"
@@ -97,9 +96,12 @@ class EmailUtils
     end
 end
 
-class EmailMetadataManagement
+# EmailMetadataManagement::storeMetadataObject(object)
+# EmailMetadataManagement::readMetadataObjectOrNull(objectuuid)
+# EmailMetadataManagement::objectsDestroyObject(objectuuid)
+# EmailMetadataManagement::getObjectsOfGivenType(type)
 
-    # EmailMetadataManagement::storeMetadataObject(object)
+class EmailMetadataManagement
     def self.storeMetadataObject(object)
         # We expect a uuid
         objectuuid = object['uuid']
@@ -107,21 +109,18 @@ class EmailMetadataManagement
         File.open(filepath, 'w') {|f| f.write(JSON.pretty_generate(object)) }
     end
 
-    # EmailMetadataManagement::readMetadataObjectOrNull(objectuuid)
     def self.readMetadataObjectOrNull(objectuuid)
         filepath = "#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object"
         return nil if !File.exists?("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object")
         JSON.parse(IO.read("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object"))
     end
 
-    # EmailMetadataManagement::objectsDestroyObject(objectuuid)
     def self.objectsDestroyObject(objectuuid)
         filepath = "#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object"
         return nil if !File.exists?("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object")
         FileUtils.rm filepath
     end
 
-    # EmailMetadataManagement::getObjectsOfGivenType(type)
     def self.getObjectsOfGivenType(type)
         Dir.entries("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}")
             .select{|filename| filename[-7, 7] == '.object' }
@@ -130,9 +129,10 @@ class EmailMetadataManagement
     end
 end
 
-class EmailStatusManagement
+# EmailStatusManagement::makeStatusObject(objectuuid, status)
+# EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid, verbose)
 
-    # EmailStatusManagement::makeStatusObject(objectuuid, status)
+class EmailStatusManagement
     def self.makeStatusObject(objectuuid, status)
         {
             "uuid"   => objectuuid,
@@ -141,7 +141,6 @@ class EmailStatusManagement
         }
     end
 
-    # EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid, verbose)
     def self.destroyLocalEmailAndAssociatedMetadata(emailuid, verbose)
 
         emailpoint = EmailMetadataManagement::readMetadataObjectOrNull(emailuid)
@@ -166,9 +165,71 @@ class EmailStatusManagement
     end
 end
 
+# OperatorEmailClient::download(parameters,verbose)
+
+class OperatorEmailClient
+    def self.download(parameters,verbose)
+
+        emailImapServer = parameters['server']
+        emailUsername   = parameters['username']
+        emailPassword   = parameters['password']
+
+        imap = Net::IMAP.new(emailImapServer)
+        imap.login(emailUsername, emailPassword)
+        imap.select('INBOX')
+
+        imap.search(['ALL']).each{|id|
+
+            msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
+            emailuid = EmailUtils::sanitizestring(imap.fetch(id, "ENVELOPE")[0].attr["ENVELOPE"]['message_id'])
+            subjectline = EmailUtils::msgToSubject(msg)
+
+            if subjectline.nil? or subjectline.strip.size==0 or EmailUtils::msgToBody(msg).to_s.size>0 then
+                puts "[operator@alseyn.net] Importing email as full object" if verbose
+                catalystuuid = SecureRandom.hex(4)
+                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                FileUtils.mkpath folderpath
+                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
+                emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
+                emailFilePath = "#{folderpath}/#{emailFilename}"
+                File.open(emailFilePath, 'w') {|f| f.write(msg) }
+                schedule = WaveSchedules::makeScheduleObjectTypeNew()
+                lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
+                schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
+                schedule[':wave-emails:creation-datetime'] = Time.new.to_s
+                schedule['metric'] = 0.850 - lucilleNextInteger.to_f/1000000
+                Wave::writeScheduleToDisk(catalystuuid, schedule)
+                File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
+            else
+                puts "[operator@alseyn.net] Importing email as subjectline" if verbose
+                catalystuuid = SecureRandom.hex(4)
+                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                FileUtils.mkpath folderpath
+                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
+                schedule = WaveSchedules::makeScheduleObjectTypeNew()
+                lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
+                schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
+                schedule[':wave-emails:creation-datetime'] = Time.new.to_s
+                schedule['metric'] = 0.850 - lucilleNextInteger.to_f/1000000
+                Wave::writeScheduleToDisk(catalystuuid, schedule)
+                File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: subject line: #{subjectline}") }
+            end
+
+            imap.store(id, "+FLAGS", [:Deleted])
+
+        }
+
+        imap.expunge # delete all messages marked for deletion
+
+        imap.logout()
+        imap.disconnect()
+    end
+end
+
+# GeneralEmailClient::sync(parameters, verbose)
+
 class GeneralEmailClient
-    # GeneralEmailClient::syncEmailDataWithServer(parameters, verbose)
-    def self.syncEmailDataWithServer(parameters, verbose)
+    def self.sync(parameters, verbose)
 
         emailImapServer = parameters['server']
         emailUsername   = parameters['username']
@@ -227,7 +288,11 @@ class GeneralEmailClient
                 EmailMetadataManagement::storeMetadataObject(emailpoint)
 
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule['metric'] = 0.950 - LucilleCore::nextInteger("14b3e2b4-1365-4ca4-b081-cf0ae0daad5f").to_f/1000000
+                lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
+                schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
+                schedule[':wave-emails:creation-datetime'] = Time.new.to_s
+                schedule['metric'] = 0.850 - lucilleNextInteger.to_f/1000000
+                
                 Wave::writeScheduleToDisk(catalystuuid,schedule)
 
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
@@ -305,59 +370,6 @@ class GeneralEmailClient
         imap.disconnect()
 
         newEmailCount
-    end
-end
-
-class OperatorEmailDownloader
-    def self.syncEmailDataWithServer(parameters,verbose)
-
-        emailImapServer = parameters['server']
-        emailUsername   = parameters['username']
-        emailPassword   = parameters['password']
-
-        imap = Net::IMAP.new(emailImapServer)
-        imap.login(emailUsername, emailPassword)
-        imap.select('INBOX')
-
-        imap.search(['ALL']).each{|id|
-
-            msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
-            emailuid = EmailUtils::sanitizestring(imap.fetch(id, "ENVELOPE")[0].attr["ENVELOPE"]['message_id'])
-            subjectline = EmailUtils::msgToSubject(msg)
-
-            if subjectline.nil? or subjectline.strip.size==0 or EmailUtils::msgToBody(msg).to_s.size>0 then
-                puts "[operator@alseyn.net] Importing email as full object" if verbose
-                catalystuuid = SecureRandom.hex(4)
-                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-                FileUtils.mkpath folderpath
-                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
-                emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
-                emailFilePath = "#{folderpath}/#{emailFilename}"
-                File.open(emailFilePath, 'w') {|f| f.write(msg) }
-                schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
-                Wave::writeScheduleToDisk(catalystuuid, schedule)
-                File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
-            else
-                puts "[operator@alseyn.net] Importing email as subjectline" if verbose
-                catalystuuid = SecureRandom.hex(4)
-                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-                FileUtils.mkpath folderpath
-                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
-                schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule['metric'] = 0.850 - LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd").to_f/1000000
-                Wave::writeScheduleToDisk(catalystuuid, schedule)
-                File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net (subject line): #{subjectline}") }
-            end
-
-            imap.store(id, "+FLAGS", [:Deleted])
-
-        }
-
-        imap.expunge # delete all messages marked for deletion
-
-        imap.logout()
-        imap.disconnect()
     end
 end
 
