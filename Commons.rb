@@ -298,7 +298,6 @@ FlockLoader::loadFlockFromDisk()
 # PrimaryOperator::agents()
 # PrimaryOperator::agentuuid2AgentData(agentuuid)
 # PrimaryOperator::generalUpgrade()
-# PrimaryOperator::putshelp()
 
 class PrimaryOperator
 
@@ -378,36 +377,6 @@ class PrimaryOperator
 
     def self.generalUpgrade()
         PrimaryOperator::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
-    end
-
-    def self.putshelp()
-        puts "Special General Commands (view)"
-        puts "    help"
-        puts "    top"
-        puts "    search <pattern>"
-        puts "    l:show"
-        puts "    r:on <requirement>"
-        puts "    r:off <requirement>"
-        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts ""
-        puts "Special General Commands (inserts)"
-        puts "    wave: <description>"
-        puts "    stream: <description>"
-        puts "    project: <description>"
-        puts ""
-        puts "Special General Commands (special circumstances)"
-        puts "    clear # clear the screen"
-        puts "    interface # run the interface of a given agent"
-        puts "    lib # Invoques the Librarian interactive"
-        puts ""
-        puts "Special Object Commands:"
-        puts "    expose # pretty print the object"
-        puts "    !today"
-        puts "    l:add"
-        puts "    r:add <requirement>"
-        puts "    r:remove <requirement>"
-        puts "    command ..."
-        puts "    (+)datetimecode"
     end
 end
 

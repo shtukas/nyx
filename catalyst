@@ -42,6 +42,7 @@ require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------------
 
+# Mercury::putshelp()
 # Mercury::fDoNotShowUntilDateTimeTransform()
 # Mercury::isInteger(str)
 # Mercury::emailSync(verbose)
@@ -57,6 +58,39 @@ require_relative "Agent-Wave.rb"
 # Mercury::main2()
 
 class Mercury
+
+    def self.putshelp()
+        puts "Special General Commands (view)"
+        puts "    help"
+        puts "    top"
+        puts "    search <pattern>"
+        puts "    l:show"
+        puts "    r:on <requirement>"
+        puts "    r:off <requirement>"
+        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts ""
+        puts "File"
+        puts "    file new"
+        puts "    file open"
+        puts "Special General Commands (inserts)"
+        puts "    wave: <description>"
+        puts "    stream: <description>"
+        puts "    project: <description>"
+        puts ""
+        puts "Special General Commands (special circumstances)"
+        puts "    clear # clear the screen"
+        puts "    interface # run the interface of a given agent"
+        puts "    lib # Invoques the Librarian interactive"
+        puts ""
+        puts "Special Object Commands:"
+        puts "    expose # pretty print the object"
+        puts "    !today"
+        puts "    l:add"
+        puts "    r:add <requirement>"
+        puts "    r:remove <requirement>"
+        puts "    command ..."
+        puts "    (+)datetimecode"
+    end
 
     def self.fDoNotShowUntilDateTimeTransform()
         $flock["objects"] = $flock["objects"].map{|object|
@@ -161,7 +195,7 @@ class Mercury
         # no object needed
 
         if expression == 'help' then
-            PrimaryOperator::putshelp()
+            Mercury::putshelp()
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -191,6 +225,23 @@ class Mercury
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
+        end
+
+        if expression == 'file new' then
+            filename = LucilleCore::askQuestionAnswerAsString("Name: ")
+            filepath = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles/#{filename}.txt"
+            FileUtils.touch(filepath)
+            system("open '#{filepath}'")
+            return
+        end
+
+        if expression == 'file open' then
+            filepaths = Dir.entries("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles").select{|filename| filename[-4, 4]==".txt" }.map{|filename| "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles/#{filename}" }
+            return if filepaths.size==0
+            filepath = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("open:", filepaths, lambda{ |filepath| File.basename(filepath) })
+            return if filepath.nil?
+            system("open '#{filepath}'")
             return
         end
 
