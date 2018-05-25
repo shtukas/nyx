@@ -534,9 +534,9 @@ class Wave
         end
 
         if command=='recast' then
-            schedule = WaveSchedules::cycleSchedule(schedule)
-            Wave::writeScheduleToDisk(uuid, schedule)
+            schedule = WaveSchedules::makeNewSchedule()
             object['schedule'] = schedule
+            Wave::writeScheduleToDisk(uuid, schedule)
             FlockTransformations::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
