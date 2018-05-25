@@ -469,6 +469,10 @@ class Wave
     end
 
     def self.generalUpgrade()
+
+        # First we add to the flock the objects on the repository that are not there yet
+        # This happens because some of them are created externally, with the intent that the agent will pick them up
+
         existingUUIDsFromFlock = $flock["objects"]
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object| object["uuid"] }
@@ -480,11 +484,40 @@ class Wave
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             FlockTransformations::addOrUpdateObject(object)
         }
+
+        # We now need to update the metric driven by the schedule
+        # As time passes the metric changes, for instance repeat item pass their sleeping period
+
+        $flock["objects"]
+            .clone
+            .select{|object| object["agent-uid"]==self.agentuuid() }
+            .map{|object|
+                schedule = object["schedule"]
+                object["metric"] = WaveSchedules::scheduleToMetric(schedule)
+                FlockTransformations::addOrUpdateObject(object)
+            }
     end
 
     def self.processObjectAndCommand(object, command)
         uuid = object['uuid']
         schedule = object['schedule']
+
+        doneObjectWithRepeatSchedule = lambda{|object|
+            uuid = object['uuid']
+            schedule = object['schedule']
+            schedule = WaveSchedules::cycleSchedule(schedule)
+            object['schedule'] = schedule
+            Wave::writeScheduleToDisk(uuid, schedule)
+            FlockTransformations::addOrUpdateObject(object)
+            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+        }
+
+        doneObjectWithOneOffTask = lambda {|object|
+            uuid = object['uuid']
+            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+            Wave::archiveWaveItems(uuid)
+        }
 
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
@@ -492,56 +525,11 @@ class Wave
         end
 
         if command=='done' then
-
-            if schedule['@'] == 'new' then
-                Wave::archiveWaveItems(uuid)
-                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+            if ["new", 'today', 'ondate'].include?(schedule['@']) then
+                doneObjectWithOneOffTask.call(object)
             end
-            if schedule['@'] == 'today' then
-                Wave::archiveWaveItems(uuid)
-                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            end
-            if schedule['@'] == 'ondate' then
-                Wave::archiveWaveItems(uuid)
-                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            end
-            if schedule['@'] == 'sticky' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-                object['schedule'] = schedule
-                FlockTransformations::addOrUpdateObject(object)
-                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            end
-            if schedule['@'] == 'every-n-hours' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-                object['schedule'] = schedule
-                FlockTransformations::addOrUpdateObject(object)
-                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            end
-            if schedule['@'] == 'every-n-days' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-                object['schedule'] = schedule
-                FlockTransformations::addOrUpdateObject(object)
-                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            end
-            if schedule['@'] == 'every-this-day-of-the-month' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-                object['schedule'] = schedule
-                FlockTransformations::addOrUpdateObject(object)
-                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            end
-            if schedule['@'] == 'every-this-day-of-the-week' then
-                schedule = WaveSchedules::cycleSchedule(schedule)
-                Wave::writeScheduleToDisk(uuid, schedule)
-                object['schedule'] = schedule
-                FlockTransformations::addOrUpdateObject(object)
-                EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            if ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week'].include?(schedule['@']) then
+                doneObjectWithRepeatSchedule.call(object)
             end
         end
 
