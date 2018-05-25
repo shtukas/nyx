@@ -426,8 +426,13 @@ class Mercury
             }
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
-            puts "LAVA            : #{Lava::domains().join(", ")}".yellow
-            puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            puts  "LAVA            : #{Lava::domains().join(", ")}".yellow
+            puts  "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            print "Files           : ".yellow
+            filenames = Dir.entries("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles")
+                .select{|filename| filename[-4, 4]==".txt" }
+                .map{|filename| filename[0, filename.size-4] }
+            puts filenames.join(", ").yellow
             dayprogression = {
                 "projects" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3,
                 "stream"   => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
