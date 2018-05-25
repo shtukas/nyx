@@ -231,8 +231,8 @@ class Mercury
         end
 
         if expression == 'file new' then
-            filename = LucilleCore::askQuestionAnswerAsString("Name: ")
-            filepath = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles/#{filename}.txt"
+            filecorename = LucilleCore::askQuestionAnswerAsString("Name: ")
+            filepath = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles/#{LucilleCore::timeStringL22()}-#{filecorename}.txt"
             FileUtils.touch(filepath)
             system("open '#{filepath}'")
             return
@@ -241,7 +241,7 @@ class Mercury
         if expression == 'file open' then
             filepaths = Dir.entries("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles").select{|filename| filename[-4, 4]==".txt" }.map{|filename| "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles/#{filename}" }
             return if filepaths.size==0
-            filepath = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("open:", filepaths, lambda{ |filepath| File.basename(filepath) })
+            filepath = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("open:", filepaths, lambda{ |filepath| File.basename(filepath)[23, File.basename(filepath).size-27] })
             return if filepath.nil?
             system("open '#{filepath}'")
             return
@@ -429,10 +429,10 @@ class Mercury
             puts  "LAVA            : #{Lava::domains().join(", ")}".yellow
             puts  "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             print "Files           : ".yellow
-            filenames = Dir.entries("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles")
+            userFriendlyFilenames = Dir.entries("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/TextFiles")
                 .select{|filename| filename[-4, 4]==".txt" }
-                .map{|filename| filename[0, filename.size-4] }
-            puts filenames.join(", ").yellow
+                .map{|filename| filename[23, filename.size-27] }
+            puts userFriendlyFilenames.join(", ").yellow
             dayprogression = {
                 "projects" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3,
                 "stream"   => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
