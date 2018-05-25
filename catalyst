@@ -414,6 +414,7 @@ class Mercury
         mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
         mainschedule["lava-domains-review"] = Time.new.to_i + Random::rand*3600*6
+        mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
             PrimaryOperator::generalUpgrade()
             TodayOrNotToday::transform()
@@ -470,6 +471,12 @@ class Mercury
                     }
                 }
                 mainschedule["lava-domains-review"] = Time.new.to_i + Random::rand*3600*6
+                next
+            end
+            if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
+                puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
+                LucilleCore::pressEnterToContinue()
+                mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
             objectselected = $flock["objects"].take(workspaceSize).last.clone
