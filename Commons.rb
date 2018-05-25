@@ -724,7 +724,11 @@ class FolderProbe
 
         end
         if metadata["target-type"]=="url" then
-            system("open '#{metadata["url"]}'")
+            if CommonsUtils::isPrimaryComputer() then
+                system("open '#{metadata["url"]}'")
+            else
+                system("open -na 'Google Chrome' --args --new-window '#{metadata["url"]}'")
+            end
         end
         if metadata["target-type"]=="virtually-empty-wave-folder" then
 
