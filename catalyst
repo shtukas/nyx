@@ -423,7 +423,7 @@ class Mercury
         end
 
         if expression.start_with?('project:') then
-            description = expression[13, expression.size].strip
+            description = expression[8, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = Projects::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
