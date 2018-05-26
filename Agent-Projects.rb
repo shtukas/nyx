@@ -82,7 +82,7 @@ class Projects
             "agent-uid" => self.agentuuid(),
             "metric" => isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + self.objectMetric(uuid) + CommonsUtils::traceToMetricShift(uuid),
             "announce" => announce,
-            "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "folder"],
+            "commands" => ( isRunning ? ["stop"] : ["start"] ) + ["completed", "file", "folder"],
             "default-expression" => isRunning ? "stop" : "start"
         }
         object["item-data"] = {}
@@ -119,6 +119,14 @@ class Projects
     end
 
     def self.processObjectAndCommand(object, command)
+        if command=='file' then
+            folderpath = object["item-data"]["folderpath"]
+            filepath = "#{folderpath}/file-#{object["uuid"]}.txt"
+            if !File.exists?(filepath) then
+                FileUtils.touch(filepath)
+            end
+            system("open '#{filepath}'")
+        end
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
