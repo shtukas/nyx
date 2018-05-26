@@ -146,8 +146,8 @@ class Stream
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .each{|object|
                 uuid = object["uuid"]
-                status = GenericTimeTracking::status(uuid)
-                object["metric"]              = self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
+                status = GenericTimeTracking::status(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
+                object["metric"]              = status[0] ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
                 object["commands"]            = Stream::uuid2commands(uuid, status)
                 object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
                 object["item-data"]["status"] = status
