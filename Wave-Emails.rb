@@ -52,7 +52,7 @@ require_relative "Agent-Wave.rb"
 
 # -------------------------------------------------------------------------------------
 
-EMAIL_METADATA_OBJECTS_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Emails-Metadata-Objects"
+EMAIL_METADATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Email-Metadata"
 
 # EmailUtils::msgToSubject(msg)
 # EmailUtils::msgToBody(msg)
@@ -96,72 +96,43 @@ class EmailUtils
     end
 end
 
-# EmailMetadataManagement::storeMetadataObject(object)
-# EmailMetadataManagement::readMetadataObjectOrNull(objectuuid)
-# EmailMetadataManagement::objectsDestroyObject(objectuuid)
-# EmailMetadataManagement::getObjectsOfGivenType(type)
+# EmailMetadataOperator::getCurrentStatusForEmailUIDOrNull(emailuid)
+# EmailMetadataOperator::catalystUUIDForEmailUIDOrNull(emailuid)
+# EmailMetadataOperator::destroyMetadata(emailuid)
+# EmailMetadataOperator::metadataFolderEmailUIDs()
 
-class EmailMetadataManagement
-    def self.storeMetadataObject(object)
-        # We expect a uuid
-        objectuuid = object['uuid']
-        filepath = "#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object"
-        File.open(filepath, 'w') {|f| f.write(JSON.pretty_generate(object)) }
-    end
-
-    def self.readMetadataObjectOrNull(objectuuid)
-        filepath = "#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object"
-        return nil if !File.exists?("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object")
-        JSON.parse(IO.read("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object"))
-    end
-
-    def self.objectsDestroyObject(objectuuid)
-        filepath = "#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object"
-        return nil if !File.exists?("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{objectuuid}.object")
-        FileUtils.rm filepath
-    end
-
-    def self.getObjectsOfGivenType(type)
-        Dir.entries("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}")
-            .select{|filename| filename[-7, 7] == '.object' }
-            .map{|filename| JSON.parse(IO.read("#{EMAIL_METADATA_OBJECTS_FOLDERPATH}/#{filename}")) }
-            .select{|object| object['type'] == type }
-    end
-end
-
-# EmailStatusManagement::makeStatusObject(objectuuid, status)
-# EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid, verbose)
-
-class EmailStatusManagement
-    def self.makeStatusObject(objectuuid, status)
-        {
-            "uuid"   => objectuuid,
-            "type"   => "email-imap-sync-status-af214081-ad91-4e1a-8422-682a2cffc60b",
-            "status" => status
-        }
-    end
-
-    def self.destroyLocalEmailAndAssociatedMetadata(emailuid, verbose)
-
-        emailpoint = EmailMetadataManagement::readMetadataObjectOrNull(emailuid)
-
-        if emailpoint.nil? then
-            puts "email-agent api:destroy could not find an emailpoint for emailuid: #{emailuid}" if verbose
-        else
-            catalystuuid = emailpoint['catalyst-uuid']
-            folderpath = Wave::catalystUUIDToItemFolderPathOrNull(catalystuuid)
-            if !folderpath.nil? and File.exists?(folderpath) then
-                time = Time.new
-                targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
-                FileUtils.mkpath(targetFolder)
-                FileUtils.mv(folderpath,targetFolder)
-            end
+class EmailMetadataOperator
+    def self.getCurrentStatusForEmailUIDOrNull(emailuid)
+        filepath = "#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status"
+        if File.exists?(filepath) then
+            return IO.read(filepath).strip
         end
+        nil
+    end
 
-        statusobjectuuid = "#{emailuid}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
+    def self.catalystUUIDForEmailUIDOrNull(emailuid)
+        filepath = "#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|catalyst-uuid"
+        if File.exists?(filepath) then
+            return IO.read(filepath).strip
+        end
+        nil
+    end
 
-        EmailMetadataManagement::objectsDestroyObject(statusobjectuuid )
-        EmailMetadataManagement::objectsDestroyObject(emailuid)
+    def self.metadataFolderEmailUIDs()
+        Dir.entries(EMAIL_METADATA_FOLDERPATH).map{|filename|
+            if filename[-7,7]=="|status" then
+                filename.split("|").first
+            else
+                nil
+            end
+        }.compact
+    end
+
+    def self.destroyMetadata(emailuid)
+        Dir.entries(EMAIL_METADATA_FOLDERPATH).each{|filename|
+            next if !filename.start_with?(emailuid)
+            FileUtils.rm("#{EMAIL_METADATA_FOLDERPATH}/#{filename}")
+        }
     end
 end
 
@@ -194,6 +165,7 @@ class OperatorEmailClient
                 emailFilePath = "#{folderpath}/#{emailFilename}"
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
+                schedule[':wave-emails:'] = true # read by Wave agent
                 lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
@@ -207,6 +179,7 @@ class OperatorEmailClient
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
+                schedule[':wave-emails:'] = true # read by Wave agent
                 lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
@@ -235,141 +208,100 @@ class GeneralEmailClient
         emailUsername   = parameters['username']
         emailPassword   = parameters['password']
 
-        newEmailCount = 0
-
         imap = Net::IMAP.new(emailImapServer)
         imap.login(emailUsername,emailPassword)
         imap.select('INBOX')
 
         imap.search(['ALL']).each{|id|
 
-            msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
-
             emailuid = imap.fetch(id,"ENVELOPE")[0].attr["ENVELOPE"]['message_id']
             emailuid = EmailUtils::sanitizestring(emailuid)
 
-            if EmailUtils::msgToFromAddresses(msg).include?('notifications@github.com') then
-                imap.store(id, "+FLAGS", [:Deleted])
-                next
-            end
+            status = EmailMetadataOperator::getCurrentStatusForEmailUIDOrNull(emailuid)
 
-            if EmailUtils::msgToFromAddresses(msg).include?('noreply@github.com') then
-                imap.store(id, "+FLAGS", [:Deleted])
-                next
-            end
-
-            statusobjectuuid = "#{emailuid}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
-
-            statusobject = EmailMetadataManagement::readMetadataObjectOrNull(statusobjectuuid)
-
-            if statusobject.nil? then
-                newEmailCount = newEmailCount+1
-                puts "[email agent] This is a new email on the server. Downloading." if verbose
+            if status.nil? then
+                puts "email agent: This is a new email on the server. Downloading: #{emailuid}" if verbose
+                File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("init") }
+                msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
+                forbiddenAddresses = ['notifications@github.com', 'noreply@github.com']
+                if forbiddenAddresses.any?{|address| EmailUtils::msgToFromAddresses(msg).include?(address) } then
+                    imap.store(id, "+FLAGS", [:Deleted])
+                    File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("deleted") }
+                    next
+                end
                 catalystuuid = SecureRandom.hex(4)
+                File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|msg", 'w') {|f| f.write(msg) }
+                File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
-
-                FileUtils.touch("#{folderpath}/EmailImportProgressMarker")
-
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
-
                 emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
                 emailFilePath = "#{folderpath}/#{emailFilename}"
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
-
-                emailpoint = {
-                    "uuid"                   => emailuid,
-                    "type"                   => "email-point-fa50bfd3-24e9-4072-8610-03108990a6dd",
-                    "catalyst-uuid"          => catalystuuid,
-                    "emailuid"               => emailuid,
-                    "registration-unixtime"  => Time.new.to_f
-                }
-                puts JSON.pretty_generate(emailpoint) if verbose
-                EmailMetadataManagement::storeMetadataObject(emailpoint)
-
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
+                schedule[':wave-emails:'] = true # read by Wave agent
                 lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
                 schedule['metric'] = 0.850 - lucilleNextInteger.to_f/1000000
-                
                 Wave::writeScheduleToDisk(catalystuuid,schedule)
-
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
-
-                statusobjectuuid = "#{emailpoint['uuid']}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
-                statusobject = EmailStatusManagement::makeStatusObject(statusobjectuuid, "init")
-                puts JSON.pretty_generate(statusobject) if verbose
-                EmailMetadataManagement::storeMetadataObject(statusobject)
-
-                FileUtils.rm("#{folderpath}/EmailImportProgressMarker")
-
+                File.open("#{folderpath}/email-metatada-emailuid.txt", 'w') {|f| f.write(emailuid) }
                 next
             end
 
-            if statusobject['status'] == 'init' then
-                puts "email agent (imap loop): #{emailuid} (on server and init on local)" if verbose
+            if status == 'init' then
+                puts "email agent: on server and init on local: #{emailuid}" if verbose
                 next
             end
 
-            if statusobject['status'] == 'deleted' then
-                puts "email agent (imap loop): #{emailuid} has been logically deleted on local. Hard delete on local and marking for deletion on the server" if verbose
-                EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid,verbose)
+            if status == 'deleted' then
+                puts "email agent: email has been logically deleted on local. Removing Catalyst item, delete local metadata, marking for deletion on the server: #{emailuid}" if verbose
+                Wave::archiveWaveItems(EmailMetadataOperator::catalystUUIDForEmailUIDOrNull(emailuid))
+                EmailMetadataOperator::destroyMetadata(emailuid)
                 imap.store(id, "+FLAGS", [:Deleted])
                 next
             end
 
         }
 
-        emailuidsCurrentlyOnServer = imap.search(['ALL']).map{|id|
+        imap.expunge # delete all messages marked for deletion
+
+        serverEmailUIDs = imap.search(['ALL']).map{|id|
             emailuid = imap.fetch(id,"ENVELOPE")[0].attr["ENVELOPE"]['message_id']
-            emailuid = EmailUtils::sanitizestring(emailuid)
-            emailuid
+            EmailUtils::sanitizestring(emailuid)
         }
 
-        EmailMetadataManagement::getObjectsOfGivenType("email-point-fa50bfd3-24e9-4072-8610-03108990a6dd")
-        .each{|point|
-            catalystuuid = point['catalyst-uuid']
-            if Wave::catalystUUIDToItemFolderPathOrNull(catalystuuid).nil? then
-                # Email has been deleted on local
-                emailuid = point['emailuid']
-                if emailuidsCurrentlyOnServer.include?(emailuid) then
-                    puts "email agent: The catalyst item #{point['catalyst-uuid']} has been deleted. Email exists on server. Performing logical delete of the email" if verbose
-                    statusobjectuuid = "#{emailuid}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
-                    statusobject = EmailMetadataManagement::readMetadataObjectOrNull(statusobjectuuid)
-                    statusobject['status'] = 'deleted'
-                    EmailMetadataManagement::storeMetadataObject(statusobject)
-                else
-                    puts "email agent: The catalyst item #{point['catalyst-uuid']} has been deleted. Email doesn't exists on server. Performing hard delete of the email" if verbose
-                    EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid,verbose)
-                end
-            end
+        metadataFolderEmailUIDs = EmailMetadataOperator::metadataFolderEmailUIDs()
+
+        waveTimeLineEmailUIDs = WaveEmailSupport::allEmailUIDs()
+
+        (metadataFolderEmailUIDs-serverEmailUIDs).each{|emailuid|
+            # We have a local init email that is not longer on the server, needs to be removed
+            puts "email agent: We have a local init email that is not longer on the server. Removing metadata and Wave item: #{emailuid}" if verbose
+            EmailMetadataOperator::destroyMetadata(emailuid)
+            Wave::archiveWaveItems(EmailMetadataOperator::catalystUUIDForEmailUIDOrNull(emailuid))
         }
 
-        emailuidsCurrentlyOnLocal = EmailMetadataManagement::getObjectsOfGivenType("email-point-fa50bfd3-24e9-4072-8610-03108990a6dd").map{|object| object["emailuid"] }.compact
+        (serverEmailUIDs-metadataFolderEmailUIDs).each{|emailuid|
+            puts "Wave-Email error 312CB356: We should not be seeing this. By now all alive server emails should be on local ( #{emailuid} )"
+            LucilleCore::pressEnterToContinue()
+        }
 
-        (emailuidsCurrentlyOnLocal-emailuidsCurrentlyOnServer).each{|emailuid|
-            statusobjectuuid = "#{emailuid}-cb27a6ee-0b97-4223-861a-800ad51fbbb0"
-            statusobject = EmailMetadataManagement::readMetadataObjectOrNull(statusobjectuuid)
-            if statusobject.nil? then
-                statusobject = EmailStatusManagement::makeStatusObject(statusobjectuuid, "init")
-                EmailMetadataManagement::storeMetadataObject(statusobject)
-                next
-            end
-            if statusobject['status'] == 'init' then
-                # We have a local init email that is not longer on the server, needs to be removed
-                puts "email agent: We have a local init email that is not longer on the server. Removing email point: emailuid: #{emailuid}" if verbose
-                EmailStatusManagement::destroyLocalEmailAndAssociatedMetadata(emailuid,verbose)
-                next
-            end
+        (waveTimeLineEmailUIDs-metadataFolderEmailUIDs).each{|emailuid|
+            puts "Wave-Email error 4e7b8cef: We should not be seeing this. Everytime a file is deleted on the metadata folder the wave item should have been deleted ( #{emailuid} )"
+            LucilleCore::pressEnterToContinue()
+        }
+
+        (metadataFolderEmailUIDs-waveTimeLineEmailUIDs).each{|emailuid|
+            puts "email agent: catayst item has been deleted. Marking email as deleted in metadata: #{emailuid}" if verbose
+            File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("deleted") }
         }
 
         imap.expunge # delete all messages marked for deletion
 
         imap.logout()
         imap.disconnect()
-
-        newEmailCount
     end
 end
 

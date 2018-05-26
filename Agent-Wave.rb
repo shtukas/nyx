@@ -238,6 +238,41 @@ class WaveSchedules
     end
 end
 
+# WaveEmailSupport::catalystUUIDForEmailUIDOrNull(emailuid)
+# WaveEmailSupport::allEmailUIDs()
+
+class WaveEmailSupport
+    def self.catalystUUIDForEmailUIDOrNull(emailuid)
+        Wave::catalystUUIDsEnumerator()
+            .each{|uuid|
+                folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+                next if folderpath.nil?
+                emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
+                next if !File.exist?(emailuidfilepath)
+                next if IO.read(emailuidfilepath).strip != emailuid
+                return uuid
+            }
+        nil
+    end
+    def self.allEmailUIDs()
+        Wave::catalystUUIDsEnumerator()
+            .map{|uuid|
+                folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+                if folderpath then
+                    emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
+                    if File.exist?(emailuidfilepath) then
+                        IO.read(emailuidfilepath).strip
+                    else
+                        nil
+                    end
+                else
+                    nil
+                end
+            }
+            .compact
+    end
+end
+
 # WaveDevOps::collectWave()
 
 class WaveDevOps
@@ -272,7 +307,7 @@ end
 # Wave::makeNewSchedule()
 # Wave::archiveWaveItems(uuid)
 # Wave::commands(schedule)
-# Wave::objectuuidToCatalystObjectOrNull(objectuuid)
+# Wave::makeCatalystObject(objectuuid)
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
 # Wave::interface()
@@ -355,6 +390,7 @@ class Wave
     end
 
     def self.archiveWaveItems(uuid)
+        return if uuid.nil?
         folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         retrun if !File.exists?(folderpath)
@@ -408,30 +444,6 @@ class Wave
         nil
     end
 
-    def self.objectuuidToCatalystObjectOrNull(objectuuid)
-        location = Wave::catalystUUIDToItemFolderPathOrNull(objectuuid)
-        return nil if location.nil?
-        schedule = Wave::readScheduleFromWaveItemOrNull(objectuuid)
-        if schedule.nil? then
-            schedule = WaveSchedules::makeScheduleObjectTypeNew()
-            File.open("#{location}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
-        end
-        folderProbeMetadata = FolderProbe::folderpath2metadata(location)
-        metric = WaveSchedules::scheduleToMetric(schedule)
-        announce = Wave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
-        object = {}
-        object['uuid'] = objectuuid
-        object["agent-uid"] = self.agentuuid()
-        object['metric'] = metric + CommonsUtils::traceToMetricShift(objectuuid)
-        object['announce'] = announce
-        object['commands'] = Wave::commands(folderProbeMetadata)
-        object["default-expression"] = Wave::defaultExpression(folderProbeMetadata, schedule)
-        object['schedule'] = schedule
-        object["item-data"] = {}
-        object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
-        object
-    end
-
     def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
         p6 =
             if schedule["do-not-show-until-datetime"] and ( schedule["do-not-show-until-datetime"] > Time.new.to_s ) then
@@ -455,8 +467,34 @@ class Wave
         LucilleCore::pressEnterToContinue()
     end
 
+    def self.makeCatalystObject(objectuuid)
+        location = Wave::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        return nil if location.nil?
+        schedule = Wave::readScheduleFromWaveItemOrNull(objectuuid)
+        if schedule.nil? then
+            schedule = WaveSchedules::makeScheduleObjectTypeNew()
+            File.open("#{location}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
+        end
+        folderProbeMetadata = FolderProbe::folderpath2metadata(location)
+        metric = WaveSchedules::scheduleToMetric(schedule)
+        announce = Wave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        object = {}
+        object['uuid'] = objectuuid
+        object["agent-uid"] = self.agentuuid()
+        object['metric'] = metric + CommonsUtils::traceToMetricShift(objectuuid)
+        object['announce'] = announce
+        object['commands'] = Wave::commands(folderProbeMetadata)
+        object["default-expression"] = Wave::defaultExpression(folderProbeMetadata, schedule)
+        object['schedule'] = schedule
+        object["item-data"] = {}
+        object["item-data"]["folderpath"] = location
+        object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
+        object
+    end
+
     def self.generalUpgrade()
 
+        # ------------------------------------------------------------------------------
         # First we add to the flock the objects on the repository that are not there yet
         # This happens because some of them are created externally, with the intent that the agent will pick them up
 
@@ -467,11 +505,28 @@ class Wave
         unregisteredUUIDs = existingUUIDsFromDisk - existingUUIDsFromFlock
         unregisteredUUIDs.each{|uuid|
             # We need to build the object, then make a Flock update and emit an event
-            object = Wave::objectuuidToCatalystObjectOrNull(uuid)
+            object = Wave::makeCatalystObject(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             FlockTransformations::addOrUpdateObject(object)
         }
 
+        # ------------------------------------------------------------------------------
+        # removing the emails objects still in flock but which have been archived by email sync
+        $flock["objects"]
+            .clone
+            .select{|object| object["agent-uid"]==self.agentuuid() }
+            .select{|object| object["schedule"][':wave-emails:'] }
+            .select{|object| object["folderpath"] and !File.exists?(object["folderpath"]) }
+            .each{|object|
+                puts "Wave Agent: email no longer has a folder"
+                puts JSON.pretty_generate(object)
+                puts "Going to EventsMaker::destroyCatalystObject (You should remove that code when you get tired of it) marker: 45BA5BE9-410C-49B4-A168-0C788189C7FA"
+                LucilleCore::pressEnterToContinue()
+                uuid = object["uuid"]
+                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+            }
+
+        # ------------------------------------------------------------------------------
         # We now need to update the metric driven by the schedule
         # As time passes the metric changes, for instance repeat item pass their sleeping period
 
