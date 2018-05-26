@@ -545,9 +545,10 @@ class Mercury
             ThreadOperator::transform()
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
-            puts "THREADS          : #{ThreadOperator::threadNames().join(", ")}".yellow
-            puts "REQUIREMENTS OFF : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-
+            puts "THREADS      : #{ThreadOperator::threadNames().join(", ")}".yellow
+            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                puts "REQUIREMENTS : OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            end
             dayprogression = {
                 "projects" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3,
                 "stream"   => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
