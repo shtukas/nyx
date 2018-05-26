@@ -485,6 +485,11 @@ class Mercury
         # object needed
 
         if expression == ">" then
+            if object["agent-uid"] == "30ff0f4d-7420-432d-b75b-826a2a8bc7cf" then
+                puts "You cannot add a project to a thread"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             ThreadOperator::moveObjectUUIDToAThread(object["uuid"])
             return
         end
