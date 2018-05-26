@@ -576,8 +576,10 @@ class Mercury
                 mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
             end
             if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
-                puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
-                LucilleCore::pressEnterToContinue()
+                if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                    puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
+                    LucilleCore::pressEnterToContinue()
+                end
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
