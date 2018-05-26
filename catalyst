@@ -167,6 +167,7 @@ class Mercury
         puts "    help"
         puts "    top"
         puts "    search <pattern>"
+        puts "    :n # without changing the size of the workspace, focus on n^th item"
         puts "    l:show"
         puts "    r:on <requirement>"
         puts "    r:off <requirement>"
@@ -336,8 +337,8 @@ class Mercury
                         puts Mercury::object2Line_v1(object)
                         print "--> "
                         givenCommand = STDIN.gets().strip
-                        command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
-                        Mercury::processObjectAndCommand(objectselected, command)
+                        command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
+                        Mercury::processObjectAndCommand(object_selected, command)
                     }
                     next
                 end
@@ -534,7 +535,7 @@ class Mercury
     end
 
     def self.main2(runId)
-        workspaceSize = 1
+        workspaceSize = 10
         mainschedule = {}
         mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
@@ -587,10 +588,11 @@ class Mercury
                 next
             end
             puts ""
-            objectselected = $flock["objects"].take(workspaceSize).last.clone
-            $flock["objects"].take(workspaceSize).each_with_index{|o, index|
+            objects_selected = $flock["objects"].take(workspaceSize)
+            object_selected = objects_selected.last.clone
+            objects_selected.each_with_index{|o, index|
                 string =
-                    if o["uuid"]==objectselected["uuid"] then
+                    if o["uuid"]==object_selected["uuid"] then
                         "#{"%2d" % (index+1)} [*] #{Mercury::object2Line_v1(o)}"
                     else
                         "#{"%2d" % (index+1)}     #{Mercury::object2Line_v0(o)}"
@@ -611,8 +613,14 @@ class Mercury
                 workspaceSize = [givenCommand.to_i, 1].max
                 next
             end
-            command = givenCommand.size>0 ? givenCommand : ( objectselected["default-expression"] ? objectselected["default-expression"] : "" )
-            Mercury::processObjectAndCommand(objectselected, command)
+            if givenCommand.start_with?(":") and Mercury::isInteger(givenCommand[1,9]) then
+                object_selected = objects_selected.take(givenCommand[1,9].to_i).last.clone
+                puts Mercury::object2Line_v1(object_selected)
+                print "--> "
+                givenCommand = STDIN.gets().strip
+            end
+            command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
+            Mercury::processObjectAndCommand(object_selected, command)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
     end
