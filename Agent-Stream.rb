@@ -146,7 +146,7 @@ class Stream
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .each{|object|
                 uuid = object["uuid"]
-                status = GenericTimeTracking::status(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
+                status = GenericTimeTracking::status(uuid)
                 object["metric"]              = status[0] ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
                 object["commands"]            = Stream::uuid2commands(uuid, status)
                 object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
@@ -164,6 +164,7 @@ class Stream
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
+            GenericTimeTracking::start(uuid)
             GenericTimeTracking::start(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
@@ -171,12 +172,14 @@ class Stream
             FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
+            GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
         end
         if command=="completed" then
+            GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
             MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY}", [Time.new.to_i, 600]) # special circumstances
             Stream::performObjectClosing(object)
