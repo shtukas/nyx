@@ -557,7 +557,7 @@ class Mercury
                 "stream"   => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
             }
             if dayprogression["projects"] >= 1 and dayprogression["stream"] >= 1 then
-                puts "DAY PROGRESSION: Cleared for night".green
+                puts "DAY PROGRESSION: (Projects, Stream) Cleared of duties. Enjoy while it last (^_^)".green
             else
                 puts "DAY PROGRESSION: Projects: #{ (100*dayprogression["projects"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".red
             end
