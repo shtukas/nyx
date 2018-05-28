@@ -151,7 +151,7 @@ class Mercury
         if object["metric"]>1 then
             announce = announce.green
         end
-        doNotShowUntilAsString = object["do-not-show-until-datetime"] ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+        doNotShowUntilAsString = ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
@@ -168,7 +168,7 @@ class Mercury
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        doNotShowUntilAsString = object["do-not-show-until-datetime"] ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+        doNotShowUntilAsString = ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
