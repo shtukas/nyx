@@ -445,13 +445,7 @@ class Wave
     end
 
     def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
-        p6 =
-            if schedule["do-not-show-until-datetime"] and ( schedule["do-not-show-until-datetime"] > Time.new.to_s ) then
-                " (not shown until #{schedule["do-not-show-until-datetime"]})"
-            else
-                ""
-            end
-        "[#{WaveSchedules::scheduleToAnnounce(schedule)}] #{folderProbeMetadata["announce"]}#{p6}"
+        "[#{WaveSchedules::scheduleToAnnounce(schedule)}] #{folderProbeMetadata["announce"]}"
     end
 
     def self.removeWaveMetadataFilesAtLocation(location)

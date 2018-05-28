@@ -50,6 +50,7 @@ require_relative "Agent-Wave.rb"
 # Mercury::screenWidth()
 # Mercury::editTextUsingTextmate(text)
 # Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+# Mercury::object2DonotShowUntilAsString(object)
 # Mercury::object2Line_v0(object)
 # Mercury::object2Line_v1(object)
 # Mercury::interactiveDisplayObjectAndProcessCommand(object)
@@ -146,17 +147,20 @@ class Mercury
         end
     end
 
+    def self.object2DonotShowUntilAsString(object)
+        ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+    end
+
     def self.object2Line_v0(object)
         announce = object['announce'].lines.first.strip
         if object["metric"]>1 then
             announce = announce.green
         end
-        doNotShowUntilAsString = ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
             " #{announce}",
-            "#{doNotShowUntilAsString}",
+            Mercury::object2DonotShowUntilAsString(object),
         ].join()
     end
 
@@ -168,13 +172,12 @@ class Mercury
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        doNotShowUntilAsString = ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
             " #{announce}",
             "#{requirementsAsString.green}",
-            "#{doNotShowUntilAsString}",
+            Mercury::object2DonotShowUntilAsString(object),
             " (#{object["commands"].join(" ").red})",
             " \"#{defaultExpressionAsString.green}\""
         ].join()
@@ -319,7 +322,7 @@ class Mercury
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = OperatorCollections::createNewCollectiondWithName(collectionname)
+            collectionuuid = OperatorCollections::createNewCollectiondWithName(description)
             puts "created collection: #{collectionuuid}"
             OperatorCollections::setCollectionStyle(collectionuuid, "PROJECT")
             LucilleCore::pressEnterToContinue()
@@ -329,7 +332,7 @@ class Mercury
         if expression.start_with?('thread:') then
             description = expression[7, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = OperatorCollections::createNewCollectiondWithName(collectionname)
+            collectionuuid = OperatorCollections::createNewCollectiondWithName(description)
             puts "created collection: #{collectionuuid}"
             OperatorCollections::setCollectionStyle(collectionuuid, "THREAD")
             LucilleCore::pressEnterToContinue()
