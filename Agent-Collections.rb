@@ -11,7 +11,7 @@ class AgentCollections
     end
 
     def self.agentMetric()
-        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
+        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/OperatorCollections::dailyCommitmentInHours()
     end
 
     def self.objectMetric(uuid)

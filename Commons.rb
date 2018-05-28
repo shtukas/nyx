@@ -887,8 +887,8 @@ end
 # OperatorCollections::getCollectionStyle(collectionuuid)
 
 # OperatorCollections::transform()
-
 # OperatorCollections::sendCollectionToBinTimeline(uuid)
+# OperatorCollections::dailyCommitmentInHours()
 
 class OperatorCollections
     def self.collectionsFolderpaths()
@@ -1013,8 +1013,6 @@ class OperatorCollections
         }
     end
 
-    # ---------------------------------------------------
-
     def self.sendCollectionToBinTimeline(uuid)
         sourcefilepath = OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
         return if sourcefilepath.nil?
@@ -1026,6 +1024,11 @@ class OperatorCollections
         LucilleCore::copyFileSystemLocation(sourcefilepath, targetFolder)
         LucilleCore::removeFileSystemLocation(sourcefilepath)
     end
+
+    def self.dailyCommitmentInHours()
+        6
+    end
+
 end
 
 # -------------------------------------------------------------
