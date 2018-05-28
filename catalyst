@@ -30,10 +30,10 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "Wave-Emails.rb"
 require_relative "Commons.rb"
 
+require_relative "Agent-Collections.rb"
 require_relative "Agent-GuardianTime.rb"
 require_relative "Agent-Kimchee.rb"
 require_relative "Agent-Ninja.rb"
-require_relative "Agent-Projects.rb"
 require_relative "Agent-Stream.rb"
 require_relative "Agent-TimeCommitments.rb"
 require_relative "Agent-Today.rb"
@@ -41,109 +41,6 @@ require_relative "Agent-Vienna.rb"
 require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------------
-
-THREADS_PATH_TO_REPOSITORY = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Threads"
-
-# ----------------------------------------------------------------------
-
-# ThreadOperator::threadFolderpaths()
-# ThreadOperator::folderPath2ThreadObject(folderpath)
-# ThreadOperator::threadNames()
-# ThreadOperator::threadObjects()
-# ThreadOperator::threadUUID2FolderpathOrNull(uuid)
-# ThreadOperator::addCatalystObjectUUIDToThread(objectuuid, threaduuid)
-# ThreadOperator::threadCatalystObjectUUIDs(threaduuid)
-# ThreadOperator::allThreadsCatalystUUIDs()
-
-class ThreadOperator
-    def self.threadFolderpaths()
-        Dir.entries(THREADS_PATH_TO_REPOSITORY)
-            .sort
-            .select{|filename| filename[0,1]!="." }
-            .map{|filename| "#{THREADS_PATH_TO_REPOSITORY}/#{filename}" }
-    end
-
-    def self.folderPath2ThreadObject(folderpath)
-        JSON.parse(IO.read("#{folderpath}/thread-object.json"))
-    end
-
-    def self.threadNames()
-        ThreadOperator::threadFolderpaths()
-            .map{|folderpath| ThreadOperator::folderPath2ThreadObject(folderpath)["thread-name"] }
-    end
-
-    def self.threadObjects()
-        ThreadOperator::threadFolderpaths()
-            .map{|folderpath| ThreadOperator::folderPath2ThreadObject(folderpath) }
-    end
-
-    def self.threadUUID2FolderpathOrNull(uuid)
-        ThreadOperator::threadFolderpaths()
-            .each{|folderpath|
-                return folderpath if ThreadOperator::folderPath2ThreadObject(folderpath)["thread-uuid"]==uuid
-            }
-        nil
-    end
-
-    def self.addCatalystObjectUUIDToThread(objectuuid, threaduuid)
-        folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threaduuid)
-        arrayFilepath = "#{folderpath}/thread-catalyst-uuids.json"
-        array = JSON.parse(IO.read(arrayFilepath))
-        array << objectuuid 
-        array = array.uniq
-        File.open(arrayFilepath, "w"){|f| f.puts(JSON.generate(array)) }
-    end
-
-    def self.threadCatalystObjectUUIDs(threaduuid)
-        folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threaduuid)
-        JSON.parse(IO.read("#{folderpath}/thread-catalyst-uuids.json"))
-    end
-
-    def self.allThreadsCatalystUUIDs()
-        ThreadOperator::threadFolderpaths()
-            .map{|folderpath| JSON.parse(IO.read("#{folderpath}/thread-catalyst-uuids.json")) }
-            .flatten
-    end
-
-    def self.createNewThreadWithName(threadname)
-        foldername = LucilleCore::timeStringL22()
-        folderpath = "#{THREADS_PATH_TO_REPOSITORY}/#{foldername}"
-        FileUtils.mkpath folderpath
-        FileUtils.mkpath "#{folderpath}/documents"
-        File.open("#{folderpath}/thread-catalyst-uuids.json", "w"){|f| f.puts(JSON.generate([])) }
-        FileUtils.touch("#{folderpath}/thread-text.txt")
-        threadObject = {}
-        threadObject["thread-uuid"] = SecureRandom.uuid
-        threadObject["thread-name"] = threadname
-        File.open("#{folderpath}/thread-object.json", "w"){|f| f.puts(JSON.pretty_generate(threadObject)) }
-        threadObject
-    end
-
-    def self.transform()
-        uuids = self.allThreadsCatalystUUIDs()
-        $flock["objects"] = $flock["objects"].map{|object|
-            if uuids.include?(object["uuid"]) then
-                object["metric"] = 0
-            end
-            object
-        }
-    end
-
-    def self.moveObjectUUIDToAThread(objectuuid)
-        threadObjects = ThreadOperator::threadObjects()
-        threadObject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", threadObjects, lambda{ |object| object["thread-name"] })
-        if threadObject.nil? then
-            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new thread ? ") then
-                threadname = LucilleCore::askQuestionAnswerAsString("thread name: ")
-                threadObject = ThreadOperator::createNewThreadWithName(threadname)
-            else
-                return
-            end
-        end
-        ThreadOperator::addCatalystObjectUUIDToThread(objectuuid, threadObject["thread-uuid"])
-        threadObject
-    end
-end
 
 # Mercury::putshelp()
 # Mercury::fDoNotShowUntilDateTimeTransform()
@@ -168,7 +65,6 @@ class Mercury
         puts "    top"
         puts "    search <pattern>"
         puts "    :n # without changing the size of the workspace, focus on n^th item"
-        puts "    l:show"
         puts "    r:on <requirement>"
         puts "    r:off <requirement>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
@@ -191,7 +87,6 @@ class Mercury
         puts "    expose # pretty print the object"
         puts "    > # send to a thread"
         puts "    !today"
-        puts "    l:add"
         puts "    r:add <requirement>"
         puts "    r:remove <requirement>"
         puts "    command ..."
@@ -308,28 +203,27 @@ class Mercury
         end
 
         if expression == ">>" then
-            threadObjects = ThreadOperator::threadObjects()
-            threadObject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", threadObjects, lambda{ |object| object["thread-name"] })
-            return if threadObject.nil?
+            collectionsuuids = OperatorCollections::collectionsUUIDs()
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            return if collectionuuid.nil?
             loop {
-                puts JSON.pretty_generate(threadObject)
-                menuOptions = ["open file", "visit folder", "objects"]
+                menuOptions = ["open file", "visit documents", "objects"]
                 menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
                 if menuChoice=="open file" then
-                    folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threadObject["thread-uuid"])
-                    system("open '#{folderpath}/thread-text.txt'")
+                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                    system("open '#{folderpath}/collection-text.txt'")
                     next
                 end
                 if menuChoice=="visit documents" then
-                    folderpath = ThreadOperator::threadUUID2FolderpathOrNull(threadObject["thread-uuid"])
+                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
                     system("open '#{folderpath}/documents'")
                     next
                 end
                 if menuChoice=="objects" then
                     loop {
-                        threaduuids = ThreadOperator::threadCatalystObjectUUIDs(threadObject["thread-uuid"])
+                        objectsuuids = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
                         objects = $flock["objects"]
-                            .select{|object| threaduuids.include?(object["uuid"]) }
+                            .select{|object| objectsuuids.include?(object["uuid"]) }
                             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                             .reverse
                         object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| Mercury::object2Line_v0(object) })
@@ -348,8 +242,8 @@ class Mercury
         end
 
         if expression == ">>>" then
-            threadname = LucilleCore::askQuestionAnswerAsString("thread name: ")
-            ThreadOperator::createNewThreadWithName(threadname)
+            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+            OperatorCollections::createNewCollectionWithName(collectionname)
             return
         end
 
@@ -407,7 +301,7 @@ class Mercury
             print "Move to a thread ? [yes/no] (default: no): "
             answer = STDIN.gets().strip 
             if answer=="yes" then
-                ThreadOperator::moveObjectUUIDToAThread(uuid)
+                OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(uuid)
             end
             LucilleCore::pressEnterToContinue()
             return
@@ -425,17 +319,19 @@ class Mercury
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = Projects::issueNewItemWithDescription(description)
-            puts "created item: #{folderpath}"
+            collectionuuid = OperatorCollections::createNewCollectiondWithName(collectionname)
+            puts "created collection: #{collectionuuid}"
+            OperatorCollections::setCollectionStyle(collectionuuid, "PROJECT")
             LucilleCore::pressEnterToContinue()
             return
         end
 
-        if expression.start_with?('swat:') then
-            description = expression[5, expression.size].strip
+        if expression.start_with?('thread:') then
+            description = expression[7, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = SWAT::issueNewItemWithDescription(description)
-            puts "created item: #{folderpath}"
+            collectionuuid = OperatorCollections::createNewCollectiondWithName(collectionname)
+            puts "created collection: #{collectionuuid}"
+            OperatorCollections::setCollectionStyle(collectionuuid, "THREAD")
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -488,7 +384,7 @@ class Mercury
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            ThreadOperator::moveObjectUUIDToAThread(object["uuid"])
+            OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
             return
         end
 
@@ -535,7 +431,7 @@ class Mercury
     end
 
     def self.main2(runId)
-        workspaceSize = 10
+        workspaceSize = 1
         mainschedule = {}
         mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
@@ -545,21 +441,20 @@ class Mercury
             TodayOrNotToday::transform()
             RequirementsOperator::transform()
             Mercury::fDoNotShowUntilDateTimeTransform()
-            ThreadOperator::transform()
+            OperatorCollections::transform()
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
-            puts "THREADS: #{ThreadOperator::threadNames().join(", ")}".yellow
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
             dayprogression = {
-                "projects" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3,
-                "stream"   => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
+                "collections" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3,
+                "stream"      => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
             }
-            if dayprogression["projects"] >= 1 and dayprogression["stream"] >= 1 then
-                puts "DAY PROGRESSION: (Projects, Stream) Cleared of duties. Enjoy while it last (^_^)".green
+            if dayprogression["collections"] >= 1 and dayprogression["stream"] >= 1 then
+                puts "DAY PROGRESSION: (Collections, Stream) Cleared of duties. Enjoy while it last (^_^)".green
             else
-                puts "DAY PROGRESSION: Projects: #{ (100*dayprogression["projects"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".red
+                puts "DAY PROGRESSION: Collections: #{ (100*dayprogression["collections"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".red
             end
             if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()

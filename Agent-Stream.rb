@@ -28,7 +28,7 @@ require 'digest/sha1'
 # Stream::folderpath2uuid(folderpath)
 # Stream::getUUIDs()
 # Stream::folderpathToCatalystObjectOrNull(folderpath)
-# Stream::performObjectClosing(object)
+# Stream::sendObjectToBinTimeline(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::issueNewItemWithDescription(description)
 # Stream::generalUpgrade()
@@ -69,7 +69,7 @@ class Stream
     end
 
     def self.uuid2commands(uuid, status)
-        ( status[0] ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">projects", ">lib"]
+        ( status[0] ? ["stop"] : ["start"] ) + ["folder", "completed", "rotate", ">lib"]
     end
 
     def self.uuid2defaultExpression(uuid, status)
@@ -96,7 +96,7 @@ class Stream
         object
     end
 
-    def self.performObjectClosing(object)
+    def self.sendObjectToBinTimeline(object)
         uuid = object['uuid']
         GenericTimeTracking::stop(uuid)
         time = Time.new
@@ -125,7 +125,7 @@ class Stream
     end
 
     def self.agentMetric()
-        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
+        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
     end
 
     def self.generalUpgrade()
@@ -165,7 +165,7 @@ class Stream
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
             GenericTimeTracking::start(uuid)
-            GenericTimeTracking::start(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
+            GenericTimeTracking::start(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
@@ -173,26 +173,18 @@ class Stream
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
+            GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockTransformations::addOrUpdateObject(object)
         end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop(CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY)
-            MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY}", [Time.new.to_i, 600]) # special circumstances
-            Stream::performObjectClosing(object)
+            GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
+            MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY}", [Time.new.to_i, 600]) # special circumstances
+            Stream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-        end
-        if command=='>projects' then
-            sourcelocation = object["item-data"]["folderpath"]
-            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mv(sourcelocation, targetfolderpath)
-            File.open("#{targetfolderpath}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) } # Both Stream and Open Projects use the same convention for uuids
-            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
-            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
@@ -206,7 +198,7 @@ class Stream
             targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
-            Stream::performObjectClosing(object)
+            Stream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
         end

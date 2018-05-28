@@ -16,12 +16,11 @@ CATALYST_COMMON_DATABANK_FOLDERPATH = "/Galaxy/DataBank/Catalyst"
 CATALYST_COMMON_CONFIG_FILEPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Config.json"
 CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Bin-Timeline"
 CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Stream"
-CATALYST_COMMON_PATH_TO_SWAT_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/SWAT"
-CATALYST_COMMON_PATH_TO_OPEN_PROJECTS_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Projects"
 CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE = "/Galaxy/DataBank/Catalyst/Events-Timeline"
 CATALYST_COMMON_PATH_TO_EVENTS_BUFFER_IN = "/Galaxy/DataBank/Catalyst/Events-Buffer-In"
-CATALYST_COMMON_PROJECTS_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY = "91FF0E39-CFE2-4581-A4FB-8F9059FDA10C"
-CATALYST_COMMON_STREAM_AGENT_METRIC_GENERIC_TIME_TRACKING_KEY = "2EECA0DE-F4BD-471C-A26A-3F2670C07A69"
+CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY = "91FF0E39-CFE2-4581-A4FB-8F9059FDA10C"
+CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY = "2EECA0DE-F4BD-471C-A26A-3F2670C07A69"
+CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Collections"
 
 # ----------------------------------------------------------------
 
@@ -309,6 +308,13 @@ class PrimaryOperator
     def self.agents()
         [
             {
+                "agent-name"      => "Collections",
+                "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
+                "general-upgrade" => lambda { AgentCollections::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| AgentCollections::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ AgentCollections::interface() }
+            },
+            {
                 "agent-name"      => "GuardianTime",
                 "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
                 "general-upgrade" => lambda { GuardianTime::generalUpgrade() },
@@ -328,13 +334,6 @@ class PrimaryOperator
                 "general-upgrade" => lambda { Ninja::generalUpgrade() },
                 "object-command-processor"  => lambda{ |object, command| Ninja::processObjectAndCommand(object, command) },
                 "interface"       => lambda{ Ninja::interface() }
-            },
-            {
-                "agent-name"      => "Projects",
-                "agent-uid"       => "30ff0f4d-7420-432d-b75b-826a2a8bc7cf",
-                "general-upgrade" => lambda { Projects::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| Projects::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ Projects::interface() }
             },
             {
                 "agent-name"      => "Stream",
@@ -861,3 +860,172 @@ class CatalystDevOps
         lines
     end
 end
+
+# -------------------------------------------------------------
+
+# Collections was born out of what was originally known as Threads and Projects
+
+# -------------------------------------------------------------
+
+# OperatorCollections::collectionsFolderpaths()
+# OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)
+# OperatorCollections::folderPath2CollectionName(folderpath)
+# OperatorCollections::folderPath2CollectionObject(folderpath)
+# OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
+# OperatorCollections::collectionsUUIDs()
+# OperatorCollections::collectionsNames()
+# OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
+
+# OperatorCollections::createNewCollectiondWithName(collectionname)
+
+# OperatorCollections::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
+# OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
+# OperatorCollections::collectionCatalystObjectUUIDs(threaduuid)
+# OperatorCollections::allCollectionsCatalystUUIDs()
+
+# OperatorCollections::setCollectionStyle(collectionuuid, style)
+# OperatorCollections::getCollectionStyle(collectionuuid)
+
+# OperatorCollections::transform()
+
+# OperatorCollections::sendCollectionToBinTimeline(uuid)
+
+class OperatorCollections
+    def self.collectionsFolderpaths()
+        Dir.entries(CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH)
+            .sort
+            .select{|filename| filename[0,1]!="." }
+            .map{|filename| "#{CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH}/#{filename}" }
+    end
+
+    def self.collectionsUUIDs()
+        OperatorCollections::collectionsFolderpaths().map{|folderpath| OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath) }
+    end
+
+    def self.collectionsNames()
+        OperatorCollections::collectionsFolderpaths().map{|folderpath| OperatorCollections::folderPath2CollectionName(folderpath) }
+    end
+
+    def self.folderPath2CollectionUUIDOrNull(folderpath)
+        IO.read("#{folderpath}/collection-uuid")
+    end
+
+    def self.folderPath2CollectionName(folderpath)
+        IO.read("#{folderpath}/collection-name")
+    end
+
+    def self.collectionUUID2FolderpathOrNull(uuid)
+        OperatorCollections::collectionsFolderpaths()
+            .each{|folderpath|
+                return folderpath if OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+            }
+        nil
+    end
+
+    def self.collectionUUID2NameOrNull(uuid)
+        OperatorCollections::collectionsFolderpaths()
+            .each{|folderpath|
+                return IO.read("#{folderpath}/collection-name").strip if OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+            }
+        nil
+    end
+
+    # ---------------------------------------------------
+
+    def self.createNewCollectiondWithName(collectionname)
+        collectionuuid = SecureRandom.hex(4)
+        foldername = LucilleCore::timeStringL22()
+        folderpath = "#{CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH}/#{foldername}"
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/collection-uuid", "w"){|f| f.write(collectionuuid) }
+        File.open("#{folderpath}/collection-name", "w"){|f| f.write(collectionname) }
+        File.open("#{folderpath}/collection-catalyst-uuids.json", "w"){|f| f.puts(JSON.generate([])) }
+        FileUtils.touch("#{folderpath}/collection-text.txt")
+        FileUtils.mkpath "#{folderpath}/documents"
+        collectionuuid
+    end
+
+    # ---------------------------------------------------
+    # collections uuids
+
+    def self.addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(threaduuid)
+        arrayFilepath = "#{folderpath}/collection-catalyst-uuids.json"
+        array = JSON.parse(IO.read(arrayFilepath))
+        array << objectuuid 
+        array = array.uniq
+        File.open(arrayFilepath, "w"){|f| f.puts(JSON.generate(array)) }
+    end
+
+    def self.addObjectUUIDToCollectionInteractivelyChosen(objectuuid)
+        collectionsuuids = OperatorCollections::collectionsUUIDs()
+        collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+        if collectionuuid.nil? then
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new collection ? ") then
+                collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+                collectionuuid = OperatorCollections::createNewCollectiondWithName(collectionname)
+            else
+                return
+            end
+        end
+        OperatorCollections::addCatalystObjectUUIDToCollection(objectuuid, collectionuuid)
+        collectionuuid
+    end
+
+    def self.collectionCatalystObjectUUIDs(threaduuid)
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(threaduuid)
+        JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json"))
+    end
+
+    def self.allCollectionsCatalystUUIDs()
+        OperatorCollections::collectionsFolderpaths()
+            .map{|folderpath| JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json")) }
+            .flatten
+    end
+
+    # ---------------------------------------------------
+    # style
+
+    def self.setCollectionStyle(collectionuuid, style)
+        if !["THREAD", "PROJECT"].include?(style) then
+            raise "Incorrect Style: #{style}, should be THREAD or PROJECT"
+        end
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-style"
+        File.open(filepath, "w"){|f| f.write(style) }
+    end
+
+    def self.getCollectionStyle(collectionuuid)
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-style"
+        IO.read(filepath).strip        
+    end
+
+    # ---------------------------------------------------
+
+    def self.transform()
+        uuids = self.allCollectionsCatalystUUIDs()
+        $flock["objects"] = $flock["objects"].map{|object|
+            if uuids.include?(object["uuid"]) then
+                object["metric"] = 0
+            end
+            object
+        }
+    end
+
+    # ---------------------------------------------------
+
+    def self.sendCollectionToBinTimeline(uuid)
+        sourcefilepath = OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
+        return if sourcefilepath.nil?
+        time = Time.new
+        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(targetFolder)
+        puts "source: #{sourcefilepath}"
+        puts "target: #{targetFolder}"
+        LucilleCore::copyFileSystemLocation(sourcefilepath, targetFolder)
+        LucilleCore::removeFileSystemLocation(sourcefilepath)
+    end
+end
+
+# -------------------------------------------------------------
