@@ -48,12 +48,26 @@ class AgentCollections
         raise "BE024B93-F68B-47CC-B252-AF81FFDD8867"    
     end
 
+    def self.hasText(folderpath)
+        IO.read("#{folderpath}/collection-text.txt").size>0
+    end
+
+    def self.hasDocuments(folderpath)
+        Dir.entries("#{folderpath}/documents").select{|filename| filename[0,1]!="." }.size>0
+    end
+
     def self.makeCatalystObjectOrNull(folderpath)
         uuid = OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)
         return nil if uuid.nil?
         description = OperatorCollections::folderPath2CollectionName(folderpath)
         style = OperatorCollections::getCollectionStyle(uuid)
         announce = "collection (#{style.downcase}): #{description}"
+        if self.hasText(folderpath) then
+            announce = announce + " [TEXT]"
+        end
+        if self.hasDocuments(folderpath) then
+            announce = announce + " [DOCUMENTS]"
+        end
         status = GenericTimeTracking::status(uuid)
         isRunning = status[0]
         object = {
@@ -99,6 +113,17 @@ class AgentCollections
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
         end
         if command=="completed" then
+            folderpath = object["item-data"]["folderpath"]
+            if self.hasText(folderpath) then
+                puts "You cannot complete this item because it has text"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            if self.hasDocuments(folderpath) then
+                puts "You cannot complete this item because it has documents"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             GenericTimeTracking::stop(object["uuid"])
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
             OperatorCollections::sendCollectionToBinTimeline(object["uuid"])
