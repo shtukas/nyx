@@ -63,6 +63,7 @@ class EmailUtils
         uid = uid.gsub(">",'')
         uid = uid.gsub('<','')
         uid = uid.gsub('.','-')
+        uid = uid.gsub('/','-')
         uid
     end
 
@@ -221,8 +222,8 @@ class GeneralEmailClient
 
             if status.nil? then
                 puts "email agent: This is a new email on the server. Downloading: #{emailuid}" if verbose
-                File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("init") }
                 msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
+                File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("init") }
                 forbiddenAddresses = ['notifications@github.com', 'noreply@github.com']
                 if forbiddenAddresses.any?{|address| EmailUtils::msgToFromAddresses(msg).include?(address) } then
                     imap.store(id, "+FLAGS", [:Deleted])

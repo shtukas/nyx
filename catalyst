@@ -303,7 +303,7 @@ class Mercury
             if answer=="yes" then
                 OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(uuid)
             end
-            LucilleCore::pressEnterToContinue()
+            #LucilleCore::pressEnterToContinue()
             return
         end
 
