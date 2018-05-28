@@ -68,6 +68,7 @@ class AgentCollections
         if self.hasDocuments(folderpath) then
             announce = announce + " [DOCUMENTS]"
         end
+        announce = announce + " (#{ "%.2f" % (GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
         status = GenericTimeTracking::status(uuid)
         isRunning = status[0]
         object = {
