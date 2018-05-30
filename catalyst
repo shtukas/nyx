@@ -334,7 +334,9 @@ class Mercury
             description = expression[7, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "THREAD")
-            puts "created collection: #{collectionuuid}"
+            puts "collection uuid: #{collectionuuid}"
+            puts "collection name: #{description}"
+            puts "collection path: #{OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)}"
             LucilleCore::pressEnterToContinue()
             return
         end
