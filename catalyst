@@ -322,9 +322,8 @@ class Mercury
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = OperatorCollections::createNewCollectiondWithName(description)
+            collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "PROJECT")
             puts "created collection: #{collectionuuid}"
-            OperatorCollections::setCollectionStyle(collectionuuid, "PROJECT")
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -332,9 +331,8 @@ class Mercury
         if expression.start_with?('thread:') then
             description = expression[7, expression.size].strip
             description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = OperatorCollections::createNewCollectiondWithName(description)
+            collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "THREAD")
             puts "created collection: #{collectionuuid}"
-            OperatorCollections::setCollectionStyle(collectionuuid, "THREAD")
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -488,6 +486,21 @@ class Mercury
             puts ""
             objects_selected = $flock["objects"].take(workspaceSize)
             object_selected = objects_selected.last.clone
+            # --------------------------------------------------------------------------------
+            # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
+            # In such a case they are still in Flock and should not be showed
+            if object_selected["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
+                if object_selected["schedule"][":wave-emails:"] then
+                    if !File.exists?(object_selected["item-data"]["folderpath"]) then
+                        puts Mercury::object2Line_v0(object_selected)
+                        puts "This email has been deleted, removing Flock item:"
+                        FlockTransformations::removeObjectIdentifiedByUUID(object_selected["uuid"])
+                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object_selected["uuid"]))
+                        next
+                    end
+                end
+            end
+            # --------------------------------------------------------------------------------
             objects_selected.each_with_index{|o, index|
                 string =
                     if o["uuid"]==object_selected["uuid"] then

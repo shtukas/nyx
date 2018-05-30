@@ -238,11 +238,11 @@ class WaveSchedules
     end
 end
 
-# WaveEmailSupport::catalystUUIDForEmailUIDOrNull(emailuid)
+# WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid)
 # WaveEmailSupport::allEmailUIDs()
 
 class WaveEmailSupport
-    def self.catalystUUIDForEmailUIDOrNull(emailuid)
+    def self.emailUIDToCatalystUUIDOrNull(emailuid)
         Wave::catalystUUIDsEnumerator()
             .each{|uuid|
                 folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
@@ -305,7 +305,7 @@ end
 # Wave::writeScheduleToDisk(uuid,schedule)
 # Wave::readScheduleFromWaveItemOrNull(uuid)
 # Wave::makeNewSchedule()
-# Wave::archiveWaveItems(uuid)
+# Wave::archiveWaveItem(uuid)
 # Wave::commands(schedule)
 # Wave::makeCatalystObject(objectuuid)
 # Wave::objectUUIDToAnnounce(object,schedule)
@@ -389,7 +389,7 @@ class Wave
         WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
     end
 
-    def self.archiveWaveItems(uuid)
+    def self.archiveWaveItem(uuid)
         return if uuid.nil?
         folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
@@ -553,7 +553,7 @@ class Wave
             uuid = object['uuid']
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            Wave::archiveWaveItems(uuid)
+            Wave::archiveWaveItem(uuid)
         }
 
         if command=='open' then
@@ -586,7 +586,7 @@ class Wave
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
-                Wave::archiveWaveItems(uuid)
+                Wave::archiveWaveItem(uuid)
                 FlockTransformations::removeObjectIdentifiedByUUID(uuid)
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
@@ -613,7 +613,7 @@ class Wave
             targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
-            Wave::archiveWaveItems(uuid)
+            Wave::archiveWaveItem(uuid)
             FlockTransformations::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end

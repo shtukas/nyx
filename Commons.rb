@@ -876,7 +876,7 @@ end
 # OperatorCollections::collectionsNames()
 # OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
 
-# OperatorCollections::createNewCollectiondWithName(collectionname)
+# OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
 
 # OperatorCollections::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
 # OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
@@ -932,7 +932,7 @@ class OperatorCollections
 
     # ---------------------------------------------------
 
-    def self.createNewCollectiondWithName(collectionname)
+    def self.createNewCollection_WithNameAndStyle(collectionname, style)
         collectionuuid = SecureRandom.hex(4)
         foldername = LucilleCore::timeStringL22()
         folderpath = "#{CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH}/#{foldername}"
@@ -942,6 +942,7 @@ class OperatorCollections
         File.open("#{folderpath}/collection-catalyst-uuids.json", "w"){|f| f.puts(JSON.generate([])) }
         FileUtils.touch("#{folderpath}/collection-text.txt")
         FileUtils.mkpath "#{folderpath}/documents"
+        self.setCollectionStyle(collectionuuid, style)
         collectionuuid
     end
 
@@ -963,7 +964,8 @@ class OperatorCollections
         if collectionuuid.nil? then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new collection ? ") then
                 collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
-                collectionuuid = OperatorCollections::createNewCollectiondWithName(collectionname)
+                style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+                collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
             else
                 return
             end

@@ -98,7 +98,6 @@ class EmailUtils
 end
 
 # EmailMetadataOperator::getCurrentStatusForEmailUIDOrNull(emailuid)
-# EmailMetadataOperator::catalystUUIDForEmailUIDOrNull(emailuid)
 # EmailMetadataOperator::destroyMetadata(emailuid)
 # EmailMetadataOperator::metadataFolderEmailUIDs()
 
@@ -110,15 +109,7 @@ class EmailMetadataOperator
         end
         nil
     end
-
-    def self.catalystUUIDForEmailUIDOrNull(emailuid)
-        filepath = "#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|catalyst-uuid"
-        if File.exists?(filepath) then
-            return IO.read(filepath).strip
-        end
-        nil
-    end
-
+    
     def self.metadataFolderEmailUIDs()
         Dir.entries(EMAIL_METADATA_FOLDERPATH).map{|filename|
             if filename[-7,7]=="|status" then
@@ -258,7 +249,7 @@ class GeneralEmailClient
 
             if status == 'deleted' then
                 puts "email agent: email has been logically deleted on local. Removing Catalyst item, delete local metadata, marking for deletion on the server: #{emailuid}" if verbose
-                Wave::archiveWaveItems(EmailMetadataOperator::catalystUUIDForEmailUIDOrNull(emailuid))
+                Wave::archiveWaveItem(WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid))
                 EmailMetadataOperator::destroyMetadata(emailuid)
                 imap.store(id, "+FLAGS", [:Deleted])
                 next
@@ -281,7 +272,7 @@ class GeneralEmailClient
             # We have a local init email that is not longer on the server, needs to be removed
             puts "email agent: We have a local init email that is not longer on the server. Removing metadata and Wave item: #{emailuid}" if verbose
             EmailMetadataOperator::destroyMetadata(emailuid)
-            Wave::archiveWaveItems(EmailMetadataOperator::catalystUUIDForEmailUIDOrNull(emailuid))
+            Wave::archiveWaveItem(WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid))
         }
 
         (serverEmailUIDs-metadataFolderEmailUIDs).each{|emailuid|
