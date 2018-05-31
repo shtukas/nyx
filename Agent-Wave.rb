@@ -307,7 +307,7 @@ end
 # Wave::makeNewSchedule()
 # Wave::archiveWaveItem(uuid)
 # Wave::commands(schedule)
-# Wave::makeCatalystObject(objectuuid)
+# Wave::makeCatalystObjectOrNull(objectuuid)
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
 # Wave::interface()
@@ -315,6 +315,8 @@ end
 # Wave::processObjectAndCommand(object, command)
 
 class Wave
+
+    @@firstRun = true
 
     def self.agentuuid()
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
@@ -461,7 +463,7 @@ class Wave
         LucilleCore::pressEnterToContinue()
     end
 
-    def self.makeCatalystObject(objectuuid)
+    def self.makeCatalystObjectOrNull(objectuuid)
         location = Wave::catalystUUIDToItemFolderPathOrNull(objectuuid)
         return nil if location.nil?
         schedule = Wave::readScheduleFromWaveItemOrNull(objectuuid)
@@ -488,6 +490,20 @@ class Wave
 
     def self.generalUpgrade()
 
+        if @@firstRun then
+            # Updating all existing objects
+            $flock["objects"]
+                .clone
+                .select{|object| object["agent-uid"]==self.agentuuid() }
+                .each{|object|
+                    uuid = object["uuid"]
+                    object = self.makeCatalystObjectOrNull(uuid)
+                    next if object.nil?
+                    FlockTransformations::addOrUpdateObject(object)
+                }
+            @@firstRun = false
+        end
+
         # ------------------------------------------------------------------------------
         # First we add to the flock the objects on the repository that are not there yet
         # This happens because some of them are created externally, with the intent that the agent will pick them up
@@ -499,13 +515,14 @@ class Wave
         unregisteredUUIDs = existingUUIDsFromDisk - existingUUIDsFromFlock
         unregisteredUUIDs.each{|uuid|
             # We need to build the object, then make a Flock update and emit an event
-            object = Wave::makeCatalystObject(uuid)
+            object = Wave::makeCatalystObjectOrNull(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             FlockTransformations::addOrUpdateObject(object)
         }
 
         # ------------------------------------------------------------------------------
-        # removing the emails objects still in flock but which have been archived by email sync
+        # Removing the emails objects which have been archived by email sync but still in flock
+
         $flock["objects"]
             .clone
             .select{|object| object["agent-uid"]==self.agentuuid() }

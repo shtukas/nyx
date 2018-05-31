@@ -595,12 +595,24 @@ class FolderProbe
             contents.lines.first.strip
         }
 
+        if File.exists?("#{folderpath}/email-metatada-emailuid.txt") then
+            metadata["target-type"] = "openable-file"
+            emailFilename = Dir.entries(folderpath).select{|filename| filename[-4, 4]==".eml" }.first
+            metadata["target-location"] = "#{folderpath}/#{emailFilename}"
+            if metadata["announce"].nil? then
+                metadata["announce"] = "[email]"
+            end
+            metadata["folderpath2metadata:case"] = "cf6f25cb"
+            return metadata
+        end
+
         if files.size==0 then
             # There is one open able file in the folder
             metadata["target-type"] = "virtually-empty-wave-folder"
             if metadata["announce"].nil? then
                 metadata["announce"] = folderpath
             end
+            metadata["folderpath2metadata:case"] = "b6e8ac55"
             return metadata
         end
 
@@ -611,6 +623,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = url
             end
+            metadata["folderpath2metadata:case"] = "95e7dd30"
             return metadata
         end
 
@@ -621,6 +634,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = line
             end
+            metadata["folderpath2metadata:case"] = "a888e991"
             return metadata
         end
 
@@ -631,6 +645,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = File.basename(filepath)
             end
+            metadata["folderpath2metadata:case"] = "54b1a4b5"
             return metadata
         end
 
@@ -641,6 +656,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = "One non-openable file in #{File.basename(folderpath)}"
             end
+            metadata["folderpath2metadata:case"] = "439bba64"
             return metadata
         end
 
@@ -650,6 +666,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
             end
+            metadata["folderpath2metadata:case"] = "29d2dc25"
             return metadata
         end
 
@@ -659,6 +676,7 @@ class FolderProbe
             if metadata["announce"].nil? then
                 metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
             end
+            metadata["folderpath2metadata:case"] = "f6a683b0"
             return metadata
         end
     end
