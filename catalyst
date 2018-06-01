@@ -68,8 +68,8 @@ class Mercury
         puts "    r:on <requirement>"
         puts "    r:off <requirement>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    >>  # threads"
-        puts "    >>> # new thread"
+        puts "    c:    # collections"
+        puts "    c:new # new collection"
         puts ""
         puts ""
         puts "Special General Commands (inserts)"
@@ -85,7 +85,7 @@ class Mercury
         puts "Special Object Commands:"
         puts "    (+)datetimecode"
         puts "    expose # pretty print the object"
-        puts "    > # send to a thread"
+        puts "    >c # send object to a collection"
         puts "    !today"
         puts "    r:add <requirement>"
         puts "    r:remove <requirement>"
@@ -204,7 +204,7 @@ class Mercury
             return
         end
 
-        if expression == ">>" then
+        if expression == "c:" then
             collectionsuuids = OperatorCollections::collectionsUUIDs()
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
             return if collectionuuid.nil?
@@ -243,7 +243,7 @@ class Mercury
             return
         end
 
-        if expression == ">>>" then
+        if expression == "c:new" then
             collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
             style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
             OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
@@ -383,7 +383,7 @@ class Mercury
 
         # object needed
 
-        if expression == ">" then
+        if expression == ">c" then
             OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
             return
         end
