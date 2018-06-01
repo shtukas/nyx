@@ -246,7 +246,8 @@ class Mercury
 
         if expression == ">>>" then
             collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
-            OperatorCollections::createNewCollectionWithName(collectionname)
+            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+            OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
             return
         end
 
