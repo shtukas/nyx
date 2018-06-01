@@ -35,6 +35,8 @@ require 'digest/sha1'
 
 class Stream
 
+    @@firstRun = true
+
     def self.agentuuid()
         "73290154-191f-49de-ab6a-5e5a85c6af3a"
     end
@@ -129,6 +131,22 @@ class Stream
     end
 
     def self.generalUpgrade()
+
+        if @@firstRun then
+            # Updating all existing objects
+            $flock["objects"]
+                .clone
+                .select{|object| object["agent-uid"]==self.agentuuid() }
+                .each{|object|
+                    uuid = object["uuid"]
+                    folderpath = self.uuid2folderpathOrNull(uuid)
+                    next if folderpath.nil?
+                    object = self.folderpathToCatalystObjectOrNull(folderpath)
+                    next if object.nil?
+                    FlockTransformations::addOrUpdateObject(object)
+                }
+            @@firstRun = false
+        end
 
         # Adding the next object if there isn't one
         if $flock["objects"].select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
