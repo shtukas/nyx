@@ -133,12 +133,9 @@ class Stream
     def self.generalUpgrade()
 
         if @@firstRun then
-            # Updating all existing objects
-            $flock["objects"]
-                .clone
-                .select{|object| object["agent-uid"]==self.agentuuid() }
-                .each{|object|
-                    uuid = object["uuid"]
+            # Loading all existing disk objects 
+            self.getUUIDs()
+                .each{|uuid|
                     folderpath = self.uuid2folderpathOrNull(uuid)
                     next if folderpath.nil?
                     object = self.folderpathToCatalystObjectOrNull(folderpath)

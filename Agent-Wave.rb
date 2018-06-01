@@ -491,13 +491,10 @@ class Wave
     def self.generalUpgrade()
 
         if @@firstRun then
-            # Updating all existing objects
-            $flock["objects"]
-                .clone
-                .select{|object| object["agent-uid"]==self.agentuuid() }
-                .each{|object|
-                    uuid = object["uuid"]
-                    object = self.makeCatalystObjectOrNull(uuid)
+            # Loading all existing disk objects
+            Wave::catalystUUIDsEnumerator()
+                .each{|uuid|
+                    object = Wave::makeCatalystObjectOrNull(uuid)
                     next if object.nil?
                     FlockTransformations::addOrUpdateObject(object)
                 }
