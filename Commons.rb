@@ -322,13 +322,6 @@ class PrimaryOperator
                 "interface"       => lambda{ GuardianTime::interface() }
             },
             {
-                "agent-name"      => "Kimchee",
-                "agent-uid"       => "b343bc48-82db-4fa3-ac56-3b5a31ff214f",
-                "general-upgrade" => lambda { Kimchee::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| Kimchee::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ Kinchee::interface() }
-            },
-            {
                 "agent-name"      => "Ninja",
                 "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
                 "general-upgrade" => lambda { Ninja::generalUpgrade() },

@@ -32,7 +32,6 @@ require_relative "Commons.rb"
 
 require_relative "Agent-Collections.rb"
 require_relative "Agent-GuardianTime.rb"
-require_relative "Agent-Kimchee.rb"
 require_relative "Agent-Ninja.rb"
 require_relative "Agent-Stream.rb"
 require_relative "Agent-TimeCommitments.rb"
