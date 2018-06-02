@@ -4,6 +4,8 @@
 
 # -------------------------------------------------------------------------------------
 
+# AgentCollections::objectMetric(uuid)
+
 class AgentCollections
 
     def self.agentuuid()
@@ -15,7 +17,7 @@ class AgentCollections
     end
 
     def self.objectMetric(uuid)
-        Math.exp(-GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600).to_f/100
+        Math.exp(-GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600)
     end
 
     def self.commands(style, isRunning)
@@ -40,7 +42,7 @@ class AgentCollections
 
     def self.metric(uuid, style, isRunning)
         if style=="PROJECT" then
-            return isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + self.objectMetric(uuid) + CommonsUtils::traceToMetricShift(uuid)
+            return isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + AgentCollections::objectMetric(uuid).to_f/100 + CommonsUtils::traceToMetricShift(uuid)
         end
         if style=="THREAD" then
             return 0.3 + CommonsUtils::traceToMetricShift(uuid)

@@ -68,8 +68,10 @@ class Mercury
         puts "    r:on <requirement>"
         puts "    r:off <requirement>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    c:    # collections"
-        puts "    c:new # new collection"
+        puts "    collections     # show collections"
+        puts "    collections:new # new collection"
+        puts "    threads         # show threads"
+        puts "    projects        # show projects"
         puts ""
         puts ""
         puts "Special General Commands (inserts)"
@@ -204,52 +206,6 @@ class Mercury
             return
         end
 
-        if expression == "c:" then
-            collectionsuuids = OperatorCollections::collectionsUUIDs()
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
-            return if collectionuuid.nil?
-            loop {
-                menuOptions = ["open file", "visit documents", "objects"]
-                menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
-                if menuChoice=="open file" then
-                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
-                    system("open '#{folderpath}/collection-text.txt'")
-                    next
-                end
-                if menuChoice=="visit documents" then
-                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
-                    system("open '#{folderpath}/documents'")
-                    next
-                end
-                if menuChoice=="objects" then
-                    loop {
-                        objectsuuids = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
-                        objects = $flock["objects"]
-                            .select{|object| objectsuuids.include?(object["uuid"]) }
-                            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-                            .reverse
-                        object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| Mercury::object2Line_v0(object) })
-                        break if object.nil?
-                        puts Mercury::object2Line_v1(object)
-                        print "--> "
-                        givenCommand = STDIN.gets().strip
-                        command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
-                        Mercury::processObjectAndCommand(object_selected, command)
-                    }
-                    next
-                end
-                break
-            }
-            return
-        end
-
-        if expression == "c:new" then
-            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
-            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-            OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
-            return
-        end
-
         if expression == "interface" then
             LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", PrimaryOperator::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
             return
@@ -338,6 +294,78 @@ class Mercury
             puts "collection name: #{description}"
             puts "collection path: #{OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)}"
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        diveIntoCollection = lambda{|collectionuuid|
+            loop {
+                menuOptions = ["open text file", "visit documents", "objects"]
+                menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
+                if menuChoice=="open text file" then
+                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                    system("open '#{folderpath}/collection-text.txt'")
+                    next
+                end
+                if menuChoice=="visit documents" then
+                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                    system("open '#{folderpath}/documents'")
+                    next
+                end
+                if menuChoice=="objects" then
+                    loop {
+                        objectsuuids = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+                        objects = $flock["objects"]
+                            .select{|object| objectsuuids.include?(object["uuid"]) }
+                            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                            .reverse
+                        break if objects.empty?
+                        object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| Mercury::object2Line_v0(object) })
+                        break if object.nil?
+                        puts Mercury::object2Line_v1(object)
+                        print "--> "
+                        givenCommand = STDIN.gets().strip
+                        command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
+                        Mercury::processObjectAndCommand(object_selected, command)
+                    }
+                    next
+                end
+                break
+            }
+        }
+
+        if expression == "collections" then
+            collectionsuuids = OperatorCollections::collectionsUUIDs()
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            return if collectionuuid.nil?
+            diveIntoCollection.call(collectionuuid)
+            return
+        end
+
+        if expression == "collections:new" then
+            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+            OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
+            return
+        end
+
+        if expression == "threads" then
+            collectionsuuids = OperatorCollections::collectionsUUIDs()
+                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            return if collectionuuid.nil?
+            diveIntoCollection.call(collectionuuid)
+            return
+        end
+
+        if expression == "projects" then
+            collectionsuuids = OperatorCollections::collectionsUUIDs()
+                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="PROJECT" }
+                .sort{|puuid1, puuid2| AgentCollections::objectMetric(puuid1) <=> AgentCollections::objectMetric(puuid2) }
+                .reverse
+            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetric(collectionuuid) }) #{OperatorCollections::collectionUUID2NameOrNull(collectionuuid)}" }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, displayLambda)
+            return if collectionuuid.nil?
+            diveIntoCollection.call(collectionuuid)
             return
         end
 
