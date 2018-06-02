@@ -403,7 +403,7 @@ class Wave
     end
 
     def self.commands(folderProbeMetadata)
-        ['open', 'done', '<uuid>', 'recast', 'folder', 'destroy', ">stream", '>lib']
+        ["open", "done", "<uuid>", "recast", "description:", "folder", "destroy", ">stream", ">lib"]
     end
 
     def self.defaultExpression(folderProbeMetadata, schedule)
@@ -588,6 +588,16 @@ class Wave
             schedule = WaveSchedules::makeNewSchedule()
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
+            FlockTransformations::addOrUpdateObject(object)
+            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+        end
+
+        if command == 'description:' then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            uuid = object["uuid"]
+            folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
+            object = Wave::makeCatalystObjectOrNull(uuid)
             FlockTransformations::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
