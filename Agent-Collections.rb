@@ -3,6 +3,7 @@
 # encoding: UTF-8
 
 require_relative "Flock.rb"
+require_relative "Commons.rb"
 
 # -------------------------------------------------------------------------------------
 
@@ -76,7 +77,7 @@ class AgentCollections
 
     def self.commands(style, isRunning)
         if style=="PROJECT" then
-            return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "file", "folder"]
+            return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "file", "folder", "objects"]
         end
         if style=="THREAD" then
             return ["completed", "file", "folder"]
@@ -125,6 +126,9 @@ class AgentCollections
         if self.hasDocuments(folderpath) then
             announce = announce + " [DOCUMENTS]"
         end
+        if OperatorCollections::collectionCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
+            announce = announce + " [OBJECTS]"
+        end
         announce = announce + " (#{ "%.2f" % (GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
         status = GenericTimeTracking::status(uuid)
         isRunning = status[0]
@@ -164,11 +168,6 @@ class AgentCollections
     end
 
     def self.processObjectAndCommand(object, command)
-        if command=='file' then
-            folderpath = object["item-data"]["folderpath"]
-            filepath = "#{folderpath}/collection-text.txt"
-            system("open '#{filepath}'")
-        end
         if command=='start' then
             folderpath = object["item-data"]["folderpath"]
             #system("open '#{folderpath}'")
@@ -191,12 +190,26 @@ class AgentCollections
                 LucilleCore::pressEnterToContinue()
                 return
             end
+            if OperatorCollections::collectionCatalystObjectUUIDsThatAreAlive(object["uuid"]).size>0 then
+                puts "You cannot complete this item because it has objects"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             GenericTimeTracking::stop(object["uuid"])
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
             OperatorCollections::sendCollectionToBinTimeline(object["uuid"])
         end
+        if command=='file' then
+            folderpath = object["item-data"]["folderpath"]
+            filepath = "#{folderpath}/collection-text.txt"
+            system("open '#{filepath}'")
+        end
         if command=="folder" then
             system("open '#{object["item-data"]["folderpath"]}'")
+        end
+        if command=='objects' then
+            collectionuuid = object["uuid"]
+            OperatorCollections::loopDiveCollectionObjects(collectionuuid)
         end
     end
 end

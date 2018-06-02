@@ -128,6 +128,594 @@ class CommonsUtils
     end
 end
 
+# ----------------------------------------------------------------------
+
+# AgentsManager::agents()
+# AgentsManager::agentuuid2AgentData(agentuuid)
+# AgentsManager::generalUpgrade()
+
+class AgentsManager
+
+    def self.agents()
+        [
+            {
+                "agent-name"      => "Collections",
+                "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
+                "general-upgrade" => lambda { AgentCollections::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| AgentCollections::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ AgentCollections::interface() }
+            },
+            {
+                "agent-name"      => "GuardianTime",
+                "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
+                "general-upgrade" => lambda { GuardianTime::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| GuardianTime::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ GuardianTime::interface() }
+            },
+            {
+                "agent-name"      => "Ninja",
+                "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
+                "general-upgrade" => lambda { Ninja::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Ninja::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Ninja::interface() }
+            },
+            {
+                "agent-name"      => "Stream",
+                "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
+                "general-upgrade" => lambda { Stream::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Stream::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Stream::interface() }
+            },
+            {
+                "agent-name"      => "TimeCommitments",
+                "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
+                "general-upgrade" => lambda { TimeCommitments::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| TimeCommitments::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ TimeCommitments::interface() }
+            },
+            {
+                "agent-name"      => "Today",
+                "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
+                "general-upgrade" => lambda { Today::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Today::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Today::interface() }
+            },
+            {
+                "agent-name"      => "Vienna",
+                "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
+                "general-upgrade" => lambda { Vienna::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Vienna::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Vienna::interface() }
+            },
+            {
+                "agent-name"      => "Wave",
+                "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
+                "general-upgrade" => lambda { Wave::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Wave::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Wave::interface() }
+            }
+        ]
+    end
+
+    def self.agentuuid2AgentData(agentuuid)
+        AgentsManager::agents()
+            .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
+            .first
+    end
+
+    def self.generalUpgrade()
+        AgentsManager::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
+    end
+end
+
+# CatalystUserInterfaceUtils::putshelp()
+# CatalystUserInterfaceUtils::fDoNotShowUntilDateTimeTransform()
+# CatalystUserInterfaceUtils::isInteger(str)
+# CatalystUserInterfaceUtils::emailSync(verbose)
+# CatalystUserInterfaceUtils::screenHeight()
+# CatalystUserInterfaceUtils::screenWidth()
+# CatalystUserInterfaceUtils::editTextUsingTextmate(text)
+# CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+# CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object)
+# CatalystUserInterfaceUtils::object2Line_v0(object)
+# CatalystUserInterfaceUtils::object2Line_v1(object)
+# CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(object)
+# CatalystUserInterfaceUtils::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
+# CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
+# CatalystUserInterfaceUtils::main2()
+
+class CatalystUserInterfaceUtils
+
+    def self.putshelp()
+        puts "Special General Commands (view)"
+        puts "    help"
+        puts "    top"
+        puts "    search <pattern>"
+        puts "    :n # without changing the size of the workspace, focus on n^th item"
+        puts "    r:on <requirement>"
+        puts "    r:off <requirement>"
+        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    collections     # show collections"
+        puts "    collections:new # new collection"
+        puts "    threads         # show threads"
+        puts "    projects        # show projects"
+        puts ""
+        puts ""
+        puts "Special General Commands (inserts)"
+        puts "    wave: <description>"
+        puts "    stream: <description>"
+        puts "    project: <description>"
+        puts ""
+        puts "Special General Commands (special circumstances)"
+        puts "    clear # clear the screen"
+        puts "    interface # run the interface of a given agent"
+        puts "    lib # Invoques the Librarian interactive"
+        puts ""
+        puts "Special Object Commands:"
+        puts "    (+)datetimecode"
+        puts "    expose # pretty print the object"
+        puts "    >c # send object to a collection"
+        puts "    !today"
+        puts "    r:add <requirement>"
+        puts "    r:remove <requirement>"
+        puts "    command ..."
+    end
+
+    def self.fDoNotShowUntilDateTimeTransform()
+        FlockOperator::flockObjects().map{|object|
+            if !FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
+                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+                object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+                object["metric"] = 0
+            end
+            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) and object["metric"]<=1 then
+                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+                object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
+                object["metric"] = 0
+            end
+            FlockOperator::addOrUpdateObject(object)
+        }
+    end
+
+    def self.isInteger(str)
+        str.to_i.to_s == str
+    end
+
+    def self.emailSync(verbose)
+        begin
+            GeneralEmailClient::sync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
+            OperatorEmailClient::download(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
+        rescue
+        end
+    end
+
+    def self.screenHeight()
+        `/usr/bin/env tput lines`.to_i
+    end
+
+    def self.screenWidth()
+        `/usr/bin/env tput cols`.to_i
+    end
+
+    def self.editTextUsingTextmate(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}
+      system("/usr/local/bin/mate \"#{filepath}\"")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)
+    end
+
+    def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        if description=='text' then
+            editTextUsingTextmate("")
+        else
+            description
+        end
+    end
+
+    def self.object2DonotShowUntilAsString(object)
+        ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+    end
+
+    def self.object2Line_v0(object)
+        announce = object['announce'].lines.first.strip
+        if object["metric"]>1 then
+            announce = announce.green
+        end
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{announce}",
+            CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object),
+        ].join()
+    end
+
+    def self.object2Line_v1(object)
+        announce = object['announce'].strip
+        if object["metric"]>1 then
+            announce = announce.green
+        end
+        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{announce}",
+            "#{requirementsAsString.green}",
+            CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object),
+            " (#{object["commands"].join(" ").red})",
+            " \"#{defaultExpressionAsString.green}\""
+        ].join()
+    end
+
+    def self.interactiveDisplayObjectAndProcessCommand(object)
+        print CatalystUserInterfaceUtils::object2Line_v1(object) + " : "
+        givenCommand = STDIN.gets().strip
+        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+        CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.processObjectAndCommand(object, expression)
+
+        # no object needed
+
+        if expression == 'help' then
+            CatalystUserInterfaceUtils::putshelp()
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'clear' then
+            system("clear")
+            return
+        end
+
+        if expression == "interface" then
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", AgentsManager::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            return
+        end
+
+        if expression == 'info' then
+            puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
+            puts "Todolists:".green
+            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
+            puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
+            puts "    Total        : #{(count1+count3)}".green
+            puts "Requirements:".green
+            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'lib' then
+            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
+        end
+
+        if expression.start_with?('wave:') then
+            description = expression[5, expression.size].strip
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            uuid = SecureRandom.hex(4)
+            folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+            print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
+            answer = STDIN.gets().strip 
+            schedule = 
+                if answer=="yes" then
+                    WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+                else
+                    {
+                        "uuid" => SecureRandom.hex,
+                        "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
+                        "@"    => "today",
+                        "unixtime" => Time.new.to_i
+                    }
+                end
+            Wave::writeScheduleToDisk(uuid,schedule)
+            if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
+                if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                    FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+                    EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+                end
+            end
+            print "Move to a thread ? [yes/no] (default: no): "
+            answer = STDIN.gets().strip 
+            if answer=="yes" then
+                OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+            end
+            #LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('stream:') then
+            description = expression[7, expression.size].strip
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Stream::issueNewItemWithDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('project:') then
+            description = expression[8, expression.size].strip
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "PROJECT")
+            puts "collection uuid: #{collectionuuid}"
+            puts "collection name: #{description}"
+            puts "collection path: #{OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('thread:') then
+            description = expression[7, expression.size].strip
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "THREAD")
+            puts "collection uuid: #{collectionuuid}"
+            puts "collection name: #{description}"
+            puts "collection path: #{OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        diveIntoCollection = lambda{|collectionuuid|
+            loop {
+                menuOptions = ["open text file", "visit documents", "objects"]
+                menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
+                if menuChoice=="open text file" then
+                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                    system("open '#{folderpath}/collection-text.txt'")
+                    next
+                end
+                if menuChoice=="visit documents" then
+                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                    system("open '#{folderpath}/documents'")
+                    next
+                end
+                if menuChoice=="objects" then
+                    OperatorCollections::loopDiveCollectionObjects(collectionuuid)
+                    next
+                end
+                break
+            }
+        }
+
+        if expression == "collections" then
+            collectionsuuids = OperatorCollections::collectionsUUIDs()
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            return if collectionuuid.nil?
+            diveIntoCollection.call(collectionuuid)
+            return
+        end
+
+        if expression == "collections:new" then
+            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+            OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
+            return
+        end
+
+        if expression == "threads" then
+            collectionsuuids = OperatorCollections::collectionsUUIDs()
+                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            return if collectionuuid.nil?
+            diveIntoCollection.call(collectionuuid)
+            return
+        end
+
+        if expression == "projects" then
+            collectionsuuids = OperatorCollections::collectionsUUIDs()
+                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="PROJECT" }
+                .sort{|puuid1, puuid2| AgentCollections::objectMetricAsFloat(puuid1) <=> AgentCollections::objectMetricAsFloat(puuid2) }
+                .reverse
+            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{OperatorCollections::collectionUUID2NameOrNull(collectionuuid)}" }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, displayLambda)
+            return if collectionuuid.nil?
+            diveIntoCollection.call(collectionuuid)
+            return
+        end
+
+        if expression.start_with?("r:on") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::setSatisfifiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:off") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::setUnsatisfiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:show") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            if requirement.nil? or requirement.size==0 then
+                requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
+            end
+            loop {
+                requirementObjects = FlockOperator::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
+                break if selectedobject.nil?
+                CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        if expression.start_with?("search") then
+            pattern = expression[6,expression.size].strip
+            loop {
+                searchobjects = FlockOperator::flockObjects().select{|object| CatalystUserInterfaceUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                break if searchobjects.size==0
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
+                break if selectedobject.nil?
+                CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        return if object.nil?
+
+        # object needed
+
+        if expression == ">c" then
+            OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
+            return
+        end
+
+        if expression == '!today' then
+            TodayOrNotToday::notToday(object["uuid"])
+            return
+        end
+
+        if expression == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('+') then
+            code = expression
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
+                FlockOperator::setDoNotShowUntilDateTime(object["uuid"], datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
+            end
+            return
+        end
+
+        if expression.start_with?("r:add") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("r:remove") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.size > 0 then
+            tokens = expression.split(" ").map{|t| t.strip }
+            .each{|command|
+                AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+            }
+        else
+            AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+        end
+    end
+
+    def self.main2(runId)
+        workspaceSize = 1
+        mainschedule = {}
+        mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
+        mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
+        mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
+        loop {
+            AgentsManager::generalUpgrade()
+            TodayOrNotToday::transform()
+            RequirementsOperator::transform()
+            CatalystUserInterfaceUtils::fDoNotShowUntilDateTimeTransform()
+            OperatorCollections::transform()
+            objects_selected = FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(workspaceSize)
+            system("clear")
+            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            end
+            dayprogression = {
+                "collections" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/OperatorCollections::dailyCommitmentInHours(),
+                "stream"      => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/OperatorCollections::dailyCommitmentInHours()
+            }
+            if dayprogression["collections"] >= 1 and dayprogression["stream"] >= 1 then
+                puts "DAY PROGRESSION: (Collections, Stream) Cleared of duties. Enjoy while it last (^_^)".green
+            else
+                puts "DAY PROGRESSION: Collections: #{ (100*dayprogression["collections"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".red
+            end
+            if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isLucille18() then
+                lines = CatalystDevOps::archivesTimelineGarbageCollection()
+                puts "Archives timeline garbage collection: #{lines.size}"
+                lines.each{|line|
+                    puts "    - #{line}"
+                }
+                LucilleCore::pressEnterToContinue() if lines.size>0
+                mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
+            end
+            if ( Time.new.to_i > mainschedule["events-gc"] ) and CommonsUtils::isLucille18() then
+                lines = CatalystDevOps::eventsTimelineGarbageCollection()
+                puts "Events timeline garbage collection: #{lines.size}"
+                lines.each{|line|
+                    puts "    - #{line}"
+                }
+                LucilleCore::pressEnterToContinue() if lines.size>0
+                mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
+            end
+            if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
+                if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                    puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
+                    LucilleCore::pressEnterToContinue()
+                end
+                mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
+                next
+            end
+            puts ""
+            object_selected = objects_selected.last.clone
+            # --------------------------------------------------------------------------------
+            # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
+            # In such a case they are still in Flock and should not be showed
+            if object_selected["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
+                if object_selected["schedule"][":wave-emails:"] then
+                    if !File.exists?(object_selected["item-data"]["folderpath"]) then
+                        puts CatalystUserInterfaceUtils::object2Line_v0(object_selected)
+                        puts "This email has been deleted, removing Flock item:"
+                        FlockOperator::removeObjectIdentifiedByUUID(object_selected["uuid"])
+                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object_selected["uuid"]))
+                        next
+                    end
+                end
+            end
+            # --------------------------------------------------------------------------------
+            objects_selected.each_with_index{|o, index|
+                string =
+                    if o["uuid"]==object_selected["uuid"] then
+                        "#{"%2d" % (index+1)} [*] #{CatalystUserInterfaceUtils::object2Line_v1(o)}"
+                    else
+                        "#{"%2d" % (index+1)}     #{CatalystUserInterfaceUtils::object2Line_v0(o)}"
+                    end
+                puts string
+            }
+            print "--> "
+            givenCommand = STDIN.gets().strip
+            if givenCommand=="+" then
+                workspaceSize = workspaceSize+1
+                next
+            end
+            if givenCommand=="-" then
+                workspaceSize = [workspaceSize-1, 1].max
+                next
+            end
+            if CatalystUserInterfaceUtils::isInteger(givenCommand) then
+                workspaceSize = [givenCommand.to_i, 1].max
+                next
+            end
+            if givenCommand.start_with?(":") and CatalystUserInterfaceUtils::isInteger(givenCommand[1,9]) then
+                object_selected = objects_selected.take(givenCommand[1,9].to_i).last.clone
+                puts CatalystUserInterfaceUtils::object2Line_v1(object_selected)
+                print "--> "
+                givenCommand = STDIN.gets().strip
+            end
+            command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
+            CatalystUserInterfaceUtils::processObjectAndCommand(object_selected, command)
+            File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
+        }
+    end
+end
+
 # RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
 # RequirementsOperator::setUnsatisfiedRequirement(requirement)
 # RequirementsOperator::setSatisfifiedRequirement(requirement)
@@ -643,6 +1231,7 @@ end
 # OperatorCollections::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
 # OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
 # OperatorCollections::collectionCatalystObjectUUIDs(threaduuid)
+# OperatorCollections::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
 # OperatorCollections::allCollectionsCatalystUUIDs()
 
 # OperatorCollections::setCollectionStyle(collectionuuid, style)
@@ -651,6 +1240,7 @@ end
 # OperatorCollections::transform()
 # OperatorCollections::sendCollectionToBinTimeline(uuid)
 # OperatorCollections::dailyCommitmentInHours()
+# OperatorCollections::loopDiveCollectionObjects(collectionuuid)
 
 class OperatorCollections
     def self.collectionsFolderpaths()
@@ -736,9 +1326,15 @@ class OperatorCollections
         collectionuuid
     end
 
-    def self.collectionCatalystObjectUUIDs(threaduuid)
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(threaduuid)
+    def self.collectionCatalystObjectUUIDs(collectionuuid)
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
         JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json"))
+    end
+
+    def self.collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
+        a1 = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+        a2 = FlockOperator::flockObjects().map{|object| object["uuid"] }
+        a1 & a2
     end
 
     def self.allCollectionsCatalystUUIDs()
@@ -791,6 +1387,24 @@ class OperatorCollections
 
     def self.dailyCommitmentInHours()
         6
+    end
+
+    def self.loopDiveCollectionObjects(collectionuuid)
+        loop {
+            objectsuuids = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+            objects = FlockOperator::flockObjects()
+                .select{|object| objectsuuids.include?(object["uuid"]) }
+                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                .reverse
+            break if objects.empty?
+            object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
+            break if object.nil?
+            puts CatalystUserInterfaceUtils::object2Line_v1(object)
+            print "--> "
+            givenCommand = STDIN.gets().strip
+            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object_selected["default-expression"] : "" )
+            CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
+        }
     end
 
 end
