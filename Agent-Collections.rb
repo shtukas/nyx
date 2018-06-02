@@ -6,7 +6,9 @@ require_relative "Flock.rb"
 
 # -------------------------------------------------------------------------------------
 
-# AgentCollections::objectMetric(uuid)
+# AgentCollections::objectMetricAsFloat
+# AgentCollections::objectMetrics(uuid)
+# AgentCollections::getObjectTimeCommitmentInHours(uuid)
 
 class AgentCollections
 
@@ -14,12 +16,62 @@ class AgentCollections
         "e4477960-691d-4016-884c-8694db68cbfb"
     end
 
-    def self.agentMetric()
-        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/OperatorCollections::dailyCommitmentInHours()
+    def self.agentAdaptedHours()
+        GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600
     end
 
-    def self.objectMetric(uuid)
-        Math.exp(-GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600)
+    def self.getObjectTimeCommitmentInHours(uuid)
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
+        if folderpath.nil? then
+            raise "error e95e2fda: Could not find fodler path for uuid: #{uuid}" 
+        end
+        if File.exists?("#{folderpath}/collection-time-commitment-override") then
+            return IO.read("#{folderpath}/collection-time-commitment-override").to_f
+        end
+        if File.exists?("#{folderpath}/collection-time-positional-coefficient") then
+            return IO.read("#{folderpath}/collection-time-positional-coefficient").to_f * OperatorCollections::dailyCommitmentInHours()
+        end
+        0
+    end
+
+    def self.objectMetricRelativelyToItsCoefficientCommitment(uuid)
+        time = self.getObjectTimeCommitmentInHours(uuid)
+        if time==0 then
+            0
+        else
+            if self.objectAdaptedHours(uuid) > time then
+                0
+            else
+                0.2 + Math.atan(time).to_f/100 + 0.6*Math.exp(-self.objectAdaptedHours(uuid).to_f/time)
+            end
+        end
+    end
+
+    def self.objectLowMetricRelativelyToItsAdaptedHours(uuid)
+        0.1 + 0.2*Math.exp(-self.objectAdaptedHours(uuid))
+    end
+
+    def self.objectAdaptedHours(uuid)
+        GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600
+    end
+
+    def self.objectMetrics(uuid)
+        style = OperatorCollections::getCollectionStyle(uuid)
+        if style=="PROJECT" then
+            return [self.getObjectTimeCommitmentInHours(uuid), self.objectAdaptedHours(uuid), self.objectMetricRelativelyToItsCoefficientCommitment(uuid), self.objectLowMetricRelativelyToItsAdaptedHours(uuid)]
+        end
+        if style=="THREAD" then
+            return [0,                                         self.objectAdaptedHours(uuid), 0,                                                           self.objectLowMetricRelativelyToItsAdaptedHours(uuid)]
+        end
+    end
+
+    def self.objectMetricAsFloat(uuid)
+        self.objectMetrics(uuid)[2, 3].max
+    end
+
+    def self.objectMetricsAsString(uuid)
+        dx = lambda {|x| x == "0.000" ? "     " : x }
+        AgentCollections::objectMetrics(uuid).map{|value| "%.3f" % value }.map{|str| dx.call(str) }.join(", ")
     end
 
     def self.commands(style, isRunning)
@@ -39,12 +91,13 @@ class AgentCollections
         if style=="THREAD" then
             return ""
         end
-        raise "7EB12414-1471-4C2B-9631-8F75EE428632"    
+        raise "7EB12414-1471-4C2B-9631-8F75EE428632"
     end
 
     def self.metric(uuid, style, isRunning)
         if style=="PROJECT" then
-            return isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + AgentCollections::objectMetric(uuid).to_f/100 + CommonsUtils::traceToMetricShift(uuid)
+            metric = AgentCollections::objectMetricAsFloat(uuid)
+            return isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
         end
         if style=="THREAD" then
             return 0.3 + CommonsUtils::traceToMetricShift(uuid)
@@ -79,7 +132,7 @@ class AgentCollections
             "uuid"               => uuid,
             "agent-uid"          => self.agentuuid(),
             "metric"             => self.metric(uuid, style, isRunning),
-            "announce"           => announce,
+            "announce"           => "(metrics: #{AgentCollections::objectMetricsAsString(uuid)}) #{announce}",
             "commands"           => self.commands(style, isRunning),
             "default-expression" => self.defaultExpression(style, isRunning)
         }
@@ -93,6 +146,16 @@ class AgentCollections
     end    
 
     def self.generalUpgrade()
+        halves = [0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625]
+        OperatorCollections::collectionsFolderpaths()
+            .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
+            .first(6)
+            .zip(halves)
+            .each{|pair|
+                folderpath = pair[0]
+                hours = pair[1]
+                File.open("#{folderpath}/collection-time-positional-coefficient", "w"){|f| f.write(hours)}
+            }
         objects = OperatorCollections::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact

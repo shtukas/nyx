@@ -440,9 +440,9 @@ class CatalystUserInterfaceUtils
         if expression == "projects" then
             collectionsuuids = OperatorCollections::collectionsUUIDs()
                 .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="PROJECT" }
-                .sort{|puuid1, puuid2| AgentCollections::objectMetric(puuid1) <=> AgentCollections::objectMetric(puuid2) }
+                .sort{|puuid1, puuid2| AgentCollections::objectMetricAsFloat(puuid1) <=> AgentCollections::objectMetricAsFloat(puuid2) }
                 .reverse
-            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetric(collectionuuid) }) #{OperatorCollections::collectionUUID2NameOrNull(collectionuuid)}" }
+            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{OperatorCollections::collectionUUID2NameOrNull(collectionuuid)}" }
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, displayLambda)
             return if collectionuuid.nil?
             diveIntoCollection.call(collectionuuid)

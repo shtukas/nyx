@@ -655,8 +655,8 @@ end
 class OperatorCollections
     def self.collectionsFolderpaths()
         Dir.entries(CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH)
-            .sort
             .select{|filename| filename[0,1]!="." }
+            .sort
             .map{|filename| "#{CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH}/#{filename}" }
     end
 
