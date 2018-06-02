@@ -2,6 +2,8 @@
 
 # encoding: UTF-8
 
+require_relative "Flock.rb"
+
 # -------------------------------------------------------------------------------------
 
 # AgentCollections::objectMetric(uuid)
@@ -88,15 +90,14 @@ class AgentCollections
     end
 
     def self.interface()
-
     end    
 
     def self.generalUpgrade()
         objects = OperatorCollections::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact
-        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
-        FlockTransformations::addOrUpdateObjects(objects)
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        FlockOperator::addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommand(object, command)

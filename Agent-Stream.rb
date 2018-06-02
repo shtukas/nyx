@@ -1,8 +1,6 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
@@ -15,10 +13,14 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require 'colorize'
-require_relative "Commons.rb"
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require_relative "Commons.rb"
+require_relative "Events.rb"
+require_relative "Flock.rb"
+require_relative "FlockBasedServices.rb"
 # -------------------------------------------------------------------------------------
 
 # Stream::agentuuid()
@@ -112,7 +114,7 @@ class Stream
             LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
         end
         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-        FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+        FlockOperator::removeObjectIdentifiedByUUID(uuid)
     end
 
     def self.issueNewItemWithDescription(description)
@@ -140,7 +142,7 @@ class Stream
                     next if folderpath.nil?
                     object = self.folderpathToCatalystObjectOrNull(folderpath)
                     next if object.nil?
-                    FlockTransformations::addOrUpdateObject(object)
+                    FlockOperator::addOrUpdateObject(object)
                 }
             @@firstRun = false
         end
@@ -152,7 +154,7 @@ class Stream
                 .each{|folderpath|
                     object = Stream::folderpathToCatalystObjectOrNull(folderpath)
                     EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-                    FlockTransformations::addOrUpdateObject(object)
+                    FlockOperator::addOrUpdateObject(object)
                 }
         end
 
@@ -167,7 +169,7 @@ class Stream
                 object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
                 object["item-data"]["status"] = status
                 object["is-running"]          = status[0]
-                FlockTransformations::addOrUpdateObject(object)
+                FlockOperator::addOrUpdateObject(object)
             }
     end
 
@@ -183,7 +185,7 @@ class Stream
             GenericTimeTracking::start(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-            FlockTransformations::addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
             FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
@@ -191,7 +193,7 @@ class Stream
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-            FlockTransformations::addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
         end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
@@ -199,7 +201,7 @@ class Stream
             MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY}", [Time.new.to_i, 600]) # special circumstances
             Stream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+            FlockOperator::removeObjectIdentifiedByUUID(uuid)
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
@@ -215,7 +217,7 @@ class Stream
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+            FlockOperator::removeObjectIdentifiedByUUID(uuid)
         end
     end
 end

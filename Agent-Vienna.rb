@@ -19,8 +19,9 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require_relative "MiniFIFOQ.rb"
+require_relative "FlockBasedServices.rb"
 require_relative "Commons.rb"
+require_relative "Flock.rb"
 # -------------------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
@@ -89,8 +90,8 @@ class Vienna
                     "link" => link
                 }
             }
-        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
-        FlockTransformations::addOrUpdateObject(object)
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        FlockOperator::addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommand(object, command)

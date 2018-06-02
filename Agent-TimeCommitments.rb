@@ -22,6 +22,7 @@ require 'find'
 require 'colorize'
 require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 require_relative "Commons.rb"
+require_relative "Flock.rb"
 # -------------------------------------------------------------------------------------
 
 GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1"
@@ -189,8 +190,8 @@ class TimeCommitments
             else
                 objects
             end
-        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
-        FlockTransformations::addOrUpdateObjects(objects)
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        FlockOperator::addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommand(object, command)

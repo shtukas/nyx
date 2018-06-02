@@ -22,6 +22,9 @@ require 'find'
 require 'drb/drb'
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "Commons.rb"
+require_relative "Events.rb"
+require_relative "Flock.rb"
+require_relative "FlockBasedServices.rb"
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave"
@@ -496,7 +499,7 @@ class Wave
                 .each{|uuid|
                     object = Wave::makeCatalystObjectOrNull(uuid)
                     next if object.nil?
-                    FlockTransformations::addOrUpdateObject(object)
+                    FlockOperator::addOrUpdateObject(object)
                 }
             @@firstRun = false
         end
@@ -514,7 +517,7 @@ class Wave
             # We need to build the object, then make a Flock update and emit an event
             object = Wave::makeCatalystObjectOrNull(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            FlockTransformations::addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
         }
 
         # ------------------------------------------------------------------------------
@@ -545,7 +548,7 @@ class Wave
                 uuid = object["uuid"]
                 schedule = object["schedule"]
                 object["metric"] = WaveSchedules::scheduleToMetric(schedule) + CommonsUtils::traceToMetricShift(uuid)
-                FlockTransformations::addOrUpdateObject(object)
+                FlockOperator::addOrUpdateObject(object)
             }
     end
 
@@ -559,13 +562,13 @@ class Wave
             schedule = WaveSchedules::cycleSchedule(schedule)
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
-            FlockTransformations::addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         }
 
         doneObjectWithOneOffTask = lambda {|object|
             uuid = object['uuid']
-            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+            FlockOperator::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             Wave::archiveWaveItem(uuid)
         }
@@ -588,7 +591,7 @@ class Wave
             schedule = WaveSchedules::makeNewSchedule()
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
-            FlockTransformations::addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 
@@ -598,7 +601,7 @@ class Wave
             folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
             object = Wave::makeCatalystObjectOrNull(uuid)
-            FlockTransformations::addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 
@@ -611,7 +614,7 @@ class Wave
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 Wave::archiveWaveItem(uuid)
-                FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+                FlockOperator::removeObjectIdentifiedByUUID(uuid)
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
         end
@@ -621,7 +624,7 @@ class Wave
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+            FlockOperator::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
 
@@ -638,7 +641,7 @@ class Wave
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Wave::archiveWaveItem(uuid)
-            FlockTransformations::removeObjectIdentifiedByUUID(uuid)
+            FlockOperator::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
     end

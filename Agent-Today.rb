@@ -20,6 +20,7 @@ require 'fileutils'
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
 require_relative "Commons.rb"
+require_relative "Flock.rb"
 # -------------------------------------------------------------------------------------
 
 TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
@@ -124,8 +125,8 @@ class Today
                 }
             }
         }
-        FlockTransformations::removeObjectsFromAgent(self.agentuuid())
-        FlockTransformations::addOrUpdateObjects(objects)
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        FlockOperator::addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommand(object, command)

@@ -1,18 +1,33 @@
 # encoding: utf-8
 
-# require_relative "MiniFIFOQ.rb"
-=begin
-    # The set of values that we support is whatever that can be json serialisable.
-    MiniFIFOQ::size(queueuuid)
-    MiniFIFOQ::values(queueuuid)
-    MiniFIFOQ::push(queueuuid, value)
-    MiniFIFOQ::getFirstOrNull(queueuuid)
-    MiniFIFOQ::takeFirstOrNull(queueuuid)
-    MiniFIFOQ::takeWhile(queueuuid, xlambda: Element -> Boolean)
-=end
-
 require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 require 'json'
+require_relative "Events.rb"
+require_relative "FlockBasedServices.rb"
+# ------------------------------------------------------------------------
+
+# FKVStore::getOrNull(key): value
+# FKVStore::getOrDefaultValue(key, defaultValue): value
+# FKVStore::set(key, value)
+
+class FKVStore
+    def self.getOrNull(key)
+        $flock["kvstore"][key]
+    end
+
+    def self.getOrDefaultValue(key, defaultValue)
+        value = FKVStore::getOrNull(key)
+        if value.nil? then
+            value = defaultValue
+        end
+        value
+    end
+
+    def self.set(key, value)
+        $flock["kvstore"][key] = value
+        EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
+    end
+end
 
 # ------------------------------------------------------------------------
 

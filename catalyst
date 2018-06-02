@@ -29,6 +29,8 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 
 require_relative "Wave-Emails.rb"
 require_relative "Commons.rb"
+require_relative "Events.rb"
+require_relative "Flock.rb"
 
 require_relative "Agent-Collections.rb"
 require_relative "Agent-GuardianTime.rb"
@@ -41,11 +43,11 @@ require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------------
 
-# PrimaryOperator::agents()
-# PrimaryOperator::agentuuid2AgentData(agentuuid)
-# PrimaryOperator::generalUpgrade()
+# AgentsManager::agents()
+# AgentsManager::agentuuid2AgentData(agentuuid)
+# AgentsManager::generalUpgrade()
 
-class PrimaryOperator
+class AgentsManager
 
     def self.agents()
         [
@@ -109,33 +111,33 @@ class PrimaryOperator
     end
 
     def self.agentuuid2AgentData(agentuuid)
-        PrimaryOperator::agents()
+        AgentsManager::agents()
             .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
             .first
     end
 
     def self.generalUpgrade()
-        PrimaryOperator::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
+        AgentsManager::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
     end
 end
 
-# Mercury::putshelp()
-# Mercury::fDoNotShowUntilDateTimeTransform()
-# Mercury::isInteger(str)
-# Mercury::emailSync(verbose)
-# Mercury::screenHeight()
-# Mercury::screenWidth()
-# Mercury::editTextUsingTextmate(text)
-# Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-# Mercury::object2DonotShowUntilAsString(object)
-# Mercury::object2Line_v0(object)
-# Mercury::object2Line_v1(object)
-# Mercury::interactiveDisplayObjectAndProcessCommand(object)
-# Mercury::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
-# Mercury::processObjectAndCommand(object, command)
-# Mercury::main2()
+# CatalystUserInterfaceUtils::putshelp()
+# CatalystUserInterfaceUtils::fDoNotShowUntilDateTimeTransform()
+# CatalystUserInterfaceUtils::isInteger(str)
+# CatalystUserInterfaceUtils::emailSync(verbose)
+# CatalystUserInterfaceUtils::screenHeight()
+# CatalystUserInterfaceUtils::screenWidth()
+# CatalystUserInterfaceUtils::editTextUsingTextmate(text)
+# CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+# CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object)
+# CatalystUserInterfaceUtils::object2Line_v0(object)
+# CatalystUserInterfaceUtils::object2Line_v1(object)
+# CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(object)
+# CatalystUserInterfaceUtils::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
+# CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
+# CatalystUserInterfaceUtils::main2()
 
-class Mercury
+class CatalystUserInterfaceUtils
 
     def self.putshelp()
         puts "Special General Commands (view)"
@@ -239,7 +241,7 @@ class Mercury
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
             " #{announce}",
-            Mercury::object2DonotShowUntilAsString(object),
+            CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object),
         ].join()
     end
 
@@ -256,17 +258,17 @@ class Mercury
             " [#{object["uuid"]}]",
             " #{announce}",
             "#{requirementsAsString.green}",
-            Mercury::object2DonotShowUntilAsString(object),
+            CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object),
             " (#{object["commands"].join(" ").red})",
             " \"#{defaultExpressionAsString.green}\""
         ].join()
     end
 
     def self.interactiveDisplayObjectAndProcessCommand(object)
-        print Mercury::object2Line_v1(object) + " : "
+        print CatalystUserInterfaceUtils::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
         command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        Mercury::processObjectAndCommand(object, command)
+        CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -274,7 +276,7 @@ class Mercury
         # no object needed
 
         if expression == 'help' then
-            Mercury::putshelp()
+            CatalystUserInterfaceUtils::putshelp()
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -285,7 +287,7 @@ class Mercury
         end
 
         if expression == "interface" then
-            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", PrimaryOperator::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", AgentsManager::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
             return
         end
 
@@ -309,7 +311,7 @@ class Mercury
 
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
-            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             uuid = SecureRandom.hex(4)
             folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
@@ -346,7 +348,7 @@ class Mercury
 
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
-            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = Stream::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
@@ -355,7 +357,7 @@ class Mercury
 
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
-            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "PROJECT")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
@@ -366,7 +368,7 @@ class Mercury
 
         if expression.start_with?('thread:') then
             description = expression[7, expression.size].strip
-            description = Mercury::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "THREAD")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
@@ -397,13 +399,13 @@ class Mercury
                             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                             .reverse
                         break if objects.empty?
-                        object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| Mercury::object2Line_v0(object) })
+                        object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
                         break if object.nil?
-                        puts Mercury::object2Line_v1(object)
+                        puts CatalystUserInterfaceUtils::object2Line_v1(object)
                         print "--> "
                         givenCommand = STDIN.gets().strip
                         command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
-                        Mercury::processObjectAndCommand(object_selected, command)
+                        CatalystUserInterfaceUtils::processObjectAndCommand(object_selected, command)
                     }
                     next
                 end
@@ -466,9 +468,9 @@ class Mercury
             end
             loop {
                 requirementObjects = $flock["objects"].select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
-                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
+                CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
             return
         end
@@ -476,11 +478,11 @@ class Mercury
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = $flock["objects"].select{|object| Mercury::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = $flock["objects"].select{|object| CatalystUserInterfaceUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| Mercury::object2Line_v0(object) })
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
-                Mercury::interactiveDisplayObjectAndProcessCommand(selectedobject)
+                CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
             return
         end
@@ -529,10 +531,10 @@ class Mercury
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                PrimaryOperator::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+                AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
             }
         else
-            PrimaryOperator::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+            AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
         end
     end
 
@@ -543,10 +545,10 @@ class Mercury
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
-            PrimaryOperator::generalUpgrade()
+            AgentsManager::generalUpgrade()
             TodayOrNotToday::transform()
             RequirementsOperator::transform()
-            Mercury::fDoNotShowUntilDateTimeTransform()
+            CatalystUserInterfaceUtils::fDoNotShowUntilDateTimeTransform()
             OperatorCollections::transform()
             $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
             system("clear")
@@ -597,9 +599,9 @@ class Mercury
             if object_selected["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
                 if object_selected["schedule"][":wave-emails:"] then
                     if !File.exists?(object_selected["item-data"]["folderpath"]) then
-                        puts Mercury::object2Line_v0(object_selected)
+                        puts CatalystUserInterfaceUtils::object2Line_v0(object_selected)
                         puts "This email has been deleted, removing Flock item:"
-                        FlockTransformations::removeObjectIdentifiedByUUID(object_selected["uuid"])
+                        FlockOperator::removeObjectIdentifiedByUUID(object_selected["uuid"])
                         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object_selected["uuid"]))
                         next
                     end
@@ -609,9 +611,9 @@ class Mercury
             objects_selected.each_with_index{|o, index|
                 string =
                     if o["uuid"]==object_selected["uuid"] then
-                        "#{"%2d" % (index+1)} [*] #{Mercury::object2Line_v1(o)}"
+                        "#{"%2d" % (index+1)} [*] #{CatalystUserInterfaceUtils::object2Line_v1(o)}"
                     else
-                        "#{"%2d" % (index+1)}     #{Mercury::object2Line_v0(o)}"
+                        "#{"%2d" % (index+1)}     #{CatalystUserInterfaceUtils::object2Line_v0(o)}"
                     end
                 puts string
             }
@@ -625,18 +627,18 @@ class Mercury
                 workspaceSize = [workspaceSize-1, 1].max
                 next
             end
-            if Mercury::isInteger(givenCommand) then
+            if CatalystUserInterfaceUtils::isInteger(givenCommand) then
                 workspaceSize = [givenCommand.to_i, 1].max
                 next
             end
-            if givenCommand.start_with?(":") and Mercury::isInteger(givenCommand[1,9]) then
+            if givenCommand.start_with?(":") and CatalystUserInterfaceUtils::isInteger(givenCommand[1,9]) then
                 object_selected = objects_selected.take(givenCommand[1,9].to_i).last.clone
-                puts Mercury::object2Line_v1(object_selected)
+                puts CatalystUserInterfaceUtils::object2Line_v1(object_selected)
                 print "--> "
                 givenCommand = STDIN.gets().strip
             end
             command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
-            Mercury::processObjectAndCommand(object_selected, command)
+            CatalystUserInterfaceUtils::processObjectAndCommand(object_selected, command)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
     end
@@ -656,10 +658,10 @@ Thread.new {
 Thread.new {
     loop {
         if CommonsUtils::isActiveInstance(runId) then
-            Mercury::emailSync(false)
+            CatalystUserInterfaceUtils::emailSync(false)
         end
         sleep 1200
     }
 }
 
-Mercury::main2(runId)
+CatalystUserInterfaceUtils::main2(runId)

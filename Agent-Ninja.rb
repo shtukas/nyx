@@ -1,8 +1,8 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
-require_relative "MiniFIFOQ.rb"
+require_relative "Flock.rb"
+require_relative "FlockBasedServices.rb"
 # -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
@@ -47,13 +47,13 @@ class Ninja
                 "ninja-folderpath" => packet["folderpath"]
             }
         }
-        FlockTransformations::addOrUpdateObject(object)
+        FlockOperator::addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommand(object, command)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
         NinjaCLIProxy::reset()
-        FlockTransformations::removeObjectIdentifiedByUUID(object["uuid"])
+        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
     end
 end
