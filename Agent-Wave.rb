@@ -508,7 +508,7 @@ class Wave
         # First we add to the flock the objects on the repository that are not there yet
         # This happens because some of them are created externally, with the intent that the agent will pick them up
 
-        existingUUIDsFromFlock = $flock["objects"]
+        existingUUIDsFromFlock = FlockOperator::flockObjects()
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object| object["uuid"] }
         existingUUIDsFromDisk = Wave::catalystUUIDsEnumerator().to_a
@@ -523,7 +523,7 @@ class Wave
         # ------------------------------------------------------------------------------
         # Removing the emails objects which have been archived by email sync but still in flock
 
-        $flock["objects"]
+        FlockOperator::flockObjects()
             .clone
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .select{|object| object["schedule"][':wave-emails:'] }
@@ -541,7 +541,7 @@ class Wave
         # We now need to update the metric driven by the schedule
         # As time passes the metric changes, for instance repeat item pass their sleeping period
 
-        $flock["objects"]
+        FlockOperator::flockObjects()
             .clone
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object|

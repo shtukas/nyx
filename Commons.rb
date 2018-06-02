@@ -188,7 +188,7 @@ class RequirementsOperator
     end
 
     def self.getAllRequirements()
-        $flock["objects"].map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+        FlockOperator::flockObjects().map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
@@ -196,12 +196,12 @@ class RequirementsOperator
     end
 
     def self.transform()
-        $flock["objects"] = $flock["objects"].map{|object|
+        FlockOperator::flockObjects().each{|object|
             if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
                 # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
                 object["metric"] = 0
             end
-            object
+            FlockOperator::addOrUpdateObject(object)
         }
     end
 end
@@ -218,12 +218,12 @@ class TodayOrNotToday
         FKVStore::getOrNull("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}").nil?
     end
     def self.transform()
-        $flock["objects"] = $flock["objects"].map{|object|
+        FlockOperator::flockObjects().each{|object|
             if !TodayOrNotToday::todayOk(object["uuid"]) and object["metric"]<=1 then
                 # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
                 object["metric"] = 0
             end
-            object
+            FlockOperator::addOrUpdateObject(object)
         }
     end
 end
@@ -769,11 +769,11 @@ class OperatorCollections
 
     def self.transform()
         uuids = self.allCollectionsCatalystUUIDs()
-        $flock["objects"] = $flock["objects"].map{|object|
+        FlockOperator::flockObjects().each{|object|
             if uuids.include?(object["uuid"]) then
                 object["metric"] = 0
             end
-            object
+            FlockOperator::addOrUpdateObject(object)
         }
     end
 

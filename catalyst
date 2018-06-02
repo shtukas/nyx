@@ -175,10 +175,10 @@ class CatalystUserInterfaceUtils
     end
 
     def self.fDoNotShowUntilDateTimeTransform()
-        $flock["objects"] = $flock["objects"].map{|object|
-            if !$flock["do-not-show-until-datetime-distribution"][object["uuid"]].nil? and (Time.new.to_s < $flock["do-not-show-until-datetime-distribution"][object["uuid"]]) and object["metric"]<=1 then
+        FlockOperator::flockObjects().map{|object|
+            if !FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
                 # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["do-not-show-until-datetime"] = $flock["do-not-show-until-datetime-distribution"][object["uuid"]]
+                object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
                 object["metric"] = 0
             end
             if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) and object["metric"]<=1 then
@@ -186,7 +186,7 @@ class CatalystUserInterfaceUtils
                 object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
                 object["metric"] = 0
             end
-            object
+            FlockOperator::addOrUpdateObject(object)
         }
     end
 
@@ -333,7 +333,7 @@ class CatalystUserInterfaceUtils
             Wave::writeScheduleToDisk(uuid,schedule)
             if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
                 if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                    $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
+                    FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
                     EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
                 end
             end
@@ -394,7 +394,7 @@ class CatalystUserInterfaceUtils
                 if menuChoice=="objects" then
                     loop {
                         objectsuuids = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
-                        objects = $flock["objects"]
+                        objects = FlockOperator::flockObjects()
                             .select{|object| objectsuuids.include?(object["uuid"]) }
                             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                             .reverse
@@ -467,7 +467,7 @@ class CatalystUserInterfaceUtils
                 requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = $flock["objects"].select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = FlockOperator::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
                 CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -478,7 +478,7 @@ class CatalystUserInterfaceUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = $flock["objects"].select{|object| CatalystUserInterfaceUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = FlockOperator::flockObjects().select{|object| CatalystUserInterfaceUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -510,7 +510,7 @@ class CatalystUserInterfaceUtils
         if expression.start_with?('+') then
             code = expression
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
-                $flock["do-not-show-until-datetime-distribution"][object["uuid"]] = datetime
+                FlockOperator::setDoNotShowUntilDateTime(object["uuid"], datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return
@@ -550,7 +550,7 @@ class CatalystUserInterfaceUtils
             RequirementsOperator::transform()
             CatalystUserInterfaceUtils::fDoNotShowUntilDateTimeTransform()
             OperatorCollections::transform()
-            $flock["objects"] = $flock["objects"].sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse
+            objects_selected = FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(workspaceSize)
             system("clear")
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
@@ -591,7 +591,6 @@ class CatalystUserInterfaceUtils
                 next
             end
             puts ""
-            objects_selected = $flock["objects"].take(workspaceSize)
             object_selected = objects_selected.last.clone
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
@@ -648,10 +647,12 @@ end
 
 runId = SecureRandom.hex
 
+FlockDiskIO::loadFromEventsTimeline()
+
 Thread.new {
     loop {
         sleep 300
-        FlockLoader::loadFlockFromDisk()
+        FlockDiskIO::loadFromEventsTimeline()
     }
 }
 

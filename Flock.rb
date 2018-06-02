@@ -7,12 +7,19 @@ $flock = nil
 
 # ----------------------------------------------------------------
 
+# FlockOperator::flockObjects()
 # FlockOperator::removeObjectIdentifiedByUUID(uuid)
 # FlockOperator::removeObjectsFromAgent(agentuuid)
 # FlockOperator::addOrUpdateObject(object)
 # FlockOperator::addOrUpdateObjects(objects)
+# FlockOperator::getDoNotShowUntilDateTimeDistribution()
+# FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
 
 class FlockOperator
+    def self.flockObjects()
+        $flock["objects"].clone
+    end
+    
     def self.removeObjectIdentifiedByUUID(uuid)
         $flock["objects"].reject!{|o| o["uuid"]==uuid }
     end
@@ -31,12 +38,20 @@ class FlockOperator
             FlockOperator::addOrUpdateObject(object)
         }
     end    
+    
+    def self.getDoNotShowUntilDateTimeDistribution()
+        $flock["do-not-show-until-datetime-distribution"]
+    end
+
+    def self.setDoNotShowUntilDateTime(uuid, datetime)
+        $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
+    end
 end
 
-# FlockLoader::loadFlockFromDisk()
+# FlockDiskIO::loadFromEventsTimeline()
 
-class FlockLoader
-    def self.loadFlockFromDisk()
+class FlockDiskIO
+    def self.loadFromEventsTimeline()
         flock = {}
         flock["objects"] = []
         flock["do-not-show-until-datetime-distribution"] = {}
@@ -66,5 +81,3 @@ class FlockLoader
         $flock = flock
     end
 end
-
-FlockLoader::loadFlockFromDisk()

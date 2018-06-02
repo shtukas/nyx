@@ -148,7 +148,7 @@ class Stream
         end
 
         # Adding the next object if there isn't one
-        if $flock["objects"].select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
+        if FlockOperator::flockObjects().select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
             Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
                 .first(1)
                 .each{|folderpath|
@@ -159,7 +159,7 @@ class Stream
         end
 
         # Updating the objects
-        $flock["objects"]
+        FlockOperator::flockObjects()
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .each{|object|
                 uuid = object["uuid"]
