@@ -464,33 +464,11 @@ class CatalystUserInterfaceUtils
             return
         end
 
-        diveIntoCollection = lambda{|collectionuuid|
-            loop {
-                menuOptions = ["open text file", "visit documents", "objects"]
-                menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
-                if menuChoice=="open text file" then
-                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
-                    system("open '#{folderpath}/collection-text.txt'")
-                    next
-                end
-                if menuChoice=="visit documents" then
-                    folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
-                    system("open '#{folderpath}/documents'")
-                    next
-                end
-                if menuChoice=="objects" then
-                    OperatorCollections::loopDiveCollectionObjects(collectionuuid)
-                    next
-                end
-                break
-            }
-        }
-
         if expression == "collections" then
             collectionsuuids = OperatorCollections::collectionsUUIDs()
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
             return if collectionuuid.nil?
-            diveIntoCollection.call(collectionuuid)
+            OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
             return
         end
 
@@ -506,7 +484,7 @@ class CatalystUserInterfaceUtils
                 .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
             return if collectionuuid.nil?
-            diveIntoCollection.call(collectionuuid)
+            OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
             return
         end
 
@@ -518,8 +496,24 @@ class CatalystUserInterfaceUtils
             displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{OperatorCollections::collectionUUID2NameOrNull(collectionuuid)}" }
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, displayLambda)
             return if collectionuuid.nil?
-            diveIntoCollection.call(collectionuuid)
+            OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
             return
+        end
+
+        if expression == "threads-review" then
+            OperatorCollections::collectionsUUIDs()
+                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
+                .each{ |collectionuuid|
+                    puts "# ---------------------------------------------------"
+                    collectionname = OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
+                    if collectionname.nil? then
+                        puts "Error 4ba7f95a: Could not determine the name of collection: #{collectionuuid}"
+                        LucilleCore::pressEnterToContinue()
+                        next
+                    end
+                    puts "Thread name: #{collectionname}"
+                    OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
+                }         
         end
 
         if expression.start_with?("r:on") then
@@ -1240,7 +1234,9 @@ end
 # OperatorCollections::transform()
 # OperatorCollections::sendCollectionToBinTimeline(uuid)
 # OperatorCollections::dailyCommitmentInHours()
-# OperatorCollections::loopDiveCollectionObjects(collectionuuid)
+
+# OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
+# OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
 
 class OperatorCollections
     def self.collectionsFolderpaths()
@@ -1389,7 +1385,7 @@ class OperatorCollections
         6
     end
 
-    def self.loopDiveCollectionObjects(collectionuuid)
+    def self.ui_loopDiveCollectionObjects(collectionuuid)
         loop {
             objectsuuids = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
             objects = FlockOperator::flockObjects()
@@ -1404,6 +1400,50 @@ class OperatorCollections
             givenCommand = STDIN.gets().strip
             command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object_selected["default-expression"] : "" )
             CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
+        }
+    end
+
+    def self.ui_mainDiveIntoCollection_v1(collectionuuid)
+        loop {
+            menuOptions = ["open text file", "visit documents", "objects"]
+            menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
+            if menuChoice=="open text file" then
+                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                system("open '#{folderpath}/collection-text.txt'")
+                next
+            end
+            if menuChoice=="visit documents" then
+                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                system("open '#{folderpath}/documents'")
+                next
+            end
+            if menuChoice=="objects" then
+                OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
+                next
+            end
+            break
+        }
+    end
+
+    def self.ui_mainDiveIntoCollection_v2(collectionuuid)
+        loop {
+            menuOptions = ["open text file", "visit documents", "objects"]
+            menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
+            if menuChoice=="open text file" then
+                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                system("open '#{folderpath}/collection-text.txt'")
+                next
+            end
+            if menuChoice=="visit documents" then
+                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                system("open '#{folderpath}/documents'")
+                next
+            end
+            if menuChoice=="objects" then
+                OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
+                next
+            end
+            break
         }
     end
 

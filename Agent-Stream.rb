@@ -135,15 +135,19 @@ class Stream
     def self.generalUpgrade()
 
         if @@firstRun then
-            # Loading all existing disk objects 
-            self.getUUIDs()
-                .each{|uuid|
-                    folderpath = self.uuid2folderpathOrNull(uuid)
-                    next if folderpath.nil?
-                    object = self.folderpathToCatalystObjectOrNull(folderpath)
-                    next if object.nil?
-                    FlockOperator::addOrUpdateObject(object)
-                }
+            # We are moving the loading from scratch to its own thread because we want faster startup times
+            Thread.new {
+                sleep 60
+                # Loading all existing disk objects 
+                Stream::getUUIDs()
+                    .each{|uuid|
+                        folderpath = Stream::uuid2folderpathOrNull(uuid)
+                        next if folderpath.nil?
+                        object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+                        next if object.nil?
+                        FlockOperator::addOrUpdateObject(object)
+                    }
+            }
             @@firstRun = false
         end
 

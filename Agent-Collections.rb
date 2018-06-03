@@ -209,7 +209,7 @@ class AgentCollections
         end
         if command=='objects' then
             collectionuuid = object["uuid"]
-            OperatorCollections::loopDiveCollectionObjects(collectionuuid)
+            OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
         end
     end
 end

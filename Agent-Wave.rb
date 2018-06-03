@@ -588,7 +588,7 @@ class Wave
         end
 
         if command=='recast' then
-            schedule = WaveSchedules::makeNewSchedule()
+            schedule = Wave::makeNewSchedule()
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
             FlockOperator::addOrUpdateObject(object)
