@@ -134,23 +134,6 @@ class Stream
 
     def self.generalUpgrade()
 
-        if @@firstRun then
-            # We are moving the loading from scratch to its own thread because we want faster startup times
-            Thread.new {
-                sleep 60
-                # Loading all existing disk objects 
-                Stream::getUUIDs()
-                    .each{|uuid|
-                        folderpath = Stream::uuid2folderpathOrNull(uuid)
-                        next if folderpath.nil?
-                        object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-                        next if object.nil?
-                        FlockOperator::addOrUpdateObject(object)
-                    }
-            }
-            @@firstRun = false
-        end
-
         # Adding the next object if there isn't one
         if FlockOperator::flockObjects().select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
             Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
