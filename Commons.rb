@@ -35,6 +35,8 @@ end
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::realNumbersToZeroOne(x, origin, unit)
 # CommonsUtils::codeToDatetimeOrNull(code)
+# CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+# CommonsUtils::newBinArchivesFolderpath()
 
 class CommonsUtils
 
@@ -126,105 +128,6 @@ class CommonsUtils
             end
         end
     end
-end
-
-# ----------------------------------------------------------------------
-
-# AgentsManager::agents()
-# AgentsManager::agentuuid2AgentData(agentuuid)
-# AgentsManager::generalUpgrade()
-
-class AgentsManager
-
-    def self.agents()
-        [
-            {
-                "agent-name"      => "Collections",
-                "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
-                "general-upgrade" => lambda { AgentCollections::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| AgentCollections::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ AgentCollections::interface() }
-            },
-            {
-                "agent-name"      => "GuardianTime",
-                "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
-                "general-upgrade" => lambda { GuardianTime::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| GuardianTime::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ GuardianTime::interface() }
-            },
-            {
-                "agent-name"      => "Ninja",
-                "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
-                "general-upgrade" => lambda { Ninja::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| Ninja::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ Ninja::interface() }
-            },
-            {
-                "agent-name"      => "Stream",
-                "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
-                "general-upgrade" => lambda { Stream::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| Stream::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ Stream::interface() }
-            },
-            {
-                "agent-name"      => "TimeCommitments",
-                "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
-                "general-upgrade" => lambda { TimeCommitments::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| TimeCommitments::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ TimeCommitments::interface() }
-            },
-            {
-                "agent-name"      => "Today",
-                "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
-                "general-upgrade" => lambda { Today::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| Today::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ Today::interface() }
-            },
-            {
-                "agent-name"      => "Vienna",
-                "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
-                "general-upgrade" => lambda { Vienna::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| Vienna::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ Vienna::interface() }
-            },
-            {
-                "agent-name"      => "Wave",
-                "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
-                "general-upgrade" => lambda { Wave::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| Wave::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ Wave::interface() }
-            }
-        ]
-    end
-
-    def self.agentuuid2AgentData(agentuuid)
-        AgentsManager::agents()
-            .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
-            .first
-    end
-
-    def self.generalUpgrade()
-        AgentsManager::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
-    end
-end
-
-# CatalystUserInterfaceUtils::putshelp()
-# CatalystUserInterfaceUtils::fDoNotShowUntilDateTimeTransform()
-# CatalystUserInterfaceUtils::isInteger(str)
-# CatalystUserInterfaceUtils::emailSync(verbose)
-# CatalystUserInterfaceUtils::screenHeight()
-# CatalystUserInterfaceUtils::screenWidth()
-# CatalystUserInterfaceUtils::editTextUsingTextmate(text)
-# CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-# CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object)
-# CatalystUserInterfaceUtils::object2Line_v0(object)
-# CatalystUserInterfaceUtils::object2Line_v1(object)
-# CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(object)
-# CatalystUserInterfaceUtils::takeWorkspaceSizeOrUpToFirstNewObject(workspaceSize, previousObjects, allObjectsLeft, allObjectsSelected = [])
-# CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
-# CatalystUserInterfaceUtils::main2()
-
-class CatalystUserInterfaceUtils
 
     def self.putshelp()
         puts "Special General Commands (view)"
@@ -328,7 +231,7 @@ class CatalystUserInterfaceUtils
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
             " #{announce}",
-            CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object),
+            CommonsUtils::object2DonotShowUntilAsString(object),
         ].join()
     end
 
@@ -345,17 +248,17 @@ class CatalystUserInterfaceUtils
             " [#{object["uuid"]}]",
             " #{announce}",
             "#{requirementsAsString.green}",
-            CatalystUserInterfaceUtils::object2DonotShowUntilAsString(object),
+            CommonsUtils::object2DonotShowUntilAsString(object),
             " (#{object["commands"].join(" ").red})",
             " \"#{defaultExpressionAsString.green}\""
         ].join()
     end
 
     def self.interactiveDisplayObjectAndProcessCommand(object)
-        print CatalystUserInterfaceUtils::object2Line_v1(object) + " : "
+        print CommonsUtils::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
         command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
+        CommonsUtils::processObjectAndCommand(object, command)
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -363,7 +266,7 @@ class CatalystUserInterfaceUtils
         # no object needed
 
         if expression == 'help' then
-            CatalystUserInterfaceUtils::putshelp()
+            CommonsUtils::putshelp()
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -398,7 +301,7 @@ class CatalystUserInterfaceUtils
 
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
-            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             uuid = SecureRandom.hex(4)
             folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
@@ -435,7 +338,7 @@ class CatalystUserInterfaceUtils
 
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
-            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = Stream::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
@@ -444,7 +347,7 @@ class CatalystUserInterfaceUtils
 
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
-            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "PROJECT")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
@@ -455,7 +358,7 @@ class CatalystUserInterfaceUtils
 
         if expression.start_with?('thread:') then
             description = expression[7, expression.size].strip
-            description = CatalystUserInterfaceUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "THREAD")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
@@ -468,7 +371,7 @@ class CatalystUserInterfaceUtils
             collectionsuuids = OperatorCollections::collectionsUUIDs()
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
             return if collectionuuid.nil?
-            OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
+            OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
             return
         end
 
@@ -482,9 +385,9 @@ class CatalystUserInterfaceUtils
         if expression == "threads" then
             collectionsuuids = OperatorCollections::collectionsUUIDs()
                 .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
             return if collectionuuid.nil?
-            OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
+            OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
             return
         end
 
@@ -494,9 +397,9 @@ class CatalystUserInterfaceUtils
                 .sort{|puuid1, puuid2| AgentCollections::objectMetricAsFloat(puuid1) <=> AgentCollections::objectMetricAsFloat(puuid2) }
                 .reverse
             displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{OperatorCollections::collectionUUID2NameOrNull(collectionuuid)}" }
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, displayLambda)
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", collectionsuuids, displayLambda)
             return if collectionuuid.nil?
-            OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
+            OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
             return
         end
 
@@ -535,9 +438,9 @@ class CatalystUserInterfaceUtils
             end
             loop {
                 requirementObjects = FlockOperator::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
-                CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+                CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
             return
         end
@@ -545,11 +448,11 @@ class CatalystUserInterfaceUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = FlockOperator::flockObjects().select{|object| CatalystUserInterfaceUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = FlockOperator::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
-                CatalystUserInterfaceUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+                CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
             }
             return
         end
@@ -615,7 +518,7 @@ class CatalystUserInterfaceUtils
             AgentsManager::generalUpgrade()
             TodayOrNotToday::transform()
             RequirementsOperator::transform()
-            CatalystUserInterfaceUtils::fDoNotShowUntilDateTimeTransform()
+            CommonsUtils::fDoNotShowUntilDateTimeTransform()
             OperatorCollections::transform()
             objects_selected = FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(workspaceSize)
             system("clear")
@@ -665,7 +568,7 @@ class CatalystUserInterfaceUtils
             if object_selected["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
                 if object_selected["schedule"][":wave-emails:"] then
                     if !File.exists?(object_selected["item-data"]["folderpath"]) then
-                        puts CatalystUserInterfaceUtils::object2Line_v0(object_selected)
+                        puts CommonsUtils::object2Line_v0(object_selected)
                         puts "This email has been deleted, removing Flock item:"
                         FlockOperator::removeObjectIdentifiedByUUID(object_selected["uuid"])
                         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object_selected["uuid"]))
@@ -677,9 +580,9 @@ class CatalystUserInterfaceUtils
             objects_selected.each_with_index{|o, index|
                 string =
                     if o["uuid"]==object_selected["uuid"] then
-                        "#{"%2d" % (index+1)} [*] #{CatalystUserInterfaceUtils::object2Line_v1(o)}"
+                        "#{"%2d" % (index+1)} [*] #{CommonsUtils::object2Line_v1(o)}"
                     else
-                        "#{"%2d" % (index+1)}     #{CatalystUserInterfaceUtils::object2Line_v0(o)}"
+                        "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(o)}"
                     end
                 puts string
             }
@@ -693,20 +596,116 @@ class CatalystUserInterfaceUtils
                 workspaceSize = [workspaceSize-1, 1].max
                 next
             end
-            if CatalystUserInterfaceUtils::isInteger(givenCommand) then
+            if CommonsUtils::isInteger(givenCommand) then
                 workspaceSize = [givenCommand.to_i, 1].max
                 next
             end
-            if givenCommand.start_with?(":") and CatalystUserInterfaceUtils::isInteger(givenCommand[1,9]) then
-                object_selected = objects_selected.take(givenCommand[1,9].to_i).last.clone
-                puts CatalystUserInterfaceUtils::object2Line_v1(object_selected)
-                print "--> "
-                givenCommand = STDIN.gets().strip
+            if givenCommand.start_with?(":") and CommonsUtils::isInteger(givenCommand[1,9]) then
+                object = objects_selected.take(givenCommand[1,9].to_i).last.clone
+                CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                next
             end
             command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
-            CatalystUserInterfaceUtils::processObjectAndCommand(object_selected, command)
+            CommonsUtils::processObjectAndCommand(object_selected, command)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
+    end
+
+    def self.doPresentObjectInviteAndExecuteCommand(object)
+        return if object.nil?
+        puts CommonsUtils::object2Line_v1(object)
+        print "--> "
+        givenCommand = STDIN.gets().strip
+        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object_selected["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.newBinArchivesFolderpath()
+        time = Time.new
+        targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(targetFolder)
+        targetFolder       
+    end
+
+end
+
+# ----------------------------------------------------------------------
+
+# AgentsManager::agents()
+# AgentsManager::agentuuid2AgentData(agentuuid)
+# AgentsManager::generalUpgrade()
+
+class AgentsManager
+
+    def self.agents()
+        [
+            {
+                "agent-name"      => "Collections",
+                "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
+                "general-upgrade" => lambda { AgentCollections::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| AgentCollections::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ AgentCollections::interface() }
+            },
+            {
+                "agent-name"      => "GuardianTime",
+                "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
+                "general-upgrade" => lambda { GuardianTime::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| GuardianTime::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ GuardianTime::interface() }
+            },
+            {
+                "agent-name"      => "Ninja",
+                "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
+                "general-upgrade" => lambda { Ninja::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Ninja::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Ninja::interface() }
+            },
+            {
+                "agent-name"      => "Stream",
+                "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
+                "general-upgrade" => lambda { Stream::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Stream::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Stream::interface() }
+            },
+            {
+                "agent-name"      => "TimeCommitments",
+                "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
+                "general-upgrade" => lambda { TimeCommitments::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| TimeCommitments::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ TimeCommitments::interface() }
+            },
+            {
+                "agent-name"      => "Today",
+                "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
+                "general-upgrade" => lambda { Today::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Today::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Today::interface() }
+            },
+            {
+                "agent-name"      => "Vienna",
+                "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
+                "general-upgrade" => lambda { Vienna::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Vienna::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Vienna::interface() }
+            },
+            {
+                "agent-name"      => "Wave",
+                "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
+                "general-upgrade" => lambda { Wave::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Wave::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Wave::interface() }
+            }
+        ]
+    end
+
+    def self.agentuuid2AgentData(agentuuid)
+        AgentsManager::agents()
+            .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
+            .first
+    end
+
+    def self.generalUpgrade()
+        AgentsManager::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
     end
 end
 
@@ -1132,14 +1131,14 @@ class CatalystDevOps
     # Archives
 
     def self.getArchiveTimelineSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
+        LucilleCore::locationRecursiveSize(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
     def self.archivesTimelineGarbageCollectionStandard()
         lines = []
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
-            break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
+            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
+            break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             lines << location
             LucilleCore::removeFileSystemLocation(location)
         end
@@ -1149,8 +1148,8 @@ class CatalystDevOps
     def self.archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes)
         lines = []
         while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
-            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
-            break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
+            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
+            break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             if File.file?(location) then
                 sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
             end
@@ -1163,8 +1162,8 @@ class CatalystDevOps
     def self.archivesTimelineGarbageCollection()
         lines = []
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH)
-            break if location == CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH
+            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
+            break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             CatalystDevOps::archivesTimelineGarbageCollectionFast(CatalystDevOps::getArchiveTimelineSizeInMegaBytes())
                 .each{|line| lines << line }
         end
@@ -1239,7 +1238,7 @@ end
 # OperatorCollections::dailyCommitmentInHours()
 
 # OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
-# OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
+# OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
 
 class OperatorCollections
 
@@ -1284,8 +1283,6 @@ class OperatorCollections
             }
         nil
     end
-
-
 
     # ---------------------------------------------------
     # text and documents
@@ -1398,9 +1395,7 @@ class OperatorCollections
     def self.sendCollectionToBinTimeline(uuid)
         sourcefilepath = OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
         return if sourcefilepath.nil?
-        time = Time.new
-        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(targetFolder)
+        targetFolder = CommonsUtils::newBinArchivesFolderpath()
         puts "source: #{sourcefilepath}"
         puts "target: #{targetFolder}"
         LucilleCore::copyFileSystemLocation(sourcefilepath, targetFolder)
@@ -1419,40 +1414,15 @@ class OperatorCollections
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
             break if objects.empty?
-            object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| CatalystUserInterfaceUtils::object2Line_v0(object) })
+            object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
             break if object.nil?
-            puts CatalystUserInterfaceUtils::object2Line_v1(object)
-            print "--> "
-            givenCommand = STDIN.gets().strip
-            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object_selected["default-expression"] : "" )
-            CatalystUserInterfaceUtils::processObjectAndCommand(object, command)
-        }
-    end
-
-    def self.ui_mainDiveIntoCollection_v1(collectionuuid)
-        loop {
-            menuOptions = ["open text file", "visit documents", "objects"]
-            menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
-            if menuChoice=="open text file" then
-                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
-                system("open '#{folderpath}/collection-text.txt'")
-                next
-            end
-            if menuChoice=="visit documents" then
-                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
-                system("open '#{folderpath}/documents'")
-                next
-            end
-            if menuChoice=="objects" then
-                OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
-                next
-            end
-            break
+            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
     end
 
     def self.ui_mainDiveIntoCollection_v2(collectionuuid)
         loop {
+            style = OperatorCollections::getCollectionStyle(collectionuuid)
             textContents = OperatorCollections::textContents(collectionuuid)
             documentsFilenames = OperatorCollections::documentsFilenames(collectionuuid)
             catalystobjects = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
@@ -1460,7 +1430,7 @@ class OperatorCollections
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
-            menuStringsOrCatalystObjects = ["open text file (#{textContents.strip.size})", "visit documents (#{documentsFilenames.size})", "objects (#{catalystobjects.size})"] + catalystobjects
+            menuStringsOrCatalystObjects = catalystobjects + ["open text file (#{textContents.strip.size})", "visit documents (#{documentsFilenames.size})", "recast as project", "destroy" ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -1469,33 +1439,51 @@ class OperatorCollections
                     string
                 else
                     object = menuStringOrCatalystObject
-                    CatalystUserInterfaceUtils::object2Line_v0(object)
+                    CommonsUtils::object2Line_v0(object)
                 end
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
-            if menuChoice=="open text file (#{textContents.strip.size})" then
+            if menuChoice == "open text file (#{textContents.strip.size})" then
                 folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/collection-text.txt'")
                 next
             end
-            if menuChoice=="visit documents (#{documentsFilenames.size})" then
+            if menuChoice == "visit documents (#{documentsFilenames.size})" then
                 folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/documents'")
                 next
             end
-            if menuChoice=="objects (#{catalystobjects.size})" then
-                OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
-                next
+            if menuChoice == "destroy" then
+                if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this #{style.downcase} ? ") and LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Seriously ? ") then
+                    if catalystobjects.size>0 then
+                        puts "You now need to destroy all the objects"
+                        LucilleCore::pressEnterToContinue()
+                        loop {
+                            catalystobjects = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+                                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                                .compact
+                                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                                .reverse
+                            break if catalystobjects.size==0
+                            object = catalystobjects.first
+                            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                        }
+                    end
+                    puts "Moving collection folder to bin timeline"
+                    collectionfolderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                    targetFolder = CommonsUtils::newBinArchivesFolderpath()
+                    FileUtils.mv(collectionfolderpath, targetFolder)
+                end
+                return
+            end
+            if menuChoice == "recast as project" then
+                OperatorCollections::setCollectionStyle(collectionuuid, "PROJECT")
+                return
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice
-            puts CatalystUserInterfaceUtils::object2Line_v1(object)
-            print "--> "
-            givenCommand = STDIN.gets().strip
-            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-            CatalystUserInterfaceUtils::processObjectAndCommand(object, command)            
-            break
+            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
     end
 

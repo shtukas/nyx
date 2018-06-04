@@ -57,10 +57,10 @@ Thread.new {
 Thread.new {
     loop {
         if CommonsUtils::isActiveInstance(runId) then
-            CatalystUserInterfaceUtils::emailSync(false)
+            CommonsUtils::emailSync(false)
         end
         sleep 1200
     }
 }
 
-CatalystUserInterfaceUtils::main2(runId)
+CommonsUtils::main2(runId)

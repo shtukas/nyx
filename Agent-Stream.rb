@@ -103,9 +103,7 @@ class Stream
     def self.sendObjectToBinTimeline(object)
         uuid = object['uuid']
         GenericTimeTracking::stop(uuid)
-        time = Time.new
-        targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath targetFolder
+        targetFolder = CommonsUtils::newBinArchivesFolderpath()
         puts "source: #{object["item-data"]["folderpath"]}"
         puts "target: #{targetFolder}"
         FileUtils.mkpath(targetFolder)

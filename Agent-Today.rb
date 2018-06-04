@@ -80,11 +80,8 @@ class Today
 
     def self.removeSectionFromFile(uuid)
         if Today::todaySectionsUUIDs().include?(uuid) then
-            time = Time.new
-            targetFolder = "#{CATALYST_COMMON_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}/"
-            FileUtils.mkpath(targetFolder)
+            targetFolder = CommonsUtils::newBinArchivesFolderpath()
             FileUtils.cp(TODAY_PATH_TO_DATA_FILE,"#{targetFolder}/Today+Calendar.txt")
-
             todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[0].strip
             calendarcontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[1].strip
             todaysections1 = Today::contents_to_sections(todaycontents.lines.to_a, [])
