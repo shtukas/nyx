@@ -8,6 +8,7 @@ $flock = nil
 # ----------------------------------------------------------------
 
 # FlockOperator::flockObjects()
+# FlockOperator::flockObjectsAsMap()
 # FlockOperator::removeObjectIdentifiedByUUID(uuid)
 # FlockOperator::removeObjectsFromAgent(agentuuid)
 # FlockOperator::addOrUpdateObject(object)
@@ -20,6 +21,14 @@ class FlockOperator
         $flock["objects"].clone
     end
     
+    def self.flockObjectsAsMap()
+        map = {}
+        FlockOperator::flockObjects().each{|object|
+            map[object["uuid"]] = object
+        }
+        map
+    end
+
     def self.removeObjectIdentifiedByUUID(uuid)
         $flock["objects"].reject!{|o| o["uuid"]==uuid }
     end

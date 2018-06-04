@@ -1220,6 +1220,9 @@ end
 # OperatorCollections::collectionsNames()
 # OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
 
+# OperatorCollections::textContents(collectionuuid)
+# OperatorCollections::documentsFilenames(collectionuuid)
+
 # OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
 
 # OperatorCollections::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
@@ -1239,6 +1242,10 @@ end
 # OperatorCollections::ui_mainDiveIntoCollection_v1(collectionuuid)
 
 class OperatorCollections
+
+    # ---------------------------------------------------
+    # Utils
+
     def self.collectionsFolderpaths()
         Dir.entries(CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH)
             .select{|filename| filename[0,1]!="." }
@@ -1278,7 +1285,25 @@ class OperatorCollections
         nil
     end
 
+
+
     # ---------------------------------------------------
+    # text and documents
+
+    def self.textContents(collectionuuid)
+        folderpath = collectionUUID2FolderpathOrNull(collectionuuid)
+        return "" if folderpath.nil?
+        IO.read("#{folderpath}/collection-text.txt")
+    end    
+
+    def self.documentsFilenames(collectionuuid)
+        folderpath = collectionUUID2FolderpathOrNull(collectionuuid)
+        return [] if folderpath.nil?
+        Dir.entries("#{folderpath}/documents").select{|filename| filename[0,1]!="." }
+    end
+
+    # ---------------------------------------------------
+    # creation
 
     def self.createNewCollection_WithNameAndStyle(collectionname, style)
         collectionuuid = SecureRandom.hex(4)
@@ -1358,6 +1383,7 @@ class OperatorCollections
     end
 
     # ---------------------------------------------------
+    # Misc
 
     def self.transform()
         uuids = self.allCollectionsCatalystUUIDs()
@@ -1387,9 +1413,9 @@ class OperatorCollections
 
     def self.ui_loopDiveCollectionObjects(collectionuuid)
         loop {
-            objectsuuids = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
-            objects = FlockOperator::flockObjects()
-                .select{|object| objectsuuids.include?(object["uuid"]) }
+            objects = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
             break if objects.empty?
@@ -1427,22 +1453,48 @@ class OperatorCollections
 
     def self.ui_mainDiveIntoCollection_v2(collectionuuid)
         loop {
-            menuOptions = ["open text file", "visit documents", "objects"]
-            menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuOptions)
-            if menuChoice=="open text file" then
+            textContents = OperatorCollections::textContents(collectionuuid)
+            documentsFilenames = OperatorCollections::documentsFilenames(collectionuuid)
+            catalystobjects = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                .compact
+                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                .reverse
+            menuStringsOrCatalystObjects = ["open text file (#{textContents.strip.size})", "visit documents (#{documentsFilenames.size})", "objects (#{catalystobjects.size})"] + catalystobjects
+            toStringLambda = lambda{ |menuStringOrCatalystObject|
+                # Here item is either one of the strings or an object
+                # We return either a string or one of the objects
+                if menuStringOrCatalystObject.class.to_s == "String" then
+                    string = menuStringOrCatalystObject
+                    string
+                else
+                    object = menuStringOrCatalystObject
+                    CatalystUserInterfaceUtils::object2Line_v0(object)
+                end
+            }
+            menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
+            break if menuChoice.nil?
+            if menuChoice=="open text file (#{textContents.strip.size})" then
                 folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/collection-text.txt'")
                 next
             end
-            if menuChoice=="visit documents" then
+            if menuChoice=="visit documents (#{documentsFilenames.size})" then
                 folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/documents'")
                 next
             end
-            if menuChoice=="objects" then
+            if menuChoice=="objects (#{catalystobjects.size})" then
                 OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
                 next
             end
+            # By now, menuChoice is a catalyst object
+            object = menuChoice
+            puts CatalystUserInterfaceUtils::object2Line_v1(object)
+            print "--> "
+            givenCommand = STDIN.gets().strip
+            command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+            CatalystUserInterfaceUtils::processObjectAndCommand(object, command)            
             break
         }
     end
