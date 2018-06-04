@@ -560,6 +560,17 @@ class CommonsUtils
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
+            collectionuuid = OperatorCollections::collectionsUUIDs()
+                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
+                .select{ |collectionuuid| Time.new.to_i >= OperatorCollections::getNextReviewUnixtime(collectionuuid) }
+                .first
+            if collectionuuid then
+                collectionname = OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
+                puts "Thread review: #{collectionname}"
+                OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
+                OperatorCollections::setNextReviewUnixtime(collectionuuid)
+                next
+            end        
             puts ""
             object_selected = objects_selected.last.clone
             # --------------------------------------------------------------------------------
@@ -1240,6 +1251,9 @@ end
 # OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
 # OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
 
+# OperatorCollections::getNextReviewUnixtime(collectionuuid)
+# OperatorCollections::setNextReviewUnixtime(collectionuuid)
+
 class OperatorCollections
 
     # ---------------------------------------------------
@@ -1485,6 +1499,20 @@ class OperatorCollections
             object = menuChoice
             CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
+    end
+
+    def self.getNextReviewUnixtime(collectionuuid)
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-next-review-time"
+        return 0 if !File.exists?(filepath)
+        IO.read(filepath).to_i       
+    end
+
+    def self.setNextReviewUnixtime(collectionuuid)
+        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-next-review-time"
+        unixtime = Time.new.to_i + 86400*(1+rand) 
+        File.open(filepath, "w"){|f| f.write(unixtime) }
     end
 
 end
