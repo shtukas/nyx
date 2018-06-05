@@ -1048,6 +1048,7 @@ end
 # GenericTimeTracking::status(uuid): [boolean, null or unixtime]
 # GenericTimeTracking::start(uuid)
 # GenericTimeTracking::stop(uuid)
+# GenericTimeTracking::addTimeInSeconds(uuid, timespan)
 # GenericTimeTracking::adaptedTimespanInSeconds(uuid)
 # GenericTimeTracking::metric2(uuid, low, high, hourstoMinusOne)
 # GenericTimeTracking::timings(uuid)
@@ -1068,9 +1069,13 @@ class GenericTimeTracking
         status = GenericTimeTracking::status(uuid)
         return if !status[0]
         timespan = Time.new.to_i - status[1]
-        MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
+        GenericTimeTracking::addTimeInSeconds(uuid, timespan)
         status = [false, nil]
         FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+    end
+
+    def self.addTimeInSeconds(uuid, timespan)
+        MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
     end
 
     def self.adaptedTimespanInSeconds(uuid)

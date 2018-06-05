@@ -77,7 +77,7 @@ class AgentCollections
 
     def self.commands(style, isRunning)
         if style=="PROJECT" then
-            return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "file", "folder", "objects"]
+            return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "file", "folder", "objects"]
         end
         if style=="THREAD" then
             return ["completed", "file", "folder"]
@@ -198,6 +198,11 @@ class AgentCollections
             GenericTimeTracking::stop(object["uuid"])
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
             OperatorCollections::sendCollectionToBinTimeline(object["uuid"])
+        end
+        if command == "add-hours" then
+            uuid = object["uuid"]
+            timespan = 3600*LucilleCore::askQuestionAnswerAsString("hours: ").to_f
+            GenericTimeTracking::addTimeInSeconds(uuid, timespan)
         end
         if command=='file' then
             folderpath = object["item-data"]["folderpath"]
