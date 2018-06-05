@@ -8,7 +8,9 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require_relative "Agent-TimeCommitments.rb"
-require_relative "FlockBasedServices.rb"
+require_relative "Events.rb"
+require_relative "FKVStore.rb"
+require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
 
 # GuardianTime::generalUpgrade()

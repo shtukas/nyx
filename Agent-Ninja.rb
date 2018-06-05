@@ -1,8 +1,12 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
+require 'json'
+
 require_relative "Flock.rb"
-require_relative "FlockBasedServices.rb"
+require_relative "Events.rb"
+require_relative "FKVStore.rb"
+require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"

@@ -19,8 +19,29 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
-require_relative "FlockBasedServices.rb"
-require_relative "Commons.rb"
+require 'json'
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+
+require_relative "Constants.rb"
+require_relative "Events.rb"
+require_relative "Flock.rb"
+require_relative "Events.rb"
+require_relative "FKVStore.rb"
+require_relative "MiniFIFOQ.rb"
+require_relative "Config.rb"
+require_relative "AgentsManager.rb"
+require_relative "RequirementsOperator.rb"
+require_relative "TodayOrNotToday.rb"
+require_relative "GenericTimeTracking.rb"
+require_relative "CatalystDevOps.rb"
+require_relative "OperatorCollections.rb"
+require_relative "NotGuardian"
+require_relative "FolderProbe.rb"
+require_relative "CommonsUtils"
 require_relative "Flock.rb"
 # -------------------------------------------------------------------------------------
 

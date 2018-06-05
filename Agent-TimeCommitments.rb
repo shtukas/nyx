@@ -21,7 +21,26 @@ require 'fileutils'
 require 'find'
 require 'colorize'
 require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
-require_relative "Commons.rb"
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+
+require_relative "Constants.rb"
+require_relative "Events.rb"
+require_relative "FKVStore.rb"
+require_relative "MiniFIFOQ.rb"
+require_relative "Config.rb"
+require_relative "AgentsManager.rb"
+require_relative "RequirementsOperator.rb"
+require_relative "TodayOrNotToday.rb"
+require_relative "GenericTimeTracking.rb"
+require_relative "CatalystDevOps.rb"
+require_relative "OperatorCollections.rb"
+require_relative "NotGuardian"
+require_relative "FolderProbe.rb"
+require_relative "CommonsUtils"
 require_relative "Flock.rb"
 # -------------------------------------------------------------------------------------
 
@@ -175,14 +194,17 @@ class TimeCommitments
             announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
             commands = item["is-running"] ? ["stop"] : ["start"]
             defaultExpression = item["is-running"] ? "stop" : "start"
-            {
+            object = {
                 "uuid" => uuid,
                 "agent-uid" => self.agentuuid(),
                 "metric" => metric,
                 "announce" => announce,
                 "commands" => commands,
-                "default-expression" => defaultExpression
+                "default-expression" => defaultExpression,
+                "metadata" => {}
             }
+            object["metadata"]["is-running"] = item["is-running"]
+            object
         }
         objects = 
             if objects.select{|object| object["metric"]>1 }.size>0 then

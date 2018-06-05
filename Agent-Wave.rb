@@ -21,10 +21,28 @@ require 'fileutils'
 require 'find'
 require 'drb/drb'
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
-require_relative "Commons.rb"
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+
+require_relative "Constants.rb"
 require_relative "Events.rb"
 require_relative "Flock.rb"
-require_relative "FlockBasedServices.rb"
+require_relative "Events.rb"
+require_relative "FKVStore.rb"
+require_relative "MiniFIFOQ.rb"
+require_relative "Config.rb"
+require_relative "AgentsManager.rb"
+require_relative "RequirementsOperator.rb"
+require_relative "TodayOrNotToday.rb"
+require_relative "GenericTimeTracking.rb"
+require_relative "CatalystDevOps.rb"
+require_relative "OperatorCollections.rb"
+require_relative "NotGuardian"
+require_relative "FolderProbe.rb"
+require_relative "CommonsUtils"
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave"
