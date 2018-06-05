@@ -12,7 +12,7 @@ require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
 
-# DailyTimeAttribution::generalUpgrade()
+# DailyTimeAttribution::generalUpgradeFromFlockServer()
 
 class DailyTimeAttribution
     def self.agentuuid()
@@ -23,7 +23,7 @@ class DailyTimeAttribution
         
     end
 
-    def self.generalUpgrade()
+    def self.generalUpgradeFromFlockServer()
 
         if DRbObject.new(nil, "druby://:18171").fKVStore_getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             distribution = {}

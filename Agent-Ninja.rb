@@ -10,7 +10,7 @@ require_relative "MiniFIFOQ.rb"
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
-# Ninja::generalUpgrade()
+# Ninja::generalUpgradeFromFlockServer()
 
 class NinjaCLIProxy
     @@packet = nil
@@ -35,7 +35,7 @@ class Ninja
         
     end
 
-    def self.generalUpgrade()
+    def self.generalUpgradeFromFlockServer()
         packet = NinjaCLIProxy::packet()
         return if packet.nil?
         object = {

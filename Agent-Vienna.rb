@@ -88,7 +88,7 @@ class Vienna
         
     end
 
-    def self.generalUpgrade()
+    def self.generalUpgradeFromFlockServer()
         return [] if !CommonsUtils::isLucille18()
         link = $viennaLinkFeeder.next()
         return [] if link.nil?

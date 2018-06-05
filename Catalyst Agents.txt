@@ -6,6 +6,6 @@ agentuuid(): String
 
 interface()
 
-generalUpgrade()
+generalUpgradeFromFlockServer()
 
 processObjectAndCommand(Flock, object, command)

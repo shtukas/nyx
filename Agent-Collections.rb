@@ -163,7 +163,7 @@ class AgentCollections
     def self.interface()
     end    
 
-    def self.generalUpgrade()
+    def self.generalUpgradeFromFlockServer()
         halves = [0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625]
         CollectionsOperator::collectionsFolderpaths()
             .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }

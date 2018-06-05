@@ -327,7 +327,7 @@ end
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
 # Wave::interface()
-# Wave::generalUpgrade()
+# Wave::generalUpgradeFromFlockServer()
 # Wave::processObjectAndCommand(object, command)
 
 class Wave
@@ -502,7 +502,7 @@ class Wave
         object
     end
 
-    def self.generalUpgrade()
+    def self.generalUpgradeFromFlockServer()
 
         if @@firstRun then
             # Loading all existing disk objects

@@ -71,7 +71,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOL
 # TimeCommitments::garbageCollectionItems(items)
 # TimeCommitments::garbageCollectionGlobal()
 # TimeCommitments::getUniqueDomains(items)
-# TimeCommitments::generalUpgrade()
+# TimeCommitments::generalUpgradeFromFlockServer()
 # TimeCommitments::processObjectAndCommand(object, command)
 
 class TimeCommitments
@@ -180,7 +180,7 @@ class TimeCommitments
         
     end
 
-    def self.generalUpgrade()
+    def self.generalUpgradeFromFlockServer()
         TimeCommitments::garbageCollectionGlobal()
         objects = TimeCommitments::getItems()
         .map{|item|
