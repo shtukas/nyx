@@ -573,13 +573,13 @@ class Wave
             schedule = WaveSchedules::cycleSchedule(schedule)
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         }
 
         doneObjectWithOneOffTask = lambda {|object|
             uuid = object['uuid']
-            FlockOperator::removeObjectIdentifiedByUUID(uuid)
+            DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             Wave::archiveWaveItem(uuid)
         }
