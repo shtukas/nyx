@@ -31,7 +31,7 @@ class Ninja
         "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
         
     end
 
@@ -52,7 +52,7 @@ class Ninja
         FlockOperator::addOrUpdateObject(object)
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
         NinjaCLIProxy::reset()

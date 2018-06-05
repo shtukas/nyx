@@ -114,7 +114,7 @@ class Today
         end
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
         
     end
 
@@ -140,7 +140,7 @@ class Today
         FlockOperator::addOrUpdateObjects(objects)
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
         if command=='done' then
             Today::removeSectionFromFile(object['uuid'])
         end

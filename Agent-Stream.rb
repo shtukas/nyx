@@ -31,7 +31,7 @@ require_relative "CommonsUtils"
 # -------------------------------------------------------------------------------------
 
 # Stream::agentuuid()
-# Stream::processObjectAndCommand(object, command)
+# Stream::processObjectAndCommandFromCli(object, command)
 
 # Stream::folderpaths(itemsfolderpath)
 # Stream::folderpath2uuid(folderpath)
@@ -129,7 +129,7 @@ class Stream
         folderpath
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
         
     end
 
@@ -165,7 +165,7 @@ class Stream
             }
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object["item-data"]["folderpath"]}'")

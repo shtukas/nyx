@@ -72,7 +72,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOL
 # TimeCommitments::garbageCollectionGlobal()
 # TimeCommitments::getUniqueDomains(items)
 # TimeCommitments::generalUpgradeFromFlockServer()
-# TimeCommitments::processObjectAndCommand(object, command)
+# TimeCommitments::processObjectAndCommandFromCli(object, command)
 
 class TimeCommitments
 
@@ -176,7 +176,7 @@ class TimeCommitments
         items.map{|item| item["domain"] }.uniq
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
         
     end
 
@@ -213,7 +213,7 @@ class TimeCommitments
         FlockOperator::addOrUpdateObjects(objects)
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
         uuid = object['uuid']
         if command=='start' then
             TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))

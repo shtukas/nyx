@@ -19,7 +19,7 @@ class DailyTimeAttribution
         "11fa1438-122e-4f2d-9778-64b55a11ddc2"
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
         
     end
 
@@ -108,7 +108,7 @@ class DailyTimeAttribution
         end
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
 
     end
 end

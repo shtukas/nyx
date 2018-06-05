@@ -160,7 +160,7 @@ class AgentCollections
         object
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
     end    
 
     def self.generalUpgradeFromFlockServer()
@@ -181,7 +181,7 @@ class AgentCollections
         FlockOperator::addOrUpdateObjects(objects)
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
         if command=='start' then
             folderpath = object["item-data"]["folderpath"]
             #system("open '#{folderpath}'")

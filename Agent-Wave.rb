@@ -326,9 +326,9 @@ end
 # Wave::makeCatalystObjectOrNull(objectuuid)
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
-# Wave::interface()
+# Wave::interfaceFromCli()
 # Wave::generalUpgradeFromFlockServer()
-# Wave::processObjectAndCommand(object, command)
+# Wave::processObjectAndCommandFromCli(object, command)
 
 class Wave
 
@@ -472,7 +472,7 @@ class Wave
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
         puts "You are interfacing with Wave"
         LucilleCore::pressEnterToContinue()
     end
@@ -563,7 +563,7 @@ class Wave
             }
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
         uuid = object['uuid']
         schedule = object['schedule']
 

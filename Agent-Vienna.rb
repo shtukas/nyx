@@ -67,7 +67,7 @@ end
 
 $viennaLinkFeeder = ViennaLinkFeeder.new()
 
-# Vienna::processObjectAndCommand(object, command)
+# Vienna::processObjectAndCommandFromCli(object, command)
 
 class Vienna
 
@@ -84,7 +84,7 @@ class Vienna
         metric = 0.150 + 0.6*CommonsUtils::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + CommonsUtils::traceToMetricShift(uuid)
     end
 
-    def self.interface()
+    def self.interfaceFromCli()
         
     end
 
@@ -109,7 +109,7 @@ class Vienna
         FlockOperator::addOrUpdateObject(object)
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommandFromCli(object, command)
         if command=='open' then
             system("open '#{object["item-data"]["link"]}'")
         end

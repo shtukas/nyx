@@ -307,7 +307,7 @@ class CommonsUtils
                     .select{|object| object["announce"].include?("Guardian") }
                     .first
                 if o then
-                    TimeCommitments::processObjectAndCommand(o, "start")
+                    TimeCommitments::processObjectAndCommandFromCli(o, "start")
                 else
                     puts "I could not find a time commitment guardian object to start"
                     LucilleCore::pressEnterToContinue()
