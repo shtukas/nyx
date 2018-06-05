@@ -45,12 +45,8 @@ require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
-require_relative "RequirementsOperator.rb"
-require_relative "TodayOrNotToday.rb"
 require_relative "GenericTimeTracking.rb"
 require_relative "CatalystDevOps.rb"
-require_relative "CollectionsOperator.rb"
-require_relative "NotGuardian"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
 
@@ -63,10 +59,1056 @@ require_relative "Agent-Today.rb"
 require_relative "Agent-Vienna.rb"
 require_relative "Agent-Wave.rb"
 
+
+# -------------------------------------------------------------
+
+# Collections was born out of what was originally known as Threads and Projects
+
+# CollectionsOperator::collectionsFolderpaths()
+# CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)
+# CollectionsOperator::folderPath2CollectionName(folderpath)
+# CollectionsOperator::folderPath2CollectionObject(folderpath)
+# CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+# CollectionsOperator::collectionsUUIDs()
+# CollectionsOperator::collectionsNames()
+# CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
+
+# CollectionsOperator::textContents(collectionuuid)
+# CollectionsOperator::documentsFilenames(collectionuuid)
+
+# CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+
+# CollectionsOperator::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
+# CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
+# CollectionsOperator::collectionCatalystObjectUUIDs(threaduuid)
+# CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
+# CollectionsOperator::allCollectionsCatalystUUIDs()
+
+# CollectionsOperator::setCollectionStyle(collectionuuid, style)
+# CollectionsOperator::getCollectionStyle(collectionuuid)
+
+# CollectionsOperator::transform()
+# CollectionsOperator::sendCollectionToBinTimeline(uuid)
+# CollectionsOperator::dailyCommitmentInHours()
+
+# CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
+# CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+
+# CollectionsOperator::getNextReviewUnixtime(collectionuuid)
+# CollectionsOperator::setNextReviewUnixtime(collectionuuid)
+
+class CollectionsOperator
+
+    # ---------------------------------------------------
+    # Utils
+
+    def self.collectionsFolderpaths()
+        Dir.entries(CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH)
+            .select{|filename| filename[0,1]!="." }
+            .sort
+            .map{|filename| "#{CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH}/#{filename}" }
+    end
+
+    def self.collectionsUUIDs()
+        CollectionsOperator::collectionsFolderpaths().map{|folderpath| CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath) }
+    end
+
+    def self.collectionsNames()
+        CollectionsOperator::collectionsFolderpaths().map{|folderpath| CollectionsOperator::folderPath2CollectionName(folderpath) }
+    end
+
+    def self.folderPath2CollectionUUIDOrNull(folderpath)
+        IO.read("#{folderpath}/collection-uuid")
+    end
+
+    def self.folderPath2CollectionName(folderpath)
+        IO.read("#{folderpath}/collection-name")
+    end
+
+    def self.collectionUUID2FolderpathOrNull(uuid)
+        CollectionsOperator::collectionsFolderpaths()
+            .each{|folderpath|
+                return folderpath if CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+            }
+        nil
+    end
+
+    def self.collectionUUID2NameOrNull(uuid)
+        CollectionsOperator::collectionsFolderpaths()
+            .each{|folderpath|
+                return IO.read("#{folderpath}/collection-name").strip if CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+            }
+        nil
+    end
+
+    # ---------------------------------------------------
+    # text and documents
+
+    def self.textContents(collectionuuid)
+        folderpath = collectionUUID2FolderpathOrNull(collectionuuid)
+        return "" if folderpath.nil?
+        IO.read("#{folderpath}/collection-text.txt")
+    end    
+
+    def self.documentsFilenames(collectionuuid)
+        folderpath = collectionUUID2FolderpathOrNull(collectionuuid)
+        return [] if folderpath.nil?
+        Dir.entries("#{folderpath}/documents").select{|filename| filename[0,1]!="." }
+    end
+
+    # ---------------------------------------------------
+    # creation
+
+    def self.createNewCollection_WithNameAndStyle(collectionname, style)
+        collectionuuid = SecureRandom.hex(4)
+        foldername = LucilleCore::timeStringL22()
+        folderpath = "#{CATALYST_COMMON_COLLECTIONS_REPOSITORY_FOLDERPATH}/#{foldername}"
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/collection-uuid", "w"){|f| f.write(collectionuuid) }
+        File.open("#{folderpath}/collection-name", "w"){|f| f.write(collectionname) }
+        File.open("#{folderpath}/collection-catalyst-uuids.json", "w"){|f| f.puts(JSON.generate([])) }
+        FileUtils.touch("#{folderpath}/collection-text.txt")
+        FileUtils.mkpath "#{folderpath}/documents"
+        self.setCollectionStyle(collectionuuid, style)
+        collectionuuid
+    end
+
+    # ---------------------------------------------------
+    # collections uuids
+
+    def self.addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(threaduuid)
+        arrayFilepath = "#{folderpath}/collection-catalyst-uuids.json"
+        array = JSON.parse(IO.read(arrayFilepath))
+        array << objectuuid 
+        array = array.uniq
+        File.open(arrayFilepath, "w"){|f| f.puts(JSON.generate(array)) }
+    end
+
+    def self.addObjectUUIDToCollectionInteractivelyChosen(objectuuid)
+        collectionsuuids = CollectionsOperator::collectionsUUIDs()
+        collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
+        if collectionuuid.nil? then
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new collection ? ") then
+                collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+                style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+                collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+            else
+                return
+            end
+        end
+        CollectionsOperator::addCatalystObjectUUIDToCollection(objectuuid, collectionuuid)
+        collectionuuid
+    end
+
+    def self.collectionCatalystObjectUUIDs(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json"))
+    end
+
+    def self.collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
+        a1 = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
+        a2 = FlockOperator::flockObjects().map{|object| object["uuid"] }
+        a1 & a2
+    end
+
+    def self.allCollectionsCatalystUUIDs()
+        CollectionsOperator::collectionsFolderpaths()
+            .map{|folderpath| JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json")) }
+            .flatten
+    end
+
+    # ---------------------------------------------------
+    # style
+
+    def self.setCollectionStyle(collectionuuid, style)
+        if !["THREAD", "PROJECT"].include?(style) then
+            raise "Incorrect Style: #{style}, should be THREAD or PROJECT"
+        end
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-style"
+        File.open(filepath, "w"){|f| f.write(style) }
+    end
+
+    def self.getCollectionStyle(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-style"
+        IO.read(filepath).strip        
+    end
+
+    # ---------------------------------------------------
+    # Misc
+
+    def self.transform()
+        uuids = self.allCollectionsCatalystUUIDs()
+        FlockOperator::flockObjects().each{|object|
+            if uuids.include?(object["uuid"]) then
+                object["metric"] = 0
+            end
+            FlockOperator::addOrUpdateObject(object)
+        }
+    end
+
+    def self.sendCollectionToBinTimeline(uuid)
+        sourcefilepath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+        return if sourcefilepath.nil?
+        targetFolder = CommonsUtils::newBinArchivesFolderpath()
+        puts "source: #{sourcefilepath}"
+        puts "target: #{targetFolder}"
+        LucilleCore::copyFileSystemLocation(sourcefilepath, targetFolder)
+        LucilleCore::removeFileSystemLocation(sourcefilepath)
+    end
+
+    def self.dailyCommitmentInHours()
+        6
+    end
+
+    def self.ui_loopDiveCollectionObjects(collectionuuid)
+        loop {
+            objects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
+                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                .compact
+                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                .reverse
+            break if objects.empty?
+            object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+            break if object.nil?
+            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+        }
+    end
+
+    def self.ui_mainDiveIntoCollection_v2(collectionuuid)
+        loop {
+            style = CollectionsOperator::getCollectionStyle(collectionuuid)
+            textContents = CollectionsOperator::textContents(collectionuuid)
+            documentsFilenames = CollectionsOperator::documentsFilenames(collectionuuid)
+            catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
+                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                .compact
+                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                .reverse
+            menuStringsOrCatalystObjects = catalystobjects + ["open text file (#{textContents.strip.size})", "visit documents (#{documentsFilenames.size})", "recast as project", "destroy" ]
+            toStringLambda = lambda{ |menuStringOrCatalystObject|
+                # Here item is either one of the strings or an object
+                # We return either a string or one of the objects
+                if menuStringOrCatalystObject.class.to_s == "String" then
+                    string = menuStringOrCatalystObject
+                    string
+                else
+                    object = menuStringOrCatalystObject
+                    CommonsUtils::object2Line_v0(object)
+                end
+            }
+            menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
+            break if menuChoice.nil?
+            if menuChoice == "open text file (#{textContents.strip.size})" then
+                folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+                system("open '#{folderpath}/collection-text.txt'")
+                next
+            end
+            if menuChoice == "visit documents (#{documentsFilenames.size})" then
+                folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+                system("open '#{folderpath}/documents'")
+                next
+            end
+            if menuChoice == "destroy" then
+                if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this #{style.downcase} ? ") and LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Seriously ? ") then
+                    if catalystobjects.size>0 then
+                        puts "You now need to destroy all the objects"
+                        LucilleCore::pressEnterToContinue()
+                        loop {
+                            catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
+                                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                                .compact
+                                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+                                .reverse
+                            break if catalystobjects.size==0
+                            object = catalystobjects.first
+                            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                        }
+                    end
+                    puts "Moving collection folder to bin timeline"
+                    collectionfolderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+                    targetFolder = CommonsUtils::newBinArchivesFolderpath()
+                    FileUtils.mv(collectionfolderpath, targetFolder)
+                end
+                return
+            end
+            if menuChoice == "recast as project" then
+                CollectionsOperator::setCollectionStyle(collectionuuid, "PROJECT")
+                return
+            end
+            # By now, menuChoice is a catalyst object
+            object = menuChoice
+            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+        }
+    end
+
+    def self.getNextReviewUnixtime(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-next-review-time"
+        return 0 if !File.exists?(filepath)
+        IO.read(filepath).to_i       
+    end
+
+    def self.setNextReviewUnixtime(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-next-review-time"
+        unixtime = Time.new.to_i + 86400*(1+rand) 
+        File.open(filepath, "w"){|f| f.write(unixtime) }
+    end
+
+end
+
+# ----------------------------------------------------------------------
+
+# NotGuardian::registerAsNonGuardian(uuid)
+# NotGuardian::isNonGuardian(uuid)
+# NotGuardian::transform()
+
+class NotGuardian
+    def self.registerAsNonGuardian(uuid)
+        FKVStore::set("52282783-317c-41e4-be11-d4ecca5741c3:#{uuid}", "non-guardian")
+    end
+    def self.isNonGuardian(uuid)
+        FKVStore::getOrNull("52282783-317c-41e4-be11-d4ecca5741c3:#{uuid}") == "non-guardian"
+    end
+    def self.transform()
+        aGuardianIsRunning = FlockOperator::flockObjects()
+            .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
+            .any?{|object| object["metadata"]["is-running"] }
+
+        if aGuardianIsRunning then
+            FlockOperator::flockObjects().each{|object|
+                if self.isNonGuardian(object["uuid"]) then
+                    object["metric"] = 0
+                end
+                FlockOperator::addOrUpdateObject(object)
+            }
+        end
+    end
+end
+
+# ----------------------------------------------------------------------
+
+# Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
+# Requirements_Operator::setUnsatisfiedRequirement(requirement)
+# Requirements_Operator::setSatisfifiedRequirement(requirement)
+# Requirements_Operator::requirementIsCurrentlySatisfied(requirement)
+
+# Requirements_Operator::getObjectRequirements(uuid)
+# Requirements_Operator::setObjectRequirements(uuid, requirements)
+# Requirements_Operator::addRequirementToObject(uuid,requirement)
+# Requirements_Operator::removeRequirementFromObject(uuid,requirement)
+# Requirements_Operator::objectMeetsRequirements(uuid)
+
+# Requirements_Operator::getAllRequirements()
+# Requirements_Operator::transform()
+
+class Requirements_Operator
+
+    def self.getCurrentlyUnsatisfiedRequirements()
+        JSON.parse(FKVStore::getOrDefaultValue("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
+    end
+
+    def self.setUnsatisfiedRequirement(requirement)
+        rs = Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
+        rs = (rs + [ requirement ]).uniq
+        FKVStore::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+    end
+
+    def self.setSatisfifiedRequirement(requirement)
+        rs = Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
+        rs = rs.reject{|r| r==requirement }
+        FKVStore::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+    end
+
+    def self.requirementIsCurrentlySatisfied(requirement)
+        !Requirements_Operator::getCurrentlyUnsatisfiedRequirements().include?(requirement)
+    end
+
+    # objects
+
+    def self.getObjectRequirements(uuid)
+        JSON.parse(FKVStore::getOrDefaultValue("Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
+    end
+
+    def self.setObjectRequirements(uuid, requirements)
+        FKVStore::set("Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
+    end
+
+    def self.addRequirementToObject(uuid,requirement)
+        Requirements_Operator::setObjectRequirements(uuid, (Requirements_Operator::getObjectRequirements(uuid) + [requirement]).uniq)
+    end
+
+    def self.removeRequirementFromObject(uuid,requirement)
+        Requirements_Operator::setObjectRequirements(uuid, (Requirements_Operator::getObjectRequirements(uuid).reject{|r| r==requirement }))
+    end
+
+    def self.objectMeetsRequirements(uuid)
+        Requirements_Operator::getObjectRequirements(uuid)
+            .all?{|requirement| Requirements_Operator::requirementIsCurrentlySatisfied(requirement) }
+    end
+
+    def self.getAllRequirements()
+        FlockOperator::flockObjects().map{|object| Requirements_Operator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+    end
+
+    def self.selectRequirementFromExistingRequirementsOrNull()
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", Requirements_Operator::getAllRequirements())
+    end
+
+    def self.transform()
+        FlockOperator::flockObjects().each{|object|
+            if !Requirements_Operator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
+                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+                object["metric"] = 0
+            end
+            FlockOperator::addOrUpdateObject(object)
+        }
+    end
+end
+
+# ----------------------------------------------------------------------
+
+# TodayOrNotToday::notToday(uuid)
+# TodayOrNotToday::todayOk(uuid)
+# TodayOrNotToday::transform()
+
+class TodayOrNotToday
+    def self.notToday(uuid)
+        FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}", "!today")
+    end
+    def self.todayOk(uuid)
+        FKVStore::getOrNull("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}").nil?
+    end
+    def self.transform()
+        FlockOperator::flockObjects().each{|object|
+            if !TodayOrNotToday::todayOk(object["uuid"]) and object["metric"]<=1 then
+                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+                object["metric"] = 0
+            end
+            FlockOperator::addOrUpdateObject(object)
+        }
+    end
+end
+
 # ----------------------------------------------------------------
 
-$flock = nil
-$semaphore = Mutex.new
+# CommonsUtils::isLucille18()
+# CommonsUtils::isActiveInstance(runId)
+# CommonsUtils::currentHour()
+# CommonsUtils::currentDay()
+# CommonsUtils::simplifyURLCarryingString(string)
+# CommonsUtils::traceToRealInUnitInterval(trace)
+# CommonsUtils::traceToMetricShift(trace)
+# CommonsUtils::realNumbersToZeroOne(x, origin, unit)
+# CommonsUtils::codeToDatetimeOrNull(code)
+# CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+# CommonsUtils::newBinArchivesFolderpath()
+# CommonsUtils::waveInsertNewItem(description)
+
+class CommonsUtils
+
+    def self.isLucille18()
+        ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
+    end
+
+    def self.isActiveInstance(runId)
+        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data")==runId
+    end
+
+    def self.currentHour()
+        Time.new.to_s[0,13]
+    end
+
+    def self.currentDay()
+        Time.new.to_s[0,10]
+    end
+
+    def self.simplifyURLCarryingString(string)
+        return string if /http/.match(string).nil?
+        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
+            .each{|regex|
+                if ( m = regex.match(string) ) then
+                    string = string[m.to_s.size, string.size].strip
+                    return CommonsUtils::simplifyURLCarryingString(string)
+                end
+            }
+        string
+    end
+
+    def self.traceToRealInUnitInterval(trace)
+        ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
+    end
+
+    def self.traceToMetricShift(trace)
+        0.001*CommonsUtils::traceToRealInUnitInterval(trace)
+    end
+
+    def self.realNumbersToZeroOne(x, origin, unit)
+        alpha =
+            if x >= origin then
+                2-Math.exp(-(x-origin).to_f/unit)
+            else
+                Math.exp((x-origin).to_f/unit)
+            end
+        alpha.to_f/2
+    end
+
+    def self.codeToDatetimeOrNull(code)
+        localsuffix = Time.new.to_s[-5,5]
+        if code[0,1]=='+' then
+            code = code[1,999]
+            if code.index('@') then
+                # The first part is an integer and the second HH:MM
+                part1 = code[0,code.index('@')]
+                part2 = code[code.index('@')+1,999]
+                "#{( DateTime.now + part1.to_i ).to_date.to_s} #{part2}:00 #{localsuffix}"
+            else
+                if code.include?('days') or code.include?('day') then
+                    if code.include?('days') then
+                        # The entire string is to be interpreted as a number of days from now
+                        "#{( DateTime.now + code[0,code.size-4].to_f ).to_time.to_s}"
+                    else
+                        # The entire string is to be interpreted as a number of days from now
+                        "#{( DateTime.now + code[0,code.size-3].to_f ).to_time.to_s}"
+                    end
+
+                elsif code.include?('hours') or code.include?('hour') then
+                    if code.include?('hours') then
+                        ( Time.new + code[0,code.size-5].to_f*3600 ).to_s
+                    else
+                        ( Time.new + code[0,code.size-4].to_f*3600 ).to_s
+                    end
+                else
+                    nil
+                end
+            end
+        else
+            # Here we expect "YYYY-MM-DD" or "YYYY-MM-DD@HH:MM"
+            if code.index('@') then
+                part1 = code[0,10]
+                part2 = code[11,999]
+                "#{part1} #{part2}:00 #{localsuffix}"
+            else
+                part1 = code[0,10]
+                part2 = code[11,999]
+                "#{part1} 00:00:00 #{localsuffix}"
+            end
+        end
+    end
+
+    def self.putshelp()
+        puts "Special General Commands (view)"
+        puts "    help"
+        puts "    top"
+        puts "    search <pattern>"
+        puts "    :n # without changing the size of the workspace, focus on n^th item"
+        puts "    r:on <requirement>"
+        puts "    r:off <requirement>"
+        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    collections     # show collections"
+        puts "    collections:new # new collection"
+        puts "    threads         # show threads"
+        puts "    projects        # show projects"
+        puts ""
+        puts ""
+        puts "Special General Commands (inserts)"
+        puts "    wave: <description>"
+        puts "    stream: <description>"
+        puts "    project: <description>"
+        puts ""
+        puts "Special General Commands (special circumstances)"
+        puts "    clear # clear the screen"
+        puts "    interface # run the interface of a given agent"
+        puts "    lib # Invoques the Librarian interactive"
+        puts ""
+        puts "Special Object Commands:"
+        puts "    (+)datetimecode"
+        puts "    expose # pretty print the object"
+        puts "    >c # send object to a collection"
+        puts "    !today"
+        puts "    r:add <requirement>"
+        puts "    r:remove <requirement>"
+        puts "    command ..."
+    end
+
+    def self.fDoNotShowUntilDateTimeTransform()
+        FlockOperator::flockObjects().map{|object|
+            if !FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
+                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+                object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+                object["metric"] = 0
+            end
+            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) and object["metric"]<=1 then
+                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+                object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
+                object["metric"] = 0
+            end
+            FlockOperator::addOrUpdateObject(object)
+        }
+    end
+
+    def self.isInteger(str)
+        str.to_i.to_s == str
+    end
+
+    def self.emailSync(verbose)
+        begin
+            GeneralEmailClient::sync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
+            OperatorEmailClient::download(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
+        rescue
+        end
+    end
+
+    def self.screenHeight()
+        `/usr/bin/env tput lines`.to_i
+    end
+
+    def self.screenWidth()
+        `/usr/bin/env tput cols`.to_i
+    end
+
+    def self.editTextUsingTextmate(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}
+      system("/usr/local/bin/mate \"#{filepath}\"")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)
+    end
+
+    def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        if description=='text' then
+            editTextUsingTextmate("")
+        else
+            description
+        end
+    end
+
+    def self.object2DonotShowUntilAsString(object)
+        ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+    end
+
+    def self.object2Line_v0(object)
+        announce = object['announce'].lines.first.strip
+        if object["metric"]>1 then
+            announce = announce.green
+        end
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{announce}",
+            CommonsUtils::object2DonotShowUntilAsString(object),
+        ].join()
+    end
+
+    def self.object2Line_v1(object)
+        announce = object['announce'].strip
+        if object["metric"]>1 then
+            announce = announce.green
+        end
+        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
+        requirements = Requirements_Operator::getObjectRequirements(object['uuid'])
+        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{announce}",
+            "#{requirementsAsString.green}",
+            CommonsUtils::object2DonotShowUntilAsString(object),
+            " (#{object["commands"].join(" ").red})",
+            " \"#{defaultExpressionAsString.green}\""
+        ].join()
+    end
+
+    def self.waveInsertNewItem(description)
+        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        uuid = SecureRandom.hex(4)
+        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        schedule = 
+            if answer=="yes" then
+                WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+            else
+                {
+                    "uuid" => SecureRandom.hex,
+                    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
+                    "@"    => "today",
+                    "unixtime" => Time.new.to_i
+                }
+            end
+        Wave::writeScheduleToDisk(uuid,schedule)
+        if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+            end
+        end
+        print "Move to a thread ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        if answer=="yes" then
+            CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+        end
+    end
+
+    def self.interactiveDisplayObjectAndProcessCommand(object)
+        print CommonsUtils::object2Line_v1(object) + " : "
+        givenCommand = STDIN.gets().strip
+        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.processObjectAndCommand(object, expression)
+
+        # no object needed
+
+        if expression == 'help' then
+            CommonsUtils::putshelp()
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'clear' then
+            system("clear")
+            return
+        end
+
+        if expression == "interface" then
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", AgentsManager::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            return
+        end
+
+        if expression == 'info' then
+            puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
+            puts "Todolists:".green
+            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
+            puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
+            puts "    Total        : #{(count1+count3)}".green
+            puts "Requirements:".green
+            puts "    On  : #{(Requirements_Operator::getAllRequirements() - Requirements_Operator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{Requirements_Operator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == "guardian" then
+            aGuardianIsRunning = FlockOperator::flockObjects()
+                .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
+                .any?{|object| object["metadata"]["is-running"] }
+            if aGuardianIsRunning then
+                puts "You can't run `guardian` while a Guardian is running"
+                LucilleCore::pressEnterToContinue()
+            else
+                o = FlockOperator::flockObjects()
+                    .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
+                    .select{|object| object["announce"].include?("Guardian") }
+                    .first
+                if o then
+                    TimeCommitments::processObjectAndCommand(o, "start")
+                else
+                    puts "I could not find a time commitment guardian object to start"
+                    LucilleCore::pressEnterToContinue()
+                end
+            end
+            return
+        end
+
+        if expression == 'lib' then
+            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
+        end
+
+        if expression == "collections" then
+            collectionsuuids = CollectionsOperator::collectionsUUIDs()
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
+            return if collectionuuid.nil?
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+            return
+        end
+
+        if expression == "collections:new" then
+            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+            CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+            return
+        end
+
+        if expression == "threads" then
+            collectionsuuids = CollectionsOperator::collectionsUUIDs()
+                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
+            return if collectionuuid.nil?
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+            return
+        end
+
+        if expression == "projects" then
+            collectionsuuids = CollectionsOperator::collectionsUUIDs()
+                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="PROJECT" }
+                .sort{|puuid1, puuid2| AgentCollections::objectMetricAsFloat(puuid1) <=> AgentCollections::objectMetricAsFloat(puuid2) }
+                .reverse
+            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}" }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", collectionsuuids, displayLambda)
+            return if collectionuuid.nil?
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+            return
+        end
+
+        if expression == "threads-review" then
+            CollectionsOperator::collectionsUUIDs()
+                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
+                .each{ |collectionuuid|
+                    puts "# ---------------------------------------------------"
+                    collectionname = CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
+                    if collectionname.nil? then
+                        puts "Error 4ba7f95a: Could not determine the name of collection: #{collectionuuid}"
+                        LucilleCore::pressEnterToContinue()
+                        next
+                    end
+                    puts "Thread name: #{collectionname}"
+                    CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+                }         
+        end
+
+        if expression.start_with?('wave:') then
+            description = expression[5, expression.size].strip
+            CommonsUtils::waveInsertNewItem(description)
+            #LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('stream:') then
+            description = expression[7, expression.size].strip
+            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            folderpath = Stream::issueNewItemWithDescription(description)
+            puts "created item: #{folderpath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('project:') then
+            description = expression[8, expression.size].strip
+            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(description, "PROJECT")
+            puts "collection uuid: #{collectionuuid}"
+            puts "collection name: #{description}"
+            puts "collection path: #{CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('thread:') then
+            description = expression[7, expression.size].strip
+            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+            collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(description, "THREAD")
+            puts "collection uuid: #{collectionuuid}"
+            puts "collection name: #{description}"
+            puts "collection path: #{CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?("r:on") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            Requirements_Operator::setSatisfifiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:off") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            Requirements_Operator::setUnsatisfiedRequirement(requirement)
+            return
+        end
+
+        if expression.start_with?("r:show") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            if requirement.nil? or requirement.size==0 then
+                requirement = Requirements_Operator::selectRequirementFromExistingRequirementsOrNull()
+            end
+            loop {
+                requirementObjects = FlockOperator::flockObjects().select{ |object| Requirements_Operator::getObjectRequirements(object['uuid']).include?(requirement) }
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                break if selectedobject.nil?
+                CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        if expression.start_with?("search") then
+            pattern = expression[6,expression.size].strip
+            loop {
+                searchobjects = FlockOperator::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                break if searchobjects.size==0
+                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                break if selectedobject.nil?
+                CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+            }
+            return
+        end
+
+        return if object.nil?
+
+        # object needed
+
+        if expression == '!G' then
+            uuid = object["uuid"]
+            NotGuardian::registerAsNonGuardian(uuid)
+            return
+        end
+
+        if expression == ">c" then
+            CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
+            return
+        end
+
+        if expression == '!today' then
+            TodayOrNotToday::notToday(object["uuid"])
+            return
+        end
+
+        if expression == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression.start_with?('+') then
+            code = expression
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
+                FlockOperator::setDoNotShowUntilDateTime(object["uuid"], datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
+            end
+            return
+        end
+
+        if expression.start_with?("r:add") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            Requirements_Operator::addRequirementToObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.start_with?("r:remove") then
+            command, requirement = expression.split(" ").map{|t| t.strip }
+            Requirements_Operator::removeRequirementFromObject(object['uuid'],requirement)
+            return
+        end
+
+        if expression.size > 0 then
+            tokens = expression.split(" ").map{|t| t.strip }
+            .each{|command|
+                AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+            }
+        else
+            AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+        end
+    end
+
+    def self.doPresentObjectInviteAndExecuteCommand(object)
+        return if object.nil?
+        puts CommonsUtils::object2Line_v1(object)
+        print "--> "
+        command = STDIN.gets().strip
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.newBinArchivesFolderpath()
+        time = Time.new
+        targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(targetFolder)
+        targetFolder       
+    end
+
+end
+
+# ----------------------------------------------------------------
+
+# AgentsManager::agents()
+# AgentsManager::agentuuid2AgentData(agentuuid)
+# AgentsManager::generalUpgrade()
+
+class AgentsManager
+
+    def self.agents()
+        [
+            {
+                "agent-name"      => "Collections",
+                "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
+                "general-upgrade" => lambda { AgentCollections::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| AgentCollections::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ AgentCollections::interface() }
+            },
+            {
+                "agent-name"      => "DailyTimeAttribution",
+                "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
+                "general-upgrade" => lambda { DailyTimeAttribution::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| DailyTimeAttribution::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ DailyTimeAttribution::interface() }
+            },
+            {
+                "agent-name"      => "Ninja",
+                "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
+                "general-upgrade" => lambda { Ninja::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Ninja::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Ninja::interface() }
+            },
+            {
+                "agent-name"      => "Stream",
+                "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
+                "general-upgrade" => lambda { Stream::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Stream::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Stream::interface() }
+            },
+            {
+                "agent-name"      => "TimeCommitments",
+                "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
+                "general-upgrade" => lambda { TimeCommitments::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| TimeCommitments::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ TimeCommitments::interface() }
+            },
+            {
+                "agent-name"      => "Today",
+                "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
+                "general-upgrade" => lambda { Today::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Today::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Today::interface() }
+            },
+            {
+                "agent-name"      => "Vienna",
+                "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
+                "general-upgrade" => lambda { Vienna::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Vienna::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Vienna::interface() }
+            },
+            {
+                "agent-name"      => "Wave",
+                "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
+                "general-upgrade" => lambda { Wave::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| Wave::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ Wave::interface() }
+            }
+        ]
+    end
+
+    def self.agentuuid2AgentData(agentuuid)
+        AgentsManager::agents()
+            .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
+            .first
+    end
+
+    def self.generalUpgrade()
+        AgentsManager::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
+    end
+end
+
+# ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 
@@ -94,20 +1136,20 @@ class FlockOperator
 
     def self.removeObjectIdentifiedByUUID(uuid)
         $semaphore.synchronize {
-            $flock["objects"].reject!{|o| o["uuid"]==uuid }
+            $flock["objects"] = $flock["objects"].reject{|o| o["uuid"]==uuid }
         }
     end
 
     def self.removeObjectsFromAgent(agentuuid)
         $semaphore.synchronize {
-            $flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
+            $flock["objects"] = $flock["objects"].reject{|o| o["agent-uid"]==agentuuid }
         }
     end
 
     def self.addOrUpdateObject(object)
         FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
         $semaphore.synchronize {
-            $flock["objects"] << object
+            $flock["objects"] =  $flock["objects"] + [ object ] 
         }
     end
 
@@ -220,7 +1262,6 @@ class FlockService
     def flockOperator_setDoNotShowUntilDateTime(uuid, datetime)
         FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
     end 
-
     def fKVStore_getOrNull(key)
         FKVStore::getOrNull(key)
     end
@@ -230,21 +1271,47 @@ class FlockService
     def fKVStore_set(key, value)
         FKVStore::set(key, value)
     end
-
     def flockDiskIO_loadFromEventsTimeline()
         FlockDiskIO::loadFromEventsTimeline()
     end
-
     def top10Objects()
         AgentsManager::generalUpgrade()
         TodayOrNotToday::transform()
-        RequirementsOperator::transform()
+        Requirements_Operator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsOperator::transform()
         NotGuardian::transform()
         FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(10)
     end
+    def notToday(uuid)
+        FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}", "!today")
+    end
+    def requirementsOperator_getObjectRequirements(uuid)
+        Requirements_Operator::getObjectRequirements(uuid)
+    end
+    def requirementsOperator_getAllRequirements()
+        Requirements_Operator::getAllRequirements()
+    end
+    def requirementsOperator_getCurrentlyUnsatisfiedRequirements()
+        Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
+    end
+    def requirementsOperator_setSatisfifiedRequirement(requirement)
+        Requirements_Operator::setSatisfifiedRequirement(requirement)
+    end
+    def requirementsOperator_setUnsatisfifiedRequirement(requirement)
+        Requirements_Operator::setUnsatisfifiedRequirement(requirement)
+    end
+    def requirementsOperator_addRequirementToObject(uuid,requirement)
+        Requirements_Operator::addRequirementToObject(uuid,requirement)
+    end
+    def requirementsOperator_removeRequirementFromObject(uuid,requirement)
+        Requirements_Operator::removeRequirementFromObject(uuid,requirement)
+    end
 end
+# ----------------------------------------------------------------
+
+$flock = nil
+$semaphore = Mutex.new
 
 puts "FlockDiskIO::loadFromEventsTimeline()"
 FlockDiskIO::loadFromEventsTimeline()

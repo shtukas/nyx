@@ -189,7 +189,7 @@ class CollectionsOperator
             if uuids.include?(object["uuid"]) then
                 object["metric"] = 0
             end
-            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
         }
     end
 

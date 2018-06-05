@@ -31,8 +31,6 @@ require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
-require_relative "RequirementsOperator.rb"
-require_relative "TodayOrNotToday.rb"
 require_relative "GenericTimeTracking.rb"
 require_relative "CatalystDevOps.rb"
 require_relative "CollectionsOperator.rb"
@@ -108,8 +106,8 @@ class Vienna
                     "link" => link
                 }
             }
-        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectsFromAgent(self.agentuuid())
-        DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        FlockOperator::addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommand(object, command)

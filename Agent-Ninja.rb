@@ -49,13 +49,13 @@ class Ninja
                 "ninja-folderpath" => packet["folderpath"]
             }
         }
-        DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+        FlockOperator::addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommand(object, command)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
         NinjaCLIProxy::reset()
-        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(object["uuid"])
+        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
     end
 end
