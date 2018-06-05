@@ -13,6 +13,7 @@
 # CommonsUtils::codeToDatetimeOrNull(code)
 # CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
 # CommonsUtils::newBinArchivesFolderpath()
+# CommonsUtils::waveInsertNewItem(description)
 
 class CommonsUtils
 
@@ -231,6 +232,40 @@ class CommonsUtils
         ].join()
     end
 
+    def self.waveInsertNewItem(description)
+        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        uuid = SecureRandom.hex(4)
+        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        schedule = 
+            if answer=="yes" then
+                WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+            else
+                {
+                    "uuid" => SecureRandom.hex,
+                    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
+                    "@"    => "today",
+                    "unixtime" => Time.new.to_i
+                }
+            end
+        Wave::writeScheduleToDisk(uuid,schedule)
+        if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+            end
+        end
+        print "Move to a thread ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        if answer=="yes" then
+            CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+        end
+    end
+
     def self.interactiveDisplayObjectAndProcessCommand(object)
         print CommonsUtils::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
@@ -352,37 +387,7 @@ class CommonsUtils
 
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
-            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            uuid = SecureRandom.hex(4)
-            folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-            print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
-            answer = STDIN.gets().strip 
-            schedule = 
-                if answer=="yes" then
-                    WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-                else
-                    {
-                        "uuid" => SecureRandom.hex,
-                        "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-                        "@"    => "today",
-                        "unixtime" => Time.new.to_i
-                    }
-                end
-            Wave::writeScheduleToDisk(uuid,schedule)
-            if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
-                if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                    FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
-                    EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
-                end
-            end
-            print "Move to a thread ? [yes/no] (default: no): "
-            answer = STDIN.gets().strip 
-            if answer=="yes" then
-                CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(uuid)
-            end
+            CommonsUtils::waveInsertNewItem(description)
             #LucilleCore::pressEnterToContinue()
             return
         end
