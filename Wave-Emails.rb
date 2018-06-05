@@ -180,7 +180,7 @@ class OperatorEmailClient
                 lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
-                schedule['metric'] = 0.850 - lucilleNextInteger.to_f/1000000
+                schedule['metric'] = 0.870 - lucilleNextInteger.to_f/1000000
                 Wave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
             else
@@ -194,7 +194,7 @@ class OperatorEmailClient
                 lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
-                schedule['metric'] = 0.850 - lucilleNextInteger.to_f/1000000
+                schedule['metric'] = 0.870 - lucilleNextInteger.to_f/1000000
                 Wave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: subject line: #{subjectline}") }
             end
@@ -254,7 +254,7 @@ class GeneralEmailClient
                 lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
-                schedule['metric'] = 0.850 - lucilleNextInteger.to_f/1000000
+                schedule['metric'] = 0.950 - lucilleNextInteger.to_f/1000000
                 Wave::writeScheduleToDisk(catalystuuid,schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
                 File.open("#{folderpath}/email-metatada-emailuid.txt", 'w') {|f| f.write(emailuid) }

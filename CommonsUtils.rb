@@ -118,6 +118,7 @@ class CommonsUtils
         puts "    collections:new # new collection"
         puts "    threads         # show threads"
         puts "    projects        # show projects"
+        puts "    monitor # to be used during a run"
         puts ""
         puts ""
         puts "Special General Commands (inserts)"
@@ -512,6 +513,16 @@ class CommonsUtils
         end
     end
 
+    def self.flockObjectsPostAgentsGeneralUpgradeAndTransforms()
+        AgentsManager::generalUpgrade()
+        TodayOrNotToday::transform()
+        RequirementsOperator::transform()
+        CommonsUtils::fDoNotShowUntilDateTimeTransform()
+        CollectionsOperator::transform()
+        NotGuardian::transform()
+        FlockOperator::flockObjects()
+    end
+
     def self.main2(runId)
         workspaceSize = 1
         mainschedule = {}
@@ -519,13 +530,8 @@ class CommonsUtils
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
-            AgentsManager::generalUpgrade()
-            TodayOrNotToday::transform()
-            RequirementsOperator::transform()
-            CommonsUtils::fDoNotShowUntilDateTimeTransform()
-            CollectionsOperator::transform()
-            NotGuardian::transform()
-            objects_selected = FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(workspaceSize)
+            objects = CommonsUtils::flockObjectsPostAgentsGeneralUpgradeAndTransforms()
+            objects = objects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(workspaceSize)
             system("clear")
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
@@ -577,25 +583,25 @@ class CommonsUtils
                 next
             end        
             puts ""
-            object_selected = objects_selected.last.clone
+            object = objects.last.clone
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
             # In such a case they are still in Flock and should not be showed
-            if object_selected["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
-                if object_selected["schedule"][":wave-emails:"] then
-                    if !File.exists?(object_selected["item-data"]["folderpath"]) then
-                        puts CommonsUtils::object2Line_v0(object_selected)
+            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
+                if object["schedule"][":wave-emails:"] then
+                    if !File.exists?(object["item-data"]["folderpath"]) then
+                        puts CommonsUtils::object2Line_v0(object)
                         puts "This email has been deleted, removing Flock item:"
-                        FlockOperator::removeObjectIdentifiedByUUID(object_selected["uuid"])
-                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object_selected["uuid"]))
+                        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
                         next
                     end
                 end
             end
             # --------------------------------------------------------------------------------
-            objects_selected.each_with_index{|o, index|
+            objects.each_with_index{|o, index|
                 string =
-                    if o["uuid"]==object_selected["uuid"] then
+                    if o["uuid"]==object["uuid"] then
                         "#{"%2d" % (index+1)} [*] #{CommonsUtils::object2Line_v1(o)}"
                     else
                         "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(o)}"
@@ -603,26 +609,42 @@ class CommonsUtils
                 puts string
             }
             print "--> "
-            givenCommand = STDIN.gets().strip
-            if givenCommand=="+" then
+            command = STDIN.gets().strip
+            if command == "+" then
                 workspaceSize = workspaceSize+1
                 next
             end
-            if givenCommand=="-" then
+            if command == "-" then
                 workspaceSize = [workspaceSize-1, 1].max
                 next
             end
-            if CommonsUtils::isInteger(givenCommand) then
-                workspaceSize = [givenCommand.to_i, 1].max
+            if command == "monitor" then
+                timespanInHours = LucilleCore::askQuestionAnswerAsString("Monitor for how long in hours ?: ").to_f
+                puts "Monitoring for #{timespanInHours} hours"
+                startTime = Time.new.to_i
+                loop {
+                    break if ( Time.new.to_i - startTime ) > 3600*timespanInHours
+                    sleep 10
+                    objects = CommonsUtils::flockObjectsPostAgentsGeneralUpgradeAndTransforms()
+                        .select{|object| object["metric"] <= 1 }
+                        .select{|object| object["metric"] >= 0.86 }
+                    objects.each{|object|
+                        CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                    }
+                }
                 next
             end
-            if givenCommand.start_with?(":") and CommonsUtils::isInteger(givenCommand[1,9]) then
-                object = objects_selected.take(givenCommand[1,9].to_i).last.clone
+            if CommonsUtils::isInteger(command) then
+                workspaceSize = [command.to_i, 1].max
+                next
+            end
+            if command.start_with?(":") and CommonsUtils::isInteger(command[1,9]) then
+                object = objects.take(command[1,9].to_i).last.clone
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
                 next
             end
-            command = givenCommand.size>0 ? givenCommand : ( object_selected["default-expression"] ? object_selected["default-expression"] : "" )
-            CommonsUtils::processObjectAndCommand(object_selected, command)
+            command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+            CommonsUtils::processObjectAndCommand(object, command)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
     end
@@ -631,8 +653,8 @@ class CommonsUtils
         return if object.nil?
         puts CommonsUtils::object2Line_v1(object)
         print "--> "
-        givenCommand = STDIN.gets().strip
-        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+        command = STDIN.gets().strip
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
