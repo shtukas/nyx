@@ -298,54 +298,54 @@ class CommonsUtils
         end
 
         if expression == "collections" then
-            collectionsuuids = OperatorCollections::collectionsUUIDs()
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            collectionsuuids = CollectionsOperator::collectionsUUIDs()
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
             return if collectionuuid.nil?
-            OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
             return
         end
 
         if expression == "collections:new" then
             collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
             style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-            OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
+            CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
             return
         end
 
         if expression == "threads" then
-            collectionsuuids = OperatorCollections::collectionsUUIDs()
-                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+            collectionsuuids = CollectionsOperator::collectionsUUIDs()
+                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
             return if collectionuuid.nil?
-            OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
             return
         end
 
         if expression == "projects" then
-            collectionsuuids = OperatorCollections::collectionsUUIDs()
-                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="PROJECT" }
+            collectionsuuids = CollectionsOperator::collectionsUUIDs()
+                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="PROJECT" }
                 .sort{|puuid1, puuid2| AgentCollections::objectMetricAsFloat(puuid1) <=> AgentCollections::objectMetricAsFloat(puuid2) }
                 .reverse
-            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{OperatorCollections::collectionUUID2NameOrNull(collectionuuid)}" }
+            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}" }
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", collectionsuuids, displayLambda)
             return if collectionuuid.nil?
-            OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
             return
         end
 
         if expression == "threads-review" then
-            OperatorCollections::collectionsUUIDs()
-                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
+            CollectionsOperator::collectionsUUIDs()
+                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
                 .each{ |collectionuuid|
                     puts "# ---------------------------------------------------"
-                    collectionname = OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
+                    collectionname = CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
                     if collectionname.nil? then
                         puts "Error 4ba7f95a: Could not determine the name of collection: #{collectionuuid}"
                         LucilleCore::pressEnterToContinue()
                         next
                     end
                     puts "Thread name: #{collectionname}"
-                    OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
+                    CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
                 }         
         end
 
@@ -380,7 +380,7 @@ class CommonsUtils
             print "Move to a thread ? [yes/no] (default: no): "
             answer = STDIN.gets().strip 
             if answer=="yes" then
-                OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+                CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(uuid)
             end
             #LucilleCore::pressEnterToContinue()
             return
@@ -398,10 +398,10 @@ class CommonsUtils
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "PROJECT")
+            collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(description, "PROJECT")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
-            puts "collection path: #{OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            puts "collection path: #{CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -409,10 +409,10 @@ class CommonsUtils
         if expression.start_with?('thread:') then
             description = expression[7, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(description, "THREAD")
+            collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(description, "THREAD")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
-            puts "collection path: #{OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            puts "collection path: #{CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -466,7 +466,7 @@ class CommonsUtils
         end
 
         if expression == ">c" then
-            OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
+            CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
             return
         end
 
@@ -523,7 +523,7 @@ class CommonsUtils
             TodayOrNotToday::transform()
             RequirementsOperator::transform()
             CommonsUtils::fDoNotShowUntilDateTimeTransform()
-            OperatorCollections::transform()
+            CollectionsOperator::transform()
             NotGuardian::transform()
             objects_selected = FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(workspaceSize)
             system("clear")
@@ -531,8 +531,8 @@ class CommonsUtils
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
             dayprogression = {
-                "collections" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/OperatorCollections::dailyCommitmentInHours(),
-                "stream"      => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/OperatorCollections::dailyCommitmentInHours()
+                "collections" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/CollectionsOperator::dailyCommitmentInHours(),
+                "stream"      => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/CollectionsOperator::dailyCommitmentInHours()
             }
             if dayprogression["collections"] >= 1 and dayprogression["stream"] >= 1 then
                 puts "DAY PROGRESSION: (Collections, Stream) Cleared of duties. Enjoy while it last (^_^)".green
@@ -565,15 +565,15 @@ class CommonsUtils
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
-            collectionuuid = OperatorCollections::collectionsUUIDs()
-                .select{ |collectionuuid| OperatorCollections::getCollectionStyle(collectionuuid)=="THREAD" }
-                .select{ |collectionuuid| Time.new.to_i >= OperatorCollections::getNextReviewUnixtime(collectionuuid) }
+            collectionuuid = CollectionsOperator::collectionsUUIDs()
+                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
+                .select{ |collectionuuid| Time.new.to_i >= CollectionsOperator::getNextReviewUnixtime(collectionuuid) }
                 .first
             if collectionuuid then
-                collectionname = OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
+                collectionname = CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
                 puts "Thread review: #{collectionname}"
-                OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
-                OperatorCollections::setNextReviewUnixtime(collectionuuid)
+                CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+                CollectionsOperator::setNextReviewUnixtime(collectionuuid)
                 next
             end        
             puts ""

@@ -17,11 +17,11 @@ class AgentsManager
                 "interface"       => lambda{ AgentCollections::interface() }
             },
             {
-                "agent-name"      => "GuardianTime",
+                "agent-name"      => "DailyTimeAttribution",
                 "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
-                "general-upgrade" => lambda { GuardianTime::generalUpgrade() },
-                "object-command-processor"  => lambda{ |object, command| GuardianTime::processObjectAndCommand(object, command) },
-                "interface"       => lambda{ GuardianTime::interface() }
+                "general-upgrade" => lambda { DailyTimeAttribution::generalUpgrade() },
+                "object-command-processor"  => lambda{ |object, command| DailyTimeAttribution::processObjectAndCommand(object, command) },
+                "interface"       => lambda{ DailyTimeAttribution::interface() }
             },
             {
                 "agent-name"      => "Ninja",

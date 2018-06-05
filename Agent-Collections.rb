@@ -19,7 +19,7 @@ require_relative "RequirementsOperator.rb"
 require_relative "TodayOrNotToday.rb"
 require_relative "GenericTimeTracking.rb"
 require_relative "CatalystDevOps.rb"
-require_relative "OperatorCollections.rb"
+require_relative "CollectionsOperator.rb"
 require_relative "NotGuardian"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
@@ -41,7 +41,7 @@ class AgentCollections
     end
 
     def self.getObjectTimeCommitmentInHours(uuid)
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
         if folderpath.nil? then
             raise "error e95e2fda: Could not find fodler path for uuid: #{uuid}" 
         end
@@ -49,7 +49,7 @@ class AgentCollections
             return IO.read("#{folderpath}/collection-time-commitment-override").to_f
         end
         if File.exists?("#{folderpath}/collection-time-positional-coefficient") then
-            return IO.read("#{folderpath}/collection-time-positional-coefficient").to_f * OperatorCollections::dailyCommitmentInHours()
+            return IO.read("#{folderpath}/collection-time-positional-coefficient").to_f * CollectionsOperator::dailyCommitmentInHours()
         end
         0
     end
@@ -76,7 +76,7 @@ class AgentCollections
     end
 
     def self.objectMetrics(uuid)
-        style = OperatorCollections::getCollectionStyle(uuid)
+        style = CollectionsOperator::getCollectionStyle(uuid)
         if style=="PROJECT" then
             return [self.getObjectTimeCommitmentInHours(uuid), self.objectAdaptedHours(uuid), self.objectMetricRelativelyToItsCoefficientCommitment(uuid), self.objectLowMetricRelativelyToItsAdaptedHours(uuid)]
         end
@@ -134,10 +134,10 @@ class AgentCollections
     end
 
     def self.makeCatalystObjectOrNull(folderpath)
-        uuid = OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)
+        uuid = CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)
         return nil if uuid.nil?
-        description = OperatorCollections::folderPath2CollectionName(folderpath)
-        style = OperatorCollections::getCollectionStyle(uuid)
+        description = CollectionsOperator::folderPath2CollectionName(folderpath)
+        style = CollectionsOperator::getCollectionStyle(uuid)
         announce = "collection (#{style.downcase}): #{description}"
         if self.hasText(folderpath) then
             announce = announce + " [TEXT]"
@@ -145,7 +145,7 @@ class AgentCollections
         if self.hasDocuments(folderpath) then
             announce = announce + " [DOCUMENTS]"
         end
-        if OperatorCollections::collectionCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
+        if CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
             announce = announce + " [OBJECTS]"
         end
         announce = announce + " (#{ "%.2f" % (GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
@@ -170,7 +170,7 @@ class AgentCollections
 
     def self.generalUpgrade()
         halves = [0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625]
-        OperatorCollections::collectionsFolderpaths()
+        CollectionsOperator::collectionsFolderpaths()
             .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
             .first(6)
             .zip(halves)
@@ -179,7 +179,7 @@ class AgentCollections
                 hours = pair[1]
                 File.open("#{folderpath}/collection-time-positional-coefficient", "w"){|f| f.write(hours)}
             }
-        objects = OperatorCollections::collectionsFolderpaths()
+        objects = CollectionsOperator::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
@@ -209,14 +209,14 @@ class AgentCollections
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            if OperatorCollections::collectionCatalystObjectUUIDsThatAreAlive(object["uuid"]).size>0 then
+            if CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(object["uuid"]).size>0 then
                 puts "You cannot complete this item because it has objects"
                 LucilleCore::pressEnterToContinue()
                 return
             end
             GenericTimeTracking::stop(object["uuid"])
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
-            OperatorCollections::sendCollectionToBinTimeline(object["uuid"])
+            CollectionsOperator::sendCollectionToBinTimeline(object["uuid"])
         end
         if command == "add-hours" then
             uuid = object["uuid"]
@@ -233,7 +233,7 @@ class AgentCollections
         end
         if command=='objects' then
             collectionuuid = object["uuid"]
-            OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
+            CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
         end
     end
 end

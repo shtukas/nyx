@@ -8,40 +8,40 @@
 
 # -------------------------------------------------------------
 
-# OperatorCollections::collectionsFolderpaths()
-# OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)
-# OperatorCollections::folderPath2CollectionName(folderpath)
-# OperatorCollections::folderPath2CollectionObject(folderpath)
-# OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
-# OperatorCollections::collectionsUUIDs()
-# OperatorCollections::collectionsNames()
-# OperatorCollections::collectionUUID2NameOrNull(collectionuuid)
+# CollectionsOperator::collectionsFolderpaths()
+# CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)
+# CollectionsOperator::folderPath2CollectionName(folderpath)
+# CollectionsOperator::folderPath2CollectionObject(folderpath)
+# CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+# CollectionsOperator::collectionsUUIDs()
+# CollectionsOperator::collectionsNames()
+# CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
 
-# OperatorCollections::textContents(collectionuuid)
-# OperatorCollections::documentsFilenames(collectionuuid)
+# CollectionsOperator::textContents(collectionuuid)
+# CollectionsOperator::documentsFilenames(collectionuuid)
 
-# OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
+# CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
 
-# OperatorCollections::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
-# OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
-# OperatorCollections::collectionCatalystObjectUUIDs(threaduuid)
-# OperatorCollections::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
-# OperatorCollections::allCollectionsCatalystUUIDs()
+# CollectionsOperator::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
+# CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
+# CollectionsOperator::collectionCatalystObjectUUIDs(threaduuid)
+# CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
+# CollectionsOperator::allCollectionsCatalystUUIDs()
 
-# OperatorCollections::setCollectionStyle(collectionuuid, style)
-# OperatorCollections::getCollectionStyle(collectionuuid)
+# CollectionsOperator::setCollectionStyle(collectionuuid, style)
+# CollectionsOperator::getCollectionStyle(collectionuuid)
 
-# OperatorCollections::transform()
-# OperatorCollections::sendCollectionToBinTimeline(uuid)
-# OperatorCollections::dailyCommitmentInHours()
+# CollectionsOperator::transform()
+# CollectionsOperator::sendCollectionToBinTimeline(uuid)
+# CollectionsOperator::dailyCommitmentInHours()
 
-# OperatorCollections::ui_loopDiveCollectionObjects(collectionuuid)
-# OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
+# CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
+# CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
 
-# OperatorCollections::getNextReviewUnixtime(collectionuuid)
-# OperatorCollections::setNextReviewUnixtime(collectionuuid)
+# CollectionsOperator::getNextReviewUnixtime(collectionuuid)
+# CollectionsOperator::setNextReviewUnixtime(collectionuuid)
 
-class OperatorCollections
+class CollectionsOperator
 
     # ---------------------------------------------------
     # Utils
@@ -54,11 +54,11 @@ class OperatorCollections
     end
 
     def self.collectionsUUIDs()
-        OperatorCollections::collectionsFolderpaths().map{|folderpath| OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath) }
+        CollectionsOperator::collectionsFolderpaths().map{|folderpath| CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath) }
     end
 
     def self.collectionsNames()
-        OperatorCollections::collectionsFolderpaths().map{|folderpath| OperatorCollections::folderPath2CollectionName(folderpath) }
+        CollectionsOperator::collectionsFolderpaths().map{|folderpath| CollectionsOperator::folderPath2CollectionName(folderpath) }
     end
 
     def self.folderPath2CollectionUUIDOrNull(folderpath)
@@ -70,17 +70,17 @@ class OperatorCollections
     end
 
     def self.collectionUUID2FolderpathOrNull(uuid)
-        OperatorCollections::collectionsFolderpaths()
+        CollectionsOperator::collectionsFolderpaths()
             .each{|folderpath|
-                return folderpath if OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+                return folderpath if CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)==uuid
             }
         nil
     end
 
     def self.collectionUUID2NameOrNull(uuid)
-        OperatorCollections::collectionsFolderpaths()
+        CollectionsOperator::collectionsFolderpaths()
             .each{|folderpath|
-                return IO.read("#{folderpath}/collection-name").strip if OperatorCollections::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+                return IO.read("#{folderpath}/collection-name").strip if CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)==uuid
             }
         nil
     end
@@ -121,7 +121,7 @@ class OperatorCollections
     # collections uuids
 
     def self.addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(threaduuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(threaduuid)
         arrayFilepath = "#{folderpath}/collection-catalyst-uuids.json"
         array = JSON.parse(IO.read(arrayFilepath))
         array << objectuuid 
@@ -130,34 +130,34 @@ class OperatorCollections
     end
 
     def self.addObjectUUIDToCollectionInteractivelyChosen(objectuuid)
-        collectionsuuids = OperatorCollections::collectionsUUIDs()
-        collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| OperatorCollections::collectionUUID2NameOrNull(collectionuuid) })
+        collectionsuuids = CollectionsOperator::collectionsUUIDs()
+        collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
         if collectionuuid.nil? then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new collection ? ") then
                 collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
                 style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-                collectionuuid = OperatorCollections::createNewCollection_WithNameAndStyle(collectionname, style)
+                collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
             else
                 return
             end
         end
-        OperatorCollections::addCatalystObjectUUIDToCollection(objectuuid, collectionuuid)
+        CollectionsOperator::addCatalystObjectUUIDToCollection(objectuuid, collectionuuid)
         collectionuuid
     end
 
     def self.collectionCatalystObjectUUIDs(collectionuuid)
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
         JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json"))
     end
 
     def self.collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
-        a1 = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+        a1 = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
         a2 = FlockOperator::flockObjects().map{|object| object["uuid"] }
         a1 & a2
     end
 
     def self.allCollectionsCatalystUUIDs()
-        OperatorCollections::collectionsFolderpaths()
+        CollectionsOperator::collectionsFolderpaths()
             .map{|folderpath| JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json")) }
             .flatten
     end
@@ -169,13 +169,13 @@ class OperatorCollections
         if !["THREAD", "PROJECT"].include?(style) then
             raise "Incorrect Style: #{style}, should be THREAD or PROJECT"
         end
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-style"
         File.open(filepath, "w"){|f| f.write(style) }
     end
 
     def self.getCollectionStyle(collectionuuid)
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-style"
         IO.read(filepath).strip        
     end
@@ -194,7 +194,7 @@ class OperatorCollections
     end
 
     def self.sendCollectionToBinTimeline(uuid)
-        sourcefilepath = OperatorCollections::collectionUUID2FolderpathOrNull(uuid)
+        sourcefilepath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
         return if sourcefilepath.nil?
         targetFolder = CommonsUtils::newBinArchivesFolderpath()
         puts "source: #{sourcefilepath}"
@@ -209,7 +209,7 @@ class OperatorCollections
 
     def self.ui_loopDiveCollectionObjects(collectionuuid)
         loop {
-            objects = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+            objects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
                 .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
@@ -223,10 +223,10 @@ class OperatorCollections
 
     def self.ui_mainDiveIntoCollection_v2(collectionuuid)
         loop {
-            style = OperatorCollections::getCollectionStyle(collectionuuid)
-            textContents = OperatorCollections::textContents(collectionuuid)
-            documentsFilenames = OperatorCollections::documentsFilenames(collectionuuid)
-            catalystobjects = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+            style = CollectionsOperator::getCollectionStyle(collectionuuid)
+            textContents = CollectionsOperator::textContents(collectionuuid)
+            documentsFilenames = CollectionsOperator::documentsFilenames(collectionuuid)
+            catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
                 .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
@@ -246,12 +246,12 @@ class OperatorCollections
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
             if menuChoice == "open text file (#{textContents.strip.size})" then
-                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/collection-text.txt'")
                 next
             end
             if menuChoice == "visit documents (#{documentsFilenames.size})" then
-                folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/documents'")
                 next
             end
@@ -261,7 +261,7 @@ class OperatorCollections
                         puts "You now need to destroy all the objects"
                         LucilleCore::pressEnterToContinue()
                         loop {
-                            catalystobjects = OperatorCollections::collectionCatalystObjectUUIDs(collectionuuid)
+                            catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
                                 .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
                                 .compact
                                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
@@ -272,14 +272,14 @@ class OperatorCollections
                         }
                     end
                     puts "Moving collection folder to bin timeline"
-                    collectionfolderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+                    collectionfolderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
                     targetFolder = CommonsUtils::newBinArchivesFolderpath()
                     FileUtils.mv(collectionfolderpath, targetFolder)
                 end
                 return
             end
             if menuChoice == "recast as project" then
-                OperatorCollections::setCollectionStyle(collectionuuid, "PROJECT")
+                CollectionsOperator::setCollectionStyle(collectionuuid, "PROJECT")
                 return
             end
             # By now, menuChoice is a catalyst object
@@ -289,14 +289,14 @@ class OperatorCollections
     end
 
     def self.getNextReviewUnixtime(collectionuuid)
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-next-review-time"
         return 0 if !File.exists?(filepath)
         IO.read(filepath).to_i       
     end
 
     def self.setNextReviewUnixtime(collectionuuid)
-        folderpath = OperatorCollections::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-next-review-time"
         unixtime = Time.new.to_i + 86400*(1+rand) 
         File.open(filepath, "w"){|f| f.write(unixtime) }
