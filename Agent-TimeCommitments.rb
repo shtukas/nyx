@@ -76,6 +76,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOL
 # TimeCommitments::garbageCollectionGlobal()
 # TimeCommitments::getUniqueDomains(items)
 # TimeCommitments::generalUpgrade()
+# TimeCommitments::processObjectAndCommand(object, command)
 
 class TimeCommitments
 

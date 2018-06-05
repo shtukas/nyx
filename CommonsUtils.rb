@@ -270,9 +270,25 @@ class CommonsUtils
             return
         end
 
-       if expression == '!G' then
-            uuid = object["uuid"]
-            NotGuardian::registerAsNonGuardian(uuid)
+        if expression == "guardian" then
+            aGuardianIsRunning = FlockOperator::flockObjects()
+                .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
+                .any?{|object| object["metadata"]["is-running"] }
+            if aGuardianIsRunning then
+                puts "You can't run `guardian` while a guardian is running"
+                LucilleCore::pressEnterToContinue()
+            else
+                o = FlockOperator::flockObjects()
+                    .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
+                    .select{|object| object["announce"].include?("Guardian") }
+                    .first
+                if o then
+                    TimeCommitments::processObjectAndCommand(o, "start")
+                else
+                    puts "I could not find a time commitment guardian object to start"
+                    LucilleCore::pressEnterToContinue()
+                end
+            end
             return
         end
 
@@ -332,7 +348,6 @@ class CommonsUtils
                     OperatorCollections::ui_mainDiveIntoCollection_v2(collectionuuid)
                 }         
         end
-
 
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
@@ -443,6 +458,12 @@ class CommonsUtils
         return if object.nil?
 
         # object needed
+
+        if expression == '!G' then
+            uuid = object["uuid"]
+            NotGuardian::registerAsNonGuardian(uuid)
+            return
+        end
 
         if expression == ">c" then
             OperatorCollections::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
