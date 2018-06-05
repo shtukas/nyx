@@ -9,7 +9,6 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require_relative "Agent-TimeCommitments.rb"
 require_relative "Events.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
 
@@ -26,7 +25,7 @@ class DailyTimeAttribution
 
     def self.generalUpgrade()
 
-        if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
+        if DRbObject.new(nil, "druby://:18171").fKVStore_getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             distribution = {}
             CollectionsOperator::collectionsUUIDs().each{|collectionuuid|
                 distribution[collectionuuid] = {
@@ -85,10 +84,10 @@ class DailyTimeAttribution
                     TimeCommitments::saveItem(item)
                 end
             }
-            FKVStore::set("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}", "done")
+            DRbObject.new(nil, "druby://:18171").fKVStore_set("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}", "done")
         end
 
-        if FKVStore::getOrNull("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=8 then
+        if DRbObject.new(nil, "druby://:18171").fKVStore_getOrNull("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=8 then
             numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
             if numberOfHours.strip.size==0 then
                 numberOfHours = "5"
@@ -105,7 +104,7 @@ class DailyTimeAttribution
                 }
                 TimeCommitments::saveItem(item)
             end
-            FKVStore::set("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}", "done")
+            DRbObject.new(nil, "druby://:18171").fKVStore_set("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}", "done")
         end
     end
 

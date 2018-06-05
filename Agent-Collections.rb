@@ -10,8 +10,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Constants.rb"
 require_relative "Events.rb"
-require_relative "Flock.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
@@ -182,8 +180,8 @@ class AgentCollections
         objects = CollectionsOperator::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        FlockOperator::addOrUpdateObjects(objects)
+        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectsFromAgent(self.agentuuid())
+        DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommand(object, command)

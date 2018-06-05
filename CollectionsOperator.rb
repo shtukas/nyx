@@ -152,7 +152,7 @@ class CollectionsOperator
 
     def self.collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
         a1 = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
-        a2 = FlockOperator::flockObjects().map{|object| object["uuid"] }
+        a2 = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().map{|object| object["uuid"] }
         a1 & a2
     end
 
@@ -185,11 +185,11 @@ class CollectionsOperator
 
     def self.transform()
         uuids = self.allCollectionsCatalystUUIDs()
-        FlockOperator::flockObjects().each{|object|
+        DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().each{|object|
             if uuids.include?(object["uuid"]) then
                 object["metric"] = 0
             end
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
         }
     end
 
@@ -210,7 +210,7 @@ class CollectionsOperator
     def self.ui_loopDiveCollectionObjects(collectionuuid)
         loop {
             objects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
-                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                .map{|objectuuid| DRbObject.new(nil, "druby://:18171").flockOperator_flockObjectsAsMap()[objectuuid] }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
@@ -227,7 +227,7 @@ class CollectionsOperator
             textContents = CollectionsOperator::textContents(collectionuuid)
             documentsFilenames = CollectionsOperator::documentsFilenames(collectionuuid)
             catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
-                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                .map{|objectuuid| DRbObject.new(nil, "druby://:18171").flockOperator_flockObjectsAsMap()[objectuuid] }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
@@ -262,7 +262,7 @@ class CollectionsOperator
                         LucilleCore::pressEnterToContinue()
                         loop {
                             catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
-                                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                                .map{|objectuuid| DRbObject.new(nil, "druby://:18171").flockOperator_flockObjectsAsMap()[objectuuid] }
                                 .compact
                                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                                 .reverse

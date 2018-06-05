@@ -29,9 +29,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Constants.rb"
 require_relative "Events.rb"
-require_relative "Flock.rb"
 require_relative "Events.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
@@ -355,7 +353,7 @@ class Wave
     end
 
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = FKVStore::getOrNull("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = DRbObject.new(nil, "druby://:18171").fKVStore_getOrNull("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -367,7 +365,7 @@ class Wave
         end
         #puts "Wave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        FKVStore::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
+        DRbObject.new(nil, "druby://:18171").fKVStore_set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
         maybepath
     end
 
@@ -515,7 +513,7 @@ class Wave
                 .each{|uuid|
                     object = Wave::makeCatalystObjectOrNull(uuid)
                     next if object.nil?
-                    FlockOperator::addOrUpdateObject(object)
+                    DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
                 }
             @@firstRun = false
         end
@@ -524,7 +522,7 @@ class Wave
         # First we add to the flock the objects on the repository that are not there yet
         # This happens because some of them are created externally, with the intent that the agent will pick them up
 
-        existingUUIDsFromFlock = FlockOperator::flockObjects()
+        existingUUIDsFromFlock = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object| object["uuid"] }
         existingUUIDsFromDisk = Wave::catalystUUIDsEnumerator().to_a
@@ -533,13 +531,13 @@ class Wave
             # We need to build the object, then make a Flock update and emit an event
             object = Wave::makeCatalystObjectOrNull(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
         }
 
         # ------------------------------------------------------------------------------
         # Removing the emails objects which have been archived by email sync but still in flock
 
-        FlockOperator::flockObjects()
+        DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
             .clone
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .select{|object| object["schedule"][':wave-emails:'] }
@@ -557,14 +555,14 @@ class Wave
         # We now need to update the metric driven by the schedule
         # As time passes the metric changes, for instance repeat item pass their sleeping period
 
-        FlockOperator::flockObjects()
+        DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
             .clone
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object|
                 uuid = object["uuid"]
                 schedule = object["schedule"]
                 object["metric"] = WaveSchedules::scheduleToMetric(schedule) + CommonsUtils::traceToMetricShift(uuid)
-                FlockOperator::addOrUpdateObject(object)
+                DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
             }
     end
 
@@ -578,13 +576,13 @@ class Wave
             schedule = WaveSchedules::cycleSchedule(schedule)
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         }
 
         doneObjectWithOneOffTask = lambda {|object|
             uuid = object['uuid']
-            FlockOperator::removeObjectIdentifiedByUUID(uuid)
+            DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             Wave::archiveWaveItem(uuid)
         }
@@ -607,7 +605,7 @@ class Wave
             schedule = Wave::makeNewSchedule()
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 
@@ -617,7 +615,7 @@ class Wave
             folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
             object = Wave::makeCatalystObjectOrNull(uuid)
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 
@@ -630,7 +628,7 @@ class Wave
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
                 Wave::archiveWaveItem(uuid)
-                FlockOperator::removeObjectIdentifiedByUUID(uuid)
+                DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
         end
@@ -640,7 +638,7 @@ class Wave
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
             Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            FlockOperator::removeObjectIdentifiedByUUID(uuid)
+            DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
 
@@ -657,7 +655,7 @@ class Wave
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
             Wave::archiveWaveItem(uuid)
-            FlockOperator::removeObjectIdentifiedByUUID(uuid)
+            DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
     end

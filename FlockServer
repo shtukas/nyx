@@ -1,3 +1,35 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+
+require 'date'
+
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+require 'find'
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'drb/drb'
+require 'thread'
 
 require_relative "Events.rb"
 
@@ -57,6 +89,33 @@ class FlockOperator
     end
 end
 
+# ------------------------------------------------------------------------
+
+# FKVStore::getOrNull(key): value
+# FKVStore::getOrDefaultValue(key, defaultValue): value
+# FKVStore::set(key, value)
+
+class FKVStore
+    def self.getOrNull(key)
+        $flock["kvstore"][key]
+    end
+
+    def self.getOrDefaultValue(key, defaultValue)
+        value = FKVStore::getOrNull(key)
+        if value.nil? then
+            value = defaultValue
+        end
+        value
+    end
+
+    def self.set(key, value)
+        $flock["kvstore"][key] = value
+        EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
+    end
+end
+
+# ------------------------------------------------------------------------
+
 # FlockDiskIO::loadFromEventsTimeline()
 
 class FlockDiskIO
@@ -90,3 +149,59 @@ class FlockDiskIO
         $flock = flock
     end
 end
+
+class FlockService
+    def flockOperator_flockObjects()
+        FlockOperator::flockObjects()
+    end
+    def flockOperator_flockObjectsAsMap()
+        FlockOperator::flockObjectsAsMap()
+    end 
+    def flockOperator_removeObjectIdentifiedByUUID(uuid)
+        FlockOperator::removeObjectIdentifiedByUUID(uuid)
+    end 
+    def flockOperator_removeObjectsFromAgent(agentuuid)
+        FlockOperator::removeObjectsFromAgent(agentuuid)
+    end 
+    def flockOperator_addOrUpdateObject(object)
+        FlockOperator::addOrUpdateObject(object)
+    end 
+    def flockOperator_addOrUpdateObjects(objects)
+        FlockOperator::addOrUpdateObjects(objects)
+    end 
+    def flockOperator_getDoNotShowUntilDateTimeDistribution()
+        FlockOperator::getDoNotShowUntilDateTimeDistribution()
+    end 
+    def flockOperator_setDoNotShowUntilDateTime(uuid, datetime)
+        FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+    end 
+
+    def fKVStore_getOrNull(key)
+        FKVStore::getOrNull(key)
+    end
+    def fKVStore_getOrDefaultValue(key, defaultValue)
+        FKVStore::getOrDefaultValue(key, defaultValue)
+    end
+    def fKVStore_set(key, value)
+        FKVStore::set(key, value)
+    end
+
+    def flockDiskIO_loadFromEventsTimeline()()
+        FlockDiskIO::loadFromEventsTimeline()
+    end
+end
+
+puts "FlockDiskIO::loadFromEventsTimeline()"
+FlockDiskIO::loadFromEventsTimeline()
+
+Thread.new {
+    loop {
+        sleep 300
+        FlockDiskIO::loadFromEventsTimeline()
+    }
+}
+
+puts "Starting Flock Service"
+DRb.start_service("druby://:18171", FlockService.new())
+DRb.thread.join
+

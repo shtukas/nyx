@@ -3,9 +3,7 @@
 # encoding: UTF-8
 require 'json'
 
-require_relative "Flock.rb"
 require_relative "Events.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
 
@@ -51,13 +49,13 @@ class Ninja
                 "ninja-folderpath" => packet["folderpath"]
             }
         }
-        FlockOperator::addOrUpdateObject(object)
+        DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommand(object, command)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
         NinjaCLIProxy::reset()
-        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(object["uuid"])
     end
 end

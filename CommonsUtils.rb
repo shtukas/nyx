@@ -143,10 +143,10 @@ class CommonsUtils
     end
 
     def self.fDoNotShowUntilDateTimeTransform()
-        FlockOperator::flockObjects().map{|object|
-            if !FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
+        DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().map{|object|
+            if !DRbObject.new(nil, "druby://:18171").flockOperator_getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < DRbObject.new(nil, "druby://:18171").flockOperator_getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
                 # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+                object["do-not-show-until-datetime"] = DRbObject.new(nil, "druby://:18171").flockOperator_getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
                 object["metric"] = 0
             end
             if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) and object["metric"]<=1 then
@@ -154,7 +154,7 @@ class CommonsUtils
                 object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
                 object["metric"] = 0
             end
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
         }
     end
 
@@ -255,7 +255,7 @@ class CommonsUtils
         Wave::writeScheduleToDisk(uuid,schedule)
         if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
             if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+                DRbObject.new(nil, "druby://:18171").flockOperator_setDoNotShowUntilDateTime(uuid, datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
             end
         end
@@ -307,14 +307,14 @@ class CommonsUtils
         end
 
         if expression == "guardian" then
-            aGuardianIsRunning = FlockOperator::flockObjects()
+            aGuardianIsRunning = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
                 .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
                 .any?{|object| object["metadata"]["is-running"] }
             if aGuardianIsRunning then
                 puts "You can't run `guardian` while a Guardian is running"
                 LucilleCore::pressEnterToContinue()
             else
-                o = FlockOperator::flockObjects()
+                o = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
                     .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
                     .select{|object| object["announce"].include?("Guardian") }
                     .first
@@ -441,7 +441,7 @@ class CommonsUtils
                 requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = FlockOperator::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
                 CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -452,7 +452,7 @@ class CommonsUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = FlockOperator::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -490,7 +490,7 @@ class CommonsUtils
         if expression.start_with?('+') then
             code = expression
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
-                FlockOperator::setDoNotShowUntilDateTime(object["uuid"], datetime)
+                DRbObject.new(nil, "druby://:18171").flockOperator_setDoNotShowUntilDateTime(object["uuid"], datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return
@@ -525,7 +525,7 @@ class CommonsUtils
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsOperator::transform()
         NotGuardian::transform()
-        FlockOperator::flockObjects()
+        DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
     end
 
     def self.main2(runId)
@@ -597,7 +597,7 @@ class CommonsUtils
                     if !File.exists?(object["item-data"]["folderpath"]) then
                         puts CommonsUtils::object2Line_v0(object)
                         puts "This email has been deleted, removing Flock item:"
-                        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+                        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(object["uuid"])
                         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
                         next
                     end

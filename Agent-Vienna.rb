@@ -28,9 +28,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Constants.rb"
 require_relative "Events.rb"
-require_relative "Flock.rb"
-require_relative "Events.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
@@ -42,7 +39,7 @@ require_relative "CollectionsOperator.rb"
 require_relative "NotGuardian"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
-require_relative "Flock.rb"
+
 # -------------------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
@@ -111,8 +108,8 @@ class Vienna
                     "link" => link
                 }
             }
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        FlockOperator::addOrUpdateObject(object)
+        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectsFromAgent(self.agentuuid())
+        DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommand(object, command)

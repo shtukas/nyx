@@ -27,7 +27,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Constants.rb"
 require_relative "Events.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
@@ -39,7 +38,6 @@ require_relative "CollectionsOperator.rb"
 require_relative "NotGuardian"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
-require_relative "Flock.rb"
 # -------------------------------------------------------------------------------------
 
 TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
@@ -141,8 +139,8 @@ class Today
                 }
             }
         }
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        FlockOperator::addOrUpdateObjects(objects)
+        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectsFromAgent(self.agentuuid())
+        DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommand(object, command)

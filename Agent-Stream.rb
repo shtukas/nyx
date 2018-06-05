@@ -19,8 +19,6 @@ require 'digest/sha1'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
-require_relative "Flock.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
@@ -124,7 +122,7 @@ class Stream
             LucilleCore::removeFileSystemLocation(object["item-data"]["folderpath"])
         end
         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-        FlockOperator::removeObjectIdentifiedByUUID(uuid)
+        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
     end
 
     def self.issueNewItemWithDescription(description)
@@ -145,18 +143,18 @@ class Stream
     def self.generalUpgrade()
 
         # Adding the next object if there isn't one
-        if FlockOperator::flockObjects().select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
+        if DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
             Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
                 .first(1)
                 .each{|folderpath|
                     object = Stream::folderpathToCatalystObjectOrNull(folderpath)
                     EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-                    FlockOperator::addOrUpdateObject(object)
+                    DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
                 }
         end
 
         # Updating the objects
-        FlockOperator::flockObjects()
+        DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .each{|object|
                 uuid = object["uuid"]
@@ -166,7 +164,7 @@ class Stream
                 object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
                 object["item-data"]["status"] = status
                 object["is-running"]          = status[0]
-                FlockOperator::addOrUpdateObject(object)
+                DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
             }
     end
 
@@ -182,15 +180,15 @@ class Stream
             GenericTimeTracking::start(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-            FlockOperator::addOrUpdateObject(object)
-            FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").fKVStore_set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-            FlockOperator::addOrUpdateObject(object)
+            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
         end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
@@ -198,7 +196,7 @@ class Stream
             MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY}", [Time.new.to_i, 600]) # special circumstances
             Stream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            FlockOperator::removeObjectIdentifiedByUUID(uuid)
+            DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
         end
         if command=='>lib' then
             GenericTimeTracking::stop(uuid)
@@ -214,7 +212,7 @@ class Stream
             LucilleCore::removeFileSystemLocation(staginglocation)
             Stream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            FlockOperator::removeObjectIdentifiedByUUID(uuid)
+            DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
         end
     end
 end

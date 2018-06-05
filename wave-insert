@@ -34,9 +34,7 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "Wave-Emails.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
-require_relative "Flock.rb"
 require_relative "Events.rb"
-require_relative "FKVStore.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "AgentsManager.rb"
@@ -59,8 +57,6 @@ require_relative "Agent-Vienna.rb"
 require_relative "Agent-Wave.rb"
 
 # -----------------------------------------------------------------
-
-FlockDiskIO::loadFromEventsTimeline()
 
 description = ARGV[0]
 CommonsUtils::waveInsertNewItem(description)
