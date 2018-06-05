@@ -275,7 +275,7 @@ class CommonsUtils
                 .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
                 .any?{|object| object["metadata"]["is-running"] }
             if aGuardianIsRunning then
-                puts "You can't run `guardian` while a guardian is running"
+                puts "You can't run `guardian` while a Guardian is running"
                 LucilleCore::pressEnterToContinue()
             else
                 o = FlockOperator::flockObjects()
