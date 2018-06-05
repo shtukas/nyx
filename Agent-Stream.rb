@@ -21,8 +21,6 @@ require_relative "Constants.rb"
 require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
-require_relative "AgentsManager.rb"
-
 require_relative "GenericTimeTracking.rb"
 require_relative "CatalystDevOps.rb"
 require_relative "CollectionsOperator.rb"
