@@ -177,7 +177,20 @@ class TimeCommitments
     end
 
     def self.interfaceFromCli()
-        
+        puts "Welcome to TimeCommitments interface"
+        if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to add a time commitment ? ") then
+            item = {
+                "uuid"                => SecureRandom.hex(4),
+                "domain"              => SecureRandom.hex(8),
+                "description"         => LucilleCore::askQuestionAnswerAsString("description: "),
+                "commitment-in-hours" => LucilleCore::askQuestionAnswerAsString("hours: ").to_f,
+                "timespans"           => [],
+                "last-start-unixtime" => 0
+            }
+            puts JSON.pretty_generate(item)
+            LucilleCore::pressEnterToContinue()
+            TimeCommitments::saveItem(item)
+        end
     end
 
     def self.generalUpgradeFromFlockServer()
