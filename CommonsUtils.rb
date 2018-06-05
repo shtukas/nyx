@@ -119,7 +119,6 @@ class CommonsUtils
         puts "    collections:new # new collection"
         puts "    threads         # show threads"
         puts "    projects        # show projects"
-        puts "    monitor # to be used during a run"
         puts ""
         puts ""
         puts "Special General Commands (inserts)"
@@ -518,25 +517,9 @@ class CommonsUtils
         end
     end
 
-    def self.flockObjectsPostAgentsGeneralUpgradeAndTransforms()
-        AgentsManager::generalUpgrade()
-        TodayOrNotToday::transform()
-        RequirementsOperator::transform()
-        CommonsUtils::fDoNotShowUntilDateTimeTransform()
-        CollectionsOperator::transform()
-        NotGuardian::transform()
-        DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
-    end
-
-    def self.main2(runId)
-        workspaceSize = 1
-        mainschedule = {}
-        mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
-        mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
-        mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
+    def self.viewloop()
         loop {
-            objects = CommonsUtils::flockObjectsPostAgentsGeneralUpgradeAndTransforms()
-            objects = objects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(workspaceSize)
+            objects = DRbObject.new(nil, "druby://:18171").top10Objects()
             system("clear")
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
@@ -549,7 +532,38 @@ class CommonsUtils
                 puts "DAY PROGRESSION: (Collections, Stream) Cleared of duties. Enjoy while it last (^_^)".green
             else
                 puts "DAY PROGRESSION: Collections: #{ (100*dayprogression["collections"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".red
+            end       
+            puts ""
+            # --------------------------------------------------------------------------------
+            objects.each_with_index{|object, index|
+                puts "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)}"
+            }
+            sleep 10
+        }
+    end
+
+    def self.cli(runId)
+        mainschedule = {}
+        mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
+        mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
+        mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
+        loop {
+            object = DRbObject.new(nil, "druby://:18171").top10Objects().first
+            # --------------------------------------------------------------------------------
+            # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
+            # In such a case they are still in Flock and should not be showed
+            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
+                if object["schedule"][":wave-emails:"] then
+                    if !File.exists?(object["item-data"]["folderpath"]) then
+                        puts CommonsUtils::object2Line_v0(object)
+                        puts "This email has been deleted, removing Flock item:"
+                        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(object["uuid"])
+                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
+                        next
+                    end
+                end
             end
+            system("clear")
             if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"
@@ -586,63 +600,10 @@ class CommonsUtils
                 CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
                 CollectionsOperator::setNextReviewUnixtime(collectionuuid)
                 next
-            end        
-            puts ""
-            object = objects.last.clone
-            # --------------------------------------------------------------------------------
-            # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
-            # In such a case they are still in Flock and should not be showed
-            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
-                if object["schedule"][":wave-emails:"] then
-                    if !File.exists?(object["item-data"]["folderpath"]) then
-                        puts CommonsUtils::object2Line_v0(object)
-                        puts "This email has been deleted, removing Flock item:"
-                        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(object["uuid"])
-                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                        next
-                    end
-                end
             end
-            # --------------------------------------------------------------------------------
-            objects.each_with_index{|o, index|
-                string =
-                    if o["uuid"]==object["uuid"] then
-                        "#{"%2d" % (index+1)} [*] #{CommonsUtils::object2Line_v1(o)}"
-                    else
-                        "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(o)}"
-                    end
-                puts string
-            }
+            puts CommonsUtils::object2Line_v1(object)
             print "--> "
             command = STDIN.gets().strip
-            if command == "+" then
-                workspaceSize = workspaceSize+1
-                next
-            end
-            if command == "-" then
-                workspaceSize = [workspaceSize-1, 1].max
-                next
-            end
-            if command == "monitor" then
-                timespanInHours = LucilleCore::askQuestionAnswerAsString("Monitor for how long in hours ?: ").to_f
-                puts "Monitoring for #{timespanInHours} hours"
-                startTime = Time.new.to_i
-                loop {
-                    break if ( Time.new.to_i - startTime ) > 3600*timespanInHours
-                    sleep 10
-                    objects = CommonsUtils::flockObjectsPostAgentsGeneralUpgradeAndTransforms()
-                        .select{|object| object["metric"] <= 1 }
-                        .select{|object| object["metric"] >= 0.86 }
-                    objects.each{|object|
-                        CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
-                    }
-                }
-                next
-            end
-            if CommonsUtils::isInteger(command) then
-                workspaceSize = [command.to_i, 1].max
-                next
-            end
             if command.start_with?(":") and CommonsUtils::isInteger(command[1,9]) then
                 object = objects.take(command[1,9].to_i).last.clone
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)

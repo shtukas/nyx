@@ -71,4 +71,4 @@ Thread.new {
     }
 }
 
-CommonsUtils::main2(runId)
+CommonsUtils::cli(runId)

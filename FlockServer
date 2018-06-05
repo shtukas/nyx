@@ -35,7 +35,38 @@ require_relative "Events.rb"
 
 # ----------------------------------------------------------------
 
+require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
+
+require_relative "Wave-Emails.rb"
+require_relative "Constants.rb"
+require_relative "Events.rb"
+require_relative "Events.rb"
+require_relative "MiniFIFOQ.rb"
+require_relative "Config.rb"
+require_relative "AgentsManager.rb"
+require_relative "RequirementsOperator.rb"
+require_relative "TodayOrNotToday.rb"
+require_relative "GenericTimeTracking.rb"
+require_relative "CatalystDevOps.rb"
+require_relative "CollectionsOperator.rb"
+require_relative "NotGuardian"
+require_relative "FolderProbe.rb"
+require_relative "CommonsUtils"
+
+require_relative "Agent-Collections.rb"
+require_relative "Agent-DailyTimeAttribution.rb"
+require_relative "Agent-Ninja.rb"
+require_relative "Agent-Stream.rb"
+require_relative "Agent-TimeCommitments.rb"
+require_relative "Agent-Today.rb"
+require_relative "Agent-Vienna.rb"
+require_relative "Agent-Wave.rb"
+
+# ----------------------------------------------------------------
+
 $flock = nil
+$semaphore = Mutex.new
 
 # ----------------------------------------------------------------
 
@@ -62,16 +93,22 @@ class FlockOperator
     end
 
     def self.removeObjectIdentifiedByUUID(uuid)
-        $flock["objects"].reject!{|o| o["uuid"]==uuid }
+        $semaphore.synchronize {
+            $flock["objects"].reject!{|o| o["uuid"]==uuid }
+        }
     end
 
     def self.removeObjectsFromAgent(agentuuid)
-        $flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
+        $semaphore.synchronize {
+            $flock["objects"].reject!{|o| o["agent-uid"]==agentuuid }
+        }
     end
 
     def self.addOrUpdateObject(object)
         FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
-        $flock["objects"] << object
+        $semaphore.synchronize {
+            $flock["objects"] << object
+        }
     end
 
     def self.addOrUpdateObjects(objects)
@@ -85,7 +122,9 @@ class FlockOperator
     end
 
     def self.setDoNotShowUntilDateTime(uuid, datetime)
-        $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
+        $semaphore.synchronize {
+            $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
+        }
     end
 end
 
@@ -109,7 +148,9 @@ class FKVStore
     end
 
     def self.set(key, value)
-        $flock["kvstore"][key] = value
+        $semaphore.synchronize {
+            $flock["kvstore"][key] = value
+        }
         EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
     end
 end
@@ -146,9 +187,13 @@ class FlockDiskIO
             end
             raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
         }
-        $flock = flock
+        $semaphore.synchronize { 
+            $flock = flock
+        }
     end
 end
+
+# ------------------------------------------------------------------------
 
 class FlockService
     def flockOperator_flockObjects()
@@ -186,8 +231,18 @@ class FlockService
         FKVStore::set(key, value)
     end
 
-    def flockDiskIO_loadFromEventsTimeline()()
+    def flockDiskIO_loadFromEventsTimeline()
         FlockDiskIO::loadFromEventsTimeline()
+    end
+
+    def top10Objects()
+        AgentsManager::generalUpgrade()
+        TodayOrNotToday::transform()
+        RequirementsOperator::transform()
+        CommonsUtils::fDoNotShowUntilDateTimeTransform()
+        CollectionsOperator::transform()
+        NotGuardian::transform()
+        FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(10)
     end
 end
 
