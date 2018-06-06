@@ -112,7 +112,6 @@ class CommonsUtils
         puts "    help"
         puts "    top"
         puts "    search <pattern>"
-        puts "    :n # without changing the size of the workspace, focus on n^th item"
         puts "    r:on <requirement>"
         puts "    r:off <requirement>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
@@ -128,12 +127,12 @@ class CommonsUtils
         puts "    project: <description>"
         puts ""
         puts "Special General Commands (special circumstances)"
-        puts "    clear # clear the screen"
         puts "    interface # run the interface of a given agent"
         puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special Object Commands:"
-        puts "    (+)datetimecode"
+        puts "    + # push by 6 minutes"
+        puts "    +datetimecode"
         puts "    expose # pretty print the object"
         puts "    >c # send object to a collection"
         puts "    !today"
@@ -268,11 +267,6 @@ class CommonsUtils
         if expression == 'help' then
             CommonsUtils::putshelp()
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression == 'clear' then
-            system("clear")
             return
         end
 
@@ -596,10 +590,8 @@ class CommonsUtils
             puts CommonsUtils::object2Line_v1(object)
             print "--> "
             command = STDIN.gets().strip
-            if command.start_with?(":") and CommonsUtils::isInteger(command[1,9]) then
-                object = objects.take(command[1,9].to_i).last.clone
-                CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
-                next
+            if command=="+" then
+                command = "+0.1 hours"
             end
             command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
             CommonsUtils::processObjectAndCommand(object, command)
