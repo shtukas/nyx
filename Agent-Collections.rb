@@ -150,7 +150,7 @@ class AgentCollections
             "uuid"               => uuid,
             "agent-uid"          => self.agentuuid(),
             "metric"             => self.metric(uuid, style, isRunning),
-            "announce"           => "(metrics: #{AgentCollections::objectMetricsAsString(uuid)}) #{announce}",
+            "announce"           => announce,
             "commands"           => self.commands(style, isRunning),
             "default-expression" => self.defaultExpression(style, isRunning)
         }

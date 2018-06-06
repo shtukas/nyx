@@ -506,7 +506,7 @@ class CommonsUtils
             objects = FlockService::top10Objects()
             endUnixtime = Time.new.to_f
             system("clear")
-            puts "objects loaded in #{ (endUnixtime-startUnixtime) } seconds"
+            puts "objects loaded in #{ "%.3f" % (endUnixtime-startUnixtime) } seconds"
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
