@@ -240,7 +240,7 @@ class CollectionsOperator
                     string
                 else
                     object = menuStringOrCatalystObject
-                    CommonsUtils::object2Line_v0(object)
+                    "object: #{CommonsUtils::object2Line_v0(object)}"
                 end
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
