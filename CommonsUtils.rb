@@ -15,6 +15,7 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
 # CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::waveInsertNewItem(description)
+# CommonsUtils::isInteger(str)
 
 class CommonsUtils
 
@@ -108,7 +109,7 @@ class CommonsUtils
     end
 
     def self.putshelp()
-        puts "Special General Commands (view)"
+        puts "Special General Commands"
         puts "    help"
         puts "    top"
         puts "    search <pattern>"
@@ -121,16 +122,13 @@ class CommonsUtils
         puts "    projects        # show projects"
         puts "    guardian    # start any active Guardian time commitment"
         puts "    email-sync  # run email sync"
-        puts ""
+        puts "    interface # run the interface of a given agent"
+        puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description>"
         puts "    stream: <description>"
         puts "    project: <description>"
-        puts ""
-        puts "Special General Commands (special circumstances)"
-        puts "    interface # run the interface of a given agent"
-        puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special Object Commands:"
         puts "    + # push by 6 minutes"
@@ -140,6 +138,7 @@ class CommonsUtils
         puts "    !today"
         puts "    r:add <requirement>"
         puts "    r:remove <requirement>"
+        puts "    :<integer> # select and operate on the object number <integer>"
         puts "    command ..."
     end
 
@@ -599,6 +598,13 @@ class CommonsUtils
             command = STDIN.gets().strip
             if command=="+" then
                 command = "+0.1 hours"
+            end
+            if command.start_with?(":") then
+                x = command[1,command.size].strip
+                if CommonsUtils::isInteger(x) then
+                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(FlockService::top10Objects().take(x.to_i).last)
+                    next
+                end
             end
             command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
             CommonsUtils::processObjectAndCommand(object, command)

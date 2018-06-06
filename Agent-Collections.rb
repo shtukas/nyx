@@ -91,7 +91,7 @@ class AgentCollections
 
     def self.commands(style, isRunning)
         if style=="PROJECT" then
-            return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "file", "folder", "objects"]
+            return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "file", "folder", "objects", "dive"]
         end
         if style=="THREAD" then
             return ["completed", "file", "folder"]
@@ -229,6 +229,10 @@ class AgentCollections
         if command=='objects' then
             collectionuuid = object["uuid"]
             CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
+        end
+        if command=="dive" then
+            collectionuuid = object["uuid"]
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
         end
     end
 end
