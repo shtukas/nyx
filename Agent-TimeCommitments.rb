@@ -40,9 +40,6 @@ require_relative "CommonsUtils"
 
 # -------------------------------------------------------------------------------------
 
-GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1"
-GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/time-commitments/items"
-
 =begin
     Data
         file: Array[Item]
@@ -54,9 +51,21 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOL
             "timespans"           : Array[Float]
             "is-running"          : Boolean
             "last-start-unixtime" : Int
-            "metric"              : Float # optional, if present determines the metric.
+            "metric"                          : Float # optional, if present determines the metric.
+            "uuids-for-generic-time-tracking" : Array[String] # optional
         }
 =end
+
+# The secondary uuids are uuids to use for activity related events, start and stop.
+# We use then for when the item is used as a proxy for something that actually itself 
+# maintains activity at the GenericTimeTracking.
+
+# -------------------------------------------------------------------------------------
+
+GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1"
+GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/time-commitments/items"
+
+# -------------------------------------------------------------------------------------
 
 # TimeCommitments::getItems()
 # TimeCommitments::getItemByUUID(uuid)
@@ -103,6 +112,11 @@ class TimeCommitments
         return item if item["is-running"]
         item["is-running"] = true
         item["last-start-unixtime"] = Time.new.to_i
+        if item["uuids-for-generic-time-tracking"] then
+            item["uuids-for-generic-time-tracking"].each{|uuid|
+                GenericTimeTracking::start(uuid)
+            }
+        end
         item
     end
 
@@ -110,6 +124,11 @@ class TimeCommitments
         return item if !item["is-running"]
         item["is-running"] = false
         item["timespans"] << Time.new.to_i - item["last-start-unixtime"]
+        if item["uuids-for-generic-time-tracking"] then
+            item["uuids-for-generic-time-tracking"].each{|uuid|
+                GenericTimeTracking::stop(uuid)
+            }
+        end
         item
     end
 
@@ -195,34 +214,33 @@ class TimeCommitments
 
     def self.generalUpgradeFromFlockServer()
         TimeCommitments::garbageCollectionGlobal()
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
         objects = TimeCommitments::getItems()
-        .map{|item|
-            uuid = item['uuid']
-            ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-            metric = item['metric'] ? item['metric'] : ( 0.6 + 0.2*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid) )
-            metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"]
-            announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
-            commands = item["is-running"] ? ["stop"] : ["start"]
-            defaultExpression = item["is-running"] ? "stop" : "start"
-            object = {
-                "uuid" => uuid,
-                "agent-uid" => self.agentuuid(),
-                "metric" => metric,
-                "announce" => announce,
-                "commands" => commands,
-                "default-expression" => defaultExpression,
-                "metadata" => {}
+            .map{|item|
+                uuid = item['uuid']
+                ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
+                metric = item['metric'] ? item['metric'] : ( 0.6 + 0.2*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid) )
+                metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"]
+                announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
+                commands = item["is-running"] ? ["stop"] : ["start"]
+                defaultExpression = item["is-running"] ? "stop" : "start"
+                object  = {}
+                object["uuid"]      = uuid
+                object["agent-uid"] = self.agentuuid()
+                object["metric"]    = metric
+                object["announce"]  = announce
+                object["commands"]  = commands
+                object["default-expression"]     = defaultExpression
+                object["metadata"]               = {}
+                object["metadata"]["is-running"] = item["is-running"]
+                object
             }
-            object["metadata"]["is-running"] = item["is-running"]
-            object
-        }
         objects = 
             if objects.select{|object| object["metric"]>1 }.size>0 then
                 objects.select{|object| object["metric"]>1 }
             else
                 objects
             end
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
         FlockOperator::addOrUpdateObjects(objects)
     end
 

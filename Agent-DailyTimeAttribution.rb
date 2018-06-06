@@ -91,7 +91,8 @@ class DailyTimeAttribution
                     "description"         => "Time commitment point for: #{collectiondata["collectionname"]}",
                     "commitment-in-hours" => collectiondata["time-commitment-in-hours"],
                     "timespans"           => [],
-                    "last-start-unixtime" => 0
+                    "last-start-unixtime" => 0,
+                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY] # the collection and the entire collection agent
                 }
                 TimeCommitments::saveItem(item)
                 if collectiondata["is-Guardian-time"] then
