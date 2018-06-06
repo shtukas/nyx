@@ -94,7 +94,7 @@ class AgentCollections
             return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "file", "folder", "objects", "dive"]
         end
         if style=="THREAD" then
-            return ["completed", "file", "folder"]
+            return ["completed", "file", "folder", "objects", "dive"]
         end
         raise "1DA65B35-278D-4620-95E0-2009A6FE2C8C"    
     end
