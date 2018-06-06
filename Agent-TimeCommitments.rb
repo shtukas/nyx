@@ -51,8 +51,10 @@ require_relative "CommonsUtils"
             "timespans"           : Array[Float]
             "is-running"          : Boolean
             "last-start-unixtime" : Int
+
             "metric"                          : Float # optional, if present determines the metric.
             "uuids-for-generic-time-tracking" : Array[String] # optional
+            "paused"                          : Boolean # Optional
         }
 =end
 
@@ -110,6 +112,7 @@ class TimeCommitments
 
     def self.startItem(item)
         return item if item["is-running"]
+        item["paused"] = false
         item["is-running"] = true
         item["last-start-unixtime"] = Time.new.to_i
         if item["uuids-for-generic-time-tracking"] then
@@ -121,14 +124,22 @@ class TimeCommitments
     end
 
     def self.stopItem(item)
-        return item if !item["is-running"]
-        item["is-running"] = false
-        item["timespans"] << Time.new.to_i - item["last-start-unixtime"]
-        if item["uuids-for-generic-time-tracking"] then
-            item["uuids-for-generic-time-tracking"].each{|uuid|
-                GenericTimeTracking::stop(uuid)
-            }
+        item["paused"] = false
+        if item["is-running"] then
+            item["is-running"] = false
+            item["timespans"] << Time.new.to_i - item["last-start-unixtime"]
+            if item["uuids-for-generic-time-tracking"] then
+                item["uuids-for-generic-time-tracking"].each{|uuid|
+                    GenericTimeTracking::stop(uuid)
+                }
+            end
         end
+        item
+    end
+
+    def self.pauseItem(item)
+        self.stopItem(item)
+        item["paused"] = true
         item
     end
 
@@ -219,10 +230,14 @@ class TimeCommitments
             .map{|item|
                 uuid = item['uuid']
                 ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-                metric = item['metric'] ? item['metric'] : ( 0.6 + 0.2*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid) )
-                metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"]
+                metric = 0.6 + 0.2*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid) 
+                metric = item['metric'] ? item['metric'] : metric
+                metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"] or item["paused"]
                 announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
-                commands = item["is-running"] ? ["stop"] : ["start"]
+                if item["paused"] then
+                    announce = "[PAUSED] #{announce}"
+                end
+                commands = item["is-running"] ? ["pause", "stop"] : ["start", "stop"]
                 defaultExpression = item["is-running"] ? "stop" : "start"
                 object  = {}
                 object["uuid"]      = uuid
@@ -247,11 +262,14 @@ class TimeCommitments
 
     def self.processObjectAndCommandFromCli(object, command)
         uuid = object['uuid']
-        if command=='start' then
+        if command == "start" then
             TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
         end
-        if command=="stop" then
+        if command == "stop" then
             TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
+        end
+        if command == "pause" then
+            TimeCommitments::saveItem(TimeCommitments::pauseItem(TimeCommitments::getItemByUUID(uuid)))
         end
     end
 end

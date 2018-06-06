@@ -184,11 +184,20 @@ class CommonsUtils
         ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
     end
 
+    def self.announceWithColor(announce, object)
+        if object["metric"]>1 then
+            if object["announce"].include?("[PAUSED]") then
+                announce = announce.yellow
+            else
+                announce = announce.green                
+            end
+        end
+        announce
+    end
+
     def self.object2Line_v0(object)
         announce = object['announce'].lines.first.strip
-        if object["metric"]>1 then
-            announce = announce.green
-        end
+        announce = self.announceWithColor(announce, object)
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
@@ -199,9 +208,7 @@ class CommonsUtils
 
     def self.object2Line_v1(object)
         announce = object['announce'].strip
-        if object["metric"]>1 then
-            announce = announce.green
-        end
+        announce = self.announceWithColor(announce, object)
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
