@@ -549,7 +549,7 @@ class CommonsUtils
                     if !File.exists?(object["item-data"]["folderpath"]) then
                         puts CommonsUtils::object2Line_v0(object)
                         puts "This email has been deleted, removing Flock item:"
-                        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+                        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(object["uuid"])
                         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
                         next
                     end
