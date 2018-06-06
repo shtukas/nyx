@@ -233,6 +233,7 @@ class TimeCommitments
                 object["default-expression"]     = defaultExpression
                 object["metadata"]               = {}
                 object["metadata"]["is-running"] = item["is-running"]
+                object["metadata"]["time-commitment-item"] = item
                 object
             }
         objects = 
