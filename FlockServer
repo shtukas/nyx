@@ -48,6 +48,8 @@ require_relative "GenericTimeTracking.rb"
 require_relative "CatalystDevOps.rb"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
+require_relative "TodayOrNotToday.rb"
+require_relative "RequirementsOperator.rb"
 
 require_relative "Agent-Collections.rb"
 require_relative "Agent-DailyTimeAttribution.rb"
@@ -57,7 +59,6 @@ require_relative "Agent-TimeCommitments.rb"
 require_relative "Agent-Today.rb"
 require_relative "Agent-Vienna.rb"
 require_relative "Agent-Wave.rb"
-
 
 # -------------------------------------------------------------
 
@@ -388,110 +389,6 @@ class NotGuardian
     end
 end
 
-# ----------------------------------------------------------------------
-
-# Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
-# Requirements_Operator::setUnsatisfiedRequirement(requirement)
-# Requirements_Operator::setSatisfifiedRequirement(requirement)
-# Requirements_Operator::requirementIsCurrentlySatisfied(requirement)
-
-# Requirements_Operator::getObjectRequirements(uuid)
-# Requirements_Operator::setObjectRequirements(uuid, requirements)
-# Requirements_Operator::addRequirementToObject(uuid,requirement)
-# Requirements_Operator::removeRequirementFromObject(uuid,requirement)
-# Requirements_Operator::objectMeetsRequirements(uuid)
-
-# Requirements_Operator::getAllRequirements()
-# Requirements_Operator::transform()
-
-class Requirements_Operator
-
-    def self.getCurrentlyUnsatisfiedRequirements()
-        JSON.parse(FKVStore::getOrDefaultValue("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
-    end
-
-    def self.setUnsatisfiedRequirement(requirement)
-        rs = Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
-        rs = (rs + [ requirement ]).uniq
-        FKVStore::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
-    end
-
-    def self.setSatisfifiedRequirement(requirement)
-        rs = Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
-        rs = rs.reject{|r| r==requirement }
-        FKVStore::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
-    end
-
-    def self.requirementIsCurrentlySatisfied(requirement)
-        !Requirements_Operator::getCurrentlyUnsatisfiedRequirements().include?(requirement)
-    end
-
-    # objects
-
-    def self.getObjectRequirements(uuid)
-        JSON.parse(FKVStore::getOrDefaultValue("Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
-    end
-
-    def self.setObjectRequirements(uuid, requirements)
-        FKVStore::set("Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
-    end
-
-    def self.addRequirementToObject(uuid,requirement)
-        Requirements_Operator::setObjectRequirements(uuid, (Requirements_Operator::getObjectRequirements(uuid) + [requirement]).uniq)
-    end
-
-    def self.removeRequirementFromObject(uuid,requirement)
-        Requirements_Operator::setObjectRequirements(uuid, (Requirements_Operator::getObjectRequirements(uuid).reject{|r| r==requirement }))
-    end
-
-    def self.objectMeetsRequirements(uuid)
-        Requirements_Operator::getObjectRequirements(uuid)
-            .all?{|requirement| Requirements_Operator::requirementIsCurrentlySatisfied(requirement) }
-    end
-
-    def self.getAllRequirements()
-        FlockOperator::flockObjects().map{|object| Requirements_Operator::getObjectRequirements(object["uuid"]) }.flatten.uniq
-    end
-
-    def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", Requirements_Operator::getAllRequirements())
-    end
-
-    def self.transform()
-        FlockOperator::flockObjects().each{|object|
-            if !Requirements_Operator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
-                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["metric"] = 0
-            end
-            FlockOperator::addOrUpdateObject(object)
-        }
-    end
-end
-
-# ----------------------------------------------------------------------
-
-# TodayOrNotToday::notToday(uuid)
-# TodayOrNotToday::todayOk(uuid)
-# TodayOrNotToday::transform()
-
-class TodayOrNotToday
-    def self.notToday(uuid)
-        FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}", "!today")
-    end
-    def self.todayOk(uuid)
-        FKVStore::getOrNull("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}").nil?
-    end
-    def self.transform()
-        FlockOperator::flockObjects().each{|object|
-            if !TodayOrNotToday::todayOk(object["uuid"]) and object["metric"]<=1 then
-                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["metric"] = 0
-            end
-            FlockOperator::addOrUpdateObject(object)
-        }
-    end
-end
-
 # ----------------------------------------------------------------
 
 # CommonsUtils::isLucille18()
@@ -710,7 +607,7 @@ class CommonsUtils
             announce = announce.green
         end
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = Requirements_Operator::getObjectRequirements(object['uuid'])
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
         [
             "(#{"%.3f" % object["metric"]})",
@@ -791,8 +688,8 @@ class CommonsUtils
             puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
             puts "    Total        : #{(count1+count3)}".green
             puts "Requirements:".green
-            puts "    On  : #{(Requirements_Operator::getAllRequirements() - Requirements_Operator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
-            puts "    Off : #{Requirements_Operator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -916,23 +813,23 @@ class CommonsUtils
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            Requirements_Operator::setSatisfifiedRequirement(requirement)
+            RequirementsOperator::setSatisfifiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("r:off") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            Requirements_Operator::setUnsatisfiedRequirement(requirement)
+            RequirementsOperator::setUnsatisfiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("r:show") then
             command, requirement = expression.split(" ").map{|t| t.strip }
             if requirement.nil? or requirement.size==0 then
-                requirement = Requirements_Operator::selectRequirementFromExistingRequirementsOrNull()
+                requirement = RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = FlockOperator::flockObjects().select{ |object| Requirements_Operator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = FlockOperator::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
                 CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -989,13 +886,13 @@ class CommonsUtils
 
         if expression.start_with?("r:add") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            Requirements_Operator::addRequirementToObject(object['uuid'],requirement)
+            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
             return
         end
 
         if expression.start_with?("r:remove") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            Requirements_Operator::removeRequirementFromObject(object['uuid'],requirement)
+            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
             return
         end
 
@@ -1270,41 +1167,35 @@ class FlockService
     def fKVStore_set(key, value)
         FKVStore::set(key, value)
     end
-    def flockDiskIO_loadFromEventsTimeline()
-        FlockDiskIO::loadFromEventsTimeline()
-    end
     def top10Objects()
         AgentsManager::generalUpgradeFromFlockServer()
         TodayOrNotToday::transform()
-        Requirements_Operator::transform()
+        RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsOperator::transform()
         NotGuardian::transform()
         FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(10)
     end
-    def notToday(uuid)
+    def todayOrNotToday_notToday(uuid)
         FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}", "!today")
     end
     def requirementsOperator_getObjectRequirements(uuid)
-        Requirements_Operator::getObjectRequirements(uuid)
+        RequirementsOperator::getObjectRequirements(uuid)
+    end
+    def requirementsOperator_setObjectRequirements(uuid, requirements)
+        RequirementsOperator::setObjectRequirements(uuid, requirements)
     end
     def requirementsOperator_getAllRequirements()
-        Requirements_Operator::getAllRequirements()
+        RequirementsOperator::getAllRequirements()
     end
     def requirementsOperator_getCurrentlyUnsatisfiedRequirements()
-        Requirements_Operator::getCurrentlyUnsatisfiedRequirements()
+        RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
     end
     def requirementsOperator_setSatisfifiedRequirement(requirement)
-        Requirements_Operator::setSatisfifiedRequirement(requirement)
+        RequirementsOperator::setSatisfifiedRequirement(requirement)
     end
     def requirementsOperator_setUnsatisfifiedRequirement(requirement)
-        Requirements_Operator::setUnsatisfifiedRequirement(requirement)
-    end
-    def requirementsOperator_addRequirementToObject(uuid,requirement)
-        Requirements_Operator::addRequirementToObject(uuid,requirement)
-    end
-    def requirementsOperator_removeRequirementFromObject(uuid,requirement)
-        Requirements_Operator::removeRequirementFromObject(uuid,requirement)
+        RequirementsOperator::setUnsatisfifiedRequirement(requirement)
     end
 end
 # ----------------------------------------------------------------

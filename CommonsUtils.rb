@@ -203,7 +203,7 @@ class CommonsUtils
             announce = announce.green
         end
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = DRbObject.new(nil, "druby://:18171").requirementsOperator_getObjectRequirements(object['uuid'])
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
         [
             "(#{"%.3f" % object["metric"]})",
@@ -239,7 +239,7 @@ class CommonsUtils
         Wave::writeScheduleToDisk(uuid,schedule)
         if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
             if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                DRbObject.new(nil, "druby://:18171").flockOperator_setDoNotShowUntilDateTime(uuid, datetime)
+                FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
             end
         end
@@ -258,7 +258,7 @@ class CommonsUtils
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", DRbObject.new(nil, "druby://:18171").requirementsOperator_getAllRequirements())
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -288,21 +288,21 @@ class CommonsUtils
             puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
             puts "    Total        : #{(count1+count3)}".green
             puts "Requirements:".green
-            puts "    On  : #{(DRbObject.new(nil, "druby://:18171").requirementsOperator_getAllRequirements() - DRbObject.new(nil, "druby://:18171").requirementsOperator_getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
-            puts "    Off : #{DRbObject.new(nil, "druby://:18171").requirementsOperator_getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
         end
 
         if expression == "guardian" then
-            aGuardianIsRunning = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
+            aGuardianIsRunning = FlockOperator::flockObjects()
                 .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
                 .any?{|object| object["metadata"]["is-running"] }
             if aGuardianIsRunning then
                 puts "You can't run `guardian` while a Guardian is running"
                 LucilleCore::pressEnterToContinue()
             else
-                o = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects()
+                o = FlockOperator::flockObjects()
                     .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
                     .select{|object| object["announce"].include?("Guardian") }
                     .first
@@ -413,13 +413,13 @@ class CommonsUtils
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            DRbObject.new(nil, "druby://:18171").requirementsOperator_setSatisfifiedRequirement(requirement)
+            RequirementsOperator::setSatisfifiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("r:off") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            DRbObject.new(nil, "druby://:18171").requirementsOperator_setUnsatisfiedRequirement(requirement)
+            RequirementsOperator::setUnsatisfiedRequirement(requirement)
             return
         end
 
@@ -429,7 +429,7 @@ class CommonsUtils
                 requirement = CommonsUtils::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().select{ |object| DRbObject.new(nil, "druby://:18171").requirementsOperator_getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = FlockOperator::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
                 CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -440,7 +440,7 @@ class CommonsUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = DRbObject.new(nil, "druby://:18171").flockOperator_flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = FlockOperator::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -465,7 +465,7 @@ class CommonsUtils
         end
 
         if expression == '!today' then
-            DRbObject.new(nil, "druby://:18171").notToday(object["uuid"])
+            TodayOrNotToday::notToday(object["uuid"])
             return
         end
 
@@ -478,7 +478,7 @@ class CommonsUtils
         if expression.start_with?('+') then
             code = expression
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
-                DRbObject.new(nil, "druby://:18171").flockOperator_setDoNotShowUntilDateTime(object["uuid"], datetime)
+                FlockOperator::setDoNotShowUntilDateTime(object["uuid"], datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return
@@ -486,13 +486,13 @@ class CommonsUtils
 
         if expression.start_with?("r:add") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            DRbObject.new(nil, "druby://:18171").requirementsOperator_addRequirementToObject(object['uuid'],requirement)
+            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
             return
         end
 
         if expression.start_with?("r:remove") then
             command, requirement = expression.split(" ").map{|t| t.strip }
-            DRbObject.new(nil, "druby://:18171").requirementsOperator_removeRequirementFromObject(object['uuid'],requirement)
+            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
             return
         end
 
@@ -509,12 +509,12 @@ class CommonsUtils
     def self.viewloop()
         loop {
             startUnixtime = Time.new.to_f
-            objects = DRbObject.new(nil, "druby://:18171").top10Objects()
+            objects = FlockService::top10Objects()
             endUnixtime = Time.new.to_f
             system("clear")
             puts "objects loaded in #{ (endUnixtime-startUnixtime) } seconds"
-            if DRbObject.new(nil, "druby://:18171").requirementsOperator_getCurrentlyUnsatisfiedRequirements().size>0 then
-                puts "REQUIREMENTS: OFF: #{DRbObject.new(nil, "druby://:18171").requirementsOperator_getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
             dayprogression = {
                 "collections" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/CollectionsOperator::dailyCommitmentInHours(),
@@ -540,7 +540,7 @@ class CommonsUtils
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
-            object = DRbObject.new(nil, "druby://:18171").top10Objects().first
+            object = FlockService::top10Objects().first
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
             # In such a case they are still in Flock and should not be showed
@@ -549,7 +549,7 @@ class CommonsUtils
                     if !File.exists?(object["item-data"]["folderpath"]) then
                         puts CommonsUtils::object2Line_v0(object)
                         puts "This email has been deleted, removing Flock item:"
-                        DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(object["uuid"])
+                        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
                         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
                         next
                     end
@@ -575,8 +575,8 @@ class CommonsUtils
                 mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
             end
             if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
-                if DRbObject.new(nil, "druby://:18171").requirementsOperator_getCurrentlyUnsatisfiedRequirements().size>0 then
-                    puts "REQUIREMENTS OFF: #{DRbObject.new(nil, "druby://:18171").requirementsOperator_getCurrentlyUnsatisfiedRequirements().join(", ")}"
+                if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                    puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
                     LucilleCore::pressEnterToContinue()
                 end
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2

@@ -25,7 +25,7 @@ class DailyTimeAttribution
 
     def self.generalUpgradeFromFlockServer()
 
-        if DRbObject.new(nil, "druby://:18171").fKVStore_getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
+        if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             distribution = {}
             CollectionsOperator::collectionsUUIDs().each{|collectionuuid|
                 distribution[collectionuuid] = {

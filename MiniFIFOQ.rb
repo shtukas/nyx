@@ -19,16 +19,16 @@
 class MiniFIFOQ
 
     def self.getElement(queueuuid, indx)
-        value = DRbObject.new(nil, "druby://:18171").fKVStore_getOrDefaultValue("8d93c17a/#{queueuuid}/#{indx}", "[null]")
+        value = FKVStore::getOrDefaultValue("8d93c17a/#{queueuuid}/#{indx}", "[null]")
         JSON.parse(value).first
     end
 
     def self.setElement(queueuuid, indx, value)
-        DRbObject.new(nil, "druby://:18171").fKVStore_set("8d93c17a/#{queueuuid}/#{indx}", JSON.generate([value]))
+        FKVStore::set("8d93c17a/#{queueuuid}/#{indx}", JSON.generate([value]))
     end
 
     def self.getQueueParametersOrNull(queueuuid)
-        params = DRbObject.new(nil, "druby://:18171").fKVStore_getOrNull("2b796fa5/#{queueuuid}")
+        params = FKVStore::getOrNull("2b796fa5/#{queueuuid}")
         if params.nil? then
             [0, 0]
         else
@@ -37,7 +37,7 @@ class MiniFIFOQ
     end
 
     def self.updateQueueParameters(queueuuid, params)
-        DRbObject.new(nil, "druby://:18171").fKVStore_set("2b796fa5/#{queueuuid}", JSON.generate(params))
+        FKVStore::set("2b796fa5/#{queueuuid}", JSON.generate(params))
     end
 
     # ---------------------------------------------

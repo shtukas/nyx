@@ -350,7 +350,7 @@ class Wave
     end
 
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = DRbObject.new(nil, "druby://:18171").fKVStore_getOrNull("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = FKVStore::getOrNull("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -362,7 +362,7 @@ class Wave
         end
         #puts "Wave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        DRbObject.new(nil, "druby://:18171").fKVStore_set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
+        FKVStore::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
         maybepath
     end
 
@@ -573,13 +573,13 @@ class Wave
             schedule = WaveSchedules::cycleSchedule(schedule)
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
-            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         }
 
         doneObjectWithOneOffTask = lambda {|object|
             uuid = object['uuid']
-            DRbObject.new(nil, "druby://:18171").flockOperator_removeObjectIdentifiedByUUID(uuid)
+            FlockOperator::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             Wave::archiveWaveItem(uuid)
         }
@@ -602,7 +602,7 @@ class Wave
             schedule = Wave::makeNewSchedule()
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
-            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 
@@ -612,7 +612,7 @@ class Wave
             folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
             object = Wave::makeCatalystObjectOrNull(uuid)
-            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 

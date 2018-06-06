@@ -177,15 +177,15 @@ class Stream
             GenericTimeTracking::start(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
-            DRbObject.new(nil, "druby://:18171").fKVStore_set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
+            FlockOperator::addOrUpdateObject(object)
+            FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
-            DRbObject.new(nil, "druby://:18171").flockOperator_addOrUpdateObject(object)
+            FlockOperator::addOrUpdateObject(object)
         end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)

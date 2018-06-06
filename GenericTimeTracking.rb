@@ -10,14 +10,14 @@
 
 class GenericTimeTracking
     def self.status(uuid)
-        JSON.parse(DRbObject.new(nil, "druby://:18171").fKVStore_getOrDefaultValue("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
+        JSON.parse(FKVStore::getOrDefaultValue("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
     end
 
     def self.start(uuid)
         status = GenericTimeTracking::status(uuid)
         return if status[0]
         status = [true, Time.new.to_i]
-        DRbObject.new(nil, "druby://:18171").fKVStore_set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.stop(uuid)
@@ -26,7 +26,7 @@ class GenericTimeTracking
         timespan = Time.new.to_i - status[1]
         GenericTimeTracking::addTimeInSeconds(uuid, timespan)
         status = [false, nil]
-        DRbObject.new(nil, "druby://:18171").fKVStore_set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.addTimeInSeconds(uuid, timespan)
