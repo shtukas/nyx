@@ -119,6 +119,8 @@ class CommonsUtils
         puts "    collections:new # new collection"
         puts "    threads         # show threads"
         puts "    projects        # show projects"
+        puts "    guardian    # start any active Guardian time commitment"
+        puts "    email-sync  # run email sync"
         puts ""
         puts ""
         puts "Special General Commands (inserts)"
@@ -312,6 +314,11 @@ class CommonsUtils
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
+        end
+
+        if expression == 'email-sync' then
+            CommonsUtils::emailSync(true)
             return
         end
 
