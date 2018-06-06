@@ -231,7 +231,7 @@ class TimeCommitments
             .map{|item|
                 uuid = item['uuid']
                 ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-                metric = 0.6 + 0.2*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid) 
+                metric = 0.6 + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
                 metric = item['metric'] ? item['metric'] : metric
                 metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"] or item["paused"]
                 announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
