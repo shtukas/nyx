@@ -235,7 +235,7 @@ class FlockService
         FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(10)
     end
     def todayOrNotToday_notToday(uuid)
-        FKVStore::set("9e8881b5-3bf7-4a08-b454-6b8b827cd0e0:#{CommonsUtils::currentDay()}:#{uuid}", "!today")
+        TodayOrNotToday::notToday(uuid)
     end
     def requirementsOperator_getObjectRequirements(uuid)
         RequirementsOperator::getObjectRequirements(uuid)
