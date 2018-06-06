@@ -227,6 +227,7 @@ class TimeCommitments
         TimeCommitments::garbageCollectionGlobal()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
         objects = TimeCommitments::getItems()
+            .select{|item| item["commitment-in-hours"] > 0 }
             .map{|item|
                 uuid = item['uuid']
                 ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]

@@ -25,7 +25,7 @@ class DailyTimeAttribution
 
     def self.generalUpgradeFromFlockServer()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
+        if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=0 then
             object =
                 {
                     "uuid"      => "2ef32868",
@@ -57,33 +57,65 @@ class DailyTimeAttribution
             CollectionsOperator::collectionsUUIDs().each{|collectionuuid|
                 distribution[collectionuuid] = {
                     "collectionuuid" => collectionuuid,
+                    "style"          => CollectionsOperator::getCollectionStyle(collectionuuid),
                     "collectionname" => CollectionsOperator::collectionUUID2NameOrNull(collectionuuid),
                     "time-commitment-in-hours" => 0,
                     "is-Guardian-time" => false
                 }
             }
-            puts "Daily Time Attribution:"
+            puts "Daily Time Attribution: Projects recommendations:"
             distribution.each{|collectionuuid, collectiondata|
+                next if collectiondata["style"] != "PROJECT"
+                puts "   - #{collectiondata["collectionname"]} : recommended: #{CollectionsOperator::getObjectTimeCommitmentInHours(collectionuuid)} hours"
+            }
+            puts "Daily Time Attribution: Projects pascal commitments:"
+            distribution.each{|collectionuuid, collectiondata|
+                next if collectiondata["style"] != "PROJECT"
                 collectiondata["time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("  - #{collectiondata["collectionname"]} (hours): ").to_f
                 if collectiondata["time-commitment-in-hours"] > 0 then
-                    collectiondata["is-Guardian-time"] = LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("    Is Guardian time? ")
+                    collectiondata["is-Guardian-time"] = CollectionsOperator::isGuardianTime?(collectionuuid)
                 end
-            }
-            loop {
-                puts "Summary:"
-                distribution.each{|collectionuuid, collectiondata|
-                    next if collectiondata["time-commitment-in-hours"] == 0
-                    puts "   - #{collectiondata["collectionname"]} : #{collectiondata["time-commitment-in-hours"]}"
-                }
-                puts "    Total: #{distribution.keys.map{|collectionuuid| distribution[collectionuuid]["time-commitment-in-hours"] }.inject(0, :+)} hours"
-                if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to update the times? ") then
-                    puts "Not implemented yet"
-                    LucilleCore::pressEnterToContinue()
-                    #next
-                end
-                break
             }
             distribution.each{|collectionuuid, collectiondata|
+                next if collectiondata["style"] != "PROJECT"
+                next if collectiondata["time-commitment-in-hours"] == 0
+                item = {
+                    "uuid"                => SecureRandom.hex(4),
+                    "domain"              => "0b91cb59-6a25-40e2-87eb-abb65af078c0:#{collectionuuid}",
+                    "description"         => "Time commitment point for: #{collectiondata["collectionname"]}",
+                    "commitment-in-hours" => collectiondata["time-commitment-in-hours"],
+                    "timespans"           => [],
+                    "last-start-unixtime" => 0,
+                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY] # the collection and the entire collection agent
+                }
+                TimeCommitments::saveItem(item)
+                if collectiondata["is-Guardian-time"] then
+                    item = {
+                        "uuid"                => SecureRandom.hex(4),
+                        "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
+                        "description"         => "Guardian",
+                        "commitment-in-hours" => -collectiondata["time-commitment-in-hours"],
+                        "timespans"           => [],
+                        "last-start-unixtime" => 0
+                    }
+                    TimeCommitments::saveItem(item)
+                end
+            }
+            puts "Daily Time Attribution: Threads recommendations:"
+            distribution.each{|collectionuuid, collectiondata|
+                next if collectiondata["style"] != "THREAD"
+                puts "   - #{collectiondata["collectionname"]}"
+            }
+            puts "Daily Time Attribution: Projects pascal commitments:"
+            distribution.each{|collectionuuid, collectiondata|
+                next if collectiondata["style"] != "THREAD"
+                collectiondata["time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("  - #{collectiondata["collectionname"]} (hours): ").to_f
+                if collectiondata["time-commitment-in-hours"] > 0 then
+                    collectiondata["is-Guardian-time"] = CollectionsOperator::isGuardianTime?(collectionuuid)
+                end
+            }
+            distribution.each{|collectionuuid, collectiondata|
+                next if collectiondata["style"] != "THREAD"
                 next if collectiondata["time-commitment-in-hours"] == 0
                 item = {
                     "uuid"                => SecureRandom.hex(4),

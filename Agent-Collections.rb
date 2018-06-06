@@ -22,7 +22,6 @@ require_relative "CommonsUtils"
 # -------------------------------------------------------------------------------------
 
 # AgentCollections::metric
-# AgentCollections::getObjectTimeCommitmentInHours(uuid)
 
 class AgentCollections
 
@@ -30,26 +29,12 @@ class AgentCollections
         "e4477960-691d-4016-884c-8694db68cbfb"
     end
 
-    def self.getObjectTimeCommitmentInHours(uuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
-        if folderpath.nil? then
-            raise "error e95e2fda: Could not find fodler path for uuid: #{uuid}" 
-        end
-        if File.exists?("#{folderpath}/collection-time-commitment-override") then
-            return IO.read("#{folderpath}/collection-time-commitment-override").to_f
-        end
-        if File.exists?("#{folderpath}/collection-time-positional-coefficient") then
-            return IO.read("#{folderpath}/collection-time-positional-coefficient").to_f * CollectionsOperator::dailyCommitmentInHours()
-        end
-        0
-    end
-
     def self.objectHoursDone(uuid)
         GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600
     end
 
     def self.projectMetric(uuid)
-        time = self.getObjectTimeCommitmentInHours(uuid)
+        time = CollectionsOperator::getObjectTimeCommitmentInHours(uuid)
         return 0 if time == 0
         0.2 + 0.4*Math.exp(-self.objectHoursDone(uuid).to_f/time)
     end

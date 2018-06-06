@@ -31,9 +31,12 @@
 # CollectionsOperator::setCollectionStyle(collectionuuid, style)
 # CollectionsOperator::getCollectionStyle(collectionuuid)
 
+# CollectionsOperator::isGuardianTime?(collectionuuid)
+
 # CollectionsOperator::transform()
 # CollectionsOperator::sendCollectionToBinTimeline(uuid)
-# CollectionsOperator::dailyCommitmentInHours()
+# CollectionsOperator::agentDailyCommitmentInHours()
+# CollectionsOperator::getObjectTimeCommitmentInHours(uuid)
 
 # CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
 # CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
@@ -178,6 +181,22 @@ class CollectionsOperator
     end
 
     # ---------------------------------------------------
+    # isGuardianTime?(collectionuuid)
+
+    def self.isGuardianTime?(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/isGuardianTime?"
+        if !File.exists?(filepath) then
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("#{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)} is Guardian time? ") then
+                File.open(filepath, "w"){|f| f.write("true") }
+            else
+                File.open(filepath, "w"){|f| f.write("false") }
+            end
+        end
+        IO.read(filepath).strip == "true" 
+    end
+
+    # ---------------------------------------------------
     # Misc
 
     def self.transform()
@@ -200,8 +219,22 @@ class CollectionsOperator
         LucilleCore::removeFileSystemLocation(sourcefilepath)
     end
 
-    def self.dailyCommitmentInHours()
-        6
+    def self.getObjectTimeCommitmentInHours(uuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+        if folderpath.nil? then
+            raise "error e95e2fda: Could not find fodler path for uuid: #{uuid}" 
+        end
+        if File.exists?("#{folderpath}/collection-time-commitment-override") then
+            return IO.read("#{folderpath}/collection-time-commitment-override").to_f
+        end
+        if File.exists?("#{folderpath}/collection-time-positional-coefficient") then
+            return IO.read("#{folderpath}/collection-time-positional-coefficient").to_f * CollectionsOperator::agentDailyCommitmentInHours()
+        end
+        0
+    end
+
+    def self.agentDailyCommitmentInHours()
+        4
     end
 
     def self.ui_loopDiveCollectionObjects(collectionuuid)
