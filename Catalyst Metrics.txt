@@ -7,8 +7,10 @@
 0.820 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats
 0.600 -> 0.800  TimeCommitments (unless specified by the item itself)
-      -> 0.600  Collections & Stream
 0.150 -> 0.750  Vienna
+0.200 -> 0.600  collection: project
+      -> 0.600  stream
 0.200 -> 0.600  Ninja
+0.200 -> 0.400  collection: thread
          0.200  -- water level -- 
          0.000  Not To Be Done

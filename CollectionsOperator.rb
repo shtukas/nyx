@@ -38,9 +38,6 @@
 # CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
 # CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
 
-# CollectionsOperator::getNextReviewUnixtime(collectionuuid)
-# CollectionsOperator::setNextReviewUnixtime(collectionuuid)
-
 class CollectionsOperator
 
     # ---------------------------------------------------

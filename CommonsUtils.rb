@@ -589,17 +589,6 @@ class CommonsUtils
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
-            collectionuuid = CollectionsOperator::collectionsUUIDs()
-                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
-                .select{ |collectionuuid| Time.new.to_i >= CollectionsOperator::getNextReviewUnixtime(collectionuuid) }
-                .first
-            if collectionuuid then
-                collectionname = CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
-                puts "Thread review: #{collectionname}"
-                CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
-                CollectionsOperator::setNextReviewUnixtime(collectionuuid)
-                next
-            end
             puts CommonsUtils::object2Line_v1(object)
             print "--> "
             command = STDIN.gets().strip

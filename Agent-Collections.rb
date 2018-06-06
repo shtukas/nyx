@@ -21,18 +21,13 @@ require_relative "CommonsUtils"
 
 # -------------------------------------------------------------------------------------
 
-# AgentCollections::objectMetricAsFloat
-# AgentCollections::objectMetrics(uuid)
+# AgentCollections::metric
 # AgentCollections::getObjectTimeCommitmentInHours(uuid)
 
 class AgentCollections
 
     def self.agentuuid()
         "e4477960-691d-4016-884c-8694db68cbfb"
-    end
-
-    def self.agentAdaptedHours()
-        GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600
     end
 
     def self.getObjectTimeCommitmentInHours(uuid)
@@ -49,75 +44,31 @@ class AgentCollections
         0
     end
 
-    def self.objectMetricRelativelyToItsCoefficientCommitment(uuid)
-        time = self.getObjectTimeCommitmentInHours(uuid)
-        if time==0 then
-            0
-        else
-            if self.objectAdaptedHours(uuid) > time then
-                0
-            else
-                0.2 + Math.atan(time).to_f/100 + 0.4*Math.exp(-self.objectAdaptedHours(uuid).to_f/time)
-            end
-        end
-    end
-
-    def self.objectLowMetricRelativelyToItsAdaptedHours(uuid)
-        0.1 + 0.2*Math.exp(-self.objectAdaptedHours(uuid))
-    end
-
-    def self.objectAdaptedHours(uuid)
+    def self.objectHoursDone(uuid)
         GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600
     end
 
-    def self.objectMetrics(uuid)
-        style = CollectionsOperator::getCollectionStyle(uuid)
-        if style=="PROJECT" then
-            return [self.getObjectTimeCommitmentInHours(uuid), self.objectAdaptedHours(uuid), self.objectMetricRelativelyToItsCoefficientCommitment(uuid), self.objectLowMetricRelativelyToItsAdaptedHours(uuid)]
-        end
-        if style=="THREAD" then
-            return [0,                                         self.objectAdaptedHours(uuid), 0,                                                           self.objectLowMetricRelativelyToItsAdaptedHours(uuid)]
-        end
+    def self.projectMetric(uuid)
+        time = self.getObjectTimeCommitmentInHours(uuid)
+        return 0 if time == 0
+        0.2 + 0.4*Math.exp(-self.objectHoursDone(uuid).to_f/time)
     end
 
-    def self.objectMetricAsFloat(uuid)
-        self.objectMetrics(uuid)[2, 3].max
-    end
-
-    def self.objectMetricsAsString(uuid)
-        dx = lambda {|x| x == "0.000" ? "     " : x }
-        AgentCollections::objectMetrics(uuid).map{|value| "%.3f" % value }.map{|str| dx.call(str) }.join(", ")
-    end
-
-    def self.commands(style, isRunning)
-        if style=="PROJECT" then
-            return ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "file", "folder", "objects", "dive"]
-        end
-        if style=="THREAD" then
-            return ["completed", "file", "folder", "objects", "dive"]
-        end
-        raise "1DA65B35-278D-4620-95E0-2009A6FE2C8C"    
-    end
-
-    def self.defaultExpression(style, isRunning)
-        if style=="PROJECT" then
-            return isRunning ? "stop" : "start"
-        end
-        if style=="THREAD" then
-            return ""
-        end
-        raise "7EB12414-1471-4C2B-9631-8F75EE428632"
+    def self.threadMetric(uuid)
+        0.2 + 0.2*Math.exp(-self.objectHoursDone(uuid))
     end
 
     def self.metric(uuid, style, isRunning)
-        if style=="PROJECT" then
-            metric = AgentCollections::objectMetricAsFloat(uuid)
-            return isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
-        end
-        if style=="THREAD" then
-            return 0.3 + CommonsUtils::traceToMetricShift(uuid)
-        end
-        raise "BE024B93-F68B-47CC-B252-AF81FFDD8867"    
+        metric = ( CollectionsOperator::getCollectionStyle(uuid) == "PROJECT" ) ? self.projectMetric(uuid) : self.threadMetric(uuid)
+        isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric
+    end
+
+    def self.commands(style, isRunning)
+        ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "file", "folder", "objects", "dive"]    
+    end
+
+    def self.defaultExpression(style, isRunning)
+        isRunning ? "stop" : "start"
     end
 
     def self.hasText(folderpath)
@@ -133,7 +84,7 @@ class AgentCollections
         return nil if uuid.nil?
         description = CollectionsOperator::folderPath2CollectionName(folderpath)
         style = CollectionsOperator::getCollectionStyle(uuid)
-        announce = "collection (#{style.downcase}): #{description}"
+        announce = "collection: #{style.downcase}: #{description}"
         if self.hasText(folderpath) then
             announce = announce + " [TEXT]"
         end
@@ -164,6 +115,7 @@ class AgentCollections
     end    
 
     def self.generalUpgradeFromFlockServer()
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
         halves = [0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625]
         CollectionsOperator::collectionsFolderpaths()
             .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
@@ -177,7 +129,6 @@ class AgentCollections
         objects = CollectionsOperator::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
         FlockOperator::addOrUpdateObjects(objects)
     end
 
