@@ -57,7 +57,7 @@ class AgentCollections
             if self.objectAdaptedHours(uuid) > time then
                 0
             else
-                0.2 + Math.atan(time).to_f/100 + 0.6*Math.exp(-self.objectAdaptedHours(uuid).to_f/time)
+                0.2 + Math.atan(time).to_f/100 + 0.4*Math.exp(-self.objectAdaptedHours(uuid).to_f/time)
             end
         end
     end
