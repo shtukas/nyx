@@ -24,8 +24,35 @@ class DailyTimeAttribution
     end
 
     def self.generalUpgradeFromFlockServer()
-
+        FlockOperator::removeObjectsFromAgent(self.agentuuid())
         if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
+            object =
+                {
+                    "uuid"      => "2ef32868",
+                    "agent-uid" => self.agentuuid(),
+                    "metric"    => 1,
+                    "announce"  => "DailyTimeAttribution",
+                    "commands"  => [],
+                    "default-expression" => "16b84bf4-a032-44f7-a190-85476ca27ccd"
+                }
+            FlockOperator::addOrUpdateObject(object)
+        end
+        if FKVStore::getOrNull("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=8 then
+            object =
+                {
+                    "uuid"      => "2ef32868",
+                    "agent-uid" => self.agentuuid(),
+                    "metric"    => 1,
+                    "announce"  => "DailyTimeAttribution",
+                    "commands"  => [],
+                    "default-expression" => "23ed1630-7c94-47b4-b50e-905a3e5f862a"
+                }
+            FlockOperator::addOrUpdateObject(object)
+        end
+    end
+
+    def self.processObjectAndCommandFromCli(object, command)
+        if command == "16b84bf4-a032-44f7-a190-85476ca27ccd" then
             distribution = {}
             CollectionsOperator::collectionsUUIDs().each{|collectionuuid|
                 distribution[collectionuuid] = {
@@ -35,9 +62,9 @@ class DailyTimeAttribution
                     "is-Guardian-time" => false
                 }
             }
-            puts "Daily Time Attribution: Time in hours, and yes/no for Guardian Time"
+            puts "Daily Time Attribution:"
             distribution.each{|collectionuuid, collectiondata|
-                collectiondata["time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("Today's hours for #{collectiondata["collectionname"]}: ").to_f
+                collectiondata["time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("  - #{collectiondata["collectionname"]} (hours): ").to_f
                 if collectiondata["time-commitment-in-hours"] > 0 then
                     collectiondata["is-Guardian-time"] = LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("    Is Guardian time? ")
                 end
@@ -66,9 +93,6 @@ class DailyTimeAttribution
                     "timespans"           => [],
                     "last-start-unixtime" => 0
                 }
-                puts JSON.pretty_generate(collectiondata)
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
                 TimeCommitments::saveItem(item)
                 if collectiondata["is-Guardian-time"] then
                     item = {
@@ -79,16 +103,13 @@ class DailyTimeAttribution
                         "timespans"           => [],
                         "last-start-unixtime" => 0
                     }
-                    puts JSON.pretty_generate(item)
-                    LucilleCore::pressEnterToContinue()
                     TimeCommitments::saveItem(item)
                 end
             }
             FKVStore::set("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}", "done")
         end
-
-        if FKVStore::getOrNull("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=8 then
-            numberOfHours = LucilleCore::askQuestionAnswerAsString("Number of Guardian hours for today (empty default to 5): ")
+        if command == "23ed1630-7c94-47b4-b50e-905a3e5f862a" then
+            numberOfHours = LucilleCore::askQuestionAnswerAsString("Guardian hours for today (empty default to 5): ")
             if numberOfHours.strip.size==0 then
                 numberOfHours = "5"
             end
@@ -106,9 +127,5 @@ class DailyTimeAttribution
             end
             FKVStore::set("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}", "done")
         end
-    end
-
-    def self.processObjectAndCommandFromCli(object, command)
-
     end
 end
