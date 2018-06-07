@@ -592,6 +592,11 @@ class Wave
             schedule = Wave::makeNewSchedule()
             object['schedule'] = schedule
             Wave::writeScheduleToDisk(uuid, schedule)
+            if File.exist?("#{catalystUUIDToItemFolderPathOrNull(uuid)}/email-metatada-emailuid.txt") then
+                puts "You are recastimg an email, removing file email-metatada-emailuid.txt"
+                LucilleCore::pressEnterToContinue()
+                FileUtils.rm("#{catalystUUIDToItemFolderPathOrNull(uuid)}/email-metatada-emailuid.txt")
+            end
             FlockOperator::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
