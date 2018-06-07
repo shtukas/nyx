@@ -12,13 +12,28 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::realNumbersToZeroOne(x, origin, unit)
 # CommonsUtils::codeToDatetimeOrNull(code)
-# CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
 # CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::waveInsertNewItem(description)
 # CommonsUtils::isInteger(str)
 # CommonsUtils::screenHeight()
 
 class CommonsUtils
+
+    def self.interactiveDisplayObjectAndProcessCommand(object)
+        print CatalystCLIUtils::object2Line_v1(object) + " : "
+        givenCommand = STDIN.gets().strip
+        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.doPresentObjectInviteAndExecuteCommand(object)
+        return if object.nil?
+        puts CatalystCLIUtils::object2Line_v1(object)
+        print "--> "
+        command = STDIN.gets().strip
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
 
     def self.isLucille18()
         ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
@@ -34,6 +49,17 @@ class CommonsUtils
 
     def self.currentDay()
         Time.new.to_s[0,10]
+    end
+
+    def self.announceWithColor(announce, object)
+        if object["metric"]>1 then
+            if object["announce"].include?("[PAUSED]") then
+                announce = announce.yellow
+            else
+                announce = announce.green                
+            end
+        end
+        announce
     end
 
     def self.simplifyURLCarryingString(string)
@@ -185,42 +211,14 @@ class CommonsUtils
         ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
     end
 
-    def self.announceWithColor(announce, object)
-        if object["metric"]>1 then
-            if object["announce"].include?("[PAUSED]") then
-                announce = announce.yellow
-            else
-                announce = announce.green                
-            end
-        end
-        announce
-    end
-
     def self.object2Line_v0(object)
         announce = object['announce'].lines.first.strip
-        announce = self.announceWithColor(announce, object)
+        announce = CommonsUtils::announceWithColor(announce, object)
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
             " #{announce}",
             CommonsUtils::object2DonotShowUntilAsString(object),
-        ].join()
-    end
-
-    def self.object2Line_v1(object)
-        announce = object['announce'].strip
-        announce = self.announceWithColor(announce, object)
-        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
-        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        [
-            "(#{"%.3f" % object["metric"]})",
-            " [#{object["uuid"]}]",
-            " #{announce}",
-            "#{requirementsAsString.green}",
-            CommonsUtils::object2DonotShowUntilAsString(object),
-            " (#{object["commands"].join(" ").red})",
-            " \"#{defaultExpressionAsString.green}\""
         ].join()
     end
 
@@ -255,13 +253,6 @@ class CommonsUtils
         if answer=="yes" then
             CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(uuid)
         end
-    end
-
-    def self.interactiveDisplayObjectAndProcessCommand(object)
-        print CommonsUtils::object2Line_v1(object) + " : "
-        givenCommand = STDIN.gets().strip
-        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
@@ -511,109 +502,6 @@ class CommonsUtils
         else
             AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
         end
-    end
-
-    def self.viewloop()
-        loop {
-            FlockDiskIO::loadFromEventsTimeline()
-            objects = FlockService::topObjects(CommonsUtils::screenHeight()-5)
-            system("clear")
-            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            end
-            dayprogression = {
-                "collections" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/CollectionsOperator::agentDailyCommitmentInHours(),
-                "stream"      => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/CollectionsOperator::agentDailyCommitmentInHours()
-            }
-            if dayprogression["collections"] >= 1 and dayprogression["stream"] >= 1 then
-                puts "DAY PROGRESSION: (Collections, Stream) Cleared of duties. Enjoy while it last (^_^)".green
-            else
-                puts "DAY PROGRESSION: Collections: #{ (100*dayprogression["collections"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".yellow
-            end       
-            puts ""
-            # --------------------------------------------------------------------------------
-            objects.each_with_index{|object, index|
-                puts "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)}"
-            }
-            sleep 10
-        }
-    end
-
-    def self.cli(runId)
-        mainschedule = {}
-        mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
-        mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
-        mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
-        loop {
-            FlockDiskIO::loadFromEventsTimeline()
-            object = FlockService::topObjects(1).first
-            # --------------------------------------------------------------------------------
-            # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
-            # In such a case they are still in Flock and should not be showed
-            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
-                if object["schedule"][":wave-emails:"] then
-                    if !File.exists?(object["item-data"]["folderpath"]) then
-                        puts CommonsUtils::object2Line_v0(object)
-                        puts "This email has been deleted, removing Flock item:"
-                        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
-                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                        next
-                    end
-                end
-            end
-            system("clear")
-            if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isLucille18() then
-                lines = CatalystDevOps::archivesTimelineGarbageCollection()
-                puts "Archives timeline garbage collection: #{lines.size}"
-                lines.each{|line|
-                    puts "    - #{line}"
-                }
-                LucilleCore::pressEnterToContinue() if lines.size>0
-                mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
-            end
-            if ( Time.new.to_i > mainschedule["events-gc"] ) and CommonsUtils::isLucille18() then
-                lines = CatalystDevOps::eventsTimelineGarbageCollection()
-                puts "Events timeline garbage collection: #{lines.size}"
-                lines.each{|line|
-                    puts "    - #{line}"
-                }
-                LucilleCore::pressEnterToContinue() if lines.size>0
-                mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
-            end
-            if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
-                if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-                    puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
-                    LucilleCore::pressEnterToContinue()
-                end
-                mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
-                next
-            end
-            puts CommonsUtils::object2Line_v1(object)
-            print "--> "
-            command = STDIN.gets().strip
-            if command=="+" then
-                command = "+0.1 hours"
-            end
-            if command.start_with?(":") then
-                x = command[1,command.size].strip
-                if CommonsUtils::isInteger(x) then
-                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(FlockService::top1Objects(x.to_i).last)
-                    next
-                end
-            end
-            command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-            CommonsUtils::processObjectAndCommand(object, command)
-            File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
-        }
-    end
-
-    def self.doPresentObjectInviteAndExecuteCommand(object)
-        return if object.nil?
-        puts CommonsUtils::object2Line_v1(object)
-        print "--> "
-        command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
     end
 
     def self.newBinArchivesFolderpath()

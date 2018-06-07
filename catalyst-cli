@@ -59,6 +59,94 @@ require_relative "TheFlock.rb"
 
 # -----------------------------------------------------------------
 
+# # CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(object)
+
+class CatalystCLIUtils
+    def self.cli(runId)
+        mainschedule = {}
+        mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
+        mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
+        mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
+        loop {
+            FlockDiskIO::loadFromEventsTimeline()
+            object = FlockService::topObjects(1).first
+            # --------------------------------------------------------------------------------
+            # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
+            # In such a case they are still in Flock and should not be showed
+            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
+                if object["schedule"][":wave-emails:"] then
+                    if !File.exists?(object["item-data"]["folderpath"]) then
+                        puts CommonsUtils::object2Line_v0(object)
+                        puts "This email has been deleted, removing Flock item:"
+                        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
+                        next
+                    end
+                end
+            end
+            system("clear")
+            if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isLucille18() then
+                lines = CatalystDevOps::archivesTimelineGarbageCollection()
+                puts "Archives timeline garbage collection: #{lines.size}"
+                lines.each{|line|
+                    puts "    - #{line}"
+                }
+                LucilleCore::pressEnterToContinue() if lines.size>0
+                mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
+            end
+            if ( Time.new.to_i > mainschedule["events-gc"] ) and CommonsUtils::isLucille18() then
+                lines = CatalystDevOps::eventsTimelineGarbageCollection()
+                puts "Events timeline garbage collection: #{lines.size}"
+                lines.each{|line|
+                    puts "    - #{line}"
+                }
+                LucilleCore::pressEnterToContinue() if lines.size>0
+                mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
+            end
+            if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
+                if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                    puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
+                    LucilleCore::pressEnterToContinue()
+                end
+                mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
+                next
+            end
+            puts CatalystCLIUtils::object2Line_v1(object)
+            print "--> "
+            command = STDIN.gets().strip
+            if command=="+" then
+                command = "+0.1 hours"
+            end
+            if command.start_with?(":") then
+                x = command[1,command.size].strip
+                if CommonsUtils::isInteger(x) then
+                    CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(FlockService::top1Objects(x.to_i).last)
+                    next
+                end
+            end
+            command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+            CommonsUtils::processObjectAndCommand(object, command)
+            File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
+        }
+    end
+    def self.object2Line_v1(object)
+        announce = object['announce'].strip
+        announce = CommonsUtils::announceWithColor(announce, object)
+        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{announce}",
+            "#{requirementsAsString.green}",
+            CommonsUtils::object2DonotShowUntilAsString(object),
+            " (#{object["commands"].join(" ").red})",
+            " \"#{defaultExpressionAsString.green}\""
+        ].join()
+    end
+end
+
 runId = SecureRandom.hex
 
 FlockDiskIO::loadFromEventsTimeline()
@@ -72,4 +160,4 @@ Thread.new {
     }
 }
 
-CommonsUtils::cli(runId)
+CatalystCLIUtils::cli(runId)

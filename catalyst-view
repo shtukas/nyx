@@ -58,5 +58,32 @@ require_relative "Agent-Wave.rb"
 require_relative "TheFlock.rb"
 
 # -----------------------------------------------------------------
+class CatalystViewUtils
+    def self.viewloop()
+        loop {
+            FlockDiskIO::loadFromEventsTimeline()
+            objects = FlockService::topObjects(CommonsUtils::screenHeight()-5)
+            system("clear")
+            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            end
+            dayprogression = {
+                "collections" => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/CollectionsOperator::agentDailyCommitmentInHours(),
+                "stream"      => ( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/CollectionsOperator::agentDailyCommitmentInHours()
+            }
+            if dayprogression["collections"] >= 1 and dayprogression["stream"] >= 1 then
+                puts "DAY PROGRESSION: (Collections, Stream) Cleared of duties. Enjoy while it last (^_^)".green
+            else
+                puts "DAY PROGRESSION: Collections: #{ (100*dayprogression["collections"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".yellow
+            end       
+            puts ""
+            # --------------------------------------------------------------------------------
+            objects.each_with_index{|object, index|
+                puts "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)}"
+            }
+            sleep 10
+        }
+    end
+end
 
-CommonsUtils::viewloop()
+CatalystViewUtils::viewloop()
