@@ -67,7 +67,12 @@ class EventsManager
     def self.eventsEnumerator()
         Enumerator.new do |events|
             Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
-                next if !File.file?(path)
+                if File.directory?(path) then
+                    if Dir.entries(path).select{|filename| filename[0,1]!="." }.size==0 then
+                        LucilleCore::removeFileSystemLocation(path)
+                    end
+                    next
+                end
                 next if File.basename(path)[-5,5] != '.json'
                 event = JSON.parse(IO.read(path))
                 event[":filepath:"] = path
