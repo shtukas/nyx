@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 # encoding: UTF-8
 
@@ -89,22 +88,16 @@ class FlockOperator
     end
 
     def self.removeObjectIdentifiedByUUID(uuid)
-        $semaphore.synchronize {
-            $flock["objects"] = $flock["objects"].reject{|o| o["uuid"]==uuid }
-        }
+        $flock["objects"] = $flock["objects"].reject{|o| o["uuid"]==uuid }
     end
 
     def self.removeObjectsFromAgent(agentuuid)
-        $semaphore.synchronize {
-            $flock["objects"] = $flock["objects"].reject{|o| o["agent-uid"]==agentuuid }
-        }
+        $flock["objects"] = $flock["objects"].reject{|o| o["agent-uid"]==agentuuid }
     end
 
     def self.addOrUpdateObject(object)
         FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
-        $semaphore.synchronize {
-            $flock["objects"] =  $flock["objects"] + [ object ] 
-        }
+        $flock["objects"] =  $flock["objects"] + [ object ]
     end
 
     def self.addOrUpdateObjects(objects)
@@ -118,9 +111,7 @@ class FlockOperator
     end
 
     def self.setDoNotShowUntilDateTime(uuid, datetime)
-        $semaphore.synchronize {
-            $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
-        }
+        $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
     end
 end
 
@@ -144,9 +135,7 @@ class FKVStore
     end
 
     def self.set(key, value)
-        $semaphore.synchronize {
-            $flock["kvstore"][key] = value
-        }
+        $flock["kvstore"][key] = value
         EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
     end
 end
@@ -183,49 +172,14 @@ class FlockDiskIO
             end
             raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
         }
-        $semaphore.synchronize { 
-            $flock = flock
-        }
+        $flock = flock
     end
 end
 
 # ------------------------------------------------------------------------
 
 class FlockService
-    def flockOperator_flockObjects()
-        FlockOperator::flockObjects()
-    end
-    def flockOperator_flockObjectsAsMap()
-        FlockOperator::flockObjectsAsMap()
-    end 
-    def flockOperator_removeObjectIdentifiedByUUID(uuid)
-        FlockOperator::removeObjectIdentifiedByUUID(uuid)
-    end 
-    def flockOperator_removeObjectsFromAgent(agentuuid)
-        FlockOperator::removeObjectsFromAgent(agentuuid)
-    end 
-    def flockOperator_addOrUpdateObject(object)
-        FlockOperator::addOrUpdateObject(object)
-    end 
-    def flockOperator_addOrUpdateObjects(objects)
-        FlockOperator::addOrUpdateObjects(objects)
-    end 
-    def flockOperator_getDoNotShowUntilDateTimeDistribution()
-        FlockOperator::getDoNotShowUntilDateTimeDistribution()
-    end 
-    def flockOperator_setDoNotShowUntilDateTime(uuid, datetime)
-        FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
-    end 
-    def fKVStore_getOrNull(key)
-        FKVStore::getOrNull(key)
-    end
-    def fKVStore_getOrDefaultValue(key, defaultValue)
-        FKVStore::getOrDefaultValue(key, defaultValue)
-    end
-    def fKVStore_set(key, value)
-        FKVStore::set(key, value)
-    end
-    def top10Objects()
+    def self.top10Objects()
         AgentsManager::generalUpgradeFromFlockServer()
         TodayOrNotToday::transform()
         RequirementsOperator::transform()
@@ -234,44 +188,6 @@ class FlockService
         NotGuardian::transform()
         FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(10)
     end
-    def todayOrNotToday_notToday(uuid)
-        TodayOrNotToday::notToday(uuid)
-    end
-    def requirementsOperator_getObjectRequirements(uuid)
-        RequirementsOperator::getObjectRequirements(uuid)
-    end
-    def requirementsOperator_setObjectRequirements(uuid, requirements)
-        RequirementsOperator::setObjectRequirements(uuid, requirements)
-    end
-    def requirementsOperator_getAllRequirements()
-        RequirementsOperator::getAllRequirements()
-    end
-    def requirementsOperator_getCurrentlyUnsatisfiedRequirements()
-        RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
-    end
-    def requirementsOperator_setSatisfifiedRequirement(requirement)
-        RequirementsOperator::setSatisfifiedRequirement(requirement)
-    end
-    def requirementsOperator_setUnsatisfifiedRequirement(requirement)
-        RequirementsOperator::setUnsatisfifiedRequirement(requirement)
-    end
 end
 # ----------------------------------------------------------------
-
-$flock = nil
-$semaphore = Mutex.new
-
-puts "FlockDiskIO::loadFromEventsTimeline()"
-FlockDiskIO::loadFromEventsTimeline()
-
-Thread.new {
-    loop {
-        sleep 300
-        FlockDiskIO::loadFromEventsTimeline()
-    }
-}
-
-puts "Starting Flock Service"
-DRb.start_service("druby://:18171", FlockService.new())
-DRb.thread.join
 

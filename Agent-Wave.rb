@@ -57,7 +57,6 @@ class WaveSchedules
     def self.makeScheduleObjectTypeNew()
         {
             "uuid" => SecureRandom.hex,
-            "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
             "@"    => "new",
             "unixtime" => Time.new.to_i
         }
@@ -72,7 +71,6 @@ class WaveSchedules
         if scheduleType=='new' then
             schedule = {
                 "uuid" => SecureRandom.hex,
-                "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
                 "@"    => "new",
                 "unixtime" => Time.new.to_i
             }
@@ -80,7 +78,6 @@ class WaveSchedules
         if scheduleType=='today' then
             schedule = {
                 "uuid" => SecureRandom.hex,
-                "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
                 "@"    => "today",
                 "unixtime" => Time.new.to_i
             }
@@ -88,7 +85,6 @@ class WaveSchedules
         if scheduleType=='sticky' then
             schedule = {
                 "uuid" => SecureRandom.hex,
-                "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
                 "@"    => "sticky"
             }
         end
@@ -104,7 +100,6 @@ class WaveSchedules
             end
             schedule = {
                 "uuid" => SecureRandom.hex,
-                "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
                 "@"    => "ondate",
                 "date" => date
             }
@@ -132,7 +127,6 @@ class WaveSchedules
             end
             schedule = {
                 "uuid" => SecureRandom.hex,
-                "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
                 "@"    => type,
                 "repeat-value" => value
             }

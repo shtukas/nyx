@@ -238,8 +238,7 @@ class CommonsUtils
             else
                 {
                     "uuid" => SecureRandom.hex,
-                    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
-                    "@"    => "today",
+                    "@"    => "new",
                     "unixtime" => Time.new.to_i
                 }
             end
@@ -515,11 +514,9 @@ class CommonsUtils
 
     def self.viewloop()
         loop {
-            startUnixtime = Time.new.to_f
+            FlockDiskIO::loadFromEventsTimeline()
             objects = FlockService::top10Objects()
-            endUnixtime = Time.new.to_f
             system("clear")
-            puts "objects loaded in #{ "%.3f" % (endUnixtime-startUnixtime) } seconds"
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
@@ -547,6 +544,7 @@ class CommonsUtils
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
+            FlockDiskIO::loadFromEventsTimeline()
             object = FlockService::top10Objects().first
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.

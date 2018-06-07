@@ -2,49 +2,44 @@
 # --------------------------------------------------------------------
 
 {
-    "uuid" : (uuid)
-    "metric" : (real)
+    "uuid"     : (uuid)
+    "metric"   : (real)
     "announce" : ""
     "commands" : Array[String]
     "default-expression"  : Null or String
     "agent-uid"           : String (uuid)
-    "schedule" : (schedule-7da672d1-6e30-4af8-a641-e4760c3963e6)
+    "schedule" : (schedule)
 }
 
 # --------------------------------------------------------------------
 
-(schedule-7da672d1-6e30-4af8-a641-e4760c3963e6) 
+(schedule) 
 
 {
     "uuid": "158137ddb4286110419c66342bdf3e3a"
-    "type": "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6"
     "@": "new"
     "unixtime": 1506925527
 }
 
 {
     "uuid" => SecureRandom.hex,
-    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
     "@"    => "today",
     "unixtime" => Time.new.to_i
 }
 
 {
     "uuid" => SecureRandom.hex,
-    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
     "@"    => "sticky"
 }
 
 {
     "uuid" => SecureRandom.hex,
-    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
     "@"    => "ondate",
     "date" => date
 }
 
 {
     "uuid" => SecureRandom.hex,
-    "type" => "schedule-7da672d1-6e30-4af8-a641-e4760c3963e6",
     "@"    => (repeat type),
     "repeat-value" => value
 }
