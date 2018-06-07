@@ -25,7 +25,7 @@ class DailyTimeAttribution
 
     def self.generalUpgradeFromFlockServer()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=0 then
+        if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
                     "uuid"      => "2ef32868",
