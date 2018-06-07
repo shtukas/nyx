@@ -231,6 +231,11 @@ class TimeCommitments
             .map{|item|
                 uuid = item['uuid']
                 ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
+                if ratioDone>1 then
+                    message "#{item['description']} is done"
+                    system("terminal-notifier -title Catalyst -message '#{message}'")
+                    sleep 2
+                end
                 metric = 0.6 + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
                 metric = item['metric'] ? item['metric'] : metric
                 metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"] or item["paused"]
