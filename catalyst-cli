@@ -120,7 +120,7 @@ class CatalystCLIUtils
             if command.start_with?(":") then
                 x = command[1,command.size].strip
                 if CommonsUtils::isInteger(x) then
-                    CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(FlockService::top1Objects(x.to_i).last)
+                    CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(FlockService::topObjects(x.to_i).last)
                     next
                 end
             end
