@@ -290,17 +290,11 @@ class GeneralEmailClient
         }
 
         (serverEmailUIDs-metadataFolderEmailUIDs).each{|emailuid|
-            puts "Wave-Email error 312CB356: We should not be seeing this. By now all alive server emails should be on local ( #{emailuid} )"
-            LucilleCore::pressEnterToContinue()
+
         }
 
         (waveTimeLineEmailUIDs-metadataFolderEmailUIDs).each{|emailuid|
-            puts "Wave-Email error 4e7b8cef: We should not be seeing this. Everytime a file is deleted on the metadata folder the wave item should have been deleted"
-            puts "emailuid: #{emailuid}"
-            catalystuuid = WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid)
-            puts "catalystuuid: #{catalystuuid}"
-            puts "catalyst folder: #{Wave::catalystUUIDToItemFolderPathOrNull(catalystuuid)}"
-            LucilleCore::pressEnterToContinue()
+
         }
 
         (metadataFolderEmailUIDs-waveTimeLineEmailUIDs).each{|emailuid|
