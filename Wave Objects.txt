@@ -16,7 +16,7 @@
 (schedule) 
 
 {
-    "uuid": "158137ddb4286110419c66342bdf3e3a"
+    "uuid" => SecureRandom.hex,
     "@": "new"
     "unixtime": 1506925527
 }

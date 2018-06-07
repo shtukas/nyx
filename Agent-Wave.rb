@@ -49,7 +49,7 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 # WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
 # WaveSchedules::scheduleToAnnounce(schedule)
 # WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
-# WaveSchedules::cycleSchedule(schedule)
+# WaveSchedules::scheduleToDoNotShowDatetime(objectuuid, schedule)
 # WaveSchedules::scheduleToMetric(schedule)
 
 class WaveSchedules
@@ -168,22 +168,22 @@ class WaveSchedules
         schedule['date'] > DateTime.now.to_date.to_s
     end
 
-    def self.cycleSchedule(schedule)
+    def self.scheduleToDoNotShowDatetime(objectuuid, schedule)
         if schedule['@'] == 'sticky' then
-            schedule["do-not-show-until-datetime"] = LucilleCore::datetimeAtComingMidnight()
+            return LucilleCore::datetimeAtComingMidnight()
         end
         if schedule['@'] == 'every-n-hours' then
-            schedule["do-not-show-until-datetime"] = Time.at(Time.new.to_i+3600*schedule['repeat-value'].to_f).to_s
+            return Time.at(Time.new.to_i+3600*schedule['repeat-value'].to_f).to_s
         end
         if schedule['@'] == 'every-n-days' then
-            schedule["do-not-show-until-datetime"] = Time.at(Time.new.to_i+86400*schedule['repeat-value'].to_f).to_s
+            return Time.at(Time.new.to_i+86400*schedule['repeat-value'].to_f).to_s
         end
         if schedule['@'] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
             while Time.at(cursor).strftime("%d") != schedule['repeat-value'] do
                 cursor = cursor + 3600
             end
-            schedule["do-not-show-until-datetime"] = Time.at(cursor).to_s
+           return Time.at(cursor).to_s
         end
         if schedule['@'] == 'every-this-day-of-the-week' then
             mapping = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
@@ -191,18 +191,13 @@ class WaveSchedules
             while mapping[Time.at(cursor).wday]!=schedule['repeat-value'] do
                 cursor = cursor + 3600
             end
-            schedule["do-not-show-until-datetime"] = Time.at(cursor).to_s
+            return Time.at(cursor).to_s
         end
-        schedule
     end
 
     def self.scheduleToMetric(schedule)
 
         # Special Circumstances
-
-        if schedule["do-not-show-until-datetime"] and schedule["do-not-show-until-datetime"] > Time.new.to_s then
-            return 0
-        end
 
         if schedule['metric'] then
             return schedule['metric'] # set by wave emails
@@ -436,6 +431,9 @@ class Wave
         if folderProbeMetadata["target-type"] == "folder" then
             return "open"
         end
+        if folderProbeMetadata["target-type"] == "line" and schedule["@"] == "sticky" then
+            return "done"
+        end
         if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "sticky" then
             return "done"
         end
@@ -564,11 +562,9 @@ class Wave
         doneObjectWithRepeatSchedule = lambda{|object|
             uuid = object['uuid']
             schedule = object['schedule']
-            schedule = WaveSchedules::cycleSchedule(schedule)
-            object['schedule'] = schedule
-            Wave::writeScheduleToDisk(uuid, schedule)
-            FlockOperator::addOrUpdateObject(object)
-            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            datetime = WaveSchedules::scheduleToDoNotShowDatetime(uuid, schedule)
+            FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+            EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
         }
 
         doneObjectWithOneOffTask = lambda {|object|

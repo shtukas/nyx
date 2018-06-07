@@ -518,11 +518,6 @@ class CommonsUtils
                 object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
                 object["metric"] = 0
             end
-            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" and object["schedule"]["do-not-show-until-datetime"] and (Time.new.to_s < object["schedule"]["do-not-show-until-datetime"]) and object["metric"]<=1 then
-                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["do-not-show-until-datetime"] = object["schedule"]["do-not-show-until-datetime"]
-                object["metric"] = 0
-            end
             FlockOperator::addOrUpdateObject(object)
         }
     end
