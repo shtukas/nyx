@@ -187,6 +187,16 @@ class Stream
             object = Stream::folderpathToCatalystObjectOrNull(folderpath)
             FlockOperator::addOrUpdateObject(object)
         end
+        if command=='rotate' then
+            GenericTimeTracking::stop(uuid)
+            GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
+            folderpath  = object["item-data"]["folderpath"]
+            folderpath2 = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
+            FileUtils.mv(folderpath, folderpath2)
+            File.open("#{folderpath2}/.uuid", 'w'){|f| f.puts(SecureRandom.hex(4)) }
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+            FlockOperator::removeObjectIdentifiedByUUID(uuid)
+        end
         if command=="completed" then
             GenericTimeTracking::stop(uuid)
             GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
