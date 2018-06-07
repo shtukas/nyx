@@ -179,14 +179,14 @@ end
 # ------------------------------------------------------------------------
 
 class FlockService
-    def self.top10Objects()
+    def self.topObjects(count)
         AgentsManager::generalUpgradeFromFlockServer()
         TodayOrNotToday::transform()
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsOperator::transform()
         NotGuardian::transform()
-        FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(10)
+        FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(count)
     end
 end
 # ----------------------------------------------------------------

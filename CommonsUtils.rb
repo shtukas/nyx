@@ -16,6 +16,7 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::waveInsertNewItem(description)
 # CommonsUtils::isInteger(str)
+# CommonsUtils::screenHeight()
 
 class CommonsUtils
 
@@ -515,7 +516,7 @@ class CommonsUtils
     def self.viewloop()
         loop {
             FlockDiskIO::loadFromEventsTimeline()
-            objects = FlockService::top10Objects()
+            objects = FlockService::topObjects(CommonsUtils::screenHeight()-5)
             system("clear")
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
@@ -527,7 +528,7 @@ class CommonsUtils
             if dayprogression["collections"] >= 1 and dayprogression["stream"] >= 1 then
                 puts "DAY PROGRESSION: (Collections, Stream) Cleared of duties. Enjoy while it last (^_^)".green
             else
-                puts "DAY PROGRESSION: Collections: #{ (100*dayprogression["collections"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".red
+                puts "DAY PROGRESSION: Collections: #{ (100*dayprogression["collections"]).to_i } % ; Stream: #{ (100*dayprogression["stream"]).to_i } %".yellow
             end       
             puts ""
             # --------------------------------------------------------------------------------
@@ -545,7 +546,7 @@ class CommonsUtils
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
             FlockDiskIO::loadFromEventsTimeline()
-            object = FlockService::top10Objects().first
+            object = FlockService::topObjects(1).first
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
             # In such a case they are still in Flock and should not be showed
@@ -596,7 +597,7 @@ class CommonsUtils
             if command.start_with?(":") then
                 x = command[1,command.size].strip
                 if CommonsUtils::isInteger(x) then
-                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(FlockService::top10Objects().take(x.to_i).last)
+                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(FlockService::top1Objects(x.to_i).last)
                     next
                 end
             end

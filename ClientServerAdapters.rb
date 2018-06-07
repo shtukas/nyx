@@ -144,11 +144,3 @@ class RequirementsOperator
         }
     end
 end
-
-# FlockService::top10Objects()
-
-class FlockService
-    def self.top10Objects()
-        DRbObject.new(nil, "druby://:18171").top10Objects()
-    end
-end
