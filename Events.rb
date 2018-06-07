@@ -13,6 +13,7 @@ class EventsMaker
     def self.destroyCatalystObject(uuid)
         {
             "event-type"  => "Catalyst:Destroy-Catalyst-Object:1",
+            "event-time"  => Time.new.to_f,
             "object-uuid" => uuid
         }
     end
@@ -20,6 +21,7 @@ class EventsMaker
     def self.catalystObject(object)
         {
             "event-type" => "Catalyst:Catalyst-Object:1",
+            "event-time" => Time.new.to_f,
             "object"     => object
         }
     end
@@ -27,6 +29,7 @@ class EventsMaker
     def self.doNotShowUntilDateTime(uuid, datetime)
         {
             "event-type"  => "Catalyst:Metadata:DoNotShowUntilDateTime:1",
+            "event-time"  => Time.new.to_f,
             "object-uuid" => uuid,
             "datetime"    => datetime
         }
@@ -35,6 +38,7 @@ class EventsMaker
     def self.fKeyValueStoreSet(key, value)
         {
             "event-type" => "Flock:KeyValueStore:Set:1",
+            "event-time" => Time.new.to_f,
             "key"        => key,
             "value"      => value
         }
@@ -48,7 +52,7 @@ end
 
 class EventsManager
     def self.pathToActiveEventsIndexFolder()
-        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}/#{Time.new.strftime("%Y%m%d-%H")}"
+        folder1 = "#{CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
         FileUtils.mkpath folder1 if !File.exists?(folder1)
         LucilleCore::indexsubfolderpath(folder1)
     end
