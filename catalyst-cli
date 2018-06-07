@@ -59,8 +59,6 @@ require_relative "TheFlock.rb"
 
 # -----------------------------------------------------------------
 
-# # CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(object)
-
 class CatalystCLIUtils
     def self.cli(runId)
         mainschedule = {}
@@ -120,7 +118,7 @@ class CatalystCLIUtils
             if command.start_with?(":") then
                 x = command[1,command.size].strip
                 if CommonsUtils::isInteger(x) then
-                    CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(FlockService::topObjects(x.to_i).last)
+                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(FlockService::topObjects(x.to_i).last)
                     next
                 end
             end

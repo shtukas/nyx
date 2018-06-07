@@ -247,7 +247,7 @@ class CollectionsOperator
             break if objects.empty?
             object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
             break if object.nil?
-            CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(object)
+            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
     end
 
@@ -298,7 +298,7 @@ class CollectionsOperator
                                 .reverse
                             break if catalystobjects.size==0
                             object = catalystobjects.first
-                            CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(object)
+                            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
                         }
                     end
                     puts "Moving collection folder to bin timeline"
@@ -314,7 +314,7 @@ class CollectionsOperator
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice
-            CatalystCLIUtils::doPresentObjectInviteAndExecuteCommand(object)
+            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
     end
 
