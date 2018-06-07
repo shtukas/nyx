@@ -86,7 +86,8 @@ class DailyTimeAttribution
                     "commitment-in-hours" => collectiondata["time-commitment-in-hours"],
                     "timespans"           => [],
                     "last-start-unixtime" => 0,
-                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY] # the collection and the entire collection agent
+                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
+                    "only-on-day"         => CommonsUtils::currentDay()
                 }
                 TimeCommitments::saveItem(item)
                 if collectiondata["is-Guardian-time"] then
@@ -96,7 +97,8 @@ class DailyTimeAttribution
                         "description"         => "Guardian",
                         "commitment-in-hours" => -collectiondata["time-commitment-in-hours"],
                         "timespans"           => [],
-                        "last-start-unixtime" => 0
+                        "last-start-unixtime" => 0,
+                        "only-on-day"         => CommonsUtils::currentDay()
                     }
                     TimeCommitments::saveItem(item)
                 end
@@ -124,7 +126,8 @@ class DailyTimeAttribution
                     "commitment-in-hours" => collectiondata["time-commitment-in-hours"],
                     "timespans"           => [],
                     "last-start-unixtime" => 0,
-                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY] # the collection and the entire collection agent
+                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
+                    "only-on-day"         => CommonsUtils::currentDay()
                 }
                 TimeCommitments::saveItem(item)
                 if collectiondata["is-Guardian-time"] then
@@ -134,7 +137,8 @@ class DailyTimeAttribution
                         "description"         => "Guardian",
                         "commitment-in-hours" => -collectiondata["time-commitment-in-hours"],
                         "timespans"           => [],
-                        "last-start-unixtime" => 0
+                        "last-start-unixtime" => 0,
+                        "only-on-day"         => CommonsUtils::currentDay()
                     }
                     TimeCommitments::saveItem(item)
                 end
@@ -154,7 +158,8 @@ class DailyTimeAttribution
                     "description"         => "Guardian",
                     "commitment-in-hours" => numberOfHours,
                     "timespans"           => [],
-                    "last-start-unixtime" => 0
+                    "last-start-unixtime" => 0,
+                    "only-on-day"         => CommonsUtils::currentDay()
                 }
                 TimeCommitments::saveItem(item)
             end

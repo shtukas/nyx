@@ -55,6 +55,7 @@ require_relative "CommonsUtils"
             "metric"                          : Float # optional, if present determines the metric.
             "uuids-for-generic-time-tracking" : Array[String] # optional
             "paused"                          : Boolean # Optional
+            "only-on-day"                     : Date # if set, the item is destroyed after midnight
         }
 =end
 
@@ -143,6 +144,11 @@ class TimeCommitments
         item
     end
 
+    def self.destroyItem(item)
+        self.stopItem(item)
+        SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"])
+    end
+
     def self.getNonRunningOverflowingItemOrNull(items)
         items
             .select{|item| !item["is-running"] }
@@ -226,6 +232,9 @@ class TimeCommitments
     def self.generalUpgradeFromFlockServer()
         TimeCommitments::garbageCollectionGlobal()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        TimeCommitments::getItems()
+            .select{|item| item["only-on-day"]!=CommonsUtils::currentDay() }
+            .each{|item| TimeCommitments::destroyItem(item) }
         objects = TimeCommitments::getItems()
             .select{|item| item["commitment-in-hours"] > 0 }
             .map{|item|
@@ -243,7 +252,7 @@ class TimeCommitments
                 if item["paused"] then
                     announce = "[PAUSED] #{announce}"
                 end
-                commands = item["is-running"] ? ["pause", "stop"] : ["start", "stop"]
+                commands = ( item["is-running"] ? ["pause", "stop"] : ["start", "stop"] ) + ["destroy"]
                 defaultExpression = item["is-running"] ? "stop" : "start"
                 object  = {}
                 object["uuid"]      = uuid
@@ -276,6 +285,9 @@ class TimeCommitments
         end
         if command == "pause" then
             TimeCommitments::saveItem(TimeCommitments::pauseItem(TimeCommitments::getItemByUUID(uuid)))
+        end
+        if command == "destroy" then
+            TimeCommitments::destroyItem(TimeCommitments::getItemByUUID(uuid))
         end
     end
 end
