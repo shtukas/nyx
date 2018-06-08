@@ -39,11 +39,9 @@
 # CollectionsOperator::agentDailyCommitmentInHours()
 # CollectionsOperator::getCollectionTimeCoefficient(uuid)
 
-# CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
-# CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
-
-# CollectionsOperator::dive(collectionuuid)
 # CollectionsOperator::interactivelySelectCollectionUUIDOrNUll()
+# CollectionsOperator::ui_CollectionsDive()
+# CollectionsOperator::ui_CollectionDive(collectionuuid)
 
 class CollectionsOperator
 
@@ -250,21 +248,7 @@ class CollectionsOperator
     # ---------------------------------------------------
     # User Interface
 
-    def self.ui_loopDiveCollectionObjects(collectionuuid)
-        loop {
-            objects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
-                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
-                .compact
-                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-                .reverse
-            break if objects.empty?
-            object = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object:", objects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
-            break if object.nil?
-            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
-        }
-    end
-
-    def self.ui_mainDiveIntoCollection_v2(collectionuuid)
+    def self.ui_CollectionDive(collectionuuid)
         loop {
             style = CollectionsOperator::getCollectionStyle(collectionuuid)
             textContents = CollectionsOperator::textContents(collectionuuid)
@@ -347,14 +331,14 @@ class CollectionsOperator
         }
     end
 
-    def self.dive()
+    def self.ui_CollectionsDive()
         loop {
             toString = lambda{ |collectionuuid| 
                 "#{CollectionsOperator::getCollectionStyle(collectionuuid).ljust(8)} : #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}"
             }
             collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", CollectionsOperator::collectionsUUIDs(), toString)
             break if collectionuuid.nil?
-            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+            CollectionsOperator::ui_CollectionDive(collectionuuid)
         }
     end
 

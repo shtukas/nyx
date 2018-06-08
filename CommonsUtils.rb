@@ -318,7 +318,7 @@ class CommonsUtils
         end
 
         if expression == "collections" then
-            CollectionsOperator::dive()
+            CollectionsOperator::ui_CollectionsDive()
             return
         end
 

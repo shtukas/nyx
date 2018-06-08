@@ -141,7 +141,7 @@ class AgentCollections
         end
         if command=="dive" then
             collectionuuid = object["uuid"]
-            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+            CollectionsOperator::ui_CollectionDive(collectionuuid)
         end
     end
 end
