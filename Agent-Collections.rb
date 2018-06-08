@@ -36,7 +36,7 @@ class AgentCollections
 
     def self.metric(uuid, isRunning)
         metric = 0.2 + 0.2*Math.exp(-self.objectHoursDone(uuid))
-        isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
+        isRunning ? 3 + CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
     end
 
     def self.commands(style, isRunning)

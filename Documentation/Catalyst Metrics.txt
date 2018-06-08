@@ -1,5 +1,12 @@
 
-         2.000- running items
+
+         3.000+ running collections 
+                    # We get them to run higher than the time commitment 
+                    # point which may have started them.
+         2.000- Running items (time commitments, streams)
+
+         0.200  -- green level --
+
          0.950- Incoming Emails General
          0.900  Wave: stickies
          0.870- Incoming Emails operator@alseyn.net
@@ -7,9 +14,11 @@
 0.820 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats
 0.150 -> 0.750  Vienna
-0.600 -> 0.700  TimeCommitments (unless specified by the item itself)
-      -> 0.600  stream
+0.600 -> 0.700  TimeCommitments [not running] (unless specified by the item itself)
+      -> 0.600  stream [not running]
 0.200 -> 0.600  Ninja
 0.200 -> 0.400  Collections # note that we create time commitments for them
+
          0.200  -- water level -- 
+
          0.000  Not To Be Done

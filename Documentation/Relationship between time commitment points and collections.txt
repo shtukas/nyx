@@ -1,0 +1,10 @@
+
+When we start a commitment point the commitment point may have a key called `uuids-for-generic-time-tracking`.
+We start those uuids and turn out that this is how the collection end up being started. (Indeed "starting" a collection
+only means to start those uuids at the GenericTimeTracking.)
+
+The collection, when running, runs at a higher metric than the time point itself.
+
+Then we stop the collection and follow by shutting the time commitment.
+
+The time that is recorded against the collection itself is not used beyond small ordering.  
