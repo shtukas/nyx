@@ -41,6 +41,8 @@
 # CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
 # CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
 
+# CollectionsOperator::dive(collectionuuid)
+
 class CollectionsOperator
 
     # ---------------------------------------------------
@@ -237,6 +239,23 @@ class CollectionsOperator
         4
     end
 
+    def self.getNextReviewUnixtime(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-next-review-time"
+        return 0 if !File.exists?(filepath)
+        IO.read(filepath).to_i       
+    end
+
+    def self.setNextReviewUnixtime(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        filepath = "#{folderpath}/collection-next-review-time"
+        unixtime = Time.new.to_i + 86400*(1+rand) 
+        File.open(filepath, "w"){|f| f.write(unixtime) }
+    end
+
+    # ---------------------------------------------------
+    # User Interface
+
     def self.ui_loopDiveCollectionObjects(collectionuuid)
         loop {
             objects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
@@ -261,7 +280,14 @@ class CollectionsOperator
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
-            menuStringsOrCatalystObjects = catalystobjects + ["open text file (#{textContents.strip.size})", "visit documents (#{documentsFilenames.size})", "recast as project", "destroy" ]
+            menuStringsOrCatalystObjects = catalystobjects + ["open text file (#{textContents.strip.size})", "visit documents (#{documentsFilenames.size})" ]
+            if style == "PROJECT" then
+                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ "recast as thread" ]
+            end
+            if style == "THREAD" then
+                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ "recast as project" ]
+            end
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ "destroy" ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -275,12 +301,12 @@ class CollectionsOperator
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
-            if menuChoice == "open text file (#{textContents.strip.size})" then
+            if menuChoice == "file: (#{textContents.strip.size} characters)" then
                 folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/collection-text.txt'")
                 next
             end
-            if menuChoice == "visit documents (#{documentsFilenames.size})" then
+            if menuChoice == "documents: (#{documentsFilenames.size} files)" then
                 folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/documents'")
                 next
@@ -312,24 +338,44 @@ class CollectionsOperator
                 CollectionsOperator::setCollectionStyle(collectionuuid, "PROJECT")
                 return
             end
+            if menuChoice == "recast as thread" then
+                CollectionsOperator::setCollectionStyle(collectionuuid, "THREAD")
+                return
+            end
             # By now, menuChoice is a catalyst object
             object = menuChoice
             CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
     end
 
-    def self.getNextReviewUnixtime(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
-        filepath = "#{folderpath}/collection-next-review-time"
-        return 0 if !File.exists?(filepath)
-        IO.read(filepath).to_i       
-    end
-
-    def self.setNextReviewUnixtime(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
-        filepath = "#{folderpath}/collection-next-review-time"
-        unixtime = Time.new.to_i + 86400*(1+rand) 
-        File.open(filepath, "w"){|f| f.write(unixtime) }
+    def self.dive()
+        loop {
+            menuChoice1 = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", ["create new collection", "threads dive", "projects dive"])
+            break if menuChoice1.nil?
+            if menuChoice1 == "threads dive" then
+                loop {
+                    collectionsuuids = CollectionsOperator::collectionsUUIDs()
+                        .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
+                    collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
+                    break if collectionuuid.nil?
+                    CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+                }
+            end
+            if menuChoice1 == "projects dive" then
+                loop {
+                    collectionsuuids = CollectionsOperator::collectionsUUIDs()
+                        .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="PROJECT" }
+                    collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
+                    break if collectionuuid.nil?
+                    CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+                }
+            end
+            if menuChoice1 == "create new collection" then
+                collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+                style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+                CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+            end
+        }
     end
 
 end

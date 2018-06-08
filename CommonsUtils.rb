@@ -145,8 +145,6 @@ class CommonsUtils
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
         puts "    collections     # show collections"
         puts "    collections:new # new collection"
-        puts "    threads         # show threads"
-        puts "    projects        # show projects"
         puts "    guardian    # start any active Guardian time commitment"
         puts "    email-sync  # run email sync"
         puts "    interface # run the interface of a given agent"
@@ -320,55 +318,8 @@ class CommonsUtils
         end
 
         if expression == "collections" then
-            collectionsuuids = CollectionsOperator::collectionsUUIDs()
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
-            return if collectionuuid.nil?
-            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
+            CollectionsOperator::dive()
             return
-        end
-
-        if expression == "collections:new" then
-            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
-            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-            CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
-            return
-        end
-
-        if expression == "threads" then
-            collectionsuuids = CollectionsOperator::collectionsUUIDs()
-                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
-            return if collectionuuid.nil?
-            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
-            return
-        end
-
-        if expression == "projects" then
-            collectionsuuids = CollectionsOperator::collectionsUUIDs()
-                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="PROJECT" }
-                .sort{|puuid1, puuid2| AgentCollections::objectMetricAsFloat(puuid1) <=> AgentCollections::objectMetricAsFloat(puuid2) }
-                .reverse
-            displayLambda = lambda{ |collectionuuid| "(#{"%.3f" % AgentCollections::objectMetricAsFloat(collectionuuid)}) [#{AgentCollections::objectMetricsAsString(collectionuuid)}] #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}" }
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", collectionsuuids, displayLambda)
-            return if collectionuuid.nil?
-            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
-            return
-        end
-
-        if expression == "threads-review" then
-            CollectionsOperator::collectionsUUIDs()
-                .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
-                .each{ |collectionuuid|
-                    puts "# ---------------------------------------------------"
-                    collectionname = CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
-                    if collectionname.nil? then
-                        puts "Error 4ba7f95a: Could not determine the name of collection: #{collectionuuid}"
-                        LucilleCore::pressEnterToContinue()
-                        next
-                    end
-                    puts "Thread name: #{collectionname}"
-                    CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
-                }         
         end
 
         if expression.start_with?('wave:') then
