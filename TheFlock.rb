@@ -182,7 +182,7 @@ end
 
 class FlockService
     def self.topObjects(count)
-        AgentsManager::generalUpgradeFromFlockServer()
+        AgentsManager::generalFlockUpgrade()
         TodayOrNotToday::transform()
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()

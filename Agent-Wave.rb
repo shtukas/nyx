@@ -315,8 +315,8 @@ end
 # Wave::makeCatalystObjectOrNull(objectuuid)
 # Wave::objectUUIDToAnnounce(object,schedule)
 # Wave::removeWaveMetadataFilesAtLocation(location)
-# Wave::interfaceFromCli()
-# Wave::generalUpgradeFromFlockServer()
+# Wave::interface()
+# Wave::generalFlockUpgrade()
 # Wave::processObjectAndCommandFromCli(object, command)
 
 class Wave
@@ -464,7 +464,7 @@ class Wave
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
     end
 
-    def self.interfaceFromCli()
+    def self.interface()
         puts "You are interfacing with Wave"
         LucilleCore::pressEnterToContinue()
     end
@@ -494,7 +494,7 @@ class Wave
         object
     end
 
-    def self.generalUpgradeFromFlockServer()
+    def self.generalFlockUpgrade()
 
         if @@firstRun then
             # Loading all existing disk objects

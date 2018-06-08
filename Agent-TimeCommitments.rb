@@ -83,7 +83,7 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOL
 # TimeCommitments::garbageCollectionItems(items)
 # TimeCommitments::garbageCollectionGlobal()
 # TimeCommitments::getUniqueDomains(items)
-# TimeCommitments::generalUpgradeFromFlockServer()
+# TimeCommitments::generalFlockUpgrade()
 # TimeCommitments::processObjectAndCommandFromCli(object, command)
 
 class TimeCommitments
@@ -212,7 +212,7 @@ class TimeCommitments
         items.map{|item| item["domain"] }.uniq
     end
 
-    def self.interfaceFromCli()
+    def self.interface()
         puts "Welcome to TimeCommitments interface"
         if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to add a time commitment ? ") then
             item = {
@@ -229,7 +229,7 @@ class TimeCommitments
         end
     end
 
-    def self.generalUpgradeFromFlockServer()
+    def self.generalFlockUpgrade()
         TimeCommitments::garbageCollectionGlobal()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
         TimeCommitments::getItems()

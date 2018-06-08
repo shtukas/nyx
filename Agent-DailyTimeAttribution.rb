@@ -12,18 +12,18 @@ require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
 
-# DailyTimeAttribution::generalUpgradeFromFlockServer()
+# DailyTimeAttribution::generalFlockUpgrade()
 
 class DailyTimeAttribution
     def self.agentuuid()
         "11fa1438-122e-4f2d-9778-64b55a11ddc2"
     end
 
-    def self.interfaceFromCli()
+    def self.interface()
         
     end
 
-    def self.generalUpgradeFromFlockServer()
+    def self.generalFlockUpgrade()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
         if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             object =

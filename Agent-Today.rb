@@ -47,7 +47,7 @@ TODAY_SEPARATION_TOKEN = "@notes"
 # Today::sectionToLength8UUID(section)
 # Today::todaySectionsUUIDs()
 # Today::removeSectionFromFile(uuid)
-# Today::generalUpgradeFromFlockServer()
+# Today::generalFlockUpgrade()
 
 class Today
 
@@ -114,11 +114,11 @@ class Today
         end
     end
 
-    def self.interfaceFromCli()
+    def self.interface()
         
     end
 
-    def self.generalUpgradeFromFlockServer()
+    def self.generalFlockUpgrade()
         objects = []
         todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[0].strip
         Today::contents_to_sections(todaycontents.lines.to_a,[]).each_with_index{|section,idx|

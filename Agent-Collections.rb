@@ -96,10 +96,10 @@ class AgentCollections
         object
     end
 
-    def self.interfaceFromCli()
+    def self.interface()
     end    
 
-    def self.generalUpgradeFromFlockServer()
+    def self.generalFlockUpgrade()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
         halves = [0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625]
         CollectionsOperator::collectionsFolderpaths()

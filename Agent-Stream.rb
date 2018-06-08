@@ -40,7 +40,7 @@ require_relative "CommonsUtils"
 # Stream::sendObjectToBinTimeline(object)
 # Stream::objectCommandHandler(object, command)
 # Stream::issueNewItemWithDescription(description)
-# Stream::generalUpgradeFromFlockServer()
+# Stream::generalFlockUpgrade()
 
 class Stream
 
@@ -129,7 +129,7 @@ class Stream
         folderpath
     end
 
-    def self.interfaceFromCli()
+    def self.interface()
         
     end
 
@@ -137,7 +137,7 @@ class Stream
         0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
     end
 
-    def self.generalUpgradeFromFlockServer()
+    def self.generalFlockUpgrade()
 
         # Adding the next object if there isn't one
         if FlockOperator::flockObjects().select{|object| object["agent-uid"]==self.agentuuid() }.empty? then

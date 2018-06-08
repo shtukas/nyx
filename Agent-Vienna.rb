@@ -84,11 +84,11 @@ class Vienna
         metric = 0.150 + 0.6*CommonsUtils::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) + CommonsUtils::traceToMetricShift(uuid)
     end
 
-    def self.interfaceFromCli()
+    def self.interface()
         
     end
 
-    def self.generalUpgradeFromFlockServer()
+    def self.generalFlockUpgrade()
         return [] if !CommonsUtils::isLucille18()
         link = $viennaLinkFeeder.next()
         return [] if link.nil?
