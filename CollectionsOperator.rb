@@ -349,31 +349,12 @@ class CollectionsOperator
 
     def self.dive()
         loop {
-            menuChoice1 = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", ["create new collection", "threads dive", "projects dive"])
-            break if menuChoice1.nil?
-            if menuChoice1 == "threads dive" then
-                loop {
-                    collectionsuuids = CollectionsOperator::collectionsUUIDs()
-                        .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
-                    collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
-                    break if collectionuuid.nil?
-                    CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
-                }
-            end
-            if menuChoice1 == "projects dive" then
-                loop {
-                    collectionsuuids = CollectionsOperator::collectionsUUIDs()
-                        .select{ |collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="PROJECT" }
-                    collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
-                    break if collectionuuid.nil?
-                    CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
-                }
-            end
-            if menuChoice1 == "create new collection" then
-                collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
-                style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-                CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
-            end
+            toString = lambda{ |collectionuuid| 
+                "#{CollectionsOperator::getCollectionStyle(collectionuuid).ljust(8)} : #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}"
+            }
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", CollectionsOperator::collectionsUUIDs(), toString)
+            break if collectionuuid.nil?
+            CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
         }
     end
 

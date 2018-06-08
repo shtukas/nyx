@@ -322,6 +322,12 @@ class CommonsUtils
             return
         end
 
+        if expression == "collections:new" then
+            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
+            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
+            CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+        end
+
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             CommonsUtils::waveInsertNewItem(description)
