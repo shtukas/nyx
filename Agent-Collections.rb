@@ -39,14 +39,6 @@ class AgentCollections
         isRunning ? 3 + CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
     end
 
-    def self.commands(style, isRunning)
-        ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "dive"]
-    end
-
-    def self.defaultExpression(style, isRunning)
-        isRunning ? "stop" : "start"
-    end
-
     def self.hasText(folderpath)
         IO.read("#{folderpath}/collection-text.txt").size>0
     end
@@ -78,8 +70,8 @@ class AgentCollections
             "agent-uid"          => self.agentuuid(),
             "metric"             => self.metric(uuid, isRunning),
             "announce"           => announce,
-            "commands"           => self.commands(style, isRunning),
-            "default-expression" => self.defaultExpression(style, isRunning)
+            "commands"           => [],
+            "default-expression" => "dive"
         }
         object["item-data"] = {}
         object["item-data"]["folderpath"] = folderpath
@@ -103,45 +95,8 @@ class AgentCollections
     end
 
     def self.processObjectAndCommandFromCli(object, command)
-        if command=='start' then
-            folderpath = object["item-data"]["folderpath"]
-            #system("open '#{folderpath}'")
-            GenericTimeTracking::start(object["uuid"])
-            GenericTimeTracking::start(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
-        end
-        if command=='stop' then
-            GenericTimeTracking::stop(object["uuid"])
-            GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
-        end
-        if command=="completed" then
-            folderpath = object["item-data"]["folderpath"]
-            if self.hasText(folderpath) then
-                puts "You cannot complete this item because it has text"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if self.hasDocuments(folderpath) then
-                puts "You cannot complete this item because it has documents"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(object["uuid"]).size>0 then
-                puts "You cannot complete this item because it has objects"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            GenericTimeTracking::stop(object["uuid"])
-            GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
-            CollectionsOperator::sendCollectionToBinTimeline(object["uuid"])
-        end
-        if command == "add-hours" then
-            uuid = object["uuid"]
-            timespan = 3600*LucilleCore::askQuestionAnswerAsString("hours: ").to_f
-            GenericTimeTracking::addTimeInSeconds(uuid, timespan)
-        end
         if command=="dive" then
-            collectionuuid = object["uuid"]
-            CollectionsOperator::ui_CollectionDive(collectionuuid)
+            CollectionsOperator::ui_CollectionDive(object["uuid"])
         end
     end
 end

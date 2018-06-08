@@ -43,6 +43,10 @@
 # CollectionsOperator::ui_CollectionsDive()
 # CollectionsOperator::ui_CollectionDive(collectionuuid)
 
+# CollectionsOperator::startCollection(collectionuuid)
+# CollectionsOperator::stopCollection(collectionuuid)
+# CollectionsOperator::completeCollection(collectionuuid)
+
 class CollectionsOperator
 
     # ---------------------------------------------------
@@ -260,9 +264,12 @@ class CollectionsOperator
                 .reverse
             menuItem1 = "file      : (#{textContents.strip.size} characters)"
             menuItem2 = "documents : (#{documentsFilenames.size} files)"
+            menuItem6 = "operation : start"
+            menuItem7 = "operation : stop"
             menuItem3 = "operation : recast as thread"
             menuItem4 = "operation : recast as project"
             menuItem5 = "operation : destroy"
+            menuItem8 = "operation : add hours manually"            
             menuStringsOrCatalystObjects = catalystobjects + [menuItem1, menuItem2 ]
             if style == "PROJECT" then
                 menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3 ]
@@ -270,7 +277,12 @@ class CollectionsOperator
             if style == "THREAD" then
                 menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem4 ]
             end
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [menuItem5 ]
+            if GenericTimeTracking::status(collectionuuid)[0] then
+                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem7 ]
+            else
+                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem6 ]
+            end
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem8 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -325,10 +337,56 @@ class CollectionsOperator
                 CollectionsOperator::setCollectionStyle(collectionuuid, "THREAD")
                 return
             end
+            if menuChoice == menuItem6 then
+                CollectionsOperator::startCollection(collectionuuid)
+                return
+            end
+            if menuChoice == menuItem7 then
+                CollectionsOperator::stopCollection(collectionuuid)
+                return
+            end
+            if menuChoice == menuItem8 then
+                timespan = 3600*LucilleCore::askQuestionAnswerAsString("hours: ").to_f
+                GenericTimeTracking::addTimeInSeconds(collectionuuid, timespan)
+                return
+            end
             # By now, menuChoice is a catalyst object
             object = menuChoice
             CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
+    end
+
+    def self.startCollection(collectionuuid)
+        GenericTimeTracking::start(collectionuuid)
+        GenericTimeTracking::start(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
+    end
+
+    def self.stopCollection(collectionuuid)
+        GenericTimeTracking::stop(collectionuuid)
+        GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
+    end
+
+    def self.completeCollection(collectionuuid)
+        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+        return if folderpath.nil?
+        if self.hasText(folderpath) then
+            puts "You cannot complete this item because it has text"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if self.hasDocuments(folderpath) then
+            puts "You cannot complete this item because it has documents"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid).size>0 then
+            puts "You cannot complete this item because it has objects"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        GenericTimeTracking::stop(collectionuuid)
+        GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        CollectionsOperator::sendCollectionToBinTimeline(collectionuuid)
     end
 
     def self.ui_CollectionsDive()
