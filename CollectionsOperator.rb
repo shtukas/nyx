@@ -357,13 +357,38 @@ class CollectionsOperator
     end
 
     def self.startCollection(collectionuuid)
+        return if GenericTimeTracking::status(collectionuuid)[0]
         GenericTimeTracking::start(collectionuuid)
         GenericTimeTracking::start(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        # Now we need to start the time commitment point against that collection, if any
+        TimeCommitments::getItems()
+        .select{|item|
+            item["33be3505:collection-uuid"]==collectionuuid
+        }
+        .select{|item|
+            !item["is-running"]
+        }
+        .first(1)
+        .each{|item|
+            TimeCommitments::saveItem(TimeCommitments::startItem(item))
+        }
     end
 
     def self.stopCollection(collectionuuid)
         GenericTimeTracking::stop(collectionuuid)
         GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        # Now we need to start the time commitment point against that collection, if any
+        TimeCommitments::getItems()
+        .select{|item|
+            item["33be3505:collection-uuid"]==collectionuuid
+        }
+        .select{|item|
+            item["is-running"]
+        }
+        .first(1)
+        .each{|item|
+            TimeCommitments::saveItem(TimeCommitments::stopItem(item))
+        }
     end
 
     def self.completeCollection(collectionuuid)

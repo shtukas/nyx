@@ -48,18 +48,6 @@ class DailyTimeAttribution
             end
             guardianWorkingHours = guardianWorkingHours.to_f
 
-            projectHours = LucilleCore::askQuestionAnswerAsString("Projects hours (empty defaults to 3): ")
-            if projectHours.size==0 then
-                projectHours = "3"
-            end
-            projectHours = projectHours.to_f
-
-            threadsHours = LucilleCore::askQuestionAnswerAsString("Threads hours (empty defaults to 2): ")
-            if threadsHours.size==0 then
-                threadsHours = "2"
-            end
-            threadsHours = threadsHours.to_f  
-
             item = {
                 "uuid"                => SecureRandom.hex(4),
                 "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
@@ -69,6 +57,12 @@ class DailyTimeAttribution
                 "last-start-unixtime" => 0
             }
             TimeCommitments::saveItem(item)
+
+            projectHours = LucilleCore::askQuestionAnswerAsString("Projects hours (empty defaults to 3): ")
+            if projectHours.size==0 then
+                projectHours = "3"
+            end
+            projectHours = projectHours.to_f 
 
             halvesEnum = AgentCollections::projectsPositionalCoefficientSequence()
             CollectionsOperator::collectionsFolderpaths() # Comes with the right order
@@ -84,11 +78,12 @@ class DailyTimeAttribution
                     item = {
                         "uuid"                => SecureRandom.hex(4),
                         "domain"              => SecureRandom.hex(4),
-                        "description"         => "Time commitment point for project: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
+                        "description"         => "Time commitment point for project #{ CollectionsOperator::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
                         "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
+                        "33be3505:collection-uuid" => collectionuuid
                     }
                     TimeCommitments::saveItem(item)
                     if  CollectionsOperator::isGuardianTime?(collectionuuid) then
@@ -104,6 +99,12 @@ class DailyTimeAttribution
                     end
                 }
 
+            threadsHours = LucilleCore::askQuestionAnswerAsString("Threads hours (empty defaults to 2): ")
+            if threadsHours.size==0 then
+                threadsHours = "2"
+            end
+            threadsHours = threadsHours.to_f 
+
             collectionuuids = CollectionsOperator::collectionsUUIDs()
                 .select{|collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
             
@@ -112,11 +113,12 @@ class DailyTimeAttribution
                     item = {
                         "uuid"                => SecureRandom.hex(4),
                         "domain"              => SecureRandom.hex(4),
-                        "description"         => "Time commitment point for thread: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
+                        "description"         => "Time commitment point for thread #{ CollectionsOperator::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
                         "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
+                        "33be3505:collection-uuid" => collectionuuid
                     }
                     TimeCommitments::saveItem(item)
                     if  CollectionsOperator::isGuardianTime?(collectionuuid) then
