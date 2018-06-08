@@ -280,14 +280,19 @@ class CollectionsOperator
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
-            menuStringsOrCatalystObjects = catalystobjects + ["open text file (#{textContents.strip.size})", "visit documents (#{documentsFilenames.size})" ]
+            menuItem1 = "file      : (#{textContents.strip.size} characters)"
+            menuItem2 = "documents : (#{documentsFilenames.size} files)"
+            menuItem3 = "operation : recast as thread"
+            menuItem4 = "operation : recast as project"
+            menuItem5 = "operation : destroy"
+            menuStringsOrCatalystObjects = catalystobjects + [menuItem1, menuItem2 ]
             if style == "PROJECT" then
-                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ "recast as thread" ]
+                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3 ]
             end
             if style == "THREAD" then
-                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ "recast as project" ]
+                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem4 ]
             end
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ "destroy" ]
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -296,22 +301,22 @@ class CollectionsOperator
                     string
                 else
                     object = menuStringOrCatalystObject
-                    "object: #{CommonsUtils::object2Line_v0(object)}"
+                    "object    : #{CommonsUtils::object2Line_v0(object)}"
                 end
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
-            if menuChoice == "file: (#{textContents.strip.size} characters)" then
+            if menuChoice == menuItem1 then
                 folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/collection-text.txt'")
                 next
             end
-            if menuChoice == "documents: (#{documentsFilenames.size} files)" then
+            if menuChoice == menuItem2 then
                 folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/documents'")
                 next
             end
-            if menuChoice == "destroy" then
+            if menuChoice == menuItem5 then
                 if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this #{style.downcase} ? ") and LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Seriously ? ") then
                     if catalystobjects.size>0 then
                         puts "You now need to destroy all the objects"
@@ -334,11 +339,11 @@ class CollectionsOperator
                 end
                 return
             end
-            if menuChoice == "recast as project" then
+            if menuChoice == menuItem4 then
                 CollectionsOperator::setCollectionStyle(collectionuuid, "PROJECT")
                 return
             end
-            if menuChoice == "recast as thread" then
+            if menuChoice == menuItem3 then
                 CollectionsOperator::setCollectionStyle(collectionuuid, "THREAD")
                 return
             end

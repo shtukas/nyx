@@ -49,7 +49,7 @@ class AgentCollections
     end
 
     def self.commands(style, isRunning)
-        ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "file", "folder", "objects", "dive"]    
+        ( isRunning ? ["stop"] : ["start"] ) + ["completed", "add-hours", "dive"]
     end
 
     def self.defaultExpression(style, isRunning)
@@ -153,18 +153,6 @@ class AgentCollections
             uuid = object["uuid"]
             timespan = 3600*LucilleCore::askQuestionAnswerAsString("hours: ").to_f
             GenericTimeTracking::addTimeInSeconds(uuid, timespan)
-        end
-        if command=='file' then
-            folderpath = object["item-data"]["folderpath"]
-            filepath = "#{folderpath}/collection-text.txt"
-            system("open '#{filepath}'")
-        end
-        if command=="folder" then
-            system("open '#{object["item-data"]["folderpath"]}'")
-        end
-        if command=='objects' then
-            collectionuuid = object["uuid"]
-            CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
         end
         if command=="dive" then
             collectionuuid = object["uuid"]
