@@ -42,6 +42,7 @@
 # CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
 
 # CollectionsOperator::dive(collectionuuid)
+# CollectionsOperator::interactivelySelectCollectionUUIDOrNUll()
 
 class CollectionsOperator
 
@@ -132,8 +133,7 @@ class CollectionsOperator
     end
 
     def self.addObjectUUIDToCollectionInteractivelyChosen(objectuuid)
-        collectionsuuids = CollectionsOperator::collectionsUUIDs()
-        collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collections", collectionsuuids, lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
+        collectionuuid = CollectionsOperator::interactivelySelectCollectionUUIDOrNUll()
         if collectionuuid.nil? then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new collection ? ") then
                 collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
@@ -376,6 +376,10 @@ class CollectionsOperator
                 CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
             end
         }
+    end
+
+    def self.interactivelySelectCollectionUUIDOrNUll()
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collection", CollectionsOperator::collectionsUUIDs(), lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
     end
 
 end
