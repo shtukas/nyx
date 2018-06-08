@@ -156,7 +156,7 @@ class CommonsUtils
         puts "    project: <description>"
         puts ""
         puts "Special Object Commands:"
-        puts "    + # push by 6 minutes"
+        puts "    + # push by 1 hour"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
         puts "    >c # send object to a collection"
@@ -401,6 +401,10 @@ class CommonsUtils
         return if object.nil?
 
         # object needed
+
+        if expression == "+" then
+            expression = "+1 hour"
+        end
 
         if expression == '!G' then
             uuid = object["uuid"]

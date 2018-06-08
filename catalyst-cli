@@ -112,9 +112,6 @@ class CatalystCLIUtils
             puts CatalystCLIUtils::object2Line_v1(object)
             print "--> "
             command = STDIN.gets().strip
-            if command=="+" then
-                command = "+0.1 hours"
-            end
             if command.start_with?(":") then
                 x = command[1,command.size].strip
                 if CommonsUtils::isInteger(x) then
