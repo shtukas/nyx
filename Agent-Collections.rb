@@ -22,6 +22,7 @@ require_relative "CommonsUtils"
 # -------------------------------------------------------------------------------------
 
 # AgentCollections::metric
+# AgentCollections::projectsPositionalCoefficientSequence()
 
 class AgentCollections
 
@@ -33,19 +34,9 @@ class AgentCollections
         GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600
     end
 
-    def self.projectMetric(uuid)
-        time = CollectionsOperator::getObjectTimeCommitmentInHours(uuid)
-        return 0 if time == 0
-        0.2 + 0.4*Math.exp(-self.objectHoursDone(uuid).to_f/time)
-    end
-
-    def self.threadMetric(uuid)
-        0.2 + 0.2*Math.exp(-self.objectHoursDone(uuid))
-    end
-
-    def self.metric(uuid, style, isRunning)
-        metric = ( CollectionsOperator::getCollectionStyle(uuid) == "PROJECT" ) ? self.projectMetric(uuid) : self.threadMetric(uuid)
-        isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric
+    def self.metric(uuid, isRunning)
+        metric = 0.2 + 0.2*Math.exp(-self.objectHoursDone(uuid))
+        isRunning ? 2 - CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
     end
 
     def self.commands(style, isRunning)
@@ -85,7 +76,7 @@ class AgentCollections
         object = {
             "uuid"               => uuid,
             "agent-uid"          => self.agentuuid(),
-            "metric"             => self.metric(uuid, style, isRunning),
+            "metric"             => self.metric(uuid, isRunning),
             "announce"           => announce,
             "commands"           => self.commands(style, isRunning),
             "default-expression" => self.defaultExpression(style, isRunning)
@@ -99,18 +90,12 @@ class AgentCollections
     def self.interface()
     end    
 
+    def self.projectsPositionalCoefficientSequence()
+        LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
+    end
+
     def self.generalFlockUpgrade()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        halves = [0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625]
-        CollectionsOperator::collectionsFolderpaths()
-            .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
-            .first(6)
-            .zip(halves)
-            .each{|pair|
-                folderpath = pair[0]
-                hours = pair[1]
-                File.open("#{folderpath}/collection-time-positional-coefficient", "w"){|f| f.write(hours)}
-            }
         objects = CollectionsOperator::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact

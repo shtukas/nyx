@@ -35,8 +35,9 @@
 
 # CollectionsOperator::transform()
 # CollectionsOperator::sendCollectionToBinTimeline(uuid)
+# CollectionsOperator::getCollectionTimeCoefficient(uuid)
 # CollectionsOperator::agentDailyCommitmentInHours()
-# CollectionsOperator::getObjectTimeCommitmentInHours(uuid)
+# CollectionsOperator::getCollectionTimeCoefficient(uuid)
 
 # CollectionsOperator::ui_loopDiveCollectionObjects(collectionuuid)
 # CollectionsOperator::ui_mainDiveIntoCollection_v2(collectionuuid)
@@ -221,22 +222,15 @@ class CollectionsOperator
         LucilleCore::removeFileSystemLocation(sourcefilepath)
     end
 
-    def self.getObjectTimeCommitmentInHours(uuid)
+    def self.getCollectionTimeCoefficient(uuid)
         folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
         if folderpath.nil? then
             raise "error e95e2fda: Could not find fodler path for uuid: #{uuid}" 
         end
-        if File.exists?("#{folderpath}/collection-time-commitment-override") then
-            return IO.read("#{folderpath}/collection-time-commitment-override").to_f
-        end
         if File.exists?("#{folderpath}/collection-time-positional-coefficient") then
-            return IO.read("#{folderpath}/collection-time-positional-coefficient").to_f * CollectionsOperator::agentDailyCommitmentInHours()
+            return IO.read("#{folderpath}/collection-time-positional-coefficient").to_f
         end
         0
-    end
-
-    def self.agentDailyCommitmentInHours()
-        4
     end
 
     def self.getNextReviewUnixtime(collectionuuid)

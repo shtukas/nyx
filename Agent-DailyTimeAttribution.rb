@@ -25,145 +25,114 @@ class DailyTimeAttribution
 
     def self.generalFlockUpgrade()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        if FKVStore::getOrNull("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
+        if FKVStore::getOrNull("16b84bf4-a032-44f7-a191-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
                     "uuid"      => "2ef32868",
                     "agent-uid" => self.agentuuid(),
                     "metric"    => 1,
-                    "announce"  => "DailyTimeAttribution",
+                    "announce"  => "Daily times attribution",
                     "commands"  => [],
-                    "default-expression" => "16b84bf4-a032-44f7-a190-85476ca27ccd"
-                }
-            FlockOperator::addOrUpdateObject(object)
-        end
-        if FKVStore::getOrNull("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}").nil? and ![6,0].include?(Time.new.wday) and Time.new.hour>=8 then
-            object =
-                {
-                    "uuid"      => "2ef32868",
-                    "agent-uid" => self.agentuuid(),
-                    "metric"    => 1,
-                    "announce"  => "DailyTimeAttribution",
-                    "commands"  => [],
-                    "default-expression" => "23ed1630-7c94-47b4-b50e-905a3e5f862a"
+                    "default-expression" => "16b84bf4-a032-44f7-a191-85476ca27ccd"
                 }
             FlockOperator::addOrUpdateObject(object)
         end
     end
 
     def self.processObjectAndCommandFromCli(object, command)
-        if command == "16b84bf4-a032-44f7-a190-85476ca27ccd" then
-            distribution = {}
-            CollectionsOperator::collectionsUUIDs().each{|collectionuuid|
-                distribution[collectionuuid] = {
-                    "collectionuuid" => collectionuuid,
-                    "style"          => CollectionsOperator::getCollectionStyle(collectionuuid),
-                    "collectionname" => CollectionsOperator::collectionUUID2NameOrNull(collectionuuid),
-                    "time-commitment-in-hours" => 0,
-                    "is-Guardian-time" => false
+        if command == "16b84bf4-a032-44f7-a191-85476ca27ccd" then
+
+            guardianWorkingHours = LucilleCore::askQuestionAnswerAsString("Today's Guardian working hours (empty defaults to 5): ")
+            if guardianWorkingHours.size==0 then
+                guardianWorkingHours = "5"
+            end
+            guardianWorkingHours = guardianWorkingHours.to_f
+
+            projectHours = LucilleCore::askQuestionAnswerAsString("Projects hours (empty defaults to 3): ")
+            if projectHours.size==0 then
+                projectHours = "3"
+            end
+            projectHours = projectHours.to_f
+
+            threadsHours = LucilleCore::askQuestionAnswerAsString("Threads hours (empty defaults to 2): ")
+            if threadsHours.size==0 then
+                threadsHours = "2"
+            end
+            threadsHours = threadsHours.to_f  
+
+            item = {
+                "uuid"                => SecureRandom.hex(4),
+                "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
+                "description"         => "Guardian (misc, non project)",
+                "commitment-in-hours" => guardianWorkingHours,
+                "timespans"           => [],
+                "last-start-unixtime" => 0
+            }
+            TimeCommitments::saveItem(item)
+
+            halvesEnum = AgentCollections::projectsPositionalCoefficientSequence()
+            CollectionsOperator::collectionsFolderpaths() # Comes with the right order
+                .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
+                .each{|folderpath|
+                    File.open("#{folderpath}/collection-time-positional-coefficient", "w"){|f| f.write(halvesEnum.next)}
                 }
-            }
-            puts "Daily Time Attribution: Projects recommendations:"
-            distribution.each{|collectionuuid, collectiondata|
-                next if collectiondata["style"] != "PROJECT"
-                puts "   - #{collectiondata["collectionname"]} : recommended: #{CollectionsOperator::getObjectTimeCommitmentInHours(collectionuuid)} hours"
-            }
-            puts "Daily Time Attribution: Projects pascal commitments:"
-            distribution.each{|collectionuuid, collectiondata|
-                next if collectiondata["style"] != "PROJECT"
-                collectiondata["time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("  - #{collectiondata["collectionname"]} (hours): ").to_f
-                if collectiondata["time-commitment-in-hours"] > 0 then
-                    collectiondata["is-Guardian-time"] = CollectionsOperator::isGuardianTime?(collectionuuid)
-                end
-            }
-            distribution.each{|collectionuuid, collectiondata|
-                next if collectiondata["style"] != "PROJECT"
-                next if collectiondata["time-commitment-in-hours"] == 0
-                item = {
-                    "uuid"                => SecureRandom.hex(4),
-                    "domain"              => "0b91cb59-6a25-40e2-87eb-abb65af078c0:#{collectionuuid}",
-                    "description"         => "Time commitment point for: #{collectiondata["collectionname"]}",
-                    "commitment-in-hours" => collectiondata["time-commitment-in-hours"],
-                    "timespans"           => [],
-                    "last-start-unixtime" => 0,
-                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
-                    "only-on-day"         => CommonsUtils::currentDay()
-                }
-                TimeCommitments::saveItem(item)
-                if collectiondata["is-Guardian-time"] then
+
+            CollectionsOperator::collectionsUUIDs()
+                .select{|collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="PROJECT" }
+                .each{|collectionuuid| 
+                timeCommitment = projectHours * CollectionsOperator::getCollectionTimeCoefficient(collectionuuid) 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
-                        "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                        "description"         => "Guardian",
-                        "commitment-in-hours" => -collectiondata["time-commitment-in-hours"],
+                        "domain"              => SecureRandom.hex(4),
+                        "description"         => "Time commitment point for project: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
+                        "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
-                        "only-on-day"         => CommonsUtils::currentDay()
+                        "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
                     }
                     TimeCommitments::saveItem(item)
-                end
-            }
-            puts "Daily Time Attribution: Threads recommendations:"
-            distribution.each{|collectionuuid, collectiondata|
-                next if collectiondata["style"] != "THREAD"
-                puts "   - #{collectiondata["collectionname"]}"
-            }
-            puts "Daily Time Attribution: Projects pascal commitments:"
-            distribution.each{|collectionuuid, collectiondata|
-                next if collectiondata["style"] != "THREAD"
-                collectiondata["time-commitment-in-hours"] = LucilleCore::askQuestionAnswerAsString("  - #{collectiondata["collectionname"]} (hours): ").to_f
-                if collectiondata["time-commitment-in-hours"] > 0 then
-                    collectiondata["is-Guardian-time"] = CollectionsOperator::isGuardianTime?(collectionuuid)
-                end
-            }
-            distribution.each{|collectionuuid, collectiondata|
-                next if collectiondata["style"] != "THREAD"
-                next if collectiondata["time-commitment-in-hours"] == 0
-                item = {
-                    "uuid"                => SecureRandom.hex(4),
-                    "domain"              => "0b91cb59-6a25-40e2-87eb-abb65af078c0:#{collectionuuid}",
-                    "description"         => "Time commitment point for: #{collectiondata["collectionname"]}",
-                    "commitment-in-hours" => collectiondata["time-commitment-in-hours"],
-                    "timespans"           => [],
-                    "last-start-unixtime" => 0,
-                    "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
-                    "only-on-day"         => CommonsUtils::currentDay()
+                    if  CollectionsOperator::isGuardianTime?(collectionuuid) then
+                        item = {
+                            "uuid"                => SecureRandom.hex(4),
+                            "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
+                            "description"         => "Guardian (misc, non project)",
+                            "commitment-in-hours" => -timeCommitment,
+                            "timespans"           => [],
+                            "last-start-unixtime" => 0
+                        }
+                        TimeCommitments::saveItem(item)
+                    end
                 }
-                TimeCommitments::saveItem(item)
-                if collectiondata["is-Guardian-time"] then
+
+            collectionuuids = CollectionsOperator::collectionsUUIDs()
+                .select{|collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
+            
+            collectionuuids.each{|collectionuuid| 
+                timeCommitment = threadsHours.to_f/collectionuuids.size # denominator greater than zero otherwise this would not be executed 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
-                        "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                        "description"         => "Guardian",
-                        "commitment-in-hours" => -collectiondata["time-commitment-in-hours"],
+                        "domain"              => SecureRandom.hex(4),
+                        "description"         => "Time commitment point for thread: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
+                        "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
-                        "only-on-day"         => CommonsUtils::currentDay()
+                        "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
                     }
                     TimeCommitments::saveItem(item)
-                end
-            }
-            FKVStore::set("16b84bf4-a032-44f7-a190-85476ca27ccd:#{Time.new.to_s[0,10]}", "done")
-        end
-        if command == "23ed1630-7c94-47b4-b50e-905a3e5f862a" then
-            numberOfHours = LucilleCore::askQuestionAnswerAsString("Guardian hours for today (empty default to 5): ")
-            if numberOfHours.strip.size==0 then
-                numberOfHours = "5"
-            end
-            numberOfHours = numberOfHours.to_f
-            if numberOfHours>0 then
-                item = {
-                    "uuid"                => SecureRandom.hex(4),
-                    "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                    "description"         => "Guardian",
-                    "commitment-in-hours" => numberOfHours,
-                    "timespans"           => [],
-                    "last-start-unixtime" => 0,
-                    "only-on-day"         => CommonsUtils::currentDay()
+                    if  CollectionsOperator::isGuardianTime?(collectionuuid) then
+                        item = {
+                            "uuid"                => SecureRandom.hex(4),
+                            "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
+                            "description"         => "Guardian (misc, non project)",
+                            "commitment-in-hours" => -timeCommitment,
+                            "timespans"           => [],
+                            "last-start-unixtime" => 0
+                        }
+                        TimeCommitments::saveItem(item)
+                    end
                 }
-                TimeCommitments::saveItem(item)
-            end
-            FKVStore::set("23ed1630-7c94-47b4-b50e-905a3e5f862a:#{Time.new.to_s[0,10]}", "done")
+
+            FKVStore::set("16b84bf4-a032-44f7-a191-85476ca27ccd:#{Time.new.to_s[0,10]}", "done")
         end
     end
 end

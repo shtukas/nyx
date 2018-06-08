@@ -55,7 +55,6 @@ require_relative "CommonsUtils"
             "metric"                          : Float # optional, if present determines the metric.
             "uuids-for-generic-time-tracking" : Array[String] # optional
             "paused"                          : Boolean # Optional
-            "only-on-day"                     : Date # if set, the item is destroyed after midnight
         }
 =end
 
@@ -232,9 +231,6 @@ class TimeCommitments
     def self.generalFlockUpgrade()
         TimeCommitments::garbageCollectionGlobal()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        TimeCommitments::getItems()
-            .select{|item| item["only-on-day"]!=CommonsUtils::currentDay() }
-            .each{|item| TimeCommitments::destroyItem(item) }
         objects = TimeCommitments::getItems()
             .select{|item| item["commitment-in-hours"] > 0 }
             .map{|item|
@@ -245,7 +241,7 @@ class TimeCommitments
                     system("terminal-notifier -title Catalyst -message '#{message}'")
                     sleep 2
                 end
-                metric = 0.6 + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
+                metric = 0.6 + 0.1*Math.exp(-ratioDone*3) + Math.atan(item["commitment-in-hours"]).to_f/10 + CommonsUtils::traceToMetricShift(uuid)
                 metric = item['metric'] ? item['metric'] : metric
                 metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"] or item["paused"]
                 announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
