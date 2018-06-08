@@ -21,8 +21,8 @@ class NotGuardian
             FlockOperator::flockObjects().each{|object|
                 if self.isNonGuardian(object["uuid"]) then
                     object["metric"] = 0
+                    FlockOperator::addOrUpdateObject(object)
                 end
-                FlockOperator::addOrUpdateObject(object)
             }
         end
     end

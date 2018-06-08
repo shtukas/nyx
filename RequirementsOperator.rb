@@ -75,8 +75,8 @@ class RequirementsOperator
             if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
                 # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
                 object["metric"] = 0
+                FlockOperator::addOrUpdateObject(object)
             end
-            FlockOperator::addOrUpdateObject(object)
         }
     end
 end

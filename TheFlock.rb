@@ -182,6 +182,8 @@ end
 
 class FlockService
     def self.topObjects(count)
+        # The first upgrade should come first as it makes objects building, metric updates etc.
+        # All the others send metric to zero when relevant and they are all commutative.
         AgentsManager::generalFlockUpgrade()
         TodayOrNotToday::transform()
         RequirementsOperator::transform()

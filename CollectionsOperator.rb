@@ -206,8 +206,8 @@ class CollectionsOperator
         FlockOperator::flockObjects().each{|object|
             if uuids.include?(object["uuid"]) then
                 object["metric"] = 0
+                FlockOperator::addOrUpdateObject(object)
             end
-            FlockOperator::addOrUpdateObject(object)
         }
     end
 
