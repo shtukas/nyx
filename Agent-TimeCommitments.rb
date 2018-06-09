@@ -238,6 +238,7 @@ class TimeCommitments
     def self.generalFlockUpgrade()
         TimeCommitments::garbageCollectionGlobal()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        return if (Time.new.hour>=23 or Time.new.hour < 7)
         objects = TimeCommitments::getItems()
             .select{|item| item["commitment-in-hours"] > 0 }
             .map{|item|
