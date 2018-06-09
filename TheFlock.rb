@@ -190,7 +190,11 @@ class FlockService
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsCore::transform()
         NotGuardian::transform()
-        FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(count)
+        FlockOperator::flockObjects()
+            .select{|object| object["metric"] >= 0.2 }
+            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+            .reverse
+            .take(count)
     end
 end
 # ----------------------------------------------------------------
