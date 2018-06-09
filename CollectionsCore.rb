@@ -8,46 +8,46 @@
 
 # -------------------------------------------------------------
 
-# CollectionsOperator::collectionsFolderpaths()
-# CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)
-# CollectionsOperator::folderPath2CollectionName(folderpath)
-# CollectionsOperator::folderPath2CollectionObject(folderpath)
-# CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
-# CollectionsOperator::collectionsUUIDs()
-# CollectionsOperator::collectionsNames()
-# CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)
+# CollectionsCore::collectionsFolderpaths()
+# CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath)
+# CollectionsCore::folderPath2CollectionName(folderpath)
+# CollectionsCore::folderPath2CollectionObject(folderpath)
+# CollectionsCore::collectionUUID2FolderpathOrNull(uuid)
+# CollectionsCore::collectionsUUIDs()
+# CollectionsCore::collectionsNames()
+# CollectionsCore::collectionUUID2NameOrNull(collectionuuid)
 
-# CollectionsOperator::textContents(collectionuuid)
-# CollectionsOperator::documentsFilenames(collectionuuid)
+# CollectionsCore::textContents(collectionuuid)
+# CollectionsCore::documentsFilenames(collectionuuid)
 
-# CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+# CollectionsCore::createNewCollection_WithNameAndStyle(collectionname, style)
 
-# CollectionsOperator::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
-# CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
-# CollectionsOperator::collectionCatalystObjectUUIDs(threaduuid)
-# CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
-# CollectionsOperator::allCollectionsCatalystUUIDs()
+# CollectionsCore::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
+# CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
+# CollectionsCore::collectionCatalystObjectUUIDs(threaduuid)
+# CollectionsCore::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
+# CollectionsCore::allCollectionsCatalystUUIDs()
 
-# CollectionsOperator::setCollectionStyle(collectionuuid, style)
-# CollectionsOperator::getCollectionStyle(collectionuuid)
+# CollectionsCore::setCollectionStyle(collectionuuid, style)
+# CollectionsCore::getCollectionStyle(collectionuuid)
 
-# CollectionsOperator::isGuardianTime?(collectionuuid)
+# CollectionsCore::isGuardianTime?(collectionuuid)
 
-# CollectionsOperator::transform()
-# CollectionsOperator::sendCollectionToBinTimeline(uuid)
-# CollectionsOperator::getCollectionTimeCoefficient(uuid)
-# CollectionsOperator::agentDailyCommitmentInHours()
-# CollectionsOperator::getCollectionTimeCoefficient(uuid)
+# CollectionsCore::transform()
+# CollectionsCore::sendCollectionToBinTimeline(uuid)
+# CollectionsCore::getCollectionTimeCoefficient(uuid)
+# CollectionsCore::agentDailyCommitmentInHours()
+# CollectionsCore::getCollectionTimeCoefficient(uuid)
 
-# CollectionsOperator::interactivelySelectCollectionUUIDOrNUll()
-# CollectionsOperator::ui_CollectionsDive()
-# CollectionsOperator::ui_CollectionDive(collectionuuid)
+# CollectionsCore::interactivelySelectCollectionUUIDOrNUll()
+# CollectionsCore::ui_CollectionsDive()
+# CollectionsCore::ui_CollectionDive(collectionuuid)
 
-# CollectionsOperator::startCollection(collectionuuid)
-# CollectionsOperator::stopCollection(collectionuuid)
-# CollectionsOperator::completeCollection(collectionuuid)
+# CollectionsCore::startCollection(collectionuuid)
+# CollectionsCore::stopCollection(collectionuuid)
+# CollectionsCore::completeCollection(collectionuuid)
 
-class CollectionsOperator
+class CollectionsCore
 
     # ---------------------------------------------------
     # Utils
@@ -60,11 +60,11 @@ class CollectionsOperator
     end
 
     def self.collectionsUUIDs()
-        CollectionsOperator::collectionsFolderpaths().map{|folderpath| CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath) }
+        CollectionsCore::collectionsFolderpaths().map{|folderpath| CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath) }
     end
 
     def self.collectionsNames()
-        CollectionsOperator::collectionsFolderpaths().map{|folderpath| CollectionsOperator::folderPath2CollectionName(folderpath) }
+        CollectionsCore::collectionsFolderpaths().map{|folderpath| CollectionsCore::folderPath2CollectionName(folderpath) }
     end
 
     def self.folderPath2CollectionUUIDOrNull(folderpath)
@@ -76,17 +76,17 @@ class CollectionsOperator
     end
 
     def self.collectionUUID2FolderpathOrNull(uuid)
-        CollectionsOperator::collectionsFolderpaths()
+        CollectionsCore::collectionsFolderpaths()
             .each{|folderpath|
-                return folderpath if CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+                return folderpath if CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath)==uuid
             }
         nil
     end
 
     def self.collectionUUID2NameOrNull(uuid)
-        CollectionsOperator::collectionsFolderpaths()
+        CollectionsCore::collectionsFolderpaths()
             .each{|folderpath|
-                return IO.read("#{folderpath}/collection-name").strip if CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)==uuid
+                return IO.read("#{folderpath}/collection-name").strip if CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath)==uuid
             }
         nil
     end
@@ -127,7 +127,7 @@ class CollectionsOperator
     # collections uuids
 
     def self.addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(threaduuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(threaduuid)
         arrayFilepath = "#{folderpath}/collection-catalyst-uuids.json"
         array = JSON.parse(IO.read(arrayFilepath))
         array << objectuuid 
@@ -136,33 +136,33 @@ class CollectionsOperator
     end
 
     def self.addObjectUUIDToCollectionInteractivelyChosen(objectuuid)
-        collectionuuid = CollectionsOperator::interactivelySelectCollectionUUIDOrNUll()
+        collectionuuid = CollectionsCore::interactivelySelectCollectionUUIDOrNUll()
         if collectionuuid.nil? then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new collection ? ") then
                 collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
                 style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-                collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+                collectionuuid = CollectionsCore::createNewCollection_WithNameAndStyle(collectionname, style)
             else
                 return
             end
         end
-        CollectionsOperator::addCatalystObjectUUIDToCollection(objectuuid, collectionuuid)
+        CollectionsCore::addCatalystObjectUUIDToCollection(objectuuid, collectionuuid)
         collectionuuid
     end
 
     def self.collectionCatalystObjectUUIDs(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
         JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json"))
     end
 
     def self.collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
-        a1 = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
+        a1 = CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
         a2 = FlockOperator::flockObjects().map{|object| object["uuid"] }
         a1 & a2
     end
 
     def self.allCollectionsCatalystUUIDs()
-        CollectionsOperator::collectionsFolderpaths()
+        CollectionsCore::collectionsFolderpaths()
             .map{|folderpath| JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json")) }
             .flatten
     end
@@ -174,13 +174,13 @@ class CollectionsOperator
         if !["THREAD", "PROJECT"].include?(style) then
             raise "Incorrect Style: #{style}, should be THREAD or PROJECT"
         end
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-style"
         File.open(filepath, "w"){|f| f.write(style) }
     end
 
     def self.getCollectionStyle(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-style"
         IO.read(filepath).strip        
     end
@@ -189,10 +189,10 @@ class CollectionsOperator
     # isGuardianTime?(collectionuuid)
 
     def self.isGuardianTime?(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/isGuardianTime?"
         if !File.exists?(filepath) then
-            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("#{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)} is Guardian time? ") then
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("#{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)} is Guardian time? ") then
                 File.open(filepath, "w"){|f| f.write("true") }
             else
                 File.open(filepath, "w"){|f| f.write("false") }
@@ -215,7 +215,7 @@ class CollectionsOperator
     end
 
     def self.sendCollectionToBinTimeline(uuid)
-        sourcefilepath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+        sourcefilepath = CollectionsCore::collectionUUID2FolderpathOrNull(uuid)
         return if sourcefilepath.nil?
         targetFolder = CommonsUtils::newBinArchivesFolderpath()
         puts "source: #{sourcefilepath}"
@@ -225,7 +225,7 @@ class CollectionsOperator
     end
 
     def self.getCollectionTimeCoefficient(uuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(uuid)
         if folderpath.nil? then
             raise "error e95e2fda: Could not find fodler path for uuid: #{uuid}" 
         end
@@ -236,14 +236,14 @@ class CollectionsOperator
     end
 
     def self.getNextReviewUnixtime(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-next-review-time"
         return 0 if !File.exists?(filepath)
         IO.read(filepath).to_i       
     end
 
     def self.setNextReviewUnixtime(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
         filepath = "#{folderpath}/collection-next-review-time"
         unixtime = Time.new.to_i + 86400*(1+rand) 
         File.open(filepath, "w"){|f| f.write(unixtime) }
@@ -254,10 +254,10 @@ class CollectionsOperator
 
     def self.ui_CollectionDive(collectionuuid)
         loop {
-            style = CollectionsOperator::getCollectionStyle(collectionuuid)
-            textContents = CollectionsOperator::textContents(collectionuuid)
-            documentsFilenames = CollectionsOperator::documentsFilenames(collectionuuid)
-            catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
+            style = CollectionsCore::getCollectionStyle(collectionuuid)
+            textContents = CollectionsCore::textContents(collectionuuid)
+            documentsFilenames = CollectionsCore::documentsFilenames(collectionuuid)
+            catalystobjects = CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
                 .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
@@ -297,12 +297,12 @@ class CollectionsOperator
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
             if menuChoice == menuItem1 then
-                folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+                folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/collection-text.txt'")
                 next
             end
             if menuChoice == menuItem2 then
-                folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+                folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
                 system("open '#{folderpath}/documents'")
                 next
             end
@@ -312,7 +312,7 @@ class CollectionsOperator
                         puts "You now need to destroy all the objects"
                         LucilleCore::pressEnterToContinue()
                         loop {
-                            catalystobjects = CollectionsOperator::collectionCatalystObjectUUIDs(collectionuuid)
+                            catalystobjects = CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
                                 .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
                                 .compact
                                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
@@ -323,26 +323,26 @@ class CollectionsOperator
                         }
                     end
                     puts "Moving collection folder to bin timeline"
-                    collectionfolderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)
+                    collectionfolderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
                     targetFolder = CommonsUtils::newBinArchivesFolderpath()
                     FileUtils.mv(collectionfolderpath, targetFolder)
                 end
                 return
             end
             if menuChoice == menuItem4 then
-                CollectionsOperator::setCollectionStyle(collectionuuid, "PROJECT")
+                CollectionsCore::setCollectionStyle(collectionuuid, "PROJECT")
                 return
             end
             if menuChoice == menuItem3 then
-                CollectionsOperator::setCollectionStyle(collectionuuid, "THREAD")
+                CollectionsCore::setCollectionStyle(collectionuuid, "THREAD")
                 return
             end
             if menuChoice == menuItem6 then
-                CollectionsOperator::startCollection(collectionuuid)
+                CollectionsCore::startCollection(collectionuuid)
                 return
             end
             if menuChoice == menuItem7 then
-                CollectionsOperator::stopCollection(collectionuuid)
+                CollectionsCore::stopCollection(collectionuuid)
                 return
             end
             if menuChoice == menuItem8 then
@@ -392,7 +392,7 @@ class CollectionsOperator
     end
 
     def self.completeCollection(collectionuuid)
-        folderpath = CollectionsOperator::collectionUUID2FolderpathOrNull(uuid)
+        folderpath = CollectionsCore::collectionUUID2FolderpathOrNull(uuid)
         return if folderpath.nil?
         if self.hasText(folderpath) then
             puts "You cannot complete this item because it has text"
@@ -404,29 +404,29 @@ class CollectionsOperator
             LucilleCore::pressEnterToContinue()
             return
         end
-        if CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid).size>0 then
+        if CollectionsCore::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid).size>0 then
             puts "You cannot complete this item because it has objects"
             LucilleCore::pressEnterToContinue()
             return
         end
         GenericTimeTracking::stop(collectionuuid)
         GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
-        CollectionsOperator::sendCollectionToBinTimeline(collectionuuid)
+        CollectionsCore::sendCollectionToBinTimeline(collectionuuid)
     end
 
     def self.ui_CollectionsDive()
         loop {
             toString = lambda{ |collectionuuid| 
-                "#{CollectionsOperator::getCollectionStyle(collectionuuid).ljust(8)} : #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}"
+                "#{CollectionsCore::getCollectionStyle(collectionuuid).ljust(8)} : #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}"
             }
-            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", CollectionsOperator::collectionsUUIDs(), toString)
+            collectionuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("threads", CollectionsCore::collectionsUUIDs(), toString)
             break if collectionuuid.nil?
-            CollectionsOperator::ui_CollectionDive(collectionuuid)
+            CollectionsCore::ui_CollectionDive(collectionuuid)
         }
     end
 
     def self.interactivelySelectCollectionUUIDOrNUll()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collection", CollectionsOperator::collectionsUUIDs(), lambda{ |collectionuuid| CollectionsOperator::collectionUUID2NameOrNull(collectionuuid) })
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("collection", CollectionsCore::collectionsUUIDs(), lambda{ |collectionuuid| CollectionsCore::collectionUUID2NameOrNull(collectionuuid) })
     end
 
 end

@@ -65,20 +65,20 @@ class DailyTimeAttribution
             projectHours = projectHours.to_f 
 
             halvesEnum = AgentCollections::projectsPositionalCoefficientSequence()
-            CollectionsOperator::collectionsFolderpaths() # Comes with the right order
+            CollectionsCore::collectionsFolderpaths() # Comes with the right order
                 .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
                 .each{|folderpath|
                     File.open("#{folderpath}/collection-time-positional-coefficient", "w"){|f| f.write(halvesEnum.next)}
                 }
 
-            CollectionsOperator::collectionsUUIDs()
-                .select{|collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="PROJECT" }
+            CollectionsCore::collectionsUUIDs()
+                .select{|collectionuuid| CollectionsCore::getCollectionStyle(collectionuuid)=="PROJECT" }
                 .each{|collectionuuid| 
-                timeCommitment = projectHours * CollectionsOperator::getCollectionTimeCoefficient(collectionuuid) 
+                timeCommitment = projectHours * CollectionsCore::getCollectionTimeCoefficient(collectionuuid) 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
                         "domain"              => SecureRandom.hex(4),
-                        "description"         => "Time commitment point for project #{ CollectionsOperator::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
+                        "description"         => "Time commitment point for project #{ CollectionsCore::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
@@ -86,7 +86,7 @@ class DailyTimeAttribution
                         "33be3505:collection-uuid" => collectionuuid
                     }
                     TimeCommitments::saveItem(item)
-                    if  CollectionsOperator::isGuardianTime?(collectionuuid) then
+                    if  CollectionsCore::isGuardianTime?(collectionuuid) then
                         item = {
                             "uuid"                => SecureRandom.hex(4),
                             "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
@@ -105,15 +105,15 @@ class DailyTimeAttribution
             end
             threadsHours = threadsHours.to_f 
 
-            collectionuuids = CollectionsOperator::collectionsUUIDs()
-                .select{|collectionuuid| CollectionsOperator::getCollectionStyle(collectionuuid)=="THREAD" }
+            collectionuuids = CollectionsCore::collectionsUUIDs()
+                .select{|collectionuuid| CollectionsCore::getCollectionStyle(collectionuuid)=="THREAD" }
             
             collectionuuids.each{|collectionuuid| 
                 timeCommitment = threadsHours.to_f/collectionuuids.size # denominator greater than zero otherwise this would not be executed 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
                         "domain"              => SecureRandom.hex(4),
-                        "description"         => "Time commitment point for thread #{ CollectionsOperator::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsOperator::collectionUUID2NameOrNull(collectionuuid)}",
+                        "description"         => "Time commitment point for thread #{ CollectionsCore::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
@@ -121,7 +121,7 @@ class DailyTimeAttribution
                         "33be3505:collection-uuid" => collectionuuid
                     }
                     TimeCommitments::saveItem(item)
-                    if  CollectionsOperator::isGuardianTime?(collectionuuid) then
+                    if  CollectionsCore::isGuardianTime?(collectionuuid) then
                         item = {
                             "uuid"                => SecureRandom.hex(4),
                             "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",

@@ -14,7 +14,7 @@ require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "GenericTimeTracking.rb"
 require_relative "CatalystDevOps.rb"
-require_relative "CollectionsOperator.rb"
+require_relative "CollectionsCore.rb"
 require_relative "NotGuardian"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
@@ -48,10 +48,10 @@ class AgentCollections
     end
 
     def self.makeCatalystObjectOrNull(folderpath)
-        uuid = CollectionsOperator::folderPath2CollectionUUIDOrNull(folderpath)
+        uuid = CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath)
         return nil if uuid.nil?
-        description = CollectionsOperator::folderPath2CollectionName(folderpath)
-        style = CollectionsOperator::getCollectionStyle(uuid)
+        description = CollectionsCore::folderPath2CollectionName(folderpath)
+        style = CollectionsCore::getCollectionStyle(uuid)
         announce = "collection: #{style.downcase}: #{description}"
         if self.hasText(folderpath) then
             announce = announce + " [TEXT]"
@@ -59,7 +59,7 @@ class AgentCollections
         if self.hasDocuments(folderpath) then
             announce = announce + " [DOCUMENTS]"
         end
-        if CollectionsOperator::collectionCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
+        if CollectionsCore::collectionCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
             announce = announce + " [OBJECTS]"
         end
         announce = announce + " (#{ "%.2f" % (GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
@@ -88,7 +88,7 @@ class AgentCollections
 
     def self.generalFlockUpgrade()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        objects = CollectionsOperator::collectionsFolderpaths()
+        objects = CollectionsCore::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact
         FlockOperator::addOrUpdateObjects(objects)
@@ -96,7 +96,7 @@ class AgentCollections
 
     def self.processObjectAndCommandFromCli(object, command)
         if command=="dive" then
-            CollectionsOperator::ui_CollectionDive(object["uuid"])
+            CollectionsCore::ui_CollectionDive(object["uuid"])
         end
     end
 end

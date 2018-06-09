@@ -49,7 +49,7 @@ require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
 require_relative "TodayOrNotToday.rb"
 require_relative "RequirementsOperator.rb"
-require_relative "CollectionsOperator.rb"
+require_relative "CollectionsCore.rb"
 require_relative "NotGuardian.rb"
 require_relative "CommonsUtils.rb"
 require_relative "AgentsManager.rb"
@@ -188,7 +188,7 @@ class FlockService
         TodayOrNotToday::transform()
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
-        CollectionsOperator::transform()
+        CollectionsCore::transform()
         NotGuardian::transform()
         FlockOperator::flockObjects().sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse.take(count)
     end

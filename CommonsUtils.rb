@@ -249,7 +249,7 @@ class CommonsUtils
         print "Move to a thread ? [yes/no] (default: no): "
         answer = STDIN.gets().strip 
         if answer=="yes" then
-            CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(uuid)
         end
     end
 
@@ -318,14 +318,14 @@ class CommonsUtils
         end
 
         if expression == "collections" then
-            CollectionsOperator::ui_CollectionsDive()
+            CollectionsCore::ui_CollectionsDive()
             return
         end
 
         if expression == "collections:new" then
             collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
             style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-            CollectionsOperator::createNewCollection_WithNameAndStyle(collectionname, style)
+            CollectionsCore::createNewCollection_WithNameAndStyle(collectionname, style)
         end
 
         if expression.start_with?('wave:') then
@@ -347,10 +347,10 @@ class CommonsUtils
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(description, "PROJECT")
+            collectionuuid = CollectionsCore::createNewCollection_WithNameAndStyle(description, "PROJECT")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
-            puts "collection path: #{CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            puts "collection path: #{CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -358,10 +358,10 @@ class CommonsUtils
         if expression.start_with?('thread:') then
             description = expression[7, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = CollectionsOperator::createNewCollection_WithNameAndStyle(description, "THREAD")
+            collectionuuid = CollectionsCore::createNewCollection_WithNameAndStyle(description, "THREAD")
             puts "collection uuid: #{collectionuuid}"
             puts "collection name: #{description}"
-            puts "collection path: #{CollectionsOperator::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            puts "collection path: #{CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -419,7 +419,7 @@ class CommonsUtils
         end
 
         if expression == ">c" then
-            CollectionsOperator::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
+            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
             return
         end
 
