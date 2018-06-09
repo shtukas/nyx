@@ -22,7 +22,6 @@ require_relative "CommonsUtils"
 # -------------------------------------------------------------------------------------
 
 # AgentCollections::metric
-# AgentCollections::projectsPositionalCoefficientSequence()
 
 class AgentCollections
 
@@ -80,10 +79,6 @@ class AgentCollections
     end
 
     def self.interface()
-    end    
-
-    def self.projectsPositionalCoefficientSequence()
-        LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
     end
 
     def self.generalFlockUpgrade()

@@ -64,7 +64,7 @@ class DailyTimeAttribution
             end
             projectHours = projectHours.to_f 
 
-            halvesEnum = AgentCollections::projectsPositionalCoefficientSequence()
+            halvesEnum = CollectionsCore::projectsPositionalCoefficientSequence()
             CollectionsCore::collectionsFolderpaths() # Comes with the right order
                 .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
                 .each{|folderpath|

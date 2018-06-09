@@ -8,6 +8,9 @@
 
 # -------------------------------------------------------------
 
+# ---------------------------------------------------
+# Utils
+
 # CollectionsCore::collectionsFolderpaths()
 # CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath)
 # CollectionsCore::folderPath2CollectionName(folderpath)
@@ -16,11 +19,21 @@
 # CollectionsCore::collectionsUUIDs()
 # CollectionsCore::collectionsNames()
 # CollectionsCore::collectionUUID2NameOrNull(collectionuuid)
+# CollectionsCore::projectsPositionalCoefficientSequence()
+
+# ---------------------------------------------------
+# text and documents
 
 # CollectionsCore::textContents(collectionuuid)
 # CollectionsCore::documentsFilenames(collectionuuid)
 
+# ---------------------------------------------------
+# creation
+
 # CollectionsCore::createNewCollection_WithNameAndStyle(collectionname, style)
+
+# ---------------------------------------------------
+# collections uuids
 
 # CollectionsCore::addCatalystObjectUUIDToCollection(objectuuid, threaduuid)
 # CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(objectuuid, threaduuid)
@@ -28,10 +41,19 @@
 # CollectionsCore::collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
 # CollectionsCore::allCollectionsCatalystUUIDs()
 
+# ---------------------------------------------------
+# style
+
 # CollectionsCore::setCollectionStyle(collectionuuid, style)
 # CollectionsCore::getCollectionStyle(collectionuuid)
 
+# ---------------------------------------------------
+# isGuardianTime?(collectionuuid)
+
 # CollectionsCore::isGuardianTime?(collectionuuid)
+
+# ---------------------------------------------------
+# Misc
 
 # CollectionsCore::transform()
 # CollectionsCore::sendCollectionToBinTimeline(uuid)
@@ -39,13 +61,16 @@
 # CollectionsCore::agentDailyCommitmentInHours()
 # CollectionsCore::getCollectionTimeCoefficient(uuid)
 
+# ---------------------------------------------------
+# User Interface
+
 # CollectionsCore::interactivelySelectCollectionUUIDOrNUll()
 # CollectionsCore::ui_CollectionsDive()
 # CollectionsCore::ui_CollectionDive(collectionuuid)
-
 # CollectionsCore::startCollection(collectionuuid)
 # CollectionsCore::stopCollection(collectionuuid)
 # CollectionsCore::completeCollection(collectionuuid)
+
 
 class CollectionsCore
 
@@ -89,6 +114,10 @@ class CollectionsCore
                 return IO.read("#{folderpath}/collection-name").strip if CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath)==uuid
             }
         nil
+    end
+
+    def self.projectsPositionalCoefficientSequence()
+        LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
     end
 
     # ---------------------------------------------------
