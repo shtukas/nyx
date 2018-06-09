@@ -236,7 +236,8 @@ class CommonsUtils
                 {
                     "uuid" => SecureRandom.hex,
                     "@"    => "new",
-                    "unixtime" => Time.new.to_i
+                    "unixtime" => Time.new.to_i,
+                    "made-on-date" => CommonsUtils::currentDay()
                 }
             end
         Wave::writeScheduleToDisk(uuid,schedule)

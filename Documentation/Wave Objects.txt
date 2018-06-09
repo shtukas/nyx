@@ -6,8 +6,8 @@
     "metric"   : (real)
     "announce" : ""
     "commands" : Array[String]
-    "default-expression"  : Null or String
-    "agent-uid"           : String (uuid)
+    "default-expression" : Null or String
+    "agent-uid"          : String (uuid)
     "schedule" : (schedule)
 }
 
@@ -19,6 +19,7 @@
     "uuid" => SecureRandom.hex,
     "@": "new"
     "unixtime": 1506925527
+    "made-on-date" => Date # optional start with a lower metric during the same day
 }
 
 {
