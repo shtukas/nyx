@@ -37,7 +37,7 @@ require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
 # -------------------------------------------------------------------------------------
 
-TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today+Calendar.txt"
+TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today.txt"
 TODAY_SEPARATION_TOKEN = "@notes"
 
 # Today::section_is_not_empty(section)
@@ -95,7 +95,7 @@ class Today
     def self.removeSectionFromFile(uuid)
         if Today::todaySectionsUUIDs().include?(uuid) then
             targetFolder = CommonsUtils::newBinArchivesFolderpath()
-            FileUtils.cp(TODAY_PATH_TO_DATA_FILE,"#{targetFolder}/Today+Calendar.txt")
+            FileUtils.cp(TODAY_PATH_TO_DATA_FILE,"#{targetFolder}/#{File.basename(TODAY_PATH_TO_DATA_FILE)}")
             todaycontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[0].strip
             calendarcontents = IO.read(TODAY_PATH_TO_DATA_FILE).split(TODAY_SEPARATION_TOKEN)[1].strip
             todaysections1 = Today::contents_to_sections(todaycontents.lines.to_a, [])
