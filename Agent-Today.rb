@@ -39,7 +39,7 @@ AgentsManager::registerAgent(
         "agent-name"      => "Today",
         "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
         "general-upgrade" => lambda { Today::generalFlockUpgrade() },
-        "object-command-processor"  => lambda{ |object, command| Today::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| Today::processObjectAndCommandFromCli(object, command) },
         "interface"       => lambda{ Today::interface() }
     }
 )

@@ -43,7 +43,7 @@ AgentsManager::registerAgent(
         "agent-name"      => "Vienna",
         "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
         "general-upgrade" => lambda { Vienna::generalFlockUpgrade() },
-        "object-command-processor"  => lambda{ |object, command| Vienna::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| Vienna::processObjectAndCommandFromCli(object, command) },
         "interface"       => lambda{ Vienna::interface() }
     }
 )

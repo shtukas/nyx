@@ -25,7 +25,7 @@ AgentsManager::registerAgent(
         "agent-name"      => "Collections",
         "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
         "general-upgrade" => lambda { AgentCollections::generalFlockUpgrade() },
-        "object-command-processor"  => lambda{ |object, command| AgentCollections::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentCollections::processObjectAndCommandFromCli(object, command) },
         "interface"       => lambda{ AgentCollections::interface() }
     }
 )

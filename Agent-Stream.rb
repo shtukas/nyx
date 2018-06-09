@@ -36,7 +36,7 @@ AgentsManager::registerAgent(
         "agent-name"      => "Stream",
         "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
         "general-upgrade" => lambda { Stream::generalFlockUpgrade() },
-        "object-command-processor"  => lambda{ |object, command| Stream::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| Stream::processObjectAndCommandFromCli(object, command) },
         "interface"       => lambda{ Stream::interface() }
     }
 )

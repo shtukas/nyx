@@ -49,7 +49,7 @@ AgentsManager::registerAgent(
         "agent-name"      => "Wave",
         "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
         "general-upgrade" => lambda { Wave::generalFlockUpgrade() },
-        "object-command-processor"  => lambda{ |object, command| Wave::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| Wave::processObjectAndCommandFromCli(object, command) },
         "interface"       => lambda{ Wave::interface() }
     }
 )

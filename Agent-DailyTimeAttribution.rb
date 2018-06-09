@@ -18,7 +18,7 @@ AgentsManager::registerAgent(
         "agent-name"      => "DailyTimeAttribution",
         "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
         "general-upgrade" => lambda { DailyTimeAttribution::generalFlockUpgrade() },
-        "object-command-processor"  => lambda{ |object, command| DailyTimeAttribution::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| DailyTimeAttribution::processObjectAndCommandFromCli(object, command) },
         "interface"       => lambda{ DailyTimeAttribution::interface() }
     }
 )

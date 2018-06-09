@@ -71,7 +71,7 @@ AgentsManager::registerAgent(
         "agent-name"      => "TimeCommitments",
         "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
         "general-upgrade" => lambda { TimeCommitments::generalFlockUpgrade() },
-        "object-command-processor"  => lambda{ |object, command| TimeCommitments::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| TimeCommitments::processObjectAndCommandFromCli(object, command) },
         "interface"       => lambda{ TimeCommitments::interface() }
     }
 )
