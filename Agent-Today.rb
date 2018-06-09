@@ -1,8 +1,6 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require 'json'
 require 'date'
 require 'digest/sha1'
@@ -22,9 +20,8 @@ require 'find'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
+require_relative "AgentsManager.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
@@ -36,6 +33,16 @@ require_relative "NotGuardian"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
 # -------------------------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "Today",
+        "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
+        "general-upgrade" => lambda { Today::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| Today::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ Today::interface() }
+    }
+)
 
 TODAY_PATH_TO_DATA_FILE = "/Users/pascal/Desktop/Today.txt"
 TODAY_SEPARATION_TOKEN = "@notes"

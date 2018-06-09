@@ -23,9 +23,8 @@ require 'json'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
+require_relative "AgentsManager.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
@@ -38,6 +37,16 @@ require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
 
 # -------------------------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "Vienna",
+        "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
+        "general-upgrade" => lambda { Vienna::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| Vienna::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ Vienna::interface() }
+    }
+)
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
 

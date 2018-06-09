@@ -5,7 +5,19 @@ require 'json'
 
 require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
+require_relative "AgentsManager.rb"
+
 # -------------------------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "Ninja",
+        "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
+        "general-upgrade" => lambda { Ninja::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| Ninja::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ Ninja::interface() }
+    }
+)
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"

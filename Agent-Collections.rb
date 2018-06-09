@@ -5,9 +5,8 @@
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
+require_relative "AgentsManager.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
@@ -20,6 +19,16 @@ require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
 
 # -------------------------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "Collections",
+        "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
+        "general-upgrade" => lambda { AgentCollections::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| AgentCollections::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentCollections::interface() }
+    }
+)
 
 # AgentCollections::metric
 

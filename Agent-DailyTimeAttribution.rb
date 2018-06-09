@@ -7,10 +7,21 @@ require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+require_relative "AgentsManager.rb"
 require_relative "Agent-TimeCommitments.rb"
 require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
 # -------------------------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "DailyTimeAttribution",
+        "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
+        "general-upgrade" => lambda { DailyTimeAttribution::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| DailyTimeAttribution::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ DailyTimeAttribution::interface() }
+    }
+)
 
 # DailyTimeAttribution::generalFlockUpgrade()
 

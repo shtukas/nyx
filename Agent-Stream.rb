@@ -27,8 +27,19 @@ require_relative "CollectionsCore.rb"
 require_relative "NotGuardian"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
+require_relative "AgentsManager.rb"
 
 # -------------------------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "Stream",
+        "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
+        "general-upgrade" => lambda { Stream::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| Stream::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ Stream::interface() }
+    }
+)
 
 # Stream::agentuuid()
 # Stream::processObjectAndCommandFromCli(object, command)

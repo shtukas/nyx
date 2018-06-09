@@ -1,8 +1,6 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require 'json'
 require 'date'
 require 'digest/sha1'
@@ -20,13 +18,12 @@ require 'fileutils'
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
 require 'colorize'
-require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
+require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
+require_relative "AgentsManager.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
 require_relative "MiniFIFOQ.rb"
@@ -68,6 +65,16 @@ GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1"
 GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/time-commitments/items"
 
 # -------------------------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "TimeCommitments",
+        "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
+        "general-upgrade" => lambda { TimeCommitments::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| TimeCommitments::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ TimeCommitments::interface() }
+    }
+)
 
 # TimeCommitments::getItems()
 # TimeCommitments::getItemByUUID(uuid)

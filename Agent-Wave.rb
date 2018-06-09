@@ -24,9 +24,8 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
+require_relative "AgentsManager.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
 require_relative "Events.rb"
@@ -44,6 +43,16 @@ WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-
 WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # ----------------------------------------------------------------------
+
+AgentsManager::registerAgent(
+    {
+        "agent-name"      => "Wave",
+        "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
+        "general-upgrade" => lambda { Wave::generalFlockUpgrade() },
+        "object-command-processor"  => lambda{ |object, command| Wave::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ Wave::interface() }
+    }
+)
 
 # WaveSchedules::makeScheduleObjectTypeNew()
 # WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
