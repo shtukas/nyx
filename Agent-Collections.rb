@@ -92,6 +92,7 @@ class AgentCollections
 
     def self.generalFlockUpgrade()
         FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        return if (Time.new.hour>=23 or Time.new.hour < 7)
         objects = CollectionsCore::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact
