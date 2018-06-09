@@ -3,53 +3,24 @@
 
 require_relative "AgentsManager.rb"
 
-# CommonsUtils::isLucille18()
-# CommonsUtils::isActiveInstance(runId)
+# Alphabetic order
+
+# CommonsUtils::codeToDatetimeOrNull(code)
 # CommonsUtils::currentHour()
 # CommonsUtils::currentDay()
+# CommonsUtils::isLucille18()
+# CommonsUtils::isActiveInstance(runId)
+# CommonsUtils::isInteger(str)
+# CommonsUtils::newBinArchivesFolderpath()
+# CommonsUtils::realNumbersToZeroOne(x, origin, unit)
 # CommonsUtils::simplifyURLCarryingString(string)
+# CommonsUtils::screenHeight()
+# CommonsUtils::screenWidth()
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
-# CommonsUtils::realNumbersToZeroOne(x, origin, unit)
-# CommonsUtils::codeToDatetimeOrNull(code)
-# CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::waveInsertNewItem(description)
-# CommonsUtils::isInteger(str)
-# CommonsUtils::screenHeight()
 
 class CommonsUtils
-
-    def self.interactiveDisplayObjectAndProcessCommand(object)
-        print CatalystCLIUtils::object2Line_v1(object) + " : "
-        givenCommand = STDIN.gets().strip
-        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
-    end
-
-    def self.doPresentObjectInviteAndExecuteCommand(object)
-        return if object.nil?
-        puts CatalystCLIUtils::object2Line_v1(object)
-        print "--> "
-        command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
-    end
-
-    def self.isLucille18()
-        ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
-    end
-
-    def self.isActiveInstance(runId)
-        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data")==runId
-    end
-
-    def self.currentHour()
-        Time.new.to_s[0,13]
-    end
-
-    def self.currentDay()
-        Time.new.to_s[0,10]
-    end
 
     def self.announceWithColor(announce, object)
         if object["metric"]>1 then
@@ -60,36 +31,6 @@ class CommonsUtils
             end
         end
         announce
-    end
-
-    def self.simplifyURLCarryingString(string)
-        return string if /http/.match(string).nil?
-        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
-            .each{|regex|
-                if ( m = regex.match(string) ) then
-                    string = string[m.to_s.size, string.size].strip
-                    return CommonsUtils::simplifyURLCarryingString(string)
-                end
-            }
-        string
-    end
-
-    def self.traceToRealInUnitInterval(trace)
-        ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
-    end
-
-    def self.traceToMetricShift(trace)
-        0.001*CommonsUtils::traceToRealInUnitInterval(trace)
-    end
-
-    def self.realNumbersToZeroOne(x, origin, unit)
-        alpha =
-            if x >= origin then
-                2-Math.exp(-(x-origin).to_f/unit)
-            else
-                Math.exp((x-origin).to_f/unit)
-            end
-        alpha.to_f/2
     end
 
     def self.codeToDatetimeOrNull(code)
@@ -135,40 +76,21 @@ class CommonsUtils
         end
     end
 
-    def self.putshelp()
-        puts "Special General Commands"
-        puts "    help"
-        puts "    top"
-        puts "    search <pattern>"
-        puts "    r:on <requirement>"
-        puts "    r:off <requirement>"
-        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    collections     # show collections"
-        puts "    collections:new # new collection"
-        puts "    guardian    # start any active Guardian time commitment"
-        puts "    email-sync  # run email sync"
-        puts "    interface # run the interface of a given agent"
-        puts "    lib # Invoques the Librarian interactive"
-        puts ""
-        puts "Special General Commands (inserts)"
-        puts "    wave: <description>"
-        puts "    stream: <description>"
-        puts "    project: <description>"
-        puts ""
-        puts "Special Object Commands:"
-        puts "    + # push by 1 hour"
-        puts "    +datetimecode"
-        puts "    expose # pretty print the object"
-        puts "    >c # send object to a collection"
-        puts "    !today"
-        puts "    r:add <requirement>"
-        puts "    r:remove <requirement>"
-        puts "    :<integer> # select and operate on the object number <integer>"
-        puts "    command ..."
+    def self.currentHour()
+        Time.new.to_s[0,13]
     end
 
-    def self.isInteger(str)
-        str.to_i.to_s == str
+    def self.currentDay()
+        Time.new.to_s[0,10]
+    end
+
+    def self.doPresentObjectInviteAndExecuteCommand(object)
+        return if object.nil?
+        puts CatalystCLIUtils::object2Line_v1(object)
+        print "--> "
+        command = STDIN.gets().strip
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
     end
 
     def self.emailSync(verbose)
@@ -177,14 +99,6 @@ class CommonsUtils
             OperatorEmailClient::download(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), verbose)
         rescue
         end
-    end
-
-    def self.screenHeight()
-        `/usr/bin/env tput lines`.to_i
-    end
-
-    def self.screenWidth()
-        `/usr/bin/env tput cols`.to_i
     end
 
     def self.editTextUsingTextmate(text)
@@ -197,12 +111,41 @@ class CommonsUtils
       IO.read(filepath)
     end
 
-    def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        if description=='text' then
-            editTextUsingTextmate("")
-        else
-            description
-        end
+    def self.fDoNotShowUntilDateTimeTransform()
+        FlockOperator::flockObjects().map{|object|
+            if !FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
+                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+                object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+                object["metric"] = 0
+                FlockOperator::addOrUpdateObject(object)
+            end
+        }
+    end
+
+    def self.interactiveDisplayObjectAndProcessCommand(object)
+        print CatalystCLIUtils::object2Line_v1(object) + " : "
+        givenCommand = STDIN.gets().strip
+        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.isLucille18()
+        ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
+    end
+
+    def self.isActiveInstance(runId)
+        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data")==runId
+    end
+
+    def self.isInteger(str)
+        str.to_i.to_s == str
+    end
+
+    def self.newBinArchivesFolderpath()
+        time = Time.new
+        targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(targetFolder)
+        targetFolder       
     end
 
     def self.object2DonotShowUntilAsString(object)
@@ -220,42 +163,12 @@ class CommonsUtils
         ].join()
     end
 
-    def self.waveInsertNewItem(description)
-        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        uuid = SecureRandom.hex(4)
-        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
-        answer = STDIN.gets().strip 
-        schedule = 
-            if answer=="yes" then
-                WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-            else
-                {
-                    "uuid" => SecureRandom.hex,
-                    "@"    => "new",
-                    "unixtime" => Time.new.to_i,
-                    "made-on-date" => CommonsUtils::currentDay()
-                }
-            end
-        Wave::writeScheduleToDisk(uuid,schedule)
-        if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
-            if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
-                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
-            end
+    def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        if description=='text' then
+            editTextUsingTextmate("")
+        else
+            description
         end
-        print "Move to a thread ? [yes/no] (default: no): "
-        answer = STDIN.gets().strip 
-        if answer=="yes" then
-            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(uuid)
-        end
-    end
-
-    def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -466,22 +379,112 @@ class CommonsUtils
         end
     end
 
-    def self.newBinArchivesFolderpath()
-        time = Time.new
-        targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(targetFolder)
-        targetFolder       
+    def self.putshelp()
+        puts "Special General Commands"
+        puts "    help"
+        puts "    top"
+        puts "    search <pattern>"
+        puts "    r:on <requirement>"
+        puts "    r:off <requirement>"
+        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    collections     # show collections"
+        puts "    collections:new # new collection"
+        puts "    guardian    # start any active Guardian time commitment"
+        puts "    email-sync  # run email sync"
+        puts "    interface # run the interface of a given agent"
+        puts "    lib # Invoques the Librarian interactive"
+        puts ""
+        puts "Special General Commands (inserts)"
+        puts "    wave: <description>"
+        puts "    stream: <description>"
+        puts "    project: <description>"
+        puts ""
+        puts "Special Object Commands:"
+        puts "    + # push by 1 hour"
+        puts "    +datetimecode"
+        puts "    expose # pretty print the object"
+        puts "    >c # send object to a collection"
+        puts "    !today"
+        puts "    r:add <requirement>"
+        puts "    r:remove <requirement>"
+        puts "    :<integer> # select and operate on the object number <integer>"
+        puts "    command ..."
     end
 
-    def self.fDoNotShowUntilDateTimeTransform()
-        FlockOperator::flockObjects().map{|object|
-            if !FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
-                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
-                object["metric"] = 0
-                FlockOperator::addOrUpdateObject(object)
+    def self.realNumbersToZeroOne(x, origin, unit)
+        alpha =
+            if x >= origin then
+                2-Math.exp(-(x-origin).to_f/unit)
+            else
+                Math.exp((x-origin).to_f/unit)
             end
-        }
+        alpha.to_f/2
+    end
+
+    def self.simplifyURLCarryingString(string)
+        return string if /http/.match(string).nil?
+        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
+            .each{|regex|
+                if ( m = regex.match(string) ) then
+                    string = string[m.to_s.size, string.size].strip
+                    return CommonsUtils::simplifyURLCarryingString(string)
+                end
+            }
+        string
+    end
+
+    def self.screenHeight()
+        `/usr/bin/env tput lines`.to_i
+    end
+
+    def self.screenWidth()
+        `/usr/bin/env tput cols`.to_i
+    end
+
+    def self.selectRequirementFromExistingRequirementsOrNull()
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
+    end
+
+    def self.traceToRealInUnitInterval(trace)
+        ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
+    end
+
+    def self.traceToMetricShift(trace)
+        0.001*CommonsUtils::traceToRealInUnitInterval(trace)
+    end
+
+    def self.waveInsertNewItem(description)
+        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        uuid = SecureRandom.hex(4)
+        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        schedule = 
+            if answer=="yes" then
+                WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+            else
+                {
+                    "uuid" => SecureRandom.hex,
+                    "@"    => "new",
+                    "unixtime" => Time.new.to_i,
+                    "made-on-date" => CommonsUtils::currentDay()
+                }
+            end
+        Wave::writeScheduleToDisk(uuid,schedule)
+        if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+            end
+        end
+        print "Move to a thread ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        if answer=="yes" then
+            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+        end
     end
 
 end

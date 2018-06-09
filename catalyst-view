@@ -62,14 +62,14 @@ class CatalystViewUtils
     def self.viewloop()
         loop {
             FlockDiskIO::loadFromEventsTimeline()
-            objects = FlockService::topObjects(CommonsUtils::screenHeight()-3)
+            objects = FlockService::topObjects(CommonsUtils::screenHeight()-2)
             system("clear")
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end      
             # --------------------------------------------------------------------------------
             objects.each_with_index{|object, index|
-                puts "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)}"
+                puts "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
             }
             sleep 10
         }
