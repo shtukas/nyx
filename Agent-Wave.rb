@@ -301,6 +301,7 @@ class WaveDevOps
             .each{|sourcelocation|
                 uuid = SecureRandom.hex(4)
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
+                schedule["made-on-date"] = CommonsUtils::currentDay()
                 folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
