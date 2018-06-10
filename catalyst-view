@@ -33,30 +33,7 @@ require 'drb/drb'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 
-require_relative "Wave-Emails.rb"
-require_relative "Constants.rb"
-require_relative "Events.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
-require_relative "Config.rb"
-require_relative "GenericTimeTracking.rb"
-require_relative "CatalystDevOps.rb"
-require_relative "CollectionsCore.rb"
-require_relative "NotGuardian"
-require_relative "FolderProbe.rb"
-require_relative "CommonsUtils"
-
-require_relative "Agent-BabyNights.rb"
-require_relative "Agent-Collections.rb"
-require_relative "Agent-DailyTimeAttribution.rb"
-require_relative "Agent-Ninja.rb"
-require_relative "Agent-Stream.rb"
-require_relative "Agent-TimeCommitments.rb"
-require_relative "Agent-Today.rb"
-require_relative "Agent-Vienna.rb"
-require_relative "Agent-Wave.rb"
-
-require_relative "TheFlock.rb"
+require_relative "catalyst.rb"
 
 # -----------------------------------------------------------------
 class CatalystViewUtils
