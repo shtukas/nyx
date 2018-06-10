@@ -65,23 +65,23 @@ require_relative "Agent-Wave.rb"
 
 # ----------------------------------------------------------------
 
-# FlockOperator::flockObjects()
-# FlockOperator::flockObjectsAsMap()
-# FlockOperator::removeObjectIdentifiedByUUID(uuid)
-# FlockOperator::removeObjectsFromAgent(agentuuid)
-# FlockOperator::addOrUpdateObject(object)
-# FlockOperator::addOrUpdateObjects(objects)
-# FlockOperator::getDoNotShowUntilDateTimeDistribution()
-# FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+# TheFlock::flockObjects()
+# TheFlock::flockObjectsAsMap()
+# TheFlock::removeObjectIdentifiedByUUID(uuid)
+# TheFlock::removeObjectsFromAgent(agentuuid)
+# TheFlock::addOrUpdateObject(object)
+# TheFlock::addOrUpdateObjects(objects)
+# TheFlock::getDoNotShowUntilDateTimeDistribution()
+# TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
 
-class FlockOperator
+class TheFlock
     def self.flockObjects()
         $flock["objects"].clone
     end
     
     def self.flockObjectsAsMap()
         map = {}
-        FlockOperator::flockObjects().each{|object|
+        TheFlock::flockObjects().each{|object|
             map[object["uuid"]] = object
         }
         map
@@ -96,13 +96,13 @@ class FlockOperator
     end
 
     def self.addOrUpdateObject(object)
-        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+        TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
         $flock["objects"] =  $flock["objects"] + [ object ]
     end
 
     def self.addOrUpdateObjects(objects)
         objects.each{|object|
-            FlockOperator::addOrUpdateObject(object)
+            TheFlock::addOrUpdateObject(object)
         }
     end    
     
@@ -180,7 +180,7 @@ end
 
 # ------------------------------------------------------------------------
 
-class FlockService
+class FlockOperator
     def self.topObjects(count)
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
@@ -190,7 +190,7 @@ class FlockService
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsCore::transform()
         NotGuardian::transform()
-        FlockOperator::flockObjects()
+        TheFlock::flockObjects()
             .select{|object| object["metric"] >= 0.2 }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse

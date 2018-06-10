@@ -91,12 +91,12 @@ class AgentCollections
     end
 
     def self.generalFlockUpgrade()
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if (Time.new.hour>=23 or Time.new.hour < 7)
         objects = CollectionsCore::collectionsFolderpaths()
             .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
             .compact
-        FlockOperator::addOrUpdateObjects(objects)
+        TheFlock::addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommandFromCli(object, command)

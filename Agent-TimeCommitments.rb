@@ -237,7 +237,7 @@ class TimeCommitments
 
     def self.generalFlockUpgrade()
         TimeCommitments::garbageCollectionGlobal()
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if (Time.new.hour>=23 or Time.new.hour < 7)
         objects = TimeCommitments::getItems()
             .select{|item| item["commitment-in-hours"] > 0 }
@@ -276,7 +276,7 @@ class TimeCommitments
             else
                 objects
             end
-        FlockOperator::addOrUpdateObjects(objects)
+        TheFlock::addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommandFromCli(object, command)

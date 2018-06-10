@@ -186,7 +186,7 @@ class CollectionsCore
 
     def self.collectionCatalystObjectUUIDsThatAreAlive(collectionuuid)
         a1 = CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
-        a2 = FlockOperator::flockObjects().map{|object| object["uuid"] }
+        a2 = TheFlock::flockObjects().map{|object| object["uuid"] }
         a1 & a2
     end
 
@@ -235,10 +235,10 @@ class CollectionsCore
 
     def self.transform()
         uuids = self.allCollectionsCatalystUUIDs()
-        FlockOperator::flockObjects().each{|object|
+        TheFlock::flockObjects().each{|object|
             if uuids.include?(object["uuid"]) then
                 object["metric"] = 0
-                FlockOperator::addOrUpdateObject(object)
+                TheFlock::addOrUpdateObject(object)
             end
         }
     end
@@ -287,7 +287,7 @@ class CollectionsCore
             textContents = CollectionsCore::textContents(collectionuuid)
             documentsFilenames = CollectionsCore::documentsFilenames(collectionuuid)
             catalystobjects = CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
-                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                .map{|objectuuid| TheFlock::flockObjectsAsMap()[objectuuid] }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
@@ -342,7 +342,7 @@ class CollectionsCore
                         LucilleCore::pressEnterToContinue()
                         loop {
                             catalystobjects = CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
-                                .map{|objectuuid| FlockOperator::flockObjectsAsMap()[objectuuid] }
+                                .map{|objectuuid| TheFlock::flockObjectsAsMap()[objectuuid] }
                                 .compact
                                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                                 .reverse

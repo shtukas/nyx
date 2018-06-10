@@ -114,8 +114,8 @@ class Vienna
                     "link" => link
                 }
             }
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        FlockOperator::addOrUpdateObject(object)
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
+        TheFlock::addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommandFromCli(object, command)

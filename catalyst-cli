@@ -45,7 +45,7 @@ class CatalystCLIUtils
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
             FlockDiskIO::loadFromEventsTimeline()
-            object = FlockService::topObjects(1).first
+            object = FlockOperator::topObjects(1).first
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
             # In such a case they are still in Flock and should not be showed
@@ -54,7 +54,7 @@ class CatalystCLIUtils
                     if !File.exists?(object["item-data"]["folderpath"]) then
                         puts CommonsUtils::object2Line_v0(object)
                         puts "This email has been deleted, removing Flock item:"
-                        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+                        TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
                         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
                         next
                     end
@@ -93,7 +93,7 @@ class CatalystCLIUtils
             if command.start_with?(":") then
                 x = command[1,command.size].strip
                 if CommonsUtils::isInteger(x) then
-                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(FlockService::topObjects(x.to_i).last)
+                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(FlockOperator::topObjects(x.to_i).last)
                     next
                 end
             end

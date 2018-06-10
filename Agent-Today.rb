@@ -143,8 +143,8 @@ class Today
                 }
             }
         }
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
-        FlockOperator::addOrUpdateObjects(objects)
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
+        TheFlock::addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommandFromCli(object, command)

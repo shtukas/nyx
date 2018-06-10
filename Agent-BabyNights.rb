@@ -35,7 +35,7 @@ class BabyNights
     end
 
     def self.generalFlockUpgrade()
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
         if FKVStore::getOrNull("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
@@ -46,7 +46,7 @@ class BabyNights
                     "commands"  => [],
                     "default-expression" => "595bc18c-48a9-4fa2-bfd3-8795f8902766"
                 }
-            FlockOperator::addOrUpdateObject(object)
+            TheFlock::addOrUpdateObject(object)
         end
     end
 

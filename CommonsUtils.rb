@@ -112,12 +112,12 @@ class CommonsUtils
     end
 
     def self.fDoNotShowUntilDateTimeTransform()
-        FlockOperator::flockObjects().map{|object|
-            if !FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
+        TheFlock::flockObjects().map{|object|
+            if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
                 # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["do-not-show-until-datetime"] = FlockOperator::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+                object["do-not-show-until-datetime"] = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
                 object["metric"] = 0
-                FlockOperator::addOrUpdateObject(object)
+                TheFlock::addOrUpdateObject(object)
             end
         }
     end
@@ -200,14 +200,14 @@ class CommonsUtils
         end
 
         if expression == "guardian" then
-            aGuardianIsRunning = FlockOperator::flockObjects()
+            aGuardianIsRunning = TheFlock::flockObjects()
                 .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
                 .any?{|object| object["metadata"]["is-running"] }
             if aGuardianIsRunning then
                 puts "You can't run `guardian` while a Guardian is running"
                 LucilleCore::pressEnterToContinue()
             else
-                o = FlockOperator::flockObjects()
+                o = TheFlock::flockObjects()
                     .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
                     .select{|object| object["announce"].include?("Guardian") }
                     .first
@@ -298,7 +298,7 @@ class CommonsUtils
                 requirement = CommonsUtils::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = FlockOperator::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = TheFlock::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
                 CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
@@ -309,7 +309,7 @@ class CommonsUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = FlockOperator::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = TheFlock::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
@@ -351,7 +351,7 @@ class CommonsUtils
         if expression.start_with?('+') then
             code = expression
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
-                FlockOperator::setDoNotShowUntilDateTime(object["uuid"], datetime)
+                TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return
@@ -485,7 +485,7 @@ class CommonsUtils
         Wave::writeScheduleToDisk(uuid,schedule)
         if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
             if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                FlockOperator::setDoNotShowUntilDateTime(uuid, datetime)
+                TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
             end
         end

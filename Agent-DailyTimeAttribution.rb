@@ -35,7 +35,7 @@ class DailyTimeAttribution
     end
 
     def self.generalFlockUpgrade()
-        FlockOperator::removeObjectsFromAgent(self.agentuuid())
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
         if FKVStore::getOrNull("16b84bf4-a032-44f7-a191-85476ca27ccd:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
@@ -46,7 +46,7 @@ class DailyTimeAttribution
                     "commands"  => [],
                     "default-expression" => "16b84bf4-a032-44f7-a191-85476ca27ccd"
                 }
-            FlockOperator::addOrUpdateObject(object)
+            TheFlock::addOrUpdateObject(object)
         end
     end
 

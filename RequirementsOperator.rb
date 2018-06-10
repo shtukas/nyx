@@ -63,7 +63,7 @@ class RequirementsOperator
     end
 
     def self.getAllRequirements()
-        FlockOperator::flockObjects().map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+        TheFlock::flockObjects().map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
@@ -71,11 +71,11 @@ class RequirementsOperator
     end
 
     def self.transform()
-        FlockOperator::flockObjects().each{|object|
+        TheFlock::flockObjects().each{|object|
             if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
                 # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
                 object["metric"] = 0
-                FlockOperator::addOrUpdateObject(object)
+                TheFlock::addOrUpdateObject(object)
             end
         }
     end

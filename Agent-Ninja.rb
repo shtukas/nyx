@@ -61,13 +61,13 @@ class Ninja
                 "ninja-folderpath" => packet["folderpath"]
             }
         }
-        FlockOperator::addOrUpdateObject(object)
+        TheFlock::addOrUpdateObject(object)
     end
 
     def self.processObjectAndCommandFromCli(object, command)
         folderpath = object["item-data"]["ninja-folderpath"]
         system("ninja api:play-folderpath '#{folderpath}'")
         NinjaCLIProxy::reset()
-        FlockOperator::removeObjectIdentifiedByUUID(object["uuid"])
+        TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
     end
 end
