@@ -318,6 +318,23 @@ class CommonsUtils
             return
         end
 
+        if expression.start_with?("ordinal") and expression.split(" ").size==2 then
+            command, position = expression.split(" ").map{|t| t.strip }
+            position = position.to_i
+            pair = Ordinals::sortedDistribution()
+                .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]) }
+                .drop(position-1)
+                .first
+            return if pair.nil?
+            uuid = pair[0]
+            object = TheFlock::getObjectByUUIDOrNull(uuid)
+            return if object.nil?
+            CommonsUtils::interactiveDisplayObjectAndProcessCommand(object)
+            # We do not keep an object that we are visiting 
+            Ordinals::unregister(uuid)
+            return
+        end
+
         return if object.nil?
 
         # object needed
@@ -369,6 +386,13 @@ class CommonsUtils
             return
         end
 
+        if expression.start_with?("ordinal") and expression.split(" ").size==3 then
+            command, position, ordinal = expression.split(" ").map{|t| t.strip }
+            xobject = FlockOperator::topObjects(position.to_i).last
+            Ordinals::register(xobject["uuid"], ordinal.to_f)
+            return
+        end
+
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
@@ -383,10 +407,12 @@ class CommonsUtils
         puts "Special General Commands"
         puts "    help"
         puts "    top"
-        puts "    search <pattern>"
-        puts "    r:on <requirement>"
-        puts "    r:off <requirement>"
+        puts "    search <pattern: String>"
+        puts "    r:on <requirement: String>"
+        puts "    r:off <requirement: String>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    ordinal <main listing object position: Int> <ordinal: Float>"
+        puts "    ordinal <ordinal listing object position: Int>"
         puts "    collections     # show collections"
         puts "    collections:new # new collection"
         puts "    guardian    # start any active Guardian time commitment"
@@ -395,9 +421,9 @@ class CommonsUtils
         puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special General Commands (inserts)"
-        puts "    wave: <description>"
-        puts "    stream: <description>"
-        puts "    project: <description>"
+        puts "    wave: <description: String>>"
+        puts "    stream: <description: String>>"
+        puts "    project: <description: String>>"
         puts ""
         puts "Special Object Commands:"
         puts "    + # push by 1 hour"
@@ -405,9 +431,9 @@ class CommonsUtils
         puts "    expose # pretty print the object"
         puts "    >c # send object to a collection"
         puts "    !today"
-        puts "    r:add <requirement>"
-        puts "    r:remove <requirement>"
-        puts "    :<integer> # select and operate on the object number <integer>"
+        puts "    r:add <requirement: String>"
+        puts "    r:remove <requirement: String>"
+        puts "    :<position: Integer> # select and operate on the object number <integer>"
         puts "    command ..."
     end
 

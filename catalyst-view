@@ -36,18 +36,41 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "catalyst.rb"
 
 # -----------------------------------------------------------------
+
 class CatalystViewUtils
     def self.viewloop()
+        objectToLineMainListing = lambda {|object, index|
+            "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        }
+        objectToLineOrdinalListing = lambda {|object, ordinal, index|
+            "#{"%2d" % (index+1)}     [#{("%.3f" % ordinal).rjust(16)}] #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        }
         loop {
+            screenleft = CommonsUtils::screenHeight()-3
             FlockDiskIO::loadFromEventsTimeline()
-            objects = FlockOperator::topObjects(CommonsUtils::screenHeight()-2)
+            objects = FlockOperator::topObjects(screenleft)
             system("clear")
+            puts ""
+            pairs = Ordinals::sortedDistribution()
+                .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]) }
+            pairs.each_with_index{|pair, index|
+                    uuid = pair[0]
+                    ordinal = pair[1]
+                    object = TheFlock::getObjectByUUIDOrNull(uuid)
+                    puts objectToLineOrdinalListing.call(object, ordinal, index).yellow
+                    screenleft = screenleft - 1
+                }
+            if pairs.size>0 then
+                puts ""
+                screenleft = screenleft - 1
+            end
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+                screenleft = screenleft - 1
             end      
             # --------------------------------------------------------------------------------
-            objects.each_with_index{|object, index|
-                puts "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+            objects.take(screenleft).each_with_index{|object, index|
+                puts objectToLineMainListing.call(object, index)
             }
             sleep 10
         }

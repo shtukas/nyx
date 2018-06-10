@@ -73,6 +73,7 @@ require_relative "Agent-Wave.rb"
 # TheFlock::addOrUpdateObjects(objects)
 # TheFlock::getDoNotShowUntilDateTimeDistribution()
 # TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
+# TheFlock::getObjectByUUIDOrNull(uuid)
 
 class TheFlock
     def self.flockObjects()
@@ -113,6 +114,11 @@ class TheFlock
     def self.setDoNotShowUntilDateTime(uuid, datetime)
         $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
     end
+
+    def self.getObjectByUUIDOrNull(uuid)
+        TheFlock::flockObjects().select{|object| object["uuid"]==uuid }.first
+    end
+
 end
 
 # ------------------------------------------------------------------------
@@ -180,6 +186,8 @@ end
 
 # ------------------------------------------------------------------------
 
+# FlockOperator::topObjects(count)
+
 class FlockOperator
     def self.topObjects(count)
         # The first upgrade should come first as it makes objects building, metric updates etc.
@@ -190,6 +198,7 @@ class FlockOperator
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsCore::transform()
         NotGuardian::transform()
+        Ordinals::transform()
         TheFlock::flockObjects()
             .select{|object| object["metric"] >= 0.2 }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
