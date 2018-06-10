@@ -18,7 +18,7 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::screenWidth()
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
-# CommonsUtils::waveInsertNewItem(description)
+# CommonsUtils::waveInsertNewItemInteractive(description)
 
 class CommonsUtils
 
@@ -244,7 +244,7 @@ class CommonsUtils
 
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
-            CommonsUtils::waveInsertNewItem(description)
+            CommonsUtils::waveInsertNewItemInteractive(description)
             #LucilleCore::pressEnterToContinue()
             return
         end
@@ -453,7 +453,19 @@ class CommonsUtils
         0.001*CommonsUtils::traceToRealInUnitInterval(trace)
     end
 
-    def self.waveInsertNewItem(description)
+    def self.waveInsertNewItemDefaults(description)
+        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        uuid = SecureRandom.hex(4)
+        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        schedule = WaveSchedules::makeScheduleObjectTypeNew()
+        schedule["made-on-date"] = CommonsUtils::currentDay()
+        Wave::writeScheduleToDisk(uuid,schedule)
+    end
+
+    def self.waveInsertNewItemInteractive(description)
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
         folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
@@ -466,12 +478,9 @@ class CommonsUtils
             if answer=="yes" then
                 WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
             else
-                {
-                    "uuid" => SecureRandom.hex,
-                    "@"    => "new",
-                    "unixtime" => Time.new.to_i,
-                    "made-on-date" => CommonsUtils::currentDay()
-                }
+                x = WaveSchedules::makeScheduleObjectTypeNew()
+                x["made-on-date"] = CommonsUtils::currentDay()
+                x
             end
         Wave::writeScheduleToDisk(uuid,schedule)
         if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then

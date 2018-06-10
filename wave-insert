@@ -36,4 +36,4 @@ require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
 description = ARGV[0]
-CommonsUtils::waveInsertNewItem(description)
+CommonsUtils::waveInsertNewItemInteractive(description)
