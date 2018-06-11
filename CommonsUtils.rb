@@ -385,6 +385,7 @@ class CommonsUtils
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
                 TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
+                Ordinals::unregister(object["uuid"])
             end
             return
         end
