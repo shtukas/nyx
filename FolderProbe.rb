@@ -125,7 +125,6 @@ class FolderProbe
         end
 
         if files.size==0 then
-            # There is one open able file in the folder
             metadata["target-type"] = "virtually-empty-wave-folder"
             if metadata["announce"].nil? then
                 metadata["announce"] = folderpath

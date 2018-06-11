@@ -131,7 +131,6 @@ class CommonsUtils
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         CollectionsCore::transform()
-        NotGuardian::transform()
         Ordinals::transform()
         TheFlock::flockObjects()
             .select{|object| object["metric"] >= 0.2 }
@@ -373,12 +372,6 @@ class CommonsUtils
 
         if expression == "+" then
             expression = "+1 hour"
-        end
-
-        if expression == '!G' then
-            uuid = object["uuid"]
-            NotGuardian::registerAsNonGuardian(uuid)
-            return
         end
 
         if expression == ">c" then
