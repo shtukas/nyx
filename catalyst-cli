@@ -91,6 +91,10 @@ class CatalystCLIUtils
             puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v1(object)}"
             print "--> "
             command = STDIN.gets().strip
+            if command=="+1" then
+                CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+                next
+            end
             if command.start_with?(":") then
 
                 token, rest = StringParser::decompose(command)
