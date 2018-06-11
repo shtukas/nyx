@@ -98,6 +98,7 @@ class Vienna
     end
 
     def self.generalFlockUpgrade()
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
         return [] if !CommonsUtils::isLucille18()
         link = $viennaLinkFeeder.next()
         return [] if link.nil?
@@ -114,7 +115,6 @@ class Vienna
                     "link" => link
                 }
             }
-        TheFlock::removeObjectsFromAgent(self.agentuuid())
         TheFlock::addOrUpdateObject(object)
     end
 

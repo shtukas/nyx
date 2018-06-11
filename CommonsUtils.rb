@@ -19,6 +19,7 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
+# CommonsUtils::unifiedListing(screenleft)
 
 class CommonsUtils
 
@@ -529,6 +530,28 @@ class CommonsUtils
         if answer=="yes" then
             CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(uuid)
         end
+    end
+
+    def self.unifiedListing(screenleft)
+        structure = []
+        Ordinals::sortedDistribution()
+            .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
+            .each{|pair| Ordinals::unregister(pair[0]) }
+        pairs = Ordinals::sortedDistribution()
+        pairs.each{|pair|
+            structure << {
+                "type" => "ordinal",
+                "object" => TheFlock::getObjectByUUIDOrNull(pair[0]),
+                "ordinal" => pair[1]
+            }
+        }
+        FlockOperator::topObjects(screenleft).each{|object|
+            structure << {
+                "type" => "main",
+                "object" => object
+            }            
+        }
+        structure
     end
 
 end

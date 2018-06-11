@@ -48,31 +48,25 @@ class CatalystViewUtils
         loop {
             screenleft = CommonsUtils::screenHeight()-3
             FlockDiskIO::loadFromEventsTimeline()
-            objects = FlockOperator::topObjects(screenleft)
+            structure = CommonsUtils::unifiedListing(screenleft)
             system("clear")
-            puts ""
-            pairs = Ordinals::sortedDistribution()
-                .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]) }
-            pairs.each_with_index{|pair, index|
-                next if screenleft <= 2
-                uuid = pair[0]
-                ordinal = pair[1]
-                object = TheFlock::getObjectByUUIDOrNull(uuid)
-                puts objectToLineOrdinalListing.call(object, ordinal, index).yellow
-                screenleft = screenleft - 1
-            }
-            if pairs.size>0 then
-                puts ""
-                screenleft = screenleft - 1
-            end
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
                 screenleft = screenleft - 1
             end      
-            # --------------------------------------------------------------------------------
-            screenleft = [screenleft, 0].max
-            objects.take(screenleft).each_with_index{|object, index|
-                puts objectToLineMainListing.call(object, index)
+            puts ""
+            numberOfOrdinals = structure.select{|p| p["type"]=="ordinal" }.size 
+            structure.take(screenleft).each_with_index{|p, index|
+                if numberOfOrdinals>1 and index==numberOfOrdinals then
+                    puts ""
+                end
+                if p["type"]=="ordinal" then
+                    puts objectToLineOrdinalListing.call(p["object"], p["ordinal"], index).yellow
+                end
+                if p["type"]=="main" then
+                    puts objectToLineMainListing.call(p["object"], index)
+                end
+
             }
             sleep 10
         }
