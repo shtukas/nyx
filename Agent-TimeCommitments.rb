@@ -264,7 +264,7 @@ class TimeCommitments
             .map{|item|
                 uuid = item['uuid']
                 ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-                if ratioDone>1 then
+                if item["is-running"] and ratioDone>1 then
                     message = "#{item['description']} is done"
                     system("terminal-notifier -title Catalyst -message '#{message}'")
                     sleep 2
