@@ -335,6 +335,20 @@ class CommonsUtils
             return
         end
 
+        if expression.start_with?("ordinal") and object and expression.split(" ").size==3 then
+            command, position, ordinal = expression.split(" ").map{|t| t.strip }
+            xobject = FlockOperator::topObjects(position.to_i).last
+            Ordinals::register(xobject["uuid"], ordinal.to_f)
+            return
+        end
+
+        if expression.start_with?("ordinal:") then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
+            Ordinals::register(xuuid, ordinal)
+        end
+
         return if object.nil?
 
         # object needed
@@ -386,13 +400,6 @@ class CommonsUtils
             return
         end
 
-        if expression.start_with?("ordinal") and expression.split(" ").size==3 then
-            command, position, ordinal = expression.split(" ").map{|t| t.strip }
-            xobject = FlockOperator::topObjects(position.to_i).last
-            Ordinals::register(xobject["uuid"], ordinal.to_f)
-            return
-        end
-
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
@@ -413,6 +420,7 @@ class CommonsUtils
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
         puts "    ordinal <main listing object position: Int> <ordinal: Float>"
         puts "    ordinal <ordinal listing object position: Int>"
+        puts "    ordinal: # insert a new ordinal, description and ordinal interactively"
         puts "    collections     # show collections"
         puts "    collections:new # new collection"
         puts "    guardian    # start any active Guardian time commitment"
@@ -479,7 +487,7 @@ class CommonsUtils
         0.001*CommonsUtils::traceToRealInUnitInterval(trace)
     end
 
-    def self.waveInsertNewItemDefaults(description)
+    def self.waveInsertNewItemDefaults(description) # uuid: String
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
         folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
@@ -489,6 +497,7 @@ class CommonsUtils
         schedule = WaveSchedules::makeScheduleObjectTypeNew()
         schedule["made-on-date"] = CommonsUtils::currentDay()
         Wave::writeScheduleToDisk(uuid,schedule)
+        uuid
     end
 
     def self.waveInsertNewItemInteractive(description)
