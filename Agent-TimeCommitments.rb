@@ -162,6 +162,13 @@ class TimeCommitments
             .first
     end
 
+    def self.getRunningOverflowingItemOrNull(items)
+        items
+            .select{|item| item["is-running"] }
+            .select{|item| item["timespans"].inject(0,:+) >= item["commitment-in-hours"]*3600  }
+            .first
+    end
+
     def self.getDifferentItemOrNull(item, items)
         items.select{|i| i["uuid"]!=item["uuid"] }.first
     end
@@ -189,18 +196,31 @@ class TimeCommitments
     end
 
     def self.garbageCollectionItems(items)
-        if items.size==1 then
-            item = items.first
-            if !item["is-running"] and (item["timespans"].inject(0,:+) >= item["commitment-in-hours"]*3600) then
-                SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, item["uuid"])
-                return
+        if ( overflowingItem = TimeCommitments::getRunningOverflowingItemOrNull(items) ) then
+            if ( recipientItem = TimeCommitments::getDifferentItemOrNull(overflowingItem, items) ) then
+                puts "TimeCommitments: Domain Garbage Collection"
+                puts "overflowingItem (runing): "
+                puts JSON.pretty_generate(overflowingItem)
+                puts "recipientItem: "
+                puts JSON.pretty_generate(recipientItem)
+                LucilleCore::pressEnterToContinue()
+                recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
+                TimeCommitments::stopItem(overflowingItem)
+                SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
+                TimeCommitments::saveItem(TimeCommitments::startItem(recipientItem))
             end
         end
         if ( overflowingItem = TimeCommitments::getNonRunningOverflowingItemOrNull(items) ) then
             if ( recipientItem = TimeCommitments::getDifferentItemOrNull(overflowingItem, items) ) then
+                puts "TimeCommitments: Domain Garbage Collection"
+                puts "overflowingItem (not runing): "
+                puts JSON.pretty_generate(overflowingItem)
+                puts "recipientItem: "
+                puts JSON.pretty_generate(recipientItem)
+                LucilleCore::pressEnterToContinue()
                 recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
-                TimeCommitments::saveItem(recipientItem)
                 SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
+                TimeCommitments::saveItem(recipientItem)
             end
         end
     end
