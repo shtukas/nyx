@@ -88,7 +88,7 @@ class DailyTimeAttribution
                 timeCommitment = projectHours * CollectionsCore::getCollectionTimeCoefficient(collectionuuid) 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
-                        "domain"              => SecureRandom.hex(4),
+                        "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{collectionuuid}",
                         "description"         => "Time commitment point for project #{ CollectionsCore::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
@@ -123,7 +123,7 @@ class DailyTimeAttribution
                 timeCommitment = threadsHours.to_f/collectionuuids.size # denominator greater than zero otherwise this would not be executed 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
-                        "domain"              => SecureRandom.hex(4),
+                        "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{collectionuuid}",
                         "description"         => "Time commitment point for thread #{ CollectionsCore::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
