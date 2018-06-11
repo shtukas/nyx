@@ -39,15 +39,23 @@ require_relative "catalyst.rb"
 
 class CatalystViewUtils
     def self.viewloop()
-        objectToLineMainListing = lambda {|object, index|
-            "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        positionDisplay = lambda {|standardlp, position|
+            if standardlp==position then
+                "[* #{"%2d" % position}]".green
+            else
+                "[  #{"%2d" % position}]"
+            end
         }
-        objectToLineOrdinalListing = lambda {|object, ordinal, index|
-            "#{"%2d" % (index+1)}     [#{("%.3f" % ordinal).rjust(16)}] #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-28]}"
+        objectToLineMainListing = lambda {|object, position, standardlp|
+            "#{positionDisplay.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        }
+        objectToLineOrdinalListing = lambda {|object, ordinal, position, standardlp|
+            "#{positionDisplay.call(standardlp, position)} [#{("%.3f" % ordinal).rjust(16)}] #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-28]}"
         }
         loop {
-            screenleft = CommonsUtils::screenHeight()-3
             FlockDiskIO::loadFromEventsTimeline()
+            standardlp = CommonsUtils::getStandardListingPosition()
+            screenleft = CommonsUtils::screenHeight()-3
             structure = CommonsUtils::unifiedListing(screenleft)
             system("clear")
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
@@ -57,14 +65,15 @@ class CatalystViewUtils
             puts ""
             numberOfOrdinals = structure.select{|p| p["type"]=="ordinal" }.size 
             structure.take(screenleft).each_with_index{|p, index|
-                if numberOfOrdinals>1 and index==numberOfOrdinals then
+                position = index+1
+                if numberOfOrdinals>1 and (position-1)==numberOfOrdinals then
                     puts ""
                 end
                 if p["type"]=="ordinal" then
-                    puts objectToLineOrdinalListing.call(p["object"], p["ordinal"], index).yellow
+                    puts objectToLineOrdinalListing.call(p["object"], p["ordinal"], position, standardlp).yellow
                 end
                 if p["type"]=="main" then
-                    puts objectToLineMainListing.call(p["object"], index)
+                    puts objectToLineMainListing.call(p["object"], position, standardlp)
                 end
 
             }

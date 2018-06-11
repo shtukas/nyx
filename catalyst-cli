@@ -45,7 +45,8 @@ class CatalystCLIUtils
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
             FlockDiskIO::loadFromEventsTimeline()
-            object = CommonsUtils::unifiedListing(1).first["object"]
+            standardlp = CommonsUtils::getStandardListingPosition()
+            object = CommonsUtils::unifiedListing(standardlp).take(standardlp).last["object"]
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
             # In such a case they are still in Flock and should not be showed
@@ -87,13 +88,13 @@ class CatalystCLIUtils
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
-            puts CatalystCLIUtils::object2Line_v1(object)
+            puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v1(object)}"
             print "--> "
             command = STDIN.gets().strip
             if command.start_with?(":") then
                 x = command[1,command.size].strip
                 if CommonsUtils::isInteger(x) then
-                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(CommonsUtils::unifiedListing(x.to_i).take(x.to_i).last["object"])
+                    CommonsUtils::setStandardListingPosition([x.to_i, 0].max)
                     next
                 end
             end

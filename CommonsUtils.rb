@@ -123,6 +123,23 @@ class CommonsUtils
         }
     end
 
+    def self.flockTopObjects(count)
+        # The first upgrade should come first as it makes objects building, metric updates etc.
+        # All the others send metric to zero when relevant and they are all commutative.
+        AgentsManager::generalFlockUpgrade()
+        TodayOrNotToday::transform()
+        RequirementsOperator::transform()
+        CommonsUtils::fDoNotShowUntilDateTimeTransform()
+        CollectionsCore::transform()
+        NotGuardian::transform()
+        Ordinals::transform()
+        TheFlock::flockObjects()
+            .select{|object| object["metric"] >= 0.2 }
+            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+            .reverse
+            .take(count)
+    end
+
     def self.interactiveDisplayObjectAndProcessCommand(object)
         print CatalystCLIUtils::object2Line_v1(object) + " : "
         givenCommand = STDIN.gets().strip
@@ -338,7 +355,7 @@ class CommonsUtils
 
         if expression.start_with?("ordinal") and object and expression.split(" ").size==3 then
             command, position, ordinal = expression.split(" ").map{|t| t.strip }
-            xobject = FlockOperator::topObjects(position.to_i).last
+            xobject = CommonsUtils::flockTopObjects(position.to_i).last
             Ordinals::register(xobject["uuid"], ordinal.to_f)
             return
         end
@@ -489,6 +506,28 @@ class CommonsUtils
         0.001*CommonsUtils::traceToRealInUnitInterval(trace)
     end
 
+    def self.unifiedListing(screenleft)
+        structure = []
+        Ordinals::sortedDistribution()
+            .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
+            .each{|pair| Ordinals::unregister(pair[0]) }
+        pairs = Ordinals::sortedDistribution()
+        pairs.each{|pair|
+            structure << {
+                "type" => "ordinal",
+                "object" => TheFlock::getObjectByUUIDOrNull(pair[0]),
+                "ordinal" => pair[1]
+            }
+        }
+        CommonsUtils::flockTopObjects(screenleft).each{|object|
+            structure << {
+                "type" => "main",
+                "object" => object
+            }
+        }
+        structure
+    end
+
     def self.waveInsertNewItemDefaults(description) # uuid: String
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
@@ -533,26 +572,12 @@ class CommonsUtils
         end
     end
 
-    def self.unifiedListing(screenleft)
-        structure = []
-        Ordinals::sortedDistribution()
-            .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
-            .each{|pair| Ordinals::unregister(pair[0]) }
-        pairs = Ordinals::sortedDistribution()
-        pairs.each{|pair|
-            structure << {
-                "type" => "ordinal",
-                "object" => TheFlock::getObjectByUUIDOrNull(pair[0]),
-                "ordinal" => pair[1]
-            }
-        }
-        FlockOperator::topObjects(screenleft).each{|object|
-            structure << {
-                "type" => "main",
-                "object" => object
-            }            
-        }
-        structure
+    def self.getStandardListingPosition()
+        FKVStore::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
+    end
+
+    def self.setStandardListingPosition(position)
+        FKVStore::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end
 
 end
