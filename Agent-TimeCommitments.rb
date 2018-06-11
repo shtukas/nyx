@@ -50,7 +50,6 @@ require_relative "CommonsUtils"
 
             "metric"                          : Float # optional, if present determines the metric.
             "uuids-for-generic-time-tracking" : Array[String] # optional
-            "paused"                          : Boolean # Optional
         }
 =end
 
@@ -82,7 +81,7 @@ AgentsManager::registerAgent(
 # TimeCommitments::startItem(item)
 # TimeCommitments::stopItem(item)
 # TimeCommitments::getNonRunningOverflowingItemOrNull(items)
-# TimeCommitments::getDifferentItemOrNull(item, items)
+# TimeCommitments::getDifferentNonRunningItemOrNull(item, items)
 # TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainOfMaxMetricItemOrNull(items, domain)
 # TimeCommitments::itemToLiveTimespan(item)
 # TimeCommitments::garbageCollectionItems(items)
@@ -118,7 +117,6 @@ class TimeCommitments
 
     def self.startItem(item)
         return item if item["is-running"]
-        item["paused"] = false
         item["is-running"] = true
         item["last-start-unixtime"] = Time.new.to_i
         if item["uuids-for-generic-time-tracking"] then
@@ -130,7 +128,6 @@ class TimeCommitments
     end
 
     def self.stopItem(item)
-        item["paused"] = false
         if item["is-running"] then
             item["is-running"] = false
             item["timespans"] << Time.new.to_i - item["last-start-unixtime"]
@@ -140,12 +137,6 @@ class TimeCommitments
                 }
             end
         end
-        item
-    end
-
-    def self.pauseItem(item)
-        self.stopItem(item)
-        item["paused"] = true
         item
     end
 
@@ -168,8 +159,11 @@ class TimeCommitments
             .first
     end
 
-    def self.getDifferentItemOrNull(item, items)
-        items.select{|i| i["uuid"]!=item["uuid"] }.first
+    def self.getDifferentNonRunningItemOrNull(item, items)
+        items
+            .select{|i| !i["is-running"] }
+            .select{|i| i["uuid"]!=item["uuid"] }
+            .first
     end
 
     def self.getNonRunningUnderflowingItemOfGivenDomainOfMaxMetricOrNull(items, domain)
@@ -195,21 +189,20 @@ class TimeCommitments
     end
 
     def self.garbageCollectionItems(items)
-        if ( overflowingItem = TimeCommitments::getRunningOverflowingItemOrNull(items) ) then
-            if ( recipientItem = TimeCommitments::getDifferentItemOrNull(overflowingItem, items) ) then
-                recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
-                TimeCommitments::stopItem(overflowingItem)
-                SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
-                TimeCommitments::saveItem(TimeCommitments::startItem(recipientItem))
-            end
-        end
-        if ( overflowingItem = TimeCommitments::getNonRunningOverflowingItemOrNull(items) ) then
-            if ( recipientItem = TimeCommitments::getDifferentItemOrNull(overflowingItem, items) ) then
-                recipientItem["timespans"] << ( overflowingItem["timespans"].inject(0,:+) - overflowingItem["commitment-in-hours"]*3600 )
-                SetsOperator::delete(GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH, GENERIC_TIME_COMMITMENTS_ITEMS_SETUUID, overflowingItem["uuid"])
-                TimeCommitments::saveItem(recipientItem)
-            end
-        end
+        return if items.size < 2 
+        return if items.any?{|item| item["is-running"] }
+        item1 = items[0]
+        item2 = items[1]
+        item3 = {}
+        item3["uuid"]        = SecureRandom.hex(4)
+        item3["domain"]      = item1["domain"]
+        item3["description"] = item1["description"]
+        item3["commitment-in-hours"] = ( item1["commitment-in-hours"] + item2["commitment-in-hours"] ) - ( item1["timespans"] + item2["timespans"] ).inject(0, :+).to_f/3600
+        item3["timespans"]   = []
+        item3["uuids-for-generic-time-tracking"] = ( item1["uuids-for-generic-time-tracking"] + item2["uuids-for-generic-time-tracking"] ).uniq
+        TimeCommitments::saveItem(item3)
+        TimeCommitments::destroyItem(item1)
+        TimeCommitments::destroyItem(item2)
     end
 
     def self.garbageCollectionGlobal()
@@ -258,12 +251,9 @@ class TimeCommitments
                 end
                 metric = 0.6 + 0.1*Math.exp(-ratioDone*3) + Math.atan(item["commitment-in-hours"]).to_f/10 + CommonsUtils::traceToMetricShift(uuid)
                 metric = item['metric'] ? item['metric'] : metric
-                metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"] or item["paused"]
+                metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"]
                 announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
-                if item["paused"] then
-                    announce = "[PAUSED] #{announce}"
-                end
-                commands = ( item["is-running"] ? ["pause", "stop"] : ["start", "stop"] ) + ["destroy"]
+                commands = ( item["is-running"] ? ["stop"] : ["start"] ) + ["destroy"]
                 defaultExpression = item["is-running"] ? "stop" : "start"
                 object  = {}
                 object["uuid"]      = uuid
@@ -293,9 +283,6 @@ class TimeCommitments
         end
         if command == "stop" then
             TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
-        end
-        if command == "pause" then
-            TimeCommitments::saveItem(TimeCommitments::pauseItem(TimeCommitments::getItemByUUID(uuid)))
         end
         if command == "destroy" then
             TimeCommitments::destroyItem(TimeCommitments::getItemByUUID(uuid))

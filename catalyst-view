@@ -64,9 +64,12 @@ class CatalystViewUtils
             end      
             puts ""
             numberOfOrdinals = structure.select{|p| p["type"]=="ordinal" }.size 
+            if numberOfOrdinals>0 then
+                screenleft = screenleft - 1
+            end
             structure.take(screenleft).each_with_index{|p, index|
                 position = index+1
-                if numberOfOrdinals>1 and (position-1)==numberOfOrdinals then
+                if numberOfOrdinals>0 and (position-1)==numberOfOrdinals then
                     puts ""
                 end
                 if p["type"]=="ordinal" then

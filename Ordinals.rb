@@ -12,7 +12,7 @@
 
 class Ordinals
     def self.sortedDistribution()
-        JSON.parse(FKVStore::getOrDefaultValue("2f02529d-6ec3-453a-96e8-c900eb25b192", "[]"))
+        JSON.parse(FKVStore::getOrDefaultValue("2f02529d-6ec3-453a-96e8-c900eb25b193", "[]"))
             .sort{|pair1, pair2| pair1[1]<=>pair2[1] }
     end
     def self.register(uuid, ordinal)
@@ -20,13 +20,13 @@ class Ordinals
         # pairs are (uuid: String, ordinal: Float)
         distribution.reject!{|pair| pair[0]==uuid }
         distribution << [uuid, ordinal]
-        FKVStore::set("2f02529d-6ec3-453a-96e8-c900eb25b192", JSON.generate(distribution))
+        FKVStore::set("2f02529d-6ec3-453a-96e8-c900eb25b193", JSON.generate(distribution))
     end
     def self.unregister(uuid)
         distribution = Ordinals::sortedDistribution()
         # pairs are (uuid: String, ordinal: Float)
         distribution.reject!{|pair| pair[0]==uuid }
-        FKVStore::set("2f02529d-6ec3-453a-96e8-c900eb25b192", JSON.generate(distribution))
+        FKVStore::set("2f02529d-6ec3-453a-96e8-c900eb25b193", JSON.generate(distribution))
     end
     def self.uuids()
         Ordinals::sortedDistribution().map{|pair| pair[0] }

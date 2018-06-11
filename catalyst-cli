@@ -92,11 +92,35 @@ class CatalystCLIUtils
             print "--> "
             command = STDIN.gets().strip
             if command.start_with?(":") then
-                x = command[1,command.size].strip
-                if CommonsUtils::isInteger(x) then
-                    CommonsUtils::setStandardListingPosition([x.to_i, 0].max)
+
+                token, rest = StringParser::decompose(command)
+
+                if CommonsUtils::isInteger(token[1,token.size]) and rest.nil? then
+                    # :<position>         # set the listing reference point
+                    position = token[1,token.size].to_i
+                    CommonsUtils::setStandardListingPosition([position, 0].max)
                     next
                 end
+
+                if CommonsUtils::isInteger(token[1,token.size]) and rest.index(" ").nil? then # Here we do a bas testing of whether the rest is a float
+                    # :<position> <float> # set the ordinal of the object at this position
+                    position = token[1,token.size].to_i
+                    ordinal = rest.to_f
+                    object = CommonsUtils::unifiedListing(position).take(position).last["object"]
+                    Ordinals::register(object["uuid"], ordinal)
+                    next
+                end
+
+                if token==":?" then
+                    # :? <float> <description, multi-tokens> # creates a text object and give it that ordinal
+                    ordinal, description = StringParser::decompose(rest)
+                    xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
+                    Ordinals::register(xuuid, ordinal.to_f)
+                    next
+                end
+
+                next
+
             end
             command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
             CommonsUtils::processObjectAndCommand(object, command)

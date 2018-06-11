@@ -126,7 +126,6 @@ class CommonsUtils
     def self.flockTopObjects(count)
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
-        AgentsManager::generalFlockUpgrade()
         TodayOrNotToday::transform()
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
@@ -216,28 +215,6 @@ class CommonsUtils
             return
         end
 
-        if expression == "guardian" then
-            aGuardianIsRunning = TheFlock::flockObjects()
-                .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
-                .any?{|object| object["metadata"]["is-running"] }
-            if aGuardianIsRunning then
-                puts "You can't run `guardian` while a Guardian is running"
-                LucilleCore::pressEnterToContinue()
-            else
-                o = TheFlock::flockObjects()
-                    .select{|object| object["agent-uid"]=="03a8bff4-a2a4-4a2b-a36f-635714070d1d" }
-                    .select{|object| object["announce"].include?("Guardian") }
-                    .first
-                if o then
-                    TimeCommitments::processObjectAndCommandFromCli(o, "start")
-                else
-                    puts "I could not find a time commitment guardian object to start"
-                    LucilleCore::pressEnterToContinue()
-                end
-            end
-            return
-        end
-
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
             return
@@ -251,12 +228,6 @@ class CommonsUtils
         if expression == "collections" then
             CollectionsCore::ui_CollectionsDive()
             return
-        end
-
-        if expression == "collections:new" then
-            collectionname = LucilleCore::askQuestionAnswerAsString("collection name: ")
-            style = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("style", ["THREAD", "PROJECT"])
-            CollectionsCore::createNewCollection_WithNameAndStyle(collectionname, style)
         end
 
         if expression.start_with?('wave:') then
@@ -335,38 +306,9 @@ class CommonsUtils
             return
         end
 
-        if expression.start_with?("ordinal") and expression.split(" ").size==2 then
-            command, position = expression.split(" ").map{|t| t.strip }
-            position = position.to_i
-            pair = Ordinals::sortedDistribution()
-                .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]) }
-                .drop(position-1)
-                .first
-            return if pair.nil?
-            uuid = pair[0]
-            object = TheFlock::getObjectByUUIDOrNull(uuid)
-            return if object.nil?
-            CommonsUtils::interactiveDisplayObjectAndProcessCommand(object)
-            # We do not keep an object that we are visiting 
-            Ordinals::unregister(uuid)
-            return
-        end
-
-        if expression.start_with?("ordinal") and object and expression.split(" ").size==3 then
-            command, position, ordinal = expression.split(" ").map{|t| t.strip }
-            xobject = CommonsUtils::flockTopObjects(position.to_i).last
-            Ordinals::register(xobject["uuid"], ordinal.to_f)
-            return
-        end
-
-        if expression.start_with?("ordinal:") then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
-            Ordinals::register(xuuid, ordinal)
-        end
-
         return if object.nil?
+
+        Ordinals::unregister(object["uuid"])
 
         # object needed
 
@@ -374,7 +316,7 @@ class CommonsUtils
             expression = "+1 hour"
         end
 
-        if expression == ">c" then
+        if expression == "goto:collection" then
             CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
             return
         end
@@ -430,26 +372,27 @@ class CommonsUtils
         puts "    r:on <requirement: String>"
         puts "    r:off <requirement: String>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    ordinal <main listing object position: Int> <ordinal: Float>"
-        puts "    ordinal <ordinal listing object position: Int>"
-        puts "    ordinal: # insert a new ordinal, description and ordinal interactively"
-        puts "    collections     # show collections"
-        puts "    collections:new # new collection"
-        puts "    guardian    # start any active Guardian time commitment"
+        puts "    collections # show collections"
         puts "    email-sync  # run email sync"
         puts "    interface # run the interface of a given agent"
         puts "    lib # Invoques the Librarian interactive"
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description: String>>"
-        puts "    stream: <description: String>>"
-        puts "    project: <description: String>>"
+        puts "    stream: <description: String>"
+        puts "    project: <description: String>"
+        puts "    thread: <description: String>"
+        puts ""
+        puts "Special Commands (object targetting ang ordinal)"
+        puts "    :<position>         # set the listing reference point"
+        puts "    :<position> <float> # set the ordinal of the object at this position"
+        puts "    :? <float> <description, multi-tokens> # creates a text object and give it that ordinal"
         puts ""
         puts "Special Object Commands:"
         puts "    + # push by 1 hour"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
-        puts "    >c # send object to a collection"
+        puts "    goto:collection # send object to a collection"
         puts "    !today"
         puts "    r:add <requirement: String>"
         puts "    r:remove <requirement: String>"
@@ -500,6 +443,7 @@ class CommonsUtils
     end
 
     def self.unifiedListing(screenleft)
+        AgentsManager::generalFlockUpgrade()
         structure = []
         Ordinals::sortedDistribution()
             .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
