@@ -43,7 +43,7 @@ class CatalystViewUtils
             "#{"%2d" % (index+1)}     #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
         }
         objectToLineOrdinalListing = lambda {|object, ordinal, index|
-            "#{"%2d" % (index+1)}     [#{("%.3f" % ordinal).rjust(16)}] #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+            "#{"%2d" % (index+1)}     [#{("%.3f" % ordinal).rjust(16)}] #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-28]}"
         }
         loop {
             screenleft = CommonsUtils::screenHeight()-3
@@ -54,12 +54,13 @@ class CatalystViewUtils
             pairs = Ordinals::sortedDistribution()
                 .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]) }
             pairs.each_with_index{|pair, index|
-                    uuid = pair[0]
-                    ordinal = pair[1]
-                    object = TheFlock::getObjectByUUIDOrNull(uuid)
-                    puts objectToLineOrdinalListing.call(object, ordinal, index).yellow
-                    screenleft = screenleft - 1
-                }
+                next if screenleft <= 2
+                uuid = pair[0]
+                ordinal = pair[1]
+                object = TheFlock::getObjectByUUIDOrNull(uuid)
+                puts objectToLineOrdinalListing.call(object, ordinal, index).yellow
+                screenleft = screenleft - 1
+            }
             if pairs.size>0 then
                 puts ""
                 screenleft = screenleft - 1
@@ -69,6 +70,7 @@ class CatalystViewUtils
                 screenleft = screenleft - 1
             end      
             # --------------------------------------------------------------------------------
+            screenleft = [screenleft, 0].max
             objects.take(screenleft).each_with_index{|object, index|
                 puts objectToLineMainListing.call(object, index)
             }
