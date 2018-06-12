@@ -59,7 +59,7 @@ class AgentCollections
         return nil if uuid.nil?
         description = CollectionsCore::folderPath2CollectionName(folderpath)
         style = CollectionsCore::getCollectionStyle(uuid)
-        announce = "collection: #{style.downcase}: #{description}"
+        announce = "collection: #{style.downcase.ljust(7)}: #{description}"
         if self.hasText(folderpath) then
             announce = announce + " [TEXT]"
         end
