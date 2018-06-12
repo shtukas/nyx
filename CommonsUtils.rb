@@ -382,6 +382,7 @@ class CommonsUtils
         puts "Special Commands (object targetting ang ordinal)"
         puts "    :<position>         # set the listing reference point"
         puts "    :<position> <float> # set the ordinal of the object at this position"
+        puts "    :this <float> # register the current object agains the float"
         puts "    :? <float> <description, multi-tokens> # creates a text object and give it that ordinal"
         puts ""
         puts "Special Object Commands:"

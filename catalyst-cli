@@ -99,6 +99,22 @@ class CatalystCLIUtils
 
                 token, rest = StringParser::decompose(command)
 
+                if token==":?" then
+                    # :? <float> <description, multi-tokens> # creates a text object and give it that ordinal
+                    ordinal, description = StringParser::decompose(rest)
+                    xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
+                    Ordinals::register(xuuid, ordinal.to_f)
+                    Wave::generalFlockUpgrade()
+                    next
+                end
+
+                if token==":this" then
+                    # :this <float> # register the current object agains the float
+                    ordinal = rest.to_f
+                    Ordinals::register(object["uuid"], ordinal)
+                    next
+                end 
+
                 if CommonsUtils::isInteger(token[1,token.size]) and rest.nil? then
                     # :<position>         # set the listing reference point
                     position = token[1,token.size].to_i
@@ -113,16 +129,7 @@ class CatalystCLIUtils
                     object = CommonsUtils::getUnifiedListing(position).take(position).last["object"]
                     Ordinals::register(object["uuid"], ordinal)
                     next
-                end
-
-                if token==":?" then
-                    # :? <float> <description, multi-tokens> # creates a text object and give it that ordinal
-                    ordinal, description = StringParser::decompose(rest)
-                    xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
-                    Ordinals::register(xuuid, ordinal.to_f)
-                    Wave::generalFlockUpgrade()
-                    next
-                end
+                end               
 
                 next
 
