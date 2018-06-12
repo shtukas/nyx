@@ -11,7 +11,7 @@ We start those uuids ( see: d04dd562-2fd7-4f47-89c7-992e00c3edb4 ) and turn out 
 # ----------------------------------------
 Starting a collection
 
-When we start a collection, one of the time collections point, if there is at least one, is started as well, see ( e19b1ef6-9f75-454a-9724-131a43dca272 )
+When we start a collection, one of the time collections point, if there is at least one, is started as well, see ( e19b1ef6-9f75-454a-9724-131a43dca272 ). Those time points are detected using their "33be3505:collection-uuid" value.
 
 
 # ----------------------------------------
