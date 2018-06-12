@@ -56,7 +56,7 @@ class CatalystViewUtils
             FlockDiskIO::loadFromEventsTimeline()
             standardlp = CommonsUtils::getStandardListingPosition()
             screenleft = CommonsUtils::screenHeight()-3
-            structure = CommonsUtils::unifiedListing(screenleft)
+            structure = CommonsUtils::getUnifiedListing(screenleft)
             system("clear")
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow

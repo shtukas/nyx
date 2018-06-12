@@ -19,7 +19,7 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
-# CommonsUtils::unifiedListing(screenleft)
+# CommonsUtils::getUnifiedListing(screenleft)
 
 class CommonsUtils
 
@@ -438,7 +438,7 @@ class CommonsUtils
         0.001*CommonsUtils::traceToRealInUnitInterval(trace)
     end
 
-    def self.unifiedListing(screenleft)
+    def self.getUnifiedListing(screenleft)
         AgentsManager::generalFlockUpgrade()
         structure = []
         Ordinals::sortedDistribution()
