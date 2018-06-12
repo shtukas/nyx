@@ -65,9 +65,11 @@ class Ninja
     end
 
     def self.processObjectAndCommandFromCli(object, command)
-        folderpath = object["item-data"]["ninja-folderpath"]
-        system("ninja api:play-folderpath '#{folderpath}'")
-        NinjaCLIProxy::reset()
-        TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+        if command == "play" then
+            folderpath = object["item-data"]["ninja-folderpath"]
+            system("ninja api:play-folderpath '#{folderpath}'")
+            NinjaCLIProxy::reset()
+            TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+        end
     end
 end
