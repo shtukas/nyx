@@ -46,7 +46,8 @@ class CatalystCLIUtils
         loop {
             FlockDiskIO::loadFromEventsTimeline()
             standardlp = CommonsUtils::getStandardListingPosition()
-            object = CommonsUtils::getUnifiedListing(standardlp).take(standardlp).last["object"]
+            listingItem = CommonsUtils::getUnifiedListing(standardlp).take(standardlp).last
+            object = listingItem["object"]
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
             # In such a case they are still in Flock and should not be showed
@@ -105,6 +106,9 @@ class CatalystCLIUtils
                     xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
                     Ordinals::register(xuuid, ordinal.to_f)
                     Wave::generalFlockUpgrade()
+                    if listingItem["type"]=="main" then
+                        CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+                    end
                     next
                 end
 
@@ -112,6 +116,9 @@ class CatalystCLIUtils
                     # :this <float> # register the current object agains the float
                     ordinal = rest.to_f
                     Ordinals::register(object["uuid"], ordinal)
+                    if listingItem["type"]=="main" then
+                        CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+                    end
                     next
                 end 
 
