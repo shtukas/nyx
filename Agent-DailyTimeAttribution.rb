@@ -89,7 +89,7 @@ class DailyTimeAttribution
                     item = {
                         "uuid"                => SecureRandom.hex(4),
                         "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{collectionuuid}",
-                        "description"         => "Time commitment point for project #{ CollectionsCore::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
+                        "description"         => "project#{CollectionsCore::isGuardianTime?(collectionuuid) ? " (guardian)" : ""}: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
@@ -114,7 +114,7 @@ class DailyTimeAttribution
                     item = {
                         "uuid"                => SecureRandom.hex(4),
                         "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{collectionuuid}",
-                        "description"         => "Time commitment point for thread #{ CollectionsCore::isGuardianTime?(collectionuuid) ? "(Guardian timed)" : "" }: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
+                        "description"         => "thread#{CollectionsCore::isGuardianTime?(collectionuuid) ? " (guardian)" : ""}: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
