@@ -193,13 +193,15 @@ class TimeCommitments
         return if items.any?{|item| item["is-running"] }
         item1 = items[0]
         item2 = items[1]
+        item1["uuids-for-generic-time-tracking"] = item1["uuids-for-generic-time-tracking"] ? item1["uuids-for-generic-time-tracking"] : []
+        item2["uuids-for-generic-time-tracking"] = item2["uuids-for-generic-time-tracking"] ? item2["uuids-for-generic-time-tracking"] : []
         item3 = {}
         item3["uuid"]        = SecureRandom.hex(4)
         item3["domain"]      = item1["domain"]
         item3["description"] = item1["description"]
         item3["commitment-in-hours"] = ( item1["commitment-in-hours"] + item2["commitment-in-hours"] ) - ( item1["timespans"] + item2["timespans"] ).inject(0, :+).to_f/3600
         item3["timespans"]   = []
-        item3["uuids-for-generic-time-tracking"] = ( item1["uuids-for-generic-time-tracking"] + item2["uuids-for-generic-time-tracking"] ).uniq
+        item3["uuids-for-generic-time-tracking"] = (item1["uuids-for-generic-time-tracking"] + item2["uuids-for-generic-time-tracking"]).uniq
         TimeCommitments::saveItem(item3)
         TimeCommitments::destroyItem(item1)
         TimeCommitments::destroyItem(item2)
