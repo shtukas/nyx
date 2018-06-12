@@ -58,13 +58,14 @@ class WIS
             response = Net::HTTP.get_response(uri)
             response.body
                 .lines
-                .map{|line| line.strip }
+                .map{|line| line.strip.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_') }
                 .select{|line| line.start_with?(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/WIS/line-test").strip) }
                 .each{|line|  
+                    FKVStore::set("fb243cf9-04df-43c5-a8f5-dbec9e58da27:#{line}", "done") 
                     if FKVStore::getOrNull("fb243cf9-04df-43c5-a8f5-dbec9e58da27:#{line}").nil? then
-                        line = line[26,999]
-                        line = line[0,line.index('"')]
-                        CommonsUtils::waveInsertNewItemDefaults("wis: #{line}")
+                        url = line[26, 999]
+                        url = url[0, url.index('"')]
+                        CommonsUtils::waveInsertNewItemDefaults(url)
                         FKVStore::set("fb243cf9-04df-43c5-a8f5-dbec9e58da27:#{line}", "done") 
                     end
                 }
@@ -72,6 +73,4 @@ class WIS
         end 
     end
 end
-
-
 
