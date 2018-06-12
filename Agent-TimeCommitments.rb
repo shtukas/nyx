@@ -21,8 +21,10 @@ require 'colorize'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
+
 require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+
 require_relative "AgentsManager.rb"
 require_relative "Constants.rb"
 require_relative "Events.rb"
@@ -33,6 +35,7 @@ require_relative "CatalystDevOps.rb"
 require_relative "CollectionsCore.rb"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
+require_relative "Agent-TimeCommitments.rb"
 
 # -------------------------------------------------------------------------------------
 
@@ -130,11 +133,23 @@ class TimeCommitments
     def self.stopItem(item)
         if item["is-running"] then
             item["is-running"] = false
-            item["timespans"] << Time.new.to_i - item["last-start-unixtime"]
+            timespanInSeconds = Time.new.to_i - item["last-start-unixtime"]
+            item["timespans"] << timespanInSeconds
             if item["uuids-for-generic-time-tracking"] then
                 item["uuids-for-generic-time-tracking"].each{|uuid| # marker: 5d0adaea-3646-4227-86ae-1561a7fc68d0
                     GenericTimeTracking::stop(uuid)
                 }
+            end
+            if item["0e69d463:GuardianSupport"] then
+                item = {
+                    "uuid"                => SecureRandom.hex(4),
+                    "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
+                    "description"         => "Guardian",
+                    "commitment-in-hours" => -timespanInSeconds,
+                    "timespans"           => [],
+                    "last-start-unixtime" => 0
+                }
+                TimeCommitments::saveItem(item)
             end
         end
         item

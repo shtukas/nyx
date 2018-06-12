@@ -62,7 +62,7 @@ class DailyTimeAttribution
             item = {
                 "uuid"                => SecureRandom.hex(4),
                 "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                "description"         => "Guardian (misc, non project)",
+                "description"         => "Guardian",
                 "commitment-in-hours" => guardianWorkingHours,
                 "timespans"           => [],
                 "last-start-unixtime" => 0
@@ -94,20 +94,10 @@ class DailyTimeAttribution
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
                         "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
-                        "33be3505:collection-uuid" => collectionuuid
+                        "33be3505:collection-uuid" => collectionuuid,
+                        "0e69d463:GuardianSupport" => CollectionsCore::isGuardianTime?(collectionuuid)
                     }
                     TimeCommitments::saveItem(item)
-                    if  CollectionsCore::isGuardianTime?(collectionuuid) then
-                        item = {
-                            "uuid"                => SecureRandom.hex(4),
-                            "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                            "description"         => "Guardian (misc, non project)",
-                            "commitment-in-hours" => -timeCommitment,
-                            "timespans"           => [],
-                            "last-start-unixtime" => 0
-                        }
-                        TimeCommitments::saveItem(item)
-                    end
                 }
 
             threadsHours = LucilleCore::askQuestionAnswerAsString("Threads hours (empty defaults to 2): ")
@@ -129,20 +119,10 @@ class DailyTimeAttribution
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
                         "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
-                        "33be3505:collection-uuid" => collectionuuid
+                        "33be3505:collection-uuid" => collectionuuid,
+                        "0e69d463:GuardianSupport" => CollectionsCore::isGuardianTime?(collectionuuid)
                     }
                     TimeCommitments::saveItem(item)
-                    if  CollectionsCore::isGuardianTime?(collectionuuid) then
-                        item = {
-                            "uuid"                => SecureRandom.hex(4),
-                            "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                            "description"         => "Guardian (misc, non project)",
-                            "commitment-in-hours" => -timeCommitment,
-                            "timespans"           => [],
-                            "last-start-unixtime" => 0
-                        }
-                        TimeCommitments::saveItem(item)
-                    end
                 }
 
             FKVStore::set("16b84bf4-a032-44f7-a191-85476ca27ccd:#{Time.new.to_s[0,10]}", "done")

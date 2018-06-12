@@ -1,0 +1,3 @@
+
+When a Time Commitment point is stopped, if it has a "0e69d463:GuardianSupport" key, a time item of opposite value is created for domain Guardian ("6596d75b-a2e0-4577-b537-a2d31b156e74")
+

@@ -13,7 +13,6 @@ Starting a collection
 
 When we start a collection, one of the time collections point, if there is at least one, is started as well, see ( e19b1ef6-9f75-454a-9724-131a43dca272 ). Those time points are detected using their "33be3505:collection-uuid" value.
 
-
 # ----------------------------------------
 
 The above two sections have a stopping equivalent in 5d0adaea-3646-4227-86ae-1561a7fc68d0 and e19b1ef6-9f75-454a-9724-131a43dca272
