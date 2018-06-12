@@ -120,6 +120,7 @@ class CatalystCLIUtils
                     ordinal, description = StringParser::decompose(rest)
                     xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
                     Ordinals::register(xuuid, ordinal.to_f)
+                    Wave::generalFlockUpgrade()
                     next
                 end
 
