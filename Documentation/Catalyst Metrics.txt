@@ -3,9 +3,10 @@
          3.000+ running collections 
                     # We get them to run higher than the time commitment 
                     # point which may have started them.
+
          2.000- Running items (time commitments, streams)
 
-         0.200  -- green level --
+         1.000  -- run level --
 
          0.950- Incoming Emails General
          0.900  Wave: stickies
@@ -18,6 +19,9 @@
          0.600+ Wave: new, "made-on-date"
       -> 0.600  stream [not running]
 0.200 -> 0.600  Ninja
+
+         0.500  -- sleep level --    
+
 0.200 -> 0.400  Collections # note that we create time commitments for them
 
          0.200  -- water level -- 
