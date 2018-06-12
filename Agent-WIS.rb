@@ -58,18 +58,20 @@ class WIS
             response = Net::HTTP.get_response(uri)
             response.body
                 .lines
-                .map{|line| line.strip.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_') }
                 .select{|line| line.start_with?(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/WIS/line-test").strip) }
+                .map{|line| line.strip.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_') }
                 .each{|line|  
                     FKVStore::set("fb243cf9-04df-43c5-a8f5-dbec9e58da27:#{line}", "done") 
                     if FKVStore::getOrNull("fb243cf9-04df-43c5-a8f5-dbec9e58da27:#{line}").nil? then
                         url = line[26, 999]
                         url = url[0, url.index('"')]
+                        puts url
                         CommonsUtils::waveInsertNewItemDefaults(url)
                         FKVStore::set("fb243cf9-04df-43c5-a8f5-dbec9e58da27:#{line}", "done") 
                     end
                 }
-            FKVStore::set("60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.new.to_s[0,10]}", "done")       
+            FKVStore::set("60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.new.to_s[0,10]}", "done")
+            LucilleCore::pressEnterToContinue()
         end 
     end
 end
