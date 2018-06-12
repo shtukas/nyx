@@ -329,7 +329,7 @@ class CollectionsCore
 
     def self.ui_destroyCollection(collectionuuid)
         if CollectionsCore::textContents(collectionuuid).strip.size>0 then
-            puts "You now need to recview the file"
+            puts "You now need to review the file"
             system("open '#{collectionUUID2FolderpathOrNull(collectionuuid)}'")
             LucilleCore::pressEnterToContinue()
         end
