@@ -91,7 +91,7 @@ class CatalystCLIUtils
             puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v1(object)}"
             print "--> "
             command = STDIN.gets().strip
-            if command=="+1" then
+            if command=="+" then
                 CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
                 next
             end

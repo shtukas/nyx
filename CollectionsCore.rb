@@ -281,6 +281,36 @@ class CollectionsCore
     # ---------------------------------------------------
     # User Interface
 
+    def self.ui_destroyCollection(collectionuuid)
+        if CollectionsCore::textContents(collectionuuid).strip.size>0 then
+            puts "You now need to recview the file"
+            system("open '#{collectionUUID2FolderpathOrNull(collectionuuid)}'")
+            LucilleCore::pressEnterToContinue()
+        end
+        if CollectionsCore::documentsFilenames(collectionuuid).size>0 then
+            puts "You now need to recview the documents"
+            system("open '#{collectionUUID2FolderpathOrNull(collectionuuid)}/documents'")
+            LucilleCore::pressEnterToContinue()
+        end
+        if CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid).size>0 then
+            puts "You now need to destroy all the objects"
+            LucilleCore::pressEnterToContinue()
+            loop {
+                break if CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid).size==0
+                CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
+                    .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+                    .compact
+                    .each{|object|
+                        CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                    }
+            }
+        end
+        puts "Moving collection folder to bin timeline"
+        collectionfolderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
+        targetFolder = CommonsUtils::newBinArchivesFolderpath()
+        FileUtils.mv(collectionfolderpath, targetFolder)        
+    end
+
     def self.ui_CollectionDive(collectionuuid)
         loop {
             style = CollectionsCore::getCollectionStyle(collectionuuid)
@@ -311,7 +341,7 @@ class CollectionsCore
             else
                 menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem6 ]
             end
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem8 ]
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem8, menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -337,47 +367,30 @@ class CollectionsCore
             end
             if menuChoice == menuItem5 then
                 if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this #{style.downcase} ? ") and LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Seriously ? ") then
-                    if catalystobjects.size>0 then
-                        puts "You now need to destroy all the objects"
-                        LucilleCore::pressEnterToContinue()
-                        loop {
-                            catalystobjects = CollectionsCore::collectionCatalystObjectUUIDs(collectionuuid)
-                                .map{|objectuuid| TheFlock::flockObjectsAsMap()[objectuuid] }
-                                .compact
-                                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-                                .reverse
-                            break if catalystobjects.size==0
-                            object = catalystobjects.first
-                            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
-                        }
-                    end
-                    puts "Moving collection folder to bin timeline"
-                    collectionfolderpath = CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)
-                    targetFolder = CommonsUtils::newBinArchivesFolderpath()
-                    FileUtils.mv(collectionfolderpath, targetFolder)
+                    CollectionsCore::ui_destroyCollection(collectionuuid)
                 end
                 return
             end
             if menuChoice == menuItem4 then
                 CollectionsCore::setCollectionStyle(collectionuuid, "PROJECT")
-                return
+                next
             end
             if menuChoice == menuItem3 then
                 CollectionsCore::setCollectionStyle(collectionuuid, "THREAD")
-                return
+                next
             end
             if menuChoice == menuItem6 then
                 CollectionsCore::startCollection(collectionuuid)
-                return
+                next
             end
             if menuChoice == menuItem7 then
                 CollectionsCore::stopCollection(collectionuuid)
-                return
+                next
             end
             if menuChoice == menuItem8 then
                 timespan = 3600*LucilleCore::askQuestionAnswerAsString("hours: ").to_f
                 GenericTimeTracking::addTimeInSeconds(collectionuuid, timespan)
-                return
+                next
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice

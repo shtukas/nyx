@@ -312,10 +312,6 @@ class CommonsUtils
 
         # object needed
 
-        if expression == "+" then
-            expression = "+1 hour"
-        end
-
         if expression == "goto:collection" then
             CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
             return
