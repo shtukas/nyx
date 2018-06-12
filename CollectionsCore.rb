@@ -279,6 +279,52 @@ class CollectionsCore
     end
 
     # ---------------------------------------------------
+    # Time management
+
+    def self.startCollection(collectionuuid)
+        return if GenericTimeTracking::status(collectionuuid)[0]
+        GenericTimeTracking::start(collectionuuid) # marker: 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2
+        GenericTimeTracking::start(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        # Now we need to start the time commitment point against that collection, if any
+        CollectionsCore::startOneTimeCommitmentPointAgainstThisCollection(collectionuuid)
+    end
+
+    def self.startOneTimeCommitmentPointAgainstThisCollection(collectionuuid)
+        # e19b1ef6-9f75-454a-9724-131a43dca272
+        TimeCommitments::getItems()
+        .select{|item|
+            item["33be3505:collection-uuid"]==collectionuuid
+        }
+        .select{|item|
+            !item["is-running"]
+        }
+        .first(1)
+        .each{|item|
+            TimeCommitments::saveItem(TimeCommitments::startItem(item))
+        }
+    end
+
+    def self.stopCollection(collectionuuid)
+        GenericTimeTracking::stop(collectionuuid)
+        GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        CollectionsCore::stopAllTimeCommitmentPointAgainstThisCollection(collectionuuid)
+    end
+
+    def self.stopAllTimeCommitmentPointAgainstThisCollection(collectionuuid)
+        # e19b1ef6-9f75-454a-9724-131a43dca272
+        TimeCommitments::getItems()
+        .select{|item|
+            item["33be3505:collection-uuid"]==collectionuuid
+        }
+        .select{|item|
+            item["is-running"]
+        }
+        .each{|item|
+            TimeCommitments::saveItem(TimeCommitments::stopItem(item))
+        }
+    end
+
+    # ---------------------------------------------------
     # User Interface
 
     def self.ui_destroyCollection(collectionuuid)
@@ -395,41 +441,6 @@ class CollectionsCore
             # By now, menuChoice is a catalyst object
             object = menuChoice
             CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
-        }
-    end
-
-    def self.startCollection(collectionuuid)
-        return if GenericTimeTracking::status(collectionuuid)[0]
-        GenericTimeTracking::start(collectionuuid)
-        GenericTimeTracking::start(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
-        # Now we need to start the time commitment point against that collection, if any
-        TimeCommitments::getItems()
-        .select{|item|
-            item["33be3505:collection-uuid"]==collectionuuid
-        }
-        .select{|item|
-            !item["is-running"]
-        }
-        .first(1)
-        .each{|item|
-            TimeCommitments::saveItem(TimeCommitments::startItem(item))
-        }
-    end
-
-    def self.stopCollection(collectionuuid)
-        GenericTimeTracking::stop(collectionuuid)
-        GenericTimeTracking::stop(CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY)
-        # Now we need to start the time commitment point against that collection, if any
-        TimeCommitments::getItems()
-        .select{|item|
-            item["33be3505:collection-uuid"]==collectionuuid
-        }
-        .select{|item|
-            item["is-running"]
-        }
-        .first(1)
-        .each{|item|
-            TimeCommitments::saveItem(TimeCommitments::stopItem(item))
         }
     end
 

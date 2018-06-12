@@ -120,7 +120,7 @@ class TimeCommitments
         item["is-running"] = true
         item["last-start-unixtime"] = Time.new.to_i
         if item["uuids-for-generic-time-tracking"] then
-            item["uuids-for-generic-time-tracking"].each{|uuid|
+            item["uuids-for-generic-time-tracking"].each{|uuid| # marker: d04dd562-2fd7-4f47-89c7-992e00c3edb4
                 GenericTimeTracking::start(uuid)
             }
         end
@@ -132,7 +132,7 @@ class TimeCommitments
             item["is-running"] = false
             item["timespans"] << Time.new.to_i - item["last-start-unixtime"]
             if item["uuids-for-generic-time-tracking"] then
-                item["uuids-for-generic-time-tracking"].each{|uuid|
+                item["uuids-for-generic-time-tracking"].each{|uuid| # marker: 5d0adaea-3646-4227-86ae-1561a7fc68d0
                     GenericTimeTracking::stop(uuid)
                 }
             end
