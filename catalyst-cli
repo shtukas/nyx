@@ -38,6 +38,38 @@ require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
 class CatalystCLIUtils
+    def self.object2Line_v1(object)
+        announce = object['announce'].strip
+        announce = CommonsUtils::announceWithColor(announce, object)
+        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{announce}",
+            "#{requirementsAsString.green}",
+            CommonsUtils::object2DonotShowUntilAsString(object),
+            " (#{object["commands"].join(" ").red})",
+            " \"#{defaultExpressionAsString.green}\""
+        ].join()
+    end
+    def self.object2Line_v2_ordinal(object)
+        announce = object['announce'].strip
+        announce = CommonsUtils::announceWithColor(announce, object)
+        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        [
+            "(#{"%.3f" % object["metric"]})".yellow,
+            " [#{object["uuid"]}]".yellow,
+            " #{announce}".yellow,
+            "#{requirementsAsString.green}",
+            CommonsUtils::object2DonotShowUntilAsString(object),
+            " (#{object["commands"].join(" ").red})",
+            " \"#{defaultExpressionAsString.green}\""
+        ].join()
+    end
     def self.cli(runId)
         mainschedule = {}
         mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
@@ -89,7 +121,12 @@ class CatalystCLIUtils
                 mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
                 next
             end
-            puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v1(object)}"
+            if listingItem["type"]=="main" then
+                puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v1(object)}"
+            end
+            if listingItem["type"]=="ordinal" then
+                puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v2_ordinal(object)}"
+            end
             print "--> "
             command = STDIN.gets().strip
             if command=="." then
@@ -153,22 +190,6 @@ class CatalystCLIUtils
             CommonsUtils::processObjectAndCommand(object, command)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
-    end
-    def self.object2Line_v1(object)
-        announce = object['announce'].strip
-        announce = CommonsUtils::announceWithColor(announce, object)
-        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
-        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        [
-            "(#{"%.3f" % object["metric"]})",
-            " [#{object["uuid"]}]",
-            " #{announce}",
-            "#{requirementsAsString.green}",
-            CommonsUtils::object2DonotShowUntilAsString(object),
-            " (#{object["commands"].join(" ").red})",
-            " \"#{defaultExpressionAsString.green}\""
-        ].join()
     end
 end
 
