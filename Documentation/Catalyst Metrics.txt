@@ -15,14 +15,14 @@
 0.820 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats
 0.150 -> 0.750  Vienna
-0.600 -> 0.700  TimeCommitments [not running] (unless specified by the item itself)
+0.200 -> 0.850~ TimeCommitments [not running] (unless specified by the item itself)
          0.600+ Wave: new, "made-on-date"
       -> 0.600  stream [not running]
 0.200 -> 0.600  Ninja
 
-         0.500  -- sleep level --    
+         0.500  -- one item level --    
 
-0.200 -> 0.400  Collections # note that we create time commitments for them
+0.200 -> 0.400  Collections # we create time commitments for them
 
          0.200  -- water level -- 
 

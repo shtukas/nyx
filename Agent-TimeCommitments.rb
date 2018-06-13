@@ -252,38 +252,41 @@ class TimeCommitments
         end
     end
 
+    def self.itemToCatalystObjectOrNull(item)
+        uuid = item['uuid']
+        ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
+        if item["is-running"] and ratioDone>1 then
+            message = "#{item['description']} is done"
+            system("terminal-notifier -title Catalyst -message '#{message}'")
+            sleep 2
+        end
+        metric = 0.2 + 0.4*Math.atan(item["commitment-in-hours"]) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
+        metric = item['metric'] ? item['metric'] : metric
+        metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"]
+        announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
+        commands = ( item["is-running"] ? ["stop"] : ["start"] ) + ["destroy"]
+        defaultExpression = item["is-running"] ? "stop" : "start"
+        object  = {}
+        object["uuid"]      = uuid
+        object["agent-uid"] = self.agentuuid()
+        object["metric"]    = metric
+        object["announce"]  = announce
+        object["commands"]  = commands
+        object["default-expression"]     = defaultExpression
+        object["metadata"]               = {}
+        object["metadata"]["is-running"] = item["is-running"]
+        object["metadata"]["time-commitment-item"] = item
+        object
+    end
+
     def self.generalFlockUpgrade()
         TimeCommitments::garbageCollectionGlobal()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if (Time.new.hour>=23 or Time.new.hour < 7)
         objects = TimeCommitments::getItems()
             .select{|item| item["commitment-in-hours"] > 0 }
-            .map{|item|
-                uuid = item['uuid']
-                ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-                if item["is-running"] and ratioDone>1 then
-                    message = "#{item['description']} is done"
-                    system("terminal-notifier -title Catalyst -message '#{message}'")
-                    sleep 2
-                end
-                metric = 0.6 + 0.1*Math.exp(-ratioDone*3) + Math.atan(item["commitment-in-hours"]).to_f/10 + CommonsUtils::traceToMetricShift(uuid)
-                metric = item['metric'] ? item['metric'] : metric
-                metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"]
-                announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
-                commands = ( item["is-running"] ? ["stop"] : ["start"] ) + ["destroy"]
-                defaultExpression = item["is-running"] ? "stop" : "start"
-                object  = {}
-                object["uuid"]      = uuid
-                object["agent-uid"] = self.agentuuid()
-                object["metric"]    = metric
-                object["announce"]  = announce
-                object["commands"]  = commands
-                object["default-expression"]     = defaultExpression
-                object["metadata"]               = {}
-                object["metadata"]["is-running"] = item["is-running"]
-                object["metadata"]["time-commitment-item"] = item
-                object
-            }
+            .map{|item| TimeCommitments::itemToCatalystObjectOrNull(item) }
+            .compact
         objects = 
             if objects.select{|object| object["metric"]>1 }.size>0 then
                 objects.select{|object| object["metric"]>1 }
