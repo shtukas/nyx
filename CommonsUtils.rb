@@ -25,15 +25,46 @@ require_relative "AgentsManager.rb"
 
 class CommonsUtils
 
-    def self.announceWithColor(announce, object)
-        if object["metric"]>1 then
-            if object["announce"].include?("[PAUSED]") then
-                announce = announce.yellow
+    def self.currentHour()
+        Time.new.to_s[0,13]
+    end
+
+    def self.currentDay()
+        Time.new.to_s[0,10]
+    end
+
+    def self.isInteger(str)
+        str.to_i.to_s == str
+    end
+
+    def self.isFloat(str)
+        str.to_f.to_s == str
+    end
+
+    def self.traceToRealInUnitInterval(trace)
+        ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
+    end
+
+    def self.traceToMetricShift(trace)
+        0.001*CommonsUtils::traceToRealInUnitInterval(trace)
+    end
+
+    def self.realNumbersToZeroOne(x, origin, unit)
+        alpha =
+            if x >= origin then
+                2-Math.exp(-(x-origin).to_f/unit)
             else
-                announce = announce.green                
+                Math.exp((x-origin).to_f/unit)
             end
-        end
-        announce
+        alpha.to_f/2
+    end
+
+    def self.screenHeight()
+        `/usr/bin/env tput lines`.to_i
+    end
+
+    def self.screenWidth()
+        `/usr/bin/env tput cols`.to_i
     end
 
     def self.codeToDatetimeOrNull(code)
@@ -79,21 +110,43 @@ class CommonsUtils
         end
     end
 
-    def self.currentHour()
-        Time.new.to_s[0,13]
+    def self.editTextUsingTextmate(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}
+      system("/usr/local/bin/mate \"#{filepath}\"")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)
     end
 
-    def self.currentDay()
-        Time.new.to_s[0,10]
+    def self.isLucille18()
+        ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
     end
 
-    def self.doPresentObjectInviteAndExecuteCommand(object)
-        return if object.nil?
-        puts CatalystCLIUtils::object2Line_v1(object)
-        print "--> "
-        command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
+    def self.isActiveInstance(runId)
+        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data")==runId
+    end
+
+    def self.getStandardListingPosition()
+        FKVStore::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
+    end
+
+    def self.setStandardListingPosition(position)
+        FKVStore::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
+    end
+
+    # -----------------------------------------
+
+    def self.announceWithColor(announce, object)
+        if object["metric"]>1 then
+            if object["announce"].include?("[PAUSED]") then
+                announce = announce.yellow
+            else
+                announce = announce.green                
+            end
+        end
+        announce
     end
 
     def self.emailSync(verbose)
@@ -104,15 +157,86 @@ class CommonsUtils
         end
     end
 
-    def self.editTextUsingTextmate(text)
-      filename = SecureRandom.hex
-      filepath = "/tmp/#{filename}"
-      File.open(filepath, 'w') {|f| f.write(text)}
-      system("/usr/local/bin/mate \"#{filepath}\"")
-      print "> press enter when done: "
-      input = STDIN.gets
-      IO.read(filepath)
+    def self.newBinArchivesFolderpath()
+        time = Time.new
+        targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(targetFolder)
+        targetFolder       
     end
+
+    def self.object2DonotShowUntilAsString(object)
+        ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+    end
+
+    def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        if description=='text' then
+            editTextUsingTextmate("")
+        else
+            description
+        end
+    end
+
+    def self.simplifyURLCarryingString(string)
+        return string if /http/.match(string).nil?
+        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
+            .each{|regex|
+                if ( m = regex.match(string) ) then
+                    string = string[m.to_s.size, string.size].strip
+                    return CommonsUtils::simplifyURLCarryingString(string)
+                end
+            }
+        string
+    end
+
+    def self.selectRequirementFromExistingRequirementsOrNull()
+        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
+    end
+
+    def self.waveInsertNewItemDefaults(description) # uuid: String
+        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        uuid = SecureRandom.hex(4)
+        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        schedule = WaveSchedules::makeScheduleObjectTypeNew()
+        schedule["made-on-date"] = CommonsUtils::currentDay()
+        Wave::writeScheduleToDisk(uuid,schedule)
+        uuid
+    end
+
+    def self.waveInsertNewItemInteractive(description)
+        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        uuid = SecureRandom.hex(4)
+        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        schedule = 
+            if answer=="yes" then
+                WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+            else
+                x = WaveSchedules::makeScheduleObjectTypeNew()
+                x["made-on-date"] = CommonsUtils::currentDay()
+                x
+            end
+        Wave::writeScheduleToDisk(uuid,schedule)
+        if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
+            if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+            end
+        end
+        print "Move to a thread ? [yes/no] (default: no): "
+        answer = STDIN.gets().strip 
+        if answer=="yes" then
+            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+        end
+    end
+
+    # -----------------------------------------
 
     def self.fDoNotShowUntilDateTimeTransform()
         TheFlock::flockObjects().map{|object|
@@ -140,58 +264,36 @@ class CommonsUtils
             .take(count)
     end
 
-    def self.interactiveDisplayObjectAndProcessCommand(object)
-        print CatalystCLIUtils::object2Line_v1(object) + " : "
-        givenCommand = STDIN.gets().strip
-        command = givenCommand.size>0 ? givenCommand : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
+    def self.getUnifiedListing(count)
+        # This function returns at least count elements
+        # More precisely, the ordinals and then n main listing elements
+        AgentsManager::generalFlockUpgrade()
+        structure = []
+        Ordinals::sortedDistribution()
+            .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
+            .each{|pair| Ordinals::unregister(pair[0]) }
+        pairs = Ordinals::sortedDistribution()
+        pairs.each{|pair|
+            structure << {
+                "type" => "ordinal",
+                "object" => TheFlock::getObjectByUUIDOrNull(pair[0]),
+                "ordinal" => pair[1]
+            }
+        }
+        CommonsUtils::flockTopObjects(count).each{|object|
+            structure << {
+                "type" => "main",
+                "object" => object
+            }
+        }
+        structure
     end
 
-    def self.isLucille18()
-        ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
+    def self.getNthElementOfUnifiedListing(n) # { :type, :object, :ordinal optional}
+        CommonsUtils::getUnifiedListing(n).take(n).last
     end
 
-    def self.isActiveInstance(runId)
-        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data")==runId
-    end
-
-    def self.isInteger(str)
-        str.to_i.to_s == str
-    end
-
-    def self.isFloat(str)
-        str.to_f.to_s == str
-    end
-
-    def self.newBinArchivesFolderpath()
-        time = Time.new
-        targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(targetFolder)
-        targetFolder       
-    end
-
-    def self.object2DonotShowUntilAsString(object)
-        ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
-    end
-
-    def self.object2Line_v0(object)
-        announce = object['announce'].lines.first.strip
-        announce = CommonsUtils::announceWithColor(announce, object)
-        [
-            "(#{"%.3f" % object["metric"]})",
-            " [#{object["uuid"]}]",
-            " #{announce}",
-            CommonsUtils::object2DonotShowUntilAsString(object),
-        ].join()
-    end
-
-    def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        if description=='text' then
-            editTextUsingTextmate("")
-        else
-            description
-        end
-    end
+    # -----------------------------------------
 
     def self.putshelp()
         puts "Special General Commands"
@@ -231,6 +333,17 @@ class CommonsUtils
         puts "    r:remove <requirement: String>"
         puts "    :<position: Integer> # select and operate on the object number <integer>"
         puts "    command ..."
+    end
+
+    def self.object2Line_v0(object)
+        announce = object['announce'].lines.first.strip
+        announce = CommonsUtils::announceWithColor(announce, object)
+        [
+            "(#{"%.3f" % object["metric"]})",
+            " [#{object["uuid"]}]",
+            " #{announce}",
+            CommonsUtils::object2DonotShowUntilAsString(object),
+        ].join()
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -335,7 +448,7 @@ class CommonsUtils
                 requirementObjects = TheFlock::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
-                CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+                CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
             return
         end
@@ -347,7 +460,7 @@ class CommonsUtils
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
-                CommonsUtils::interactiveDisplayObjectAndProcessCommand(selectedobject)
+                CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
             return
         end
@@ -401,127 +514,13 @@ class CommonsUtils
         end
     end
 
-    def self.realNumbersToZeroOne(x, origin, unit)
-        alpha =
-            if x >= origin then
-                2-Math.exp(-(x-origin).to_f/unit)
-            else
-                Math.exp((x-origin).to_f/unit)
-            end
-        alpha.to_f/2
-    end
-
-    def self.simplifyURLCarryingString(string)
-        return string if /http/.match(string).nil?
-        [/^\{\s\d*\s\}/, /^\[\]/, /^line:/, /^todo:/, /^url:/, /^\[\s*\d*\s*\]/]
-            .each{|regex|
-                if ( m = regex.match(string) ) then
-                    string = string[m.to_s.size, string.size].strip
-                    return CommonsUtils::simplifyURLCarryingString(string)
-                end
-            }
-        string
-    end
-
-    def self.screenHeight()
-        `/usr/bin/env tput lines`.to_i
-    end
-
-    def self.screenWidth()
-        `/usr/bin/env tput cols`.to_i
-    end
-
-    def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
-    end
-
-    def self.traceToRealInUnitInterval(trace)
-        ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
-    end
-
-    def self.traceToMetricShift(trace)
-        0.001*CommonsUtils::traceToRealInUnitInterval(trace)
-    end
-
-    def self.getUnifiedListing(count)
-        # This function returns at least count elements
-        # More precisely, the ordinals and then n main listing elements
-        AgentsManager::generalFlockUpgrade()
-        structure = []
-        Ordinals::sortedDistribution()
-            .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
-            .each{|pair| Ordinals::unregister(pair[0]) }
-        pairs = Ordinals::sortedDistribution()
-        pairs.each{|pair|
-            structure << {
-                "type" => "ordinal",
-                "object" => TheFlock::getObjectByUUIDOrNull(pair[0]),
-                "ordinal" => pair[1]
-            }
-        }
-        CommonsUtils::flockTopObjects(count).each{|object|
-            structure << {
-                "type" => "main",
-                "object" => object
-            }
-        }
-        structure
-    end
-
-    def self.getNthElementOfUnifiedListing(n) # { :type, :object, :ordinal optional}
-        CommonsUtils::getUnifiedListing(n).take(n).last
-    end
-
-    def self.waveInsertNewItemDefaults(description) # uuid: String
-        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        uuid = SecureRandom.hex(4)
-        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        schedule = WaveSchedules::makeScheduleObjectTypeNew()
-        schedule["made-on-date"] = CommonsUtils::currentDay()
-        Wave::writeScheduleToDisk(uuid,schedule)
-        uuid
-    end
-
-    def self.waveInsertNewItemInteractive(description)
-        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        uuid = SecureRandom.hex(4)
-        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
-        answer = STDIN.gets().strip 
-        schedule = 
-            if answer=="yes" then
-                WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-            else
-                x = WaveSchedules::makeScheduleObjectTypeNew()
-                x["made-on-date"] = CommonsUtils::currentDay()
-                x
-            end
-        Wave::writeScheduleToDisk(uuid,schedule)
-        if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
-            if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
-                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
-            end
-        end
-        print "Move to a thread ? [yes/no] (default: no): "
-        answer = STDIN.gets().strip 
-        if answer=="yes" then
-            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(uuid)
-        end
-    end
-
-    def self.getStandardListingPosition()
-        FKVStore::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
-    end
-
-    def self.setStandardListingPosition(position)
-        FKVStore::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
+    def self.doPresentObjectInviteAndExecuteCommand(object)
+        return if object.nil?
+        puts CatalystCLIUtils::object2Line_v1(object)
+        print "--> "
+        command = STDIN.gets().strip
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
     end
 
 end
