@@ -255,14 +255,22 @@ class TimeCommitments
     def self.itemToCatalystObjectOrNull(item)
         uuid = item['uuid']
         ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
-        if item["is-running"] and ratioDone>1 then
-            message = "#{item['description']} is done"
-            system("terminal-notifier -title Catalyst -message '#{message}'")
-            sleep 2
+        metric = nil
+        if item["is-running"] then
+            metric = 2 - CommonsUtils::traceToMetricShift(uuid)
+            if ratioDone>1 then
+                message = "#{item['description']} is done"
+                system("terminal-notifier -title Catalyst -message '#{message}'")
+                sleep 2
+            end
+        else
+            metric =
+                if item['metric'] then
+                    item['metric']
+                else
+                    0.2 + 0.4*Math.atan(item["commitment-in-hours"]) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
+                end
         end
-        metric = 0.2 + 0.4*Math.atan(item["commitment-in-hours"]) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
-        metric = item['metric'] ? item['metric'] : metric
-        metric = 2 - CommonsUtils::traceToMetricShift(uuid) if item["is-running"]
         announce = "time commitment: #{item['description']} (#{ "%.2f" % (100*ratioDone) } % of #{item["commitment-in-hours"]} hours done)"
         commands = ( item["is-running"] ? ["stop"] : ["start"] ) + ["destroy"]
         defaultExpression = item["is-running"] ? "stop" : "start"
