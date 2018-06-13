@@ -20,6 +20,7 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
 # CommonsUtils::getUnifiedListing(screenleft)
+# CommonsUtils::getNthElementOfUnifiedListing(n)
 
 class CommonsUtils
 
@@ -368,10 +369,10 @@ class CommonsUtils
         puts "    r:on <requirement: String>"
         puts "    r:off <requirement: String>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    collections # show collections"
+        puts "    collections # collections dive"
         puts "    email-sync  # run email sync"
-        puts "    interface # run the interface of a given agent"
-        puts "    lib # Invoques the Librarian interactive"
+        puts "    interface   # select an agent and run the interface"
+        puts "    lib         # Invoques the Librarian interactive"
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description: String>>"
@@ -379,8 +380,10 @@ class CommonsUtils
         puts "    project: <description: String>"
         puts "    thread: <description: String>"
         puts ""
-        puts "Special Commands (object targetting ang ordinal)"
+        puts "Special Commands (object targetting and ordinal)"
         puts "    :<position>         # set the listing reference point"
+        puts "    :<position> open    # send command open to the item at position"
+        puts "    :<position> done    # send command done to the item at position"
         puts "    :<position> <float> # set the ordinal of the object at this position"
         puts "    :this <float> # register the current object agains the float"
         puts "    :? <float> <description, multi-tokens> # creates a text object and give it that ordinal"
@@ -439,7 +442,9 @@ class CommonsUtils
         0.001*CommonsUtils::traceToRealInUnitInterval(trace)
     end
 
-    def self.getUnifiedListing(screenleft)
+    def self.getUnifiedListing(count)
+        # This function returns at least count elements
+        # More precisely, the ordinals and then n main listing elements
         AgentsManager::generalFlockUpgrade()
         structure = []
         Ordinals::sortedDistribution()
@@ -453,13 +458,17 @@ class CommonsUtils
                 "ordinal" => pair[1]
             }
         }
-        CommonsUtils::flockTopObjects(screenleft).each{|object|
+        CommonsUtils::flockTopObjects(count).each{|object|
             structure << {
                 "type" => "main",
                 "object" => object
             }
         }
         structure
+    end
+
+    def self.getNthElementOfUnifiedListing(n) # { :type, :object, :ordinal optional}
+        CommonsUtils::getUnifiedListing(n).take(n).last
     end
 
     def self.waveInsertNewItemDefaults(description) # uuid: String
