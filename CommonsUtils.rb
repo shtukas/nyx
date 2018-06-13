@@ -11,6 +11,7 @@ require_relative "AgentsManager.rb"
 # CommonsUtils::isLucille18()
 # CommonsUtils::isActiveInstance(runId)
 # CommonsUtils::isInteger(str)
+# CommonsUtils::isFloat(str)
 # CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::realNumbersToZeroOne(x, origin, unit)
 # CommonsUtils::simplifyURLCarryingString(string)
@@ -158,6 +159,10 @@ class CommonsUtils
         str.to_i.to_s == str
     end
 
+    def self.isFloat(str)
+        str.to_f.to_s == str
+    end
+
     def self.newBinArchivesFolderpath()
         time = Time.new
         targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
@@ -186,6 +191,46 @@ class CommonsUtils
         else
             description
         end
+    end
+
+    def self.putshelp()
+        puts "Special General Commands"
+        puts "    help"
+        puts "    top"
+        puts "    search <pattern: String>"
+        puts "    r:on <requirement: String>"
+        puts "    r:off <requirement: String>"
+        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    collections # collections dive"
+        puts "    email-sync  # run email sync"
+        puts "    interface   # select an agent and run the interface"
+        puts "    lib         # Invoques the Librarian interactive"
+        puts ""
+        puts "Special General Commands (inserts)"
+        puts "    wave: <description: String>>"
+        puts "    stream: <description: String>"
+        puts "    project: <description: String>"
+        puts "    thread: <description: String>"
+        puts ""
+        puts "Special Commands (object targetting and ordinal)"
+        puts "    :<position>           # set the listing reference point"
+        puts "    :<position> open      # send command open to the item at position"
+        puts "    :<position> done      # send command done to the item at position"
+        puts "    :<position> <float>   # set the ordinal of the object at this position"
+        puts "    :this <float>         # register the current object agains the float"
+        puts "    :this goto:collection # send the current object to a collection"
+        puts "    :? <float> <description, multi-tokens> # creates a text object and give it that ordinal"
+        puts ""
+        puts "Special Object Commands:"
+        puts "    + # push by 1 hour"
+        puts "    +datetimecode"
+        puts "    expose # pretty print the object"
+        puts "    goto:collection # send object to a collection"
+        puts "    !today"
+        puts "    r:add <requirement: String>"
+        puts "    r:remove <requirement: String>"
+        puts "    :<position: Integer> # select and operate on the object number <integer>"
+        puts "    command ..."
     end
 
     def self.processObjectAndCommand(object, expression)
@@ -313,11 +358,6 @@ class CommonsUtils
 
         # object needed
 
-        if expression == "goto:collection" then
-            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
-            return
-        end
-
         if expression == '!today' then
             TodayOrNotToday::notToday(object["uuid"])
             return
@@ -359,45 +399,6 @@ class CommonsUtils
         else
             AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
         end
-    end
-
-    def self.putshelp()
-        puts "Special General Commands"
-        puts "    help"
-        puts "    top"
-        puts "    search <pattern: String>"
-        puts "    r:on <requirement: String>"
-        puts "    r:off <requirement: String>"
-        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    collections # collections dive"
-        puts "    email-sync  # run email sync"
-        puts "    interface   # select an agent and run the interface"
-        puts "    lib         # Invoques the Librarian interactive"
-        puts ""
-        puts "Special General Commands (inserts)"
-        puts "    wave: <description: String>>"
-        puts "    stream: <description: String>"
-        puts "    project: <description: String>"
-        puts "    thread: <description: String>"
-        puts ""
-        puts "Special Commands (object targetting and ordinal)"
-        puts "    :<position>         # set the listing reference point"
-        puts "    :<position> open    # send command open to the item at position"
-        puts "    :<position> done    # send command done to the item at position"
-        puts "    :<position> <float> # set the ordinal of the object at this position"
-        puts "    :this <float> # register the current object agains the float"
-        puts "    :? <float> <description, multi-tokens> # creates a text object and give it that ordinal"
-        puts ""
-        puts "Special Object Commands:"
-        puts "    + # push by 1 hour"
-        puts "    +datetimecode"
-        puts "    expose # pretty print the object"
-        puts "    goto:collection # send object to a collection"
-        puts "    !today"
-        puts "    r:add <requirement: String>"
-        puts "    r:remove <requirement: String>"
-        puts "    :<position: Integer> # select and operate on the object number <integer>"
-        puts "    command ..."
     end
 
     def self.realNumbersToZeroOne(x, origin, unit)

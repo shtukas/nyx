@@ -151,11 +151,18 @@ class CatalystCLIUtils
                     next
                 end
                 if token==":this" then
-                    # :this <float> # register the current object agains the float
-                    ordinal = rest.to_f
-                    Ordinals::register(object["uuid"], ordinal)
-                    if listingItem["type"]=="main" then
-                        CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+                    if CommonsUtils::isFloat(rest) then
+                        # :this <float> # register the current object agains the float
+                        ordinal = rest.to_f
+                        Ordinals::register(object["uuid"], ordinal)
+                        if listingItem["type"]=="main" then
+                            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+                        end
+                        next
+                    end
+                    if rest=="goto:collection" then
+                        CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
+                        next
                     end
                     next
                 end 
