@@ -50,13 +50,13 @@ class AgentBabyNights
         if command == "595bc18c-48a9-4fa2-bfd3-8795f8902766" then
             xname = nil
             loop {
-                xname = LucilleCore::askQuestionAnswerAsString(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/question.txt"))
+                xname = LucilleCore::askQuestionAnswerAsString(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/question.txt"))
                 next if !["pascal", "tracy"].include?(xname)
                 break
             }
-            data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data.json"))
+            data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
             data[xname] = data[xname]+1
-            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
+            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             LucilleCore::pressEnterToContinue()
             FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}", "done")

@@ -45,7 +45,9 @@
 # isGuardianTime?(projectuuid)
 
 # ProjectsCore::isGuardianTime?(projectuuid)
-# ProjectsCore::projectHasDedicatedTimePointGenerator(projectuuid)
+# ProjectsCore::setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
+# ProjectsCore::getTimePointGeneratorOrNull(projectuuid): [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
+# ProjectsCore::resetTimePointGenerator(projectuuid)
 
 # ---------------------------------------------------
 # Misc
@@ -62,8 +64,6 @@
 # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
 # ProjectsCore::ui_ProjectsDive()
 # ProjectsCore::ui_ProjectDive(projectuuid)
-# ProjectsCore::startProject(projectuuid)
-# ProjectsCore::stopProject(projectuuid)
 # ProjectsCore::completeProject(projectuuid)
 
 
@@ -190,7 +190,7 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # isGuardianTime?(projectuuid)
+    # Time management & isGuardianTime?(projectuuid)
 
     def self.isGuardianTime?(projectuuid)
         folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
@@ -203,6 +203,25 @@ class ProjectsCore
             end
         end
         IO.read(filepath).strip == "true" 
+    end
+
+    def self.setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
+        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
+        return if folderpath.nil?
+        File.open("#{folderpath}/time-point-generator-8a3030a0", "w"){|f| f.write( JSON.generate([Time.new.to_i, periodInSeconds, timepointDurationInSeconds]) ) }        
+    end
+    def self.getTimePointGeneratorOrNull(projectuuid)
+        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
+        return nil if folderpath.nil?
+        filepath = "#{folderpath}/time-point-generator-8a3030a0"
+        return nil if !File.exists?(filepath)  
+        JSON.parse(IO.read(filepath))    
+    end
+    def self.resetTimePointGenerator(projectuuid)
+        # This function is called by AgentTimeGenesis when a new time point is issued
+        generator = getTimePointGeneratorOrNull(projectuuid)
+        return if generator.nil?
+        self.setTimePointGenerator(projectuuid, generator[1], generator[2])
     end
 
     # ---------------------------------------------------
@@ -240,56 +259,6 @@ class ProjectsCore
         filepath = "#{folderpath}/collection-next-review-time"
         unixtime = Time.new.to_i + 86400*(1+rand) 
         File.open(filepath, "w"){|f| f.write(unixtime) }
-    end
-
-    # ---------------------------------------------------
-    # Time management
-
-    def self.startProject(projectuuid)
-        return if Chronos::status(projectuuid)[0]
-        Chronos::start(projectuuid) # marker: 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2
-        Chronos::start(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
-        # Now we need to start the time commitment point against that project, if any
-        ProjectsCore::startOneTimeCommitmentPointAgainstThisProject(projectuuid)
-    end
-
-    def self.startOneTimeCommitmentPointAgainstThisProject(projectuuid)
-        # e19b1ef6-9f75-454a-9724-131a43dca272
-        AgentTimeCommitments::getItems()
-        .select{|item|
-            item["33be3505:collection-uuid"]==projectuuid
-        }
-        .select{|item|
-            !item["is-running"]
-        }
-        .first(1)
-        .each{|item|
-            AgentTimeCommitments::saveItem(AgentTimeCommitments::startItem(item))
-        }
-    end
-
-    def self.stopProject(projectuuid)
-        Chronos::stop(projectuuid)
-        Chronos::stop(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
-        ProjectsCore::stopAllTimeCommitmentPointAgainstThisCollection(projectuuid)
-    end
-
-    def self.stopAllTimeCommitmentPointAgainstThisCollection(projectuuid)
-        # e19b1ef6-9f75-454a-9724-131a43dca272
-        AgentTimeCommitments::getItems()
-        .select{|item|
-            item["33be3505:collection-uuid"]==projectuuid
-        }
-        .select{|item|
-            item["is-running"]
-        }
-        .each{|item|
-            AgentTimeCommitments::saveItem(AgentTimeCommitments::stopItem(item))
-        }
-    end
-
-    def self.projectHasDedicatedTimePointGenerator(projectuuid)
-        false
     end
 
     # ---------------------------------------------------
@@ -336,16 +305,8 @@ class ProjectsCore
                 .reverse
             menuItem1 = "file      : (#{textContents.strip.size} characters)"
             menuItem2 = "documents : (#{documentsFilenames.size} files)"
-            menuItem6 = "operation : start"
-            menuItem7 = "operation : stop"
-            menuItem5 = "operation : destroy"
-            menuItem8 = "operation : add hours manually"            
+            menuItem5 = "operation : destroy"            
             menuStringsOrCatalystObjects = catalystobjects + [menuItem1, menuItem2 ]
-            if Chronos::status(projectuuid)[0] then
-                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem7 ]
-            else
-                menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem6 ]
-            end
             menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem8, menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
@@ -376,19 +337,6 @@ class ProjectsCore
                 end
                 return
             end
-            if menuChoice == menuItem6 then
-                ProjectsCore::startProject(projectuuid)
-                next
-            end
-            if menuChoice == menuItem7 then
-                ProjectsCore::stopProject(projectuuid)
-                next
-            end
-            if menuChoice == menuItem8 then
-                timespan = 3600*LucilleCore::askQuestionAnswerAsString("hours: ").to_f
-                Chronos::addTimeInSeconds(projectuuid, timespan)
-                next
-            end
             # By now, menuChoice is a catalyst object
             object = menuChoice
             CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
@@ -414,7 +362,6 @@ class ProjectsCore
             return
         end
         Chronos::stop(projectuuid)
-        Chronos::stop(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
         ProjectsCore::sendProjectToBinTimeline(projectuuid)
     end
 
