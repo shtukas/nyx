@@ -17,7 +17,6 @@
 # ProjectsCore::folderPath2CollectionObject(folderpath)
 # ProjectsCore::projectUUID2FolderpathOrNull(uuid)
 # ProjectsCore::projectsUUIDs()
-# ProjectsCore::projectsNames()
 # ProjectsCore::projectUUID2NameOrNull(projectuuid)
 # ProjectsCore::projectsPositionalCoefficientSequence()
 
@@ -75,10 +74,6 @@ class ProjectsCore
 
     def self.projectsUUIDs()
         ProjectsCore::projectsFolderpaths().map{|folderpath| ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath) }
-    end
-
-    def self.projectsNames()
-        ProjectsCore::projectsFolderpaths().map{|folderpath| ProjectsCore::folderPath2CollectionName(folderpath) }
     end
 
     def self.folderPath2ProjectUUIDOrNull(folderpath)
@@ -171,16 +166,14 @@ class ProjectsCore
     # Time management & isGuardianTime?(projectuuid)
 
     def self.isGuardianTime?(projectuuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        filepath = "#{folderpath}/isGuardianTime?"
-        if !File.exists?(filepath) then
-            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("#{ProjectsCore::projectUUID2NameOrNull(projectuuid)} is Guardian time? ") then
-                File.open(filepath, "w"){|f| f.write("true") }
-            else
-                File.open(filepath, "w"){|f| f.write("false") }
-            end
+        answer = FKVStore::getOrNull("80f13003-e618-490c-9307-a2b6aecb69c5:#{projectuuid}")
+        if answer.nil? then
+            answer = LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("#{ProjectsCore::projectUUID2NameOrNull(projectuuid)} is Guardian time? ")
+            FKVStore::set("80f13003-e618-490c-9307-a2b6aecb69c5:#{projectuuid}", JSON.generate([answer]))
+        else
+            answer = JSON.parse(answer)[0]
         end
-        IO.read(filepath).strip == "true" 
+        answer
     end
 
     def self.setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
