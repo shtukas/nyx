@@ -183,7 +183,7 @@ class ProjectsCore
     def self.ui_ProjectDive(projectuuid)
         loop {
             catalystobjects = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-                .map{|objectuuid| TheFlock::flockObjectsAsMap()[objectuuid] }
+                .map{|objectuuid| TheFlock::flockObjects().select{|object| object["uuid"]==objectuuid }.first }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse

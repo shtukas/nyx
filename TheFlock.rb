@@ -70,7 +70,6 @@ end
 # ----------------------------------------------------------------
 
 # TheFlock::flockObjects()
-# TheFlock::flockObjectsAsMap()
 # TheFlock::removeObjectIdentifiedByUUID(uuid)
 # TheFlock::removeObjectsFromAgent(agentuuid)
 # TheFlock::addOrUpdateObject(object)
@@ -82,14 +81,6 @@ end
 class TheFlock
     def self.flockObjects()
         $flock["objects"].clone
-    end
-    
-    def self.flockObjectsAsMap()
-        map = {}
-        TheFlock::flockObjects().each{|object|
-            map[object["uuid"]] = object
-        }
-        map
     end
 
     def self.removeObjectIdentifiedByUUID(uuid)
