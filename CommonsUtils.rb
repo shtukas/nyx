@@ -229,10 +229,10 @@ class CommonsUtils
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
             end
         end
-        print "Move to a thread ? [yes/no] (default: no): "
+        print "Move to a project ? [yes/no] (default: no): "
         answer = STDIN.gets().strip 
         if answer=="yes" then
-            CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(uuid)
+            ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(uuid)
         end
     end
 
@@ -255,7 +255,7 @@ class CommonsUtils
         TodayOrNotToday::transform()
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
-        CollectionsCore::transform()
+        ProjectsCore::transform()
         Ordinals::transform()
         TheFlock::flockObjects()
             .select{|object| object["metric"] >= 0.2 }
@@ -303,7 +303,7 @@ class CommonsUtils
         puts "    r:on <requirement: String>"
         puts "    r:off <requirement: String>"
         puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    collections # collections dive"
+        puts "    projects # projects dive"
         puts "    email-sync  # run email sync"
         puts "    interface   # select an agent and run the interface"
         puts "    lib         # Invoques the Librarian interactive"
@@ -312,7 +312,6 @@ class CommonsUtils
         puts "    wave: <description: String>>"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
-        puts "    thread: <description: String>"
         puts ""
         puts "Special Commands (object targetting and ordinal)"
         puts "    :<position>           # set the listing reference point"
@@ -320,14 +319,13 @@ class CommonsUtils
         puts "    :<position> done      # send command done to the item at position"
         puts "    :<position> <float>   # set the ordinal of the object at this position"
         puts "    :this <float>         # register the current object agains the float"
-        puts "    :this goto:collection # send the current object to a collection"
+        puts "    :this goto:project # send the current object to a project"
         puts "    :? <float> <description, multi-tokens> # creates a text object and give it that ordinal"
         puts ""
         puts "Special Object Commands:"
         puts "    + # push by 1 hour"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
-        puts "    goto:collection # send object to a collection"
         puts "    !today"
         puts "    r:add <requirement: String>"
         puts "    r:remove <requirement: String>"
@@ -384,8 +382,8 @@ class CommonsUtils
             return
         end
 
-        if expression == "collections" then
-            CollectionsCore::ui_CollectionsDive()
+        if expression == "projects" then
+            ProjectsCore::ui_ProjectsDive()
             return
         end
 
@@ -408,21 +406,10 @@ class CommonsUtils
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = CollectionsCore::createNewCollection_WithNameAndStyle(description, "PROJECT")
-            puts "collection uuid: #{collectionuuid}"
-            puts "collection name: #{description}"
-            puts "collection path: #{CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?('thread:') then
-            description = expression[7, expression.size].strip
-            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            collectionuuid = CollectionsCore::createNewCollection_WithNameAndStyle(description, "THREAD")
-            puts "collection uuid: #{collectionuuid}"
-            puts "collection name: #{description}"
-            puts "collection path: #{CollectionsCore::collectionUUID2FolderpathOrNull(collectionuuid)}"
+            projectuuid = ProjectsCore::createNewProject(description)
+            puts "project uuid: #{projectuuid}"
+            puts "project name: #{description}"
+            puts "project path: #{ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)}"
             LucilleCore::pressEnterToContinue()
             return
         end

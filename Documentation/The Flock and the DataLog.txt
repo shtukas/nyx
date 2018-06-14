@@ -2,7 +2,7 @@
 # ----------------------------------------
 # Introduction
 
-The "Flock" refers to the collection of all objects in their latest version.
+The "Flock" refers to the project of all objects in their latest version.
 
 At startup: Events are read from the file system and a view of the system is built. In essence every mutation of the system is represented as an Event. Events are JSON objects
 

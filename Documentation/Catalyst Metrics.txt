@@ -1,6 +1,6 @@
 
 
-         3.000+ running collections 
+         3.000+ running projects 
                     # We get them to run higher than the time commitment 
                     # point which may have started them.
 

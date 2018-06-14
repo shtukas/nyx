@@ -13,7 +13,7 @@ require_relative "MiniFIFOQ.rb"
 require_relative "Config.rb"
 require_relative "GenericTimeTracking.rb"
 require_relative "CatalystDevOps.rb"
-require_relative "CollectionsCore.rb"
+require_relative "ProjectsCore.rb"
 require_relative "FolderProbe.rb"
 require_relative "CommonsUtils"
 
@@ -23,15 +23,15 @@ AgentsManager::registerAgent(
     {
         "agent-name"      => "Collections",
         "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
-        "general-upgrade" => lambda { AgentCollections::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentCollections::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ AgentCollections::interface() }
+        "general-upgrade" => lambda { AgentProjects::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentProjects::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentProjects::interface() }
     }
 )
 
-# AgentCollections::metric
+# AgentProjects::metric
 
-class AgentCollections
+class AgentProjects
 
     def self.agentuuid()
         "e4477960-691d-4016-884c-8694db68cbfb"
@@ -55,18 +55,17 @@ class AgentCollections
     end
 
     def self.makeCatalystObjectOrNull(folderpath)
-        uuid = CollectionsCore::folderPath2CollectionUUIDOrNull(folderpath)
+        uuid = ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath)
         return nil if uuid.nil?
-        description = CollectionsCore::folderPath2CollectionName(folderpath)
-        style = CollectionsCore::getCollectionStyle(uuid)
-        announce = "collection: #{style.downcase.ljust(7)}: #{description}"
+        description = ProjectsCore::folderPath2CollectionName(folderpath)
+        announce = "project: #{description}"
         if self.hasText(folderpath) then
             announce = announce + " [TEXT]"
         end
         if self.hasDocuments(folderpath) then
             announce = announce + " [DOCUMENTS]"
         end
-        if CollectionsCore::collectionCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
+        if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
             announce = announce + " [OBJECTS]"
         end
         announce = announce + " (#{ "%.2f" % (GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
@@ -92,15 +91,15 @@ class AgentCollections
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if (Time.new.hour>=23 or Time.new.hour < 7)
-        objects = CollectionsCore::collectionsFolderpaths()
-            .map{|folderpath| AgentCollections::makeCatalystObjectOrNull(folderpath) }
+        objects = ProjectsCore::projectsFolderpaths()
+            .map{|folderpath| AgentProjects::makeCatalystObjectOrNull(folderpath) }
             .compact
         TheFlock::addOrUpdateObjects(objects)
     end
 
     def self.processObjectAndCommandFromCli(object, command)
         if command=="dive" then
-            CollectionsCore::ui_CollectionDive(object["uuid"])
+            ProjectsCore::ui_ProjectDive(object["uuid"])
         end
     end
 end

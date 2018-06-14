@@ -75,52 +75,25 @@ class DailyTimeAttribution
             end
             projectHours = projectHours.to_f 
 
-            halvesEnum = CollectionsCore::projectsPositionalCoefficientSequence()
-            CollectionsCore::collectionsFolderpaths() # Comes with the right order
-                .select{|folderpath| IO.read("#{folderpath}/collection-style")=="PROJECT" }
+            halvesEnum = ProjectsCore::projectsPositionalCoefficientSequence()
+            ProjectsCore::projectsFolderpaths()
                 .each{|folderpath|
-                    File.open("#{folderpath}/collection-time-positional-coefficient", "w"){|f| f.write(halvesEnum.next)}
+                    File.open("#{folderpath}/project-time-positional-coefficient", "w"){|f| f.write(halvesEnum.next)}
                 }
 
-            CollectionsCore::collectionsUUIDs()
-                .select{|collectionuuid| CollectionsCore::getCollectionStyle(collectionuuid)=="PROJECT" }
-                .each{|collectionuuid| 
-                timeCommitment = projectHours * CollectionsCore::getCollectionTimeCoefficient(collectionuuid) 
+            ProjectsCore::projectsUUIDs()
+                .each{|projectuuid| 
+                timeCommitment = projectHours * ProjectsCore::getProjectTimeCoefficient(projectuuid) 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
-                        "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{collectionuuid}",
-                        "description"         => "project#{CollectionsCore::isGuardianTime?(collectionuuid) ? " (guardian)" : ""}: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
+                        "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{projectuuid}",
+                        "description"         => "project#{ProjectsCore::isGuardianTime?(projectuuid) ? " (guardian)" : ""}: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}",
                         "commitment-in-hours" => timeCommitment,
                         "timespans"           => [],
                         "last-start-unixtime" => 0,
-                        "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
-                        "33be3505:collection-uuid" => collectionuuid,
-                        "0e69d463:GuardianSupport" => CollectionsCore::isGuardianTime?(collectionuuid)
-                    }
-                    TimeCommitments::saveItem(item)
-                }
-
-            threadsHours = LucilleCore::askQuestionAnswerAsString("Threads hours (empty defaults to 2): ")
-            if threadsHours.size==0 then
-                threadsHours = "2"
-            end
-            threadsHours = threadsHours.to_f 
-
-            collectionuuids = CollectionsCore::collectionsUUIDs()
-                .select{|collectionuuid| CollectionsCore::getCollectionStyle(collectionuuid)=="THREAD" }
-            
-            collectionuuids.each{|collectionuuid| 
-                timeCommitment = threadsHours.to_f/collectionuuids.size # denominator greater than zero otherwise this would not be executed 
-                    item = {
-                        "uuid"                => SecureRandom.hex(4),
-                        "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{collectionuuid}",
-                        "description"         => "thread#{CollectionsCore::isGuardianTime?(collectionuuid) ? " (guardian)" : ""}: #{CollectionsCore::collectionUUID2NameOrNull(collectionuuid)}",
-                        "commitment-in-hours" => timeCommitment,
-                        "timespans"           => [],
-                        "last-start-unixtime" => 0,
-                        "uuids-for-generic-time-tracking" => [collectionuuid, CATALYST_COMMON_AGENTCOLLECTIONS_METRIC_GENERIC_TIME_TRACKING_KEY], # the collection and the entire collection agent
-                        "33be3505:collection-uuid" => collectionuuid,
-                        "0e69d463:GuardianSupport" => CollectionsCore::isGuardianTime?(collectionuuid)
+                        "uuids-for-generic-time-tracking" => [projectuuid, CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY], # the project and the entire project agent
+                        "33be3505:collection-uuid" => projectuuid,
+                        "0e69d463:GuardianSupport" => ProjectsCore::isGuardianTime?(projectuuid)
                     }
                     TimeCommitments::saveItem(item)
                 }

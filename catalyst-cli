@@ -160,8 +160,8 @@ class CatalystCLIUtils
                         end
                         next
                     end
-                    if rest=="goto:collection" then
-                        CollectionsCore::addObjectUUIDToCollectionInteractivelyChosen(object["uuid"])
+                    if rest=="goto:project" then
+                        ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
                         next
                     end
                     next

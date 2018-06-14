@@ -6,19 +6,19 @@ Starting a commitment point
 When we start a commitment point the commitment point may have a key called 
     `uuids-for-generic-time-tracking`.
 
-We start those uuids ( see: d04dd562-2fd7-4f47-89c7-992e00c3edb4 ) and turn out that this is how the corresponding collection end up being started. Indeed "starting" a collection only means to start those uuids at the GenericTimeTracking. One of the values is the collectionuuid itself, we can see in 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2 that this the value used by the collection to start itself. 
+We start those uuids ( see: d04dd562-2fd7-4f47-89c7-992e00c3edb4 ) and turn out that this is how the corresponding project end up being started. Indeed "starting" a project only means to start those uuids at the GenericTimeTracking. One of the values is the projectuuid itself, we can see in 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2 that this the value used by the project to start itself. 
 
 # ----------------------------------------
-Starting a collection
+Starting a project
 
-When we start a collection, one of the time collections point, if there is at least one, is started as well, see ( e19b1ef6-9f75-454a-9724-131a43dca272 ). Those time points are detected using their "33be3505:collection-uuid" value.
+When we start a project, one of the time projects point, if there is at least one, is started as well, see ( e19b1ef6-9f75-454a-9724-131a43dca272 ). Those time points are detected using their "33be3505:collection-uuid" value.
 
 # ----------------------------------------
 
 The above two sections have a stopping equivalent in 5d0adaea-3646-4227-86ae-1561a7fc68d0 and e19b1ef6-9f75-454a-9724-131a43dca272
 
-The collection, when running, runs at a higher metric than the time point itself.
+The project, when running, runs at a higher metric than the time point itself.
 
-The time that is recorded against the collection itself is not used beyond small ordering.  
+The time that is recorded against the project itself is not used beyond small ordering.  
 
 
