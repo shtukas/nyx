@@ -35,25 +35,11 @@ class AgentProjects
         isRunning ? 3 + CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
     end
 
-    def self.hasText(folderpath)
-        IO.read("#{folderpath}/collection-text.txt").size>0
-    end
-
-    def self.hasDocuments(folderpath)
-        Dir.entries("#{folderpath}/documents").select{|filename| filename[0,1]!="." }.size>0
-    end
-
     def self.makeCatalystObjectOrNull(folderpath)
         uuid = ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath)
         return nil if uuid.nil?
         description = ProjectsCore::folderPath2CollectionName(folderpath)
         announce = "project: #{description}"
-        if self.hasText(folderpath) then
-            announce = announce + " [TEXT]"
-        end
-        if self.hasDocuments(folderpath) then
-            announce = announce + " [DOCUMENTS]"
-        end
         if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
             announce = announce + " [OBJECTS]"
         end

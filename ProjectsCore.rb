@@ -22,12 +22,6 @@
 # ProjectsCore::projectsPositionalCoefficientSequence()
 
 # ---------------------------------------------------
-# text and documents
-
-# ProjectsCore::textContents(projectuuid)
-# ProjectsCore::documentsFilenames(projectuuid)
-
-# ---------------------------------------------------
 # creation
 
 # ProjectsCore::createNewProject(projectname)
@@ -116,21 +110,6 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # text and documents
-
-    def self.textContents(projectuuid)
-        folderpath = projectUUID2FolderpathOrNull(projectuuid)
-        return "" if folderpath.nil?
-        IO.read("#{folderpath}/collection-text.txt")
-    end    
-
-    def self.documentsFilenames(projectuuid)
-        folderpath = projectUUID2FolderpathOrNull(projectuuid)
-        return [] if folderpath.nil?
-        Dir.entries("#{folderpath}/documents").select{|filename| filename[0,1]!="." }
-    end
-
-    # ---------------------------------------------------
     # creation
 
     def self.createNewProject(projectname)
@@ -141,7 +120,6 @@ class ProjectsCore
         File.open("#{folderpath}/collection-uuid", "w"){|f| f.write(projectuuid) }
         File.open("#{folderpath}/collection-name", "w"){|f| f.write(projectname) }
         File.open("#{folderpath}/collection-catalyst-uuids.json", "w"){|f| f.puts(JSON.generate([])) }
-        FileUtils.touch("#{folderpath}/collection-text.txt")
         FileUtils.mkpath "#{folderpath}/documents"
         projectuuid
     end
@@ -247,34 +225,10 @@ class ProjectsCore
         LucilleCore::removeFileSystemLocation(sourcefilepath)
     end
 
-    def self.getNextReviewUnixtime(projectuuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        filepath = "#{folderpath}/collection-next-review-time"
-        return 0 if !File.exists?(filepath)
-        IO.read(filepath).to_i       
-    end
-
-    def self.setNextReviewUnixtime(projectuuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        filepath = "#{folderpath}/collection-next-review-time"
-        unixtime = Time.new.to_i + 86400*(1+rand) 
-        File.open(filepath, "w"){|f| f.write(unixtime) }
-    end
-
     # ---------------------------------------------------
     # User Interface
 
     def self.ui_destroyProject(projectuuid)
-        if ProjectsCore::textContents(projectuuid).strip.size>0 then
-            puts "You now need to review the file"
-            system("open '#{projectUUID2FolderpathOrNull(projectuuid)}'")
-            LucilleCore::pressEnterToContinue()
-        end
-        if ProjectsCore::documentsFilenames(projectuuid).size>0 then
-            puts "You now need to recview the documents"
-            system("open '#{projectUUID2FolderpathOrNull(projectuuid)}/documents'")
-            LucilleCore::pressEnterToContinue()
-        end
         if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
             puts "You now need to destroy all the objects"
             LucilleCore::pressEnterToContinue()
@@ -296,18 +250,14 @@ class ProjectsCore
 
     def self.ui_ProjectDive(projectuuid)
         loop {
-            textContents = ProjectsCore::textContents(projectuuid)
-            documentsFilenames = ProjectsCore::documentsFilenames(projectuuid)
             catalystobjects = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
                 .map{|objectuuid| TheFlock::flockObjectsAsMap()[objectuuid] }
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
-            menuItem1 = "file      : (#{textContents.strip.size} characters)"
-            menuItem2 = "documents : (#{documentsFilenames.size} files)"
             menuItem5 = "operation : destroy"            
-            menuStringsOrCatalystObjects = catalystobjects + [menuItem1, menuItem2 ]
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem8, menuItem5 ]
+            menuStringsOrCatalystObjects = catalystobjects
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -321,16 +271,6 @@ class ProjectsCore
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
-            if menuChoice == menuItem1 then
-                folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-                system("open '#{folderpath}/collection-text.txt'")
-                next
-            end
-            if menuChoice == menuItem2 then
-                folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-                system("open '#{folderpath}/documents'")
-                next
-            end
             if menuChoice == menuItem5 then
                 if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") and LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Seriously ? ") then
                     ProjectsCore::ui_destroyProject(projectuuid)
@@ -346,16 +286,6 @@ class ProjectsCore
     def self.completeProject(projectuuid)
         folderpath = ProjectsCore::projectUUID2FolderpathOrNull(uuid)
         return if folderpath.nil?
-        if self.hasText(folderpath) then
-            puts "You cannot complete this item because it has text"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if self.hasDocuments(folderpath) then
-            puts "You cannot complete this item because it has documents"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
         if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(projectuuid).size>0 then
             puts "You cannot complete this item because it has objects"
             LucilleCore::pressEnterToContinue()
