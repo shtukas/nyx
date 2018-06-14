@@ -69,17 +69,11 @@ class AgentTimeGenenis
             if projectHours.size==0 then
                 projectHours = "3"
             end
-            projectHours = projectHours.to_f 
-
+            projectHours = projectHours.to_f
             halvesEnum = ProjectsCore::projectsPositionalCoefficientSequence()
-            ProjectsCore::projectsFolderpaths()
-                .each{|folderpath|
-                    File.open("#{folderpath}/project-time-positional-coefficient", "w"){|f| f.write(halvesEnum.next)}
-                }
-
             ProjectsCore::projectsUUIDs()
                 .each{|projectuuid| 
-                timeCommitment = projectHours * ProjectsCore::getProjectTimeCoefficient(projectuuid) 
+                timeCommitment = projectHours * halvesEnum.next() 
                     item = {
                         "uuid"                => SecureRandom.hex(4),
                         "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{projectuuid}",

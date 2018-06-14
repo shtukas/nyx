@@ -228,17 +228,6 @@ class ProjectsCore
         LucilleCore::removeFileSystemLocation(sourcefilepath)
     end
 
-    def self.getProjectTimeCoefficient(uuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(uuid)
-        if folderpath.nil? then
-            raise "error e95e2fda: Could not find fodler path for uuid: #{uuid}" 
-        end
-        if File.exists?("#{folderpath}/project-time-positional-coefficient") then
-            return IO.read("#{folderpath}/project-time-positional-coefficient").to_f
-        end
-        0
-    end
-
     def self.getNextReviewUnixtime(projectuuid)
         folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
         filepath = "#{folderpath}/collection-next-review-time"
