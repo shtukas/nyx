@@ -407,7 +407,6 @@ class CommonsUtils
             projectuuid = ProjectsCore::createNewProject(description)
             puts "project uuid: #{projectuuid}"
             puts "project name: #{description}"
-            puts "project path: #{ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)}"
             LucilleCore::pressEnterToContinue()
             return
         end

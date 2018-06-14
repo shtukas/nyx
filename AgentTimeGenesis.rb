@@ -100,7 +100,7 @@ class AgentTimeGenesis
             availableTimeInHours = 12 - busyTimeInHours
             puts "availableTimeInHours: #{availableTimeInHours}"
             if availableTimeInHours > 0 then
-                halvesEnum = ProjectsCore::projectsPositionalCoefficientSequence()
+                halvesEnum = LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
                 ProjectsCore::projectsUUIDs()
                     .select{|projectuuid| ProjectsCore::getTimePointGeneratorOrNull(projectuuid).nil? }
                     .each{|projectuuid|

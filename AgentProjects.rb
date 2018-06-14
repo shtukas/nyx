@@ -35,10 +35,8 @@ class AgentProjects
         isRunning ? 3 + CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
     end
 
-    def self.makeCatalystObjectOrNull(folderpath)
-        uuid = ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath)
-        return nil if uuid.nil?
-        description = ProjectsCore::folderPath2CollectionName(folderpath)
+    def self.makeCatalystObjectOrNull(uuid)
+        description = ProjectsCore::projectUUID2NameOrNull(uuid)
         announce = "project: #{description}"
         if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
             announce = announce + " [OBJECTS]"
@@ -55,7 +53,6 @@ class AgentProjects
             "default-expression" => "dive"
         }
         object["item-data"] = {}
-        object["item-data"]["folderpath"] = folderpath
         object["item-data"]["timings"] = Chronos::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
         object
     end
@@ -65,9 +62,9 @@ class AgentProjects
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        return if (Time.new.hour>=23 or Time.new.hour < 7)
-        objects = ProjectsCore::projectsFolderpaths()
-            .map{|folderpath| AgentProjects::makeCatalystObjectOrNull(folderpath) }
+        #return if (Time.new.hour>=23 or Time.new.hour < 7)
+        objects = ProjectsCore::projectsUUIDs()
+            .map{|uuid| AgentProjects::makeCatalystObjectOrNull(uuid) }
             .compact
         TheFlock::addOrUpdateObjects(objects)
     end

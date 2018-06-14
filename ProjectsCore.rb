@@ -11,14 +11,8 @@
 # ---------------------------------------------------
 # Utils
 
-# ProjectsCore::projectsFolderpaths()
-# ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath)
-# ProjectsCore::folderPath2CollectionName(folderpath)
-# ProjectsCore::folderPath2CollectionObject(folderpath)
-# ProjectsCore::projectUUID2FolderpathOrNull(uuid)
 # ProjectsCore::projectsUUIDs()
 # ProjectsCore::projectUUID2NameOrNull(projectuuid)
-# ProjectsCore::projectsPositionalCoefficientSequence()
 
 # ---------------------------------------------------
 # creation
@@ -32,7 +26,6 @@
 # ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(objectuuid, projectuuid)
 # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
 # ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(projectuuid)
-# ProjectsCore::allProjectsCatalystUUIDs()
 
 # ---------------------------------------------------
 # isGuardianTime?(projectuuid)
@@ -46,10 +39,7 @@
 # Misc
 
 # ProjectsCore::transform()
-# ProjectsCore::sendProjectToBinTimeline(uuid)
-# ProjectsCore::getProjectTimeCoefficient(uuid)
-# ProjectsCore::agentDailyCommitmentInHours()
-# ProjectsCore::getProjectTimeCoefficient(uuid)
+# ProjectsCore::deleteProject(uuid)
 
 # ---------------------------------------------------
 # User Interface
@@ -57,7 +47,7 @@
 # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
 # ProjectsCore::ui_ProjectsDive()
 # ProjectsCore::ui_ProjectDive(projectuuid)
-# ProjectsCore::completeProject(projectuuid)
+# ProjectsCore::deleteProject(projectuuid)
 
 
 class ProjectsCore
@@ -65,43 +55,12 @@ class ProjectsCore
     # ---------------------------------------------------
     # Utils
 
-    def self.projectsFolderpaths()
-        Dir.entries(CATALYST_COMMON_PROJECTS_REPOSITORY_FOLDERPATH)
-            .select{|filename| filename[0,1]!="." }
-            .sort
-            .map{|filename| "#{CATALYST_COMMON_PROJECTS_REPOSITORY_FOLDERPATH}/#{filename}" }
-    end
-
     def self.projectsUUIDs()
-        ProjectsCore::projectsFolderpaths().map{|folderpath| ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath) }
-    end
-
-    def self.folderPath2ProjectUUIDOrNull(folderpath)
-        IO.read("#{folderpath}/collection-uuid")
-    end
-
-    def self.folderPath2CollectionName(folderpath)
-        IO.read("#{folderpath}/collection-name")
-    end
-
-    def self.projectUUID2FolderpathOrNull(uuid)
-        ProjectsCore::projectsFolderpaths()
-            .each{|folderpath|
-                return folderpath if ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath)==uuid
-            }
-        nil
+        JSON.parse(FKVStore::getOrDefaultValue(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, "[]"))
     end
 
     def self.projectUUID2NameOrNull(uuid)
-        ProjectsCore::projectsFolderpaths()
-            .each{|folderpath|
-                return IO.read("#{folderpath}/collection-name").strip if ProjectsCore::folderPath2ProjectUUIDOrNull(folderpath)==uuid
-            }
-        nil
-    end
-
-    def self.projectsPositionalCoefficientSequence()
-        LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
+        FKVStore::getOrNull("AE2252BF-4915-4170-8435-C8C05EA4283C:#{uuid}")
     end
 
     # ---------------------------------------------------
@@ -109,13 +68,8 @@ class ProjectsCore
 
     def self.createNewProject(projectname)
         projectuuid = SecureRandom.hex(4)
-        foldername = LucilleCore::timeStringL22()
-        folderpath = "#{CATALYST_COMMON_PROJECTS_REPOSITORY_FOLDERPATH}/#{foldername}"
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/collection-uuid", "w"){|f| f.write(projectuuid) }
-        File.open("#{folderpath}/collection-name", "w"){|f| f.write(projectname) }
-        File.open("#{folderpath}/collection-catalyst-uuids.json", "w"){|f| f.puts(JSON.generate([])) }
-        FileUtils.mkpath "#{folderpath}/documents"
+        FKVStore::set(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, JSON.generate(ProjectsCore::projectsUUIDs()+[projectuuid]))
+        FKVStore::set("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}", projectname)
         projectuuid
     end
 
@@ -123,12 +77,8 @@ class ProjectsCore
     # projects uuids
 
     def self.addCatalystObjectUUIDToProject(objectuuid, projectuuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        arrayFilepath = "#{folderpath}/collection-catalyst-uuids.json"
-        array = JSON.parse(IO.read(arrayFilepath))
-        array << objectuuid 
-        array = array.uniq
-        File.open(arrayFilepath, "w"){|f| f.puts(JSON.generate(array)) }
+        uuids = ( ProjectsCore::projectCatalystObjectUUIDs(projectuuid) + [objectuuid] ).uniq
+        FKVStore::set("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", JSON.generate(uuids))
     end
 
     def self.addObjectUUIDToProjectInteractivelyChosen(objectuuid)
@@ -146,20 +96,13 @@ class ProjectsCore
     end
 
     def self.projectCatalystObjectUUIDs(projectuuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json"))
+        JSON.parse(FKVStore::getOrDefaultValue("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", "[]"))
     end
 
     def self.projectCatalystObjectUUIDsThatAreAlive(projectuuid)
         a1 = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
         a2 = TheFlock::flockObjects().map{|object| object["uuid"] }
         a1 & a2
-    end
-
-    def self.allProjectsCatalystUUIDs()
-        ProjectsCore::projectsFolderpaths()
-            .map{|folderpath| JSON.parse(IO.read("#{folderpath}/collection-catalyst-uuids.json")) }
-            .flatten
     end
 
     # ---------------------------------------------------
@@ -177,16 +120,12 @@ class ProjectsCore
     end
 
     def self.setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        return if folderpath.nil?
-        File.open("#{folderpath}/time-point-generator-8a3030a0", "w"){|f| f.write( JSON.generate([Time.new.to_i, periodInSeconds, timepointDurationInSeconds]) ) }        
+        FKVStore::set("5AB553E7-B9E1-4F7C-B183-D0388538C940:#{projectuuid}", JSON.generate([Time.new.to_i, periodInSeconds, timepointDurationInSeconds]))      
     end
     def self.getTimePointGeneratorOrNull(projectuuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        return nil if folderpath.nil?
-        filepath = "#{folderpath}/time-point-generator-8a3030a0"
-        return nil if !File.exists?(filepath)  
-        JSON.parse(IO.read(filepath))    
+        generator = FKVStore::getOrNull("5AB553E7-B9E1-4F7C-B183-D0388538C940:#{projectuuid}")
+        return nil if generator.nil?
+        JSON.parse(generator)
     end
     def self.resetTimePointGenerator(projectuuid)
         # This function is called by AgentTimeGenesis when a new time point is issued
@@ -199,7 +138,9 @@ class ProjectsCore
     # Misc
 
     def self.transform()
-        uuids = self.allProjectsCatalystUUIDs()
+        uuids = ProjectsCore::projectsUUIDs()
+            .map{|projectuuid| ProjectsCore::projectCatalystObjectUUIDs(projectuuid) }
+            .flatten
         TheFlock::flockObjects().each{|object|
             if uuids.include?(object["uuid"]) then
                 object["metric"] = 0
@@ -208,14 +149,14 @@ class ProjectsCore
         }
     end
 
-    def self.sendProjectToBinTimeline(uuid)
-        sourcefilepath = ProjectsCore::projectUUID2FolderpathOrNull(uuid)
-        return if sourcefilepath.nil?
-        targetFolder = CommonsUtils::newBinArchivesFolderpath()
-        puts "source: #{sourcefilepath}"
-        puts "target: #{targetFolder}"
-        LucilleCore::copyFileSystemLocation(sourcefilepath, targetFolder)
-        LucilleCore::removeFileSystemLocation(sourcefilepath)
+    def self.deleteProject(projectuuid)
+        if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(projectuuid).size>0 then
+            puts "You cannot complete this item because it has objects"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        projectuuids = ( ProjectsCore::projectsUUIDs() - [projectuuid] ).uniq
+        FKVStore::set(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, JSON.generate(projectuuids))
     end
 
     # ---------------------------------------------------
@@ -235,10 +176,8 @@ class ProjectsCore
                     }
             }
         end
-        puts "Moving project folder to bin timeline"
-        projectfolderpath = ProjectsCore::projectUUID2FolderpathOrNull(projectuuid)
-        targetFolder = CommonsUtils::newBinArchivesFolderpath()
-        FileUtils.mv(projectfolderpath, targetFolder)        
+        puts "ProjectsCore::deleteProject"
+        ProjectsCore::deleteProject(projectuuid)       
     end
 
     def self.ui_ProjectDive(projectuuid)
@@ -276,23 +215,9 @@ class ProjectsCore
         }
     end
 
-    def self.completeProject(projectuuid)
-        folderpath = ProjectsCore::projectUUID2FolderpathOrNull(uuid)
-        return if folderpath.nil?
-        if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(projectuuid).size>0 then
-            puts "You cannot complete this item because it has objects"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        Chronos::stop(projectuuid)
-        ProjectsCore::sendProjectToBinTimeline(projectuuid)
-    end
-
     def self.ui_ProjectsDive()
         loop {
-            toString = lambda{ |projectuuid| 
-                "#{ProjectsCore::getCollectionStyle(projectuuid).ljust(8)} : #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
-            }
+            toString = lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) }
             projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs(), toString)
             break if projectuuid.nil?
             ProjectsCore::ui_ProjectDive(projectuuid)
