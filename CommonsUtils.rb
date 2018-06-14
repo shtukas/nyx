@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-require_relative "AgentsManager.rb"
+require_relative "Bob.rb"
 
 # Alphabetic order
 
@@ -195,20 +195,20 @@ class CommonsUtils
     def self.waveInsertNewItemDefaults(description) # uuid: String
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
-        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         schedule = WaveSchedules::makeScheduleObjectTypeNew()
         schedule["made-on-date"] = CommonsUtils::currentDay()
-        Wave::writeScheduleToDisk(uuid,schedule)
+        AgentWave::writeScheduleToDisk(uuid,schedule)
         uuid
     end
 
     def self.waveInsertNewItemInteractive(description)
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
-        folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
@@ -222,7 +222,7 @@ class CommonsUtils
                 x["made-on-date"] = CommonsUtils::currentDay()
                 x
             end
-        Wave::writeScheduleToDisk(uuid,schedule)
+        AgentWave::writeScheduleToDisk(uuid,schedule)
         if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
             if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
                 TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
@@ -252,7 +252,6 @@ class CommonsUtils
     def self.flockTopObjects(count)
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
-        TodayOrNotToday::transform()
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         ProjectsCore::transform()
@@ -267,7 +266,7 @@ class CommonsUtils
     def self.getUnifiedListing(count)
         # This function returns at least count elements
         # More precisely, the ordinals and then n main listing elements
-        AgentsManager::generalFlockUpgrade()
+        Bob::generalFlockUpgrade()
         structure = []
         Ordinals::sortedDistribution()
             .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
@@ -326,7 +325,6 @@ class CommonsUtils
         puts "    + # push by 1 hour"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
-        puts "    !today"
         puts "    r:add <requirement: String>"
         puts "    r:remove <requirement: String>"
         puts "    :<position: Integer> # select and operate on the object number <integer>"
@@ -355,14 +353,14 @@ class CommonsUtils
         end
 
         if expression == "interface" then
-            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", AgentsManager::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", Bob::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
             return
         end
 
         if expression == 'info' then
             puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
             puts "Todolists:".green
-            puts "    Stream count : #{( count1 = Stream::getUUIDs().size )}".green
+            puts "    Stream count : #{( count1 = AgentStream::getUUIDs().size )}".green
             puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
             puts "    Total        : #{(count1+count3)}".green
             puts "Requirements:".green
@@ -397,7 +395,7 @@ class CommonsUtils
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = Stream::issueNewItemWithDescription(description)
+            folderpath = AgentStream::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
             LucilleCore::pressEnterToContinue()
             return
@@ -458,11 +456,6 @@ class CommonsUtils
 
         # object needed
 
-        if expression == '!today' then
-            TodayOrNotToday::notToday(object["uuid"])
-            return
-        end
-
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
@@ -494,10 +487,10 @@ class CommonsUtils
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+                Bob::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
             }
         else
-            AgentsManager::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+            Bob::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
         end
     end
 

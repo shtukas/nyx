@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require 'json'
 require 'date'
@@ -25,17 +24,8 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-require_relative "AgentsManager.rb"
+require_relative "Bob.rb"
 require_relative "Constants.rb"
-require_relative "Events.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
-require_relative "Config.rb"
-require_relative "GenericTimeTracking.rb"
-require_relative "CatalystDevOps.rb"
-require_relative "ProjectsCore.rb"
-require_relative "FolderProbe.rb"
-require_relative "CommonsUtils"
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave"
@@ -43,13 +33,13 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # ----------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
         "agent-name"      => "Wave",
         "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
-        "general-upgrade" => lambda { Wave::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| Wave::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ Wave::interface() }
+        "general-upgrade" => lambda { AgentWave::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentWave::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentWave::interface() }
     }
 )
 
@@ -260,9 +250,9 @@ end
 
 class WaveEmailSupport
     def self.emailUIDToCatalystUUIDOrNull(emailuid)
-        Wave::catalystUUIDsEnumerator()
+        AgentWave::catalystUUIDsEnumerator()
             .each{|uuid|
-                folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+                folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
                 next if folderpath.nil?
                 emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
                 next if !File.exist?(emailuidfilepath)
@@ -272,9 +262,9 @@ class WaveEmailSupport
         nil
     end
     def self.allEmailUIDs()
-        Wave::catalystUUIDsEnumerator()
+        AgentWave::catalystUUIDsEnumerator()
             .map{|uuid|
-                folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+                folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
                 if folderpath then
                     emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
                     if File.exist?(emailuidfilepath) then
@@ -301,10 +291,10 @@ class WaveDevOps
                 uuid = SecureRandom.hex(4)
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule["made-on-date"] = CommonsUtils::currentDay()
-                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-                Wave::writeScheduleToDisk(uuid,schedule)
+                AgentWave::writeScheduleToDisk(uuid,schedule)
                 if File.file?(sourcelocation) then
                     FileUtils.cp(sourcelocation,folderpath)
                 else
@@ -315,24 +305,24 @@ class WaveDevOps
     end
 end
 
-# Wave::agentuuid()
-# Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-# Wave::catalystUUIDToItemFolderPathOrNull(uuid)
-# Wave::catalystUUIDsEnumerator()
-# Wave::timestring22ToFolderpath(timestring22)
-# Wave::writeScheduleToDisk(uuid,schedule)
-# Wave::readScheduleFromWaveItemOrNull(uuid)
-# Wave::makeNewSchedule()
-# Wave::archiveWaveItem(uuid)
-# Wave::commands(schedule)
-# Wave::makeCatalystObjectOrNull(objectuuid)
-# Wave::objectUUIDToAnnounce(object,schedule)
-# Wave::removeWaveMetadataFilesAtLocation(location)
-# Wave::interface()
-# Wave::generalFlockUpgrade()
-# Wave::processObjectAndCommandFromCli(object, command)
+# AgentWave::agentuuid()
+# AgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+# AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+# AgentWave::catalystUUIDsEnumerator()
+# AgentWave::timestring22ToFolderpath(timestring22)
+# AgentWave::writeScheduleToDisk(uuid,schedule)
+# AgentWave::readScheduleFromWaveItemOrNull(uuid)
+# AgentWave::makeNewSchedule()
+# AgentWave::archiveWaveItem(uuid)
+# AgentWave::commands(schedule)
+# AgentWave::makeCatalystObjectOrNull(objectuuid)
+# AgentWave::objectUUIDToAnnounce(object,schedule)
+# AgentWave::removeWaveMetadataFilesAtLocation(location)
+# AgentWave::interface()
+# AgentWave::generalFlockUpgrade()
+# AgentWave::processObjectAndCommandFromCli(object, command)
 
-class Wave
+class AgentWave
 
     @@firstRun = true
 
@@ -362,8 +352,8 @@ class Wave
                 end
             end
         end
-        #puts "Wave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
-        maybepath = Wave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+        #puts "AgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
+        maybepath = AgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         FKVStore::set("ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
         maybepath
     end
@@ -383,7 +373,7 @@ class Wave
     end
 
     def self.writeScheduleToDisk(uuid,schedule)
-        folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         return if !File.exists?(folderpath)
         LucilleCore::removeFileSystemLocation("#{folderpath}/catalyst-schedule.json")
@@ -391,7 +381,7 @@ class Wave
     end
 
     def self.readScheduleFromWaveItemOrNull(uuid)
-        folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return nil if folderpath.nil?
         filepath =
             if File.exists?("#{folderpath}/wave-schedule.json") then
@@ -411,7 +401,7 @@ class Wave
 
     def self.archiveWaveItem(uuid)
         return if uuid.nil?
-        folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         retrun if !File.exists?(folderpath)
         targetFolder = CommonsUtils::newBinArchivesFolderpath()
@@ -483,23 +473,23 @@ class Wave
     end
 
     def self.makeCatalystObjectOrNull(objectuuid)
-        location = Wave::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        location = AgentWave::catalystUUIDToItemFolderPathOrNull(objectuuid)
         return nil if location.nil?
-        schedule = Wave::readScheduleFromWaveItemOrNull(objectuuid)
+        schedule = AgentWave::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
             schedule = WaveSchedules::makeScheduleObjectTypeNew()
             File.open("#{location}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
         end
         folderProbeMetadata = FolderProbe::folderpath2metadata(location)
         metric = WaveSchedules::scheduleToMetric(schedule)
-        announce = Wave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        announce = AgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object = {}
         object['uuid'] = objectuuid
         object["agent-uid"] = self.agentuuid()
         object['metric'] = metric + CommonsUtils::traceToMetricShift(objectuuid)
         object['announce'] = announce
-        object['commands'] = Wave::commands(folderProbeMetadata)
-        object["default-expression"] = Wave::defaultExpression(folderProbeMetadata, schedule)
+        object['commands'] = AgentWave::commands(folderProbeMetadata)
+        object["default-expression"] = AgentWave::defaultExpression(folderProbeMetadata, schedule)
         object['schedule'] = schedule
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location
@@ -511,9 +501,9 @@ class Wave
 
         if @@firstRun then
             # Loading all existing disk objects
-            Wave::catalystUUIDsEnumerator()
+            AgentWave::catalystUUIDsEnumerator()
                 .each{|uuid|
-                    object = Wave::makeCatalystObjectOrNull(uuid)
+                    object = AgentWave::makeCatalystObjectOrNull(uuid)
                     next if object.nil?
                     TheFlock::addOrUpdateObject(object)
                 }
@@ -527,11 +517,11 @@ class Wave
         existingUUIDsFromFlock = TheFlock::flockObjects()
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object| object["uuid"] }
-        existingUUIDsFromDisk = Wave::catalystUUIDsEnumerator().to_a
+        existingUUIDsFromDisk = AgentWave::catalystUUIDsEnumerator().to_a
         unregisteredUUIDs = existingUUIDsFromDisk - existingUUIDsFromFlock
         unregisteredUUIDs.each{|uuid|
             # We need to build the object, then make a Flock update and emit an event
-            object = Wave::makeCatalystObjectOrNull(uuid)
+            object = AgentWave::makeCatalystObjectOrNull(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             TheFlock::addOrUpdateObject(object)
         }
@@ -584,7 +574,7 @@ class Wave
             uuid = object['uuid']
             TheFlock::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            Wave::archiveWaveItem(uuid)
+            AgentWave::archiveWaveItem(uuid)
         }
 
         if command=='open' then
@@ -602,9 +592,9 @@ class Wave
         end
 
         if command=='recast' then
-            schedule = Wave::makeNewSchedule()
+            schedule = AgentWave::makeNewSchedule()
             object['schedule'] = schedule
-            Wave::writeScheduleToDisk(uuid, schedule)
+            AgentWave::writeScheduleToDisk(uuid, schedule)
             if File.exist?("#{catalystUUIDToItemFolderPathOrNull(uuid)}/email-metatada-emailuid.txt") then
                 puts "You are recastimg an email, removing file email-metatada-emailuid.txt"
                 LucilleCore::pressEnterToContinue()
@@ -617,49 +607,49 @@ class Wave
         if command == 'description:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             uuid = object["uuid"]
-            folderpath = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
-            object = Wave::makeCatalystObjectOrNull(uuid)
+            object = AgentWave::makeCatalystObjectOrNull(uuid)
             TheFlock::addOrUpdateObject(object)
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         end
 
         if command=='folder' then
-            location = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            location = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
         end
 
         if command=='destroy' then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
-                Wave::archiveWaveItem(uuid)
+                AgentWave::archiveWaveItem(uuid)
                 TheFlock::removeObjectIdentifiedByUUID(uuid)
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
         end
 
         if command=='>stream' then
-            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            sourcelocation = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(sourcelocation, targetfolderpath)
-            Wave::removeWaveMetadataFilesAtLocation(targetfolderpath)
+            AgentWave::removeWaveMetadataFilesAtLocation(targetfolderpath)
             TheFlock::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
 
         if command=='>lib' then
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
-            sourcelocation = Wave::catalystUUIDToItemFolderPathOrNull(uuid)
+            sourcelocation = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
             LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
-            Wave::removeWaveMetadataFilesAtLocation(staginglocation)
+            AgentWave::removeWaveMetadataFilesAtLocation(staginglocation)
             puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
             LucilleCore::pressEnterToContinue()
             LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
             targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
-            Wave::archiveWaveItem(uuid)
+            AgentWave::archiveWaveItem(uuid)
             TheFlock::removeObjectIdentifiedByUUID(uuid)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end

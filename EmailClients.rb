@@ -1,36 +1,26 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-
 require "net/http"
 require "uri"
-
 require 'json'
-
 require 'date'
-
 require 'colorize'
-
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
 # FileUtils.mv 'oldname', 'newname'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require 'net/imap'
-
 require 'mail'
-
 =begin
     mail = Mail.read('/path/to/message.eml')
 
@@ -44,25 +34,10 @@ require 'mail'
     mail.message_id      #=> '<4D6AA7EB.6490534@xxx.xxx>'
     mail.body.decoded    #=> 'This is the body of the email...
 =end
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
-require_relative "Constants.rb"
-require_relative "Events.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
-require_relative "Config.rb"
-require_relative "GenericTimeTracking.rb"
-require_relative "CatalystDevOps.rb"
-require_relative "ProjectsCore.rb"
-require_relative "FolderProbe.rb"
-require_relative "CommonsUtils"
-require_relative "Agent-Wave.rb"
-
 # -------------------------------------------------------------------------------------
 
 EMAIL_METADATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Email-Metadata"
@@ -163,7 +138,7 @@ class OperatorEmailClient
             if subjectline.nil? or subjectline.strip.size==0 or EmailUtils::msgToBody(msg).to_s.size>0 then
                 puts "[operator@alseyn.net] Importing email as full object" if verbose
                 catalystuuid = SecureRandom.hex(4)
-                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
@@ -175,12 +150,12 @@ class OperatorEmailClient
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
                 schedule['metric'] = 0.870 - lucilleNextInteger.to_f/1000000
-                Wave::writeScheduleToDisk(catalystuuid, schedule)
+                AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
             else
                 puts "[operator@alseyn.net] Importing email as subjectline" if verbose
                 catalystuuid = SecureRandom.hex(4)
-                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
@@ -189,7 +164,7 @@ class OperatorEmailClient
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
                 schedule['metric'] = 0.870 - lucilleNextInteger.to_f/1000000
-                Wave::writeScheduleToDisk(catalystuuid, schedule)
+                AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: subject line: #{subjectline}") }
             end
 
@@ -237,7 +212,7 @@ class GeneralEmailClient
                 catalystuuid = SecureRandom.hex(4)
                 File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|msg", 'w') {|f| f.write(msg) }
                 File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
-                folderpath = Wave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 emailFilename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.eml"
@@ -249,7 +224,7 @@ class GeneralEmailClient
                 schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
                 schedule['metric'] = 0.950 - lucilleNextInteger.to_f/1000000
-                Wave::writeScheduleToDisk(catalystuuid,schedule)
+                AgentWave::writeScheduleToDisk(catalystuuid,schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
                 File.open("#{folderpath}/email-metatada-emailuid.txt", 'w') {|f| f.write(emailuid) }
                 next
@@ -262,7 +237,7 @@ class GeneralEmailClient
 
             if status == 'deleted' then
                 puts "email agent: email has been logically deleted on local. Removing Catalyst item, delete local metadata, marking for deletion on the server: #{emailuid}" if verbose
-                Wave::archiveWaveItem(WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid))
+                AgentWave::archiveWaveItem(WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid))
                 EmailMetadataOperator::destroyMetadata(emailuid)
                 imap.store(id, "+FLAGS", [:Deleted])
                 next
@@ -285,7 +260,7 @@ class GeneralEmailClient
             # We have a local init email that is not longer on the server, needs to be removed
             puts "email agent: We have a local init email that is not longer on the server. Removing metadata and Wave item: #{emailuid}" if verbose
             EmailMetadataOperator::destroyMetadata(emailuid)
-            Wave::archiveWaveItem(WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid))
+            AgentWave::archiveWaveItem(WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid))
         }
 
         (serverEmailUIDs-metadataFolderEmailUIDs).each{|emailuid|

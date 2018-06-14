@@ -17,42 +17,33 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-require_relative "Constants.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
-require_relative "Config.rb"
-require_relative "GenericTimeTracking.rb"
-require_relative "CatalystDevOps.rb"
-require_relative "ProjectsCore.rb"
-require_relative "FolderProbe.rb"
-require_relative "CommonsUtils"
-require_relative "AgentsManager.rb"
+require_relative "Bob.rb"
 
 # -------------------------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
         "agent-name"      => "Stream",
         "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
-        "general-upgrade" => lambda { Stream::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| Stream::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ Stream::interface() }
+        "general-upgrade" => lambda { AgentStream::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentStream::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentStream::interface() }
     }
 )
 
-# Stream::agentuuid()
-# Stream::processObjectAndCommandFromCli(object, command)
+# AgentStream::agentuuid()
+# AgentStream::processObjectAndCommandFromCli(object, command)
 
-# Stream::folderpaths(itemsfolderpath)
-# Stream::folderpath2uuid(folderpath)
-# Stream::getUUIDs()
-# Stream::folderpathToCatalystObjectOrNull(folderpath)
-# Stream::sendObjectToBinTimeline(object)
-# Stream::objectCommandHandler(object, command)
-# Stream::issueNewItemWithDescription(description)
-# Stream::generalFlockUpgrade()
+# AgentStream::folderpaths(itemsfolderpath)
+# AgentStream::folderpath2uuid(folderpath)
+# AgentStream::getUUIDs()
+# AgentStream::folderpathToCatalystObjectOrNull(folderpath)
+# AgentStream::sendObjectToBinTimeline(object)
+# AgentStream::objectCommandHandler(object, command)
+# AgentStream::issueNewItemWithDescription(description)
+# AgentStream::generalFlockUpgrade()
 
-class Stream
+class AgentStream
 
     @@firstRun = true
 
@@ -75,14 +66,14 @@ class Stream
     end
 
     def self.getUUIDs()
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
-            .map{|folderpath| Stream::folderpath2uuid(folderpath) }
+        AgentStream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+            .map{|folderpath| AgentStream::folderpath2uuid(folderpath) }
     end
 
     def self.uuid2folderpathOrNull(uuid)
-        Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+        AgentStream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
             .each{|folderpath|
-                if Stream::folderpath2uuid(folderpath)==uuid then
+                if AgentStream::folderpath2uuid(folderpath)==uuid then
                     return folderpath
                 end
             }
@@ -99,7 +90,7 @@ class Stream
 
     def self.folderpathToCatalystObjectOrNull(folderpath)
         return nil if !File.exist?(folderpath)
-        uuid = Stream::folderpath2uuid(folderpath)
+        uuid = AgentStream::folderpath2uuid(folderpath)
         folderProbeMetadata = FolderProbe::folderpath2metadata(folderpath)
         announce = "stream: #{CommonsUtils::simplifyURLCarryingString(folderProbeMetadata["announce"])}"
         object = {}
@@ -119,7 +110,7 @@ class Stream
 
     def self.sendObjectToBinTimeline(object)
         uuid = object['uuid']
-        GenericTimeTracking::stop(uuid)
+        Chronos::stop(uuid)
         targetFolder = CommonsUtils::newBinArchivesFolderpath()
         puts "source: #{object["item-data"]["folderpath"]}"
         puts "target: #{targetFolder}"
@@ -144,17 +135,17 @@ class Stream
     end
 
     def self.agentMetric()
-        0.8 - 0.6*( GenericTimeTracking::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
+        0.8 - 0.6*( Chronos::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 ).to_f/3
     end
 
     def self.generalFlockUpgrade()
 
         # Adding the next object if there isn't one
         if TheFlock::flockObjects().select{|object| object["agent-uid"]==self.agentuuid() }.empty? then
-            Stream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
+            AgentStream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
                 .first(1)
                 .each{|folderpath|
-                    object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+                    object = AgentStream::folderpathToCatalystObjectOrNull(folderpath)
                     EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
                     TheFlock::addOrUpdateObject(object)
                 }
@@ -165,10 +156,10 @@ class Stream
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .each{|object|
                 uuid = object["uuid"]
-                status = GenericTimeTracking::status(uuid)
+                status = Chronos::status(uuid)
                 object["metric"]              = status[0] ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
-                object["commands"]            = Stream::uuid2commands(uuid, status)
-                object["default-expression"]  = Stream::uuid2defaultExpression(uuid, status)
+                object["commands"]            = AgentStream::uuid2commands(uuid, status)
+                object["default-expression"]  = AgentStream::uuid2defaultExpression(uuid, status)
                 object["item-data"]["status"] = status
                 object["is-running"]          = status[0]
                 TheFlock::addOrUpdateObject(object)
@@ -183,23 +174,23 @@ class Stream
         if command=='start' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
-            GenericTimeTracking::start(uuid)
-            GenericTimeTracking::start(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
+            Chronos::start(uuid)
+            Chronos::start(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
-            object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+            object = AgentStream::folderpathToCatalystObjectOrNull(folderpath)
             TheFlock::addOrUpdateObject(object)
             FKVStore::set("96df64b9-c17a-4490-a555-f49e77d4661a:#{uuid}", "started-once")
         end
         if command=='stop' then
-            GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
+            Chronos::stop(uuid)
+            Chronos::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath = object["item-data"]["folderpath"]
-            object = Stream::folderpathToCatalystObjectOrNull(folderpath)
+            object = AgentStream::folderpathToCatalystObjectOrNull(folderpath)
             TheFlock::addOrUpdateObject(object)
         end
         if command=='rotate' then
-            GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
+            Chronos::stop(uuid)
+            Chronos::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             folderpath  = object["item-data"]["folderpath"]
             folderpath2 = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
             FileUtils.mv(folderpath, folderpath2)
@@ -208,15 +199,15 @@ class Stream
             TheFlock::removeObjectIdentifiedByUUID(uuid)
         end
         if command=="completed" then
-            GenericTimeTracking::stop(uuid)
-            GenericTimeTracking::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
+            Chronos::stop(uuid)
+            Chronos::stop(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY)
             MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY}", [Time.new.to_i, 600]) # special circumstances
-            Stream::sendObjectToBinTimeline(object)
+            AgentStream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             TheFlock::removeObjectIdentifiedByUUID(uuid)
         end
         if command=='>lib' then
-            GenericTimeTracking::stop(uuid)
+            Chronos::stop(uuid)
             sourcefolderpath = object["item-data"]["folderpath"]
             atlasreference = "atlas-#{SecureRandom.hex(8)}"
             staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
@@ -227,7 +218,7 @@ class Stream
             targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
             LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
             LucilleCore::removeFileSystemLocation(staginglocation)
-            Stream::sendObjectToBinTimeline(object)
+            AgentStream::sendObjectToBinTimeline(object)
             EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             TheFlock::removeObjectIdentifiedByUUID(uuid)
         end

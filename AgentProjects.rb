@@ -1,27 +1,16 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-require_relative "AgentsManager.rb"
-require_relative "Constants.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
-require_relative "Config.rb"
-require_relative "GenericTimeTracking.rb"
-require_relative "CatalystDevOps.rb"
-require_relative "ProjectsCore.rb"
-require_relative "FolderProbe.rb"
-require_relative "CommonsUtils"
-
+require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
-        "agent-name"      => "Collections",
+        "agent-name"      => "Projects",
         "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
         "general-upgrade" => lambda { AgentProjects::generalFlockUpgrade() },
         "object-command-processor" => lambda{ |object, command| AgentProjects::processObjectAndCommandFromCli(object, command) },
@@ -38,7 +27,7 @@ class AgentProjects
     end
 
     def self.objectHoursDone(uuid)
-        GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600
+        Chronos::adaptedTimespanInSeconds(uuid).to_f/3600
     end
 
     def self.metric(uuid, isRunning)
@@ -68,8 +57,8 @@ class AgentProjects
         if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
             announce = announce + " [OBJECTS]"
         end
-        announce = announce + " (#{ "%.2f" % (GenericTimeTracking::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
-        status = GenericTimeTracking::status(uuid)
+        announce = announce + " (#{ "%.2f" % (Chronos::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
+        status = Chronos::status(uuid)
         isRunning = status[0]
         object = {
             "uuid"               => uuid,
@@ -81,7 +70,7 @@ class AgentProjects
         }
         object["item-data"] = {}
         object["item-data"]["folderpath"] = folderpath
-        object["item-data"]["timings"] = GenericTimeTracking::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
+        object["item-data"]["timings"] = Chronos::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
         object
     end
 

@@ -6,7 +6,7 @@ Starting a commitment point
 When we start a commitment point the commitment point may have a key called 
     `uuids-for-generic-time-tracking`.
 
-We start those uuids ( see: d04dd562-2fd7-4f47-89c7-992e00c3edb4 ) and turn out that this is how the corresponding project end up being started. Indeed "starting" a project only means to start those uuids at the GenericTimeTracking. One of the values is the projectuuid itself, we can see in 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2 that this the value used by the project to start itself. 
+We start those uuids ( see: d04dd562-2fd7-4f47-89c7-992e00c3edb4 ) and turn out that this is how the corresponding project end up being started. Indeed "starting" a project only means to start those uuids at the Chronos. One of the values is the projectuuid itself, we can see in 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2 that this the value used by the project to start itself. 
 
 # ----------------------------------------
 Starting a project

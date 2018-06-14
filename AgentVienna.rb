@@ -24,26 +24,16 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-require_relative "AgentsManager.rb"
-require_relative "Constants.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
-require_relative "Config.rb"
-require_relative "GenericTimeTracking.rb"
-require_relative "CatalystDevOps.rb"
-require_relative "ProjectsCore.rb"
-require_relative "FolderProbe.rb"
-require_relative "CommonsUtils"
-
+require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
         "agent-name"      => "Vienna",
         "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
-        "general-upgrade" => lambda { Vienna::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| Vienna::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ Vienna::interface() }
+        "general-upgrade" => lambda { AgentVienna::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentVienna::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentVienna::interface() }
     }
 )
 
@@ -75,9 +65,9 @@ end
 
 $viennaLinkFeeder = ViennaLinkFeeder.new()
 
-# Vienna::processObjectAndCommandFromCli(object, command)
+# AgentVienna::processObjectAndCommandFromCli(object, command)
 
-class Vienna
+class AgentVienna
 
     def self.agentuuid()
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
@@ -106,7 +96,7 @@ class Vienna
             {
                 "uuid" => uuid,
                 "agent-uid" => self.agentuuid(),
-                "metric" => Vienna::metric(uuid),
+                "metric" => AgentVienna::metric(uuid),
                 "announce" => "vienna: #{link}",
                 "commands" => ['open', 'done'],
                 "default-expression" => "open done",

@@ -1,31 +1,27 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-require_relative "AgentsManager.rb"
-require_relative "Agent-TimeCommitments.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
+require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
-        "agent-name"      => "DailyTimeAttribution",
+        "agent-name"      => "TimeGenenis",
         "agent-uid"       => "11fa1438-122e-4f2d-9778-64b55a11ddc2",
-        "general-upgrade" => lambda { DailyTimeAttribution::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| DailyTimeAttribution::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ DailyTimeAttribution::interface() }
+        "general-upgrade" => lambda { AgentTimeGenenis::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentTimeGenenis::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentTimeGenenis::interface() }
     }
 )
 
-# DailyTimeAttribution::generalFlockUpgrade()
+# AgentTimeGenenis::generalFlockUpgrade()
 
-class DailyTimeAttribution
+class AgentTimeGenenis
     def self.agentuuid()
         "11fa1438-122e-4f2d-9778-64b55a11ddc2"
     end
@@ -67,7 +63,7 @@ class DailyTimeAttribution
                 "timespans"           => [],
                 "last-start-unixtime" => 0
             }
-            TimeCommitments::saveItem(item)
+            AgentTimeCommitments::saveItem(item)
 
             projectHours = LucilleCore::askQuestionAnswerAsString("Projects hours (empty defaults to 3): ")
             if projectHours.size==0 then
@@ -95,7 +91,7 @@ class DailyTimeAttribution
                         "33be3505:collection-uuid" => projectuuid,
                         "0e69d463:GuardianSupport" => ProjectsCore::isGuardianTime?(projectuuid)
                     }
-                    TimeCommitments::saveItem(item)
+                    AgentTimeCommitments::saveItem(item)
                 }
 
             FKVStore::set("16b84bf4-a032-44f7-a191-85476ca27ccd:#{Time.new.to_s[0,10]}", "done")

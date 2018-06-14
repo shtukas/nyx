@@ -1,18 +1,13 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require 'json'
-
 require 'date'
-
 require 'colorize'
-
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
@@ -23,18 +18,13 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require 'find'
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require 'drb/drb'
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
-
 require_relative "catalyst.rb"
-
 # -----------------------------------------------------------------
 
 class CatalystViewUtils

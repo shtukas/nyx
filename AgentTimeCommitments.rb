@@ -21,22 +21,9 @@ require 'colorize'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-
-require_relative "AgentsManager.rb"
-require_relative "Constants.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
-require_relative "Config.rb"
-require_relative "GenericTimeTracking.rb"
-require_relative "CatalystDevOps.rb"
-require_relative "ProjectsCore.rb"
-require_relative "FolderProbe.rb"
-require_relative "CommonsUtils"
-require_relative "Agent-TimeCommitments.rb"
-
+require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
 =begin
@@ -58,7 +45,7 @@ require_relative "Agent-TimeCommitments.rb"
 
 # The secondary uuids are uuids to use for activity related events, start and stop.
 # We use then for when the item is used as a proxy for something that actually itself 
-# maintains activity at the GenericTimeTracking.
+# maintains activity at the Chronos.
 
 # -------------------------------------------------------------------------------------
 
@@ -67,33 +54,33 @@ GENERIC_TIME_COMMITMENTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOL
 
 # -------------------------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
-        "agent-name"      => "TimeCommitments",
+        "agent-name"      => "TimePoints",
         "agent-uid"       => "03a8bff4-a2a4-4a2b-a36f-635714070d1d",
-        "general-upgrade" => lambda { TimeCommitments::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| TimeCommitments::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ TimeCommitments::interface() }
+        "general-upgrade" => lambda { AgentTimeCommitments::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentTimeCommitments::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentTimeCommitments::interface() }
     }
 )
 
-# TimeCommitments::getItems()
-# TimeCommitments::getItemByUUID(uuid)
-# TimeCommitments::saveItem(item)
-# TimeCommitments::writeDataToDisk(data)
-# TimeCommitments::startItem(item)
-# TimeCommitments::stopItem(item)
-# TimeCommitments::getNonRunningOverflowingItemOrNull(items)
-# TimeCommitments::getDifferentNonRunningItemOrNull(item, items)
-# TimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainOfMaxMetricItemOrNull(items, domain)
-# TimeCommitments::itemToLiveTimespan(item)
-# TimeCommitments::garbageCollectionItems(items)
-# TimeCommitments::garbageCollectionGlobal()
-# TimeCommitments::getUniqueDomains(items)
-# TimeCommitments::generalFlockUpgrade()
-# TimeCommitments::processObjectAndCommandFromCli(object, command)
+# AgentTimeCommitments::getItems()
+# AgentTimeCommitments::getItemByUUID(uuid)
+# AgentTimeCommitments::saveItem(item)
+# AgentTimeCommitments::writeDataToDisk(data)
+# AgentTimeCommitments::startItem(item)
+# AgentTimeCommitments::stopItem(item)
+# AgentTimeCommitments::getNonRunningOverflowingItemOrNull(items)
+# AgentTimeCommitments::getDifferentNonRunningItemOrNull(item, items)
+# AgentTimeCommitments::getDifferentNonRunningUnderflowingOfSameDomainOfMaxMetricItemOrNull(items, domain)
+# AgentTimeCommitments::itemToLiveTimespan(item)
+# AgentTimeCommitments::garbageCollectionItems(items)
+# AgentTimeCommitments::garbageCollectionGlobal()
+# AgentTimeCommitments::getUniqueDomains(items)
+# AgentTimeCommitments::generalFlockUpgrade()
+# AgentTimeCommitments::processObjectAndCommandFromCli(object, command)
 
-class TimeCommitments
+class AgentTimeCommitments
 
     def self.agentuuid()
         "03a8bff4-a2a4-4a2b-a36f-635714070d1d"
@@ -124,7 +111,7 @@ class TimeCommitments
         item["last-start-unixtime"] = Time.new.to_i
         if item["uuids-for-generic-time-tracking"] then
             item["uuids-for-generic-time-tracking"].each{|uuid| # marker: d04dd562-2fd7-4f47-89c7-992e00c3edb4
-                GenericTimeTracking::start(uuid)
+                Chronos::start(uuid)
             }
         end
         item
@@ -137,7 +124,7 @@ class TimeCommitments
             item["timespans"] << timespanInSeconds
             if item["uuids-for-generic-time-tracking"] then
                 item["uuids-for-generic-time-tracking"].each{|uuid| # marker: 5d0adaea-3646-4227-86ae-1561a7fc68d0
-                    GenericTimeTracking::stop(uuid)
+                    Chronos::stop(uuid)
                 }
             end
             if item["0e69d463:GuardianSupport"] then
@@ -149,7 +136,7 @@ class TimeCommitments
                     "timespans"           => [],
                     "last-start-unixtime" => 0
                 }
-                TimeCommitments::saveItem(item)
+                AgentTimeCommitments::saveItem(item)
             end
         end
         item
@@ -217,17 +204,17 @@ class TimeCommitments
         item3["commitment-in-hours"] = ( item1["commitment-in-hours"] + item2["commitment-in-hours"] ) - ( item1["timespans"] + item2["timespans"] ).inject(0, :+).to_f/3600
         item3["timespans"]   = []
         item3["uuids-for-generic-time-tracking"] = (item1["uuids-for-generic-time-tracking"] + item2["uuids-for-generic-time-tracking"]).uniq
-        TimeCommitments::saveItem(item3)
-        TimeCommitments::destroyItem(item1)
-        TimeCommitments::destroyItem(item2)
+        AgentTimeCommitments::saveItem(item3)
+        AgentTimeCommitments::destroyItem(item1)
+        AgentTimeCommitments::destroyItem(item2)
     end
 
     def self.garbageCollectionGlobal()
-        items = TimeCommitments::getItems()
-        domains = TimeCommitments::getUniqueDomains(items)
+        items = AgentTimeCommitments::getItems()
+        domains = AgentTimeCommitments::getUniqueDomains(items)
         domains.each{|domain|
             domainItems = items.select{|item| item["domain"]==domain }
-            TimeCommitments::garbageCollectionItems(domainItems)
+            AgentTimeCommitments::garbageCollectionItems(domainItems)
         }
     end
 
@@ -248,13 +235,13 @@ class TimeCommitments
             }
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
-            TimeCommitments::saveItem(item)
+            AgentTimeCommitments::saveItem(item)
         end
     end
 
     def self.itemToCatalystObjectOrNull(item)
         uuid = item['uuid']
-        ratioDone = (TimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
+        ratioDone = (AgentTimeCommitments::itemToLiveTimespan(item).to_f/3600)/item["commitment-in-hours"]
         metric = nil
         if item["is-running"] then
             metric = 2 - CommonsUtils::traceToMetricShift(uuid)
@@ -288,12 +275,12 @@ class TimeCommitments
     end
 
     def self.generalFlockUpgrade()
-        TimeCommitments::garbageCollectionGlobal()
+        AgentTimeCommitments::garbageCollectionGlobal()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if (Time.new.hour>=23 or Time.new.hour < 7)
-        objects = TimeCommitments::getItems()
+        objects = AgentTimeCommitments::getItems()
             .select{|item| item["commitment-in-hours"] > 0 }
-            .map{|item| TimeCommitments::itemToCatalystObjectOrNull(item) }
+            .map{|item| AgentTimeCommitments::itemToCatalystObjectOrNull(item) }
             .compact
         objects = 
             if objects.select{|object| object["metric"]>1 }.size>0 then
@@ -307,13 +294,13 @@ class TimeCommitments
     def self.processObjectAndCommandFromCli(object, command)
         uuid = object['uuid']
         if command == "start" then
-            TimeCommitments::saveItem(TimeCommitments::startItem(TimeCommitments::getItemByUUID(uuid)))
+            AgentTimeCommitments::saveItem(AgentTimeCommitments::startItem(AgentTimeCommitments::getItemByUUID(uuid)))
         end
         if command == "stop" then
-            TimeCommitments::saveItem(TimeCommitments::stopItem(TimeCommitments::getItemByUUID(uuid)))
+            AgentTimeCommitments::saveItem(AgentTimeCommitments::stopItem(AgentTimeCommitments::getItemByUUID(uuid)))
         end
         if command == "destroy" then
-            TimeCommitments::destroyItem(TimeCommitments::getItemByUUID(uuid))
+            AgentTimeCommitments::destroyItem(AgentTimeCommitments::getItemByUUID(uuid))
         end
     end
 end

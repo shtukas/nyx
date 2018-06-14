@@ -257,16 +257,16 @@ class ProjectsCore
     # Time management
 
     def self.startProject(projectuuid)
-        return if GenericTimeTracking::status(projectuuid)[0]
-        GenericTimeTracking::start(projectuuid) # marker: 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2
-        GenericTimeTracking::start(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        return if Chronos::status(projectuuid)[0]
+        Chronos::start(projectuuid) # marker: 7fe8c0d5-6518-4d09-9e75-c66a16c1bff2
+        Chronos::start(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
         # Now we need to start the time commitment point against that project, if any
         ProjectsCore::startOneTimeCommitmentPointAgainstThisProject(projectuuid)
     end
 
     def self.startOneTimeCommitmentPointAgainstThisProject(projectuuid)
         # e19b1ef6-9f75-454a-9724-131a43dca272
-        TimeCommitments::getItems()
+        AgentTimeCommitments::getItems()
         .select{|item|
             item["33be3505:collection-uuid"]==projectuuid
         }
@@ -275,19 +275,19 @@ class ProjectsCore
         }
         .first(1)
         .each{|item|
-            TimeCommitments::saveItem(TimeCommitments::startItem(item))
+            AgentTimeCommitments::saveItem(AgentTimeCommitments::startItem(item))
         }
     end
 
     def self.stopProject(projectuuid)
-        GenericTimeTracking::stop(projectuuid)
-        GenericTimeTracking::stop(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        Chronos::stop(projectuuid)
+        Chronos::stop(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
         ProjectsCore::stopAllTimeCommitmentPointAgainstThisCollection(projectuuid)
     end
 
     def self.stopAllTimeCommitmentPointAgainstThisCollection(projectuuid)
         # e19b1ef6-9f75-454a-9724-131a43dca272
-        TimeCommitments::getItems()
+        AgentTimeCommitments::getItems()
         .select{|item|
             item["33be3505:collection-uuid"]==projectuuid
         }
@@ -295,7 +295,7 @@ class ProjectsCore
             item["is-running"]
         }
         .each{|item|
-            TimeCommitments::saveItem(TimeCommitments::stopItem(item))
+            AgentTimeCommitments::saveItem(AgentTimeCommitments::stopItem(item))
         }
     end
 
@@ -352,7 +352,7 @@ class ProjectsCore
             menuItem5 = "operation : destroy"
             menuItem8 = "operation : add hours manually"            
             menuStringsOrCatalystObjects = catalystobjects + [menuItem1, menuItem2 ]
-            if GenericTimeTracking::status(projectuuid)[0] then
+            if Chronos::status(projectuuid)[0] then
                 menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem7 ]
             else
                 menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem6 ]
@@ -397,7 +397,7 @@ class ProjectsCore
             end
             if menuChoice == menuItem8 then
                 timespan = 3600*LucilleCore::askQuestionAnswerAsString("hours: ").to_f
-                GenericTimeTracking::addTimeInSeconds(projectuuid, timespan)
+                Chronos::addTimeInSeconds(projectuuid, timespan)
                 next
             end
             # By now, menuChoice is a catalyst object
@@ -424,8 +424,8 @@ class ProjectsCore
             LucilleCore::pressEnterToContinue()
             return
         end
-        GenericTimeTracking::stop(projectuuid)
-        GenericTimeTracking::stop(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
+        Chronos::stop(projectuuid)
+        Chronos::stop(CATALYST_COMMON_AGENTPROJECTS_METRIC_GENERIC_TIME_TRACKING_KEY)
         ProjectsCore::sendProjectToBinTimeline(projectuuid)
     end
 

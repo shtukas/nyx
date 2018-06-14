@@ -1,18 +1,13 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require 'json'
-
 require 'date'
-
 require 'colorize'
-
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
@@ -23,18 +18,13 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require 'find'
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-
 require 'drb/drb'
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
-
 require_relative "catalyst.rb"
-
 # -----------------------------------------------------------------
 
 class CatalystCLIUtils
@@ -81,7 +71,7 @@ class CatalystCLIUtils
             listingItem = CommonsUtils::getNthElementOfUnifiedListing(standardlp)
             object = listingItem["object"]
             # --------------------------------------------------------------------------------
-            # Sometimes a wave item that is an email, gets deleted by the Wave-Emails process.
+            # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
             # In such a case they are still in Flock and should not be showed
             if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
                 if object["schedule"][":wave-emails:"] then
@@ -144,7 +134,7 @@ class CatalystCLIUtils
                     ordinal, description = StringParser::decompose(rest)
                     xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
                     Ordinals::register(xuuid, ordinal.to_f)
-                    Wave::generalFlockUpgrade()
+                    AgentWave::generalFlockUpgrade()
                     if listingItem["type"]=="main" then
                         CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
                     end

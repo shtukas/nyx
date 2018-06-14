@@ -1,30 +1,30 @@
 
 # encoding: UTF-8
-# GenericTimeTracking::status(uuid): [boolean, null or unixtime]
-# GenericTimeTracking::start(uuid)
-# GenericTimeTracking::stop(uuid)
-# GenericTimeTracking::addTimeInSeconds(uuid, timespan)
-# GenericTimeTracking::adaptedTimespanInSeconds(uuid)
-# GenericTimeTracking::metric2(uuid, low, high, hourstoMinusOne)
-# GenericTimeTracking::timings(uuid)
+# Chronos::status(uuid): [boolean, null or unixtime]
+# Chronos::start(uuid)
+# Chronos::stop(uuid)
+# Chronos::addTimeInSeconds(uuid, timespan)
+# Chronos::adaptedTimespanInSeconds(uuid)
+# Chronos::metric2(uuid, low, high, hourstoMinusOne)
+# Chronos::timings(uuid)
 
-class GenericTimeTracking
+class Chronos
     def self.status(uuid)
         JSON.parse(FKVStore::getOrDefaultValue("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", "[false, null]"))
     end
 
     def self.start(uuid)
-        status = GenericTimeTracking::status(uuid)
+        status = Chronos::status(uuid)
         return if status[0]
         status = [true, Time.new.to_i]
         FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
 
     def self.stop(uuid)
-        status = GenericTimeTracking::status(uuid)
+        status = Chronos::status(uuid)
         return if !status[0]
         timespan = Time.new.to_i - status[1]
-        GenericTimeTracking::addTimeInSeconds(uuid, timespan)
+        Chronos::addTimeInSeconds(uuid, timespan)
         status = [false, nil]
         FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
     end
@@ -46,7 +46,7 @@ class GenericTimeTracking
     end
 
     def self.metric2(uuid, low, high, hourstoMinusOne)
-        adaptedTimespanInSeconds = GenericTimeTracking::adaptedTimespanInSeconds(uuid)
+        adaptedTimespanInSeconds = Chronos::adaptedTimespanInSeconds(uuid)
         adaptedTimespanInHours = adaptedTimespanInSeconds.to_f/3600
         low + (high-low)*Math.exp(-adaptedTimespanInHours.to_f/hourstoMinusOne)
     end

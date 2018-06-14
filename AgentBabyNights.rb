@@ -1,31 +1,27 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-require_relative "AgentsManager.rb"
-require_relative "Agent-TimeCommitments.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
+require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
         "agent-name"      => "BabyNights",
         "agent-uid"       => "83837e64-554b-4dd0-a478-04386d8010ea",
-        "general-upgrade" => lambda { BabyNights::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| BabyNights::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ BabyNights::interface() }
+        "general-upgrade" => lambda { AgentBabyNights::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentBabyNights::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentBabyNights::interface() }
     }
 )
 
-# BabyNights::generalFlockUpgrade()
+# AgentBabyNights::generalFlockUpgrade()
 
-class BabyNights
+class AgentBabyNights
     def self.agentuuid()
         "83837e64-554b-4dd0-a478-04386d8010ea"
     end

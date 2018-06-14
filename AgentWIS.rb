@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-
 require "net/http"
 require "uri"
 require 'securerandom'
@@ -9,25 +8,22 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-require_relative "AgentsManager.rb"
-require_relative "Agent-TimeCommitments.rb"
-require_relative "Events.rb"
-require_relative "MiniFIFOQ.rb"
+require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
-AgentsManager::registerAgent(
+Bob::registerAgent(
     {
         "agent-name"      => "WIS",
         "agent-uid"       => "3397e320-6c09-423d-ac58-2aea5f85eacb",
-        "general-upgrade" => lambda { WIS::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| WIS::processObjectAndCommandFromCli(object, command) },
-        "interface"       => lambda{ WIS::interface() }
+        "general-upgrade" => lambda { AgentWIS::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentWIS::processObjectAndCommandFromCli(object, command) },
+        "interface"       => lambda{ AgentWIS::interface() }
     }
 )
 
-# WIS::generalFlockUpgrade()
+# AgentWIS::generalFlockUpgrade()
 
-class WIS
+class AgentWIS
     def self.agentuuid()
         "3397e320-6c09-423d-ac58-2aea5f85eacb"
     end
