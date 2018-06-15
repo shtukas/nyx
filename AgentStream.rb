@@ -157,7 +157,7 @@ class AgentStream
             .each{|object|
                 uuid = object["uuid"]
                 status = Chronos::status(uuid)
-                object["metric"]              = status[0] ? 2 - CommonsUtils::traceToMetricShift(uuid) : self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
+                object["metric"]              = self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
                 object["commands"]            = AgentStream::uuid2commands(uuid, status)
                 object["default-expression"]  = AgentStream::uuid2defaultExpression(uuid, status)
                 object["item-data"]["status"] = status

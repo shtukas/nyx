@@ -31,8 +31,7 @@ class AgentProjects
     end
 
     def self.metric(uuid, isRunning)
-        metric = 0.2 + 0.2*Math.exp(-self.objectHoursDone(uuid))
-        isRunning ? 3 + CommonsUtils::traceToMetricShift(uuid) : metric + CommonsUtils::traceToMetricShift(uuid)
+        0.2 + 0.2*Math.exp(-self.objectHoursDone(uuid))
     end
 
     def self.makeCatalystObjectOrNull(uuid)
@@ -44,14 +43,14 @@ class AgentProjects
         announce = announce + " (#{ "%.2f" % (Chronos::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
         status = Chronos::status(uuid)
         isRunning = status[0]
-        object = {
-            "uuid"               => uuid,
-            "agent-uid"          => self.agentuuid(),
-            "metric"             => self.metric(uuid, isRunning),
-            "announce"           => announce,
-            "commands"           => [],
-            "default-expression" => "dive"
-        }
+        object              = {}
+        object["uuid"]      = uuid
+        object["agent-uid"] = self.agentuuid()
+        object["metric"]    = self.metric(uuid, isRunning)
+        object["announce"]  = announce
+        object["commands"]  = []
+        object["default-expression"] = "dive"
+        object["isRunning"] = isRunning
         object["item-data"] = {}
         object["item-data"]["timings"] = Chronos::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
         object

@@ -44,21 +44,29 @@ class CatalystCLIUtils
             " \"#{defaultExpressionAsString.green}\""
         ].join()
     end
-    def self.object2Line_v2_ordinal(object)
+    def self.object2Line_v2_ordinal(object, ordinal)
         announce = object['announce'].strip
         announce = CommonsUtils::announceWithColor(announce, object)
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        [
-            "(#{"%.3f" % object["metric"]})".yellow,
-            " [#{object["uuid"]}]".yellow,
-            " #{announce}".yellow,
-            "#{requirementsAsString.green}",
-            CommonsUtils::object2DonotShowUntilAsString(object),
-            " (#{object["commands"].join(" ").red})",
-            " \"#{defaultExpressionAsString.green}\""
-        ].join()
+        part1 = 
+            [
+                "[#{"%.3f" % ordinal}]",
+                " [#{object["uuid"]}]",
+                " #{announce}",
+                "#{requirementsAsString.green}",
+                CommonsUtils::object2DonotShowUntilAsString(object),
+            ].join()
+        if object["is-running"] then
+            part1 = part1.green
+        end
+        part2 = 
+            [
+                " (#{object["commands"].join(" ").red})",
+                " \"#{defaultExpressionAsString.green}\""
+            ].join()
+        part1 + part2
     end
     def self.cli(runId)
         mainschedule = {}
@@ -115,7 +123,7 @@ class CatalystCLIUtils
                 puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v1(object)}"
             end
             if listingItem["type"]=="ordinal" then
-                puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v2_ordinal(object)}"
+                puts "[#{standardlp}] #{CatalystCLIUtils::object2Line_v2_ordinal(object, listingItem["ordinal"])}"
             end
             print "--> "
             command = STDIN.gets().strip

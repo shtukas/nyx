@@ -49,11 +49,11 @@ class AgentNinja
         packet = NinjaCLIProxy::packet()
         return if packet.nil?
         object = {
-            "uuid" => "96287511",
+            "uuid"      => "96287511",
             "agent-uid" => self.agentuuid(),
-            "metric" => packet["metric"],
-            "announce" => "ninja: folderpath: #{packet["folderpath"]}",
-            "commands" => [],
+            "metric"    => packet["metric"],
+            "announce"  => "ninja: folderpath: #{packet["folderpath"]}",
+            "commands"  => [],
             "default-expression" => "play",
             "item-data" => {
                 "ninja-folderpath" => packet["folderpath"]

@@ -31,16 +31,24 @@ class CatalystViewUtils
     def self.viewloop()
         positionDisplay = lambda {|standardlp, position|
             if standardlp==position then
-                "[* #{"%2d" % position}]".green
+                "[* #{"%2d" % position}]"
             else
                 "[  #{"%2d" % position}]"
             end
         }
+        objectToLineOrdinalListing = lambda {|object, ordinal, position, standardlp|
+            "#{positionDisplay.call(standardlp, position)} [#{("%.3f" % ordinal)}] #{CommonsUtils::object2Line_v0(object)[8,CommonsUtils::screenWidth()-28]}"
+        }
         objectToLineMainListing = lambda {|object, position, standardlp|
             "#{positionDisplay.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
         }
-        objectToLineOrdinalListing = lambda {|object, ordinal, position, standardlp|
-            "#{positionDisplay.call(standardlp, position)} [#{("%.3f" % ordinal).rjust(16)}] #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-28]}"
+        objectToGenericLine = lambda {|p, position, standardlp|
+            if p["type"]=="ordinal" then
+                return objectToLineOrdinalListing.call(p["object"], p["ordinal"], position, standardlp)
+            end
+            if p["type"]=="main" then
+                return objectToLineMainListing.call(p["object"], position, standardlp)
+            end            
         }
         loop {
             FlockDiskIO::loadFromEventsTimeline()
@@ -62,13 +70,12 @@ class CatalystViewUtils
                 if numberOfOrdinals>0 and (position-1)==numberOfOrdinals then
                     puts ""
                 end
-                if p["type"]=="ordinal" then
-                    puts objectToLineOrdinalListing.call(p["object"], p["ordinal"], position, standardlp).yellow
+                str = objectToGenericLine.call(p, position, standardlp)
+                object = p["object"]
+                if object["is-running"] then
+                    str = str.green
                 end
-                if p["type"]=="main" then
-                    puts objectToLineMainListing.call(p["object"], position, standardlp)
-                end
-
+                puts str
             }
             sleep 10
         }

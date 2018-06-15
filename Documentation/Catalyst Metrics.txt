@@ -1,13 +1,4 @@
 
-
-         3.000+ running projects 
-                    # We get them to run higher than the time commitment 
-                    # point which may have started them.
-
-         2.000- Running items (time commitments, streams)
-
-         1.000  -- run level --
-
          0.950- Incoming Emails General
          0.900  Wave: stickies
          0.870- Incoming Emails operator@alseyn.net

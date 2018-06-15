@@ -62,16 +62,14 @@ class AgentTimePoints
     def self.timepointToCatalystObjectOrNull(timepoint)
         uuid = timepoint['uuid']
         ratioDone = (TimePointsCore::timepointToLiveTimespan(timepoint).to_f/3600)/timepoint["commitment-in-hours"]
-        metric = nil
-        if timepoint["is-running"] then
-            metric = 2 - CommonsUtils::traceToMetricShift(uuid)
-            if ratioDone>1 then
-                message = "#{timepoint['description']} is done"
-                system("terminal-notifier -title Catalyst -message '#{message}'")
-                sleep 2
-            end
-        else
-            metric =
+        metric =
+            if timepoint["is-running"] then
+                if timepoint['metric'] then
+                    timepoint['metric']
+                else
+                    0.5 + 0.1*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
+                end
+            else
                 if ratioDone>1 then
                     0
                 else
@@ -81,7 +79,7 @@ class AgentTimePoints
                         0.5 + 0.1*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
                     end
                 end
-        end
+            end
         announce = "time commitment: #{timepoint['description']} (#{ "%.2f" % (100*ratioDone) } % of #{timepoint["commitment-in-hours"]} hours done)"
         commands = ( timepoint["is-running"] ? ["stop"] : ["start"] ) + ["destroy"]
         defaultExpression = timepoint["is-running"] ? "stop" : "start"
@@ -92,7 +90,8 @@ class AgentTimePoints
         object["announce"]  = announce
         object["commands"]  = commands
         object["default-expression"]     = defaultExpression
-        object["metadata"]               = {}
+        object["is-running"] = timepoint["is-running"]
+        object["metadata"]   = {}
         object["metadata"]["is-running"] = timepoint["is-running"]
         object["metadata"]["time-commitment-timepoint"] = timepoint
         object
