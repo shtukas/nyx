@@ -141,7 +141,7 @@ class CatalystCLIUtils
                     next
                 end
                 if token==":this" then
-                    if CommonsUtils::isFloat(rest) then
+                    if CommonsUtils::isFloat(rest) or CommonsUtils::isInteger(rest) then
                         # :this <float> # register the current object agains the float
                         ordinal = rest.to_f
                         Ordinals::register(object["uuid"], ordinal)
