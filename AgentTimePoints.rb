@@ -194,7 +194,6 @@ class AgentTimePoints
     def self.generalFlockUpgrade()
         AgentTimePoints::garbageCollectionGlobal()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        return if (Time.new.hour>=23 or Time.new.hour < 7)
         objects = AgentTimePoints::getTimePoints()
             .select{|timepoint| timepoint["commitment-in-hours"] > 0 }
             .map{|timepoint| AgentTimePoints::timepointToCatalystObjectOrNull(timepoint) }
