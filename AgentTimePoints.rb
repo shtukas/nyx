@@ -61,32 +61,14 @@ class AgentTimePoints
 
     def self.timepointToCatalystObjectOrNull(timepoint)
         uuid = timepoint['uuid']
-        ratioDone = (TimePointsCore::timepointToLiveTimespan(timepoint).to_f/3600)/timepoint["commitment-in-hours"]
-        metric =
-            if timepoint["is-running"] then
-                if timepoint['metric'] then
-                    timepoint['metric']
-                else
-                    0.5 + 0.1*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
-                end
-            else
-                if ratioDone>1 then
-                    0
-                else
-                    if timepoint['metric'] then
-                        timepoint['metric']
-                    else
-                        0.5 + 0.1*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
-                    end
-                end
-            end
+        ratioDone = TimePointsCore::timePointToRatioDone(timepoint)
         announce = "time commitment: #{timepoint['description']} (#{ "%.2f" % (100*ratioDone) } % of #{timepoint["commitment-in-hours"]} hours done)"
         commands = ( timepoint["is-running"] ? ["stop"] : ["start"] ) + ["destroy"]
         defaultExpression = timepoint["is-running"] ? "stop" : "start"
         object  = {}
         object["uuid"]      = uuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = metric
+        object["metric"]    = TimePointsCore::timePointToMetricWithSideEffect(timepoint)
         object["announce"]  = announce
         object["commands"]  = commands
         object["default-expression"]     = defaultExpression
