@@ -66,10 +66,14 @@ class ProjectsCore
     # ---------------------------------------------------
     # creation
 
+    def self.setProjectName(projectuuid, projectname)
+        FKVStore::set("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}", projectname)
+    end
+
     def self.createNewProject(projectname)
         projectuuid = SecureRandom.hex(4)
         FKVStore::set(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, JSON.generate(ProjectsCore::projectsUUIDs()+[projectuuid]))
-        FKVStore::set("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}", projectname)
+        ProjectsCore::setProjectName(projectuuid, projectname)
         projectuuid
     end
 
@@ -187,9 +191,11 @@ class ProjectsCore
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
+            menuItem3 = "operation : set name" 
+            menuItem4 = "operation : set time generator"  
             menuItem5 = "operation : destroy"            
             menuStringsOrCatalystObjects = catalystobjects
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem5 ]
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3, menuItem4, menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -203,6 +209,19 @@ class ProjectsCore
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
+            if menuChoice == menuItem3 then
+                ProjectsCore::setProjectName(
+                    projectuuid, 
+                    LucilleCore::askQuestionAnswerAsString("Name: "))
+                return
+            end
+            if menuChoice == menuItem4 then
+                ProjectsCore::setTimePointGenerator(
+                        projectuuid, 
+                        LucilleCore::askQuestionAnswerAsString("Period in days: ").to_f*86400, 
+                        LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f*3600)
+                return
+            end
             if menuChoice == menuItem5 then
                 if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") and LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Seriously ? ") then
                     ProjectsCore::ui_destroyProject(projectuuid)
