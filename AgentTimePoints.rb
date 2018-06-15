@@ -86,16 +86,7 @@ class AgentTimePoints
             timespanInSeconds = Time.new.to_i - timepoint["last-start-unixtime"]
             timepoint["timespans"] << timespanInSeconds
             if timepoint["0e69d463:GuardianSupport"] then
-                timepoint = {
-                    "uuid"                => SecureRandom.hex(4),
-                    "creation-unixtime"   => Time.new.to_i,
-                    "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74",
-                    "description"         => "Guardian",
-                    "commitment-in-hours" => -timespanInSeconds,
-                    "timespans"           => [],
-                    "last-start-unixtime" => 0
-                }
-                AgentTimePoints::saveTimePoint(timepoint)
+                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", -timespanInSeconds.to_f/3600, false)
             end
         end
         timepoint
@@ -115,13 +106,12 @@ class AgentTimePoints
         return if timepoints.any?{|timepoint| timepoint["is-running"] }
         timepoint1 = timepoints[0]
         timepoint2 = timepoints[1]
-        timepoint3 = {}
-        timepoint3["uuid"]        = SecureRandom.hex(4)
-        timepoint3["domain"]      = timepoint1["domain"]
-        timepoint3["description"] = timepoint1["description"]
-        timepoint3["commitment-in-hours"] = ( timepoint1["commitment-in-hours"] + timepoint2["commitment-in-hours"] ) - ( timepoint1["timespans"] + timepoint2["timespans"] ).inject(0, :+).to_f/3600
-        timepoint3["timespans"]   = []
-        AgentTimePoints::saveTimePoint(timepoint3)
+        TimePointsCore::issueNewPoint(
+            timepoint1["domain"], 
+            timepoint1["description"], 
+            (timepoint1["commitment-in-hours"]+timepoint2["commitment-in-hours"]) - (timepoint1["timespans"]+timepoint2["timespans"]).inject(0, :+).to_f/3600, 
+            timepoint1["0e69d463:GuardianSupport"] || timepoint2["0e69d463:GuardianSupport"]
+        )
         AgentTimePoints::destroyTimePoint(timepoint1)
         AgentTimePoints::destroyTimePoint(timepoint2)
     end
@@ -142,17 +132,11 @@ class AgentTimePoints
     def self.interface()
         puts "Welcome to TimeCommitments interface"
         if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to add a time commitment ? ") then
-            timepoint = {
-                "uuid"                => SecureRandom.hex(4),
-                "domain"              => SecureRandom.hex(8),
-                "description"         => LucilleCore::askQuestionAnswerAsString("description: "),
-                "commitment-in-hours" => LucilleCore::askQuestionAnswerAsString("hours: ").to_f,
-                "timespans"           => [],
-                "last-start-unixtime" => 0
-            }
-            puts JSON.pretty_generate(timepoint)
-            LucilleCore::pressEnterToContinue()
-            AgentTimePoints::saveTimePoint(timepoint)
+            TimePointsCore::issueNewPoint(
+                SecureRandom.hex(8), 
+                LucilleCore::askQuestionAnswerAsString("description: "), 
+                LucilleCore::askQuestionAnswerAsString("hours: ").to_f, 
+                LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Guardian support ? "))
         end
     end
 

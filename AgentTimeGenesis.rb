@@ -47,24 +47,11 @@ class AgentTimeGenesis
     def self.processObjectAndCommandFromCli(object, command)
         if command == "ab8976a7-dc42-412e-b27f-f05cc769686d" then
             if [1, 2, 3, 4, 5].include?(Time.new.wday) then
-                item = {
-                    "uuid"                => SecureRandom.hex(4),
-                    "creation-unixtime"   => Time.new.to_i,
-                    "domain"              => "6596d75b-a2e0-4577-b537-a2d31b156e74", # Guardian
-                    "description"         => "Guardian",
-                    "commitment-in-hours" => 5,
-                    "timespans"           => [],
-                    "last-start-unixtime" => 0
-                }
-                puts "create:"
-                puts JSON.pretty_generate(item)
-                AgentTimePoints::saveTimePoint(item)
+                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5, false)
             end
             AgentTimePoints::getTimePoints()
                 .each{|point| 
                     if point["creation-unixtime"] < (Time.new.to_i-86400*30) then
-                        puts "destroy (been there a month):"
-                        puts JSON.pretty_generate(point)
                         AgentTimePoints::destroyTimePoint(point)
                     end
                 }
@@ -74,19 +61,11 @@ class AgentTimeGenesis
                     generator = ProjectsCore::getTimePointGeneratorOrNull(projectuuid) # [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
                     if Time.new.to_i >= (generator[0]+generator[1]) then
                         if AgentTimePoints::getTimePoints().select{|point| point["project-uuid"]==projectuuid }.size==0 then
-                            item = {
-                                "uuid"                => SecureRandom.hex(4),
-                                "creation-unixtime"   => Time.new.to_i,
-                                "domain"              => projectuuid,
-                                "description"         => "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}",
-                                "commitment-in-hours" => generator[2].to_f/3600,
-                                "timespans"           => [],
-                                "last-start-unixtime" => 0,
-                                "0e69d463:GuardianSupport" => ProjectsCore::isGuardianTime?(projectuuid)
-                            }
-                            puts "create (timepoint generator):"
-                            puts JSON.pretty_generate(point)
-                            AgentTimePoints::saveTimePoint(item)
+                            TimePointsCore::issueNewPoint(
+                                projectuuid, 
+                                "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}", 
+                                generator[2].to_f/3600,
+                                ProjectsCore::isGuardianTime?(projectuuid))
                             ProjectsCore::resetTimePointGenerator(projectuuid)
                         end
                     end
@@ -104,19 +83,11 @@ class AgentTimeGenesis
                 ProjectsCore::projectsUUIDs()
                     .select{|projectuuid| ProjectsCore::getTimePointGeneratorOrNull(projectuuid).nil? }
                     .each{|projectuuid|
-                        item = {
-                            "uuid"                => SecureRandom.hex(4),
-                            "creation-unixtime"   => Time.new.to_i,
-                            "domain"              => "2b3285ed-cbd4-4ccb-86c0-aba702e1a680:#{projectuuid}",
-                            "description"         => "project#{ProjectsCore::isGuardianTime?(projectuuid) ? " (guardian)" : ""}: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}",
-                            "commitment-in-hours" => availableTimeInHours * halvesEnum.next(),
-                            "timespans"           => [],
-                            "last-start-unixtime" => 0,
-                            "0e69d463:GuardianSupport" => ProjectsCore::isGuardianTime?(projectuuid)
-                        }
-                        puts "create (halving of remaining time):"
-                        puts JSON.pretty_generate(point)
-                        AgentTimePoints::saveTimePoint(item)
+                        TimePointsCore::issueNewPoint(
+                            projectuuid, 
+                            "project#{ProjectsCore::isGuardianTime?(projectuuid) ? " (guardian)" : ""}: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}", 
+                            availableTimeInHours * halvesEnum.next(),
+                            ProjectsCore::isGuardianTime?(projectuuid))
                     }
             end
             LucilleCore::pressEnterToContinue()
