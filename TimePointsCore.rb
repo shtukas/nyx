@@ -14,7 +14,7 @@
 # TimePointsCore::issueNewPoint(domain, description, hours, isGuardian)
 # TimePointsCore::timePointToMetric(timepoint)
 # TimePointsCore::timePointToRatioDone(timepoint)
-# TimePointsCore::timePointToMetricWithSideEffect(timepoint)
+# TimePointsCore::timePointToMetric(timepoint)
 
 class TimePointsCore
     def self.getTimePoints()
@@ -104,23 +104,8 @@ class TimePointsCore
         (TimePointsCore::timepointToLiveTimespan(timepoint).to_f/3600)/timepoint["commitment-in-hours"]
     end
 
-    def self.timePointToMetric(timepoint) # -> [ timepoint or nil, metric ] # if the timepoint is present, then it has been updated
-        if timepoint["metric"] then
-            [nil, timepoint["metric"]]
-        else
-            uuid = timepoint["uuid"]
-            ratioDone = TimePointsCore::timePointToRatioDone(timepoint)
-            metric = 0.2 + 0.4*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
-            timepoint["metric"] = metric
-            [timepoint, metric]
-        end
+    def self.timePointToMetric(timepoint)
+        0.2 + 0.4*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-TimePointsCore::timePointToRatioDone(timepoint)*3) + CommonsUtils::traceToMetricShift(timepoint["uuid"])
     end
 
-    def self.timePointToMetricWithSideEffect(timepoint)
-        timepoint, metric = TimePointsCore::timePointToMetric(timepoint)
-        if timepoint then
-            TimePointsCore::saveTimePoint(timepoint)
-        end
-        metric
-    end
 end

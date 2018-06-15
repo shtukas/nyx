@@ -63,17 +63,17 @@ class AgentTimePoints
         uuid = timepoint['uuid']
         ratioDone = TimePointsCore::timePointToRatioDone(timepoint)
         announce = "time commitment: #{timepoint['description']} (#{ "%.2f" % (100*ratioDone) } % of #{timepoint["commitment-in-hours"]} hours done)"
-        commands = ( timepoint["is-running"] ? ["stop"] : ["start"] ) + ["destroy"]
+        commands = timepoint["is-running"] ? ["stop", "destroy"] : ["start", "reset", "destroy"]
         defaultExpression = timepoint["is-running"] ? "stop" : "start"
         object  = {}
         object["uuid"]      = uuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = TimePointsCore::timePointToMetricWithSideEffect(timepoint)
+        object["metric"]    = timepoint["metric"]
         object["announce"]  = announce
         object["commands"]  = commands
-        object["default-expression"]     = defaultExpression
-        object["is-running"] = timepoint["is-running"]
-        object["metadata"]   = {}
+        object["default-expression"] = defaultExpression
+        object["is-running"]         = timepoint["is-running"]
+        object["metadata"]           = {}
         object["metadata"]["is-running"] = timepoint["is-running"]
         object["metadata"]["time-commitment-timepoint"] = timepoint
         object
@@ -82,6 +82,13 @@ class AgentTimePoints
     def self.generalFlockUpgrade()
         TimePointsCore::garbageCollectionGlobal()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
+        TimePointsCore::getTimePoints()
+            .each{|timepoint| 
+                if timepoint["metric"].nil? then
+                    timepoint["metric"] = TimePointsCore::timePointToMetric(timepoint)
+                    TimePointsCore::saveTimePoint(timepoint)
+                end
+            }
         objects = TimePointsCore::getTimePoints()
             .select{|timepoint| timepoint["commitment-in-hours"] > 0 }
             .map{|timepoint| AgentTimePoints::timepointToCatalystObjectOrNull(timepoint) }
@@ -96,6 +103,13 @@ class AgentTimePoints
         end
         if command == "stop" then
             TimePointsCore::saveTimePoint(TimePointsCore::stopTimePoint(TimePointsCore::getTimePointByUUID(uuid)))
+        end
+        if command == "reset" then
+            timepoint = TimePointsCore::getTimePointByUUID(uuid)
+            timepoint["commitment-in-hours"] = timepoint["commitment-in-hours"] - timepoint["timespans"].inject(0, :+).to_f/3600
+            timepoint["timespans"] = []
+            timepoint["metric"] = TimePointsCore::timePointToMetric(timepoint)
+            TimePointsCore::saveTimePoint(timepoint)
         end
         if command == "destroy" then
             TimePointsCore::destroyTimePoint(TimePointsCore::getTimePointByUUID(uuid))

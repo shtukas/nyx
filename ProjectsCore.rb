@@ -175,6 +175,7 @@ class ProjectsCore
     end
 
     def self.ui_projectDive(projectuuid)
+        puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
         loop {
             catalystobjects = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
                 .map{|objectuuid| TheFlock::flockObjects().select{|object| object["uuid"]==objectuuid }.first }
