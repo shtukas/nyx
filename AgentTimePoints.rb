@@ -105,12 +105,6 @@ class AgentTimePoints
             .select{|timepoint| timepoint["commitment-in-hours"] > 0 }
             .map{|timepoint| AgentTimePoints::timepointToCatalystObjectOrNull(timepoint) }
             .compact
-        objects = 
-            if objects.select{|object| object["metric"]>1 }.size>0 then
-                objects.select{|object| object["metric"]>1 }
-            else
-                objects
-            end
         TheFlock::addOrUpdateObjects(objects)
     end
 
