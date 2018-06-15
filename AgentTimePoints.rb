@@ -26,8 +26,6 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
-TIMEPOINTS_ITEMS_SETUUID = "64cba051-9761-4445-8cd5-8cf49c105ba1" unless defined? TIMEPOINTS_ITEMS_SETUUID
-TIMEPOINTS_ITEMS_REPOSITORY_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/time-points/timepoints" unless defined? TIMEPOINTS_ITEMS_REPOSITORY_PATH
 
 # -------------------------------------------------------------------------------------
 
@@ -41,16 +39,6 @@ Bob::registerAgent(
     }
 )
 
-# AgentTimePoints::getTimePoints()
-# AgentTimePoints::getTimePointByUUID(uuid)
-# AgentTimePoints::saveTimePoint(timepoint)
-# AgentTimePoints::startTimePoint(timepoint)
-# AgentTimePoints::stopTimePoint(timepoint)
-# AgentTimePoints::destroyTimePoint(timepoint)
-# AgentTimePoints::timepointToLiveTimespan(timepoint)
-# AgentTimePoints::garbageCollectionItems(timepoints)
-# AgentTimePoints::garbageCollectionGlobal()
-# AgentTimePoints::getUniqueDomains(timepoints)
 # AgentTimePoints::generalFlockUpgrade()
 # AgentTimePoints::processObjectAndCommandFromCli(object, command)
 
@@ -58,75 +46,6 @@ class AgentTimePoints
 
     def self.agentuuid()
         "03a8bff4-a2a4-4a2b-a36f-635714070d1d"
-    end
-
-    def self.getTimePoints()
-        SetsOperator::values(TIMEPOINTS_ITEMS_REPOSITORY_PATH, TIMEPOINTS_ITEMS_SETUUID)
-            .compact
-    end
-
-    def self.getTimePointByUUID(uuid)
-        SetsOperator::getOrNull(TIMEPOINTS_ITEMS_REPOSITORY_PATH, TIMEPOINTS_ITEMS_SETUUID, uuid)
-    end
-
-    def self.saveTimePoint(timepoint)
-        SetsOperator::insert(TIMEPOINTS_ITEMS_REPOSITORY_PATH, TIMEPOINTS_ITEMS_SETUUID, timepoint["uuid"], timepoint)
-    end
-
-    def self.startTimePoint(timepoint)
-        return timepoint if timepoint["is-running"]
-        timepoint["is-running"] = true
-        timepoint["last-start-unixtime"] = Time.new.to_i
-        timepoint
-    end
-
-    def self.stopTimePoint(timepoint)
-        if timepoint["is-running"] then
-            timepoint["is-running"] = false
-            timespanInSeconds = Time.new.to_i - timepoint["last-start-unixtime"]
-            timepoint["timespans"] << timespanInSeconds
-            if timepoint["0e69d463:GuardianSupport"] then
-                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", -timespanInSeconds.to_f/3600, false)
-            end
-        end
-        timepoint
-    end
-
-    def self.destroyTimePoint(timepoint)
-        self.stopTimePoint(timepoint)
-        SetsOperator::delete(TIMEPOINTS_ITEMS_REPOSITORY_PATH, TIMEPOINTS_ITEMS_SETUUID, timepoint["uuid"])
-    end
-
-    def self.timepointToLiveTimespan(timepoint)
-        timepoint["timespans"].inject(0,:+) + ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 )
-    end
-
-    def self.garbageCollectionItems(timepoints)
-        return if timepoints.size < 2 
-        return if timepoints.any?{|timepoint| timepoint["is-running"] }
-        timepoint1 = timepoints[0]
-        timepoint2 = timepoints[1]
-        TimePointsCore::issueNewPoint(
-            timepoint1["domain"], 
-            timepoint1["description"], 
-            (timepoint1["commitment-in-hours"]+timepoint2["commitment-in-hours"]) - (timepoint1["timespans"]+timepoint2["timespans"]).inject(0, :+).to_f/3600, 
-            timepoint1["0e69d463:GuardianSupport"] || timepoint2["0e69d463:GuardianSupport"]
-        )
-        AgentTimePoints::destroyTimePoint(timepoint1)
-        AgentTimePoints::destroyTimePoint(timepoint2)
-    end
-
-    def self.garbageCollectionGlobal()
-        timepoints = AgentTimePoints::getTimePoints()
-        domains = AgentTimePoints::getUniqueDomains(timepoints)
-        domains.each{|domain|
-            domainItems = timepoints.select{|timepoint| timepoint["domain"]==domain }
-            AgentTimePoints::garbageCollectionItems(domainItems)
-        }
-    end
-
-    def self.getUniqueDomains(timepoints)
-        timepoints.map{|timepoint| timepoint["domain"] }.uniq
     end
 
     def self.interface()
@@ -142,7 +61,7 @@ class AgentTimePoints
 
     def self.timepointToCatalystObjectOrNull(timepoint)
         uuid = timepoint['uuid']
-        ratioDone = (AgentTimePoints::timepointToLiveTimespan(timepoint).to_f/3600)/timepoint["commitment-in-hours"]
+        ratioDone = (TimePointsCore::timepointToLiveTimespan(timepoint).to_f/3600)/timepoint["commitment-in-hours"]
         metric = nil
         if timepoint["is-running"] then
             metric = 2 - CommonsUtils::traceToMetricShift(uuid)
@@ -159,7 +78,7 @@ class AgentTimePoints
                     if timepoint['metric'] then
                         timepoint['metric']
                     else
-                        0.5 + 0.1*Math.atan(timepoint["commitment-in-hours"]) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
+                        0.5 + 0.1*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
                     end
                 end
         end
@@ -180,9 +99,9 @@ class AgentTimePoints
     end
 
     def self.generalFlockUpgrade()
-        AgentTimePoints::garbageCollectionGlobal()
+        TimePointsCore::garbageCollectionGlobal()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        objects = AgentTimePoints::getTimePoints()
+        objects = TimePointsCore::getTimePoints()
             .select{|timepoint| timepoint["commitment-in-hours"] > 0 }
             .map{|timepoint| AgentTimePoints::timepointToCatalystObjectOrNull(timepoint) }
             .compact
@@ -198,13 +117,13 @@ class AgentTimePoints
     def self.processObjectAndCommandFromCli(object, command)
         uuid = object['uuid']
         if command == "start" then
-            AgentTimePoints::saveTimePoint(AgentTimePoints::startTimePoint(AgentTimePoints::getTimePointByUUID(uuid)))
+            TimePointsCore::saveTimePoint(TimePointsCore::startTimePoint(TimePointsCore::getTimePointByUUID(uuid)))
         end
         if command == "stop" then
-            AgentTimePoints::saveTimePoint(AgentTimePoints::stopTimePoint(AgentTimePoints::getTimePointByUUID(uuid)))
+            TimePointsCore::saveTimePoint(TimePointsCore::stopTimePoint(TimePointsCore::getTimePointByUUID(uuid)))
         end
         if command == "destroy" then
-            AgentTimePoints::destroyTimePoint(AgentTimePoints::getTimePointByUUID(uuid))
+            TimePointsCore::destroyTimePoint(TimePointsCore::getTimePointByUUID(uuid))
         end
     end
 end

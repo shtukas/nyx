@@ -49,12 +49,12 @@ class CommonsUtils
         0.001*CommonsUtils::traceToRealInUnitInterval(trace)
     end
 
-    def self.realNumbersToZeroOne(x, origin, unit)
+    def self.realNumbersToZeroOne(x, pointAtZeroDotFive, unit)
         alpha =
-            if x >= origin then
-                2-Math.exp(-(x-origin).to_f/unit)
+            if x >= pointAtZeroDotFive then
+                2-Math.exp(-(x-pointAtZeroDotFive).to_f/unit)
             else
-                Math.exp((x-origin).to_f/unit)
+                Math.exp((x-pointAtZeroDotFive).to_f/unit)
             end
         alpha.to_f/2
     end

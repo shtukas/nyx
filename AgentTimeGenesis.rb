@@ -49,10 +49,10 @@ class AgentTimeGenesis
             if [1, 2, 3, 4, 5].include?(Time.new.wday) then
                 TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5, false)
             end
-            AgentTimePoints::getTimePoints()
+            TimePointsCore::getTimePoints()
                 .each{|point| 
                     if point["creation-unixtime"] < (Time.new.to_i-86400*30) then
-                        AgentTimePoints::destroyTimePoint(point)
+                        TimePointsCore::destroyTimePoint(point)
                     end
                 }
             ProjectsCore::projectsUUIDs()
@@ -60,7 +60,7 @@ class AgentTimeGenesis
                 .each{|projectuuid| 
                     generator = ProjectsCore::getTimePointGeneratorOrNull(projectuuid) # [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
                     if Time.new.to_i >= (generator[0]+generator[1]) then
-                        if AgentTimePoints::getTimePoints().select{|point| point["project-uuid"]==projectuuid }.size==0 then
+                        if TimePointsCore::getTimePoints().select{|point| point["project-uuid"]==projectuuid }.size==0 then
                             TimePointsCore::issueNewPoint(
                                 projectuuid, 
                                 "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}", 
@@ -70,7 +70,7 @@ class AgentTimeGenesis
                         end
                     end
                 }
-            busyTimeInHours = AgentTimePoints::getTimePoints()
+            busyTimeInHours = TimePointsCore::getTimePoints()
                 .map{|point|
                     point["commitment-in-hours"] - point["timespans"].inject(0, :+).to_f/3600
 
