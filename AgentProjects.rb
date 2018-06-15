@@ -71,7 +71,7 @@ class AgentProjects
 
     def self.processObjectAndCommandFromCli(object, command)
         if command=="dive" then
-            ProjectsCore::ui_ProjectDive(object["uuid"])
+            ProjectsCore::ui_projectDive(object["uuid"])
         end
     end
 end

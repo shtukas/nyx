@@ -381,7 +381,7 @@ class CommonsUtils
         end
 
         if expression == "projects" then
-            ProjectsCore::ui_ProjectsDive()
+            ProjectsCore::ui_projectsDive()
             return
         end
 

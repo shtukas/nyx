@@ -1,25 +1,22 @@
 
 # encoding: UTF-8
 
-
 # -------------------------------------------------------------
 
 # Collections was born out of what was originally known as Threads and Projects
 
 # -------------------------------------------------------------
-
-# ---------------------------------------------------
 # Utils
 
 # ProjectsCore::projectsUUIDs()
 # ProjectsCore::projectUUID2NameOrNull(projectuuid)
 
-# ---------------------------------------------------
+# -------------------------------------------------------------
 # creation
 
 # ProjectsCore::createNewProject(projectname)
 
-# ---------------------------------------------------
+# -------------------------------------------------------------
 # projects uuids
 
 # ProjectsCore::addCatalystObjectUUIDToProject(objectuuid, projectuuid)
@@ -27,7 +24,7 @@
 # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
 # ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(projectuuid)
 
-# ---------------------------------------------------
+# -------------------------------------------------------------
 # isGuardianTime?(projectuuid)
 
 # ProjectsCore::isGuardianTime?(projectuuid)
@@ -35,23 +32,23 @@
 # ProjectsCore::getTimePointGeneratorOrNull(projectuuid): [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
 # ProjectsCore::resetTimePointGenerator(projectuuid)
 
-# ---------------------------------------------------
+# -------------------------------------------------------------
 # Misc
 
 # ProjectsCore::transform()
 # ProjectsCore::deleteProject(uuid)
 
-# ---------------------------------------------------
+# -------------------------------------------------------------
 # User Interface
 
 # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
-# ProjectsCore::ui_ProjectsDive()
-# ProjectsCore::ui_ProjectDive(projectuuid)
+# ProjectsCore::ui_projectsDive()
+# ProjectsCore::ui_projectDive(projectuuid)
 # ProjectsCore::deleteProject(projectuuid)
 
+# -------------------------------------------------------------
 
 class ProjectsCore
-
     # ---------------------------------------------------
     # Utils
 
@@ -126,11 +123,13 @@ class ProjectsCore
     def self.setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
         FKVStore::set("5AB553E7-B9E1-4F7C-B183-D0388538C940:#{projectuuid}", JSON.generate([Time.new.to_i, periodInSeconds, timepointDurationInSeconds]))      
     end
+
     def self.getTimePointGeneratorOrNull(projectuuid)
         generator = FKVStore::getOrNull("5AB553E7-B9E1-4F7C-B183-D0388538C940:#{projectuuid}")
         return nil if generator.nil?
         JSON.parse(generator)
     end
+
     def self.resetTimePointGenerator(projectuuid)
         # This function is called by AgentTimeGenesis when a new time point is issued
         generator = getTimePointGeneratorOrNull(projectuuid)
@@ -166,25 +165,16 @@ class ProjectsCore
     # ---------------------------------------------------
     # User Interface
 
-    def self.ui_destroyProject(projectuuid)
-        if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
-            puts "You now need to destroy all the objects"
-            LucilleCore::pressEnterToContinue()
-            loop {
-                break if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size==0
-                ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-                    .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
-                    .compact
-                    .each{|object|
-                        CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
-                    }
-            }
+    def self.ui_projectTimePointGeneratorAsStringContantLength(projectuuid)
+        timePointGenerator = ProjectsCore::getTimePointGeneratorOrNull(projectuuid)
+        if timePointGenerator then
+            "#{"%4.2f" % (timePointGenerator[2].to_f/3600)} hours / #{"%4.2f" % (timePointGenerator[1].to_f/86400)} days"
+        else
+            "                      "
         end
-        puts "ProjectsCore::deleteProject"
-        ProjectsCore::deleteProject(projectuuid)       
     end
 
-    def self.ui_ProjectDive(projectuuid)
+    def self.ui_projectDive(projectuuid)
         loop {
             catalystobjects = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
                 .map{|objectuuid| TheFlock::flockObjects().select{|object| object["uuid"]==objectuuid }.first }
@@ -234,12 +224,14 @@ class ProjectsCore
         }
     end
 
-    def self.ui_ProjectsDive()
+    def self.ui_projectsDive()
         loop {
-            toString = lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) }
+            toString = lambda{ |projectuuid| 
+                "#{ProjectsCore::ui_projectTimePointGeneratorAsStringContantLength(projectuuid)} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
+            }
             projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs(), toString)
             break if projectuuid.nil?
-            ProjectsCore::ui_ProjectDive(projectuuid)
+            ProjectsCore::ui_projectDive(projectuuid)
         }
     end
 
@@ -247,4 +239,21 @@ class ProjectsCore
         LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("project", ProjectsCore::projectsUUIDs(), lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) })
     end
 
+    def self.ui_destroyProject(projectuuid)
+        if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
+            puts "You now need to destroy all the objects"
+            LucilleCore::pressEnterToContinue()
+            loop {
+                break if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size==0
+                ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
+                    .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+                    .compact
+                    .each{|object|
+                        CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                    }
+            }
+        end
+        puts "ProjectsCore::deleteProject"
+        ProjectsCore::deleteProject(projectuuid)
+    end
 end
