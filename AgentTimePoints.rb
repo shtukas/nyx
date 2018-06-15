@@ -153,10 +153,14 @@ class AgentTimePoints
             end
         else
             metric =
-                if timepoint['metric'] then
-                    timepoint['metric']
+                if ratioDone>1 then
+                    0
                 else
-                    0.2 + 0.4*Math.atan(timepoint["commitment-in-hours"]) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
+                    if timepoint['metric'] then
+                        timepoint['metric']
+                    else
+                        0.5 + 0.1*Math.atan(timepoint["commitment-in-hours"]) + 0.1*Math.exp(-ratioDone*3) + CommonsUtils::traceToMetricShift(uuid)
+                    end
                 end
         end
         announce = "time commitment: #{timepoint['description']} (#{ "%.2f" % (100*ratioDone) } % of #{timepoint["commitment-in-hours"]} hours done)"
