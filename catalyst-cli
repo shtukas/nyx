@@ -66,7 +66,7 @@ class CatalystCLIUtils
         mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
         mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
-            FlockDiskIO::loadFromEventsTimeline() if !CommonsUtils::isActiveInstance(runId)
+            FlockDiskIO::loadFromEventsTimeline()
             standardlp = CommonsUtils::getStandardListingPosition()
             listingItem = CommonsUtils::getNthElementOfUnifiedListing(standardlp)
             object = listingItem["object"]
