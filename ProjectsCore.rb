@@ -214,7 +214,7 @@ class ProjectsCore
                 return
             end
             if menuChoice == menuItem5 then
-                if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") and LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Seriously ? ") then
+                if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") then
                     ProjectsCore::ui_destroyProject(projectuuid)
                 end
                 return
