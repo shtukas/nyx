@@ -34,15 +34,23 @@ class CatalystCLIUtils
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        [
-            "(#{"%.3f" % object["metric"]})",
-            " [#{object["uuid"]}]",
-            " #{announce}",
-            "#{requirementsAsString.green}",
-            CommonsUtils::object2DonotShowUntilAsString(object),
-            " (#{object["commands"].join(" ").red})",
-            " \"#{defaultExpressionAsString.green}\""
-        ].join()
+        part1 = 
+            [
+                "(#{"%.3f" % object["metric"]})",
+                " [#{object["uuid"]}]",
+                " #{announce}",
+            ].join()
+        if object["is-running"] then
+            part1 = part1.green
+        end
+        part2 = 
+            [
+                "#{requirementsAsString.green}",
+                CommonsUtils::object2DonotShowUntilAsString(object),
+                " (#{object["commands"].join(" ").red})",
+                " \"#{defaultExpressionAsString.green}\""
+            ].join()
+        part1 + part2
     end
     def self.object2Line_v2_ordinal(object, ordinal)
         announce = object['announce'].strip
