@@ -451,8 +451,6 @@ class CommonsUtils
 
         return if object.nil?
 
-        Ordinals::unregister(object["uuid"])
-
         # object needed
 
         if expression == 'expose' then

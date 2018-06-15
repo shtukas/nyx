@@ -120,12 +120,15 @@ class CatalystCLIUtils
             print "--> "
             command = STDIN.gets().strip
             if command=="." then
-                CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
                 next
             end
             if command=="+" then
                 CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
                 next
+            end
+            if command[0,1] == "!" then
+                command = command[1,command.length]
+                Ordinals::unregister(object["uuid"])
             end
             if command.start_with?(":") then
                 token, rest = StringParser::decompose(command)
