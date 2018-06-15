@@ -59,13 +59,18 @@ class TimePointsCore
     end
 
     def self.garbageCollectionItems(timepoints)
-        return if timepoints.size < 2 
+        return if timepoints.size < 2
         return if timepoints.any?{|timepoint| timepoint["is-running"] }
         timepoint1 = timepoints[0]
         timepoint2 = timepoints[1]
+        if timepoint2["creation-unixtime"] < timepoint1["creation-unixtime"] then
+            timepoint1, timepoint2 = [ timepoint2, timepoint1 ]
+        end
+        # timepoint2 is the more recent
+        # So that the newly created point has the description of timepoint2, which is probably more accurate than of timepoint1 (if the description was the description of an updated project)
         TimePointsCore::issueNewPoint(
-            timepoint1["domain"], 
-            timepoint1["description"], 
+            timepoint2["domain"],
+            timepoint2["description"],
             (timepoint1["commitment-in-hours"]+timepoint2["commitment-in-hours"]) - (timepoint1["timespans"]+timepoint2["timespans"]).inject(0, :+).to_f/3600, 
             timepoint1["0e69d463:GuardianSupport"] || timepoint2["0e69d463:GuardianSupport"]
         )
