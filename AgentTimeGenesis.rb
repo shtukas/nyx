@@ -82,20 +82,22 @@ class AgentTimeGenesis
 
     def self.processObjectAndCommandFromCli(object, command)
         if command == "050cd5ec-d8a1-4388-bace-bcdbf6c33b65" then
-            folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current Mini Projects"
-            if !File.exists?(folderpath) then
-                puts "The target folder '#{folderpath}' does not exists"
-                LucilleCore::pressEnterToContinue()
-                return
+            if [1, 2, 3, 4, 5].include?(Time.new.wday) then
+                folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current Mini Projects"
+                if !File.exists?(folderpath) then
+                    puts "The target folder '#{folderpath}' does not exists"
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+                filenames = Dir.entries(folderpath)
+                    .select{|filename| filename[0,1]!="." }
+                return if filenames.size==0
+                # We give 2 hours equaly spread between tasks
+                timespanInHours = 2.to_f/filenames.size
+                filenames.each{|filename|
+                    TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "OpenTasks: #{filename}", timespanInHours, false)
+                }
             end
-            filenames = Dir.entries(folderpath)
-                .select{|filename| filename[0,1]!="." }
-            return if filenames.size==0
-            # We give 2 hours equaly spread between tasks
-            timespanInHours = 2.to_f/filenames.size
-            filenames.each{|filename|
-                TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "OpenTasks: #{filename}", timespanInHours, false)
-            }
             FKVStore::set("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}", "done")
         end
         if command == "79418a54-c2e3-49bd-8c57-c435653458ce" then
