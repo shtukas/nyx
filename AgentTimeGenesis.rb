@@ -81,7 +81,25 @@ class AgentTimeGenesis
     end
 
     def self.processObjectAndCommandFromCli(object, command)
+        if command == "e565d398-5de9-4dd8-9e19-7673390863c6" then
+            # TimePoints Garbage Collection
+            TimePointsCore::getTimePoints()
+                .each{|point| 
+                    if point["creation-unixtime"] < (Time.new.to_i-86400*30) then
+                        TimePointsCore::destroyTimePoint(point)
+                    end
+                }            
+            FKVStore::set("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}", "done")
+        end
+        if command == "d0d34980-b873-4af6-9904-1169dc5cf5fc" then
+             # TimeGenesis: Guardian
+            if [1, 2, 3, 4, 5].include?(Time.new.wday) then
+                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5, false)
+            end
+            FKVStore::set("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}", "done")
+        end
         if command == "050cd5ec-d8a1-4388-bace-bcdbf6c33b65" then
+            # TimeGenesis: Guardian Current Mini Projects
             if [1, 2, 3, 4, 5].include?(Time.new.wday) then
                 folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current Mini Projects"
                 if !File.exists?(folderpath) then
@@ -92,15 +110,16 @@ class AgentTimeGenesis
                 filenames = Dir.entries(folderpath)
                     .select{|filename| filename[0,1]!="." }
                 return if filenames.size==0
-                # We give 2 hours equaly spread between tasks
-                timespanInHours = 2.to_f/filenames.size
+                # We give 4 hours equaly spread between tasks, this against a 5 hours Guardian time
+                timespanInHours = 4.to_f/filenames.size
                 filenames.each{|filename|
-                    TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "OpenTasks: #{filename}", timespanInHours, false)
+                    TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "Guardian Current Mini Project: #{filename}", timespanInHours, true)
                 }
             end
             FKVStore::set("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}", "done")
         end
         if command == "79418a54-c2e3-49bd-8c57-c435653458ce" then
+            # TimeGenesis: OpenTasks
             filenames = Dir.entries("/Galaxy/OpenTasks")
                 .select{|filename| filename[0,1]!="." }
             return if filenames.size==0
@@ -111,22 +130,8 @@ class AgentTimeGenesis
             }
             FKVStore::set("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}", "done")
         end
-        if command == "d0d34980-b873-4af6-9904-1169dc5cf5fc" then
-            if [1, 2, 3, 4, 5].include?(Time.new.wday) then
-                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5, false)
-            end
-            FKVStore::set("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}", "done")
-        end
-        if command == "e565d398-5de9-4dd8-9e19-7673390863c6" then
-            TimePointsCore::getTimePoints()
-                .each{|point| 
-                    if point["creation-unixtime"] < (Time.new.to_i-86400*30) then
-                        TimePointsCore::destroyTimePoint(point)
-                    end
-                }            
-            FKVStore::set("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}", "done")
-        end
         if command == "bb735b73-4b4a-47c8-8172-32fa5b1b0314" then
+            # TimeGenesis: Projects
             ProjectsCore::projectsUUIDs()
                 .select{|projectuuid| ProjectsCore::getTimePointGeneratorOrNull(projectuuid) }
                 .each{|projectuuid| 
@@ -145,11 +150,11 @@ class AgentTimeGenesis
             busyTimeInHours = TimePointsCore::getTimePoints()
                 .map{|point|
                     point["commitment-in-hours"] - point["timespans"].inject(0, :+).to_f/3600
-
                 }
                 .inject(0, :+)
-            availableTimeInHours = 12 - busyTimeInHours
-            puts "availableTimeInHours: #{availableTimeInHours}"
+            availableTimeInHours = 12 - busyTimeInHours 
+            # Given the way we compute the busyTimeInHours where the Guardian and Guardian Support are all counted (taking 9 hours) and 2 hours of OpenTasks, during week days there really is only 1 hour left.
+            # During week ends, there can be more.
             if availableTimeInHours > 0 then
                 halvesEnum = LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
                 ProjectsCore::projectsUUIDs()
