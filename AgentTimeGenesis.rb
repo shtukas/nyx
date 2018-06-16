@@ -68,10 +68,36 @@ class AgentTimeGenesis
                 "commands"  => [],
                 "default-expression" => "79418a54-c2e3-49bd-8c57-c435653458ce"
             }
-        TheFlock::addOrUpdateObjects([object1, object2, object3])
+        object5 =
+            {
+                "uuid"      => "2175b6f1",
+                "agent-uid" => self.agentuuid(),
+                "metric"    => ( FKVStore::getOrNull("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.8 : 0,
+                "announce"  => "TimeGenesis: Guardian Current Mini Projects",
+                "commands"  => [],
+                "default-expression" => "050cd5ec-d8a1-4388-bace-bcdbf6c33b65"
+            }
+        TheFlock::addOrUpdateObjects([object1, object2, object3, object4, object5])
     end
 
     def self.processObjectAndCommandFromCli(object, command)
+        if command == "050cd5ec-d8a1-4388-bace-bcdbf6c33b65" then
+            folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current Mini Projects"
+            if !File.exists?(folderpath) then
+                puts "The target folder '#{folderpath}' does not exists"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            filenames = Dir.entries(folderpath)
+                .select{|filename| filename[0,1]!="." }
+            return if filenames.size==0
+            # We give 2 hours equaly spread between tasks
+            timespanInHours = 2.to_f/filenames.size
+            filenames.each{|filename|
+                TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "OpenTasks: #{filename}", timespanInHours, false)
+            }
+            FKVStore::set("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}", "done")
+        end
         if command == "79418a54-c2e3-49bd-8c57-c435653458ce" then
             filenames = Dir.entries("/Galaxy/OpenTasks")
                 .select{|filename| filename[0,1]!="." }
