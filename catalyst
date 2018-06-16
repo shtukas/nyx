@@ -243,8 +243,11 @@ class CatalystInterfaceUtils
                 lines.each{|line|
                     puts "    - #{line}"
                 }
-                LucilleCore::pressEnterToContinue() if lines.size>0
-                FKVStore::set("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", Time.new.to_i + Random::rand*86400)
+                if lines.size>0 then
+                    FKVStore::set("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", Time.new.to_i + Random::rand*86400)
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end 
             end
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("9dcc9a69-cd99-48de-82af-f25d4d382df5", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
@@ -252,8 +255,11 @@ class CatalystInterfaceUtils
                 lines.each{|line|
                     puts "    - #{line}"
                 }
-                LucilleCore::pressEnterToContinue() if lines.size>0
-                FKVStore::set("9dcc9a69-cd99-48de-82af-f25d4d382df5", Time.new.to_i + Random::rand*86400)
+                if lines.size>0 then
+                    FKVStore::set("9dcc9a69-cd99-48de-82af-f25d4d382df5", Time.new.to_i + Random::rand*86400)
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
             end
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
