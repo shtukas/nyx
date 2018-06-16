@@ -22,7 +22,7 @@
 # ProjectsCore::addCatalystObjectUUIDToProject(objectuuid, projectuuid)
 # ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(objectuuid, projectuuid)
 # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-# ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(projectuuid)
+# ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
 
 # -------------------------------------------------------------
 # isGuardianTime?(projectuuid)
@@ -36,7 +36,7 @@
 # Misc
 
 # ProjectsCore::transform()
-# ProjectsCore::deleteProject(uuid)
+# ProjectsCore::deleteProject2(uuid)
 
 # -------------------------------------------------------------
 # User Interface
@@ -44,7 +44,7 @@
 # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
 # ProjectsCore::ui_projectsDive()
 # ProjectsCore::ui_projectDive(projectuuid)
-# ProjectsCore::deleteProject(projectuuid)
+# ProjectsCore::deleteProject2(projectuuid)
 
 # -------------------------------------------------------------
 
@@ -75,7 +75,7 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # projects uuids
+    # projects objects
 
     def self.addCatalystObjectUUIDToProject(objectuuid, projectuuid)
         uuids = ( ProjectsCore::projectCatalystObjectUUIDs(projectuuid) + [objectuuid] ).uniq
@@ -98,13 +98,16 @@ class ProjectsCore
 
     def self.projectCatalystObjectUUIDs(projectuuid)
         JSON.parse(FKVStore::getOrDefaultValue("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", "[]"))
+            .select{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
     end
 
-    def self.projectCatalystObjectUUIDsThatAreAlive(projectuuid)
-        a1 = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-        a2 = TheFlock::flockObjects().map{|object| object["uuid"] }
-        a1 & a2
+    def self.projectCatalystObjects(projectuuid)
+        JSON.parse(FKVStore::getOrDefaultValue("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", "[]"))
+            .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+            .compact
     end
+
+
 
     # ---------------------------------------------------
     # Time management & isGuardianTime?(projectuuid)
@@ -152,8 +155,8 @@ class ProjectsCore
         }
     end
 
-    def self.deleteProject(projectuuid)
-        if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(projectuuid).size>0 then
+    def self.deleteProject2(projectuuid)
+        if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
             puts "You cannot complete this item because it has objects"
             LucilleCore::pressEnterToContinue()
             return
@@ -215,7 +218,7 @@ class ProjectsCore
             end
             if menuChoice == menuItem5 then
                 if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") then
-                    ProjectsCore::ui_destroyProject(projectuuid)
+                    ProjectsCore::ui_deleteProject1(projectuuid)
                 end
                 return
             end
@@ -240,21 +243,19 @@ class ProjectsCore
         LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("project", ProjectsCore::projectsUUIDs(), lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) })
     end
 
-    def self.ui_destroyProject(projectuuid)
+    def self.ui_deleteProject1(projectuuid)
         if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
             puts "You now need to destroy all the objects"
             LucilleCore::pressEnterToContinue()
             loop {
-                break if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size==0
-                ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-                    .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
-                    .compact
-                    .each{|object|
+                objects = projectCatalystObjectUUIDs(projectuuid)
+                break if objects.size==0
+                objects.each{|object|
                         CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
                     }
             }
         end
-        puts "ProjectsCore::deleteProject"
-        ProjectsCore::deleteProject(projectuuid)
+        puts "ProjectsCore::deleteProject2"
+        ProjectsCore::deleteProject2(projectuuid)
     end
 end

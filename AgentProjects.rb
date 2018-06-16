@@ -37,8 +37,8 @@ class AgentProjects
     def self.makeCatalystObjectOrNull(uuid)
         description = ProjectsCore::projectUUID2NameOrNull(uuid)
         announce = "project: #{description}"
-        if ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(uuid).size>0 then
-            announce = announce + " { #{ProjectsCore::projectCatalystObjectUUIDsThatAreAlive(uuid).size} objects }"
+        if ProjectsCore::projectCatalystObjectUUIDs(uuid).size>0 then
+            announce = announce + " { #{ProjectsCore::projectCatalystObjectUUIDs(uuid).size} objects }"
         end
         announce = announce + " (#{ "%.2f" % (Chronos::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
         status = Chronos::status(uuid)
