@@ -231,40 +231,36 @@ class CatalystInterfaceUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
     def self.primaryDisplayLoop(runId)
-        mainschedule = {}
-        mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
-        mainschedule["events-gc"]   = Time.new.to_i + Random::rand*86400
-        mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
         loop {
             if !CommonsUtils::isActiveInstance(runId) then
                 FlockDiskIO::loadFromEventsTimeline()
             end
             system("clear")
             puts ""
-            if ( Time.new.to_i > mainschedule["archives-gc"] ) and CommonsUtils::isLucille18() then
+            if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"
                 lines.each{|line|
                     puts "    - #{line}"
                 }
                 LucilleCore::pressEnterToContinue() if lines.size>0
-                mainschedule["archives-gc"] = Time.new.to_i + Random::rand*86400
+                FKVStore::set("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", Time.new.to_i + Random::rand*86400)
             end
-            if ( Time.new.to_i > mainschedule["events-gc"] ) and CommonsUtils::isLucille18() then
+            if ( Time.new.to_i > FKVStore::getOrDefaultValue("9dcc9a69-cd99-48de-82af-f25d4d382df5", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
                 puts "Events timeline garbage collection: #{lines.size}"
                 lines.each{|line|
                     puts "    - #{line}"
                 }
                 LucilleCore::pressEnterToContinue() if lines.size>0
-                mainschedule["events-gc"] = Time.new.to_i + Random::rand*86400
+                FKVStore::set("9dcc9a69-cd99-48de-82af-f25d4d382df5", Time.new.to_i + Random::rand*86400)
             end
-            if ( Time.new.to_i > mainschedule["requirements-off-notification"] ) then
+            if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                     puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
                     LucilleCore::pressEnterToContinue()
                 end
-                mainschedule["requirements-off-notification"] = Time.new.to_i + Random::rand*3600*2
+                FKVStore::set("e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
                 next
             end
             CatalystListingUtils::putslisting()
