@@ -32,29 +32,73 @@ class AgentTimeGenesis
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        object =
+        object2 =
+            {
+                "uuid"      => "73dc9e2d",
+                "agent-uid" => self.agentuuid(),
+                "metric"    => ( FKVStore::getOrNull("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  1 : 0,
+                "announce"  => "TimePoints Garbage Collection",
+                "commands"  => [],
+                "default-expression" => "e565d398-5de9-4dd8-9e19-7673390863c6"
+            }
+        object1 =
             {
                 "uuid"      => "e15ca844",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("26b84bf4-a032-44f7-a101-85476ca27ccf:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  1 : 0,
-                "announce"  => "TimeGenesis",
+                "metric"    => ( FKVStore::getOrNull("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.9 : 0,
+                "announce"  => "TimeGenesis: Guardian",
                 "commands"  => [],
-                "default-expression" => "ab8976a7-dc42-412e-b27f-f05cc769686d"
+                "default-expression" => "d0d34980-b873-4af6-9904-1169dc5cf5fc"
             }
-        TheFlock::addOrUpdateObject(object)
+        object3 =
+            {
+                "uuid"      => "5a95258e",
+                "agent-uid" => self.agentuuid(),
+                "metric"    => ( FKVStore::getOrNull("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.8 : 0,
+                "announce"  => "TimeGenesis: Projects",
+                "commands"  => [],
+                "default-expression" => "bb735b73-4b4a-47c8-8172-32fa5b1b0314"
+            }
+        object4 =
+            {
+                "uuid"      => "616725ad",
+                "agent-uid" => self.agentuuid(),
+                "metric"    => ( FKVStore::getOrNull("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.8 : 0,
+                "announce"  => "TimeGenesis: OpenTasks",
+                "commands"  => [],
+                "default-expression" => "79418a54-c2e3-49bd-8c57-c435653458ce"
+            }
+        TheFlock::addOrUpdateObjects([object1, object2, object3])
     end
 
     def self.processObjectAndCommandFromCli(object, command)
-        if command == "ab8976a7-dc42-412e-b27f-f05cc769686d" then
+        if command == "79418a54-c2e3-49bd-8c57-c435653458ce" then
+            filenames = Dir.entries("/Galaxy/OpenTasks")
+                .select{|filename| filename[0,1]!="." }
+            return if filenames.size==0
+            # We give 2 hours equaly spread between tasks
+            timespanInHours = 2.to_f/filenames.size
+            filenames.each{|filename|
+                TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "OpenTasks: #{filename}", timespanInHours, false)
+            }
+            FKVStore::set("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}", "done")
+        end
+        if command == "d0d34980-b873-4af6-9904-1169dc5cf5fc" then
             if [1, 2, 3, 4, 5].include?(Time.new.wday) then
                 TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5, false)
             end
+            FKVStore::set("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}", "done")
+        end
+        if command == "e565d398-5de9-4dd8-9e19-7673390863c6" then
             TimePointsCore::getTimePoints()
                 .each{|point| 
                     if point["creation-unixtime"] < (Time.new.to_i-86400*30) then
                         TimePointsCore::destroyTimePoint(point)
                     end
-                }
+                }            
+            FKVStore::set("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}", "done")
+        end
+        if command == "bb735b73-4b4a-47c8-8172-32fa5b1b0314" then
             ProjectsCore::projectsUUIDs()
                 .select{|projectuuid| ProjectsCore::getTimePointGeneratorOrNull(projectuuid) }
                 .each{|projectuuid| 
@@ -91,7 +135,7 @@ class AgentTimeGenesis
                     }
             end
             LucilleCore::pressEnterToContinue()
-            FKVStore::set("26b84bf4-a032-44f7-a101-85476ca27ccf:#{Time.new.to_s[0,10]}", "done")
+            FKVStore::set("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}", "done")
         end
     end
 end
