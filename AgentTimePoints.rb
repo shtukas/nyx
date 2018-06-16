@@ -68,7 +68,7 @@ class AgentTimePoints
         object  = {}
         object["uuid"]      = uuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = timepoint["metric"]
+        object["metric"]    = ((ratioDone > 1) and !timepoint["is-running"]) ? 0 : timepoint["metric"]
         object["announce"]  = announce
         object["commands"]  = commands
         object["default-expression"] = defaultExpression
