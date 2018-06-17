@@ -1,6 +1,15 @@
 
 # encoding: UTF-8
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 # -------------------------------------------------------------
 
 # Collections was born out of what was originally known as Threads and Projects
@@ -52,12 +61,43 @@ class ProjectsCore
     # ---------------------------------------------------
     # Utils
 
-    def self.projectsUUIDs()
-        JSON.parse(FKVStore::getOrDefaultValue(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, "[]"))
+    def self.fs_location2UUID(location)
+        if File.directory?(location) then
+            uuidFilepath = "#{location}/.uuid"
+            if !File.exists?(uuidFilepath) then
+                File.open(uuidFilepath, "w"){|f| f.write(SecureRandom.hex(4)) }
+            end
+            IO.read(uuidFilepath).strip
+        else
+            Digest::SHA1.hexdigest("3fa3a298-8941-4c9e-8b59-f1bc867e517d:#{location}")[0,8]
+        end
     end
 
-    def self.projectUUID2NameOrNull(uuid)
-        FKVStore::getOrNull("AE2252BF-4915-4170-8435-C8C05EA4283C:#{uuid}")
+    def self.fs_locations()
+        Dir.entries("/Galaxy/Projects")
+            .select{|filename| (filename[0,1] != ".") and (filename != 'Icon'+["0D"].pack("H*")) }
+            .map{|filename| "/Galaxy/Projects/#{filename}" }
+    end
+
+    def self.fs_uuidIsFileSystemProject(uuid)
+        ProjectsCore::fs_locations()
+            .any?{|location| uuid == ProjectsCore::fs_location2UUID(location) }
+    end
+
+    def self.projectsUUIDs()
+        uuids1 = JSON.parse(FKVStore::getOrDefaultValue(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, "[]"))
+        uuids2 = ProjectsCore::fs_locations()
+            .map{|location| ProjectsCore::fs_location2UUID(location) }
+        uuids1 + uuids2
+    end
+
+    def self.projectUUID2NameOrNull(projectuuid)
+        ProjectsCore::fs_locations()
+            .select{|location| projectuuid == ProjectsCore::fs_location2UUID(location) }
+            .each{|location|
+                return File.basename(location)
+            }
+        FKVStore::getOrNull("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}")
     end
 
     # ---------------------------------------------------
@@ -157,7 +197,12 @@ class ProjectsCore
 
     def self.deleteProject2(projectuuid)
         if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
-            puts "You cannot complete this item because it has objects"
+            puts "You cannot complete this project because it has objects"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) then
+            puts "You cannot complete this project because it is a file system based project"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -228,12 +273,25 @@ class ProjectsCore
         }
     end
 
+    def self.projectTimePoints(projectuuid)
+        TimePointsCore::getTimePoints().select{|timepoint| timepoint["domain"]==projectuuid }
+    end
+
+    def self.projectTimeDueInHours(projectuuid)
+        ProjectsCore::projectTimePoints(projectuuid)
+            .map{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
+            .inject(0, :+)
+    end
+
     def self.ui_projectsDive()
+        ProjectsCore::projectsUUIDs().each{|projectuuid|
+            ProjectsCore::isGuardianTime?(projectuuid)
+        }
         loop {
             toString = lambda{ |projectuuid| 
-                "#{ProjectsCore::ui_projectTimePointGeneratorAsStringContantLength(projectuuid)} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
+                "#{ProjectsCore::ui_projectTimePointGeneratorAsStringContantLength(projectuuid)} | #{ ProjectsCore::isGuardianTime?(projectuuid) ? "guardian" : "        " } | #{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{"%5.2f" % ProjectsCore::projectTimeDueInHours(projectuuid)} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
             }
-            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs(), toString)
+            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::projectTimeDueInHours(projectuuid1) <=> ProjectsCore::projectTimeDueInHours(projectuuid2) }.reverse, toString)
             break if projectuuid.nil?
             ProjectsCore::ui_projectDive(projectuuid)
         }

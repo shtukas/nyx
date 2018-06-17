@@ -30,6 +30,10 @@ class AgentTimeGenesis
         
     end
 
+    def self.isWeekDay()
+        [1, 2, 3, 4, 5].include?(Time.new.wday)
+    end
+
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         object2 =
@@ -59,15 +63,6 @@ class AgentTimeGenesis
                 "commands"  => [],
                 "default-expression" => "bb735b73-4b4a-47c8-8172-32fa5b1b0314"
             }
-        object4 =
-            {
-                "uuid"      => "616725ad",
-                "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.88 : 0,
-                "announce"  => "TimeGenesis: OpenTasks",
-                "commands"  => [],
-                "default-expression" => "79418a54-c2e3-49bd-8c57-c435653458ce"
-            }
         object5 =
             {
                 "uuid"      => "2175b6f1",
@@ -77,7 +72,7 @@ class AgentTimeGenesis
                 "commands"  => [],
                 "default-expression" => "050cd5ec-d8a1-4388-bace-bcdbf6c33b65"
             }
-        TheFlock::addOrUpdateObjects([object1, object2, object3, object4, object5])
+        TheFlock::addOrUpdateObjects([object1, object2, object3, object5])
     end
 
     def self.processObjectAndCommandFromCli(object, command)
@@ -93,16 +88,16 @@ class AgentTimeGenesis
         end
         if command == "d0d34980-b873-4af6-9904-1169dc5cf5fc" then
              # TimeGenesis: Guardian
-            if [1, 2, 3, 4, 5].include?(Time.new.wday) then
+            if self.isWeekDay() then
                 puts "TimeGenesis: #{5*CommonsUtils::getLightSpeed()} hours for Guardian"
                 LucilleCore::pressEnterToContinue()
-                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5*CommonsUtils::getLightSpeed(), false)
+                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5*CommonsUtils::getLightSpeed(), false, 0.710)
             end
             FKVStore::set("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}", "done")
         end
         if command == "050cd5ec-d8a1-4388-bace-bcdbf6c33b65" then
             # TimeGenesis: Guardian Current Mini Projects
-            if [1, 2, 3, 4, 5].include?(Time.new.wday) then
+            if self.isWeekDay() then
                 folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current Mini Projects"
                 if !File.exists?(folderpath) then
                     puts "The target folder '#{folderpath}' does not exists"
@@ -117,25 +112,10 @@ class AgentTimeGenesis
                 filenames.each{|filename|
                     puts "TimeGenesis: #{timespanInHours*CommonsUtils::getLightSpeed()} hours for Guardian Current Mini Project: #{filename}"
                     LucilleCore::pressEnterToContinue()
-                    TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "Guardian Current Mini Project: #{filename}", timespanInHours*CommonsUtils::getLightSpeed(), true)
+                    TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "Guardian Current Mini Project: #{filename}", timespanInHours*CommonsUtils::getLightSpeed(), true, 0.72)
                 }
             end
             FKVStore::set("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}", "done")
-        end
-        if command == "79418a54-c2e3-49bd-8c57-c435653458ce" then
-            # TimeGenesis: OpenTasks
-            filenames = Dir.entries("/Galaxy/OpenTasks")
-                .select{|filename| filename[0,1] != "." }
-                .select{|filename| filename != 'Icon'+["0D"].pack("H*") }
-            return if filenames.size==0
-            # We give 2 hours equaly spread between tasks
-            timespanInHours = 2.to_f/filenames.size
-            filenames.each{|filename|
-                puts "TimeGenesis: #{timespanInHours*CommonsUtils::getLightSpeed()} hours for Open Task: #{filename}"
-                LucilleCore::pressEnterToContinue()
-                TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "OpenTasks: #{filename}", timespanInHours*CommonsUtils::getLightSpeed(), false)
-            }
-            FKVStore::set("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}", "done")
         end
         if command == "bb735b73-4b4a-47c8-8172-32fa5b1b0314" then
             # TimeGenesis: Projects
@@ -152,12 +132,14 @@ class AgentTimeGenesis
                                 projectuuid, 
                                 "project: #{xname}", 
                                 (generator[2].to_f/3600)*CommonsUtils::getLightSpeed(),
-                                ProjectsCore::isGuardianTime?(projectuuid))
+                                ProjectsCore::isGuardianTime?(projectuuid),
+                                ProjectsCore::isGuardianTime?(projectuuid) ? 0.715 : nil)
                             ProjectsCore::resetTimePointGenerator(projectuuid)
                         end
                     end
                 }
-            availableTimeInHours = 12 - TimePointsCore::liveDueTimeInHours() 
+            totalHoursForTodayIncludingWork = LucilleCore::askQuestionAnswerAsString("Total hours for today including work: ").to_f
+            availableTimeInHours = totalHoursForTodayIncludingWork - TimePointsCore::liveDueTimeInHours() 
             # Given the way we compute the liveDueTimeInHours where the Guardian and Guardian Support are all counted (taking 9 hours) and 2 hours of OpenTasks, during week days there really is only 1 hour left.
             # During week ends, there can be more.
             if availableTimeInHours > 0 then
@@ -173,7 +155,8 @@ class AgentTimeGenesis
                             projectuuid, 
                             "project: #{xname}", 
                             timespan,
-                            ProjectsCore::isGuardianTime?(projectuuid))
+                            ProjectsCore::isGuardianTime?(projectuuid),
+                            0.550)
                     }
             end
             FKVStore::set("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}", "done")

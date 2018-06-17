@@ -93,7 +93,7 @@ class TimePointsCore
         timepoints.map{|timepoint| timepoint["domain"] }.uniq
     end
 
-    def self.issueNewPoint(domain, description, hours, isGuardianSupport)
+    def self.issueNewPoint(domain, description, hours, isGuardianSupport, metric = nil)
         item = {
             "uuid"                => SecureRandom.hex(4),
             "creation-unixtime"   => Time.new.to_i,
@@ -104,6 +104,9 @@ class TimePointsCore
             "last-start-unixtime" => 0,
             "0e69d463:GuardianSupport" => isGuardianSupport
         }
+        if metric then
+            item["metric"] = metric
+        end
         TimePointsCore::saveTimePoint(item)
     end
 
