@@ -31,7 +31,7 @@ class AgentProjects
     end
 
     def self.metric(uuid, isRunning)
-        0.2 + 0.1*Math.exp(-self.objectHoursDone(uuid))
+        0.3*Math.exp(-self.objectHoursDone(uuid))
     end
 
     def self.makeCatalystObjectOrNull(uuid)

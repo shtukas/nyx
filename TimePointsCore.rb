@@ -16,6 +16,7 @@
 # TimePointsCore::timePointToRatioDone(timepoint)
 # TimePointsCore::timePointToMetric(timepoint)
 # TimePointsCore::liveDueTimeInHours()
+# TimePointsCore::liveDueTimeInHoursForTimePoints(timepoints)
 
 class TimePointsCore
     def self.getTimePoints()
@@ -129,4 +130,11 @@ class TimePointsCore
             .map{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
             .inject(0, :+)
     end
+
+    def self.liveDueTimeInHoursForTimePoints(timepoints)
+        timepoints
+            .map{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
+            .inject(0, :+)
+    end
+
 end

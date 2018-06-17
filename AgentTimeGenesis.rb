@@ -54,15 +54,6 @@ class AgentTimeGenesis
                 "commands"  => [],
                 "default-expression" => "d0d34980-b873-4af6-9904-1169dc5cf5fc"
             }
-        object3 =
-            {
-                "uuid"      => "5a95258e",
-                "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.88 : 0,
-                "announce"  => "TimeGenesis: Projects",
-                "commands"  => [],
-                "default-expression" => "bb735b73-4b4a-47c8-8172-32fa5b1b0314"
-            }
         object5 =
             {
                 "uuid"      => "2175b6f1",
@@ -71,6 +62,15 @@ class AgentTimeGenesis
                 "announce"  => "TimeGenesis: Guardian Current Mini Projects",
                 "commands"  => [],
                 "default-expression" => "050cd5ec-d8a1-4388-bace-bcdbf6c33b65"
+            }
+        object3 =
+            {
+                "uuid"      => "5a95258e",
+                "agent-uid" => self.agentuuid(),
+                "metric"    => ( FKVStore::getOrNull("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.87 : 0,
+                "announce"  => "TimeGenesis: Projects",
+                "commands"  => [],
+                "default-expression" => "bb735b73-4b4a-47c8-8172-32fa5b1b0314"
             }
         TheFlock::addOrUpdateObjects([object1, object2, object3, object5])
     end
@@ -138,10 +138,11 @@ class AgentTimeGenesis
                         end
                     end
                 }
-            totalHoursForTodayIncludingWork = LucilleCore::askQuestionAnswerAsString("Total hours for today including work: ").to_f
-            availableTimeInHours = totalHoursForTodayIncludingWork - TimePointsCore::liveDueTimeInHours() 
-            # Given the way we compute the liveDueTimeInHours where the Guardian and Guardian Support are all counted (taking 9 hours) and 2 hours of OpenTasks, during week days there really is only 1 hour left.
-            # During week ends, there can be more.
+            timepoints = TimePointsCore::getTimePoints()
+                .select{|timepoint| timepoint["domain"]!="6596d75b-a2e0-4577-b537-a2d31b156e74" } # removing the guardian point
+                .select{|timepoint| !timepoint["domain"].start_with?("031fe929-8dce-4209-ac1f-2ac15555cb78") } # removing the guardian mini projects
+                .select{|timepoint| !(ProjectsCore::projectsUUIDs().select{|projectuuid| ProjectsCore::isGuardianTime?(projectuuid) }.include?(timepoint["domain"])) } # removing the projects that are guardian time
+            availableTimeInHours = ( self.isWeekDay() ? 2 : 6 ) - TimePointsCore::liveDueTimeInHoursForTimePoints(timepoints)
             if availableTimeInHours > 0 then
                 halvesEnum = LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
                 ProjectsCore::projectsUUIDs()
