@@ -207,20 +207,20 @@ class ProjectsCore
                 ProjectsCore::setProjectName(
                     projectuuid, 
                     LucilleCore::askQuestionAnswerAsString("Name: "))
-                return
+                next
             end
             if menuChoice == menuItem4 then
                 ProjectsCore::setTimePointGenerator(
                         projectuuid, 
                         LucilleCore::askQuestionAnswerAsString("Period in days: ").to_f*86400, 
                         LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f*3600)
-                return
+                next
             end
             if menuChoice == menuItem5 then
                 if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") then
                     ProjectsCore::ui_deleteProject1(projectuuid)
                 end
-                return
+                next
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice
