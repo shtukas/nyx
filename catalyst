@@ -53,7 +53,7 @@ class CatalystListingUtils
             end            
         }
         standardlp = CommonsUtils::getStandardListingPosition()
-        screenleft = CommonsUtils::screenHeight()-6
+        screenleft = CommonsUtils::screenHeight()-7
         structure = CommonsUtils::getUnifiedListing(screenleft)
         while structure.select{|p| p["object"]["metric"] < 0.5 }.size >= 2 do
             structure.pop
@@ -250,7 +250,8 @@ class CatalystInterfaceUtils
             end
             system("clear")
             puts ""
-            puts " "*(CommonsUtils::screenWidth()-22) + "Light speed: #{"%8.6f" % CommonsUtils::getLightSpeed()}"
+            puts " "*(CommonsUtils::screenWidth()-43) + "Light speed: #{"%8.6f" % CommonsUtils::getLightSpeed()}"
+            puts " "*(CommonsUtils::screenWidth()-43) + "Time points ETA: #{ (Time.new + TimePointsCore::dueTimeInHours()*3600).to_s }"
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"
