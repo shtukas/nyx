@@ -36,7 +36,7 @@ class AgentTimeGenesis
             {
                 "uuid"      => "73dc9e2d",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  1 : 0,
+                "metric"    => ( FKVStore::getOrNull("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.90 : 0,
                 "announce"  => "TimePoints Garbage Collection",
                 "commands"  => [],
                 "default-expression" => "e565d398-5de9-4dd8-9e19-7673390863c6"
@@ -45,7 +45,7 @@ class AgentTimeGenesis
             {
                 "uuid"      => "e15ca844",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.9 : 0,
+                "metric"    => ( FKVStore::getOrNull("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.89 : 0,
                 "announce"  => "TimeGenesis: Guardian",
                 "commands"  => [],
                 "default-expression" => "d0d34980-b873-4af6-9904-1169dc5cf5fc"
@@ -54,7 +54,7 @@ class AgentTimeGenesis
             {
                 "uuid"      => "5a95258e",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.8 : 0,
+                "metric"    => ( FKVStore::getOrNull("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.88 : 0,
                 "announce"  => "TimeGenesis: Projects",
                 "commands"  => [],
                 "default-expression" => "bb735b73-4b4a-47c8-8172-32fa5b1b0314"
@@ -63,7 +63,7 @@ class AgentTimeGenesis
             {
                 "uuid"      => "616725ad",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.8 : 0,
+                "metric"    => ( FKVStore::getOrNull("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.88 : 0,
                 "announce"  => "TimeGenesis: OpenTasks",
                 "commands"  => [],
                 "default-expression" => "79418a54-c2e3-49bd-8c57-c435653458ce"
@@ -72,7 +72,7 @@ class AgentTimeGenesis
             {
                 "uuid"      => "2175b6f1",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.8 : 0,
+                "metric"    => ( FKVStore::getOrNull("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.88 : 0,
                 "announce"  => "TimeGenesis: Guardian Current Mini Projects",
                 "commands"  => [],
                 "default-expression" => "050cd5ec-d8a1-4388-bace-bcdbf6c33b65"
@@ -94,6 +94,8 @@ class AgentTimeGenesis
         if command == "d0d34980-b873-4af6-9904-1169dc5cf5fc" then
              # TimeGenesis: Guardian
             if [1, 2, 3, 4, 5].include?(Time.new.wday) then
+                puts "TimeGenesis: #{5*CommonsUtils::getLightSpeed()} hours for Guardian"
+                LucilleCore::pressEnterToContinue()
                 TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5*CommonsUtils::getLightSpeed(), false)
             end
             FKVStore::set("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}", "done")
@@ -113,6 +115,8 @@ class AgentTimeGenesis
                 # We give 4 hours equaly spread between tasks, this against a 5 hours Guardian time
                 timespanInHours = 4.to_f/filenames.size
                 filenames.each{|filename|
+                    puts "TimeGenesis: #{timespanInHours*CommonsUtils::getLightSpeed()} hours for Guardian Current Mini Project: #{filename}"
+                    LucilleCore::pressEnterToContinue()
                     TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "Guardian Current Mini Project: #{filename}", timespanInHours*CommonsUtils::getLightSpeed(), true)
                 }
             end
@@ -121,11 +125,14 @@ class AgentTimeGenesis
         if command == "79418a54-c2e3-49bd-8c57-c435653458ce" then
             # TimeGenesis: OpenTasks
             filenames = Dir.entries("/Galaxy/OpenTasks")
-                .select{|filename| filename[0,1]!="." }
+                .select{|filename| filename[0,1] != "." }
+                .select{|filename| filename != 'Icon'+["0D"].pack("H*") }
             return if filenames.size==0
             # We give 2 hours equaly spread between tasks
             timespanInHours = 2.to_f/filenames.size
             filenames.each{|filename|
+                puts "TimeGenesis: #{timespanInHours*CommonsUtils::getLightSpeed()} hours for Open Task: #{filename}"
+                LucilleCore::pressEnterToContinue()
                 TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "OpenTasks: #{filename}", timespanInHours*CommonsUtils::getLightSpeed(), false)
             }
             FKVStore::set("3b62645a-8567-47bf-89d2-c94d35785c2e:#{Time.new.to_s[0,10]}", "done")
@@ -138,9 +145,12 @@ class AgentTimeGenesis
                     generator = ProjectsCore::getTimePointGeneratorOrNull(projectuuid) # [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
                     if Time.new.to_i >= (generator[0]+generator[1]) then
                         if TimePointsCore::getTimePoints().select{|point| point["project-uuid"]==projectuuid }.size==0 then
+                            xname = "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}"
+                            puts "TimeGenesis: #{(generator[2].to_f/3600)*CommonsUtils::getLightSpeed()} hours for project: #{xname}"
+                            LucilleCore::pressEnterToContinue()
                             TimePointsCore::issueNewPoint(
                                 projectuuid, 
-                                "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}", 
+                                "project: #{xname}", 
                                 (generator[2].to_f/3600)*CommonsUtils::getLightSpeed(),
                                 ProjectsCore::isGuardianTime?(projectuuid))
                             ProjectsCore::resetTimePointGenerator(projectuuid)
@@ -155,14 +165,17 @@ class AgentTimeGenesis
                 ProjectsCore::projectsUUIDs()
                     .select{|projectuuid| ProjectsCore::getTimePointGeneratorOrNull(projectuuid).nil? }
                     .each{|projectuuid|
+                        timespan = availableTimeInHours * halvesEnum.next() * CommonsUtils::getLightSpeed()
+                        xname = "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}"
+                        puts "TimeGenesis: #{timespan} hours for project: #{xname}"
+                        LucilleCore::pressEnterToContinue()
                         TimePointsCore::issueNewPoint(
                             projectuuid, 
-                            "project#{ProjectsCore::isGuardianTime?(projectuuid) ? " (guardian)" : ""}: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}", 
-                            availableTimeInHours * halvesEnum.next() * CommonsUtils::getLightSpeed(),
+                            "project: #{xname}", 
+                            timespan,
                             ProjectsCore::isGuardianTime?(projectuuid))
                     }
             end
-            LucilleCore::pressEnterToContinue()
             FKVStore::set("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}", "done")
         end
     end
