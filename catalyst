@@ -132,7 +132,7 @@ class CatalystInterfaceUtils
             ].join()
         part1 + part2
     end
-    def self.cli()
+    def self.cli(runId)
         standardlp = CommonsUtils::getStandardListingPosition()
         listingItem = CommonsUtils::getNthElementOfUnifiedListing(standardlp)
         object = listingItem["object"]
@@ -160,6 +160,10 @@ class CatalystInterfaceUtils
         end
         print "--> "
         command = STDIN.gets().strip
+        if command == "absolute"then
+            self.absolute(runId)
+            return
+        end
         if command=="." then
             return
         end
@@ -230,6 +234,53 @@ class CatalystInterfaceUtils
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
     end
+    def self.absolute(runId)
+        loop {
+            system("clear")
+            File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
+            listingItem = CommonsUtils::getNthElementOfUnifiedListing(1)
+            object = listingItem["object"]
+            puts CatalystInterfaceUtils::object2Line_v1(object)
+            print "--> "
+            command = STDIN.gets().strip
+            if command == "absolute"then
+                return
+            end
+            if command.start_with?(":") then
+                token, rest = StringParser::decompose(command)
+                if token==":?" then
+                    # :? <float> <description, multi-tokens> # creates a text object and give it that ordinal
+                    ordinal, description = StringParser::decompose(rest)
+                    xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
+                    Ordinals::register(xuuid, ordinal.to_f)
+                    AgentWave::generalFlockUpgrade()
+                    if listingItem["type"]=="main" then
+                        CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+                    end
+                    next
+                end
+                if token==":this" then
+                    if CommonsUtils::isFloat(rest) or CommonsUtils::isInteger(rest) then
+                        # :this <float> # register the current object agains the float
+                        ordinal = rest.to_f
+                        Ordinals::register(object["uuid"], ordinal)
+                        if listingItem["type"]=="main" then
+                            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+                        end
+                        next
+                    end
+                    if rest=="goto:project" then
+                        ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
+                        next
+                    end
+                    next
+                end
+                next
+            end
+            command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+            CommonsUtils::processObjectAndCommand(object, command)
+        }
+    end
     def self.primaryDisplayLoop(runId)
         loop {
             if !CommonsUtils::isActiveInstance(runId) then
@@ -282,7 +333,7 @@ class CatalystInterfaceUtils
             end
             CatalystListingUtils::putslisting()
             puts ""
-            CatalystInterfaceUtils::cli()
+            CatalystInterfaceUtils::cli(runId)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
     end
