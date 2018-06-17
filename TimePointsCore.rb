@@ -15,6 +15,7 @@
 # TimePointsCore::timePointToMetric(timepoint)
 # TimePointsCore::timePointToRatioDone(timepoint)
 # TimePointsCore::timePointToMetric(timepoint)
+# TimePointsCore::dueTimeInHours()
 
 class TimePointsCore
     def self.getTimePoints()
@@ -113,4 +114,12 @@ class TimePointsCore
         0.2 + 0.4*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-TimePointsCore::timePointToRatioDone(timepoint)*3) + CommonsUtils::traceToMetricShift(timepoint["uuid"])
     end
 
+
+    def self.dueTimeInHours()
+        TimePointsCore::getTimePoints()
+            .map{|point|
+                point["commitment-in-hours"] - point["timespans"].inject(0, :+).to_f/3600
+            }
+            .inject(0, :+)
+    end
 end

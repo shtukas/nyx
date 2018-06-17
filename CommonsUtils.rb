@@ -22,6 +22,8 @@ require_relative "Bob.rb"
 # CommonsUtils::waveInsertNewItemInteractive(description)
 # CommonsUtils::getUnifiedListing(screenleft)
 # CommonsUtils::getNthElementOfUnifiedListing(n)
+# CommonsUtils::getLightSpeed()
+# CommonsUtils::setLightSpeed(value)
 
 class CommonsUtils
 
@@ -501,4 +503,11 @@ class CommonsUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
+    def self.getLightSpeed()
+        FKVStore::getOrDefaultValue("SPEED-OF-LIGHT-BCAA047D-C277-41DB-9887-7EB5E468255F", "1").to_f
+    end
+
+    def self.setLightSpeed(value)
+        FKVStore::set("SPEED-OF-LIGHT-BCAA047D-C277-41DB-9887-7EB5E468255F", value)
+    end
 end

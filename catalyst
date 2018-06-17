@@ -53,7 +53,7 @@ class CatalystListingUtils
             end            
         }
         standardlp = CommonsUtils::getStandardListingPosition()
-        screenleft = CommonsUtils::screenHeight()-5
+        screenleft = CommonsUtils::screenHeight()-6
         structure = CommonsUtils::getUnifiedListing(screenleft)
         while structure.select{|p| p["object"]["metric"] < 0.5 }.size >= 2 do
             structure.pop
@@ -235,19 +235,31 @@ class CatalystInterfaceUtils
             if !CommonsUtils::isActiveInstance(runId) then
                 FlockDiskIO::loadFromEventsTimeline()
             end
+            if FKVStore::getOrNull("63ED1643-C6F6-4E30-A968-8FB86D12E23B:#{Time.new.to_s[0,10]}").nil? then
+                if TimePointsCore::dueTimeInHours() <= 0 then
+                    puts "I am increasing light speed by 10%"
+                    CommonsUtils::setLightSpeed(1.1*CommonsUtils::getLightSpeed())
+                    LucilleCore::pressEnterToContinue()
+                end
+                if TimePointsCore::dueTimeInHours() > 4 then
+                    puts "I am decreasing light speed by 20%"
+                    CommonsUtils::setLightSpeed(0.8*CommonsUtils::getLightSpeed())
+                    LucilleCore::pressEnterToContinue()
+                end
+                FKVStore::set("63ED1643-C6F6-4E30-A968-8FB86D12E23B:#{Time.new.to_s[0,10]}", "done").nil?
+            end
             system("clear")
             puts ""
+            puts " "*(CommonsUtils::screenWidth()-22) + "Light speed: #{"%8.6f" % CommonsUtils::getLightSpeed()}"
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"
                 lines.each{|line|
                     puts "    - #{line}"
                 }
-                if lines.size>0 then
-                    FKVStore::set("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", Time.new.to_i + Random::rand*86400)
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end 
+                FKVStore::set("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", Time.new.to_i + Random::rand*86400)
+                LucilleCore::pressEnterToContinue()
+                next
             end
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("9dcc9a69-cd99-48de-82af-f25d4d382df5", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::eventsTimelineGarbageCollection()
@@ -255,11 +267,9 @@ class CatalystInterfaceUtils
                 lines.each{|line|
                     puts "    - #{line}"
                 }
-                if lines.size>0 then
-                    FKVStore::set("9dcc9a69-cd99-48de-82af-f25d4d382df5", Time.new.to_i + Random::rand*86400)
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
+                FKVStore::set("9dcc9a69-cd99-48de-82af-f25d4d382df5", Time.new.to_i + Random::rand*86400)
+                LucilleCore::pressEnterToContinue()
+                next
             end
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
