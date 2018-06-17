@@ -443,6 +443,7 @@ class CommonsUtils
             pattern = expression[6,expression.size].strip
             loop {
                 FlockDiskIO::loadFromEventsTimeline()
+                Bob::generalFlockUpgrade()
                 searchobjects = TheFlock::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })

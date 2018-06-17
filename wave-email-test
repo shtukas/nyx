@@ -3,6 +3,7 @@
 # encoding: UTF-8
 require_relative "catalyst.rb"
 FlockDiskIO::loadFromEventsTimeline()
+Bob::generalFlockUpgrade()
 # ----------------------------------------------------------------------------
 GeneralEmailClient::sync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), true)
 OperatorEmailClient::download(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/operator.json")), true)
