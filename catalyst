@@ -236,12 +236,12 @@ class CatalystInterfaceUtils
                 FlockDiskIO::loadFromEventsTimeline()
             end
             if FKVStore::getOrNull("63ED1643-C6F6-4E30-A968-8FB86D12E23B:#{Time.new.to_s[0,10]}").nil? then
-                if TimePointsCore::dueTimeInHours() <= 0 then
+                if TimePointsCore::liveDueTimeInHours() <= 0 then
                     puts "I am increasing light speed by 10%"
                     CommonsUtils::setLightSpeed(1.1*CommonsUtils::getLightSpeed())
                     LucilleCore::pressEnterToContinue()
                 end
-                if TimePointsCore::dueTimeInHours() > 4 then
+                if TimePointsCore::liveDueTimeInHours() > 4 then
                     puts "I am decreasing light speed by 20%"
                     CommonsUtils::setLightSpeed(0.8*CommonsUtils::getLightSpeed())
                     LucilleCore::pressEnterToContinue()
@@ -251,7 +251,7 @@ class CatalystInterfaceUtils
             system("clear")
             puts ""
             puts " "*(CommonsUtils::screenWidth()-43) + "Light speed: #{"%8.6f" % CommonsUtils::getLightSpeed()}"
-            puts " "*(CommonsUtils::screenWidth()-43) + "Time points ETA: #{ (Time.new + TimePointsCore::dueTimeInHours()*3600).to_s }"
+            puts " "*(CommonsUtils::screenWidth()-43) + "Time points ETA: #{ (Time.new + TimePointsCore::liveDueTimeInHours()*3600).to_s }"
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"

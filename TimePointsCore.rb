@@ -15,7 +15,7 @@
 # TimePointsCore::timePointToMetric(timepoint)
 # TimePointsCore::timePointToRatioDone(timepoint)
 # TimePointsCore::timePointToMetric(timepoint)
-# TimePointsCore::dueTimeInHours()
+# TimePointsCore::liveDueTimeInHours()
 
 class TimePointsCore
     def self.getTimePoints()
@@ -29,6 +29,7 @@ class TimePointsCore
 
     def self.saveTimePoint(timepoint)
         SetsOperator::insert(CATALYST_COMMON_TIMEPOINTS_ITEMS_REPOSITORY_PATH, CATALYST_COMMON_TIMEPOINTS_ITEMS_SETUUID, timepoint["uuid"], timepoint)
+        timepoint
     end
 
     def self.startTimePoint(timepoint)
@@ -115,10 +116,12 @@ class TimePointsCore
     end
 
 
-    def self.dueTimeInHours()
+    def self.liveDueTimeInHours()
         TimePointsCore::getTimePoints()
-            .map{|point|
-                point["commitment-in-hours"] - point["timespans"].inject(0, :+).to_f/3600
+            .map{|timepoint|
+                t1 = timepoint["commitment-in-hours"] - timepoint["timespans"].inject(0, :+).to_f/3600
+                t2 = ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 ).to_f/3600
+                t1-t2
             }
             .inject(0, :+)
     end

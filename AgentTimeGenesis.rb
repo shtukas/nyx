@@ -157,8 +157,8 @@ class AgentTimeGenesis
                         end
                     end
                 }
-            availableTimeInHours = 12 - TimePointsCore::dueTimeInHours() 
-            # Given the way we compute the dueTimeInHours where the Guardian and Guardian Support are all counted (taking 9 hours) and 2 hours of OpenTasks, during week days there really is only 1 hour left.
+            availableTimeInHours = 12 - TimePointsCore::liveDueTimeInHours() 
+            # Given the way we compute the liveDueTimeInHours where the Guardian and Guardian Support are all counted (taking 9 hours) and 2 hours of OpenTasks, during week days there really is only 1 hour left.
             # During week ends, there can be more.
             if availableTimeInHours > 0 then
                 halvesEnum = LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }

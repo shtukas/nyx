@@ -313,6 +313,7 @@ class CommonsUtils
         puts "    wave: <description: String>>"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
+        puts "    time commitment: [guardian:] <description>"
         puts ""
         puts "Special Commands (object targetting and ordinal)"
         puts "    :<position>           # set the listing reference point"
@@ -412,6 +413,22 @@ class CommonsUtils
             LucilleCore::pressEnterToContinue()
             return
         end
+
+        if expression.start_with?('time commitment:') then
+            command = expression[16, expression.size].strip
+            timeInHours, description = StringParser::decompose(command)
+            description = description ? description : ""
+            timepoint = TimePointsCore::issueNewPoint(
+                SecureRandom.hex(8), 
+                description, 
+                timeInHours.to_f, 
+                description.start_with?("guardian:"))
+            timepoint["metric"] = 0.8
+            TimePointsCore::saveTimePoint(timepoint)
+            puts JSON.pretty_generate(timepoint)
+            LucilleCore::pressEnterToContinue()
+            return
+        end        
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ").map{|t| t.strip }
