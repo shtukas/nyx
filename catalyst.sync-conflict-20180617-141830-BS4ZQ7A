@@ -304,12 +304,9 @@ Thread.new {
 Thread.new {
     loop {
         TimePointsCore::getTimePoints()
-            .each{|timepoint| 
-                if timepoint["is-running"] and TimePointsCore::timePointToRatioDone(timepoint)>1 then
-                    system("terminal-notifier -title 'Catalyst TimePointsCore' -message '#{timepoint["description"]} is done'")
-                    sleep 2
-                end
-            }
+            .each{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
+            .inject(0, :+)
+        terminal-notifier -title "Catalyst" -message "Something"
         sleep 60
     }
 }

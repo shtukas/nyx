@@ -115,14 +115,15 @@ class TimePointsCore
         0.2 + 0.4*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-TimePointsCore::timePointToRatioDone(timepoint)*3) + CommonsUtils::traceToMetricShift(timepoint["uuid"])
     end
 
+    def self.timepointToLiveDueinHours(timepoint)
+        t1 = timepoint["commitment-in-hours"] - timepoint["timespans"].inject(0, :+).to_f/3600
+        t2 = ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 ).to_f/3600
+        t1-t2
+    end
 
     def self.liveDueTimeInHours()
         TimePointsCore::getTimePoints()
-            .map{|timepoint|
-                t1 = timepoint["commitment-in-hours"] - timepoint["timespans"].inject(0, :+).to_f/3600
-                t2 = ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 ).to_f/3600
-                t1-t2
-            }
+            .map{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
             .inject(0, :+)
     end
 end
