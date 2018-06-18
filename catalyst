@@ -287,7 +287,7 @@ class CatalystInterfaceUtils
                 FlockDiskIO::loadFromEventsTimeline()
             end
             if FKVStore::getOrNull("63ED1643-C6F6-4E30-A968-8FB86D12E23B:#{Time.new.to_s[0,10]}").nil? then
-                if TimePointsCore::liveDueTimeInHours() <= 0 then
+                if TimePointsCore::liveDueTimeInHours() <= 1 then
                     puts "I am increasing light speed by 10%"
                     CommonsUtils::setLightSpeed(1.1*CommonsUtils::getLightSpeed())
                     LucilleCore::pressEnterToContinue()
