@@ -27,57 +27,6 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
-# CatalystListingUtils::putslisting()
-
-class CatalystListingUtils
-    def self.putslisting()
-        positionDisplay = lambda {|standardlp, position|
-            if standardlp==position then
-                "[* #{"%2d" % position}]"
-            else
-                "[  #{"%2d" % position}]"
-            end
-        }
-        objectToLineOrdinalListing = lambda {|object, ordinal, position, standardlp|
-            "#{positionDisplay.call(standardlp, position)} [#{("%.3f" % ordinal)}] #{CommonsUtils::object2Line_v0(object)[8,CommonsUtils::screenWidth()-28]}"
-        }
-        objectToLineMainListing = lambda {|object, position, standardlp|
-            "#{positionDisplay.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
-        }
-        objectToGenericLine = lambda {|p, position, standardlp|
-            if p["type"]=="ordinal" then
-                return objectToLineOrdinalListing.call(p["object"], p["ordinal"], position, standardlp)
-            end
-            if p["type"]=="main" then
-                return objectToLineMainListing.call(p["object"], position, standardlp)
-            end            
-        }
-        standardlp = CommonsUtils::getStandardListingPosition()
-        screenleft = CommonsUtils::screenHeight()-7
-        structure = CommonsUtils::getUnifiedListing(screenleft)
-        if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-            puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            screenleft = screenleft - 1
-        end      
-        numberOfOrdinals = structure.select{|p| p["type"]=="ordinal" }.size 
-        if numberOfOrdinals>0 then
-            screenleft = screenleft - 1
-        end
-        structure.take(screenleft).each_with_index{|p, index|
-            position = index+1
-            if numberOfOrdinals>0 and (position-1)==numberOfOrdinals then
-                puts ""
-            end
-            str = objectToGenericLine.call(p, position, standardlp)
-            object = p["object"]
-            if object["is-running"] then
-                str = str.green
-            end
-            puts str
-        }
-    end
-end
-
 # CatalystInterfaceUtils::cli()
 
 class CatalystInterfaceUtils
@@ -128,6 +77,52 @@ class CatalystInterfaceUtils
                 " \"#{defaultExpressionAsString.green}\""
             ].join()
         part1 + part2
+    end
+    def self.putslisting()
+        positionDisplay = lambda {|standardlp, position|
+            if standardlp==position then
+                "[* #{"%2d" % position}]"
+            else
+                "[  #{"%2d" % position}]"
+            end
+        }
+        objectToLineOrdinalListing = lambda {|object, ordinal, position, standardlp|
+            "#{positionDisplay.call(standardlp, position)} [#{("%.3f" % ordinal)}] #{CommonsUtils::object2Line_v0(object)[8,CommonsUtils::screenWidth()-28]}"
+        }
+        objectToLineMainListing = lambda {|object, position, standardlp|
+            "#{positionDisplay.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        }
+        objectToGenericLine = lambda {|p, position, standardlp|
+            if p["type"]=="ordinal" then
+                return objectToLineOrdinalListing.call(p["object"], p["ordinal"], position, standardlp)
+            end
+            if p["type"]=="main" then
+                return objectToLineMainListing.call(p["object"], position, standardlp)
+            end            
+        }
+        standardlp = CommonsUtils::getStandardListingPosition()
+        screenleft = CommonsUtils::screenHeight()-7
+        structure = CommonsUtils::getUnifiedListing(screenleft)
+        if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+            puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            screenleft = screenleft - 1
+        end      
+        numberOfOrdinals = structure.select{|p| p["type"]=="ordinal" }.size 
+        if numberOfOrdinals>0 then
+            screenleft = screenleft - 1
+        end
+        structure.take(screenleft).each_with_index{|p, index|
+            position = index+1
+            if numberOfOrdinals>0 and (position-1)==numberOfOrdinals then
+                puts ""
+            end
+            str = objectToGenericLine.call(p, position, standardlp)
+            object = p["object"]
+            if object["is-running"] then
+                str = str.green
+            end
+            puts str
+        }
     end
     def self.cli(runId)
         standardlp = CommonsUtils::getStandardListingPosition()
@@ -328,7 +323,7 @@ class CatalystInterfaceUtils
                 FKVStore::set("e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
                 next
             end
-            CatalystListingUtils::putslisting()
+            CatalystInterfaceUtils::putslisting()
             puts ""
             CatalystInterfaceUtils::cli(runId)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
