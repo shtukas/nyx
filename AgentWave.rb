@@ -553,7 +553,8 @@ class AgentWave
             .map{|object|
                 uuid = object["uuid"]
                 schedule = object["schedule"]
-                object["metric"] = WaveSchedules::scheduleToMetric(schedule) + CommonsUtils::traceToMetricShift(uuid)
+                trace = schedule[":wave-emails:"] ? 0 : CommonsUtils::traceToMetricShift(uuid)
+                object["metric"] = WaveSchedules::scheduleToMetric(schedule) + trace
                 TheFlock::addOrUpdateObject(object)
             }
     end
