@@ -259,7 +259,7 @@ class CommonsUtils
         ProjectsCore::transform()
         Ordinals::transform()
         TheFlock::flockObjects()
-            .select{|object| object["metric"] >= 0.2 }
+            .select{|object| object["metric"] > 0 }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
             .take(count)

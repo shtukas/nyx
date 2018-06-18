@@ -55,9 +55,6 @@ class CatalystListingUtils
         standardlp = CommonsUtils::getStandardListingPosition()
         screenleft = CommonsUtils::screenHeight()-7
         structure = CommonsUtils::getUnifiedListing(screenleft)
-        while structure.select{|p| p["object"]["metric"] < 0.5 }.size >= 2 do
-            structure.pop
-        end
         if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
             puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             screenleft = screenleft - 1
