@@ -27,7 +27,10 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
-# CatalystInterfaceUtils::cli()
+# CatalystInterfaceUtils::commandLineInterface(runId)
+# CatalystInterfaceUtils::commandLineStreamInterface(runId)
+
+$SHOULD_LISTING = false
 
 class CatalystInterfaceUtils
     def self.object2Line_v1(object)
@@ -78,7 +81,14 @@ class CatalystInterfaceUtils
             ].join()
         part1 + part2
     end
-    def self.putslisting()
+    def self.positionOfLastRunningItemOrZero(structure_2b7dc24f)
+        return 0 if structure_2b7dc24f.none?{ |p| p["object"]["is-running"] }
+        while !structure_2b7dc24f.last["object"]["is-running"] do
+            structure_2b7dc24f.pop
+        end
+        structure_2b7dc24f.size
+    end
+    def self.putsListing(should_listing)
         positionDisplay = lambda {|standardlp, position|
             if standardlp==position then
                 "[* #{"%2d" % position}]"
@@ -101,17 +111,14 @@ class CatalystInterfaceUtils
             end            
         }
         standardlp = CommonsUtils::getStandardListingPosition()
-        screenleft = CommonsUtils::screenHeight()-7
-        structure = CommonsUtils::getUnifiedListing(screenleft)
+        structure_2b7dc24f = CommonsUtils::getStructure2B7DC24F()
+        amountToDisplay = [ [CommonsUtils::screenHeight()-8, should_listing ? 999 : 0].min, self.positionOfLastRunningItemOrZero(structure_2b7dc24f.clone) ].max
+        structure_2b7dc24f = structure_2b7dc24f.take(amountToDisplay)
         if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
             puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            screenleft = screenleft - 1
         end      
-        numberOfOrdinals = structure.select{|p| p["type"]=="ordinal" }.size 
-        if numberOfOrdinals>0 then
-            screenleft = screenleft - 1
-        end
-        structure.take(screenleft).each_with_index{|p, index|
+        numberOfOrdinals = structure_2b7dc24f.select{|p| p["type"]=="ordinal" }.size 
+        structure_2b7dc24f.each_with_index{|p, index|
             position = index+1
             if numberOfOrdinals>0 and (position-1)==numberOfOrdinals then
                 puts ""
@@ -124,9 +131,11 @@ class CatalystInterfaceUtils
             puts str
         }
     end
-    def self.cli(runId)
+    def self.getTopData()
         standardlp = CommonsUtils::getStandardListingPosition()
         listingItem = CommonsUtils::getNthElementOfUnifiedListing(standardlp)
+        listingItemType = listingItem["type"]
+        listingItemOrdinal = listingItem["ordinal"]
         object = listingItem["object"]
 
         # --------------------------------------------------------------------------------
@@ -135,25 +144,30 @@ class CatalystInterfaceUtils
         if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
             if object["schedule"][":wave-emails:"] then
                 if !File.exists?(object["item-data"]["folderpath"]) then
-                    puts CommonsUtils::object2Line_v0(object)
                     TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
                     EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                    return
+                    return CatalystInterfaceUtils::getTopData()
                 end
             end
         end
         # --------------------------------------------------------------------------------
 
-        if listingItem["type"]=="main" then
+        [standardlp, listingItemType, listingItemOrdinal, object]
+    end
+
+    def self.commandLineInterface(runId)
+        standardlp, listingItemType, listingItemOrdinal, object = self.getTopData()
+
+        if listingItemType=="main" then
             puts "[#{standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
         end
-        if listingItem["type"]=="ordinal" then
-            puts "[#{standardlp}] #{CatalystInterfaceUtils::object2Line_v2_ordinal(object, listingItem["ordinal"])}"
+        if listingItemType=="ordinal" then
+            puts "[#{standardlp}] #{CatalystInterfaceUtils::object2Line_v2_ordinal(object, listingItemOrdinal)}"
         end
         print "--> "
         command = STDIN.gets().strip
-        if command == "absolute"then
-            self.absolute(runId)
+        if command == "toggle" then
+            $SHOULD_LISTING = !$SHOULD_LISTING
             return
         end
         if command=="." then
@@ -175,7 +189,7 @@ class CatalystInterfaceUtils
                 xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
                 Ordinals::register(xuuid, ordinal.to_f)
                 AgentWave::generalFlockUpgrade()
-                if listingItem["type"]=="main" then
+                if listingItemType=="main" then
                     CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
                 end
                 return
@@ -185,7 +199,7 @@ class CatalystInterfaceUtils
                     # :this <float> # register the current object agains the float
                     ordinal = rest.to_f
                     Ordinals::register(object["uuid"], ordinal)
-                    if listingItem["type"]=="main" then
+                    if listingItemType=="main" then
                         CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
                     end
                     return
@@ -226,54 +240,8 @@ class CatalystInterfaceUtils
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
     end
-    def self.absolute(runId)
-        loop {
-            system("clear")
-            File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
-            listingItem = CommonsUtils::getNthElementOfUnifiedListing(1)
-            object = listingItem["object"]
-            puts CatalystInterfaceUtils::object2Line_v1(object)
-            print "--> "
-            command = STDIN.gets().strip
-            if command == "absolute"then
-                return
-            end
-            if command.start_with?(":") then
-                token, rest = StringParser::decompose(command)
-                if token==":?" then
-                    # :? <float> <description, multi-tokens> # creates a text object and give it that ordinal
-                    ordinal, description = StringParser::decompose(rest)
-                    xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
-                    Ordinals::register(xuuid, ordinal.to_f)
-                    AgentWave::generalFlockUpgrade()
-                    if listingItem["type"]=="main" then
-                        CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
-                    end
-                    next
-                end
-                if token==":this" then
-                    if CommonsUtils::isFloat(rest) or CommonsUtils::isInteger(rest) then
-                        # :this <float> # register the current object agains the float
-                        ordinal = rest.to_f
-                        Ordinals::register(object["uuid"], ordinal)
-                        if listingItem["type"]=="main" then
-                            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
-                        end
-                        next
-                    end
-                    if rest=="goto:project" then
-                        ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
-                        next
-                    end
-                    next
-                end
-                next
-            end
-            command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-            CommonsUtils::processObjectAndCommand(object, command)
-        }
-    end
-    def self.primaryDisplayLoop(runId)
+
+    def self.displayLoop(runId)
         loop {
             if !CommonsUtils::isActiveInstance(runId) then
                 FlockDiskIO::loadFromEventsTimeline()
@@ -291,10 +259,6 @@ class CatalystInterfaceUtils
                 end
                 FKVStore::set("63ED1643-C6F6-4E30-A968-8FB86D12E23B:#{Time.new.to_s[0,10]}", "done").nil?
             end
-            system("clear")
-            puts ""
-            puts " "*(CommonsUtils::screenWidth()-43) + "Light speed: #{"%8.6f" % CommonsUtils::getLightSpeed()}"
-            puts " "*(CommonsUtils::screenWidth()-43) + "Time points ETA: #{ (Time.new + TimePointsCore::liveDueTimeInHours()*3600).to_s }"
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection: #{lines.size}"
@@ -323,9 +287,13 @@ class CatalystInterfaceUtils
                 FKVStore::set("e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
                 next
             end
-            CatalystInterfaceUtils::putslisting()
+            system("clear")
             puts ""
-            CatalystInterfaceUtils::cli(runId)
+            puts " "*(CommonsUtils::screenWidth()-43) + "Light speed: #{"%8.6f" % CommonsUtils::getLightSpeed()}"
+            puts " "*(CommonsUtils::screenWidth()-43) + "Time points ETA: #{ (Time.new + TimePointsCore::liveDueTimeInHours()*3600).to_s }"
+            CatalystInterfaceUtils::putsListing($SHOULD_LISTING)
+            puts ""
+            CatalystInterfaceUtils::commandLineInterface(runId)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
     end
@@ -357,4 +325,4 @@ Thread.new {
     }
 }
 
-CatalystInterfaceUtils::primaryDisplayLoop(runId)
+CatalystInterfaceUtils::displayLoop(runId)

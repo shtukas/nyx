@@ -20,7 +20,7 @@ require_relative "Bob.rb"
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
-# CommonsUtils::getUnifiedListing(screenleft)
+# CommonsUtils::getStructure2B7DC24F()
 # CommonsUtils::getNthElementOfUnifiedListing(n)
 # CommonsUtils::getLightSpeed()
 # CommonsUtils::setLightSpeed(value)
@@ -251,7 +251,7 @@ class CommonsUtils
         }
     end
 
-    def self.flockTopObjects(count)
+    def self.flockOrderedDisplayObjects()
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
         RequirementsOperator::transform()
@@ -262,36 +262,33 @@ class CommonsUtils
             .select{|object| object["metric"] > 0 }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
-            .take(count)
     end
 
-    def self.getUnifiedListing(count)
-        # This function returns at least count elements
-        # More precisely, the ordinals and then n main listing elements
+    def self.getStructure2B7DC24F()
         Bob::generalFlockUpgrade()
-        structure = []
+        structure_2b7dc24f = []
         Ordinals::sortedDistribution()
             .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
             .each{|pair| Ordinals::unregister(pair[0]) }
         pairs = Ordinals::sortedDistribution()
         pairs.each{|pair|
-            structure << {
+            structure_2b7dc24f << {
                 "type" => "ordinal",
                 "object" => TheFlock::getObjectByUUIDOrNull(pair[0]),
                 "ordinal" => pair[1]
             }
         }
-        CommonsUtils::flockTopObjects(count).each{|object|
-            structure << {
+        CommonsUtils::flockOrderedDisplayObjects().each{|object|
+            structure_2b7dc24f << {
                 "type" => "main",
                 "object" => object
             }
         }
-        structure
+        structure_2b7dc24f
     end
 
     def self.getNthElementOfUnifiedListing(n) # { :type, :object, :ordinal optional}
-        CommonsUtils::getUnifiedListing(n).take(n).last
+        CommonsUtils::getStructure2B7DC24F().take(n).last
     end
 
     # -----------------------------------------
@@ -308,6 +305,7 @@ class CommonsUtils
         puts "    email-sync  # run email sync"
         puts "    interface   # select an agent and run the interface"
         puts "    lib         # Invoques the Librarian interactive"
+        puts "    toggle"
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description: String>>"
