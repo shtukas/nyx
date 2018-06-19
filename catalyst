@@ -30,8 +30,6 @@ require_relative "catalyst.rb"
 # CatalystInterfaceUtils::commandLineInterface(runId)
 # CatalystInterfaceUtils::commandLineStreamInterface(runId)
 
-$SHOULD_LISTING = false
-
 class CatalystInterfaceUtils
     def self.object2Line_v1(object)
         announce = object['announce'].strip
@@ -88,7 +86,7 @@ class CatalystInterfaceUtils
         end
         structure_2b7dc24f.size
     end
-    def self.putsListing(should_listing)
+    def self.putsListing()
         positionDisplay = lambda {|standardlp, position|
             if standardlp==position then
                 "[* #{"%2d" % position}]"
@@ -112,7 +110,7 @@ class CatalystInterfaceUtils
         }
         standardlp = CommonsUtils::getStandardListingPosition()
         structure_2b7dc24f = CommonsUtils::getStructure2B7DC24F()
-        amountToDisplay = [ [CommonsUtils::screenHeight()-8, should_listing ? 999 : 0].min, self.positionOfLastRunningItemOrZero(structure_2b7dc24f.clone) ].max
+        amountToDisplay = [ CommonsUtils::screenHeight()-8, self.positionOfLastRunningItemOrZero(structure_2b7dc24f.clone) ].max
         structure_2b7dc24f = structure_2b7dc24f.take(amountToDisplay)
         if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
             puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
@@ -154,7 +152,6 @@ class CatalystInterfaceUtils
 
         [standardlp, listingItemType, listingItemOrdinal, object]
     end
-
     def self.commandLineInterface(runId)
         standardlp, listingItemType, listingItemOrdinal, object = self.getTopData()
 
@@ -166,10 +163,6 @@ class CatalystInterfaceUtils
         end
         print "--> "
         command = STDIN.gets().strip
-        if command == "toggle" then
-            $SHOULD_LISTING = !$SHOULD_LISTING
-            return
-        end
         if command=="." then
             return
         end
@@ -240,7 +233,6 @@ class CatalystInterfaceUtils
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
     end
-
     def self.displayLoop(runId)
         loop {
             if !CommonsUtils::isActiveInstance(runId) then
@@ -291,7 +283,7 @@ class CatalystInterfaceUtils
             puts ""
             puts " "*(CommonsUtils::screenWidth()-43) + "Light speed: #{"%8.6f" % CommonsUtils::getLightSpeed()}"
             puts " "*(CommonsUtils::screenWidth()-43) + "Time points ETA: #{ (Time.new + TimePointsCore::liveDueTimeInHours()*3600).to_s }"
-            CatalystInterfaceUtils::putsListing($SHOULD_LISTING)
+            CatalystInterfaceUtils::putsListing()
             puts ""
             CatalystInterfaceUtils::commandLineInterface(runId)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
