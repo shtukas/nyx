@@ -98,7 +98,7 @@ class AgentTimeGenesis
         if command == "050cd5ec-d8a1-4388-bace-bcdbf6c33b65" then
             # TimeGenesis: Guardian Current Mini Projects
             if self.isWeekDay() then
-                folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current Mini Projects"
+                folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current"
                 if !File.exists?(folderpath) then
                     puts "The target folder '#{folderpath}' does not exists"
                     LucilleCore::pressEnterToContinue()

@@ -116,7 +116,7 @@ class CatalystInterfaceUtils
         structure_2b7dc24f = structure_2b7dc24f.take(amountToDisplay)
         if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
             puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-        end      
+        end
         numberOfOrdinals = structure_2b7dc24f.select{|p| p["type"]=="ordinal" }.size 
         structure_2b7dc24f.each_with_index{|p, index|
             position = index+1
