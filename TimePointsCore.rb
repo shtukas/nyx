@@ -7,16 +7,11 @@
 # TimePointsCore::startTimePoint(timepoint)
 # TimePointsCore::stopTimePoint(timepoint)
 # TimePointsCore::destroyTimePoint(timepoint)
-# TimePointsCore::timepointToLiveTimespan(timepoint)
-# TimePointsCore::garbageCollectionItems(timepoints)
-# TimePointsCore::garbageCollectionGlobal()
+# TimePointsCore::garbageCollection()
 # TimePointsCore::getUniqueDomains(timepoints)
-# TimePointsCore::issueNewPoint(domain, description, hours, isGuardian)
+# TimePointsCore::issueNewPoint(domain, description, hours)
 # TimePointsCore::timePointToMetric(timepoint)
-# TimePointsCore::timePointToRatioDone(timepoint)
-# TimePointsCore::timePointToMetric(timepoint)
-# TimePointsCore::liveDueTimeInHours()
-# TimePointsCore::liveDueTimeInHoursForTimePoints(timepoints)
+# TimePointsCore::timePointToRatioDoneUpToDate(timepoint)
 
 class TimePointsCore
     def self.getTimePoints()
@@ -41,14 +36,10 @@ class TimePointsCore
     end
 
     def self.stopTimePoint(timepoint)
-        if timepoint["is-running"] then
-            timepoint["is-running"] = false
-            timespanInSeconds = Time.new.to_i - timepoint["last-start-unixtime"]
-            timepoint["timespans"] << timespanInSeconds
-            if timepoint["0e69d463:GuardianSupport"] then
-                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", -timespanInSeconds.to_f/3600, false)
-            end
-        end
+        return timepoint if !timepoint["is-running"]
+        timepoint["is-running"] = false
+        timespanInSeconds = Time.new.to_i - timepoint["last-start-unixtime"]
+        timepoint["timespans"] << timespanInSeconds
         timepoint
     end
 
@@ -57,44 +48,18 @@ class TimePointsCore
         SetsOperator::delete(CATALYST_COMMON_TIMEPOINTS_ITEMS_REPOSITORY_PATH, CATALYST_COMMON_TIMEPOINTS_ITEMS_SETUUID, timepoint["uuid"])
     end
 
-    def self.timepointToLiveTimespan(timepoint)
-        timepoint["timespans"].inject(0,:+) + ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 )
-    end
-
-    def self.garbageCollectionItems(timepoints)
-        return if timepoints.size < 2
-        return if timepoints.any?{|timepoint| timepoint["is-running"] }
-        timepoint1 = timepoints[0]
-        timepoint2 = timepoints[1]
-        if timepoint2["creation-unixtime"] < timepoint1["creation-unixtime"] then
-            timepoint1, timepoint2 = [ timepoint2, timepoint1 ]
-        end
-        # timepoint2 is the more recent
-        # So that the newly created point has the description of timepoint2, which is probably more accurate than of timepoint1 (if the description was the description of an updated project)
-        TimePointsCore::issueNewPoint(
-            timepoint2["domain"],
-            timepoint2["description"],
-            (timepoint1["commitment-in-hours"]+timepoint2["commitment-in-hours"]) - (timepoint1["timespans"]+timepoint2["timespans"]).inject(0, :+).to_f/3600, 
-            timepoint1["0e69d463:GuardianSupport"] || timepoint2["0e69d463:GuardianSupport"]
-        )
-        TimePointsCore::destroyTimePoint(timepoint1)
-        TimePointsCore::destroyTimePoint(timepoint2)
-    end
-
-    def self.garbageCollectionGlobal()
-        timepoints = TimePointsCore::getTimePoints()
-        domains = TimePointsCore::getUniqueDomains(timepoints)
-        domains.each{|domain|
-            domainItems = timepoints.select{|timepoint| timepoint["domain"]==domain }
-            TimePointsCore::garbageCollectionItems(domainItems)
-        }
+    def self.garbageCollection()
+        TimePointsCore::getTimePoints()
+            .select{|timepoint| !timepoint["is-running"] }
+            .select{|timepoint| TimePointsCore::timepointToDueTimeinHoursUpToDate(timepoint) <= 0 }
+            .each{|timepoint| TimePointsCore::destroyTimePoint(timepoint) }
     end
 
     def self.getUniqueDomains(timepoints)
         timepoints.map{|timepoint| timepoint["domain"] }.uniq
     end
 
-    def self.issueNewPoint(domain, description, hours, isGuardianSupport, metric = nil)
+    def self.issueNewPoint(domain, description, hours)
         item = {
             "uuid"                => SecureRandom.hex(4),
             "creation-unixtime"   => Time.new.to_i,
@@ -102,39 +67,37 @@ class TimePointsCore
             "description"         => description,
             "commitment-in-hours" => hours,
             "timespans"           => [],
-            "last-start-unixtime" => 0,
-            "0e69d463:GuardianSupport" => isGuardianSupport
+            "last-start-unixtime" => 0
         }
-        if metric then
-            item["metric"] = metric
-        end
         TimePointsCore::saveTimePoint(item)
     end
 
-    def self.timePointToRatioDone(timepoint)
-        (TimePointsCore::timepointToLiveTimespan(timepoint).to_f/3600)/timepoint["commitment-in-hours"]
+    def self.timepointToTimeDoneInHoursAtRest(timepoint)
+       timepoint["timespans"].inject(0, :+).to_f/3600
+    end
+
+    def self.timePointToTimeDoneInHoursUpToDate(timepoint)
+        timedone1 = timepoint["timespans"].inject(0, :+).to_f/3600
+        timedone2 = ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 ).to_f/3600
+        timedone1+timedone2
+    end
+
+    def self.timepointToDueTimeinHoursUpToDate(timepoint)
+        t1 = timepoint["commitment-in-hours"] - timepoint["timespans"].inject(0, :+).to_f/3600
+        t2 = ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 ).to_f/3600
+        [t1-t2, 0].max
+    end
+
+    def self.timePointToRatioDoneAtRest(timepoint)
+        (TimePointsCore::timepointToTimeDoneInHoursAtRest(timepoint)).to_f/timepoint["commitment-in-hours"]
+    end
+
+    def self.timePointToRatioDoneUpToDate(timepoint)
+        (TimePointsCore::timePointToTimeDoneInHoursUpToDate(timepoint)).to_f/timepoint["commitment-in-hours"]
     end
 
     def self.timePointToMetric(timepoint)
-        0.2 + 0.4*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-TimePointsCore::timePointToRatioDone(timepoint)*3) + CommonsUtils::traceToMetricShift(timepoint["uuid"])
-    end
-
-    def self.timepointToLiveDueinHours(timepoint)
-        t1 = timepoint["commitment-in-hours"] - timepoint["timespans"].inject(0, :+).to_f/3600
-        t2 = ( timepoint["is-running"] ? Time.new.to_i - timepoint["last-start-unixtime"] : 0 ).to_f/3600
-        t1-t2
-    end
-
-    def self.liveDueTimeInHours()
-        TimePointsCore::getTimePoints()
-            .map{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
-            .inject(0, :+)
-    end
-
-    def self.liveDueTimeInHoursForTimePoints(timepoints)
-        timepoints
-            .map{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
-            .inject(0, :+)
+        0.2 + 0.4*CommonsUtils::realNumbersToZeroOne(timepoint["commitment-in-hours"], 1, 1) + 0.1*Math.exp(-TimePointsCore::timePointToRatioDoneAtRest(timepoint)*3) + CommonsUtils::traceToMetricShift(timepoint["uuid"])
     end
 
 end

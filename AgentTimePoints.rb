@@ -49,26 +49,18 @@ class AgentTimePoints
     end
 
     def self.interface()
-        puts "Welcome to TimeCommitments interface"
-        if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to add a time commitment ? ") then
-            TimePointsCore::issueNewPoint(
-                SecureRandom.hex(8), 
-                LucilleCore::askQuestionAnswerAsString("description: "), 
-                LucilleCore::askQuestionAnswerAsString("hours: ").to_f, 
-                LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Guardian support ? "))
-        end
+
     end
 
     def self.timepointToCatalystObjectOrNull(timepoint)
         uuid = timepoint['uuid']
-        ratioDone = TimePointsCore::timePointToRatioDone(timepoint)
-        announce = "time commitment: #{timepoint['description']} (#{ "%.2f" % (100*ratioDone) } % of #{timepoint["commitment-in-hours"]} hours done)"
+        announce = "time commitment: #{timepoint['description']} (#{ "%.2f" % (100*TimePointsCore::timePointToRatioDoneUpToDate(timepoint)) } % of #{"%.2f" % timepoint["commitment-in-hours"]} hours done)"
         commands = timepoint["is-running"] ? ["stop", "destroy"] : ["start", "reset", "destroy"]
         defaultExpression = timepoint["is-running"] ? "stop" : "start"
         object  = {}
         object["uuid"]      = uuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = ((ratioDone > 1) and !timepoint["is-running"]) ? 0 : timepoint["metric"]
+        object["metric"]    = TimePointsCore::timePointToMetric(timepoint)
         object["announce"]  = announce
         object["commands"]  = commands
         object["default-expression"] = defaultExpression
@@ -80,17 +72,9 @@ class AgentTimePoints
     end
 
     def self.generalFlockUpgrade()
-        TimePointsCore::garbageCollectionGlobal()
+        TimePointsCore::garbageCollection()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        TimePointsCore::getTimePoints()
-            .each{|timepoint| 
-                if timepoint["metric"].nil? then
-                    timepoint["metric"] = TimePointsCore::timePointToMetric(timepoint)
-                    TimePointsCore::saveTimePoint(timepoint)
-                end
-            }
         objects = TimePointsCore::getTimePoints()
-            .select{|timepoint| timepoint["commitment-in-hours"] > 0 }
             .map{|timepoint| AgentTimePoints::timepointToCatalystObjectOrNull(timepoint) }
             .compact
         TheFlock::addOrUpdateObjects(objects)

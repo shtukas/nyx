@@ -46,7 +46,7 @@ class AgentProjects
         object              = {}
         object["uuid"]      = uuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = self.metric(uuid, isRunning)
+        object["metric"]    = 0.1 + CommonsUtils::traceToMetricShift(uuid)
         object["announce"]  = announce
         object["commands"]  = []
         object["default-expression"] = "dive"

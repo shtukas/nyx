@@ -26,8 +26,6 @@ require_relative "Bob.rb"
 # CommonsUtils::waveInsertNewItemInteractive(description)
 # CommonsUtils::getStructure2B7DC24F()
 # CommonsUtils::getNthElementOfUnifiedListing(n)
-# CommonsUtils::getLightSpeed()
-# CommonsUtils::setLightSpeed(value)
 
 class CommonsUtils
 
@@ -291,7 +289,7 @@ class CommonsUtils
         structure_2b7dc24f
     end
 
-    def self.getNthElementOfUnifiedListing(n) # { :type, :object, :ordinal optional}
+    def self.getNthElementOfUnifiedListing(n) # { :type, :object, :ordinal optional }
         CommonsUtils::getStructure2B7DC24F().take(n).last
     end
 
@@ -309,13 +307,12 @@ class CommonsUtils
         puts "    email-sync  # run email sync"
         puts "    interface   # select an agent and run the interface"
         puts "    lib         # Invoques the Librarian interactive"
-        puts "    guardian    # launches an interactively chosen Guardian time point"
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description: String>>"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
-        puts "    time commitment: [guardian:] <description>"
+        puts "    time commitment: <description>"
         puts ""
         puts "Special Commands (object targetting and ordinal)"
         puts "    :<position>           # set the listing reference point"
@@ -380,20 +377,6 @@ class CommonsUtils
             return
         end
 
-        if expression == 'guardian' then
-            timepoints = TimePointsCore::getTimePoints().select{|timepoint| timepoint["0e69d463:GuardianSupport"] }
-            if timepoints.any?{|timepoint| timepoint["is-running"] } then
-                puts "You cannot run this command while a Guardian timepoint is running"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            timepoint = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("timepoint", timepoints, lambda{|timepoint| timepoint["description"] })
-            return if timepoint.nil?
-            timepoint = TimePointsCore::startTimePoint(timepoint)
-            TimePointsCore::saveTimePoint(timepoint)
-            return
-        end
-
         if expression == 'email-sync' then
             CommonsUtils::emailSync(true)
             return
@@ -434,11 +417,7 @@ class CommonsUtils
             command = expression[16, expression.size].strip
             timeInHours, description = StringParser::decompose(command)
             description = description ? description : ""
-            timepoint = TimePointsCore::issueNewPoint(
-                SecureRandom.hex(8), 
-                description, 
-                timeInHours.to_f, 
-                description.start_with?("guardian:"))
+            timepoint = TimePointsCore::issueNewPoint(SecureRandom.hex(8), description, timeInHours.to_f)
             timepoint["metric"] = 0.8
             TimePointsCore::saveTimePoint(timepoint)
             puts JSON.pretty_generate(timepoint)
@@ -535,14 +514,6 @@ class CommonsUtils
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
-    end
-
-    def self.getLightSpeed()
-        FKVStore::getOrDefaultValue("SPEED-OF-LIGHT-BCAA047D-C277-41DB-9887-7EB5E468255F", "1").to_f
-    end
-
-    def self.setLightSpeed(value)
-        FKVStore::set("SPEED-OF-LIGHT-BCAA047D-C277-41DB-9887-7EB5E468255F", value)
     end
 
     def self.codeHash()

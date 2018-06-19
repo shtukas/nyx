@@ -36,131 +36,72 @@ class AgentTimeGenesis
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        object2 =
-            {
-                "uuid"      => "73dc9e2d",
-                "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.90 : 0,
-                "announce"  => "TimePoints Garbage Collection",
-                "commands"  => [],
-                "default-expression" => "e565d398-5de9-4dd8-9e19-7673390863c6"
-            }
-        object1 =
-            {
-                "uuid"      => "e15ca844",
-                "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.89 : 0,
-                "announce"  => "TimeGenesis: Guardian",
-                "commands"  => [],
-                "default-expression" => "d0d34980-b873-4af6-9904-1169dc5cf5fc"
-            }
-        object5 =
-            {
-                "uuid"      => "2175b6f1",
-                "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.88 : 0,
-                "announce"  => "TimeGenesis: Guardian Current Mini Projects",
-                "commands"  => [],
-                "default-expression" => "050cd5ec-d8a1-4388-bace-bcdbf6c33b65"
-            }
         object3 =
             {
                 "uuid"      => "5a95258e",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => ( FKVStore::getOrNull("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 ) ?  0.87 : 0,
-                "announce"  => "TimeGenesis: Projects",
+                "metric"    => ( FKVStore::getOrNull("d9093dbb-61cb-49ae-ae98-e7b586619e53:#{Time.new.to_s[0,10]}").nil? ) ?  0.87 : 0,
+                "announce"  => "TimeGenesis for #{Time.new.to_s[0,10]}",
                 "commands"  => [],
                 "default-expression" => "bb735b73-4b4a-47c8-8172-32fa5b1b0314"
             }
-        TheFlock::addOrUpdateObjects([object1, object2, object3, object5])
+        TheFlock::addOrUpdateObject(object3)
     end
 
     def self.processObjectAndCommandFromCli(object, command)
-        if command == "e565d398-5de9-4dd8-9e19-7673390863c6" then
-            # TimePoints Garbage Collection
-            TimePointsCore::getTimePoints()
-                .each{|point| 
-                    if point["creation-unixtime"] < (Time.new.to_i-86400*30) then
-                        TimePointsCore::destroyTimePoint(point)
-                    end
-                }            
-            FKVStore::set("6a91abf4-7a8d-42e8-9090-3d0e1708ffeb:#{Time.new.to_s[0,10]}", "done")
-        end
-        if command == "d0d34980-b873-4af6-9904-1169dc5cf5fc" then
-             # TimeGenesis: Guardian
-            if self.isWeekDay() then
-                puts "TimeGenesis: #{5*CommonsUtils::getLightSpeed()} hours for Guardian"
-                LucilleCore::pressEnterToContinue()
-                TimePointsCore::issueNewPoint("6596d75b-a2e0-4577-b537-a2d31b156e74", "Guardian", 5*CommonsUtils::getLightSpeed(), false, 0.710)
-            end
-            FKVStore::set("551a13ca-271d-4ca7-be56-225787534fc9:#{Time.new.to_s[0,10]}", "done")
-        end
-        if command == "050cd5ec-d8a1-4388-bace-bcdbf6c33b65" then
-            # TimeGenesis: Guardian Current Mini Projects
-            if self.isWeekDay() then
-                folderpath = "/Galaxy/Works/theguardian/Galaxy/05-Pascal Work/03-Current"
-                if !File.exists?(folderpath) then
-                    puts "The target folder '#{folderpath}' does not exists"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                filenames = Dir.entries(folderpath)
-                    .select{|filename| filename[0,1]!="." }
-                return if filenames.size==0
-                # We give 4 hours equaly spread between tasks, this against a 5 hours Guardian time
-                timespanInHours = 4.to_f/filenames.size
-                filenames.each{|filename|
-                    puts "TimeGenesis: #{timespanInHours*CommonsUtils::getLightSpeed()} hours for Guardian Current Mini Project: #{filename}"
-                    LucilleCore::pressEnterToContinue()
-                    TimePointsCore::issueNewPoint("031fe929-8dce-4209-ac1f-2ac15555cb78:#{filename}", "Guardian Current Mini Project: #{filename}", timespanInHours*CommonsUtils::getLightSpeed(), true, 0.72)
-                }
-            end
-            FKVStore::set("fb072066-29a5-42ba-924c-6c87981f4325:#{Time.new.to_s[0,10]}", "done")
-        end
         if command == "bb735b73-4b4a-47c8-8172-32fa5b1b0314" then
             # TimeGenesis: Projects
-            ProjectsCore::projectsUUIDs()
+            # We now have all the projects, work and personal under one roof. 
+            # The problem now is to attribute times to them
+
+            # We start by adding time to the ones which have a time generator against them
+            projectsUUIDs = ProjectsCore::projectsUUIDs()
                 .select{|projectuuid| ProjectsCore::getTimePointGeneratorOrNull(projectuuid) }
-                .each{|projectuuid| 
+
+            projectsUUIDs.each{|projectuuid| 
                     generator = ProjectsCore::getTimePointGeneratorOrNull(projectuuid) # [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
                     if Time.new.to_i >= (generator[0]+generator[1]) then
                         if TimePointsCore::getTimePoints().select{|point| point["project-uuid"]==projectuuid }.size==0 then
-                            xname = "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}"
-                            puts "TimeGenesis: #{(generator[2].to_f/3600)*CommonsUtils::getLightSpeed()} hours for project: #{xname}"
-                            LucilleCore::pressEnterToContinue()
-                            TimePointsCore::issueNewPoint(
-                                projectuuid, 
-                                "project: #{xname}", 
-                                (generator[2].to_f/3600)*CommonsUtils::getLightSpeed(),
-                                ProjectsCore::isGuardianTime?(projectuuid),
-                                ProjectsCore::isGuardianTime?(projectuuid) ? 0.715 : nil)
+                            xname = "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+                            print "TimeGenesis: #{(generator[2].to_f/3600)} hours for project: #{xname} "
+                            STIN.gets()
+                            TimePointsCore::issueNewPoint(projectuuid, "project: #{xname}", (generator[2].to_f/3600))
                             ProjectsCore::resetTimePointGenerator(projectuuid)
                         end
                     end
                 }
-            timepoints = TimePointsCore::getTimePoints()
-                .select{|timepoint| timepoint["domain"]!="6596d75b-a2e0-4577-b537-a2d31b156e74" } # removing the guardian point
-                .select{|timepoint| !timepoint["domain"].start_with?("031fe929-8dce-4209-ac1f-2ac15555cb78") } # removing the guardian mini projects
-                .select{|timepoint| !(ProjectsCore::projectsUUIDs().select{|projectuuid| ProjectsCore::isGuardianTime?(projectuuid) }.include?(timepoint["domain"])) } # removing the projects that are guardian time
-            availableTimeInHours = ( self.isWeekDay() ? 2 : 6 ) - TimePointsCore::liveDueTimeInHoursForTimePoints(timepoints)
-            if availableTimeInHours > 0 then
-                halvesEnum = LucilleCore::integerEnumerator().lazy.map{|n| 1.to_f/(2 ** n) }
-                ProjectsCore::projectsUUIDs()
-                    .select{|projectuuid| ProjectsCore::getTimePointGeneratorOrNull(projectuuid).nil? }
-                    .each{|projectuuid|
-                        timespan = availableTimeInHours * halvesEnum.next() * CommonsUtils::getLightSpeed()
-                        xname = "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}#{ProjectsCore::isGuardianTime?(projectuuid) ? " { guardian }" : ""}"
-                        puts "TimeGenesis: #{timespan} hours for project: #{xname}"
-                        LucilleCore::pressEnterToContinue()
-                        TimePointsCore::issueNewPoint(
-                            projectuuid, 
-                            "project: #{xname}", 
-                            timespan,
-                            ProjectsCore::isGuardianTime?(projectuuid),
-                            0.550)
-                    }
-            end
-            FKVStore::set("d9093dbb-61cb-49ae-ae98-e7b586619e52:#{Time.new.to_s[0,10]}", "done")
+
+            alreadyTakenTimeInHours = TimePointsCore::getTimePoints().map{|timepoint| TimePointsCore::timepointToDueTimeinHoursUpToDate(timepoint) }.inject(0, :+)
+            print "TimeGenesis: already taken time: #{alreadyTakenTimeInHours} hours "
+            STDIN.gets()
+
+            # Then we manually add time to the others
+            projectsUUIDs = ProjectsCore::projectsUUIDs()
+                .select{|projectuuid| !ProjectsCore::getTimePointGeneratorOrNull(projectuuid) }
+            timeAttributions = {} # projectuuid => time in hour
+            loop {
+                projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("project", ProjectsCore::projectsUUIDs(), lambda{|projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) })
+                break if projectuuid.nil?
+                hours = LucilleCore::askQuestionAnswerAsString("Hours for #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} : ").to_f
+                timeAttributions[projectuuid] = hours
+                timeAttributions.each{|projectuuid, hours|
+                    puts "    - project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} : #{hours} hours"
+                }
+                print "        TOTAL: #{alreadyTakenTimeInHours + timeAttributions.values.inject(0, :+)} hours "
+                STDIN.gets()
+            }
+
+            timeAttributions.each{|projectuuid, hours|
+                print "TimeGenesis: #{hours} hours for project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} "
+                STDIN.gets()
+                TimePointsCore::issueNewPoint(projectuuid, "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}", hours)
+            }
+
+            totalHoursForToday = TimePointsCore::getTimePoints().map{|timepoint| TimePointsCore::timepointToDueTimeinHoursUpToDate(timepoint) }.inject(0, :+)
+            puts "TimeGenesis: total hours for today: #{totalHoursForToday} hours"
+            LucilleCore::pressEnterToContinue()
+
+            FKVStore::set("d9093dbb-61cb-49ae-ae98-e7b586619e53:#{Time.new.to_s[0,10]}", "done")
         end
     end
 end

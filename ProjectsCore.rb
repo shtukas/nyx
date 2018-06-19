@@ -34,9 +34,8 @@ require 'securerandom'
 # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
 
 # -------------------------------------------------------------
-# isGuardianTime?(projectuuid)
+# 
 
-# ProjectsCore::isGuardianTime?(projectuuid)
 # ProjectsCore::setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
 # ProjectsCore::getTimePointGeneratorOrNull(projectuuid): [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
 # ProjectsCore::resetTimePointGenerator(projectuuid)
@@ -150,18 +149,7 @@ class ProjectsCore
 
 
     # ---------------------------------------------------
-    # Time management & isGuardianTime?(projectuuid)
-
-    def self.isGuardianTime?(projectuuid)
-        answer = FKVStore::getOrNull("80f13003-e618-490c-9307-a2b6aecb69c5:#{projectuuid}")
-        if answer.nil? then
-            answer = LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("#{ProjectsCore::projectUUID2NameOrNull(projectuuid)} is Guardian time? ")
-            FKVStore::set("80f13003-e618-490c-9307-a2b6aecb69c5:#{projectuuid}", JSON.generate([answer]))
-        else
-            answer = JSON.parse(answer)[0]
-        end
-        answer
-    end
+    # Time management
 
     def self.setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
         FKVStore::set("5AB553E7-B9E1-4F7C-B183-D0388538C940:#{projectuuid}", JSON.generate([Time.new.to_i, periodInSeconds, timepointDurationInSeconds]))      
@@ -277,21 +265,18 @@ class ProjectsCore
         TimePointsCore::getTimePoints().select{|timepoint| timepoint["domain"]==projectuuid }
     end
 
-    def self.projectTimeDueInHours(projectuuid)
+    def self.projectToDueTimeInHours(projectuuid)
         ProjectsCore::projectTimePoints(projectuuid)
-            .map{|timepoint| TimePointsCore::timepointToLiveDueinHours(timepoint) }
+            .map{|timepoint| TimePointsCore::timepointToDueTimeinHoursUpToDate(timepoint) }
             .inject(0, :+)
     end
 
     def self.ui_projectsDive()
-        ProjectsCore::projectsUUIDs().each{|projectuuid|
-            ProjectsCore::isGuardianTime?(projectuuid)
-        }
         loop {
             toString = lambda{ |projectuuid| 
-                "#{ProjectsCore::ui_projectTimePointGeneratorAsStringContantLength(projectuuid)} | #{ ProjectsCore::isGuardianTime?(projectuuid) ? "guardian" : "        " } | #{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{"%5.2f" % ProjectsCore::projectTimeDueInHours(projectuuid)} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
+                "#{ProjectsCore::ui_projectTimePointGeneratorAsStringContantLength(projectuuid)} | #{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{"%5.2f" % ProjectsCore::projectToDueTimeInHours(projectuuid)} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
             }
-            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::projectTimeDueInHours(projectuuid1) <=> ProjectsCore::projectTimeDueInHours(projectuuid2) }.reverse, toString)
+            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::projectToDueTimeInHours(projectuuid1) <=> ProjectsCore::projectToDueTimeInHours(projectuuid2) }.reverse, toString)
             break if projectuuid.nil?
             ProjectsCore::ui_projectDive(projectuuid)
         }
