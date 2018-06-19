@@ -309,7 +309,7 @@ class CommonsUtils
         puts "    email-sync  # run email sync"
         puts "    interface   # select an agent and run the interface"
         puts "    lib         # Invoques the Librarian interactive"
-        puts "    toggle"
+        puts "    guardian    # launches an interactively chosen Guardian time point"
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description: String>>"
@@ -377,6 +377,20 @@ class CommonsUtils
 
         if expression == 'lib' then
             LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
+            return
+        end
+
+        if expression == 'guardian' then
+            timepoints = TimePointsCore::getTimePoints().select{|timepoint| timepoint["0e69d463:GuardianSupport"] }
+            if timepoints.any?{|timepoint| timepoint["is-running"] } then
+                puts "You cannot run this command while a Guardian timepoint is running"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            timepoint = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("timepoint", timepoints, lambda{|timepoint| timepoint["description"] })
+            return if timepoint.nil?
+            timepoint = TimePointsCore::startTimePoint(timepoint)
+            TimePointsCore::saveTimePoint(timepoint)
             return
         end
 
