@@ -1,6 +1,10 @@
 
 # encoding: UTF-8
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
 require_relative "Bob.rb"
 
 # Alphabetic order
@@ -525,5 +529,11 @@ class CommonsUtils
 
     def self.setLightSpeed(value)
         FKVStore::set("SPEED-OF-LIGHT-BCAA047D-C277-41DB-9887-7EB5E468255F", value)
+    end
+
+    def self.codeHash()
+        filenames = Dir.entries(File.dirname(__FILE__)).select{|filename| filename[-3, 3]==".rb" } + [ "catalyst" ]
+        longhash = filenames.map{|filename| Digest::SHA1.file("/Galaxy/LucilleOS/Catalyst/#{filename}").hexdigest }.join()
+        Digest::SHA1.hexdigest(longhash)
     end
 end

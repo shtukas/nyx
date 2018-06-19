@@ -106,7 +106,7 @@ class CatalystInterfaceUtils
             end
             if p["type"]=="main" then
                 return objectToLineMainListing.call(p["object"], position, standardlp)
-            end            
+            end
         }
         standardlp = CommonsUtils::getStandardListingPosition()
         structure_2b7dc24f = CommonsUtils::getStructure2B7DC24F()
@@ -233,8 +233,12 @@ class CatalystInterfaceUtils
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
     end
-    def self.displayLoop(runId)
+    def self.displayLoop(runId, codehash)
         loop {
+            if codehash != CommonsUtils::codeHash() then
+                puts "Source code hash changed. Exiting!"
+                return
+            end
             if !CommonsUtils::isActiveInstance(runId) then
                 FlockDiskIO::loadFromEventsTimeline()
             end
@@ -292,6 +296,7 @@ class CatalystInterfaceUtils
 end
 
 runId = SecureRandom.hex
+codehash = CommonsUtils::codeHash()
 
 FlockDiskIO::loadFromEventsTimeline()
 
@@ -317,4 +322,4 @@ Thread.new {
     }
 }
 
-CatalystInterfaceUtils::displayLoop(runId)
+CatalystInterfaceUtils::displayLoop(runId, codehash)
