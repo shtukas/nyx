@@ -269,7 +269,7 @@ class ProjectsCore
                 if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") then
                     ProjectsCore::ui_deleteProject1(projectuuid)
                 end
-                next
+                return
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice
@@ -314,7 +314,6 @@ class ProjectsCore
                     }
             }
         end
-        puts "ProjectsCore::deleteProject2"
         ProjectsCore::deleteProject2(projectuuid)
     end
 end
