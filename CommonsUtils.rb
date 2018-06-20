@@ -384,9 +384,7 @@ class CommonsUtils
         if expression.start_with?('project:') then
             description = expression[8, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            projectuuid = ProjectsCore::createNewProject(description)
-            puts "project uuid: #{projectuuid}"
-            puts "project name: #{description}"
+            projectuuid = ProjectsCore::createNewProject(description, LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
             LucilleCore::pressEnterToContinue()
             return
         end   

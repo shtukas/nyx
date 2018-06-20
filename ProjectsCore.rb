@@ -17,50 +17,37 @@ class ProjectsCore
     # ---------------------------------------------------
     # ProjectsCore::projectsUUIDs()
 
-
-    def self.fs_location2UUID(location)
-        if File.directory?(location) then
-            uuidFilepath = "#{location}/.uuid"
-            if !File.exists?(uuidFilepath) then
-                File.open(uuidFilepath, "w"){|f| f.write(SecureRandom.hex(4)) }
-            end
-            IO.read(uuidFilepath).strip
-        else
-            Digest::SHA1.hexdigest("3fa3a298-8941-4c9e-8b59-f1bc867e517d:#{location}")[0,8]
-        end
-    end
-
     def self.fs_locations()
         Dir.entries("/Galaxy/Projects")
             .select{|filename| (filename[0,1] != ".") and (filename != 'Icon'+["0D"].pack("H*")) }
             .map{|filename| "/Galaxy/Projects/#{filename}" }
     end
 
-    def self.fs_uuidIsFileSystemProject(uuid)
-        ProjectsCore::fs_locations()
-            .any?{|location| uuid == ProjectsCore::fs_location2UUID(location) }
+    def self.fs_location2UUID(location)
+        uuidfilepath = "#{location}/.uuid"
+        if !File.exists?(uuidfilepath) then
+            File.open(uuidfilepath, "w"){|f| f.write(SecureRandom.hex(4)) }
+        end
+        IO.read(uuidfilepath).strip
     end
 
+    def self.fs_uuids()
+        ProjectsCore::fs_locations().map{|location| ProjectsCore::fs_location2UUID(location) }
+    end 
+    
     def self.projectsUUIDs()
-        uuids1 = JSON.parse(FKVStore::getOrDefaultValue(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, "[]"))
-        uuids2 = ProjectsCore::fs_locations()
-            .map{|location| ProjectsCore::fs_location2UUID(location) }
-        (uuids1 + uuids2).uniq
+        ProjectsCore::fs_uuids()
     end
 
-    # ProjectsCore::createNewProject(projectname)
-    # ProjectsCore::createNewProject(projectname)
+    # ProjectsCore::createNewProject(projectname, timeUnitInDays, timeCommitmentInHours)
     # ProjectsCore::projectUUID2NameOrNull(projectuuid)
 
-    def self.createNewProject(projectname)
+    def self.createNewProject(projectname, timeUnitInDays, timeCommitmentInHours)
         projectuuid = SecureRandom.hex(4)
-        FKVStore::set(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, JSON.generate(ProjectsCore::projectsUUIDs()+[projectuuid]))
-        ProjectsCore::setProjectName(projectuuid, projectname)
+        FileUtils.mkpath("/Galaxy/Projects/#{projectname}")
+        File.open("/Galaxy/Projects/#{projectname}/.uuid", "w"){|f| f.write(projectuuid) }
+        ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
         projectuuid
-    end
-
-    def self.setProjectName(projectuuid, projectname)
-        FKVStore::set("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}", projectname)
     end
 
     def self.projectUUID2NameOrNull(projectuuid)
@@ -69,7 +56,7 @@ class ProjectsCore
             .each{|location|
                 return File.basename(location)
             }
-        FKVStore::getOrNull("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}")
+        nil
     end
 
     # ---------------------------------------------------
@@ -88,7 +75,7 @@ class ProjectsCore
         if projectuuid.nil? then
             if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new project ? ") then
                 projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
-                projectuuid = ProjectsCore::createNewProject(projectname)
+                projectuuid = ProjectsCore::createNewProject(projectname, LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
             else
                 return
             end
@@ -170,21 +157,6 @@ class ProjectsCore
         }
     end
 
-    def self.deleteProject2(projectuuid)
-        if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
-            puts "You cannot delete this project because it has objects"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) then
-            puts "You cannot delete this project because it is a file system based project"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        projectuuids = ( ProjectsCore::projectsUUIDs() - [projectuuid] ).uniq
-        FKVStore::set(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, JSON.generate(projectuuids))
-    end
-
     # ---------------------------------------------------
     # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
     # ProjectsCore::ui_projectsDive()
@@ -193,6 +165,9 @@ class ProjectsCore
 
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+        if timestructure["time-commitment-in-hours"]==0 then
+            return "                     "
+        end
         # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
         "#{"%4.2f" % timestructure["time-commitment-in-hours"]} hours, #{"%4.2f" % (timestructure["time-unit-in-days"])} days"
     end
@@ -205,9 +180,7 @@ class ProjectsCore
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
-            menuItem3 = "operation : set name" 
-            menuItem4 = "operation : set time structure"  
-            menuItem5 = "operation : destroy"            
+            menuItem4 = "operation : set time structure"             
             menuStringsOrCatalystObjects = catalystobjects
             menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3, menuItem4, menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
@@ -223,24 +196,12 @@ class ProjectsCore
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
-            if menuChoice == menuItem3 then
-                ProjectsCore::setProjectName(
-                    projectuuid, 
-                    LucilleCore::askQuestionAnswerAsString("Name: "))
-                next
-            end
             if menuChoice == menuItem4 then
                 ProjectsCore::setTimeStructure(
                         projectuuid, 
                         LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, 
                         LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
                 next
-            end
-            if menuChoice == menuItem5 then
-                if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Are you sure you want to destroy this project ? ") then
-                    ProjectsCore::ui_deleteProject1(projectuuid)
-                end
-                return
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice
@@ -251,7 +212,7 @@ class ProjectsCore
     def self.ui_projectsDive()
         loop {
             toString = lambda{ |projectuuid| 
-                "#{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
+                "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
             }
             projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::metric(projectuuid1) <=> ProjectsCore::metric(projectuuid2) }.reverse, toString)
             break if projectuuid.nil?
@@ -263,18 +224,4 @@ class ProjectsCore
         LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("project", ProjectsCore::projectsUUIDs(), lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) })
     end
 
-    def self.ui_deleteProject1(projectuuid)
-        if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
-            puts "You now need to destroy all the objects"
-            LucilleCore::pressEnterToContinue()
-            loop {
-                objects = projectCatalystObjectUUIDs(projectuuid)
-                break if objects.size==0
-                objects.each{|object|
-                        CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
-                    }
-            }
-        end
-        ProjectsCore::deleteProject2(projectuuid)
-    end
 end
