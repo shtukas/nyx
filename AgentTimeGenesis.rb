@@ -64,7 +64,7 @@ class AgentTimeGenesis
                         if TimePointsCore::getTimePoints().select{|point| point["project-uuid"]==projectuuid }.size==0 then
                             xname = "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
                             print "TimeGenesis: #{(generator[2].to_f/3600)} hours for project: #{xname} "
-                            STIN.gets()
+                            STDIN.gets()
                             TimePointsCore::issueNewPoint(projectuuid, "project: #{xname}", (generator[2].to_f/3600))
                             ProjectsCore::resetTimePointGenerator(projectuuid)
                         end
