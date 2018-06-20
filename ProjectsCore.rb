@@ -85,7 +85,7 @@ class ProjectsCore
         uuids1 = JSON.parse(FKVStore::getOrDefaultValue(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, "[]"))
         uuids2 = ProjectsCore::fs_locations()
             .map{|location| ProjectsCore::fs_location2UUID(location) }
-        uuids1 + uuids2
+        (uuids1 + uuids2).uniq
     end
 
     def self.projectUUID2NameOrNull(projectuuid)
@@ -204,12 +204,12 @@ class ProjectsCore
 
     def self.deleteProject2(projectuuid)
         if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
-            puts "You cannot complete this project because it has objects"
+            puts "You cannot delete this project because it has objects"
             LucilleCore::pressEnterToContinue()
             return
         end
         if ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) then
-            puts "You cannot complete this project because it is a file system based project"
+            puts "You cannot delete this project because it is a file system based project"
             LucilleCore::pressEnterToContinue()
             return
         end
