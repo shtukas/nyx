@@ -156,10 +156,10 @@ class CatalystInterfaceUtils
         standardlp, listingItemType, listingItemOrdinal, object = self.getTopData()
 
         if listingItemType=="main" then
-            puts "[#{standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
+            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
         end
         if listingItemType=="ordinal" then
-            puts "[#{standardlp}] #{CatalystInterfaceUtils::object2Line_v2_ordinal(object, listingItemOrdinal)}"
+            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v2_ordinal(object, listingItemOrdinal)}"
         end
         print "--> "
         command = STDIN.gets().strip
