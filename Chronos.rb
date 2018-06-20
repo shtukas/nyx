@@ -42,7 +42,7 @@ class Chronos
 
     def self.summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
         # The timeUnitInDays controls the rate of decay, we want the time of daily project to decay faster than the time for weekly projects
-        time_weight_in_seconds = MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+        MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
             .map{|pair|
                 unixtime = pair[0]
                 timespan = pair[1]
@@ -65,7 +65,7 @@ class Chronos
     def self.metric3(uuid, low, high, timeUnitInDays, timeCommitmentInHours)
         return low if timeCommitmentInHours==0 # This happens sometimes
         summedTimeSpanInSeconds = Chronos::summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
-        summedTimeSpanInHours = summedTimeSpanInSeconds.to_i/3600
+        summedTimeSpanInHours = summedTimeSpanInSeconds.to_f/3600
         ratiodone = summedTimeSpanInHours.to_f/timeCommitmentInHours
         low + (high-low)*(1-ratiodone)
     end
