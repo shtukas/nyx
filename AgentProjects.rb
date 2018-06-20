@@ -33,7 +33,7 @@ class AgentProjects
         end
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
-        announce = announce + (ProjectsCore::liveRatioDoneOrNull(projectuuid) ? " { #{"%.2f" % ProjectsCore::liveRatioDoneOrNull(projectuuid)} % }" : "")
+        announce = announce + (ProjectsCore::liveRatioDoneOrNull(projectuuid) ? " { #{"%.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))} % }" : "")
         # announce = announce + " { #{JSON.generate(timestructure)} }"
         object              = {}
         object["uuid"]      = projectuuid

@@ -216,10 +216,10 @@ Thread.new {
 
 Thread.new {
     loop {
-        TimePointsCore::getTimePoints()
-            .each{|timepoint| 
-                if timepoint["is-running"] and TimePointsCore::timePointToRatioDoneUpToDate(timepoint)>1 then
-                    system("terminal-notifier -title 'Catalyst TimePointsCore' -message '#{timepoint["description"]} is done'")
+        ProjectsCore::projectsUUIDs()
+            .each{|projectuuid| 
+                if Chronos::isRunning(projectuuid) and ProjectsCore::liveRatioDoneOrNull(projectuuid)>1 then
+                    system("terminal-notifier -title 'Catalyst Project Monitor' -message '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)} is done'")
                     sleep 2
                 end
             }

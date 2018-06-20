@@ -12,51 +12,11 @@ require 'securerandom'
 
 # -------------------------------------------------------------
 
-# Collections was born out of what was originally known as Threads and Projects
-
-# -------------------------------------------------------------
-# Utils
-
-# ProjectsCore::projectsUUIDs()
-# ProjectsCore::projectUUID2NameOrNull(projectuuid)
-
-# -------------------------------------------------------------
-# creation
-
-# ProjectsCore::createNewProject(projectname)
-
-# -------------------------------------------------------------
-# projects uuids
-
-# ProjectsCore::addCatalystObjectUUIDToProject(objectuuid, projectuuid)
-# ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(objectuuid, projectuuid)
-# ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-# ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-
-# -------------------------------------------------------------
-# Time Structue
-
-# ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
-
-# -------------------------------------------------------------
-# Misc
-
-# ProjectsCore::transform()
-# ProjectsCore::deleteProject2(uuid)
-
-# -------------------------------------------------------------
-# User Interface
-
-# ProjectsCore::interactivelySelectProjectUUIDOrNUll()
-# ProjectsCore::ui_projectsDive()
-# ProjectsCore::ui_projectDive(projectuuid)
-# ProjectsCore::deleteProject2(projectuuid)
-
-# -------------------------------------------------------------
-
 class ProjectsCore
+
     # ---------------------------------------------------
-    # Utils
+    # ProjectsCore::projectsUUIDs()
+
 
     def self.fs_location2UUID(location)
         if File.directory?(location) then
@@ -88,6 +48,21 @@ class ProjectsCore
         (uuids1 + uuids2).uniq
     end
 
+    # ProjectsCore::createNewProject(projectname)
+    # ProjectsCore::createNewProject(projectname)
+    # ProjectsCore::projectUUID2NameOrNull(projectuuid)
+
+    def self.createNewProject(projectname)
+        projectuuid = SecureRandom.hex(4)
+        FKVStore::set(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, JSON.generate(ProjectsCore::projectsUUIDs()+[projectuuid]))
+        ProjectsCore::setProjectName(projectuuid, projectname)
+        projectuuid
+    end
+
+    def self.setProjectName(projectuuid, projectname)
+        FKVStore::set("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}", projectname)
+    end
+
     def self.projectUUID2NameOrNull(projectuuid)
         ProjectsCore::fs_locations()
             .select{|location| projectuuid == ProjectsCore::fs_location2UUID(location) }
@@ -98,21 +73,10 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # creation
-
-    def self.setProjectName(projectuuid, projectname)
-        FKVStore::set("AE2252BF-4915-4170-8435-C8C05EA4283C:#{projectuuid}", projectname)
-    end
-
-    def self.createNewProject(projectname)
-        projectuuid = SecureRandom.hex(4)
-        FKVStore::set(CATALYST_COMMON_PROJECTS_UUIDS_LOCATION, JSON.generate(ProjectsCore::projectsUUIDs()+[projectuuid]))
-        ProjectsCore::setProjectName(projectuuid, projectname)
-        projectuuid
-    end
-
-    # ---------------------------------------------------
-    # projects objects
+    # ProjectsCore::addCatalystObjectUUIDToProject(objectuuid, projectuuid)
+    # ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(objectuuid, projectuuid)
+    # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
+    # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
 
     def self.addCatalystObjectUUIDToProject(objectuuid, projectuuid)
         uuids = ( ProjectsCore::projectCatalystObjectUUIDs(projectuuid) + [objectuuid] ).uniq
@@ -149,6 +113,9 @@ class ProjectsCore
     # The time structure against projects
     # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
 
+    # ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
+    # ProjectsCore::liveRatioDoneOrNull(projectuuid)
+
     def self.setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
         timestructure = { "time-unit-in-days"=> timeUnitInDays, "time-commitment-in-hours" => timeCommitmentInHours }
         FKVStore::set("02D6DCBC-87BD-4D4D-8F0B-411B7C06B972:#{projectuuid}", JSON.generate(timestructure))
@@ -175,7 +142,7 @@ class ProjectsCore
     def self.liveRatioDoneOrNull(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         return nil if timestructure["time-commitment-in-hours"]==0
-        100*(Chronos::summedTimespansWithDecayInSecondsLiveValue(projectuuid, timestructure["time-unit-in-days"]).to_f/3600).to_f/timestructure["time-commitment-in-hours"]
+        (Chronos::summedTimespansWithDecayInSecondsLiveValue(projectuuid, timestructure["time-unit-in-days"]).to_f/3600).to_f/timestructure["time-commitment-in-hours"]
     end
 
     def self.metric(projectuuid)
@@ -188,7 +155,8 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # Misc
+    # ProjectsCore::transform()
+    # ProjectsCore::deleteProject2(uuid)
 
     def self.transform()
         uuids = ProjectsCore::projectsUUIDs()
@@ -218,7 +186,10 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # User Interface
+    # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
+    # ProjectsCore::ui_projectsDive()
+    # ProjectsCore::ui_projectDive(projectuuid)
+    # ProjectsCore::deleteProject2(projectuuid)
 
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
@@ -277,20 +248,10 @@ class ProjectsCore
         }
     end
 
-    def self.projectTimePoints(projectuuid)
-        TimePointsCore::getTimePoints().select{|timepoint| timepoint["domain"]==projectuuid }
-    end
-
-    def self.projectToDueTimeInHours(projectuuid)
-        ProjectsCore::projectTimePoints(projectuuid)
-            .map{|timepoint| TimePointsCore::timepointToDueTimeinHoursUpToDate(timepoint) }
-            .inject(0, :+)
-    end
-
     def self.ui_projectsDive()
         loop {
             toString = lambda{ |projectuuid| 
-                "#{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % ProjectsCore::liveRatioDoneOrNull(projectuuid)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
+                "#{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
             }
             projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::metric(projectuuid1) <=> ProjectsCore::metric(projectuuid2) }.reverse, toString)
             break if projectuuid.nil?
