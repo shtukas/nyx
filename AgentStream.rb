@@ -135,7 +135,7 @@ class AgentStream
     end
 
     def self.agentMetric()
-        0.8 * Math.exp( -Chronos::adaptedTimespanInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY).to_f/3600 )
+        0.8 * Math.exp( -Chronos::summedTimespansWithDecayInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY, 1).to_f/3600 )
     end
 
     def self.generalFlockUpgrade()

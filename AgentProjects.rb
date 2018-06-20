@@ -26,33 +26,25 @@ class AgentProjects
         "e4477960-691d-4016-884c-8694db68cbfb"
     end
 
-    def self.objectHoursDone(uuid)
-        Chronos::adaptedTimespanInSeconds(uuid).to_f/3600
-    end
-
-    def self.metric(uuid, isRunning)
-        0.3*Math.exp(-self.objectHoursDone(uuid))
-    end
-
-    def self.makeCatalystObjectOrNull(uuid)
-        description = ProjectsCore::projectUUID2NameOrNull(uuid)
-        announce = "project: #{description}"
-        if ProjectsCore::projectCatalystObjectUUIDs(uuid).size>0 then
-            announce = announce + " { #{ProjectsCore::projectCatalystObjectUUIDs(uuid).size} objects }"
+    def self.makeCatalystObjectOrNull(projectuuid)
+        announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+        if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
+            announce = announce + " { #{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} objects }"
         end
-        announce = announce + " (#{ "%.2f" % (Chronos::adaptedTimespanInSeconds(uuid).to_f/3600) } hours)"
-        status = Chronos::status(uuid)
-        isRunning = status[0]
+        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+        # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
+        announce = announce + (ProjectsCore::liveRatioDoneOrNull(projectuuid) ? " { #{"%.2f" % ProjectsCore::liveRatioDoneOrNull(projectuuid)} % }" : "")
+        # announce = announce + " { #{JSON.generate(timestructure)} }"
         object              = {}
-        object["uuid"]      = uuid
+        object["uuid"]      = projectuuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = 0.1 + CommonsUtils::traceToMetricShift(uuid)
+        object["metric"]    = ProjectsCore::metric(projectuuid)
         object["announce"]  = announce
-        object["commands"]  = []
-        object["default-expression"] = "dive"
-        object["isRunning"] = isRunning
+        object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
+        object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"
+        object["is-running"] = Chronos::isRunning(projectuuid)
         object["item-data"] = {}
-        object["item-data"]["timings"] = Chronos::timings(uuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
+        object["item-data"]["timings"] = Chronos::timings(projectuuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
         object
     end
 
@@ -61,9 +53,8 @@ class AgentProjects
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        #return if (Time.new.hour>=23 or Time.new.hour < 7)
         objects = ProjectsCore::projectsUUIDs()
-            .map{|uuid| AgentProjects::makeCatalystObjectOrNull(uuid) }
+            .map{|projectuuid| AgentProjects::makeCatalystObjectOrNull(projectuuid) }
             .compact
         TheFlock::addOrUpdateObjects(objects)
     end
@@ -71,6 +62,12 @@ class AgentProjects
     def self.processObjectAndCommandFromCli(object, command)
         if command=="dive" then
             ProjectsCore::ui_projectDive(object["uuid"])
+        end
+        if command=="start" then
+            Chronos::start(object["uuid"])
+        end
+        if command=="stop" then
+            Chronos::stop(object["uuid"])
         end
     end
 end

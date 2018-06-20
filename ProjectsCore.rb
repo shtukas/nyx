@@ -34,11 +34,9 @@ require 'securerandom'
 # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
 
 # -------------------------------------------------------------
-# 
+# Time Structue
 
-# ProjectsCore::setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
-# ProjectsCore::getTimePointGeneratorOrNull(projectuuid): [ <operationUnixtime> <periodInSeconds> <timepointDurationInSeconds> ]
-# ProjectsCore::resetTimePointGenerator(projectuuid)
+# ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
 
 # -------------------------------------------------------------
 # Misc
@@ -146,26 +144,47 @@ class ProjectsCore
             .compact
     end
 
-
-
     # ---------------------------------------------------
-    # Time management
+    # Time Struture (2)
+    # The time structure against projects
+    # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
 
-    def self.setTimePointGenerator(projectuuid, periodInSeconds, timepointDurationInSeconds)
-        FKVStore::set("5AB553E7-B9E1-4F7C-B183-D0388538C940:#{projectuuid}", JSON.generate([Time.new.to_i, periodInSeconds, timepointDurationInSeconds]))      
+    def self.setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
+        timestructure = { "time-unit-in-days"=> timeUnitInDays, "time-commitment-in-hours" => timeCommitmentInHours }
+        FKVStore::set("02D6DCBC-87BD-4D4D-8F0B-411B7C06B972:#{projectuuid}", JSON.generate(timestructure))
+        timestructure
     end
 
-    def self.getTimePointGeneratorOrNull(projectuuid)
-        generator = FKVStore::getOrNull("5AB553E7-B9E1-4F7C-B183-D0388538C940:#{projectuuid}")
-        return nil if generator.nil?
-        JSON.parse(generator)
+    def self.getTimeStructureOrNull(projectuuid)
+        timestructure = FKVStore::getOrNull("02D6DCBC-87BD-4D4D-8F0B-411B7C06B972:#{projectuuid}")
+        return nil if timestructure.nil?
+        JSON.parse(timestructure)
     end
 
-    def self.resetTimePointGenerator(projectuuid)
-        # This function is called by AgentTimeGenesis when a new time point is issued
-        generator = getTimePointGeneratorOrNull(projectuuid)
-        return if generator.nil?
-        self.setTimePointGenerator(projectuuid, generator[1], generator[2])
+    def self.getTimeStructureAskIfAbsent(projectuuid)
+        timestructure = ProjectsCore::getTimeStructureOrNull(projectuuid)
+        if timestructure.nil? then
+            puts "Setting Time Structure for project '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}'"
+            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f
+            timestructure = ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
+        end
+        timestructure
+    end
+
+    def self.liveRatioDoneOrNull(projectuuid)
+        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+        return nil if timestructure["time-commitment-in-hours"]==0
+        100*(Chronos::summedTimespansWithDecayInSecondsLiveValue(projectuuid, timestructure["time-unit-in-days"]).to_f/3600).to_f/timestructure["time-commitment-in-hours"]
+    end
+
+    def self.metric(projectuuid)
+        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+        # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
+        timeUnitMultiplier = 0.99 + 0.01*Math.exp(-timestructure["time-unit-in-days"])
+        timeCommitmentMultiplier = 0.99 + 0.01*Math.atan(timestructure["time-commitment-in-hours"])
+        metric = Chronos::metric3(projectuuid, 0.1, 0.8, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"]) * timeUnitMultiplier * timeCommitmentMultiplier
+        metric + CommonsUtils::traceToMetricShift(projectuuid)
     end
 
     # ---------------------------------------------------
@@ -201,13 +220,10 @@ class ProjectsCore
     # ---------------------------------------------------
     # User Interface
 
-    def self.ui_projectTimePointGeneratorAsStringContantLength(projectuuid)
-        timePointGenerator = ProjectsCore::getTimePointGeneratorOrNull(projectuuid)
-        if timePointGenerator then
-            "#{"%4.2f" % (timePointGenerator[2].to_f/3600)} hours / #{"%4.2f" % (timePointGenerator[1].to_f/86400)} days"
-        else
-            "                      "
-        end
+    def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
+        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+        # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
+        "#{"%4.2f" % timestructure["time-commitment-in-hours"]} hours, #{"%4.2f" % (timestructure["time-unit-in-days"])} days"
     end
 
     def self.ui_projectDive(projectuuid)
@@ -219,7 +235,7 @@ class ProjectsCore
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
             menuItem3 = "operation : set name" 
-            menuItem4 = "operation : set time generator"  
+            menuItem4 = "operation : set time structure"  
             menuItem5 = "operation : destroy"            
             menuStringsOrCatalystObjects = catalystobjects
             menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3, menuItem4, menuItem5 ]
@@ -243,10 +259,10 @@ class ProjectsCore
                 next
             end
             if menuChoice == menuItem4 then
-                ProjectsCore::setTimePointGenerator(
+                ProjectsCore::setTimeStructure(
                         projectuuid, 
-                        LucilleCore::askQuestionAnswerAsString("Period in days: ").to_f*86400, 
-                        LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f*3600)
+                        LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, 
+                        LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
                 next
             end
             if menuChoice == menuItem5 then
@@ -274,9 +290,9 @@ class ProjectsCore
     def self.ui_projectsDive()
         loop {
             toString = lambda{ |projectuuid| 
-                "#{ProjectsCore::ui_projectTimePointGeneratorAsStringContantLength(projectuuid)} | #{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{"%5.2f" % ProjectsCore::projectToDueTimeInHours(projectuuid)} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
+                "#{ProjectsCore::fs_uuidIsFileSystemProject(projectuuid) ? "fs" : "  " } | #{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % ProjectsCore::liveRatioDoneOrNull(projectuuid)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
             }
-            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::projectToDueTimeInHours(projectuuid1) <=> ProjectsCore::projectToDueTimeInHours(projectuuid2) }.reverse, toString)
+            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::metric(projectuuid1) <=> ProjectsCore::metric(projectuuid2) }.reverse, toString)
             break if projectuuid.nil?
             ProjectsCore::ui_projectDive(projectuuid)
         }
