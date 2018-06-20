@@ -55,36 +55,12 @@ class CatalystInterfaceUtils
             ].join()
         part1 + part2
     end
-    def self.object2Line_v2_ordinal(object, ordinal)
-        announce = object['announce'].strip
-        announce = CommonsUtils::announceWithColor(announce, object)
-        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
-        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        part1 = 
-            [
-                "[#{"%.3f" % ordinal}]",
-                " [#{object["uuid"]}]",
-                " #{announce}",
-                "#{requirementsAsString.green}",
-                CommonsUtils::object2DonotShowUntilAsString(object),
-            ].join()
-        if object["is-running"] then
-            part1 = part1.green
+    def self.positionOfLastRunningItemOrZero(objects)
+        return 0 if objects.none?{ |object| object["is-running"] }
+        while !objects.last["is-running"] do
+            objects.pop
         end
-        part2 = 
-            [
-                " (#{object["commands"].join(" ").red})",
-                " \"#{defaultExpressionAsString.green}\""
-            ].join()
-        part1 + part2
-    end
-    def self.positionOfLastRunningItemOrZero(structure_2b7dc24f)
-        return 0 if structure_2b7dc24f.none?{ |p| p["object"]["is-running"] }
-        while !structure_2b7dc24f.last["object"]["is-running"] do
-            structure_2b7dc24f.pop
-        end
-        structure_2b7dc24f.size
+        objects.size
     end
     def self.putsListing()
         positionDisplay = lambda {|standardlp, position|
@@ -94,35 +70,19 @@ class CatalystInterfaceUtils
                 "[  #{"%2d" % position}]"
             end
         }
-        objectToLineOrdinalListing = lambda {|object, ordinal, position, standardlp|
-            "#{positionDisplay.call(standardlp, position)} [#{("%.3f" % ordinal)}] #{CommonsUtils::object2Line_v0(object)[8,CommonsUtils::screenWidth()-28]}"
-        }
         objectToLineMainListing = lambda {|object, position, standardlp|
             "#{positionDisplay.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
         }
-        objectToGenericLine = lambda {|p, position, standardlp|
-            if p["type"]=="ordinal" then
-                return objectToLineOrdinalListing.call(p["object"], p["ordinal"], position, standardlp)
-            end
-            if p["type"]=="main" then
-                return objectToLineMainListing.call(p["object"], position, standardlp)
-            end
-        }
         standardlp = CommonsUtils::getStandardListingPosition()
-        structure_2b7dc24f = CommonsUtils::getStructure2B7DC24F()
-        amountToDisplay = [ CommonsUtils::screenHeight()-5, self.positionOfLastRunningItemOrZero(structure_2b7dc24f.clone) ].max
-        structure_2b7dc24f = structure_2b7dc24f.take(amountToDisplay).select{|p| p["object"]["metric"] >= 0.2 }
+        objects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
+        amountToDisplay = [ CommonsUtils::screenHeight()-5, self.positionOfLastRunningItemOrZero(objects.clone) ].max
+        objects = objects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
         if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
             puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
         end
-        numberOfOrdinals = structure_2b7dc24f.select{|p| p["type"]=="ordinal" }.size 
-        structure_2b7dc24f.each_with_index{|p, index|
+        objects.each_with_index{|object, index|
             position = index+1
-            if numberOfOrdinals>0 and (position-1)==numberOfOrdinals then
-                puts ""
-            end
-            str = objectToGenericLine.call(p, position, standardlp)
-            object = p["object"]
+            str = objectToLineMainListing.call(object, position, standardlp)
             if object["is-running"] then
                 str = str.green
             end
@@ -131,10 +91,7 @@ class CatalystInterfaceUtils
     end
     def self.getTopData()
         standardlp = CommonsUtils::getStandardListingPosition()
-        listingItem = CommonsUtils::getNthElementOfUnifiedListing(standardlp)
-        listingItemType = listingItem["type"]
-        listingItemOrdinal = listingItem["ordinal"]
-        object = listingItem["object"]
+        object = CommonsUtils::getNthElementOfUnifiedListing(standardlp)
 
         # --------------------------------------------------------------------------------
         # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
@@ -150,17 +107,11 @@ class CatalystInterfaceUtils
         end
         # --------------------------------------------------------------------------------
 
-        [standardlp, listingItemType, listingItemOrdinal, object]
+        [standardlp, object]
     end
     def self.commandLineInterface(runId)
-        standardlp, listingItemType, listingItemOrdinal, object = self.getTopData()
-
-        if listingItemType=="main" then
-            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
-        end
-        if listingItemType=="ordinal" then
-            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v2_ordinal(object, listingItemOrdinal)}"
-        end
+        standardlp, object = self.getTopData()
+        puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
         print "--> "
         command = STDIN.gets().strip
         if command=="." then
@@ -170,33 +121,9 @@ class CatalystInterfaceUtils
             CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
             return
         end
-        if command[0,1] == "!" then
-            command = command[1,command.length]
-            Ordinals::unregister(object["uuid"])
-        end
         if command.start_with?(":") then
             token, rest = StringParser::decompose(command)
-            if token==":?" then
-                # :? <float> <description, multi-tokens> # creates a text object and give it that ordinal
-                ordinal, description = StringParser::decompose(rest)
-                xuuid = CommonsUtils::waveInsertNewItemDefaults(description)
-                Ordinals::register(xuuid, ordinal.to_f)
-                AgentWave::generalFlockUpgrade()
-                if listingItemType=="main" then
-                    CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
-                end
-                return
-            end
             if token==":this" then
-                if CommonsUtils::isFloat(rest) or CommonsUtils::isInteger(rest) then
-                    # :this <float> # register the current object agains the float
-                    ordinal = rest.to_f
-                    Ordinals::register(object["uuid"], ordinal)
-                    if listingItemType=="main" then
-                        CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
-                    end
-                    return
-                end
                 if rest=="goto:project" then
                     ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
                     return
@@ -218,13 +145,6 @@ class CatalystInterfaceUtils
                 if rest == "done" then
                     o = CommonsUtils::getNthElementOfUnifiedListing(position)["object"]
                     CommonsUtils::processObjectAndCommand(o, "done")
-                    return
-                end
-                if rest.index(" ").nil? then
-                    # :<position> <float> # set the ordinal of the object at this position
-                    ordinal = rest.to_f
-                    object = CommonsUtils::getNthElementOfUnifiedListing(position)["object"]
-                    Ordinals::register(object["uuid"], ordinal)
                     return
                 end
             end

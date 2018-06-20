@@ -24,7 +24,7 @@ require_relative "Bob.rb"
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
-# CommonsUtils::getStructure2B7DC24F()
+# CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
 # CommonsUtils::getNthElementOfUnifiedListing(n)
 
 class CommonsUtils
@@ -259,38 +259,19 @@ class CommonsUtils
         RequirementsOperator::transform()
         CommonsUtils::fDoNotShowUntilDateTimeTransform()
         ProjectsCore::transform()
-        Ordinals::transform()
         TheFlock::flockObjects()
             .select{|object| object["metric"] > 0 }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end
 
-    def self.getStructure2B7DC24F()
+    def self.generalFlockUpgradeThenflockOrderedDisplayObjects()
         Bob::generalFlockUpgrade()
-        structure_2b7dc24f = []
-        Ordinals::sortedDistribution()
-            .select{|pair| TheFlock::getObjectByUUIDOrNull(pair[0]).nil? }
-            .each{|pair| Ordinals::unregister(pair[0]) }
-        pairs = Ordinals::sortedDistribution()
-        pairs.each{|pair|
-            structure_2b7dc24f << {
-                "type" => "ordinal",
-                "object" => TheFlock::getObjectByUUIDOrNull(pair[0]),
-                "ordinal" => pair[1]
-            }
-        }
-        CommonsUtils::flockOrderedDisplayObjects().each{|object|
-            structure_2b7dc24f << {
-                "type" => "main",
-                "object" => object
-            }
-        }
-        structure_2b7dc24f
+        CommonsUtils::flockOrderedDisplayObjects()
     end
 
-    def self.getNthElementOfUnifiedListing(n) # { :type, :object, :ordinal optional }
-        CommonsUtils::getStructure2B7DC24F().take(n).last
+    def self.getNthElementOfUnifiedListing(n)
+        CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects().take(n).last
     end
 
     # -----------------------------------------
@@ -314,14 +295,11 @@ class CommonsUtils
         puts "    project: <description: String>"
         puts "    time commitment: <description>"
         puts ""
-        puts "Special Commands (object targetting and ordinal)"
+        puts "Special Commands (object targetting)"
         puts "    :<position>           # set the listing reference point"
         puts "    :<position> open      # send command open to the item at position"
         puts "    :<position> done      # send command done to the item at position"
-        puts "    :<position> <float>   # set the ordinal of the object at this position"
-        puts "    :this <float>         # register the current object agains the float"
         puts "    :this goto:project # send the current object to a project"
-        puts "    :? <float> <description, multi-tokens> # creates a text object and give it that ordinal"
         puts ""
         puts "Special Object Commands:"
         puts "    + # push by 1 hour"
@@ -480,7 +458,6 @@ class CommonsUtils
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
                 TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
-                Ordinals::unregister(object["uuid"])
             end
             return
         end
