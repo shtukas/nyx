@@ -7,15 +7,11 @@ require 'digest/sha1'
 
 require_relative "Bob.rb"
 
-# Alphabetic order
+# ---------------------------------------------------
 
 # CommonsUtils::codeToDatetimeOrNull(code)
-# CommonsUtils::currentHour()
-# CommonsUtils::currentDay()
 # CommonsUtils::isLucille18()
 # CommonsUtils::isActiveInstance(runId)
-# CommonsUtils::isInteger(str)
-# CommonsUtils::isFloat(str)
 # CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::realNumbersToZeroOne(x, origin, unit)
 # CommonsUtils::simplifyURLCarryingString(string)
@@ -28,6 +24,12 @@ require_relative "Bob.rb"
 # CommonsUtils::getNthElementOfUnifiedListing(n)
 
 class CommonsUtils
+
+    # ---------------------------------------------------
+    # CommonsUtils::currentHour()
+    # CommonsUtils::currentDay()
+    # CommonsUtils::isInteger(str)
+    # CommonsUtils::isFloat(str)
 
     def self.currentHour()
         Time.new.to_s[0,13]
@@ -140,7 +142,11 @@ class CommonsUtils
         FKVStore::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end
 
-    # -----------------------------------------
+    def self.codeHash()
+        filenames = Dir.entries(File.dirname(__FILE__)).select{|filename| filename[-3, 3]==".rb" } + [ "catalyst" ]
+        longhash = filenames.map{|filename| Digest::SHA1.file("/Galaxy/LucilleOS/Catalyst/#{filename}").hexdigest }.join()
+        Digest::SHA1.hexdigest(longhash)
+    end
 
     def self.emailSync(verbose)
         begin
@@ -231,26 +237,25 @@ class CommonsUtils
 
     # -----------------------------------------
 
-    def self.fDoNotShowUntilDateTimeTransform()
-        TheFlock::flockObjects().map{|object|
-            if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
-                # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-                object["do-not-show-until-datetime"] = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
-                object["metric"] = 0
-                TheFlock::addOrUpdateObject(object)
-            end
-        }
+    def self.fDoNotShowUntilDateTimeTransform(object)
+        if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
+            # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
+            object["do-not-show-until-datetime"] = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+            object["metric"] = 0
+        end
+        object
     end
 
     def self.flockOrderedDisplayObjects()
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
-        RequirementsOperator::transform()
-        CommonsUtils::fDoNotShowUntilDateTimeTransform()
-        ProjectsCore::transform()
-        TheFlock::flockObjects()
+        objects = TheFlock::flockObjects().map{|object| object.clone }
+        objects = ProjectsCore::transform(objects) # this one is special, it acts on collections, not individual elements, only because of speed
+        objects
+            .map{|object| CommonsUtils::fDoNotShowUntilDateTimeTransform(object) }
+            .map{|object| RequirementsOperator::transform(object) }
+            .map{|object| CommonsUtils::metricOverrideTransform(object) }
             .select{|object| object["metric"] > 0 }
-            .map{|object| CommonsUtils::metricTransform(object.clone) }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end
@@ -474,12 +479,6 @@ class CommonsUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
-    def self.codeHash()
-        filenames = Dir.entries(File.dirname(__FILE__)).select{|filename| filename[-3, 3]==".rb" } + [ "catalyst" ]
-        longhash = filenames.map{|filename| Digest::SHA1.file("/Galaxy/LucilleOS/Catalyst/#{filename}").hexdigest }.join()
-        Digest::SHA1.hexdigest(longhash)
-    end
-
     # ---------------------------------------------------
     # CommonsUtils::setMetricOverride(uuid, metric)
     # CommonsUtils::getMetricOverrideOrNull(uuid)
@@ -502,7 +501,7 @@ class CommonsUtils
         !CommonsUtils::getMetricOverrideOrNull(uuid).nil?
     end
 
-    def self.metricTransform(object)
+    def self.metricOverrideTransform(object)
         if CommonsUtils::hasMetricOverride(object["uuid"]) then
             object["metric"] = CommonsUtils::getMetricOverrideOrNull(object["uuid"])
         end

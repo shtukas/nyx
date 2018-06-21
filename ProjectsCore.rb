@@ -151,17 +151,17 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # ProjectsCore::transform()
+    # ProjectsCore::transform(objects)
 
-    def self.transform()
+    def self.transform(objects)
         uuids = ProjectsCore::projectsUUIDs()
             .map{|projectuuid| ProjectsCore::projectCatalystObjectUUIDs(projectuuid) }
             .flatten
-        TheFlock::flockObjects().each{|object|
+        objects.map{|object|
             if uuids.include?(object["uuid"]) then
                 object["metric"] = 0
-                TheFlock::addOrUpdateObject(object)
             end
+            object
         }
     end
 
