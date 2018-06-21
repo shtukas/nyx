@@ -195,6 +195,10 @@ class CatalystInterfaceUtils
             system("clear")
             puts ""
             CatalystInterfaceUtils::putsListing()
+            if ProjectsCore::averageDailyCommitmentInHours() > 8 then
+                puts "The average project time is greater than 8 ( #{ProjectsCore::averageDailyCommitmentInHours()} ) hours"
+                puts ""
+            end
             puts ""
             CatalystInterfaceUtils::commandLineInterface(runId)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }

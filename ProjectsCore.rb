@@ -141,9 +141,17 @@ class ProjectsCore
         metric + CommonsUtils::traceToMetricShift(projectuuid)
     end
 
+    def self.averageDailyCommitmentInHours()
+        ProjectsCore::projectsUUIDs()
+        .map{|projectuuid|
+            timestructure = ProjectsCore::getTimeStructureOrNull(projectuuid)
+            time = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
+        }
+        .inject(0, :+)
+    end
+
     # ---------------------------------------------------
     # ProjectsCore::transform()
-    # ProjectsCore::deleteProject2(uuid)
 
     def self.transform()
         uuids = ProjectsCore::projectsUUIDs()
