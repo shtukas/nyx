@@ -190,7 +190,7 @@ class ProjectsCore
                 .reverse
             menuItem4 = "operation : set time structure"             
             menuStringsOrCatalystObjects = catalystobjects
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3, menuItem4, menuItem5 ]
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem4 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
