@@ -111,6 +111,14 @@ class CatalystInterfaceUtils
     def self.commandLineInterface(runId)
         standardlp, object = self.getTopData()
         puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
+        if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
+            puts "--> Looks like this object doesn't have an associated agent"
+            puts "--> I am going to delete it"
+            LucilleCore::pressEnterToContinue()
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
+            TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+            return
+        end
         print "--> "
         command = STDIN.gets().strip
         if command=="." then
