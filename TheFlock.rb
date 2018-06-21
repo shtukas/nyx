@@ -61,6 +61,10 @@ class FlockDiskIO
                     flock["kvstore"][event["key"]] = event["value"]
                     next
                 end
+                if event["event-type"] == "Flock:KeyValueStore:Delete:1" then
+                    flock["kvstore"].delete(event["key"])
+                    next
+                end
                 raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
             }
         $flock = flock
@@ -118,9 +122,10 @@ end
 
 # ------------------------------------------------------------------------
 
+# FKVStore::set(key, value)
 # FKVStore::getOrNull(key): value
 # FKVStore::getOrDefaultValue(key, defaultValue): value
-# FKVStore::set(key, value)
+# FKVStore::delete(key)
 
 class FKVStore
     def self.getOrNull(key)
@@ -138,6 +143,11 @@ class FKVStore
     def self.set(key, value)
         $flock["kvstore"][key] = value
         EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
+    end
+
+    def self.delete(key)
+        $flock["kvstore"].delete(key)
+        EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreDelete(key))
     end
 end
 

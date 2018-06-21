@@ -43,6 +43,14 @@ class EventsMaker
             "value"      => value
         }
     end
+
+    def self.fKeyValueStoreDelete(key)
+        {
+            "event-type" => "Flock:KeyValueStore:Delete:1",
+            "event-time" => Time.new.to_f,
+            "key"        => key
+        }
+    end
 end
 
 # EventsManager::pathToActiveEventsIndexFolder()

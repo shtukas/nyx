@@ -33,7 +33,6 @@ require_relative "catalyst.rb"
 class CatalystInterfaceUtils
     def self.object2Line_v1(object)
         announce = object['announce'].strip
-        announce = CommonsUtils::announceWithColor(announce, object)
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
@@ -123,13 +122,6 @@ class CatalystInterfaceUtils
         end
         if command.start_with?(":") then
             token, rest = StringParser::decompose(command)
-            if token==":this" then
-                if rest=="goto:project" then
-                    ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
-                    return
-                end
-                return
-            end 
             if CommonsUtils::isInteger(token[1,token.size]) then
                 position = token[1,token.size].to_i
                 if rest.nil? then
@@ -138,13 +130,23 @@ class CatalystInterfaceUtils
                     return
                 end
                 if rest == "open" then
-                    o = CommonsUtils::getNthElementOfUnifiedListing(position)["object"]
+                    o = CommonsUtils::getNthElementOfUnifiedListing(position)
                     CommonsUtils::processObjectAndCommand(o, "open")
                     return
                 end
                 if rest == "done" then
-                    o = CommonsUtils::getNthElementOfUnifiedListing(position)["object"]
+                    o = CommonsUtils::getNthElementOfUnifiedListing(position)
                     CommonsUtils::processObjectAndCommand(o, "done")
+                    return
+                end
+                if rest=="goto:project" then
+                    ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
+                    return
+                end
+                if rest.start_with?("metric") then
+                    _, metric = rest.split(" ")
+                    o = CommonsUtils::getNthElementOfUnifiedListing(position)
+                    CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
                     return
                 end
             end

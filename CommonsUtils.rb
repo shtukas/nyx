@@ -142,17 +142,6 @@ class CommonsUtils
 
     # -----------------------------------------
 
-    def self.announceWithColor(announce, object)
-        if object["metric"]>1 then
-            if object["announce"].include?("[PAUSED]") then
-                announce = announce.yellow
-            else
-                announce = announce.green                
-            end
-        end
-        announce
-    end
-
     def self.emailSync(verbose)
         begin
             GeneralEmailClient::sync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Wave-Email-Config/guardian-relay.json")), verbose)
@@ -261,6 +250,7 @@ class CommonsUtils
         ProjectsCore::transform()
         TheFlock::flockObjects()
             .select{|object| object["metric"] > 0 }
+            .map{|object| CommonsUtils::metricTransform(object.clone) }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end
@@ -293,13 +283,13 @@ class CommonsUtils
         puts "    wave: <description: String>>"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
-        puts "    time commitment: <description>"
         puts ""
         puts "Special Commands (object targetting)"
-        puts "    :<position>           # set the listing reference point"
-        puts "    :<position> open      # send command open to the item at position"
-        puts "    :<position> done      # send command done to the item at position"
-        puts "    :this goto:project # send the current object to a project"
+        puts "    :<position>                          # set the listing reference point"
+        puts "    :<position> open                     # send command open to the item at position"
+        puts "    :<position> done                     # send command done to the item at position"
+        puts "    :<position> goto:project             # send the current object to a project"
+        puts "    :<position> metric <metric override> # set metric override for the item at position"
         puts ""
         puts "Special Object Commands:"
         puts "    + # push by 1 hour"
@@ -313,7 +303,6 @@ class CommonsUtils
 
     def self.object2Line_v0(object)
         announce = object['announce'].lines.first.strip
-        announce = CommonsUtils::announceWithColor(announce, object)
         [
             "(#{"%.3f" % object["metric"]})",
             " [#{object["uuid"]}]",
@@ -433,6 +422,12 @@ class CommonsUtils
 
         # object needed
 
+        if CommonsUtils::hasMetricOverride(object["uuid"]) then
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Should remove metric override? : ") then
+                CommonsUtils::removeMetricOverride(object["uuid"])
+            end
+        end
+
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
@@ -483,5 +478,38 @@ class CommonsUtils
         filenames = Dir.entries(File.dirname(__FILE__)).select{|filename| filename[-3, 3]==".rb" } + [ "catalyst" ]
         longhash = filenames.map{|filename| Digest::SHA1.file("/Galaxy/LucilleOS/Catalyst/#{filename}").hexdigest }.join()
         Digest::SHA1.hexdigest(longhash)
+    end
+
+    # ---------------------------------------------------
+    # CommonsUtils::setMetricOverride(uuid, metric)
+    # CommonsUtils::getMetricOverrideOrNull(uuid)
+    # CommonsUtils::hasMetricOverride(uuid)
+    # CommonsUtils::metricTransform(object)
+    # CommonsUtils::removeMetricOverride(uuid)
+
+    def self.setMetricOverride(uuid, metric)
+        puts JSON.generate([uuid, metric])
+        FKVStore::set("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{uuid}", metric)
+    end
+
+    def self.getMetricOverrideOrNull(uuid)
+        value = FKVStore::getOrNull("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{uuid}")
+        return value.to_f if value
+        nil
+    end
+
+    def self.hasMetricOverride(uuid)
+        !CommonsUtils::getMetricOverrideOrNull(uuid).nil?
+    end
+
+    def self.metricTransform(object)
+        if CommonsUtils::hasMetricOverride(object["uuid"]) then
+            object["metric"] = CommonsUtils::getMetricOverrideOrNull(object["uuid"])
+        end
+        object
+    end
+
+    def self.removeMetricOverride(uuid)
+        FKVStore::delete("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{uuid}")
     end
 end
