@@ -130,34 +130,40 @@ class CatalystInterfaceUtils
         end
         if command.start_with?(":") then
             token, rest = StringParser::decompose(command)
+            position = nil
+            if token == ":this" then
+                position = standardlp
+            end
             if CommonsUtils::isInteger(token[1,token.size]) then
                 position = token[1,token.size].to_i
-                if rest.nil? then
-                    # :<position>         # set the listing reference point
-                    CommonsUtils::setStandardListingPosition([position, 0].max)
-                    return
-                end
-                if rest == "open" then
-                    o = CommonsUtils::getNthElementOfUnifiedListing(position)
-                    CommonsUtils::processObjectAndCommand(o, "open")
-                    return
-                end
-                if rest == "done" then
-                    o = CommonsUtils::getNthElementOfUnifiedListing(position)
-                    CommonsUtils::processObjectAndCommand(o, "done")
-                    return
-                end
-                if rest=="goto:project" then
-                    ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
-                    return
-                end
-                if rest.start_with?("metric") then
-                    _, metric = rest.split(" ")
-                    o = CommonsUtils::getNthElementOfUnifiedListing(position)
-                    CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
-                    return
-                end
             end
+            return if position.nil?
+            if rest.nil? then
+                # :<position>         # set the listing reference point
+                CommonsUtils::setStandardListingPosition([position, 0].max)
+                return
+            end
+            if rest == "open" then
+                o = CommonsUtils::getNthElementOfUnifiedListing(position)
+                CommonsUtils::processObjectAndCommand(o, "open")
+                return
+            end
+            if rest == "done" then
+                o = CommonsUtils::getNthElementOfUnifiedListing(position)
+                CommonsUtils::processObjectAndCommand(o, "done")
+                return
+            end
+            if rest=="goto:project" then
+                ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
+                return
+            end
+            if rest.start_with?("metric") then
+                _, metric = rest.split(" ")
+                o = CommonsUtils::getNthElementOfUnifiedListing(position)
+                CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
+                return
+            end
+
             return
         end
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
