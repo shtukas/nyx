@@ -139,7 +139,7 @@ class CatalystInterfaceUtils
         command = STDIN.gets().strip
         if codehash != CommonsUtils::codeHash() then
             puts "Source code hash changed. Exiting!"
-            return
+            exit
         end
         if !EventsTrace::isConsistent() then
             FlockDiskIO::loadFromEventsTimeline()
