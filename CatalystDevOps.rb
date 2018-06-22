@@ -101,7 +101,18 @@ class CatalystDevOps
             return DateTime.parse(head["datetime"]).to_time.to_i < Time.new.to_i
         end
         if head["event-type"] == "Flock:KeyValueStore:Set:1" then
-            return tail.any?{|e| e["event-type"]=="Flock:KeyValueStore:Set:1" and e["key"]==head["key"] }
+            return tail.any?{|e| 
+                b1 = e["event-type"]=="Flock:KeyValueStore:Set:1"    and e["key"]==head["key"] 
+                b2 = e["event-type"]=="Flock:KeyValueStore:Delete:1" and e["key"]==head["key"]
+                b1 or b2
+            }
+        end
+        if head["event-type"] == "Flock:KeyValueStore:Delete:1" then
+            return tail.any?{|e| 
+                b1 = e["event-type"]=="Flock:KeyValueStore:Set:1"    and e["key"]==head["key"] 
+                b2 = e["event-type"]=="Flock:KeyValueStore:Delete:1" and e["key"]==head["key"]
+                b1 or b2
+            }
         end
         raise "Don't know how to garbage collect head: \n#{JSON.pretty_generate(head)}"
     end
