@@ -1,4 +1,9 @@
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require_relative "Constants.rb"
 
@@ -68,6 +73,7 @@ class EventsManager
         folderpath = EventsManager::pathToActiveEventsIndexFolder()
         filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
         File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
+        EventsTrace::issueTrace()
     end
 
     def self.eventsEnumerator()
@@ -85,5 +91,29 @@ class EventsManager
                 events << event
             end
         end
+    end
+end
+
+# EventsTrace::issueTrace()
+# EventsTrace::isConsistent()
+
+class EventsTrace
+    @@trace = nil
+    # Class used to monitor which instance has done the last commit
+    # Cache management
+    def self.issueTrace()
+        trace = SecureRandom.hex
+        File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Events-Trace", "w"){|f| f.write(trace) }
+        @@trace = trace
+    end
+    def self.readTraceFromDisk()
+        if !File.exist?("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Events-Trace") then
+            EventsTrace::issueTrace()
+        end
+        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Events-Trace").strip
+    end
+    def self.isConsistent()
+        # Here we are simply checking that the trace in memory is the same as the trace on disk
+        @@trace == EventsTrace::readTraceFromDisk()
     end
 end

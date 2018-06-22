@@ -11,7 +11,6 @@ require_relative "Bob.rb"
 
 # CommonsUtils::codeToDatetimeOrNull(code)
 # CommonsUtils::isLucille18()
-# CommonsUtils::isActiveInstance(runId)
 # CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::realNumbersToZeroOne(x, origin, unit)
 # CommonsUtils::simplifyURLCarryingString(string)
@@ -129,11 +128,7 @@ class CommonsUtils
     def self.isLucille18()
         ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
     end
-
-    def self.isActiveInstance(runId)
-        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data")==runId
-    end
-
+    
     def self.getStandardListingPosition()
         FKVStore::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
     end

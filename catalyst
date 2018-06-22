@@ -18,17 +18,13 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require 'find'
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-require 'drb/drb'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
-# CatalystInterfaceUtils::commandLineInterface(runId)
-# CatalystInterfaceUtils::commandLineStreamInterface(runId)
+# CatalystInterfaceUtils::commandLineInterface()
+# CatalystInterfaceUtils::commandLineStreamInterface()
 
 class CatalystInterfaceUtils
     def self.object2Line_v1(object)
@@ -128,7 +124,7 @@ class CatalystInterfaceUtils
 
         [standardlp, object]
     end
-    def self.commandLineInterface(runId, listingobjects)
+    def self.commandLineInterface(listingobjects, codehash)
         standardlp, object = self.getTopData()
         puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
         if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
@@ -141,6 +137,15 @@ class CatalystInterfaceUtils
         end
         print "--> "
         command = STDIN.gets().strip
+        if codehash != CommonsUtils::codeHash() then
+            puts "Source code hash changed. Exiting!"
+            return
+        end
+        if !EventsTrace::isConsistent() then
+            FlockDiskIO::loadFromEventsTimeline()
+            EventsTrace::issueTrace()
+            return
+        end
         if command=="." then
             return
         end
@@ -183,15 +188,8 @@ class CatalystInterfaceUtils
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
     end
-    def self.displayLoop(runId, codehash)
+    def self.displayLoop(codehash)
         loop {
-            if codehash != CommonsUtils::codeHash() then
-                puts "Source code hash changed. Exiting!"
-                return
-            end
-            if !CommonsUtils::isActiveInstance(runId) then
-                FlockDiskIO::loadFromEventsTimeline()
-            end
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
                 lines = CatalystDevOps::archivesTimelineGarbageCollection()
                 puts "Archives timeline garbage collection:" if lines.size > 0
@@ -225,20 +223,18 @@ class CatalystInterfaceUtils
             puts ""
             listingobjects = CatalystInterfaceUtils::putsListing()
             puts ""
-            CatalystInterfaceUtils::commandLineInterface(runId, listingobjects)
-            File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
+            CatalystInterfaceUtils::commandLineInterface(listingobjects, codehash)
         }
     end
 end
 
-runId = SecureRandom.hex
 codehash = CommonsUtils::codeHash()
-
 FlockDiskIO::loadFromEventsTimeline()
+EventsTrace::issueTrace()
 
 Thread.new {
     loop {
-        if CommonsUtils::isActiveInstance(runId) then
+        if CommonsUtils::isLucille18() then
             CommonsUtils::emailSync(false)
         end
         sleep 1200
@@ -258,4 +254,4 @@ Thread.new {
     }
 }
 
-CatalystInterfaceUtils::displayLoop(runId, codehash)
+CatalystInterfaceUtils::displayLoop(codehash)
