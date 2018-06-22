@@ -211,10 +211,10 @@ class CommonsUtils
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        print "Default schedule is today, would you like to make another one ? [yes/no] (default: no): "
-        answer = STDIN.gets().strip 
-        schedule = 
-            if answer=="yes" then
+        # -------------------------------
+        # schedule
+        schedule =
+            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Override default [new] schedule ? ") then
                 WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
             else
                 x = WaveSchedules::makeScheduleObjectTypeNew()
@@ -222,15 +222,17 @@ class CommonsUtils
                 x
             end
         AgentWave::writeScheduleToDisk(uuid,schedule)
+        # -------------------------------
+        # datetime code
         if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
             if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
                 TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
             end
         end
-        print "Move to a project ? [yes/no] (default: no): "
-        answer = STDIN.gets().strip 
-        if answer=="yes" then
+        # -------------------------------
+        # projects
+        if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Move to a project ? ") then
             ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(uuid)
         end
     end
