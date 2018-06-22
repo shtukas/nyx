@@ -214,7 +214,7 @@ class CommonsUtils
         # -------------------------------
         # schedule
         schedule =
-            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Override default [new] schedule ? ") then
+            if LucilleCore::askQuestionAnswerAsString("Override default [new] schedule ? (yes/no) default no: " )== "yes" then
                 WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
             else
                 x = WaveSchedules::makeScheduleObjectTypeNew()
@@ -232,7 +232,7 @@ class CommonsUtils
         end
         # -------------------------------
         # projects
-        if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Move to a project ? ") then
+        if LucilleCore::askQuestionAnswerAsString("Move to a project ? (yes/no) default no: ") == "yes" then
             ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(uuid)
         end
     end
