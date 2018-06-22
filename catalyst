@@ -72,21 +72,38 @@ class CatalystInterfaceUtils
         objectToLineMainListing = lambda {|object, position, standardlp|
             "#{positionDisplay.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
         }
-        standardlp = CommonsUtils::getStandardListingPosition()
-        objects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
-        amountToDisplay = [ CommonsUtils::screenHeight()-5, self.positionOfLastRunningItemOrZero(objects.clone) ].max
-        objects = objects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
-        if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-            puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-        end
-        objects.each_with_index{|object, index|
-            position = index+1
+        objectToLineMainListingWithColour = lambda {|object, position, standardlp|
             str = objectToLineMainListing.call(object, position, standardlp)
+            if object["metric"]>1 then
+                str = str.yellow
+            end
             if object["is-running"] then
                 str = str.green
             end
-            puts str
+            str
         }
+        standardlp = CommonsUtils::getStandardListingPosition()
+        objects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
+        amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(objects.clone) ].max
+        objects = objects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
+        returnvalue = objects.clone
+        if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+            puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+        end
+        position = 0
+        if objects.any?{|object| object["metric"]>1 } then
+            while objects.any?{|object| object["metric"]>1 } do
+                object = objects.shift
+                position = position+1
+                puts objectToLineMainListingWithColour.call(object, position, standardlp)
+            end
+            puts ""
+        end
+        objects.each{|object|
+            position = position+1
+            puts objectToLineMainListingWithColour.call(object, position, standardlp)
+        }
+        returnvalue
     end
     def self.getTopData()
         standardlp = CommonsUtils::getStandardListingPosition()
@@ -108,7 +125,7 @@ class CatalystInterfaceUtils
 
         [standardlp, object]
     end
-    def self.commandLineInterface(runId)
+    def self.commandLineInterface(runId, listingobjects)
         standardlp, object = self.getTopData()
         puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
         if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
@@ -143,27 +160,21 @@ class CatalystInterfaceUtils
                 CommonsUtils::setStandardListingPosition([position, 0].max)
                 return
             end
-            if rest == "open" then
-                o = CommonsUtils::getNthElementOfUnifiedListing(position)
-                CommonsUtils::processObjectAndCommand(o, "open")
-                return
-            end
-            if rest == "done" then
-                o = CommonsUtils::getNthElementOfUnifiedListing(position)
-                CommonsUtils::processObjectAndCommand(o, "done")
-                return
-            end
             if rest=="goto:project" then
                 ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
                 return
             end
             if rest.start_with?("metric") then
                 _, metric = rest.split(" ")
-                o = CommonsUtils::getNthElementOfUnifiedListing(position)
+                o = listingobjects.take(position).last
+                return if o.nil?
                 CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
                 return
             end
-
+            command = rest
+            o = listingobjects.take(position).last
+            return if o.nil?
+            CommonsUtils::processObjectAndCommand(o, command)
             return
         end
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
@@ -207,14 +218,11 @@ class CatalystInterfaceUtils
                 next
             end
             system("clear")
+            puts "Average project time: #{ProjectsCore::averageDailyCommitmentInHours()} hours/day"
             puts ""
-            CatalystInterfaceUtils::putsListing()
-            if ProjectsCore::averageDailyCommitmentInHours() > 8 then
-                puts "The average project time is greater than 8 ( #{ProjectsCore::averageDailyCommitmentInHours()} ) hours"
-                puts ""
-            end
+            listingobjects = CatalystInterfaceUtils::putsListing()
             puts ""
-            CatalystInterfaceUtils::commandLineInterface(runId)
+            CatalystInterfaceUtils::commandLineInterface(runId, listingobjects)
             File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/run-identifier.data", "w") {|f| f.write(runId) }
         }
     end
