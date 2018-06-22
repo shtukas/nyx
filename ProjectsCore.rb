@@ -189,8 +189,9 @@ class ProjectsCore
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
             menuItem4 = "operation : set time structure"             
+            menuItem5 = "operation : add time"  
             menuStringsOrCatalystObjects = catalystobjects
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem4 ]
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem4, menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -210,6 +211,10 @@ class ProjectsCore
                         LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, 
                         LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
                 next
+            end
+            if menuChoice == menuItem4 then
+                hours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
+                Chronos::addTimeInSeconds(projectuuid, hours*3600)
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice
