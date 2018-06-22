@@ -137,7 +137,7 @@ class ProjectsCore
         # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
         timeUnitMultiplier = 0.99 + 0.01*Math.exp(-timestructure["time-unit-in-days"])
         timeCommitmentMultiplier = 0.99 + 0.01*Math.atan(timestructure["time-commitment-in-hours"])
-        metric = Chronos::metric3(projectuuid, 0.1, 0.8, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"]) * timeUnitMultiplier * timeCommitmentMultiplier
+        metric = Chronos::metric3(projectuuid, 0.1, 0.750, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"]) * timeUnitMultiplier * timeCommitmentMultiplier
         metric + CommonsUtils::traceToMetricShift(projectuuid)
     end
 
