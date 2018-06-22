@@ -77,6 +77,9 @@ class CatalystInterfaceUtils
             if object["metric"]>1 then
                 str = str.yellow
             end
+            if position == standardlp then
+                str = str.red
+            end
             if object["is-running"] then
                 str = str.green
             end
