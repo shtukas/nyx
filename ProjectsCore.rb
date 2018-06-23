@@ -155,9 +155,12 @@ class ProjectsCore
     def self.metric(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
-        timeUnitMultiplier = 0.99 + 0.01*Math.exp(-timestructure["time-unit-in-days"])
-        timeCommitmentMultiplier = 0.99 + 0.01*Math.atan(timestructure["time-commitment-in-hours"])
-        metric = Chronos::metric3(projectuuid, 0.1, 0.750, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"]) * timeUnitMultiplier * timeCommitmentMultiplier
+        metric = 
+            if timestructure["time-commitment-in-hours"] > 0 then
+                    Chronos::metric3(projectuuid, 0.2, 0.750, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"])
+            else
+                    0.1
+            end
         if Chronos::isRunning(projectuuid) then
             metric = [metric, 0.2].max
         end
