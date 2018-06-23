@@ -27,19 +27,11 @@ class AgentProjects
     end
 
     def self.makeCatalystObjectOrNull(projectuuid)
-        announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
-        if ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 then
-            announce = announce + " { #{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} objects }"
-        end
-        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
-        # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
-        announce = announce + (ProjectsCore::liveRatioDoneOrNull(projectuuid) ? " { #{"%.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))} % }" : "")
-        # announce = announce + " { #{JSON.generate(timestructure)} }"
         object              = {}
         object["uuid"]      = projectuuid
         object["agent-uid"] = self.agentuuid()
         object["metric"]    = ProjectsCore::metric(projectuuid)
-        object["announce"]  = announce
+        object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)}"
         object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
         object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"
         object["is-running"] = Chronos::isRunning(projectuuid)

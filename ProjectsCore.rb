@@ -176,7 +176,7 @@ class ProjectsCore
     # ProjectsCore::deleteProject2(projectuuid)
 
     def self.projectToString(projectuuid)
-        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | { #{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} objects } | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
