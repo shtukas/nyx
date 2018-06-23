@@ -324,8 +324,6 @@ end
 
 class AgentWave
 
-    @@firstRun = true
-
     def self.agentuuid()
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
@@ -499,19 +497,17 @@ class AgentWave
 
     def self.generalFlockUpgrade()
 
-        if @@firstRun then
-            # Loading all existing disk objects
+        if LucilleCore::trueNoMoreOftenThanNEverySeconds_v2("/x-space/x-cache", "21036e4c-dc76-4cb9-a6b7-40b786e00c87", 86400) then
             AgentWave::catalystUUIDsEnumerator()
                 .each{|uuid|
                     object = AgentWave::makeCatalystObjectOrNull(uuid)
-                    next if object.nil?
-                    TheFlock::addOrUpdateObject(object)
+                    EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+                    TheFlock::addOrUpdateObject(object)                    
                 }
-            @@firstRun = false
         end
 
         # ------------------------------------------------------------------------------
-        # First we add to the flock the objects on the repository that are not there yet
+        # We add to the flock the objects on the repository that are not there yet
         # This happens because some of them are created externally, with the intent that the agent will pick them up
 
         existingUUIDsFromFlock = TheFlock::flockObjects()
@@ -525,30 +521,11 @@ class AgentWave
             EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             TheFlock::addOrUpdateObject(object)
         }
-
         # ------------------------------------------------------------------------------
-        # Removing the emails objects which have been archived by email sync but still in flock
-
-        TheFlock::flockObjects()
-            .clone
-            .select{|object| object["agent-uid"]==self.agentuuid() }
-            .select{|object| object["schedule"][':wave-emails:'] }
-            .select{|object| object["folderpath"] and !File.exists?(object["folderpath"]) }
-            .each{|object|
-                puts "Wave Agent: email no longer has a folder"
-                puts JSON.pretty_generate(object)
-                puts "Going to EventsMaker::destroyCatalystObject (You should remove that code when you get tired of it) marker: 45BA5BE9-410C-49B4-A168-0C788189C7FA"
-                LucilleCore::pressEnterToContinue()
-                uuid = object["uuid"]
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            }
-
-        # ------------------------------------------------------------------------------
-        # We now need to update the metric driven by the schedule
+        # Update the metric driven by the schedule
         # As time passes the metric changes, for instance repeat item pass their sleeping period
 
         TheFlock::flockObjects()
-            .clone
             .select{|object| object["agent-uid"]==self.agentuuid() }
             .map{|object|
                 uuid = object["uuid"]
