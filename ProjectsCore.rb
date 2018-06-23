@@ -198,12 +198,6 @@ class ProjectsCore
     # ProjectsCore::ui_projectDive(projectuuid)
     # ProjectsCore::deleteProject2(projectuuid)
 
-    def self.projectToString(projectuuid)
-        catalystObjectsFragment = (ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 ? "#{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} c" : "").rjust(5)
-        fsObjectsFragment = (ProjectsCore::projectFileSystemFilenames(projectuuid).size>0 ? "#{ProjectsCore::projectFileSystemFilenames(projectuuid).size} fs" :      "").rjust(5)
-        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{catalystObjectsFragment}, #{fsObjectsFragment} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
-    end
-
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         if timestructure["time-commitment-in-hours"]==0 then
@@ -211,6 +205,12 @@ class ProjectsCore
         end
         # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
         "#{"%4.2f" % timestructure["time-commitment-in-hours"]} hours, #{"%4.2f" % (timestructure["time-unit-in-days"])} days"
+    end
+
+    def self.projectToString(projectuuid)
+        catalystObjectsFragment = (ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 ? "#{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} c" : "").rjust(4)
+        fsObjectsFragment = (ProjectsCore::projectFileSystemFilenames(projectuuid).size>0 ? "#{ProjectsCore::projectFileSystemFilenames(projectuuid).size} fs" :      "").rjust(5)
+        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[ProjectsCore::liveRatioDoneOrNull(projectuuid), 1].min)) + " %" : "        "} | #{catalystObjectsFragment}, #{fsObjectsFragment} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
     def self.ui_projectDive(projectuuid)
