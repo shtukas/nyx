@@ -138,6 +138,9 @@ class ProjectsCore
         timeUnitMultiplier = 0.99 + 0.01*Math.exp(-timestructure["time-unit-in-days"])
         timeCommitmentMultiplier = 0.99 + 0.01*Math.atan(timestructure["time-commitment-in-hours"])
         metric = Chronos::metric3(projectuuid, 0.1, 0.750, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"]) * timeUnitMultiplier * timeCommitmentMultiplier
+        if Chronos::isRunning(projectuuid) then
+            metric = [metric, 0.2].max
+        end
         metric + CommonsUtils::traceToMetricShift(projectuuid)
     end
 
@@ -194,10 +197,11 @@ class ProjectsCore
                 .compact
                 .sort{|o1,o2| o1['metric']<=>o2['metric'] }
                 .reverse
+            menuItem3 = "operation : start"  
             menuItem4 = "operation : set time structure"             
-            menuItem5 = "operation : add time"  
+            menuItem5 = "operation : add time"
             menuStringsOrCatalystObjects = catalystobjects
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem4, menuItem5 ]
+            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3, menuItem4, menuItem5 ]
             toStringLambda = lambda{ |menuStringOrCatalystObject|
                 # Here item is either one of the strings or an object
                 # We return either a string or one of the objects
@@ -211,6 +215,10 @@ class ProjectsCore
             }
             menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
+            if menuChoice == menuItem3 then
+                Chronos::start(projectuuid)
+                return
+            end
             if menuChoice == menuItem4 then
                 ProjectsCore::setTimeStructure(
                         projectuuid, 
