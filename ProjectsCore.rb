@@ -210,7 +210,7 @@ class ProjectsCore
     def self.projectToString(projectuuid)
         catalystObjectsFragment = (ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 ? "#{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} c" : "").rjust(4)
         fsObjectsFragment = (ProjectsCore::projectFileSystemFilenames(projectuuid).size>0 ? "#{ProjectsCore::projectFileSystemFilenames(projectuuid).size} fs" :      "").rjust(5)
-        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[ProjectsCore::liveRatioDoneOrNull(projectuuid), 1].min)) + " %" : "        "} | #{catalystObjectsFragment}, #{fsObjectsFragment} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[ProjectsCore::liveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{catalystObjectsFragment}, #{fsObjectsFragment} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
     def self.ui_projectDive(projectuuid)
