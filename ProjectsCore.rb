@@ -16,6 +16,7 @@ class ProjectsCore
 
     # ---------------------------------------------------
     # ProjectsCore::projectsUUIDs()
+    # ProjectsCore::fs_uuid2locationOrNull(uuid)
 
     def self.fs_locations()
         Dir.entries("/Galaxy/Projects")
@@ -29,6 +30,16 @@ class ProjectsCore
             File.open(uuidfilepath, "w"){|f| f.write(SecureRandom.hex(4)) }
         end
         IO.read(uuidfilepath).strip
+    end
+
+    def self.fs_uuid2locationOrNull(uuid)
+        ProjectsCore::fs_locations()
+            .each{|location|
+                if ProjectsCore::fs_location2UUID(location)==uuid then
+                    return location
+                end
+            }
+        nil
     end
 
     def self.fs_uuids()
@@ -62,8 +73,7 @@ class ProjectsCore
     # ---------------------------------------------------
     # ProjectsCore::addCatalystObjectUUIDToProject(objectuuid, projectuuid)
     # ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(objectuuid, projectuuid)
-    # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-    # ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
+    # ProjectsCore::projectCatalystObjectUUIDs(projectuuid))
 
     def self.addCatalystObjectUUIDToProject(objectuuid, projectuuid)
         uuids = ( ProjectsCore::projectCatalystObjectUUIDs(projectuuid) + [objectuuid] ).uniq
@@ -93,6 +103,16 @@ class ProjectsCore
         JSON.parse(FKVStore::getOrDefaultValue("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", "[]"))
             .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
             .compact
+    end
+
+    # ---------------------------------------------------
+    # ProjectsCore::projectFileSystemFilenames(projectuuid)
+
+    def self.projectFileSystemFilenames(projectuuid)
+        location = ProjectsCore::fs_uuid2locationOrNull(projectuuid)
+        return [] if location.nil?
+        return Dir.entries(location)
+            .select{|filename| (filename[0,1] != ".") and (filename != 'Icon'+["0D"].pack("H*")) }
     end
 
     # ---------------------------------------------------
@@ -176,7 +196,9 @@ class ProjectsCore
     # ProjectsCore::deleteProject2(projectuuid)
 
     def self.projectToString(projectuuid)
-        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | { #{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} objects } | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+        catalystObjectsFragment = (ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 ? "#{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} c" : "").rjust(5)
+        fsObjectsFragment = (ProjectsCore::projectFileSystemFilenames(projectuuid).size>0 ? "#{ProjectsCore::projectFileSystemFilenames(projectuuid).size} fs" :      "").rjust(5)
+        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{catalystObjectsFragment}, #{fsObjectsFragment} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
