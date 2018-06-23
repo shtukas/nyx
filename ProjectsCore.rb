@@ -144,7 +144,7 @@ class ProjectsCore
     def self.averageDailyCommitmentInHours()
         ProjectsCore::projectsUUIDs()
         .map{|projectuuid|
-            timestructure = ProjectsCore::getTimeStructureOrNull(projectuuid)
+            timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
             time = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
         }
         .inject(0, :+)
@@ -166,10 +166,15 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
+    # ProjectsCore::projectToString(projectuuid)
     # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
     # ProjectsCore::ui_projectsDive()
     # ProjectsCore::ui_projectDive(projectuuid)
     # ProjectsCore::deleteProject2(projectuuid)
+
+    def self.projectToString(projectuuid)
+        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+    end
 
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
@@ -182,6 +187,7 @@ class ProjectsCore
 
     def self.ui_projectDive(projectuuid)
         puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+        puts ProjectsCore::projectToString(projectuuid)
         loop {
             catalystobjects = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
                 .map{|objectuuid| TheFlock::flockObjects().select{|object| object["uuid"]==objectuuid }.first }
@@ -224,10 +230,10 @@ class ProjectsCore
 
     def self.ui_projectsDive()
         loop {
-            toString = lambda{ |projectuuid| 
-                "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*ProjectsCore::liveRatioDoneOrNull(projectuuid))) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}" 
-            }
-            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("projects", ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::metric(projectuuid1) <=> ProjectsCore::metric(projectuuid2) }.reverse, toString)
+            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull(
+                "projects", 
+                ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::metric(projectuuid1) <=> ProjectsCore::metric(projectuuid2) }.reverse, 
+                lambda{ |projectuuid| ProjectsCore::projectToString(projectuuid) })
             break if projectuuid.nil?
             ProjectsCore::ui_projectDive(projectuuid)
         }

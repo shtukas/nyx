@@ -52,39 +52,34 @@ class CatalystDevOps
     end
 
     def self.archivesTimelineGarbageCollectionStandard()
-        lines = []
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
-            lines << location
+            puts location
             LucilleCore::removeFileSystemLocation(location)
         end
-        lines
     end
 
     def self.archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes)
-        lines = []
         while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             if File.file?(location) then
                 sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
             end
-            lines << location
+            puts location
             LucilleCore::removeFileSystemLocation(location)
         end
-        line
+
     end
 
     def self.archivesTimelineGarbageCollection()
-        lines = []
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             CatalystDevOps::archivesTimelineGarbageCollectionFast(CatalystDevOps::getArchiveTimelineSizeInMegaBytes())
-                .each{|line| lines << line }
         end
-        lines
+
     end
 
     # -------------------------------------------
@@ -102,15 +97,15 @@ class CatalystDevOps
         end
         if head["event-type"] == "Flock:KeyValueStore:Set:1" then
             return tail.any?{|e| 
-                b1 = e["event-type"]=="Flock:KeyValueStore:Set:1"    and e["key"]==head["key"] 
-                b2 = e["event-type"]=="Flock:KeyValueStore:Delete:1" and e["key"]==head["key"]
+                b1 = (e["event-type"]=="Flock:KeyValueStore:Set:1"    and e["key"]==head["key"]) 
+                b2 = (e["event-type"]=="Flock:KeyValueStore:Delete:1" and e["key"]==head["key"])
                 b1 or b2
             }
         end
         if head["event-type"] == "Flock:KeyValueStore:Delete:1" then
             return tail.any?{|e| 
-                b1 = e["event-type"]=="Flock:KeyValueStore:Set:1"    and e["key"]==head["key"] 
-                b2 = e["event-type"]=="Flock:KeyValueStore:Delete:1" and e["key"]==head["key"]
+                b1 = (e["event-type"]=="Flock:KeyValueStore:Set:1"    and e["key"]==head["key"]) 
+                b2 = (e["event-type"]=="Flock:KeyValueStore:Delete:1" and e["key"]==head["key"])
                 b1 or b2
             }
         end
@@ -118,16 +113,14 @@ class CatalystDevOps
     end
 
     def self.eventsTimelineGarbageCollection()
-        lines = []
-        events = EventsManager::eventsEnumerator().to_a
+        events = EventsManager::eventsAsTimeOrderedArray()
         while events.size>=2 do
             event = events.shift
             if CatalystDevOps::canRemoveEvent(event, events) then
-                eventfilepath = event[":filepath:"]
-                lines << eventfilepath
-                FileUtils.rm(eventfilepath)
+                puts event[":filepath:"]
+                FileUtils.rm(event[":filepath:"])
             end
         end
-        lines
     end
+
 end

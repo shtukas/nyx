@@ -60,7 +60,7 @@ end
 
 # EventsManager::pathToActiveEventsIndexFolder()
 # EventsManager::commitEventToTimeline(event)
-# EventsManager::eventsEnumerator()
+# EventsManager::eventsAsTimeOrderedArray()
 
 class EventsManager
     def self.pathToActiveEventsIndexFolder()
@@ -76,8 +76,8 @@ class EventsManager
         EventsTrace::issueTrace()
     end
 
-    def self.eventsEnumerator()
-        Enumerator.new do |events|
+    def self.eventsAsTimeOrderedArray()
+        enum = Enumerator.new do |events|
             Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
                 if File.directory?(path) then
                     if Dir.entries(path).select{|filename| filename[0,1]!="." }.size==0 then
@@ -91,6 +91,7 @@ class EventsManager
                 events << event
             end
         end
+        enum.to_a.sort{|e1,e2| e1["event-time"]<=>e2["event-time"] }
     end
 end
 
