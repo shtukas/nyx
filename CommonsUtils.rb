@@ -206,30 +206,33 @@ class CommonsUtils
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        # -------------------------------
-        # schedule
-        schedule =
-            if LucilleCore::askQuestionAnswerAsString("Override default [new] schedule ? (yes/no) default no: " )== "yes" then
-                WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-            else
-                x = WaveSchedules::makeScheduleObjectTypeNew()
-                x["made-on-date"] = CommonsUtils::currentDay()
-                x
+        schedule = WaveSchedules::makeScheduleObjectTypeNew()
+        schedule["made-on-date"] = CommonsUtils::currentDay()
+        AgentWave::writeScheduleToDisk(uuid,schedule)    
+        loop {
+            option = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", "goto project", "override metric"])
+            break if option.nil?
+            if option == "non new schedule" then
+                schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+                AgentWave::writeScheduleToDisk(uuid,schedule)  
             end
-        AgentWave::writeScheduleToDisk(uuid,schedule)
-        # -------------------------------
-        # datetime code
-        if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
-            if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
-                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+            if option == "datetime code" then
+                if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
+                    if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                        TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
+                        EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+                    end
+                end
             end
-        end
-        # -------------------------------
-        # projects
-        if LucilleCore::askQuestionAnswerAsString("Move to a project ? (yes/no) default no: ") == "yes" then
-            ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(uuid)
-        end
+            if option == "goto project" then
+                ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(uuid) 
+            end
+            if option == "override metric" then
+                metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
+                CommonsUtils::setMetricOverride(uuid, metric)
+            end
+        }
+
     end
 
     # -----------------------------------------
