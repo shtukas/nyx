@@ -497,6 +497,8 @@ class AgentWave
 
     def self.generalFlockUpgrade()
 
+        WaveDevOps::collectWave
+
         if CommonsUtils::isLucille18() and LucilleCore::trueNoMoreOftenThanNEverySeconds_v2("/x-space/x-cache", "21036e4c-dc76-4cb9-a6b7-40b786e00c87", 86400) then
             AgentWave::catalystUUIDsEnumerator()
                 .each{|uuid|
