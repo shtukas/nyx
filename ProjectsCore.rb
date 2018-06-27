@@ -254,6 +254,7 @@ class ProjectsCore
             if menuChoice == menuItem5 then
                 hours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 Chronos::addTimeInSeconds(projectuuid, hours*3600)
+                next
             end
             # By now, menuChoice is a catalyst object
             object = menuChoice
