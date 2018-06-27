@@ -251,7 +251,7 @@ class ProjectsCore
                         LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
                 next
             end
-            if menuChoice == menuItem4 then
+            if menuChoice == menuItem5 then
                 hours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 Chronos::addTimeInSeconds(projectuuid, hours*3600)
             end
