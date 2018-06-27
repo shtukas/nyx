@@ -300,6 +300,7 @@ class CommonsUtils
         puts "    + # push by 1 hour"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
+        puts "    metric <metric> # set metric override for the item"
         puts "    r:add <requirement: String>"
         puts "    r:remove <requirement: String>"
         puts "    command ..."

@@ -153,6 +153,12 @@ class CatalystInterfaceUtils
             CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
             return
         end
+        if command.start_with?("metric") then
+            _, metric = StringParser::decompose(command)
+            CommonsUtils::setMetricOverride(object["uuid"], metric.to_f)
+            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+            return
+        end
         if command.start_with?(":") then
             token, rest = StringParser::decompose(command)
             position = nil
