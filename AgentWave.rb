@@ -601,7 +601,7 @@ class AgentWave
         end
 
         if command=='destroy' then
-            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Do you want to destroy this item ? : ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 AgentWave::archiveWaveItem(uuid)
                 TheFlock::removeObjectIdentifiedByUUID(uuid)
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))

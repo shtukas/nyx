@@ -83,7 +83,7 @@ class ProjectsCore
     def self.addObjectUUIDToProjectInteractivelyChosen(objectuuid)
         projectuuid = ProjectsCore::interactivelySelectProjectUUIDOrNUll()
         if projectuuid.nil? then
-            if LucilleCore::interactivelyAskAYesNoQuestionResultAsBoolean("Would you like to create a new project ? ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new project ? ") then
                 projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
                 projectuuid = ProjectsCore::createNewProject(projectname, LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
             else
