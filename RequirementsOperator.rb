@@ -69,7 +69,7 @@ class RequirementsOperator
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
 
     def self.transform(object)

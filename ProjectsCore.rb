@@ -238,7 +238,7 @@ class ProjectsCore
                     "object    : #{CommonsUtils::object2Line_v0(object)}"
                 end
             }
-            menuChoice = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
+            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
             break if menuChoice.nil?
             if menuChoice == menuItem3 then
                 Chronos::start(projectuuid)
@@ -263,7 +263,7 @@ class ProjectsCore
 
     def self.ui_projectsDive()
         loop {
-            projectuuid = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull(
+            projectuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull(
                 "projects", 
                 ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::metric(projectuuid1) <=> ProjectsCore::metric(projectuuid2) }.reverse, 
                 lambda{ |projectuuid| ProjectsCore::projectToString(projectuuid) })
@@ -273,7 +273,7 @@ class ProjectsCore
     end
 
     def self.interactivelySelectProjectUUIDOrNUll()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("project", ProjectsCore::projectsUUIDs(), lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", ProjectsCore::projectsUUIDs(), lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) })
     end
 
 end

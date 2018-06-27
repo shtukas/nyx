@@ -63,7 +63,7 @@ class WaveSchedules
     def self.makeScheduleObjectInteractivelyEnsureChoice()
 
         scheduleTypes = ['new', 'today', 'sticky', 'date', 'repeat']
-        scheduleType = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
+        scheduleType = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
         if scheduleType=='new' then
@@ -105,7 +105,7 @@ class WaveSchedules
         if scheduleType=='repeat' then
 
             repeat_types = ['every-n-hours','every-n-days','every-this-day-of-the-week','every-this-day-of-the-month']
-            type = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("repeat type: ", repeat_types, lambda{|entity| entity })
+            type = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("repeat type: ", repeat_types, lambda{|entity| entity })
 
             if type=='every-n-hours' then
                 print "period (in hours): "
@@ -121,7 +121,7 @@ class WaveSchedules
             end
             if type=='every-this-day-of-the-week' then
                 weekdays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
-                value = LucilleCore::interactivelySelectEntityFromListOfEntities_EnsureChoice("weekday: ", weekdays, lambda{|entity| entity })
+                value = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("weekday: ", weekdays, lambda{|entity| entity })
             end
             schedule = {
                 "uuid" => SecureRandom.hex,

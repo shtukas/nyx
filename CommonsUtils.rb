@@ -183,7 +183,7 @@ class CommonsUtils
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
 
     def self.waveInsertNewItemDefaults(description) # uuid: String
@@ -210,7 +210,7 @@ class CommonsUtils
         schedule["made-on-date"] = CommonsUtils::currentDay()
         AgentWave::writeScheduleToDisk(uuid,schedule)    
         loop {
-            option = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", "goto project", "override metric"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", "goto project", "override metric"])
             break if option.nil?
             if option == "non new schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
@@ -327,7 +327,7 @@ class CommonsUtils
         end
 
         if expression == "interface" then
-            LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("agent", Bob::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
+            LucilleCore::selectEntityFromListOfEntitiesOrNull("agent", Bob::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
             return
         end
 
@@ -402,7 +402,7 @@ class CommonsUtils
             end
             loop {
                 requirementObjects = TheFlock::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
@@ -416,7 +416,7 @@ class CommonsUtils
                 Bob::generalFlockUpgrade()
                 searchobjects = TheFlock::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
-                selectedobject = LucilleCore::interactivelySelectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
                 break if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
