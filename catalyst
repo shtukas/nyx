@@ -174,28 +174,11 @@ class CatalystInterfaceUtils
                 return
             end
             if rest.start_with?("metric") then
-                if rest.include?("after") then
-                    o = listingobjects.take(position).last
-                    _, _, insertionPoint = rest.split(" ")
-                    insertionPoint = insertionPoint.to_i
-                    o1 = listingobjects.take(insertionPoint).last
-                    o2 = listingobjects.take(insertionPoint+1).last
-                    if o1 and o2 then
-                        midpointmetric = 0.5*(o1["metric"]+o2["metric"])
-                        CommonsUtils::setMetricOverride(o["uuid"], midpointmetric)
-                        return
-                    else
-                        puts "I could not identify the surrounding objects. Aborting."
-                        LucilleCore::pressEnterToContinue()
-                    end
-                end
-                if !rest.include?("after") then
-                    _, metric = rest.split(" ")
-                    o = listingobjects.take(position).last
-                    return if o.nil?
-                    CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
-                    return
-                end
+                _, metric = rest.split(" ")
+                o = listingobjects.take(position).last
+                return if o.nil?
+                CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
+                return
             end
             command = rest
             o = listingobjects.take(position).last

@@ -293,7 +293,6 @@ class CommonsUtils
         puts ":<p> is either :<integer> or :this"
         puts "    :<p>                 # set the listing reference point"
         puts "    :<p> metric <metric> # set metric override for the item at position"
-        puts "    :<p> metric after <position> # set metric override for the item at position"
         puts "    :<p> goto:project    # send the current object to a project"
         puts "    :<p> <command>       # run command on the item at position"
         puts ""
