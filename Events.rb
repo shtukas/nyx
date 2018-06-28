@@ -73,7 +73,6 @@ class EventsManager
         folderpath = EventsManager::pathToActiveEventsIndexFolder()
         filepath = "#{folderpath}/#{LucilleCore::timeStringL22()}.json"
         File.open(filepath, "w"){ |f| f.write(JSON.pretty_generate(event)) }
-        EventsTrace::issueTrace()
     end
 
     def self.eventsAsTimeOrderedArray()
@@ -92,29 +91,5 @@ class EventsManager
             end
         end
         enum.to_a.sort{|e1,e2| e1["event-time"]<=>e2["event-time"] }
-    end
-end
-
-# EventsTrace::issueTrace()
-# EventsTrace::isConsistent()
-
-class EventsTrace
-    @@trace = nil
-    # Class used to monitor which instance has done the last commit
-    # Cache management
-    def self.issueTrace()
-        trace = SecureRandom.hex
-        File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Events-Trace", "w"){|f| f.write(trace) }
-        @@trace = trace
-    end
-    def self.readTraceFromDisk()
-        if !File.exist?("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Events-Trace") then
-            EventsTrace::issueTrace()
-        end
-        IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Events-Trace").strip
-    end
-    def self.isConsistent()
-        # Here we are simply checking that the trace in memory is the same as the trace on disk
-        @@trace == EventsTrace::readTraceFromDisk()
     end
 end

@@ -141,11 +141,6 @@ class CatalystInterfaceUtils
             puts "Source code hash changed. Exiting!"
             exit
         end
-        if !EventsTrace::isConsistent() then
-            FlockDiskIO::loadFromEventsTimeline()
-            EventsTrace::issueTrace()
-            return
-        end
         if command=="." then
             return
         end
@@ -231,7 +226,6 @@ end
 
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
-EventsTrace::issueTrace()
 
 Thread.new {
     loop {
