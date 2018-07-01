@@ -30,6 +30,10 @@ class AgentBabyNights
         
     end
 
+    def self.names()
+        ["pascal", "tracy"]
+    end
+
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         if FKVStore::getOrNull("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
@@ -51,11 +55,15 @@ class AgentBabyNights
             xname = nil
             loop {
                 xname = LucilleCore::askQuestionAnswerAsString(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/question.txt"))
-                next if !["pascal", "tracy"].include?(xname)
+                next if !AgentBabyNights::names().include?(xname)
                 break
             }
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
             data[xname] = data[xname]+1
+            if data["pascal"] > 10 and data["tracy"] > 10 then
+                data["pascal"] = data["pascal"] - 10 
+                data["tracy"] = data["tracy"] - 10 
+            end
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             LucilleCore::pressEnterToContinue()
