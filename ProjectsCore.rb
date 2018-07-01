@@ -201,10 +201,10 @@ class ProjectsCore
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         if timestructure["time-commitment-in-hours"]==0 then
-            return "                     "
+            return "                      "
         end
         # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
-        "#{"%4.2f" % timestructure["time-commitment-in-hours"]} hours, #{"%4.2f" % (timestructure["time-unit-in-days"])} days"
+        "#{"%5.2f" % timestructure["time-commitment-in-hours"]} hours, #{"%4.2f" % (timestructure["time-unit-in-days"])} days"
     end
 
     def self.projectToString(projectuuid)
