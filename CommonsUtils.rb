@@ -381,7 +381,7 @@ class CommonsUtils
 
         if expression.start_with?('metric:') then
             token1, rest1 = StringParser::decompose(expression) # metric: 2.45 <text>
-            metric, description = StringParser::decompose(expression) # 2.45 <text>
+            metric, description = StringParser::decompose(rest1) # 2.45 <text>
             uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description) # (uuid, schedule)
             CommonsUtils::setMetricOverride(uuid, metric)
             return
