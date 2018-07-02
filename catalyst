@@ -73,9 +73,6 @@ class CatalystInterfaceUtils
             if object["metric"]>1 then
                 str = str.yellow
             end
-            if position == standardlp then
-                str = str.red
-            end
             if object["is-running"] then
                 str = str.green
             end
@@ -245,6 +242,23 @@ Thread.new {
                     sleep 2
                 end
             }
+
+        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/project-time")
+            .select{|filename| filename[-5, 5]=='.json' }
+            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/project-time/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .map{|object|
+                uuid = object["uuid"]
+                projectuuid = object["project-uuid"]
+                hours = object["commitment-in-hours"]
+                doneTimeInSeconds = Chronos::summedTimespansInSecondsLiveValue(uuid)
+                doneRatio = (doneTimeInSeconds.to_f/3600).to_f/hours
+                if doneRatio > 1 then
+                    system("terminal-notifier -title 'Catalyst Project Mini Time Monitor' -message '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)} is done'")
+                    sleep 2
+                end
+            }
+
         sleep 60
     }
 }

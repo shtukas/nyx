@@ -5,6 +5,11 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require_relative "Bob.rb"
 
 # ---------------------------------------------------
@@ -199,14 +204,20 @@ class CommonsUtils
         uuid
     end
 
-    def self.waveInsertNewItemInteractive(description)
-        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+    def self.buildCatalystObjectFromDescription(description) # (uuid, schedule)
         uuid = SecureRandom.hex(4)
         folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         schedule = WaveSchedules::makeScheduleObjectTypeNew()
+        AgentWave::writeScheduleToDisk(uuid,schedule) 
+        [uuid, schedule]
+    end
+
+    def self.waveInsertNewItemInteractive(description)
+        description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description)
         schedule["made-on-date"] = CommonsUtils::currentDay()
         AgentWave::writeScheduleToDisk(uuid,schedule)    
         loop {
@@ -286,8 +297,10 @@ class CommonsUtils
         puts ""
         puts "Special General Commands (inserts)"
         puts "    wave: <description: String>>"
+        puts "    metric: <metric: Float> <description: String> # To quickly build a wave item with a metric override"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
+        puts "    time: # interactive building of a project time commitment companion"
         puts ""
         puts "Special Commands (object targetting)"
         puts ":<p> is either :<integer> or :this"
@@ -366,6 +379,14 @@ class CommonsUtils
             return
         end
 
+        if expression.start_with?('metric:') then
+            token1, rest1 = StringParser::decompose(expression) # metric: 2.45 <text>
+            metric, description = StringParser::decompose(expression) # 2.45 <text>
+            uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description) # (uuid, schedule)
+            CommonsUtils::setMetricOverride(uuid, metric)
+            return
+        end
+
         if expression.start_with?('stream:') then
             description = expression[7, expression.size].strip
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
@@ -381,7 +402,22 @@ class CommonsUtils
             projectuuid = ProjectsCore::createNewProject(description, LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
             LucilleCore::pressEnterToContinue()
             return
-        end   
+        end
+
+        if expression == 'time:' then
+            uuid = SecureRandom.hex(4)
+            metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
+            projectuuid = ProjectsCore::interactivelySelectProjectUUIDOrNUll()
+            hours = LucilleCore::askQuestionAnswerAsString("commitment in hours: ").to_f
+            packet = {
+                "uuid" => uuid,
+                "metric" => metric,
+                "project-uuid" => projectuuid,
+                "commitment-in-hours" => hours
+            }
+            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/project-time/#{uuid}.json", "w") { |f| f.puts(JSON.pretty_generate(packet)) }
+            return
+        end
 
         if expression.start_with?("r:on") then
             command, requirement = expression.split(" ").map{|t| t.strip }

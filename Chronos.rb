@@ -5,9 +5,11 @@
 # Chronos::start(uuid)
 # Chronos::stop(uuid)
 # Chronos::addTimeInSeconds(uuid, timespan)
+# Chronos::timings(uuid)
+# Chronos::summedTimespansInSeconds(uuid)
+# Chronos::summedTimespansInSecondsLiveValue(uuid)
 # Chronos::summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
 # Chronos::metric3(uuid, low, high, timeUnitInDays, timeCommitmentInHours)
-# Chronos::timings(uuid)
 
 class Chronos
 
@@ -38,6 +40,19 @@ class Chronos
 
     def self.addTimeInSeconds(uuid, timespan)
         MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
+    end
+
+    def self.summedTimespansInSeconds(uuid)
+        MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+            .map{|pair| pair[1] }
+            .inject(0, :+)
+    end
+
+    def self.summedTimespansInSecondsLiveValue(uuid)
+        time_weight_in_seconds = Chronos::summedTimespansInSeconds(uuid)
+        status = Chronos::status(uuid)
+        live_timespan = status[0] ? Time.new.to_i - status[1] : 0
+        time_weight_in_seconds + live_timespan
     end
 
     def self.summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)

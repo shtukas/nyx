@@ -193,7 +193,7 @@ class ProjectsCore
 
     # ---------------------------------------------------
     # ProjectsCore::projectToString(projectuuid)
-    # ProjectsCore::interactivelySelectProjectUUIDOrNUll()
+    # ProjectsCore::interactivelySelectProjectUUIDOrNUll(): projectuuid: String
     # ProjectsCore::ui_projectsDive()
     # ProjectsCore::ui_projectDive(projectuuid)
     # ProjectsCore::deleteProject2(projectuuid)
