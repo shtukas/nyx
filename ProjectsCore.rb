@@ -77,16 +77,6 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # ProjectsCore::projectFileSystemFilenames(projectuuid)
-
-    def self.projectFileSystemFilenames(projectuuid)
-        location = ProjectsCore::fs_uuid2locationOrNull(projectuuid)
-        return [] if location.nil?
-        return Dir.entries(location)
-            .select{|filename| (filename[0,1] != ".") and (filename != 'Icon'+["0D"].pack("H*")) }
-    end
-
-    # ---------------------------------------------------
     # Time Struture (2)
     # ProjectsCore::liveRatioDoneOrNull(projectuuid)
 
