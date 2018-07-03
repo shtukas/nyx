@@ -70,12 +70,6 @@ class ProjectsCore
         nil
     end
 
-    def self.projectCatalystObjects(projectuuid)
-        JSON.parse(FKVStore::getOrDefaultValue("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", "[]"))
-            .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
-            .compact
-    end
-
     # ---------------------------------------------------
     # Time Struture (2)
     # ProjectsCore::liveRatioDoneOrNull(projectuuid)
