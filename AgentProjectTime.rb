@@ -52,21 +52,28 @@ class ProjectTime
         Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/project-time")
             .select{|filename| filename[-5, 5]=='.json' }
             .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/project-time/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .map{|object|
+            .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
+            .map{|pair|
+                filepath, object = pair
                 uuid = object["uuid"]
                 projectuuid = object["project-uuid"]
-                FKVStore::set("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}", "current") # We are marking that project has having a mini time commitment point for this hour 
-                hours = object["commitment-in-hours"]
-                doneTimeInSeconds = Chronos::summedTimespansInSecondsLiveValue(uuid)
-                doneRatio = (doneTimeInSeconds.to_f/3600).to_f/hours
-                object["agent-uid"] = self.agentuuid()
-                object["announce"] = "mini time commitment #{hours} hours for project '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}' [done: #{"%.2f" % (100*doneRatio)} %]"
-                object["commands"] = ["start", "stop"]
-                object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
-                object["is-running"] = Chronos::isRunning(uuid)
-                object
+                if ProjectsCore::projectsUUIDs().include?(projectuuid) then
+                    FKVStore::set("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}", "current") # We are marking that project has having a mini time commitment point for this hour 
+                    hours = object["commitment-in-hours"]
+                    doneTimeInSeconds = Chronos::summedTimespansInSecondsLiveValue(uuid)
+                    doneRatio = (doneTimeInSeconds.to_f/3600).to_f/hours
+                    object["agent-uid"] = self.agentuuid()
+                    object["announce"] = "mini time commitment #{hours} hours for project '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}' [done: #{"%.2f" % (100*doneRatio)} %]"
+                    object["commands"] = ["start", "stop"]
+                    object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
+                    object["is-running"] = Chronos::isRunning(uuid)
+                    object
+                else
+                    FileUtils.rm(filepath)
+                    nil
+                end
             }
+            .compact
             .each{|object| TheFlock::addOrUpdateObject(object) }
     end
 
