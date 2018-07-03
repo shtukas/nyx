@@ -70,35 +70,6 @@ class ProjectsCore
         nil
     end
 
-    # ---------------------------------------------------
-    # ProjectsCore::addCatalystObjectUUIDToProject(objectuuid, projectuuid)
-    # ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(objectuuid, projectuuid)
-    # ProjectsCore::projectCatalystObjectUUIDs(projectuuid))
-
-    def self.addCatalystObjectUUIDToProject(objectuuid, projectuuid)
-        uuids = ( ProjectsCore::projectCatalystObjectUUIDs(projectuuid) + [objectuuid] ).uniq
-        FKVStore::set("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", JSON.generate(uuids))
-    end
-
-    def self.addObjectUUIDToProjectInteractivelyChosen(objectuuid)
-        projectuuid = ProjectsCore::interactivelySelectProjectUUIDOrNUll()
-        if projectuuid.nil? then
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new project ? ") then
-                projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
-                projectuuid = ProjectsCore::createNewProject(projectname, LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
-            else
-                return
-            end
-        end
-        ProjectsCore::addCatalystObjectUUIDToProject(objectuuid, projectuuid)
-        projectuuid
-    end
-
-    def self.projectCatalystObjectUUIDs(projectuuid)
-        JSON.parse(FKVStore::getOrDefaultValue("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", "[]"))
-            .select{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
-    end
-
     def self.projectCatalystObjects(projectuuid)
         JSON.parse(FKVStore::getOrDefaultValue("C613EA19-5BC1-4ECB-A5B5-BF5F6530C05D:#{projectuuid}", "[]"))
             .map{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
@@ -156,8 +127,10 @@ class ProjectsCore
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
         metric = 
-            if timestructure["time-commitment-in-hours"] > 0 then
-                    Chronos::metric3(projectuuid, 0.2, 0.750, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"])
+            if timestructure["time-commitment-in-hours"]>0 and timestructure["time-unit-in-days"]>0 then
+                metric1 = MetricsOfChronos::metric3(projectuuid, 0.2, 0.750, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"])
+                metric2 = MetricsOfChronos::metric3(projectuuid, 0.2, 0.750, 1, timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]) 
+                [ metric1, metric2 ].min
             else
                     0.1
             end
@@ -177,21 +150,6 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # ProjectsCore::transform(objects)
-
-    def self.transform(objects)
-        uuids = ProjectsCore::projectsUUIDs()
-            .map{|projectuuid| ProjectsCore::projectCatalystObjectUUIDs(projectuuid) }
-            .flatten
-        objects.map{|object|
-            if uuids.include?(object["uuid"]) then
-                object["metric"] = 0
-            end
-            object
-        }
-    end
-
-    # ---------------------------------------------------
     # ProjectsCore::projectToString(projectuuid)
     # ProjectsCore::interactivelySelectProjectUUIDOrNUll(): projectuuid: String
     # ProjectsCore::ui_projectsDive()
@@ -208,37 +166,18 @@ class ProjectsCore
     end
 
     def self.projectToString(projectuuid)
-        catalystObjectsFragment = (ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size>0 ? "#{ProjectsCore::projectCatalystObjectUUIDs(projectuuid).size} c" : "").rjust(4)
-        fsObjectsFragment = (ProjectsCore::projectFileSystemFilenames(projectuuid).size>0 ? "#{ProjectsCore::projectFileSystemFilenames(projectuuid).size} fs" :      "").rjust(5)
-        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[ProjectsCore::liveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{catalystObjectsFragment}, #{fsObjectsFragment} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[ProjectsCore::liveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
     def self.ui_projectDive(projectuuid)
         puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
         puts ProjectsCore::projectToString(projectuuid)
         loop {
-            catalystobjects = ProjectsCore::projectCatalystObjectUUIDs(projectuuid)
-                .map{|objectuuid| TheFlock::flockObjects().select{|object| object["uuid"]==objectuuid }.first }
-                .compact
-                .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-                .reverse
             menuItem3 = "operation : start"  
             menuItem4 = "operation : set time structure"             
             menuItem5 = "operation : add time"
-            menuStringsOrCatalystObjects = catalystobjects
-            menuStringsOrCatalystObjects = menuStringsOrCatalystObjects + [ menuItem3, menuItem4, menuItem5 ]
-            toStringLambda = lambda{ |menuStringOrCatalystObject|
-                # Here item is either one of the strings or an object
-                # We return either a string or one of the objects
-                if menuStringOrCatalystObject.class.to_s == "String" then
-                    string = menuStringOrCatalystObject
-                    string
-                else
-                    object = menuStringOrCatalystObject
-                    "object    : #{CommonsUtils::object2Line_v0(object)}"
-                end
-            }
-            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", menuStringsOrCatalystObjects, toStringLambda)
+            menu = [ menuItem3, menuItem4, menuItem5 ]
+            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", menu)
             break if menuChoice.nil?
             if menuChoice == menuItem3 then
                 Chronos::start(projectuuid)
@@ -256,9 +195,6 @@ class ProjectsCore
                 Chronos::addTimeInSeconds(projectuuid, hours*3600)
                 next
             end
-            # By now, menuChoice is a catalyst object
-            object = menuChoice
-            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
         }
     end
 

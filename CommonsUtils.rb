@@ -235,9 +235,6 @@ class CommonsUtils
                     end
                 end
             end
-            if option == "goto project" then
-                ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(uuid) 
-            end
             if option == "override metric" then
                 metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
                 CommonsUtils::setMetricOverride(uuid, metric)
@@ -260,9 +257,8 @@ class CommonsUtils
     def self.flockOrderedDisplayObjects()
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
-        objects = TheFlock::flockObjects().map{|object| object.clone }
-        objects = ProjectsCore::transform(objects) # this one is special, it acts on collections, not individual elements, only because of speed
-        objects
+        TheFlock::flockObjects()
+            .map{|object| object.clone }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeTransform(object) }
             .map{|object| RequirementsOperator::transform(object) }
             .map{|object| CommonsUtils::metricOverrideTransform(object) }
@@ -306,7 +302,6 @@ class CommonsUtils
         puts ":<p> is either :<integer> or :this"
         puts "    :<p>                 # set the listing reference point"
         puts "    :<p> metric <metric> # set metric override for the item at position"
-        puts "    :<p> goto:project    # send the current object to a project"
         puts "    :<p> <command>       # run command on the item at position"
         puts ""
         puts "Special Object Commands:"

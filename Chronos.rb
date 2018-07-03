@@ -9,7 +9,6 @@
 # Chronos::summedTimespansInSeconds(uuid)
 # Chronos::summedTimespansInSecondsLiveValue(uuid)
 # Chronos::summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
-# Chronos::metric3(uuid, low, high, timeUnitInDays, timeCommitmentInHours)
 
 class Chronos
 
@@ -75,17 +74,6 @@ class Chronos
         status = Chronos::status(uuid)
         live_timespan = status[0] ? Time.new.to_i - status[1] : 0
         time_weight_in_seconds + live_timespan
-    end
-
-    def self.metric3(uuid, low, high, timeUnitInDays, timeCommitmentInHours)
-        return low if timeCommitmentInHours==0 # This happens sometimes
-        summedTimeSpanInSeconds = Chronos::summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
-        summedTimeSpanInHours = summedTimeSpanInSeconds.to_f/3600
-        ratiodone = summedTimeSpanInHours.to_f/timeCommitmentInHours
-        if ratiodone >= 0.9 then
-            ratiodone = 0.1*(1-Math.exp(-(ratiodone-0.9)))+0.9
-        end
-        low + (high-low)*(1-ratiodone)
     end
 
     def self.timings(uuid)

@@ -167,10 +167,6 @@ class CatalystInterfaceUtils
                 CommonsUtils::setStandardListingPosition([position, 0].max)
                 return
             end
-            if rest=="goto:project" then
-                ProjectsCore::addObjectUUIDToProjectInteractivelyChosen(object["uuid"])
-                return
-            end
             if rest.start_with?("metric") then
                 _, metric = rest.split(" ")
                 o = listingobjects.take(position).last
