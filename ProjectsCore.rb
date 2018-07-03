@@ -57,7 +57,7 @@ class ProjectsCore
         projectuuid = SecureRandom.hex(4)
         FileUtils.mkpath("/Galaxy/Projects/#{projectname}")
         File.open("/Galaxy/Projects/#{projectname}/.uuid", "w"){|f| f.write(projectuuid) }
-        ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
+        TimeStructuresOperator::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
         projectuuid
     end
 
@@ -88,31 +88,15 @@ class ProjectsCore
 
     # ---------------------------------------------------
     # Time Struture (2)
-    # The time structure against projects
-    # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
-
-    # ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
     # ProjectsCore::liveRatioDoneOrNull(projectuuid)
 
-    def self.setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
-        timestructure = { "time-unit-in-days"=> timeUnitInDays, "time-commitment-in-hours" => timeCommitmentInHours }
-        FKVStore::set("02D6DCBC-87BD-4D4D-8F0B-411B7C06B972:#{projectuuid}", JSON.generate(timestructure))
-        timestructure
-    end
-
-    def self.getTimeStructureOrNull(projectuuid)
-        timestructure = FKVStore::getOrNull("02D6DCBC-87BD-4D4D-8F0B-411B7C06B972:#{projectuuid}")
-        return nil if timestructure.nil?
-        JSON.parse(timestructure)
-    end
-
     def self.getTimeStructureAskIfAbsent(projectuuid)
-        timestructure = ProjectsCore::getTimeStructureOrNull(projectuuid)
+        timestructure = TimeStructuresOperator::getTimeStructureOrNull(projectuuid)
         if timestructure.nil? then
             puts "Setting Time Structure for project '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}'"
             timeUnitInDays = LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f
-            timestructure = ProjectsCore::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
+            timestructure = TimeStructuresOperator::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
         end
         timestructure
     end
@@ -184,7 +168,7 @@ class ProjectsCore
                 return
             end
             if menuChoice == menuItem4 then
-                ProjectsCore::setTimeStructure(
+                TimeStructuresOperator::setTimeStructure(
                         projectuuid, 
                         LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, 
                         LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
