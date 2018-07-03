@@ -27,10 +27,11 @@ class AgentProjects
     end
 
     def self.makeCatalystObjectOrNull(projectuuid)
+        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         object              = {}
         object["uuid"]      = projectuuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = ProjectsCore::metric(projectuuid)
+        object["metric"]    = MetricsOfTimeStructures::metric(projectuuid, 0.2, 0.6, timestructure) + CommonsUtils::traceToMetricShift(projectuuid)
         object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)}"
         object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
         object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"

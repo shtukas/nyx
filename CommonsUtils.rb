@@ -283,9 +283,9 @@ class CommonsUtils
         puts "    help"
         puts "    top"
         puts "    search <pattern: String>"
-        puts "    r:on <requirement: String>"
-        puts "    r:off <requirement: String>"
-        puts "    r:show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts "    requirement on <requirement: String>"
+        puts "    requirement off <requirement: String>"
+        puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
         puts "    projects # projects dive"
         puts "    email-sync  # run email sync"
         puts "    interface   # select an agent and run the interface"
@@ -309,8 +309,8 @@ class CommonsUtils
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
         puts "    metric <metric> # set metric override for the item"
-        puts "    r:add <requirement: String>"
-        puts "    r:remove <requirement: String>"
+        puts "    require <requirement: String>"
+        puts "    requirement remove <requirement: String>"
         puts "    command ..."
     end
 
@@ -414,20 +414,20 @@ class CommonsUtils
             return
         end
 
-        if expression.start_with?("r:on") then
-            command, requirement = expression.split(" ").map{|t| t.strip }
+        if expression.start_with?("requirement  on") then
+            _, _, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::setSatisfifiedRequirement(requirement)
             return
         end
 
-        if expression.start_with?("r:off") then
-            command, requirement = expression.split(" ").map{|t| t.strip }
+        if expression.start_with?("requirement off") then
+            _, _, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::setUnsatisfiedRequirement(requirement)
             return
         end
 
-        if expression.start_with?("r:show") then
-            command, requirement = expression.split(" ").map{|t| t.strip }
+        if expression.start_with?("requirement show") then
+            _, _, requirement = expression.split(" ").map{|t| t.strip }
             if requirement.nil? or requirement.size==0 then
                 requirement = CommonsUtils::selectRequirementFromExistingRequirementsOrNull()
             end
@@ -479,14 +479,14 @@ class CommonsUtils
             return
         end
 
-        if expression.start_with?("r:add") then
-            command, requirement = expression.split(" ").map{|t| t.strip }
+        if expression.start_with?("require") then
+            _, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
             return
         end
 
-        if expression.start_with?("r:remove") then
-            command, requirement = expression.split(" ").map{|t| t.strip }
+        if expression.start_with?("requirement remove") then
+            _, _, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
             return
         end

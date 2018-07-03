@@ -119,21 +119,6 @@ class ProjectsCore
         timestructure
     end
 
-    def self.metric(projectuuid)
-        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
-        # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
-        metric = 
-            if timestructure["time-commitment-in-hours"]>0 and timestructure["time-unit-in-days"]>0 then
-                MetricsOfTimeStructures::metric(projectuuid, 0.2, 0.6, timestructure)
-            else
-                0.1
-            end
-        if Chronos::isRunning(projectuuid) then
-            metric = [metric, 0.2].max
-        end
-        metric + CommonsUtils::traceToMetricShift(projectuuid)
-    end
-
     def self.averageDailyCommitmentInHours()
         ProjectsCore::projectsUUIDs()
         .map{|projectuuid|
@@ -196,7 +181,7 @@ class ProjectsCore
         loop {
             projectuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull(
                 "projects", 
-                ProjectsCore::projectsUUIDs().sort{|projectuuid1, projectuuid2| ProjectsCore::metric(projectuuid1) <=> ProjectsCore::metric(projectuuid2) }.reverse, 
+                ProjectsCore::projectsUUIDs(), 
                 lambda{ |projectuuid| ProjectsCore::projectToString(projectuuid) })
             break if projectuuid.nil?
             ProjectsCore::ui_projectDive(projectuuid)
