@@ -5,7 +5,7 @@
 0.750 -> 0.800  Wave: today, ondate, repeats
       -> 0.800  stream [not running]
       -> 0.800  Vienna
-0.100 -> 0.750  projects
+0.100 -> 0.800  projects
 
          0.600  Wave: new "made-on-date"
       -> 0.600  Ninja

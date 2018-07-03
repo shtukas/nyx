@@ -50,6 +50,39 @@ class ProjectsCore
         ProjectsCore::fs_uuids()
     end
 
+    # ---------------------------------------------------
+    # Local Time Structures
+    # ProjectsCore::updateLocalTimeStructures()
+    # ProjectsCore::localTimeStructuresDataFiles()
+
+    def self.updateLocalTimeStructures()
+        ProjectsCore::projectsUUIDs()
+            .each{|projectuuid|
+                location = ProjectsCore::fs_uuid2locationOrNull(projectuuid)
+                filepath = "#{location}/local-time-structure.json"
+                next if !File.exists?(filepath)
+                data = JSON.parse(IO.read(filepath))
+                data["projectuuid"] = projectuuid
+                data["reference-time-structure"] = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+                File.open(filepath, "w"){ |f| f.puts(JSON.pretty_generate(data)) }
+            }
+    end
+
+    def self.localTimeStructuresDataFiles()
+        ProjectsCore::projectsUUIDs()
+            .map{|projectuuid|
+                location = ProjectsCore::fs_uuid2locationOrNull(projectuuid)
+                filepath = "#{location}/local-time-structure.json"
+                if File.exists?(filepath) then
+                    JSON.parse(IO.read(filepath))
+                else
+                    nil
+                end
+            }
+            .compact
+    end
+
+    # ---------------------------------------------------
     # ProjectsCore::createNewProject(projectname, timeUnitInDays, timeCommitmentInHours)
     # ProjectsCore::projectUUID2NameOrNull(projectuuid)
 
@@ -71,8 +104,9 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # Time Struture (2)
-    # ProjectsCore::liveRatioDoneOrNull(projectuuid)
+    # Time Struture
+
+    # ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
 
     def self.getTimeStructureAskIfAbsent(projectuuid)
         timestructure = TimeStructuresOperator::getTimeStructureOrNull(projectuuid)
@@ -85,20 +119,14 @@ class ProjectsCore
         timestructure
     end
 
-    def self.liveRatioDoneOrNull(projectuuid)
-        timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
-        return nil if timestructure["time-commitment-in-hours"]==0
-        (Chronos::summedTimespansWithDecayInSecondsLiveValue(projectuuid, timestructure["time-unit-in-days"]).to_f/3600).to_f/timestructure["time-commitment-in-hours"]
-    end
-
     def self.metric(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
         metric = 
             if timestructure["time-commitment-in-hours"]>0 and timestructure["time-unit-in-days"]>0 then
-                MetricsOfTimeStructures::metric(projectuuid, 0.2, 0.750, timestructure)
+                MetricsOfTimeStructures::metric(projectuuid, 0.2, 0.6, timestructure)
             else
-                    0.1
+                0.1
             end
         if Chronos::isRunning(projectuuid) then
             metric = [metric, 0.2].max
@@ -117,7 +145,7 @@ class ProjectsCore
 
     # ---------------------------------------------------
     # ProjectsCore::projectToString(projectuuid)
-    # ProjectsCore::interactivelySelectProjectUUIDOrNUll(): projectuuid: String
+    # ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll(): projectuuid: String
     # ProjectsCore::ui_projectsDive()
     # ProjectsCore::ui_projectDive(projectuuid)
     # ProjectsCore::deleteProject2(projectuuid)
@@ -132,7 +160,7 @@ class ProjectsCore
     end
 
     def self.projectToString(projectuuid)
-        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{ProjectsCore::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[ProjectsCore::liveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
+        "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{TimeStructuresOperator::liveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[TimeStructuresOperator::liveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
     def self.ui_projectDive(projectuuid)
@@ -175,7 +203,7 @@ class ProjectsCore
         }
     end
 
-    def self.interactivelySelectProjectUUIDOrNUll()
+    def self.ui_interactivelySelectProjectUUIDOrNUll()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project", ProjectsCore::projectsUUIDs(), lambda{ |projectuuid| ProjectsCore::projectUUID2NameOrNull(projectuuid) })
     end
 

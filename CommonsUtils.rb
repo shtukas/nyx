@@ -402,7 +402,7 @@ class CommonsUtils
         if expression == 'time:' then
             uuid = SecureRandom.hex(4)
             metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
-            projectuuid = ProjectsCore::interactivelySelectProjectUUIDOrNUll()
+            projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
             hours = LucilleCore::askQuestionAnswerAsString("commitment in hours: ").to_f
             packet = {
                 "uuid" => uuid,
