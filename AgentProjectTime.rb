@@ -60,7 +60,7 @@ class ProjectTime
                 if ProjectsCore::projectsUUIDs().include?(projectuuid) then
                     FKVStore::set("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}", "current") # We are marking that project has having a mini time commitment point for this hour 
                     hours = object["commitment-in-hours"]
-                    doneTimeInSeconds = Chronos::summedTimespansInSecondsLiveValue(uuid)
+                    doneTimeInSeconds = Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, 1)
                     doneRatio = (doneTimeInSeconds.to_f/3600).to_f/hours
                     object["agent-uid"] = self.agentuuid()
                     object["announce"] = "mini time commitment #{hours} hours for project '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}' [done: #{"%.2f" % (100*doneRatio)} %]"
@@ -85,7 +85,7 @@ class ProjectTime
             uuid = object["uuid"]
             hours = object["commitment-in-hours"]
             Chronos::stop(uuid)
-            doneTimeInSeconds = Chronos::summedTimespansInSecondsLiveValue(uuid)
+            doneTimeInSeconds = Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, 1)
             if doneTimeInSeconds.to_f/3600 > hours then
                 projectuuid = object["project-uuid"]
                 Chronos::addTimeInSeconds(projectuuid, doneTimeInSeconds)

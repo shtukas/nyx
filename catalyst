@@ -247,7 +247,7 @@ Thread.new {
                 uuid = object["uuid"]
                 projectuuid = object["project-uuid"]
                 hours = object["commitment-in-hours"]
-                doneTimeInSeconds = Chronos::summedTimespansInSecondsLiveValue(uuid)
+                doneTimeInSeconds = Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, 1)
                 doneRatio = (doneTimeInSeconds.to_f/3600).to_f/hours
                 if doneRatio > 1 then
                     system("terminal-notifier -title 'Catalyst Project Mini Time Monitor' -message '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)} is done'")
