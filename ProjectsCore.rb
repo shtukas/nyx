@@ -112,9 +112,7 @@ class ProjectsCore
         # { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }
         metric = 
             if timestructure["time-commitment-in-hours"]>0 and timestructure["time-unit-in-days"]>0 then
-                metric1 = MetricsOfChronos::metric3(projectuuid, 0.2, 0.750, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"])
-                metric2 = MetricsOfChronos::metric3(projectuuid, 0.2, 0.750, 1, timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]) 
-                [ metric1, metric2 ].min
+                MetricsOfTimeStructures::metric(projectuuid, 0.2, 0.750, timestructure)
             else
                     0.1
             end
