@@ -34,6 +34,7 @@ class AgentWIS
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
+        return
         object =
             {
                 "uuid"      => "ad127a50",
