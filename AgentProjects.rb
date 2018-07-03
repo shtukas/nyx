@@ -46,6 +46,7 @@ class AgentProjects
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         objects = ProjectsCore::projectsUUIDs()
+            .select{|projectuuid| FKVStore::getOrNull("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}").nil? }
             .map{|projectuuid| AgentProjects::makeCatalystObjectOrNull(projectuuid) }
             .compact
         TheFlock::addOrUpdateObjects(objects)

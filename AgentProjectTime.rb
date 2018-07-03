@@ -56,6 +56,7 @@ class ProjectTime
             .map{|object|
                 uuid = object["uuid"]
                 projectuuid = object["project-uuid"]
+                FKVStore::set("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}", "current") # We are marking that project has having a mini time commitment point for this hour 
                 hours = object["commitment-in-hours"]
                 doneTimeInSeconds = Chronos::summedTimespansInSecondsLiveValue(uuid)
                 doneRatio = (doneTimeInSeconds.to_f/3600).to_f/hours
