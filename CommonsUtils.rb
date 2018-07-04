@@ -414,7 +414,7 @@ class CommonsUtils
             return
         end
 
-        if expression.start_with?("requirement  on") then
+        if expression.start_with?("requirement on") then
             _, _, requirement = expression.split(" ").map{|t| t.strip }
             RequirementsOperator::setSatisfifiedRequirement(requirement)
             return
