@@ -31,7 +31,7 @@ class AgentProjects
         object              = {}
         object["uuid"]      = projectuuid
         object["agent-uid"] = self.agentuuid()
-        object["metric"]    = MetricsOfTimeStructures::metric(projectuuid, 0.2, 0.6, timestructure) + CommonsUtils::traceToMetricShift(projectuuid)
+        object["metric"]    = MetricsOfTimeStructures::metric2(projectuuid, 0.1, 0.2, 0.6, timestructure) + CommonsUtils::traceToMetricShift(projectuuid)
         object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)}"
         object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
         object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"
@@ -62,7 +62,7 @@ class AgentProjects
                     object              = {}
                     object["uuid"]      = item["uuid"]
                     object["agent-uid"] = self.agentuuid()
-                    object["metric"]    = MetricsOfTimeStructures::metric(item["uuid"], 0.5, 0.80, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
+                    object["metric"]    = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.80, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
                     object["announce"]  = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]}"
                     object["commands"]  = Chronos::isRunning(item["uuid"]) ? ["stop-secondary"] : ["start-secondary"]
                     object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop-secondary" : "start-secondary"

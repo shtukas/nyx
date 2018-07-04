@@ -1,12 +1,13 @@
 
 # encoding: UTF-8
 
-# MetricsOfTimeStructures::metric(uuid, low, high, timestructure)
+# MetricsOfTimeStructures::metric2(uuid, donemetric, lowmetric, highmetric, timestructure)
 
 class MetricsOfTimeStructures
-    def self.metric(uuid, low, high, timestructure)
-        metric1 = MetricsOfChronos::metric3(uuid, low, high, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"])
-        metric2 = MetricsOfChronos::metric3(uuid, low, high, 1, timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]) 
+    def self.metric2(uuid, donemetric, lowmetric, highmetric, timestructure)
+        return donemetric if Chronos::ratioDone(uuid, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"]) >= 1
+        metric1 = MetricsOfChronos::metric3(uuid, lowmetric, highmetric, timestructure["time-unit-in-days"], timestructure["time-commitment-in-hours"])
+        metric2 = MetricsOfChronos::metric3(uuid, lowmetric, highmetric, 1, timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]) 
         [ metric1, metric2 ].min
     end
 end
