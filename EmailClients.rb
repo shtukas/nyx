@@ -143,8 +143,6 @@ class OperatorEmailClient
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule[':wave-emails:'] = true # read by Wave agent
-                lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
-                schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
                 AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
@@ -156,8 +154,6 @@ class OperatorEmailClient
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule[':wave-emails:'] = true # read by Wave agent
-                lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
-                schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
                 AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: subject line: #{subjectline}") }
@@ -215,8 +211,6 @@ class GeneralEmailClient
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 schedule[':wave-emails:'] = true # read by Wave agent
-                lucilleNextInteger = LucilleCore::nextInteger("674ebd0f-c32e-4f07-9308-62d4e18f64cd")
-                schedule[':wave-emails:lucille-next-integer'] = lucilleNextInteger
                 schedule[':wave-emails:creation-datetime'] = Time.new.to_s
                 AgentWave::writeScheduleToDisk(catalystuuid,schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
