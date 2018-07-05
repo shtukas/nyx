@@ -57,19 +57,19 @@ class CatalystInterfaceUtils
         end
         objects.size
     end
-    def self.putsListing()
-        positionDisplay = lambda {|standardlp, position|
+    def self.putsListing(standardlp, objects)
+        positionDisplayLambda = lambda {|standardlp, position|
             if standardlp==position then
                 "[* #{"%2d" % position}]"
             else
                 "[  #{"%2d" % position}]"
             end
         }
-        objectToLineMainListing = lambda {|object, position, standardlp|
-            "#{positionDisplay.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        objectToLineMainListingLambda = lambda {|object, position, standardlp|
+            "#{positionDisplayLambda.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
         }
-        objectToLineMainListingWithColour = lambda {|object, position, standardlp|
-            str = objectToLineMainListing.call(object, position, standardlp)
+        objectToLineMainListingLambdaWithColourLambda = lambda {|object, position, standardlp|
+            str = objectToLineMainListingLambda.call(object, position, standardlp)
             if object["metric"]>1 then
                 str = str.yellow
             end
@@ -78,11 +78,9 @@ class CatalystInterfaceUtils
             end
             str
         }
-        standardlp = CommonsUtils::getStandardListingPosition()
-        objects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
+        # [] Between 10am and 4pm, week days, anything with a metric >= 0.2 that doesn't have a metric override, should be reviewd and a metric added to it
         amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(objects.clone) ].max
         objects = objects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
-        returnvalue = objects.clone
         if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
             puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
         end
@@ -91,15 +89,14 @@ class CatalystInterfaceUtils
             while objects.any?{|object| object["metric"]>1 } do
                 object = objects.shift
                 position = position+1
-                puts objectToLineMainListingWithColour.call(object, position, standardlp)
+                puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
             end
             puts ""
         end
         objects.each{|object|
             position = position+1
-            puts objectToLineMainListingWithColour.call(object, position, standardlp)
+            puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
         }
-        returnvalue
     end
     def self.getTopData()
         standardlp = CommonsUtils::getStandardListingPosition()
@@ -121,8 +118,8 @@ class CatalystInterfaceUtils
 
         [standardlp, object]
     end
-    def self.commandLineInterface(listingobjects, codehash)
-        standardlp, object = self.getTopData()
+    def self.commandLineInterface(standardlp, listingobjects, codehash)
+        object = listingobjects.take(standardlp).last
         puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
         if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
             puts "--> Looks like this object doesn't have an associated agent"
@@ -210,9 +207,11 @@ class CatalystInterfaceUtils
             system("clear")
             puts "Average project time: #{ProjectsCore::averageDailyCommitmentInHours()} hours/day"
             puts ""
-            listingobjects = CatalystInterfaceUtils::putsListing()
+            standardlp = CommonsUtils::getStandardListingPosition()
+            listingobjects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
+            CatalystInterfaceUtils::putsListing(standardlp, listingobjects)
             puts ""
-            CatalystInterfaceUtils::commandLineInterface(listingobjects, codehash)
+            CatalystInterfaceUtils::commandLineInterface(standardlp, listingobjects, codehash)
         }
     end
 end
