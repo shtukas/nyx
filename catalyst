@@ -258,7 +258,7 @@ Thread.new {
             .select{|filename| filename[-5, 5]=='.json' }
             .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/project-time/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .map{|object|
+            .each{|object|
                 uuid = object["uuid"]
                 projectuuid = object["project-uuid"]
                 hours = object["commitment-in-hours"]
@@ -269,6 +269,21 @@ Thread.new {
                     sleep 2
                 end
             }
+
+        ProjectsCore::localTimeStructuresDataFiles().each{|data|
+            projectuuid = data["projectuuid"]
+            referenceTimeStructure = data["reference-time-structure"]
+            data["local-commitments"]
+                .each{|item|
+                    timestructure = {}
+                    timestructure["time-unit-in-days"] = referenceTimeStructure["time-unit-in-days"]
+                    timestructure["time-commitment-in-hours"] = referenceTimeStructure["time-commitment-in-hours"] * item["timeshare"]
+                    if TimeStructuresOperator::timeStructureRatioDoneOrNull(item["uuid"], timestructure) > 1 then
+                        system("terminal-notifier -title 'Catalyst Sub-Project ' -message 'project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]} is done'")
+                        sleep 2
+                    end
+                }
+        }
 
         sleep 60
     }
