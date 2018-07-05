@@ -57,7 +57,7 @@ class CatalystInterfaceUtils
         end
         objects.size
     end
-    def self.putsListing(standardlp, objects)
+    def self.putsListing(standardlp, listingobjects)
         positionDisplayLambda = lambda {|standardlp, position|
             if standardlp==position then
                 "[* #{"%2d" % position}]"
@@ -78,29 +78,29 @@ class CatalystInterfaceUtils
             end
             str
         }
-        # [] Between 10am and 4pm, week days, anything with a metric >= 0.2 that doesn't have a metric override, should be reviewd and a metric added to it
-        amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(objects.clone) ].max
-        objects = objects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
+        amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(listingobjects.clone) ].max
+        listingobjects = listingobjects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
         if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
             puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
         end
         position = 0
-        if objects.any?{|object| object["metric"]>1 } then
-            while objects.any?{|object| object["metric"]>1 } do
-                object = objects.shift
+        if listingobjects.any?{|object| object["metric"]>1 } then
+            while listingobjects.any?{|object| object["metric"]>1 } do
+                object = listingobjects.shift
                 position = position+1
                 puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
             end
-            puts ""
+            if listingobjects.any?{|object| object["metric"]<=1 } then
+                puts ""
+            end
         end
-        objects.each{|object|
+        listingobjects.each{|object|
             position = position+1
             puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
         }
     end
-    def self.getTopData()
-        standardlp = CommonsUtils::getStandardListingPosition()
-        object = CommonsUtils::getNthElementOfUnifiedListing(standardlp)
+    def self.commandLineInterface(standardlp, listingobjects, codehash)
+        object = listingobjects.take(standardlp).last
 
         # --------------------------------------------------------------------------------
         # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
@@ -110,16 +110,12 @@ class CatalystInterfaceUtils
                 if !File.exists?(object["item-data"]["folderpath"]) then
                     TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
                     EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                    return CatalystInterfaceUtils::getTopData()
+                    return
                 end
             end
         end
         # --------------------------------------------------------------------------------
 
-        [standardlp, object]
-    end
-    def self.commandLineInterface(standardlp, listingobjects, codehash)
-        object = listingobjects.take(standardlp).last
         puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
         if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
             puts "--> Looks like this object doesn't have an associated agent"
@@ -209,6 +205,26 @@ class CatalystInterfaceUtils
             puts ""
             standardlp = CommonsUtils::getStandardListingPosition()
             listingobjects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
+
+            # -----------------------------------------------------------------------------------
+            # [] Between 10am and 4pm, week days, anything with a metric >= 0.2 that doesn't have a metric override, should be reviewd and a metric added to it
+            if CommonsUtils::isWeekDay() and Time.new.hour >= 10 and Time.new.hour < 16 then
+                listingobjects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects().select{ |object| object["metric"]>=0.2 }
+                if listingobjects.any?{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) } then
+                    object = listingobjects.select{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) }.first
+                    system("clear")
+                    CatalystInterfaceUtils::putsListing(standardlp, listingobjects.select{|object| object["metric"]>1 })
+                    puts ""
+                    puts CatalystInterfaceUtils::object2Line_v1(object)
+                    puts ""
+                    puts "Middle of week day, metric requirement:"
+                    metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
+                    CommonsUtils::setMetricOverride(object["uuid"], metric)
+                    next
+                end
+            end
+            # -----------------------------------------------------------------------------------
+
             CatalystInterfaceUtils::putsListing(standardlp, listingobjects)
             puts ""
             CatalystInterfaceUtils::commandLineInterface(standardlp, listingobjects, codehash)

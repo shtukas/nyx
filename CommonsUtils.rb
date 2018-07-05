@@ -32,6 +32,7 @@ class CommonsUtils
     # ---------------------------------------------------
     # CommonsUtils::currentHour()
     # CommonsUtils::currentDay()
+    # CommonsUtils::isWeekDay()
     # CommonsUtils::isInteger(str)
     # CommonsUtils::isFloat(str)
 
@@ -41,6 +42,10 @@ class CommonsUtils
 
     def self.currentDay()
         Time.new.to_s[0,10]
+    end
+
+    def self.isWeekDay()
+        [1,2,3,4,5].include?(Time.new.wday)
     end
 
     def self.isInteger(str)
