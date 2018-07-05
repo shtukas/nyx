@@ -245,7 +245,6 @@ class CommonsUtils
                 CommonsUtils::setMetricOverride(uuid, metric)
             end
         }
-
     end
 
     def self.trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
@@ -558,11 +557,11 @@ class CommonsUtils
 
     def self.setMetricOverride(uuid, metric)
         puts JSON.generate([uuid, metric])
-        FKVStore::set("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{uuid}", metric)
+        FKVStore::set("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{CommonsUtils::currentDay()}:#{uuid}", metric)
     end
 
     def self.getMetricOverrideOrNull(uuid)
-        value = FKVStore::getOrNull("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{uuid}")
+        value = FKVStore::getOrNull("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{CommonsUtils::currentDay()}:#{uuid}")
         return value.to_f if value
         nil
     end
@@ -579,6 +578,6 @@ class CommonsUtils
     end
 
     def self.removeMetricOverride(uuid)
-        FKVStore::delete("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{uuid}")
+        FKVStore::delete("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{CommonsUtils::currentDay()}:#{uuid}")
     end
 end
