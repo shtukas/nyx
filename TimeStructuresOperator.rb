@@ -7,7 +7,8 @@ class TimeStructuresOperator
     
     # TimeStructure: { "time-unit-in-days"=> Float, "time-commitment-in-hours" => Float }   
 
-    # TimeStructuresOperator::liveRatioDoneOrNull(projectuuid)
+    # TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid)
+    # TimeStructuresOperator::timeStructureRatioDoneOrNull(uuid, timestructure)
 
     def self.setTimeStructure(uuid, timeUnitInDays, timeCommitmentInHours)
         timestructure = { "time-unit-in-days"=> timeUnitInDays, "time-commitment-in-hours" => timeCommitmentInHours }
@@ -21,10 +22,15 @@ class TimeStructuresOperator
         JSON.parse(timestructure)
     end
 
-    def self.liveRatioDoneOrNull(projectuuid)
+    def self.projectLiveRatioDoneOrNull(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
         return nil if timestructure["time-commitment-in-hours"]==0
         (Chronos::summedTimespansWithDecayInSecondsLiveValue(projectuuid, timestructure["time-unit-in-days"]).to_f/3600).to_f/timestructure["time-commitment-in-hours"]
+    end
+
+    def self.timeStructureRatioDoneOrNull(uuid, timestructure)
+        return nil if timestructure["time-commitment-in-hours"]==0
+        (Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, timestructure["time-unit-in-days"]).to_f/3600).to_f/timestructure["time-commitment-in-hours"]
     end
 
 end

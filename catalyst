@@ -248,7 +248,7 @@ Thread.new {
     loop {
         ProjectsCore::projectsUUIDs()
             .each{|projectuuid| 
-                if Chronos::isRunning(projectuuid) and TimeStructuresOperator::liveRatioDoneOrNull(projectuuid)>1 then
+                if Chronos::isRunning(projectuuid) and TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid)>1 then
                     system("terminal-notifier -title 'Catalyst Project Monitor' -message '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)} is done'")
                     sleep 2
                 end

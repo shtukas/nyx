@@ -32,7 +32,7 @@ class AgentProjects
         object["uuid"]      = projectuuid
         object["agent-uid"] = self.agentuuid()
         object["metric"]    = MetricsOfTimeStructures::metric2(projectuuid, 0.1, 0.2, 0.6, timestructure) + CommonsUtils::traceToMetricShift(projectuuid)
-        object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)}"
+        object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)} ( #{"%.2f" % (100*TimeStructuresOperator::timeStructureRatioDoneOrNull(projectuuid, timestructure))} % of #{timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]} hours )"
         object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
         object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"
         object["is-running"] = Chronos::isRunning(projectuuid)
@@ -63,7 +63,7 @@ class AgentProjects
                     object["uuid"]      = item["uuid"]
                     object["agent-uid"] = self.agentuuid()
                     object["metric"]    = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.80, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
-                    object["announce"]  = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]}"
+                    object["announce"]  = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]} ( #{"%.2f" % (100*TimeStructuresOperator::timeStructureRatioDoneOrNull(item["uuid"], timestructure))} % of #{timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]} hours )"
                     object["commands"]  = Chronos::isRunning(item["uuid"]) ? ["stop-secondary"] : ["start-secondary"]
                     object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop-secondary" : "start-secondary"
                     object["is-running"] = Chronos::isRunning(item["uuid"])
