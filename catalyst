@@ -285,6 +285,22 @@ Thread.new {
                 }
         }
 
+        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/floating-time-structures")
+            .select{|filename| filename[-5, 5]=='.json' }
+            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/floating-time-structures/#{filename}" }
+            .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
+            .map{|data|
+                filepath, packet = data
+                # object: { :uuid, :description, :timestructure }
+                uuid = packet["uuid"]
+                description = packet["description"]
+                timestructure = packet["timestructure"]
+                if TimeStructuresOperator::timeStructureRatioDoneOrNull(uuid, timestructure) > 1 then
+                    system("terminal-notifier -title 'Catalyst Sub-Project ' -message 'floating time structures: #{description} is done'")
+                    sleep 2
+                end                  
+            }
+
         sleep 60
     }
 }
