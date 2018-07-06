@@ -67,11 +67,31 @@ class CatalystInterfaceUtils
         end
     end
 
-    def self.doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
-        CatalystInterfaceUtils::displayObject(object, standardlp)
-        print "--> "
-        command = STDIN.gets().strip
-        command
+    def self.positionDisplay(standardlp, position)
+        if standardlp and position and standardlp==position then
+            "[* #{"%2d" % position}]"
+        else
+            if position then
+                "[  #{"%2d" % position}]"
+            else
+                "[]"
+            end
+        end
+    end
+
+    def self.objectToLineMainListing(object, position, standardlp)
+        "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+    end
+
+    def self.objectToLineMainListingLambdaWithColour(object, position, standardlp)
+        str = CatalystInterfaceUtils::objectToLineMainListing(object, position, standardlp)
+        if object["metric"]>1 then
+            str = str.yellow
+        end
+        if object["is-running"] then
+            str = str.green
+        end
+        str
     end
 
     def self.executeCommandAgainstObject(object, command, standardlp, displayobjects)
@@ -121,27 +141,25 @@ class CatalystInterfaceUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
-    def self.processObjectForMetricRequirement(object)
-        loop {
-            item = LucilleCore::menuItemsWithLambdas([
-                [
-                    "do object", 
-                    lambda {
-                        command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, nil)
-                        CatalystInterfaceUtils::executeCommandAgainstObject(object, command)
-                    }
-                ],
-                [
-                    "set metric", 
-                    lambda {
-                        metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
-                        CommonsUtils::setMetricOverride(object["uuid"], metric)                          
-                    }
-                ]
-            ])
-            return if item.nil?
-            return if object
-        }
+    def self.processObjectForMetricRequirement(object, displayobjects)
+        system("clear")
+        displayobjects
+            .select{|object| object["metric"]>1 }
+            .each{|object| 
+                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, nil, nil) 
+            }
+        puts ""
+        puts "Middle of week day:"
+        puts "Processing object for metric requirements (do, postpone, or metric <metric>):"
+        command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, nil)
+        CatalystInterfaceUtils::executeCommandAgainstObject(object, command, nil, nil)
+    end
+
+    def self.doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
+        CatalystInterfaceUtils::displayObject(object, standardlp)
+        print "--> "
+        command = STDIN.gets().strip
+        command
     end
 
     def self.displayLoop(codehash)
@@ -174,31 +192,6 @@ class CatalystInterfaceUtils
             puts "Average project time: #{ProjectsCore::averageDailyCommitmentInHours()} hours/day"
             puts ""
 
-            positionDisplayLambda = lambda {|standardlp, position|
-                if standardlp and position and standardlp==position then
-                    "[* #{"%2d" % position}]"
-                else
-                    if position then
-                        "[  #{"%2d" % position}]"
-                    else
-                        "[]"
-                    end
-                end
-            }
-            objectToLineMainListingLambda = lambda {|object, position, standardlp|
-                "#{positionDisplayLambda.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
-            }
-            objectToLineMainListingLambdaWithColourLambda = lambda {|object, position, standardlp|
-                str = objectToLineMainListingLambda.call(object, position, standardlp)
-                if object["metric"]>1 then
-                    str = str.yellow
-                end
-                if object["is-running"] then
-                    str = str.green
-                end
-                str
-            }
-
             standardlp = CommonsUtils::getStandardListingPosition()
             displayobjects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
 
@@ -208,46 +201,22 @@ class CatalystInterfaceUtils
                 displayobjects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
                 if displayobjects.any?{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) } then
                     object = displayobjects.select{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) }.first
-                    system("clear")
-                    displayobjects
-                        .select{|object| object["metric"]>1 }
-                        .each{|object| 
-                            puts objectToLineMainListingLambdaWithColourLambda.call(object, nil, nil) 
-                        }
-                    puts ""
-                    CatalystInterfaceUtils::displayObject(object, nil)
-                    puts ""
-                    puts "Middle of week day, metric requirement:"
-                    CatalystInterfaceUtils::processObjectForMetricRequirement(object)
+                    CatalystInterfaceUtils::processObjectForMetricRequirement(object, displayobjects)
                     next
                 end
             end
             # -----------------------------------------------------------------------------------
 
-            amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
-            displayobjects = displayobjects.take(amountToDisplay)
-            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-            end
-            position = 0
-            if displayobjects.any?{|object| object["metric"]>1 } then
-                while displayobjects.any?{|object| object["metric"]>1 } do
-                    object = displayobjects.shift
-                    position = position+1
-                    puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
-                end
-                if displayobjects.any?{|object| object["metric"]<=1 } then
-                    puts ""
-                end
-            end
-            displayobjects.each{|object|
-                position = position+1
-                puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
-            }
-
-            puts ""
-
             object = displayobjects.take(standardlp).last
+
+            # --------------------------------------------------------------------------------
+            if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
+                LucilleCore::pressEnterToContinue()
+                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
+                TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+                next
+            end
+            # --------------------------------------------------------------------------------
 
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
@@ -263,14 +232,28 @@ class CatalystInterfaceUtils
             end
             # --------------------------------------------------------------------------------
 
-            # --------------------------------------------------------------------------------
-            if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
-                LucilleCore::pressEnterToContinue()
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
-                next
+            amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
+            displayobjects = displayobjects.take(amountToDisplay)
+            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
-            # --------------------------------------------------------------------------------
+            position = 0
+            if displayobjects.any?{|object| object["metric"]>1 } then
+                while displayobjects.any?{|object| object["metric"]>1 } do
+                    object = displayobjects.shift
+                    position = position+1
+                    puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position, standardlp)
+                end
+                if displayobjects.any?{|object| object["metric"]<=1 } then
+                    puts ""
+                end
+            end
+            displayobjects.each{|object|
+                position = position+1
+                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position, standardlp)
+            }
+
+            puts ""
 
             command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
 
