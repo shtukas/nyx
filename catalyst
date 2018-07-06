@@ -26,6 +26,7 @@ require_relative "catalyst.rb"
 # CatalystInterfaceUtils::commandLineStreamInterface()
 
 class CatalystInterfaceUtils
+
     def self.object2Line_v1(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
@@ -49,12 +50,103 @@ class CatalystInterfaceUtils
             ].join()
         part1 + part2
     end
+
     def self.positionOfLastRunningItemOrZero(objects)
         return 0 if objects.none?{ |object| object["is-running"] }
         while !objects.last["is-running"] do
             objects.pop
         end
         objects.size
+    end
+
+    def self.displayObject(object, standardlp)
+        if standardlp then
+            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
+        else
+            puts CatalystInterfaceUtils::object2Line_v1(object)
+        end
+    end
+
+    def self.doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
+        CatalystInterfaceUtils::displayObject(object, standardlp)
+        print "--> "
+        command = STDIN.gets().strip
+        command
+    end
+
+    def self.executeCommandAgainstObjectFull(object, command, standardlp, displayobjects)
+        if command=="." then
+            
+        end
+        if command=="+" then
+            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+            return
+        end
+        if command.start_with?("metric") and !command.start_with?("metric:") then
+            _, metric = StringParser::decompose(command)
+            CommonsUtils::setMetricOverride(object["uuid"], metric.to_f)
+            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+            return
+        end
+        if command.start_with?(":") then
+            token, rest = StringParser::decompose(command)
+            position = nil
+            if token == ":this" then
+                position = standardlp
+            end
+            if CommonsUtils::isInteger(token[1,token.size]) then
+                position = token[1,token.size].to_i
+            end
+            return if position.nil?
+            # At that point the target position is known.
+            if rest.nil? then
+                # :<position>         # set the listing reference point
+                CommonsUtils::setStandardListingPosition([position, 0].max)
+                return
+            end
+            if rest.start_with?("metric") then
+                _, metric = rest.split(" ")
+                o = displayobjects.take(position).last
+                return if o.nil?
+                CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
+                return
+            end
+            command = rest
+            o = displayobjects.take(position).last
+            return if o.nil?
+            CommonsUtils::processObjectAndCommand(o, command)
+            return
+        end
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.executeCommandAgainstObjectRestricted(object, command)
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.processObjectForMetricRequirement(object)
+        loop {
+            item = LucilleCore::menuItemsWithLambdas([
+                [
+                    "do object", 
+                    lambda {
+                        command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, nil)
+                        CatalystInterfaceUtils::executeCommandAgainstObjectRestricted(object, command)                        
+                    }
+                ],
+                [
+                    "set metric", 
+                    lambda {
+                        metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
+                        CommonsUtils::setMetricOverride(object["uuid"], metric)                          
+                    }
+                ]
+            ])
+            return if item.nil?
+            return if object
+        }
     end
 
     def self.displayLoop(codehash)
@@ -81,7 +173,9 @@ class CatalystInterfaceUtils
                 FKVStore::set("e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
                 next
             end
+
             system("clear")
+
             puts "Average project time: #{ProjectsCore::averageDailyCommitmentInHours()} hours/day"
             puts ""
 
@@ -111,56 +205,54 @@ class CatalystInterfaceUtils
             }
 
             standardlp = CommonsUtils::getStandardListingPosition()
-            listingobjects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
+            displayobjects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
 
             # -----------------------------------------------------------------------------------
             # [] Between 10am and 4pm, week days, anything with a metric >= 0.2 that doesn't have a metric override, should be reviewd and a metric added to it
             if CommonsUtils::isWeekDay() and Time.new.hour >= 10 and Time.new.hour < 16 then
-                listingobjects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects().select{ |object| object["metric"]>=0.2 }
-                if listingobjects.any?{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) } then
-                    object = listingobjects.select{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) }.first
+                displayobjects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
+                if displayobjects.any?{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) } then
+                    object = displayobjects.select{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) }.first
                     system("clear")
-                    listingobjects
+                    displayobjects
                         .select{|object| object["metric"]>1 }
                         .each{|object| 
                             puts objectToLineMainListingLambdaWithColourLambda.call(object, nil, nil) 
                         }
                     puts ""
-                    puts CatalystInterfaceUtils::object2Line_v1(object)
+                    CatalystInterfaceUtils::displayObject(object, nil)
                     puts ""
                     puts "Middle of week day, metric requirement:"
-                    metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
-                    CommonsUtils::setMetricOverride(object["uuid"], metric)
+                    CatalystInterfaceUtils::processObjectForMetricRequirement(object)
                     next
                 end
             end
             # -----------------------------------------------------------------------------------
 
-
-            amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(listingobjects.clone) ].max
-            listingobjects = listingobjects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
+            amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
+            displayobjects = displayobjects.take(amountToDisplay)
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
             position = 0
-            if listingobjects.any?{|object| object["metric"]>1 } then
-                while listingobjects.any?{|object| object["metric"]>1 } do
-                    object = listingobjects.shift
+            if displayobjects.any?{|object| object["metric"]>1 } then
+                while displayobjects.any?{|object| object["metric"]>1 } do
+                    object = displayobjects.shift
                     position = position+1
                     puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
                 end
-                if listingobjects.any?{|object| object["metric"]<=1 } then
+                if displayobjects.any?{|object| object["metric"]<=1 } then
                     puts ""
                 end
             end
-            listingobjects.each{|object|
+            displayobjects.each{|object|
                 position = position+1
                 puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
             }
 
             puts ""
 
-            object = listingobjects.take(standardlp).last
+            object = displayobjects.take(standardlp).last
 
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
@@ -170,71 +262,29 @@ class CatalystInterfaceUtils
                     if !File.exists?(object["item-data"]["folderpath"]) then
                         TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
                         EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                        return
+                        next
                     end
                 end
             end
             # --------------------------------------------------------------------------------
 
-            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
+            # --------------------------------------------------------------------------------
             if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
-                puts "--> Looks like this object doesn't have an associated agent"
-                puts "--> I am going to delete it"
                 LucilleCore::pressEnterToContinue()
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
                 TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
-                return
+                next
             end
-            print "--> "
-            command = STDIN.gets().strip
+            # --------------------------------------------------------------------------------
+
+            command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
+
             if codehash != CommonsUtils::codeHash() then
                 puts "Source code hash changed. Exiting!"
                 exit
             end
-            if command=="." then
-                return
-            end
-            if command=="+" then
-                CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
-                return
-            end
-            if command.start_with?("metric") and !command.start_with?("metric:") then
-                _, metric = StringParser::decompose(command)
-                CommonsUtils::setMetricOverride(object["uuid"], metric.to_f)
-                CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
-                return
-            end
-            if command.start_with?(":") then
-                token, rest = StringParser::decompose(command)
-                position = nil
-                if token == ":this" then
-                    position = standardlp
-                end
-                if CommonsUtils::isInteger(token[1,token.size]) then
-                    position = token[1,token.size].to_i
-                end
-                return if position.nil?
-                # At that point the target position is known.
-                if rest.nil? then
-                    # :<position>         # set the listing reference point
-                    CommonsUtils::setStandardListingPosition([position, 0].max)
-                    return
-                end
-                if rest.start_with?("metric") then
-                    _, metric = rest.split(" ")
-                    o = listingobjects.take(position).last
-                    return if o.nil?
-                    CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
-                    return
-                end
-                command = rest
-                o = listingobjects.take(position).last
-                return if o.nil?
-                CommonsUtils::processObjectAndCommand(o, command)
-                return
-            end
-            command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-            CommonsUtils::processObjectAndCommand(object, command)
+
+            CatalystInterfaceUtils::executeCommandAgainstObjectFull(object, command, standardlp, displayobjects)
 
         }
     end

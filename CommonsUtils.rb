@@ -24,8 +24,8 @@ require_relative "Bob.rb"
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
-# CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
-# CommonsUtils::getNthElementOfUnifiedListing(n)
+# CommonsUtils::generalFlockUpgradeThenOrderedFlockObjects()
+# CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
 
 class CommonsUtils
 
@@ -282,13 +282,13 @@ class CommonsUtils
             .reverse
     end
 
-    def self.generalFlockUpgradeThenflockOrderedDisplayObjects()
+    def self.generalFlockUpgradeThenOrderedFlockObjects()
         Bob::generalFlockUpgrade()
         CommonsUtils::flockOrderedDisplayObjects()
     end
 
-    def self.getNthElementOfUnifiedListing(n)
-        CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects().take(n).last
+    def self.generalFlockUpgradeThenOrderedDisplayObjects()
+        CommonsUtils::generalFlockUpgradeThenOrderedFlockObjects().select{ |object| object["metric"]>=0.2 }
     end
 
     # -----------------------------------------
