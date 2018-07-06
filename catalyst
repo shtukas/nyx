@@ -56,48 +56,6 @@ class CatalystInterfaceUtils
         end
         objects.size
     end
-    def self.putsListing(standardlp, listingobjects)
-        positionDisplayLambda = lambda {|standardlp, position|
-            if standardlp==position then
-                "[* #{"%2d" % position}]"
-            else
-                "[  #{"%2d" % position}]"
-            end
-        }
-        objectToLineMainListingLambda = lambda {|object, position, standardlp|
-            "#{positionDisplayLambda.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
-        }
-        objectToLineMainListingLambdaWithColourLambda = lambda {|object, position, standardlp|
-            str = objectToLineMainListingLambda.call(object, position, standardlp)
-            if object["metric"]>1 then
-                str = str.yellow
-            end
-            if object["is-running"] then
-                str = str.green
-            end
-            str
-        }
-        amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(listingobjects.clone) ].max
-        listingobjects = listingobjects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
-        if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-            puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-        end
-        position = 0
-        if listingobjects.any?{|object| object["metric"]>1 } then
-            while listingobjects.any?{|object| object["metric"]>1 } do
-                object = listingobjects.shift
-                position = position+1
-                puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
-            end
-            if listingobjects.any?{|object| object["metric"]<=1 } then
-                puts ""
-            end
-        end
-        listingobjects.each{|object|
-            position = position+1
-            puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
-        }
-    end
 
     def self.displayLoop(codehash)
         loop {
@@ -126,6 +84,32 @@ class CatalystInterfaceUtils
             system("clear")
             puts "Average project time: #{ProjectsCore::averageDailyCommitmentInHours()} hours/day"
             puts ""
+
+            positionDisplayLambda = lambda {|standardlp, position|
+                if standardlp and position and standardlp==position then
+                    "[* #{"%2d" % position}]"
+                else
+                    if position then
+                        "[  #{"%2d" % position}]"
+                    else
+                        "[]"
+                    end
+                end
+            }
+            objectToLineMainListingLambda = lambda {|object, position, standardlp|
+                "#{positionDisplayLambda.call(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+            }
+            objectToLineMainListingLambdaWithColourLambda = lambda {|object, position, standardlp|
+                str = objectToLineMainListingLambda.call(object, position, standardlp)
+                if object["metric"]>1 then
+                    str = str.yellow
+                end
+                if object["is-running"] then
+                    str = str.green
+                end
+                str
+            }
+
             standardlp = CommonsUtils::getStandardListingPosition()
             listingobjects = CommonsUtils::generalFlockUpgradeThenflockOrderedDisplayObjects()
 
@@ -136,7 +120,11 @@ class CatalystInterfaceUtils
                 if listingobjects.any?{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) } then
                     object = listingobjects.select{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) }.first
                     system("clear")
-                    CatalystInterfaceUtils::putsListing(standardlp, listingobjects.select{|object| object["metric"]>1 })
+                    listingobjects
+                        .select{|object| object["metric"]>1 }
+                        .each{|object| 
+                            puts objectToLineMainListingLambdaWithColourLambda.call(object, nil, nil) 
+                        }
                     puts ""
                     puts CatalystInterfaceUtils::object2Line_v1(object)
                     puts ""
@@ -148,7 +136,28 @@ class CatalystInterfaceUtils
             end
             # -----------------------------------------------------------------------------------
 
-            CatalystInterfaceUtils::putsListing(standardlp, listingobjects)
+
+            amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(listingobjects.clone) ].max
+            listingobjects = listingobjects.take(amountToDisplay).select{|object| object["metric"] >= 0.2 }
+            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            end
+            position = 0
+            if listingobjects.any?{|object| object["metric"]>1 } then
+                while listingobjects.any?{|object| object["metric"]>1 } do
+                    object = listingobjects.shift
+                    position = position+1
+                    puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
+                end
+                if listingobjects.any?{|object| object["metric"]<=1 } then
+                    puts ""
+                end
+            end
+            listingobjects.each{|object|
+                position = position+1
+                puts objectToLineMainListingLambdaWithColourLambda.call(object, position, standardlp)
+            }
+
             puts ""
 
             object = listingobjects.take(standardlp).last
