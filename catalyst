@@ -74,7 +74,7 @@ class CatalystInterfaceUtils
         command
     end
 
-    def self.executeCommandAgainstObjectFull(object, command, standardlp, displayobjects)
+    def self.executeCommandAgainstObject(object, command, standardlp, displayobjects)
         if command=="." then
             
         end
@@ -121,11 +121,6 @@ class CatalystInterfaceUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
-    def self.executeCommandAgainstObjectRestricted(object, command)
-        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
-    end
-
     def self.processObjectForMetricRequirement(object)
         loop {
             item = LucilleCore::menuItemsWithLambdas([
@@ -133,7 +128,7 @@ class CatalystInterfaceUtils
                     "do object", 
                     lambda {
                         command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, nil)
-                        CatalystInterfaceUtils::executeCommandAgainstObjectRestricted(object, command)                        
+                        CatalystInterfaceUtils::executeCommandAgainstObject(object, command)
                     }
                 ],
                 [
@@ -284,7 +279,7 @@ class CatalystInterfaceUtils
                 exit
             end
 
-            CatalystInterfaceUtils::executeCommandAgainstObjectFull(object, command, standardlp, displayobjects)
+            CatalystInterfaceUtils::executeCommandAgainstObject(object, command, standardlp, displayobjects)
 
         }
     end
