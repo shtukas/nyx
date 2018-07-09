@@ -205,7 +205,7 @@ class CatalystInterfaceUtils
             end
             # -----------------------------------------------------------------------------------
 
-            object = displayobjects.take(standardlp).last
+            object = displayobjects.clone.take(standardlp).last
 
             # --------------------------------------------------------------------------------
             if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
@@ -230,26 +230,29 @@ class CatalystInterfaceUtils
             end
             # --------------------------------------------------------------------------------
 
+            # --------------------------------------------------------------------------------
+            # Listing display
             amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
-            displayobjects = displayobjects.take(amountToDisplay)
+            displayobjectsx = displayobjects.clone.take(amountToDisplay)
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
             position = 0
-            if displayobjects.any?{|object| object["metric"]>1 } then
-                while displayobjects.any?{|object| object["metric"]>1 } do
-                    object = displayobjects.shift
+            if displayobjectsx.any?{|object| object["metric"]>1 } then
+                while displayobjectsx.any?{|object| object["metric"]>1 } do
+                    xobject = displayobjectsx.shift
                     position = position+1
-                    puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position, standardlp)
+                    puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(xobject, position, standardlp)
                 end
-                if displayobjects.any?{|object| object["metric"]<=1 } then
+                if displayobjectsx.any?{|object| object["metric"]<=1 } then
                     puts ""
                 end
             end
-            displayobjects.each{|object|
+            displayobjectsx.each{|object|
                 position = position+1
                 puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position, standardlp)
             }
+            # --------------------------------------------------------------------------------
 
             puts ""
 
@@ -260,7 +263,7 @@ class CatalystInterfaceUtils
                 exit
             end
 
-            CatalystInterfaceUtils::executeCommandAgainstObject(object, command, standardlp, displayobjects)
+            CatalystInterfaceUtils::executeCommandAgainstObject(object, command, standardlp, displayobjects.clone)
 
         }
     end
