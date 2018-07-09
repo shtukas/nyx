@@ -36,11 +36,12 @@ class AgentProjects
             .select{|projectuuid| FKVStore::getOrNull("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}").nil? }
             .map{|projectuuid| 
                 timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+                timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(projectuuid, timestructure)
                 object              = {}
                 object["uuid"]      = projectuuid
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = MetricsOfTimeStructures::metric2(projectuuid, 0.1, 0.2, 0.6, timestructure) + CommonsUtils::traceToMetricShift(projectuuid)
-                object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)} ( #{(100*TimeStructuresOperator::timeStructureRatioDoneOrNull(projectuuid, timestructure)).round(2)} % of #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours [today] )"
+                object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
                 object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
                 object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(projectuuid)
@@ -57,11 +58,12 @@ class AgentProjects
                     timestructure = {}
                     timestructure["time-unit-in-days"] = referenceTimeStructure["time-unit-in-days"]
                     timestructure["time-commitment-in-hours"] = referenceTimeStructure["time-commitment-in-hours"] * item["timeshare"]
+                    timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
                     object              = {}
                     object["uuid"]      = item["uuid"]
                     object["agent-uid"] = self.agentuuid()
                     object["metric"]    = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.8, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
-                    object["announce"]  = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]} ( #{(100*TimeStructuresOperator::timeStructureRatioDoneOrNull(item["uuid"], timestructure)).round(2)} % of #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours [today] )"
+                    object["announce"]  = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
                     object["commands"]  = Chronos::isRunning(item["uuid"]) ? ["stop-secondary"] : ["start-secondary"]
                     object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop-secondary" : "start-secondary"
                     object["is-running"] = Chronos::isRunning(item["uuid"])

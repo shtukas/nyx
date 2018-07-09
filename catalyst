@@ -312,10 +312,12 @@ Thread.new {
             referenceTimeStructure = data["reference-time-structure"]
             data["local-commitments"]
                 .each{|item|
+                    next if !Chronos::isRunning(item["uuid"])
                     timestructure = {}
                     timestructure["time-unit-in-days"] = referenceTimeStructure["time-unit-in-days"]
                     timestructure["time-commitment-in-hours"] = referenceTimeStructure["time-commitment-in-hours"] * item["timeshare"]
-                    if TimeStructuresOperator::timeStructureRatioDoneOrNull(item["uuid"], timestructure) > 1 then
+                    timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
+                    if ratio > 1 then
                         system("terminal-notifier -title 'Catalyst Sub-Project ' -message 'project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]} is done'")
                         sleep 2
                     end
@@ -330,12 +332,14 @@ Thread.new {
                 filepath, packet = data
                 # object: { :uuid, :description, :timestructure }
                 uuid = packet["uuid"]
+                next if !Chronos::isRunning(uuid)
                 description = packet["description"]
                 timestructure = packet["timestructure"]
-                if TimeStructuresOperator::timeStructureRatioDoneOrNull(uuid, timestructure) > 1 then
+                timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(uuid, timestructure)
+                if ratio > 1 then
                     system("terminal-notifier -title 'Catalyst Sub-Project ' -message 'floating time structures: #{description} is done'")
                     sleep 2
-                end                  
+                end
             }
 
         sleep 60

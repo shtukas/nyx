@@ -59,11 +59,12 @@ class FloatingTimeStructures
                 uuid = packet["uuid"]
                 description = packet["description"]
                 timestructure = packet["timestructure"]
+                timedoneInHours, timetodoInHours, ratio = TimeStructureOperator::doneMetricsForTimeStructure(projectuuid, timestructure)
                 object              = {}
                 object["uuid"]      = uuid
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = MetricsOfTimeStructures::metric2(uuid, 0.5, 0.5, 0.80, timestructure) + CommonsUtils::traceToMetricShift(uuid)
-                object["announce"]  = "floating: #{description} ( #{(100*TimeStructuresOperator::timeStructureRatioDoneOrNull(uuid, timestructure)).round(2)} % of #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours [today] )"
+                object["announce"]  = "floating: #{description} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
                 object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(uuid)
