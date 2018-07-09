@@ -81,15 +81,18 @@ class AgentProjects
             Chronos::start(object["uuid"])
         end
         if command=="stop" then
-            Chronos::stop(object["uuid"])
+            timespanInSeconds = Chronos::stop(object["uuid"])
+            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
         end
         if command=="start-secondary" then
             Chronos::start(object["uuid"])
-            Chronos::start(object["item-data"]["data"]["projectuuid"])
+            timespanInSeconds = Chronos::start(object["item-data"]["data"]["projectuuid"])
+            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
         end
         if command=="stop-secondary" then
             Chronos::stop(object["uuid"])
-            Chronos::stop(object["item-data"]["data"]["projectuuid"])
+            timespanInSeconds = Chronos::stop(object["item-data"]["data"]["projectuuid"])
+            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
         end
     end
 end

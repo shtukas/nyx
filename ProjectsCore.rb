@@ -51,9 +51,55 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
-    # Local Time Structures
+    # ProjectsCore::createNewProject(projectname, timeUnitInDays, timeCommitmentInHours)
+    # ProjectsCore::projectUUID2NameOrNull(projectuuid)
+
+    def self.createNewProject(projectname, timeUnitInDays, timeCommitmentInHours)
+        projectuuid = SecureRandom.hex(4)
+        FileUtils.mkpath("/Galaxy/Projects/#{projectname}")
+        File.open("/Galaxy/Projects/#{projectname}/.uuid", "w"){|f| f.write(projectuuid) }
+        TimeStructuresOperator::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
+        projectuuid
+    end
+
+    def self.projectUUID2NameOrNull(projectuuid)
+        ProjectsCore::fs_locations()
+            .select{|location| projectuuid == ProjectsCore::fs_location2UUID(location) }
+            .each{|location|
+                return File.basename(location)
+            }
+        nil
+    end
+
+    # ---------------------------------------------------
+    # Time Struture
+
+    # ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
     # ProjectsCore::updateLocalTimeStructures()
     # ProjectsCore::localTimeStructuresDataFiles()
+    # ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
+    # ProjectsCore::getCummulatedTodayCommonTimeInSeconds()
+    # ProjectsCore::projectsTimes() # [averageDailyCommitmentInHours, doneInHours, percentageDone]
+
+    def self.getTimeStructureAskIfAbsent(projectuuid)
+        timestructure = TimeStructuresOperator::getTimeStructureOrNull(projectuuid)
+        if timestructure.nil? then
+            puts "Setting Time Structure for project '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}'"
+            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f
+            timestructure = TimeStructuresOperator::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
+        end
+        timestructure
+    end
+
+    def self.averageDailyCommitmentInHours()
+        ProjectsCore::projectsUUIDs()
+        .map{|projectuuid|
+            timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
+            time = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
+        }
+        .inject(0, :+)
+    end
 
     def self.updateLocalTimeStructures()
         ProjectsCore::projectsUUIDs()
@@ -82,50 +128,19 @@ class ProjectsCore
             .compact
     end
 
-    # ---------------------------------------------------
-    # ProjectsCore::createNewProject(projectname, timeUnitInDays, timeCommitmentInHours)
-    # ProjectsCore::projectUUID2NameOrNull(projectuuid)
-
-    def self.createNewProject(projectname, timeUnitInDays, timeCommitmentInHours)
-        projectuuid = SecureRandom.hex(4)
-        FileUtils.mkpath("/Galaxy/Projects/#{projectname}")
-        File.open("/Galaxy/Projects/#{projectname}/.uuid", "w"){|f| f.write(projectuuid) }
-        TimeStructuresOperator::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
-        projectuuid
+    def self.updateTodayCommonTimeBySeconds(timespanInSeconds)
+        MiniFIFOQ::MiniFIFOQ::push("80077ab5-fcc1-4d54-a88b-3d3666e00782:#{CommonsUtils::currentDay()}", timespanInSeconds)
     end
 
-    def self.projectUUID2NameOrNull(projectuuid)
-        ProjectsCore::fs_locations()
-            .select{|location| projectuuid == ProjectsCore::fs_location2UUID(location) }
-            .each{|location|
-                return File.basename(location)
-            }
-        nil
+    def self.getCummulatedTodayCommonTimeInSeconds()
+        MiniFIFOQ::values("80077ab5-fcc1-4d54-a88b-3d3666e00782:#{CommonsUtils::currentDay()}").inject(0, :+)
     end
 
-    # ---------------------------------------------------
-    # Time Struture
-
-    # ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
-
-    def self.getTimeStructureAskIfAbsent(projectuuid)
-        timestructure = TimeStructuresOperator::getTimeStructureOrNull(projectuuid)
-        if timestructure.nil? then
-            puts "Setting Time Structure for project '#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}'"
-            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f
-            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f
-            timestructure = TimeStructuresOperator::setTimeStructure(projectuuid, timeUnitInDays, timeCommitmentInHours)
-        end
-        timestructure
-    end
-
-    def self.averageDailyCommitmentInHours()
-        ProjectsCore::projectsUUIDs()
-        .map{|projectuuid|
-            timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
-            time = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
-        }
-        .inject(0, :+)
+    def self.projectsTimes() # [averageDailyCommitmentInHours, doneInHours, percentageDone]
+        averageDailyCommitmentInHours = ProjectsCore::averageDailyCommitmentInHours()
+        doneInHours = ProjectsCore::getCummulatedTodayCommonTimeInSeconds().to_f/3600
+        percentageDone = (100*doneInHours).to_f/averageDailyCommitmentInHours
+        [averageDailyCommitmentInHours, doneInHours, percentageDone]
     end
 
     # ---------------------------------------------------

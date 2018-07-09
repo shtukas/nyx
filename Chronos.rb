@@ -3,7 +3,7 @@
 # Chronos::status(uuid): [boolean, null or unixtime]
 # Chronos::isRunning(uuid)
 # Chronos::start(uuid)
-# Chronos::stop(uuid)
+# Chronos::stop(uuid): Integer # return timespan
 # Chronos::addTimeInSeconds(uuid, timespan)
 # Chronos::timings(uuid)
 # Chronos::summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
@@ -34,6 +34,7 @@ class Chronos
         Chronos::addTimeInSeconds(uuid, timespan)
         status = [false, nil]
         FKVStore::set("status:d0742c76-b83a-4fa4-9264-cfb5b21f8dc4:#{uuid}", JSON.generate(status))
+        timespan
     end
 
     def self.addTimeInSeconds(uuid, timespan)

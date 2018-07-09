@@ -1,5 +1,11 @@
 # encoding: utf-8
 
+# MiniFIFOQ::size(queueuuid)
+# MiniFIFOQ::values(queueuuid)
+# MiniFIFOQ::push(queueuuid, value)
+# MiniFIFOQ::getFirstOrNull(queueuuid)
+# MiniFIFOQ::takeFirstOrNull(queueuuid)
+# MiniFIFOQ::takeWhile(queueuuid, xlambda)
 
 # ------------------------------------------------------------------------
 
