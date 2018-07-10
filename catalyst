@@ -94,6 +94,13 @@ class CatalystInterfaceUtils
         str
     end
 
+    def self.nextMetric0928()
+        objects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
+            .select{|object| CommonsUtils::hasMetricOverride(object["uuid"]) }
+        return 5 if objects.size == 0
+        0.5*objects.map{|object| object["metric"] }.min + 0.5
+    end
+
     def self.executeCommandAgainstObject(object, command, standardlp, displayobjects)
         if command=="." then
             
@@ -104,7 +111,14 @@ class CatalystInterfaceUtils
         end
         if command.start_with?("metric") and !command.start_with?("metric:") then
             _, metric = StringParser::decompose(command)
-            CommonsUtils::setMetricOverride(object["uuid"], metric.to_f)
+            # We currently assume that it's either a float or 'next'
+            metric = 
+                if metric == "next" then
+                    CatalystInterfaceUtils::nextMetric0928()
+                else
+                    metric.to_f
+                end
+            CommonsUtils::setMetricOverride(object["uuid"], metric)
             CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
             return
         end
