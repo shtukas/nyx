@@ -354,7 +354,7 @@ Thread.new {
                     timestructure["time-commitment-in-hours"] = referenceTimeStructure["time-commitment-in-hours"] * item["timeshare"]
                     timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
                     if ratio > 1 then
-                        system("terminal-notifier -title 'Catalyst Sub-Project ' -message 'project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / sub: #{item["description"]} is done'")
+                        system("terminal-notifier -title 'Catalyst Sub-Project ' -message '#{item["description"]} (#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}) is done'")
                         sleep 2
                     end
                 }
