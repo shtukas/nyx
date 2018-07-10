@@ -323,6 +323,7 @@ class CommonsUtils
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
         puts "    metric <metric> | next # set metric override for the item, if 'next' either 5 or mid between lowest metric and 1"
+        puts "    drop # drop the item's metric override"
         puts "    require <requirement: String>"
         puts "    requirement remove <requirement: String>"
         puts "    command ..."

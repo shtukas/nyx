@@ -102,11 +102,17 @@ class CatalystInterfaceUtils
     end
 
     def self.executeCommandAgainstObject(object, command, standardlp, displayobjects)
-        if command=="." then
+        # The reason why we have this function and processObjectAndCommand as separate function is that they have different signatures
+        # That having been said, it is true that this function could just rewrite the object and/or the command.
+        if command == "." then
             return
         end
-        if command=="+" then
+        if command == "+" then
             CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+            return
+        end
+        if command == "drop" then
+            CommonsUtils::removeMetricOverride(object["uuid"])
             return
         end
         if command.start_with?("metric") and !command.start_with?("metric:") then
