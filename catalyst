@@ -240,20 +240,6 @@ class CatalystInterfaceUtils
                 next
             end
 
-            # -----------------------------------------------------------------------------------
-            # [] Between 10am and 4pm, week days, anything with a metric >= 0.2 that doesn't have a metric override, should be reviewd and a metric added to it
-
-            if CommonsUtils::isWeekDay() and Time.new.hour >= 10 and Time.new.hour < 16 then
-                displayobjectsx = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
-                    .select{|object| object["metric"] >= 0.5 }
-                if displayobjectsx.any?{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) } then
-                    object = displayobjectsx.select{|object| !CommonsUtils::hasMetricOverride(object["uuid"]) }.first
-                    CatalystInterfaceUtils::processObjectForMetricRequirement(object, displayobjects)
-                    next
-                end
-            end
-            # -----------------------------------------------------------------------------------
-
             object = displayobjects.clone.take(standardlp).last
 
             # --------------------------------------------------------------------------------
