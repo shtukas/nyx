@@ -556,7 +556,6 @@ class CommonsUtils
     # CommonsUtils::removeMetricOverride(uuid)
 
     def self.setMetricOverride(uuid, metric)
-        puts JSON.generate([uuid, metric])
         FKVStore::set("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{CommonsUtils::currentDay()}:#{uuid}", metric)
     end
 

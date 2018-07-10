@@ -156,7 +156,7 @@ class CatalystInterfaceUtils
     end
 
     def self.processObjectForMetricRequirement(object, displayobjects)
-        system("clear")
+        puts ""
         displayobjects
             .select{|object| object["metric"]>1 }
             .each{|object| 
@@ -174,6 +174,28 @@ class CatalystInterfaceUtils
         print "--> "
         command = STDIN.gets().strip
         command
+    end
+
+    def self.shouldReorganiseMetricOverrides(displayobjects)
+        displayobjects
+            .select{|object| CommonsUtils::hasMetricOverride(object["uuid"]) }
+            .any?{|object| object["metric"]<2 or object["metric"]>9 }
+    end
+
+    def self.reorganiseMetricOverrides(displayobjects)
+        objects = displayobjects
+            .select{|object| CommonsUtils::hasMetricOverride(object["uuid"]) }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] } # ordered from the one with the lowest metric to the one with the highest
+        if objects.size==1 then
+            object = objects.first
+            CommonsUtils::setMetricOverride(object["uuid"], 5)
+            return
+        end
+        # At this point we have more than one object
+        count = objects.size # >= 2
+        objects.each_with_index{|object, indx|
+            CommonsUtils::setMetricOverride(object["uuid"], 4 + indx*4.to_f/count)
+        }
     end
 
     def self.displayLoop(codehash)
@@ -207,8 +229,14 @@ class CatalystInterfaceUtils
             standardlp = CommonsUtils::getStandardListingPosition()
             displayobjects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
 
+            if CatalystInterfaceUtils::shouldReorganiseMetricOverrides(displayobjects) then
+                CatalystInterfaceUtils::reorganiseMetricOverrides(displayobjects)
+                next
+            end
+
             # -----------------------------------------------------------------------------------
             # [] Between 10am and 4pm, week days, anything with a metric >= 0.2 that doesn't have a metric override, should be reviewd and a metric added to it
+
             if CommonsUtils::isWeekDay() and Time.new.hour >= 10 and Time.new.hour < 16 then
                 displayobjectsx = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
                     .select{|object| object["metric"] >= 0.5 }
@@ -223,6 +251,7 @@ class CatalystInterfaceUtils
             object = displayobjects.clone.take(standardlp).last
 
             # --------------------------------------------------------------------------------
+            # Checking that the object about to display is not orphan
             if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
                 LucilleCore::pressEnterToContinue()
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
