@@ -31,7 +31,6 @@ class AgentProjects
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        ProjectsCore::updateLocalTimeStructures()
         ProjectsCore::projectsUUIDs()
             .select{|projectuuid| FKVStore::getOrNull("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}").nil? }
             .map{|projectuuid| 
@@ -50,29 +49,6 @@ class AgentProjects
                 object            
             }
             .each{|object| TheFlock::addOrUpdateObject(object) }
-        ProjectsCore::localTimeStructuresDataFiles().each{|data|
-            projectuuid = data["projectuuid"]
-            referenceTimeStructure = data["reference-time-structure"]
-            data["local-commitments"]
-                .map{|item|
-                    timestructure = {}
-                    timestructure["time-unit-in-days"] = referenceTimeStructure["time-unit-in-days"]
-                    timestructure["time-commitment-in-hours"] = referenceTimeStructure["time-commitment-in-hours"] * item["timeshare"]
-                    timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
-                    object              = {}
-                    object["uuid"]      = item["uuid"]
-                    object["agent-uid"] = self.agentuuid()
-                    object["metric"]    = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.8, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
-                    object["announce"]  = "sub-project: #{item["description"]} ( #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} ) ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
-                    object["commands"]  = Chronos::isRunning(item["uuid"]) ? ["stop-secondary"] : ["start-secondary"]
-                    object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop-secondary" : "start-secondary"
-                    object["is-running"] = Chronos::isRunning(item["uuid"])
-                    object["item-data"] = {}
-                    object["item-data"]["data"] = data
-                    object                
-                }
-                .each{|object| TheFlock::addOrUpdateObject(object) }
-        }
     end
 
     def self.processObjectAndCommandFromCli(object, command)
@@ -84,16 +60,6 @@ class AgentProjects
         end
         if command=="stop" then
             timespanInSeconds = Chronos::stop(object["uuid"])
-            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
-        end
-        if command=="start-secondary" then
-            Chronos::start(object["uuid"])
-            timespanInSeconds = Chronos::start(object["item-data"]["data"]["projectuuid"])
-            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
-        end
-        if command=="stop-secondary" then
-            Chronos::stop(object["uuid"])
-            timespanInSeconds = Chronos::stop(object["item-data"]["data"]["projectuuid"])
             ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
         end
     end
