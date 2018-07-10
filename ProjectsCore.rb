@@ -133,7 +133,7 @@ class ProjectsCore
     end
 
     def self.getCummulatedTodayCommonTimeInSeconds()
-        MiniFIFOQ::values("80077ab5-fcc1-4d54-a88b-3d3666e00782:#{CommonsUtils::currentDay()}").inject(0, :+)
+        MiniFIFOQ::values("80077ab5-fcc1-4d54-a88b-3d3666e00782:#{CommonsUtils::currentDay()}").compact.inject(0, :+)
     end
 
     def self.projectsTimes() # [averageDailyCommitmentInHours, doneInHours, percentageDone]
