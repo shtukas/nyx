@@ -572,6 +572,7 @@ class AgentWave
         projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
         if projectuuid then
             Chronos::addTimeInSeconds(projectuuid, timeInSeconds)
+            ProjectsCore::updateTodayCommonTimeBySeconds(timeInSeconds)
         end
         AgentWave::rePublishWaveObjectAtFlock(uuid)
     end
