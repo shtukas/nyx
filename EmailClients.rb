@@ -244,6 +244,11 @@ class GeneralEmailClient
 
         waveTimeLineEmailUIDs = WaveEmailSupport::allEmailUIDs()
 
+        (metadataFolderEmailUIDs-waveTimeLineEmailUIDs).each{|emailuid|
+            puts "email agent: catayst item has been deleted. Marking email as deleted in metadata: #{emailuid}" if verbose
+            File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("deleted") }
+        }
+
         (metadataFolderEmailUIDs-serverEmailUIDs).each{|emailuid|
             # We have a local init email that is not longer on the server, needs to be removed
             puts "email agent: We have a local init email that is not longer on the server. Removing metadata and Wave item: #{emailuid}" if verbose
@@ -257,11 +262,6 @@ class GeneralEmailClient
 
         (waveTimeLineEmailUIDs-metadataFolderEmailUIDs).each{|emailuid|
 
-        }
-
-        (metadataFolderEmailUIDs-waveTimeLineEmailUIDs).each{|emailuid|
-            puts "email agent: catayst item has been deleted. Marking email as deleted in metadata: #{emailuid}" if verbose
-            File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("deleted") }
         }
 
         imap.expunge # delete all messages marked for deletion
