@@ -8,4 +8,4 @@ interface()
 
 generalFlockUpgrade()
 
-processObjectAndCommandFromCli(Flock, object, command)
+processObjectAndCommand(Flock, object, command)

@@ -26,13 +26,13 @@ Bob::registerAgent(
         "agent-name"      => "Stream",
         "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
         "general-upgrade" => lambda { AgentStream::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentStream::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentStream::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentStream::interface() }
     }
 )
 
 # AgentStream::agentuuid()
-# AgentStream::processObjectAndCommandFromCli(object, command)
+# AgentStream::processObjectAndCommand(object, command)
 
 # AgentStream::folderpaths(itemsfolderpath)
 # AgentStream::folderpath2uuid(folderpath)
@@ -166,7 +166,7 @@ class AgentStream
             }
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         uuid = object['uuid']
         if command=='folder' then
             system("open '#{object["item-data"]["folderpath"]}'")

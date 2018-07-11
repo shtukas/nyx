@@ -29,7 +29,7 @@ Bob::registerAgent(
         "agent-name"      => "Today",
         "agent-uid"       => "f989806f-dc62-4942-b484-3216f7efbbd9",
         "general-upgrade" => lambda { AgentToday::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentToday::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentToday::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentToday::interface() }
     }
 )
@@ -137,7 +137,7 @@ class AgentToday
         TheFlock::addOrUpdateObjects(objects)
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command=='done' then
             AgentToday::removeSectionFromFile(object['uuid'])
         end

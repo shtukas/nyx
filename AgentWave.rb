@@ -38,7 +38,7 @@ Bob::registerAgent(
         "agent-name"      => "Wave",
         "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
         "general-upgrade" => lambda { AgentWave::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentWave::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentWave::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentWave::interface() }
     }
 )
@@ -315,7 +315,7 @@ end
 # AgentWave::removeWaveMetadataFilesAtLocation(location)
 # AgentWave::interface()
 # AgentWave::generalFlockUpgrade()
-# AgentWave::processObjectAndCommandFromCli(object, command)
+# AgentWave::processObjectAndCommand(object, command)
 
 class AgentWave
 
@@ -538,24 +538,47 @@ class AgentWave
             }
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.doneObjectWithRepeatSchedule(object)
         uuid = object['uuid']
         schedule = object['schedule']
+        datetime = WaveSchedules::scheduleToDoNotShowDatetime(uuid, schedule)
+        TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
+        EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
+    end
 
-        doneObjectWithRepeatSchedule = lambda{|object|
-            uuid = object['uuid']
-            schedule = object['schedule']
-            datetime = WaveSchedules::scheduleToDoNotShowDatetime(uuid, schedule)
-            TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
-            EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
-        }
+    def self.doneObjectWithOneOffTask(object)
+        uuid = object['uuid']
+        TheFlock::removeObjectIdentifiedByUUID(uuid)
+        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
+        AgentWave::archiveWaveItem(uuid)
+    end
 
-        doneObjectWithOneOffTask = lambda {|object|
-            uuid = object['uuid']
-            TheFlock::removeObjectIdentifiedByUUID(uuid)
-            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-            AgentWave::archiveWaveItem(uuid)
-        }
+    def self.performDone(object)
+        uuid = object['uuid']
+        schedule = object['schedule']
+        if ["new", 'today', 'ondate'].include?(schedule['@']) then
+            self.doneObjectWithOneOffTask(object)
+        end
+        if ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week'].include?(schedule['@']) then
+            self.doneObjectWithRepeatSchedule(object)
+        end
+    end
+
+    def self.performStop(object)
+        uuid = object['uuid']
+        schedule = object['schedule']
+        Chronos::stop(uuid)
+        timeInSeconds = Chronos::summedTimespansWithDecayInSeconds(uuid, 1.to_f/24)
+        projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
+        if projectuuid then
+            Chronos::addTimeInSeconds(projectuuid, timeInSeconds)
+        end
+        AgentWave::rePublishWaveObjectAtFlock(uuid)
+    end
+
+    def self.processObjectAndCommand(object, command)
+        uuid = object['uuid']
+        schedule = object['schedule']
 
         if command=='start' then
             Chronos::start(uuid)
@@ -563,15 +586,10 @@ class AgentWave
         end
 
         if command=='stop' then
-            Chronos::stop(uuid)
-            timeInSeconds = Chronos::summedTimespansWithDecayInSeconds(uuid, 1.to_f/24)
-            projectuuid = nil
-            loop {
-                projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
-                break if !projectuuid.nil?
-            }
-            Chronos::addTimeInSeconds(projectuuid, timeInSeconds)
-            AgentWave::rePublishWaveObjectAtFlock(uuid)
+            self.performStop(object)
+            if object["commands"].include?("done") and LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+                self.performDone(object)
+            end
         end
 
         if command=='open' then
@@ -580,12 +598,10 @@ class AgentWave
         end
 
         if command=='done' then
-            if ["new", 'today', 'ondate'].include?(schedule['@']) then
-                doneObjectWithOneOffTask.call(object)
+            if Chronos::isRunning(uuid) then
+                self.performStop(object)
             end
-            if ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week'].include?(schedule['@']) then
-                doneObjectWithRepeatSchedule.call(object)
-            end
+            self.performDone(object)
         end
 
         if command=='recast' then

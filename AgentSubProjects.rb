@@ -13,7 +13,7 @@ Bob::registerAgent(
         "agent-name"      => "SubProjects",
         "agent-uid"       => "10f0ad1e-ff0e-4a8a-8c90-fe09de2342ab",
         "general-upgrade" => lambda { AgentSubProjects::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentSubProjects::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentSubProjects::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentSubProjects::interface() }
     }
 )
@@ -57,7 +57,7 @@ class AgentSubProjects
         }
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command=="start" then
             Chronos::start(object["uuid"])
             timespanInSeconds = Chronos::start(object["item-data"]["data"]["projectuuid"])

@@ -32,7 +32,7 @@ Bob::registerAgent(
         "agent-name"      => "Vienna",
         "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
         "general-upgrade" => lambda { AgentVienna::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentVienna::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentVienna::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentVienna::interface() }
     }
 )
@@ -65,7 +65,7 @@ end
 
 $viennaLinkFeeder = ViennaLinkFeeder.new()
 
-# AgentVienna::processObjectAndCommandFromCli(object, command)
+# AgentVienna::processObjectAndCommand(object, command)
 
 class AgentVienna
 
@@ -107,7 +107,7 @@ class AgentVienna
         TheFlock::addOrUpdateObject(object)
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command=='open' then
             system("open '#{object["item-data"]["link"]}'")
         end

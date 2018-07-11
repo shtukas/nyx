@@ -16,7 +16,7 @@ Bob::registerAgent(
         "agent-name"      => "WIS",
         "agent-uid"       => "3397e320-6c09-423d-ac58-2aea5f85eacb",
         "general-upgrade" => lambda { AgentWIS::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentWIS::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentWIS::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentWIS::interface() }
     }
 )
@@ -47,7 +47,7 @@ class AgentWIS
         TheFlock::addOrUpdateObject(object)
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command == "8ec2da5f-a46b-428b-9484-046232aa116d" then
             uri = URI.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/wis/board-url").strip)
             response = Net::HTTP.get_response(uri)

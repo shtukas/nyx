@@ -14,7 +14,7 @@ Bob::registerAgent(
         "agent-name"      => "BabyNights",
         "agent-uid"       => "83837e64-554b-4dd0-a478-04386d8010ea",
         "general-upgrade" => lambda { AgentBabyNights::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentBabyNights::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentBabyNights::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentBabyNights::interface() }
     }
 )
@@ -50,7 +50,7 @@ class AgentBabyNights
         end
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command == "595bc18c-48a9-4fa2-bfd3-8795f8902766" then
             xname = nil
             loop {

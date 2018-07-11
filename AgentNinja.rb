@@ -10,7 +10,7 @@ Bob::registerAgent(
         "agent-name"      => "Ninja",
         "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
         "general-upgrade" => lambda { AgentNinja::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentNinja::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentNinja::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentNinja::interface() }
     }
 )
@@ -62,7 +62,7 @@ class AgentNinja
         TheFlock::addOrUpdateObject(object)
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command == "play" then
             folderpath = object["item-data"]["ninja-folderpath"]
             system("ninja api:play-folderpath '#{folderpath}'")

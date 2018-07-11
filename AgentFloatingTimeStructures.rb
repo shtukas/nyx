@@ -32,7 +32,7 @@ Bob::registerAgent(
         "agent-name"      => "FloatingTimeStructures",
         "agent-uid"       => "b620169b-1fb4-4362-9e84-af0e9b941dc8",
         "general-upgrade" => lambda { FloatingTimeStructures::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| FloatingTimeStructures::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| FloatingTimeStructures::processObjectAndCommand(object, command) },
         "interface"       => lambda{ FloatingTimeStructures::interface() }
     }
 )
@@ -77,7 +77,7 @@ class FloatingTimeStructures
             .each{|object| TheFlock::addOrUpdateObject(object) }
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command=='start' then
             Chronos::start(object["uuid"])
         end

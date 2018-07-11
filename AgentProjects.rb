@@ -13,7 +13,7 @@ Bob::registerAgent(
         "agent-name"      => "Projects",
         "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
         "general-upgrade" => lambda { AgentProjects::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentProjects::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| AgentProjects::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentProjects::interface() }
     }
 )
@@ -51,7 +51,7 @@ class AgentProjects
             .each{|object| TheFlock::addOrUpdateObject(object) }
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command=="dive" then
             ProjectsCore::ui_projectDive(object["uuid"])
         end

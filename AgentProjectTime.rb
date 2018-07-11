@@ -32,7 +32,7 @@ Bob::registerAgent(
         "agent-name"      => "ProjectTime",
         "agent-uid"       => "3ae4a853-8ddd-438e-80a4-b078e030ca76",
         "general-upgrade" => lambda { ProjectTime::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| ProjectTime::processObjectAndCommandFromCli(object, command) },
+        "object-command-processor" => lambda{ |object, command| ProjectTime::processObjectAndCommand(object, command) },
         "interface"       => lambda{ ProjectTime::interface() }
     }
 )
@@ -77,7 +77,7 @@ class ProjectTime
             .each{|object| TheFlock::addOrUpdateObject(object) }
     end
 
-    def self.processObjectAndCommandFromCli(object, command)
+    def self.processObjectAndCommand(object, command)
         if command=='start' then
             Chronos::start(object["uuid"])
         end
