@@ -184,13 +184,13 @@ class CatalystInterfaceUtils
 
     def self.shouldReorganiseMetricOverrides(displayobjects)
         displayobjects
-            .select{|object| CommonsUtils::hasMetricOverride(object["uuid"]) }
+            .select{|object| object["metric"]>1  }
             .any?{|object| object["metric"]<2 or object["metric"]>9 }
     end
 
     def self.reorganiseMetricOverrides(displayobjects)
         objects = displayobjects
-            .select{|object| CommonsUtils::hasMetricOverride(object["uuid"]) }
+            .select{|object| object["metric"]>1 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] } # ordered from the one with the lowest metric to the one with the highest
         if objects.size==1 then
             object = objects.first
