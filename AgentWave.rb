@@ -402,7 +402,7 @@ class AgentWave
     end
 
     def self.commands(schedule)
-        commands = ["open", "done", "<uuid>", "recast", "description:", "folder", "destroy", ">stream", ">lib", "start", "stop"]
+        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy", ">stream", ">lib", "start", "stop"]
         commands
     end
 
@@ -602,6 +602,13 @@ class AgentWave
                 self.performStop(object)
             end
             self.performDone(object)
+        end
+
+        if command=='loop' then
+            return if schedule["@"] != "new"
+            schedule["unixtime"] = Time.new.to_f
+            AgentWave::writeScheduleToDisk(uuid, schedule)
+            return
         end
 
         if command=='recast' then

@@ -498,7 +498,8 @@ class CommonsUtils
         # object needed
 
         if CommonsUtils::hasMetricOverride(object["uuid"]) then
-            if expression=="done" or LucilleCore::askQuestionAnswerAsBoolean("Should remove metric override? : ") then
+            b1 = ["start", "open"].include?(expression)
+            if !b1 and ( expression=="done" or LucilleCore::askQuestionAnswerAsBoolean("Should remove metric override? : ") ) then
                 CommonsUtils::removeMetricOverride(object["uuid"])
             end
         end

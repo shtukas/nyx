@@ -130,7 +130,7 @@ class ProjectsCore
     end
 
     def self.updateTodayCommonTimeBySeconds(timespanInSeconds)
-        MiniFIFOQ::MiniFIFOQ::push("80077ab5-fcc1-4d54-a88b-3d3666e00782:#{CommonsUtils::currentDay()}", timespanInSeconds)
+        MiniFIFOQ::push("80077ab5-fcc1-4d54-a88b-3d3666e00782:#{CommonsUtils::currentDay()}", timespanInSeconds)
     end
 
     def self.getCummulatedTodayCommonTimeInSeconds()
