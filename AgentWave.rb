@@ -571,8 +571,7 @@ class AgentWave
         timeInSeconds = Chronos::summedTimespansWithDecayInSeconds(uuid, 1.to_f/24)
         projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
         if projectuuid then
-            Chronos::addTimeInSeconds(projectuuid, timeInSeconds)
-            ProjectsCore::updateTodayCommonTimeBySeconds(timeInSeconds)
+            ProjectsCore::addTimeInSecondsToProject(projectuuid, timeInSeconds)
         end
         AgentWave::rePublishWaveObjectAtFlock(uuid)
     end

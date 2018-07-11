@@ -88,7 +88,7 @@ class ProjectTime
             doneTimeInSeconds = Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, 1)
             if doneTimeInSeconds.to_f/3600 > hours then
                 projectuuid = object["project-uuid"]
-                Chronos::addTimeInSeconds(projectuuid, doneTimeInSeconds)
+                ProjectsCore::addTimeInSecondsToProject(projectuuid, doneTimeInSeconds)
                 FileUtils.rm("/Galaxy/DataBank/Catalyst/Agents-Data/project-time/#{uuid}.json")
             end
         end

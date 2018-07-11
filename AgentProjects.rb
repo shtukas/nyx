@@ -40,7 +40,7 @@ class AgentProjects
                 object["uuid"]      = projectuuid
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = MetricsOfTimeStructures::metric2(projectuuid, 0.1, 0.2, 0.6, timestructure) + CommonsUtils::traceToMetricShift(projectuuid)
-                object["announce"]  = "project: #{ProjectsCore::projectToString(projectuuid)} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
+                object["announce"]  = "project: #{ProjectsCore::ui_projectToString(projectuuid)} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
                 object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
                 object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(projectuuid)

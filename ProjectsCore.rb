@@ -80,6 +80,7 @@ class ProjectsCore
     # ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
     # ProjectsCore::getCummulatedTodayCommonTimeInSeconds()
     # ProjectsCore::projectsTimes() # [averageDailyCommitmentInHours, doneInHours, percentageDone]
+    # ProjectsCore::addTimeInSecondsToProject(projectuuid, timeInSeconds)
 
     def self.getTimeStructureAskIfAbsent(projectuuid)
         timestructure = TimeStructuresOperator::getTimeStructureOrNull(projectuuid)
@@ -143,8 +144,13 @@ class ProjectsCore
         [averageDailyCommitmentInHours, doneInHours, percentageDone]
     end
 
+    def self.addTimeInSecondsToProject(projectuuid, timeInSeconds)
+        Chronos::addTimeInSeconds(projectuuid, timeInSeconds)
+        ProjectsCore::updateTodayCommonTimeBySeconds(timeInSeconds)
+    end
+
     # ---------------------------------------------------
-    # ProjectsCore::projectToString(projectuuid)
+    # ProjectsCore::ui_projectToString(projectuuid)
     # ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll(): projectuuid: String
     # ProjectsCore::ui_projectsDive()
     # ProjectsCore::ui_projectDive(projectuuid)
@@ -159,13 +165,13 @@ class ProjectsCore
         "#{"%5.2f" % timestructure["time-commitment-in-hours"]} hours, #{"%4.2f" % (timestructure["time-unit-in-days"])} days"
     end
 
-    def self.projectToString(projectuuid)
+    def self.ui_projectToString(projectuuid)
         "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
     def self.ui_projectDive(projectuuid)
         puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
-        puts ProjectsCore::projectToString(projectuuid)
+        puts ProjectsCore::ui_projectToString(projectuuid)
         loop {
             menuItem3 = "operation : start"  
             menuItem4 = "operation : set time structure"             
@@ -186,7 +192,7 @@ class ProjectsCore
             end
             if menuChoice == menuItem5 then
                 hours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-                Chronos::addTimeInSeconds(projectuuid, hours*3600)
+                ProjectsCore::addTimeInSecondsToProject(projectuuid, hours*3600)
                 next
             end
         }
@@ -197,7 +203,7 @@ class ProjectsCore
             projectuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull(
                 "projects", 
                 ProjectsCore::projectsUUIDs(), 
-                lambda{ |projectuuid| ProjectsCore::projectToString(projectuuid) })
+                lambda{ |projectuuid| ProjectsCore::ui_projectToString(projectuuid) })
             break if projectuuid.nil?
             ProjectsCore::ui_projectDive(projectuuid)
         }
