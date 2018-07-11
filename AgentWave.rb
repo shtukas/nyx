@@ -401,11 +401,12 @@ class AgentWave
         FileUtils.mv("#{folderpath}",targetFolder)
     end
 
-    def self.commands(folderProbeMetadata)
-        ["open", "done", "<uuid>", "recast", "description:", "folder", "destroy", ">stream", ">lib"]
+    def self.commands(schedule)
+        commands = ["open", "done", "<uuid>", "recast", "description:", "folder", "destroy", ">stream", ">lib", "start", "stop"]
+        commands
     end
 
-    def self.defaultExpression(folderProbeMetadata, schedule)
+    def self.defaultExpression(objectuuid, folderProbeMetadata, schedule)
         if folderProbeMetadata["target-type"] == "openable-file" then
             return "open"
         end
@@ -445,7 +446,7 @@ class AgentWave
         if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "every-this-day-of-the-week" then
             return "done"
         end
-        nil
+        Chronos::isRunning(objectuuid) ? "stop" : "start"
     end
 
     def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
@@ -481,26 +482,30 @@ class AgentWave
         object["agent-uid"] = self.agentuuid()
         object['metric'] = metric + CommonsUtils::traceToMetricShift(objectuuid)
         object['announce'] = announce
-        object['commands'] = AgentWave::commands(folderProbeMetadata)
-        object["default-expression"] = AgentWave::defaultExpression(folderProbeMetadata, schedule)
+        object['commands'] = AgentWave::commands(schedule)
+        object["default-expression"] = AgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule
+        object["is-running"] = Chronos::isRunning(objectuuid)
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location
         object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
         object
     end
 
+    def self.rePublishWaveObjectAtFlock(uuid)
+        object = AgentWave::makeCatalystObjectOrNull(uuid)
+        return if object.nil?
+        EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+        TheFlock::addOrUpdateObject(object)        
+    end
+
     def self.generalFlockUpgrade()
 
-        WaveDevOps::collectWave
+        WaveDevOps::collectWave()
 
         if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds("/x-space/x-cache", "21036e4c-dc76-4cb9-a6b7-40b786e00c87", 3600) then
             AgentWave::catalystUUIDsEnumerator()
-                .each{|uuid|
-                    object = AgentWave::makeCatalystObjectOrNull(uuid)
-                    EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
-                    TheFlock::addOrUpdateObject(object)                    
-                }
+                .each{|uuid| AgentWave::rePublishWaveObjectAtFlock(uuid) }
         end
 
         # ------------------------------------------------------------------------------
@@ -552,6 +557,23 @@ class AgentWave
             AgentWave::archiveWaveItem(uuid)
         }
 
+        if command=='start' then
+            Chronos::start(uuid)
+            AgentWave::rePublishWaveObjectAtFlock(uuid)
+        end
+
+        if command=='stop' then
+            Chronos::stop(uuid)
+            timeInSeconds = Chronos::summedTimespansWithDecayInSeconds(uuid, 1.to_f/24)
+            projectuuid = nil
+            loop {
+                projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
+                break if !projectuuid.nil?
+            }
+            Chronos::addTimeInSeconds(projectuuid, timeInSeconds)
+            AgentWave::rePublishWaveObjectAtFlock(uuid)
+        end
+
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
@@ -568,15 +590,13 @@ class AgentWave
 
         if command=='recast' then
             schedule = AgentWave::makeNewSchedule()
-            object['schedule'] = schedule
             AgentWave::writeScheduleToDisk(uuid, schedule)
             if File.exist?("#{catalystUUIDToItemFolderPathOrNull(uuid)}/email-metatada-emailuid.txt") then
                 puts "You are recastimg an email, removing file email-metatada-emailuid.txt"
                 LucilleCore::pressEnterToContinue()
                 FileUtils.rm("#{catalystUUIDToItemFolderPathOrNull(uuid)}/email-metatada-emailuid.txt")
             end
-            TheFlock::addOrUpdateObject(object)
-            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            AgentWave::rePublishWaveObjectAtFlock(uuid)
         end
 
         if command == 'description:' then
@@ -584,9 +604,7 @@ class AgentWave
             uuid = object["uuid"]
             folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
-            object = AgentWave::makeCatalystObjectOrNull(uuid)
-            TheFlock::addOrUpdateObject(object)
-            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
+            AgentWave::rePublishWaveObjectAtFlock(uuid)
         end
 
         if command=='folder' then
