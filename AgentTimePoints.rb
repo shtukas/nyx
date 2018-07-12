@@ -70,7 +70,7 @@ class AgentTimePoints
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = self.lisaToMetric(lisa)
                 object["announce"]  = "time point: #{description} ( #{100*ratio.round(2)} % of #{lisa["time-commitment-in-hours"]} hours )"
-                object["commands"]  = Chronos::isRunning(uuid) ? ["stop", "loop"] : ["start", "loop"]
+                object["commands"]  = Chronos::isRunning(uuid) ? ["stop", "loop"] : ["start", "loop", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(uuid)
                 object["item-data"] = {}
@@ -118,8 +118,12 @@ class AgentTimePoints
             end
         end
         if command=='loop' then
-           puts "You need to implement that one"
-           LucilleCore::pressEnterToContinue()
+            puts "You need to implement that one"
+            LucilleCore::pressEnterToContinue()
+        end
+        if command=='destroy' 
+            filepath = object["item-data"]["filepath"]
+            FileUtils.rm(filepath)
         end
     end
 end
