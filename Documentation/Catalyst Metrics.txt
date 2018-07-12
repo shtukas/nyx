@@ -3,11 +3,11 @@
 0.840 -> 0.850  Today+Calendar
 0.200 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats
-      -> 0.800  stream [not running]
+      -> 0.800  stream
       -> 0.800  Vienna
-0.100 -> 0.800  projects
-
-         0.600  Wave: new "made-on-date"
+0.600 -> 0.800  time:
+0.500 -> 0.600  sub-projects (pause at 0.1)
+0.200 -> 0.500  projects (pause at 0.1)
       -> 0.600  Ninja
 
          0.200  Water Level (items below this metric are not shown)

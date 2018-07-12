@@ -44,7 +44,7 @@ class AgentSubProjects
                     object              = {}
                     object["uuid"]      = item["uuid"]
                     object["agent-uid"] = self.agentuuid()
-                    object["metric"]    = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.8, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
+                    object["metric"]    = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.6, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
                     object["announce"]  = "sub-project: #{item["description"]} ( #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} ) ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
                     object["commands"]  = Chronos::isRunning(item["uuid"]) ? ["stop"] : ["start"]
                     object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop" : "start"

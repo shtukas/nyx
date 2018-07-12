@@ -310,7 +310,7 @@ class CommonsUtils
         puts "    metric: <metric: Float> <description: String> # To quickly build a wave item with a metric override"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
-        puts "    time: # floating time structure | project time commitment companion"
+        puts "    time: <float> <description: String>"
         puts ""
         puts "Special Commands (object targetting)"
         puts ":<p> is either :<integer> or :this"
@@ -414,42 +414,18 @@ class CommonsUtils
             return
         end
 
-        if expression == 'time:' then
-            LucilleCore::menuItemsWithLambdas([
-                [
-                    "floating time structure", 
-                    lambda {
-                        uuid = SecureRandom.hex(4)
-                        description = LucilleCore::askQuestionAnswerAsString("description: ")
-                        timestructure = {
-                            "time-unit-in-days" => LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f,
-                            "time-commitment-in-hours" => LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                        }
-                        data = {
-                            "uuid" => uuid,
-                            "description" => description,
-                            "timestructure" => timestructure
-                        }
-                        File.open("/Galaxy/DataBank/Catalyst/Agents-Data/floating-time-structures/#{LucilleCore::timeStringL22()}.json", "w") { |f| f.puts(JSON.pretty_generate(data)) }
-                    }
-                ],
-                [
-                    "project mini time commitment", 
-                    lambda {
-                        uuid = SecureRandom.hex(4)
-                        metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
-                        projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
-                        hours = LucilleCore::askQuestionAnswerAsString("commitment in hours: ").to_f
-                        packet = {
-                            "uuid" => uuid,
-                            "metric" => metric,
-                            "project-uuid" => projectuuid,
-                            "commitment-in-hours" => hours
-                        }
-                        File.open("/Galaxy/DataBank/Catalyst/Agents-Data/project-time/#{uuid}.json", "w") { |f| f.puts(JSON.pretty_generate(packet)) }
-                    }
-                ]
-            ])
+        if expression.start_with?('time:') then
+            token1, rest1 = StringParser::decompose(expression)
+            token2, rest2 = StringParser::decompose(rest1)
+            uuid = SecureRandom.hex(4)
+            description = rest2
+            data = {
+                "uuid" => uuid,
+                "unixtime" => Time.new.to_i,
+                "description" => description,
+                "time-commitment-in-hours" => token2.to_f
+            }
+            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/Lisa/#{LucilleCore::timeStringL22()}.json", "w") { |f| f.puts(JSON.pretty_generate(data)) }
             return
         end
 
