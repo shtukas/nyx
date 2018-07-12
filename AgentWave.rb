@@ -587,7 +587,7 @@ class AgentWave
 
         if command=='stop' then
             self.performStop(object)
-            if object["commands"].include?("done") and LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            if object["commands"].include?("done") and LucilleCore::askQuestionAnswerAsBoolean("Done ? ") then
                 self.performDone(object)
             end
         end

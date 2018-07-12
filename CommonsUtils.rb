@@ -417,15 +417,9 @@ class CommonsUtils
         if expression.start_with?('time:') then
             token1, rest1 = StringParser::decompose(expression)
             token2, rest2 = StringParser::decompose(rest1)
-            uuid = SecureRandom.hex(4)
             description = rest2
-            data = {
-                "uuid" => uuid,
-                "unixtime" => Time.new.to_i,
-                "description" => description,
-                "time-commitment-in-hours" => token2.to_f
-            }
-            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/time-points/#{LucilleCore::timeStringL22()}.json", "w") { |f| f.puts(JSON.pretty_generate(data)) }
+            timeCommitmentInHours = token2.to_f
+            TimePointsOperator::issueTimePoint(description, timeCommitmentInHours)
             return
         end
 

@@ -29,15 +29,15 @@ require_relative "Bob.rb"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "AgentTime",
+        "agent-name"      => "AgentTimePoints",
         "agent-uid"       => "02e64c07-28ff-4870-97fe-179cc895c094",
-        "general-upgrade" => lambda { AgentTime::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentTime::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentTime::interface() }
+        "general-upgrade" => lambda { AgentTimePoints::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentTimePoints::processObjectAndCommand(object, command) },
+        "interface"       => lambda{ AgentTimePoints::interface() }
     }
 )
 
-class AgentTime
+class AgentTimePoints
 
     def self.agentuuid()
         "02e64c07-28ff-4870-97fe-179cc895c094"
@@ -69,7 +69,7 @@ class AgentTime
                 object["uuid"]      = uuid
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = self.lisaToMetric(lisa)
-                object["announce"]  = "time: #{description} ( #{100*ratio.round(2)} % of #{lisa["time-commitment-in-hours"]} hours )"
+                object["announce"]  = "time point: #{description} ( #{100*ratio.round(2)} % of #{lisa["time-commitment-in-hours"]} hours )"
                 object["commands"]  = Chronos::isRunning(uuid) ? ["stop", "loop"] : ["start", "loop"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(uuid)
