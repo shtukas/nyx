@@ -89,33 +89,33 @@ class AgentTimePoints
     end
 
     def self.processObjectAndCommand(object, command)
-        uuid = object["uuid"]
         if command=='start' then
+            uuid = object["uuid"]
             Chronos::start(uuid)
         end
         if command=='stop' then
+            uuid = object["uuid"]
             timeSpanInSeconds = Chronos::stop(uuid)
             lisa     = object["item-data"]["lisa"]
             filepath = object["item-data"]["filepath"]
             puts "time: #{timeSpanInSeconds} seconds, #{(timeSpanInSeconds.to_f/3600).round(2)} hours"
-            choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("injection", ["no target", "project"])
+            choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("injection", ["no target", "project/sub-project"])
             return if choice.nil?
             if choice == "no target" then
                 TheFlock::removeObjectIdentifiedByUUID(uuid)
                 FileUtils.rm(filepath)
+                return
             end
-            if choice == "project" then
-                projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
-                return if projectuuid.nil?
-                ProjectsCore::addTimeInSecondsToProject(projectuuid, timeSpanInSeconds)
-                lisa = object["item-data"]["lisa"]
-                timestructure = { "time-unit-in-days"=> 1, "time-commitment-in-hours" => lisa["time-commitment-in-hours"] }
-                timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(uuid, timestructure)
-                if ratio > 1 then
-                    TheFlock::removeObjectIdentifiedByUUID(uuid)
-                    FileUtils.rm(filepath)
-                end
+            if choice == "project/sub-project" then
+                ProjectsCore::ui_donateTimeSpanInSecondsToProjectOrSubProject(timeSpanInSeconds)
             end
+            lisa = object["item-data"]["lisa"]
+            timestructure = { "time-unit-in-days"=> 1, "time-commitment-in-hours" => lisa["time-commitment-in-hours"] }
+            timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(uuid, timestructure)
+            if ratio > 1 then
+                TheFlock::removeObjectIdentifiedByUUID(uuid)
+                FileUtils.rm(filepath)
+            end            
         end
         if command=='loop' then
             puts "You need to implement that one"

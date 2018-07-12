@@ -60,13 +60,12 @@ class AgentSubProjects
     def self.processObjectAndCommand(object, command)
         if command=="start" then
             Chronos::start(object["uuid"])
-            timespanInSeconds = Chronos::start(object["item-data"]["data"]["projectuuid"])
-            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
         end
         if command=="stop" then
-            Chronos::stop(object["uuid"])
-            timespanInSeconds = Chronos::stop(object["item-data"]["data"]["projectuuid"])
-            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
+            itemuuid = object["uuid"]
+            timespanInSeconds = Chronos::stop(itemuuid)
+            projectuuid = object["item-data"]["data"]["projectuuid"]
+            ProjectsCore::addTimeInSecondsToProject(projectuuid, timespanInSeconds)
         end
     end
 end

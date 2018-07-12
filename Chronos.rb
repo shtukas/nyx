@@ -44,6 +44,7 @@ class Chronos
     def self.summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
         # The timeUnitInDays controls the rate of decay, we want the time of daily project to decay faster than the time for weekly projects
         MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+            .select{|pair| !pair[0].nil? and !pair[1].nil? }
             .map{|pair|
                 unixtime = pair[0]
                 timespan = pair[1]
