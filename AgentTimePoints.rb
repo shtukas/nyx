@@ -49,7 +49,7 @@ class AgentTimePoints
 
     def self.lisaToMetric(lisa)
         ageInHours = (Time.new.to_f - lisa['unixtime']).to_f/3600
-        0.6 + 0.8*(1-Math.exp(-ageInHours))
+        0.7 + 0.15*(1-Math.exp(-ageInHours))
     end
 
     def self.generalFlockUpgrade()

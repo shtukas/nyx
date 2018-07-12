@@ -81,9 +81,11 @@ class WaveSchedules
             }
         end
         if scheduleType=='sticky' then
+            fromHour = LucilleCore::askQuestionAnswerAsString("From hour (integer): ").to_i
             schedule = {
-                "uuid" => SecureRandom.hex,
-                "@"    => "sticky"
+                "uuid"      => SecureRandom.hex,
+                "@"         => "sticky",
+                "from-hour" => fromHour
             }
         end
         if scheduleType=='date' then
@@ -141,7 +143,11 @@ class WaveSchedules
             return "today"
         end
         if schedule['@'] == 'sticky' then
-            return "sticky"
+            # Backward compatibility
+            if schedule['from-hour'].nil? then
+                schedule['from-hour'] = 6
+            end
+            return "sticky, from: #{schedule['from-hour']}"
         end
         if schedule['@'] == 'ondate' then
             return "ondate: #{schedule['date']}"
@@ -211,7 +217,11 @@ class WaveSchedules
             return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
-            return Time.new.hour >= 6 ? 0.9 : 0
+            # Backward compatibility
+            if schedule['from-hour'].nil? then
+                schedule['from-hour'] = 6
+            end
+            return Time.new.hour >= schedule['from-hour'] ? 0.9 : 0
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
@@ -463,6 +473,9 @@ class AgentWave
 
     def self.interface()
         puts "You are interfacing with Wave"
+        puts "Republishing all items"
+        AgentWave::catalystUUIDsEnumerator()
+            .each{|uuid| AgentWave::rePublishWaveObjectAtFlock(uuid) }
         LucilleCore::pressEnterToContinue()
     end
 

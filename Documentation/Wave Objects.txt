@@ -29,8 +29,9 @@
 }
 
 {
-    "uuid" => SecureRandom.hex,
-    "@"    => "sticky"
+    "uuid"      => SecureRandom.hex,
+    "@"         => "sticky",
+    "from-hour" => Integer
 }
 
 {
