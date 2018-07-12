@@ -317,4 +317,11 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        sleep 32
+        Bob::generalFlockUpgrade()
+    }
+}
+
 CatalystInterfaceUtils::displayLoop(codehash)

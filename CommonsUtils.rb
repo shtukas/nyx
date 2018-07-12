@@ -425,7 +425,7 @@ class CommonsUtils
                 "description" => description,
                 "time-commitment-in-hours" => token2.to_f
             }
-            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/Lisa/#{LucilleCore::timeStringL22()}.json", "w") { |f| f.puts(JSON.pretty_generate(data)) }
+            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/time-points/#{LucilleCore::timeStringL22()}.json", "w") { |f| f.puts(JSON.pretty_generate(data)) }
             return
         end
 

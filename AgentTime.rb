@@ -54,9 +54,9 @@ class AgentTime
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/Lisa")
+        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/time-points")
             .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/Lisa/#{filename}" }
+            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/time-points/#{filename}" }
             .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
             .map{|data|
                 filepath, lisa = data
@@ -100,7 +100,10 @@ class AgentTime
             puts "time: #{timeSpanInSeconds} seconds, #{(timeSpanInSeconds.to_f/3600).round(2)} hours"
             choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("injection", ["no target", "project"])
             return if choice.nil?
-            return if choice == "no target"
+            if choice == "no target" then
+                TheFlock::removeObjectIdentifiedByUUID(uuid)
+                FileUtils.rm(filepath)
+            end
             if choice == "project" then
                 projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
                 return if projectuuid.nil?
@@ -109,6 +112,7 @@ class AgentTime
                 timestructure = { "time-unit-in-days"=> 1, "time-commitment-in-hours" => lisa["time-commitment-in-hours"] }
                 timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(uuid, timestructure)
                 if ratio > 1 then
+                    TheFlock::removeObjectIdentifiedByUUID(uuid)
                     FileUtils.rm(filepath)
                 end
             end
