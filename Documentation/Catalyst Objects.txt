@@ -1,4 +1,5 @@
 
+CatalystObject 
 {
     "uuid"       : (uuid)
     "agent-uid"  : String

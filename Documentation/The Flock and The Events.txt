@@ -28,20 +28,6 @@ flock = {
 }
 
 # -----------------------------------------
-# Catalyst Objects:
-
-{
-    "uuid"                : String (uuid)
-    "agent-uid"           : String (uuid)
-    "metric"              : Float
-    "announce"            : String
-    "commands"            : Array[String]
-    "default-expression"  : Null or String
-    "item-data"           : () # Agent specific metadata
-}
-
-
-# -----------------------------------------
 Events:
 
 nb: each event has a ":filepath:" key that is populated while reading from disk
@@ -63,9 +49,15 @@ nb: each event has a ":filepath:" key that is populated while reading from disk
 }
 
 {
-    "event-type" => "Flock:KeyValueStore:Set:1",
-    "key"        => key,
+    "event-type" => "Flock:KeyValueStore:Set:1"
+    "key"        => key
     "value"      => value
+}
+
+{
+    "event-type" => "Flock:KeyValueStore:Delete:1"
+    "event-time" => Time.new.to_f
+    "key"        => key
 }
 
 

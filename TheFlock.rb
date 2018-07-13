@@ -128,6 +128,7 @@ end
 
 class FKVStore
     def self.getOrNull(key)
+        kvstoreTimingsMark(key)
         $flock["kvstore"][key]
     end
 
@@ -142,6 +143,7 @@ class FKVStore
     def self.set(key, value)
         $flock["kvstore"][key] = value
         EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
+        kvstoreTimingsMark(key)
     end
 
     def self.delete(key)
@@ -152,3 +154,15 @@ end
 
 # ----------------------------------------------------------------
 
+$kvstoreTimings = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/kvstore-timings.json"))
+
+def kvstoreTimingsMark(key)
+    $kvstoreTimings[key] = Time.new.to_i
+end
+
+Thread.new {
+    loop {
+        sleep 600
+        File.open("/Galaxy/DataBank/Catalyst/kvstore-timings.json", "w"){|f| f.write(JSON.pretty_generate($kvstoreTimings)) }
+    }
+}
