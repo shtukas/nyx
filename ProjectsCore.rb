@@ -246,7 +246,11 @@ class ProjectsCore
             end
             if choice2 == "sub-projects" then
                 item = ProjectsCore::ui_interactivelySelectSubProjectItemOrNUll(projectuuid)
-                ProjectsCore::addTimeInSecondsToSubProject(item["uuid"], projectuuid, timeSpanInSeconds)
+                if item.nil? then
+                    ProjectsCore::addTimeInSecondsToSubProject(item["uuid"], projectuuid, timeSpanInSeconds)
+                else
+                    ProjectsCore::ui_donateTimeSpanInSecondsToProjectOrSubProject(timeSpanInSeconds)
+                end
             end
         else
             ProjectsCore::addTimeInSecondsToProject(projectuuid, timeSpanInSeconds)
