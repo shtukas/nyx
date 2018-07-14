@@ -16,6 +16,7 @@ require_relative "Bob.rb"
 
 # CommonsUtils::codeToDatetimeOrNull(code)
 # CommonsUtils::isLucille18()
+# CommonsUtils::isLucille19()
 # CommonsUtils::newBinArchivesFolderpath()
 # CommonsUtils::realNumbersToZeroOne(x, origin, unit)
 # CommonsUtils::simplifyURLCarryingString(string)
@@ -136,7 +137,11 @@ class CommonsUtils
     end
 
     def self.isLucille18()
-        ENV["COMPUTERLUCILLENAME"]==Config::get("PrimaryComputerName")
+        ENV["COMPUTERLUCILLENAME"] == "Lucille18"
+    end
+
+    def self.isLucille19()
+        ENV["COMPUTERLUCILLENAME"] == "Lucille19"
     end
     
     def self.getStandardListingPosition()

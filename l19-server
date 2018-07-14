@@ -1,0 +1,47 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require 'find'
+require 'drb/drb'
+require 'thread'
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require_relative "Events.rb"
+require_relative "TheFlock.rb"
+require_relative "CommonsUtils.rb"
+# -----------------------------------------------------------------
+
+if !CommonsUtils::isLucille19() then
+    puts "This should be ran on Lucille19"
+    exit
+end
+
+class EventsServer
+  def ping()
+    "pong"
+  end
+  def filepaths()
+    EventsManager::filepaths()
+  end
+  def l18Tol19(filepath, filecontents)
+    if !File.exists?(File.dirname(filepath)) then
+      FileUtils.mkdir(File.dirname(filepath))
+    end
+    File.open(filepath, "w"){|f| f.write(filecontents) }
+  end
+  def l19Tol18(filepath)
+    IO.read(filepath)
+  end
+  def shouldReloadFromTimeLine()
+    FileUtils.touch("/Users/pascal/Desktop/ShouldReloadFromTimeLine")
+  end
+end
+DRb.start_service("druby://:24868", EventsServer.new())
+DRb.thread.join

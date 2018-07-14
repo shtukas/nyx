@@ -18,6 +18,8 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require 'find'
+require 'drb/drb'
+require 'thread'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "catalyst.rb"
@@ -319,9 +321,37 @@ Thread.new {
 
 Thread.new {
     loop {
-        sleep 32
+        # To send on screen notifications
+        sleep 60
         Bob::generalFlockUpgrade()
     }
 }
+
+if CommonsUtils::isLucille18() then
+    Thread.new {
+        loop {
+            # To sync between Lucille18 and Lucille19
+            sleep 20
+            count = EventsSyncL18L19::sync()
+            if count > 0 then
+                FlockDiskIO::loadFromEventsTimeline()
+                DRbObject.new(nil, "druby://10.249.16.173:24868").shouldReloadFromTimeLine()
+            end
+        }
+    }
+end
+
+if CommonsUtils::isLucille19() then
+    Thread.new {
+        loop {
+            # To sync between Lucille18 and Lucille19
+            sleep 10
+            if File.exists?("/Users/pascal/Desktop/ShouldReloadFromTimeLine") then
+                FlockDiskIO::loadFromEventsTimeline()
+                FileUtils.rm("/Users/pascal/Desktop/ShouldReloadFromTimeLine")
+            end
+        }
+    }
+end
 
 CatalystInterfaceUtils::displayLoop(codehash)

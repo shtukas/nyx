@@ -128,7 +128,9 @@ end
 
 class FKVStore
     def self.getOrNull(key)
-        kvstoreTimingsMark(key)
+        if CommonsUtils::isLucille18() then
+            kvstoreTimingsMark(key)
+        end
         $flock["kvstore"][key]
     end
 
@@ -143,7 +145,9 @@ class FKVStore
     def self.set(key, value)
         $flock["kvstore"][key] = value
         EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
-        kvstoreTimingsMark(key)
+        if CommonsUtils::isLucille18() then
+            kvstoreTimingsMark(key)
+        end
     end
 
     def self.delete(key)

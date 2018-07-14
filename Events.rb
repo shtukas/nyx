@@ -61,6 +61,7 @@ end
 # EventsManager::pathToActiveEventsIndexFolder()
 # EventsManager::commitEventToTimeline(event)
 # EventsManager::eventsAsTimeOrderedArray()
+# EventsManager::filepaths()
 
 class EventsManager
     def self.pathToActiveEventsIndexFolder()
@@ -91,5 +92,14 @@ class EventsManager
             end
         end
         enum.to_a.sort{|e1,e2| e1["event-time"]<=>e2["event-time"] }
+    end
+    def self.filepaths()
+        enum = Enumerator.new do |filepaths|
+            Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|
+                next if File.basename(path)[-5,5] != '.json'
+                filepaths << path
+            end
+        end
+        enum.to_a
     end
 end

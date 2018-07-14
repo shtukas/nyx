@@ -26,7 +26,6 @@ require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 FlockDiskIO::loadFromEventsTimeline()
-Bob::generalFlockUpgrade()
 # -----------------------------------------------------------------
 description = ARGV[0]
 if description.nil? then
