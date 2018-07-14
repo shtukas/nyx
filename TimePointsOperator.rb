@@ -15,5 +15,6 @@ class TimePointsOperator
             "time-commitment-in-hours" => timeCommitmentInHours
         }
         File.open("/Galaxy/DataBank/Catalyst/Agents-Data/time-points/#{LucilleCore::timeStringL22()}.json", "w") { |f| f.puts(JSON.pretty_generate(data)) }
+        data
     end
 end

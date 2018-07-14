@@ -419,7 +419,9 @@ class CommonsUtils
             token2, rest2 = StringParser::decompose(rest1)
             description = rest2
             timeCommitmentInHours = token2.to_f
-            TimePointsOperator::issueTimePoint(description, timeCommitmentInHours)
+            timepoint = TimePointsOperator::issueTimePoint(timeCommitmentInHours, description)
+            puts JSON.pretty_generate(timepoint)
+            LucilleCore::pressEnterToContinue()
             return
         end
 
