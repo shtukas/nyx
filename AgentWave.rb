@@ -56,7 +56,7 @@ class WaveSchedules
         {
             "uuid" => SecureRandom.hex,
             "@"    => "new",
-            "unixtime" => Time.new.to_i
+            "unixtime" => Time.new.to_f
         }
     end
 
