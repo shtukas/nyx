@@ -298,6 +298,12 @@ class CatalystInterfaceUtils
 
             CatalystInterfaceUtils::executeCommandAgainstObject(object, command, standardlp, displayobjects.clone)
 
+            if object["schedule"] and object["schedule"][":wave-emails:"] and ( command == "open" ) then
+                if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
+                    CatalystInterfaceUtils::executeCommandAgainstObject(object, command, nil, nil)
+                end
+            end
+
             if codehash != CommonsUtils::codeHash() then
                 puts "Source code hash changed. Exiting!"
                 exit
