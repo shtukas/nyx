@@ -53,7 +53,7 @@ class EmailUtils
     end
 
     def self.msgToSubject(msg)
-        filetrace = Digest::SHA1.hexdigest(msg)+'-c17ca0729774b7b982632bf19db2504c'
+        filetrace = SecureRandom.hex
         filename = "#{filetrace}.eml"
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(msg) }
@@ -63,7 +63,7 @@ class EmailUtils
     end
 
     def self.msgToBody(msg)
-        filetrace = Digest::SHA1.hexdigest(msg)+'-c17ca0729774b7b982632bf19db2504c'
+        filetrace = SecureRandom.hex
         filename = "#{filetrace}.eml"
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(msg) }
@@ -73,13 +73,41 @@ class EmailUtils
     end
 
     def self.msgToFromAddresses(msg)
-        filetrace = Digest::SHA1.hexdigest(msg)+'-c17ca0729774b7b982632bf19db2504c'
+        filetrace = SecureRandom.hex
         filename = "#{filetrace}.eml"
         filepath = "/tmp/#{filename}"
         File.open(filepath, 'w') {|f| f.write(msg) }
         mailObject = Mail.read(filepath)
+        FileUtils.rm(filepath)
         mailObject.from
     end
+
+    def self.msgToDateTime(msg)
+        filetrace = SecureRandom.hex
+        filename = "#{filetrace}.eml"
+        filepath = "/tmp/#{filename}"
+        File.open(filepath, 'w') {|f| f.write(msg) }
+        mailObject = Mail.read(filepath)
+        begin
+            DateTime.parse(mailObject.date.to_s).to_time.to_s
+        rescue
+            Time.new.to_s
+        end
+    end
+
+    def self.msgToUnixtime(msg)
+        filetrace = SecureRandom.hex
+        filename = "#{filetrace}.eml"
+        filepath = "/tmp/#{filename}"
+        File.open(filepath, 'w') {|f| f.write(msg) }
+        mailObject = Mail.read(filepath)
+        begin
+            DateTime.parse(mailObject.date.to_s).to_time.to_i
+        rescue
+            Time.new.to_i
+        end
+    end
+
 end
 
 # EmailMetadataOperator::getCurrentStatusForEmailUIDOrNull(emailuid)
@@ -142,8 +170,10 @@ class OperatorEmailClient
                 emailFilePath = "#{folderpath}/#{emailFilename}"
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule[':wave-emails:'] = true # read by Wave agent
-                schedule[':wave-emails:creation-datetime'] = Time.new.to_s
+                schedule["unixtime"] = EmailUtils::msgToUnixtime(msg)
+                schedule[':wave-email:'] = true # read by Wave agent
+                schedule[':wave-email-datetime:'] = EmailUtils::msgToDateTime(msg)
+                schedule[':wave-email-catalyst-registration-datetime:'] = Time.new.to_s
                 AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
             else
@@ -153,8 +183,10 @@ class OperatorEmailClient
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(catalystuuid) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule[':wave-emails:'] = true # read by Wave agent
-                schedule[':wave-emails:creation-datetime'] = Time.new.to_s
+                schedule["unixtime"] = EmailUtils::msgToUnixtime(msg)
+                schedule[':wave-email:'] = true # read by Wave agent
+                schedule[':wave-email-datetime:'] = EmailUtils::msgToDateTime(msg)
+                schedule[':wave-email-catalyst-registration-datetime:'] = Time.new.to_s
                 AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: subject line: #{subjectline}") }
             end
@@ -210,8 +242,10 @@ class GeneralEmailClient
                 emailFilePath = "#{folderpath}/#{emailFilename}"
                 File.open(emailFilePath, 'w') {|f| f.write(msg) }
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule[':wave-emails:'] = true # read by Wave agent
-                schedule[':wave-emails:creation-datetime'] = Time.new.to_s
+                schedule["unixtime"] = EmailUtils::msgToUnixtime(msg)
+                schedule[':wave-email:'] = true # read by Wave agent
+                schedule[':wave-email-datetime:'] = EmailUtils::msgToDateTime(msg)
+                schedule[':wave-email-catalyst-registration-datetime:'] = Time.new.to_s
                 AgentWave::writeScheduleToDisk(catalystuuid,schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
                 File.open("#{folderpath}/email-metatada-emailuid.txt", 'w') {|f| f.write(emailuid) }
