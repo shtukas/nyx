@@ -581,7 +581,7 @@ class AgentWave
         uuid = object['uuid']
         schedule = object['schedule']
         timeSpanInSeconds = Chronos::stop(uuid)
-        ProjectsCore::ui_donateTimeSpanInSecondsToProjectOrSubProject(timeSpanInSeconds)
+        ProjectsCore::ui_donateTimeSpanInSecondsToProjectLocalCommitmentItem(timeSpanInSeconds)
         AgentWave::rePublishWaveObjectAtFlock(uuid)
     end
 

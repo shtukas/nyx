@@ -11,7 +11,7 @@ require_relative "Bob.rb"
 Bob::registerAgent(
     {
         "agent-name"      => "Projects",
-        "agent-uid"       => "e4477960-691d-4016-884c-8694db68cbfb",
+        "agent-uid"       => "10f0ad1e-ff0e-4a8a-8c90-fe09de2342ab",
         "general-upgrade" => lambda { AgentProjects::generalFlockUpgrade() },
         "object-command-processor" => lambda{ |object, command| AgentProjects::processObjectAndCommand(object, command) },
         "interface"       => lambda{ AgentProjects::interface() }
@@ -23,7 +23,7 @@ Bob::registerAgent(
 class AgentProjects
 
     def self.agentuuid()
-        "e4477960-691d-4016-884c-8694db68cbfb"
+        "10f0ad1e-ff0e-4a8a-8c90-fe09de2342ab"
     end
 
     def self.interface()
@@ -31,36 +31,46 @@ class AgentProjects
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        ProjectsCore::projectsUUIDs()
-            .select{|projectuuid| FKVStore::getOrNull("60407375-7e5d-4cfe-98fb-ecd34c0f2247:#{projectuuid}:#{Time.new.to_s[0, 13]}").nil? }
-            .map{|projectuuid| 
-                timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
-                timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(projectuuid, timestructure)
-                object              = {}
-                object["uuid"]      = projectuuid
-                object["agent-uid"] = self.agentuuid()
-                object["metric"]    = MetricsOfTimeStructures::metric2(projectuuid, 0.1, 0.2, 0.5, timestructure) + CommonsUtils::traceToMetricShift(projectuuid)
-                object["announce"]  = "project: #{ProjectsCore::ui_projectToString(projectuuid)} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
-                object["commands"]  = Chronos::isRunning(projectuuid) ? ["stop", "dive"] : ["start", "dive"]
-                object["default-expression"] = Chronos::isRunning(projectuuid) ? "stop" : "start"
-                object["is-running"] = Chronos::isRunning(projectuuid)
-                object["item-data"] = {}
-                object["item-data"]["timings"] = Chronos::timings(projectuuid).map{|pair| [ Time.at(pair[0]).to_s, pair[1].to_f/3600 ] }
-                object            
-            }
-            .each{|object| TheFlock::addOrUpdateObject(object) }
+        ProjectsCore::updateLocalTimeStructures()
+        ProjectsCore::localTimeStructuresDataFiles().each{|data|
+            projectuuid = data["projectuuid"]
+            referenceTimeStructure = data["reference-time-structure"]
+            data["local-commitments"]
+                .map{|item|
+                    timestructure = {}
+                    timestructure["time-unit-in-days"] = referenceTimeStructure["time-unit-in-days"]
+                    timestructure["time-commitment-in-hours"] = referenceTimeStructure["time-commitment-in-hours"] * item["timeshare"]
+                    timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
+                    announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
+                    metric = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.6, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
+                    if announce.include?("(main)") then
+                        metric = metric*0.9
+                    end
+                    object              = {}
+                    object["uuid"]      = item["uuid"]
+                    object["agent-uid"] = self.agentuuid()
+                    object["metric"]    = metric
+                    object["announce"]  = announce
+                    object["commands"]  = Chronos::isRunning(item["uuid"]) ? ["stop"] : ["start"]
+                    object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop" : "start"
+                    object["is-running"] = Chronos::isRunning(item["uuid"])
+                    object["item-data"] = {}
+                    object["item-data"]["data"] = data
+                    object
+                }
+                .each{|object| TheFlock::addOrUpdateObject(object) }
+        }
     end
 
     def self.processObjectAndCommand(object, command)
-        if command=="dive" then
-            ProjectsCore::ui_projectDive(object["uuid"])
-        end
         if command=="start" then
             Chronos::start(object["uuid"])
         end
         if command=="stop" then
-            timespanInSeconds = Chronos::stop(object["uuid"])
-            ProjectsCore::updateTodayCommonTimeBySeconds(timespanInSeconds)
+            itemuuid = object["uuid"]
+            timespanInSeconds = Chronos::stop(itemuuid)
+            projectuuid = object["item-data"]["data"]["projectuuid"]
+            ProjectsCore::addTimeInSecondsToProject(projectuuid, timespanInSeconds)
         end
     end
 end

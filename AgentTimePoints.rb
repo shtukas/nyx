@@ -99,15 +99,15 @@ class AgentTimePoints
             lisa     = object["item-data"]["lisa"]
             filepath = object["item-data"]["filepath"]
             puts "time: #{timeSpanInSeconds} seconds, #{(timeSpanInSeconds.to_f/3600).round(2)} hours"
-            choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("injection", ["no target", "project/sub-project"])
+            choice = LucilleCore::selectEntityFromListOfEntitiesOrNull("injection", ["no target", "project"])
             return if choice.nil?
             if choice == "no target" then
                 TheFlock::removeObjectIdentifiedByUUID(uuid)
                 FileUtils.rm(filepath)
                 return
             end
-            if choice == "project/sub-project" then
-                ProjectsCore::ui_donateTimeSpanInSecondsToProjectOrSubProject(timeSpanInSeconds)
+            if choice == "project" then
+                ProjectsCore::ui_donateTimeSpanInSecondsToProjectLocalCommitmentItem(timeSpanInSeconds)
             end
             lisa = object["item-data"]["lisa"]
             timestructure = { "time-unit-in-days"=> 1, "time-commitment-in-hours" => lisa["time-commitment-in-hours"] }
