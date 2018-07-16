@@ -341,7 +341,7 @@ if CommonsUtils::isLucille18() then
             count = EventsSyncL18L19::sync()
             if count > 0 then
                 FlockDiskIO::loadFromEventsTimeline()
-                DRbObject.new(nil, "druby://10.249.16.173:24868").shouldReloadFromTimeLine()
+                DRbObject.new(nil, "druby://Lucille19.local:24868").shouldReloadFromTimeLine()
             end
         }
     }
