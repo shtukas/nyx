@@ -33,7 +33,7 @@ class TimeStructuresOperator
     def self.doneMetricsForTimeStructure(uuid, timestructure)
         timedoneInHours = Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, timestructure["time-unit-in-days"]).to_f/3600
         timetodoInHours = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
-        ratio = timedoneInHours.to_f/timetodoInHours
+        ratio = timetodoInHours>0 ? timedoneInHours.to_f/timetodoInHours : nil
         [timedoneInHours, timetodoInHours, ratio]
     end
 

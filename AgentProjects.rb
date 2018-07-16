@@ -40,8 +40,15 @@ class AgentProjects
                     timestructure = {}
                     timestructure["time-unit-in-days"] = referenceTimeStructure["time-unit-in-days"]
                     timestructure["time-commitment-in-hours"] = referenceTimeStructure["time-commitment-in-hours"] * item["timeshare"]
-                    timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
-                    announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} ( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
+                    timeFragment = 
+                        if timestructure["time-commitment-in-hours"] > 0 then
+                            timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
+                            "( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
+                        else
+                            timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
+                            "( done: #{ timedoneInHours.round(2)} hours )"
+                        end
+                    announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} #{timeFragment}"
                     metric = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.6, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
                     if announce.include?("(main)") then
                         metric = metric*0.9
