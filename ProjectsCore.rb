@@ -255,7 +255,7 @@ class ProjectsCore
         return if projectuuid.nil?        
         localCommitmentItem = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
         return if localCommitmentItem.nil?
-        ProjectsCore::addTimeInSecondsToProjectLocalCommitmentItem(item["uuid"], projectuuid, timeSpanInSeconds)
+        ProjectsCore::addTimeInSecondsToProjectLocalCommitmentItem(localCommitmentItem["uuid"], projectuuid, timeSpanInSeconds)
     end
 
 end

@@ -333,31 +333,4 @@ Thread.new {
     }
 }
 
-if CommonsUtils::isLucille18() then
-    Thread.new {
-        loop {
-            # To sync between Lucille18 and Lucille19
-            sleep 20
-            count = EventsSyncL18L19::sync()
-            if count > 0 then
-                FlockDiskIO::loadFromEventsTimeline()
-                DRbObject.new(nil, "druby://Lucille19.local:24868").shouldReloadFromTimeLine()
-            end
-        }
-    }
-end
-
-if CommonsUtils::isLucille19() then
-    Thread.new {
-        loop {
-            # To sync between Lucille18 and Lucille19
-            sleep 10
-            if File.exists?("/Users/pascal/Desktop/ShouldReloadFromTimeLine") then
-                FlockDiskIO::loadFromEventsTimeline()
-                FileUtils.rm("/Users/pascal/Desktop/ShouldReloadFromTimeLine")
-            end
-        }
-    }
-end
-
 CatalystInterfaceUtils::displayLoop(codehash)
