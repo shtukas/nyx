@@ -333,4 +333,12 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        # To let computers sync filter up
+        sleep 60
+        FlockDiskIO::loadFromEventsTimeline()
+    }
+}
+
 CatalystInterfaceUtils::displayLoop(codehash)
