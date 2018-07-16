@@ -43,7 +43,7 @@ class AgentProjects
                     timeFragment = 
                         if timestructure["time-commitment-in-hours"] > 0 then
                             timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
-                            "( #{100*ratio.round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
+                            "( #{(100*ratio).round(2)} % of #{timetodoInHours.round(2)} hours [today] )"
                         else
                             timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
                             "( done: #{ timedoneInHours.round(2)} hours )"

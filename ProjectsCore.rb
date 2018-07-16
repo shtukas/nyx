@@ -81,7 +81,7 @@ class ProjectsCore
     # ProjectsCore::getCummulatedTodayCommonTimeInSeconds()
     # ProjectsCore::projectsTimes() # [averageDailyCommitmentInHours, doneInHours, percentageDone]
     # ProjectsCore::addTimeInSecondsToProject(projectuuid, timeInSeconds)
-    # ProjectsCore::getLocalTimeStructureDataFileForProjectOrNull(projectuuid)
+    # ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
     # ProjectsCore::addTimeInSecondsToProjectLocalCommitmentItem(itemuuid, projectuuid, timeInSeconds)
 
     def self.getTimeStructureAskIfAbsent(projectuuid)
@@ -117,7 +117,7 @@ class ProjectsCore
             }
     end
 
-    def self.getLocalTimeStructureDataFileForProjectOrNull(projectuuid)
+    def self.getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
         location = ProjectsCore::fs_uuid2locationOrNull(projectuuid)
         return nil if location.nil?
         filepath = "#{location}/local-time-structure.json"
@@ -140,7 +140,7 @@ class ProjectsCore
 
     def self.localTimeStructuresDataFiles()
         ProjectsCore::projectsUUIDs()
-            .map{|projectuuid| ProjectsCore::getLocalTimeStructureDataFileForProjectOrNull(projectuuid) }
+            .map{|projectuuid| ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid) }
             .compact
     end
 
@@ -192,38 +192,56 @@ class ProjectsCore
         "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
+=begin
+            if menuChoice == "operation : start" then
+                item = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
+                Chronos::start(item["uuid"])
+                return
+            end
+=end
+
+    def self.ui_localItemDive(projectuuid, item)
+        loop {
+            puts "item: {uuid: #{item["uuid"]}, description: #{item["description"]}, timeshare: #{item["timeshare"]}}"
+            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", ["operation: add time", "operation: start"])
+            break if menuChoice.nil?
+            if menuChoice == "operation: add time" then
+                hours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
+                ProjectsCore::addTimeInSecondsToProjectLocalCommitmentItem(item["uuid"], projectuuid, hours*3600)
+            end
+            if menuChoice == "operation: start" then
+                Chronos::start(item["uuid"])
+            end
+        }
+    end
+
     def self.ui_projectDive(projectuuid)
-        puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
-        puts "    -> #{ProjectsCore::ui_projectToString(projectuuid)}"
+        puts "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}:"
+        puts "    - #{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)}, #{(100*TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid)).round(2)} %"
         puts "distribution:"
-        ProjectsCore::getLocalTimeStructureDataFileForProjectOrNull(projectuuid)["local-commitments"].each{|item|
-            # {
-            #   "uuid": "D4181B7A",
-            #   "description": "04-react-from-zero",
-            #   "timeshare": 0.2
-            # }
+        ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)["local-commitments"].each{|item|
+            # { "uuid": "D4181B7A", "description": "04-react-from-zero", "timeshare": 0.2 }
             puts "    - #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} ( time share: #{item["timeshare"].round(2)} )"
         }
         loop {
-            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", [ "operation : set time structure", "operation : start", "operation : add time" ])
+            localdata = ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
+            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", [ "operation: set time structure", "operation: add time", "operation: display local items (#{localdata["local-commitments"].size})" ])
             break if menuChoice.nil?
-            if menuChoice == "operation : set time structure" then
+            if menuChoice == "operation: set project level time structure" then
                 TimeStructuresOperator::setTimeStructure(
                         projectuuid, 
                         LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, 
                         LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
                 next
             end
-            if menuChoice == "operation : start" then
-                item = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
-                Chronos::start(item["uuid"])
-                return
-            end
-            if menuChoice == "operation : add time" then
-                item = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
+            if menuChoice == "operation: add time to project" then
                 hours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-                Chronos::addTimeInSeconds(item["uuid"], hours*3600)
                 ProjectsCore::addTimeInSecondsToProject(projectuuid, hours*3600)
+                next
+            end
+            if menuChoice == "operation: display local items (#{localdata["local-commitments"].size})" then
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("local item", localdata["local-commitments"], lambda{|item| item["description"] })
+                ProjectsCore::ui_localItemDive(projectuuid, item)
                 next
             end
         }
@@ -245,7 +263,7 @@ class ProjectsCore
     end
 
     def self.ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid) # { "uuid": "1D189B32", "description": "01-Frontend Padawan", "timeshare": 0.2 }
-        localdata = ProjectsCore::getLocalTimeStructureDataFileForProjectOrNull(projectuuid)
+        localdata = ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
         return nil if localdata.nil?
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project", localdata["local-commitments"], lambda{ |item| item["description"] })
     end
