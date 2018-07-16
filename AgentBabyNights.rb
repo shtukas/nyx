@@ -60,7 +60,7 @@ class AgentBabyNights
             }
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
             data[xname] = data[xname]+1
-            if data["pascal"] > 10 and data["tracy"] > 10 then
+            if data["pascal"] >= 10 and data["tracy"] >= 10 then
                 data["pascal"] = data["pascal"] - 10 
                 data["tracy"] = data["tracy"] - 10 
             end
