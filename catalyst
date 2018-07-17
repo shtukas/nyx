@@ -97,7 +97,7 @@ class CatalystInterfaceUtils
     end
 
     def self.nextMetric0928()
-        objects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
+        objects = CommonsUtils::flockDisplayObjects()
             .select{|object| CommonsUtils::hasMetricOverride(object["uuid"]) }
         return 5 if objects.size == 0
         0.5*(objects.map{|object| object["metric"] }.min+1)
@@ -113,7 +113,7 @@ class CatalystInterfaceUtils
             CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
             return
         end
-        if command == "drop" then
+        if command == "drop metric" then
             CommonsUtils::removeMetricOverride(object["uuid"])
             return
         end
@@ -235,7 +235,7 @@ class CatalystInterfaceUtils
             puts ""
 
             standardlp = CommonsUtils::getStandardListingPosition()
-            displayobjects = CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
+            displayobjects = CommonsUtils::flockDisplayObjects()
 
             if CatalystInterfaceUtils::shouldReorganiseMetricOverrides(displayobjects) then
                 CatalystInterfaceUtils::reorganiseMetricOverrides(displayobjects)

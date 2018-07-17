@@ -171,13 +171,28 @@ class ProjectsCore
     end
 
     # ---------------------------------------------------
+    # Project Catalyst Objects   
+
+    # ProjectsCore::addCatalystObjectToEntity(objectuuid, entityuuid)
+    # ProjectsCore::catalystObjectUUIDsForEntity(entityuuid)
+
+    def self.addCatalystObjectToEntity(objectuuid, entityuuid)
+        MiniFIFOQ::push("677bc84a-6a46-4402-b0b3-6b99c5def6a1:#{entityuuid}", objectuuid)
+    end
+
+    def self.catalystObjectUUIDsForEntity(entityuuid)
+        MiniFIFOQ::values("677bc84a-6a46-4402-b0b3-6b99c5def6a1:#{entityuuid}")
+    end
+
+    # ---------------------------------------------------
     # ProjectsCore::ui_projectToString(projectuuid)
     # ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll(): projectuuid: String
     # ProjectsCore::ui_projectsDive()
     # ProjectsCore::ui_projectDive(projectuuid)
-    # ProjectsCore::deleteProject2(projectuuid)
     # ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
     # ProjectsCore::ui_donateTimeSpanInSecondsToProjectLocalCommitmentItem(timeSpanInSeconds)
+    # ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(itemuuid)
+    # ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProject(projectuuid)
 
     def self.ui_projectTimeStructureAsStringContantLength(projectuuid)
         timestructure = ProjectsCore::getTimeStructureAskIfAbsent(projectuuid)
@@ -192,18 +207,27 @@ class ProjectsCore
         "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
     end
 
-=begin
-            if menuChoice == "operation : start" then
-                item = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
-                Chronos::start(item["uuid"])
-                return
-            end
-=end
+    def self.confirmedAliveCatalystObjectsUUIDsForProjectItem(itemuuid)
+        ProjectsCore::catalystObjectUUIDsForEntity(itemuuid)
+                .select{|objectuuid| CommonsUtils::flockObjectsUpgraded().any?{|object| object["uuid"]==objectuuid }}
+    end
+
+    def self.confirmedAliveCatalystObjectsUUIDsForProject(projectuuid)
+        localdata = ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
+        localdata["local-commitments"].map{|item| 
+            ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(item["uuid"])
+        }
+        .flatten
+        .uniq
+        .sort
+    end
 
     def self.ui_localItemDive(projectuuid, item)
         loop {
-            puts "item: {uuid: #{item["uuid"]}, description: #{item["description"]}, timeshare: #{item["timeshare"]}}"
-            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", ["operation: add time", "operation: start"])
+            puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}:"
+            puts "-> item: {uuid: #{item["uuid"]}, description: #{item["description"]}, timeshare: #{item["timeshare"]}}"
+            catalystObjectsUUIDsForItem = ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(item["uuid"])
+            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", ["operation: add time", "operation: start", "operation: list catalyst objects (#{catalystObjectsUUIDsForItem.size})"])
             break if menuChoice.nil?
             if menuChoice == "operation: add time" then
                 hours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
@@ -212,20 +236,34 @@ class ProjectsCore
             if menuChoice == "operation: start" then
                 Chronos::start(item["uuid"])
             end
+            if menuChoice == "operation: list catalyst objects (#{catalystObjectsUUIDsForItem.size})" then
+                loop {
+                    puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}:"
+                    puts "-> item: {uuid: #{item["uuid"]}, description: #{item["description"]}, timeshare: #{item["timeshare"]}}"
+                    puts "-> catalyst objects:"
+                    objectuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("catalyst object", catalystObjectsUUIDsForItem, lambda{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid)["announce"] })
+                    break if objectuuid.nil?
+                    object = TheFlock::getObjectByUUIDOrNull(objectuuid)
+                    break if object.nil?
+                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                } 
+            end
+            
         }
     end
 
     def self.ui_projectDive(projectuuid)
-        puts "#{ProjectsCore::projectUUID2NameOrNull(projectuuid)}:"
-        puts "    - #{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)}, #{(100*TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid)).round(2)} %"
-        puts "distribution:"
-        ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)["local-commitments"].each{|item|
-            # { "uuid": "D4181B7A", "description": "04-react-from-zero", "timeshare": 0.2 }
-            puts "    - #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} ( time share: #{item["timeshare"].round(2)} )"
-        }
         loop {
+            puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}:"
+            puts "-> #{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)}, #{(100*TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid)).round(2)} %"
+            puts "-> distribution:"
+            ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)["local-commitments"].each{|item|
+                # { "uuid": "D4181B7A", "description": "04-react-from-zero", "timeshare": 0.2 }
+                puts "    - #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} ( time share: #{item["timeshare"].round(2)} )"
+            }
             localdata = ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
-            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", [ "operation: set time structure", "operation: add time", "operation: display local items (#{localdata["local-commitments"].size})" ])
+            catalystObjectsUUIDsForProjects = ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProject(projectuuid)
+            menuChoice = LucilleCore::selectEntityFromListOfEntitiesOrNull("menu", [ "operation: set time structure", "operation: add time to project", "operation: local items (#{localdata["local-commitments"].size})", "operation: project level catalyst objects (#{catalystObjectsUUIDsForProjects.size})" ])
             break if menuChoice.nil?
             if menuChoice == "operation: set project level time structure" then
                 TimeStructuresOperator::setTimeStructure(
@@ -239,10 +277,21 @@ class ProjectsCore
                 ProjectsCore::addTimeInSecondsToProject(projectuuid, hours*3600)
                 next
             end
-            if menuChoice == "operation: display local items (#{localdata["local-commitments"].size})" then
+            if menuChoice == "operation: local items (#{localdata["local-commitments"].size})" then
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("local item", localdata["local-commitments"], lambda{|item| item["description"] })
                 ProjectsCore::ui_localItemDive(projectuuid, item)
                 next
+            end
+            if menuChoice == "operation: project level catalyst objects (#{catalystObjectsUUIDsForProjects.size})" then
+                loop {
+                    puts "-> #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}:"
+                    puts "-> catalyst objects:"
+                    objectuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("catalyst object", catalystObjectsUUIDsForProjects, lambda{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid)["announce"] })
+                    break if objectuuid.nil?
+                    object = TheFlock::getObjectByUUIDOrNull(objectuuid)
+                    break if object.nil?
+                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+                }
             end
         }
     end

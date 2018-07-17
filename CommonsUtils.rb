@@ -25,8 +25,8 @@ require_relative "Bob.rb"
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
-# CommonsUtils::generalFlockUpgradeThenOrderedFlockObjects()
-# CommonsUtils::generalFlockUpgradeThenOrderedDisplayObjects()
+# CommonsUtils::flockObjectsUpgraded()
+# CommonsUtils::flockDisplayObjects()
 
 class CommonsUtils
 
@@ -264,6 +264,8 @@ class CommonsUtils
 
     # -----------------------------------------
 
+    # CommonsUtils::flockObjectsUpgraded()
+
     def self.fDoNotShowUntilDateTimeTransform(object)
         if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
@@ -273,29 +275,27 @@ class CommonsUtils
         object
     end
 
-    def self.flockOrderedDisplayObjects()
+    def self.flockObjectsUpgraded()
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
+        Bob::generalFlockUpgrade()
         TheFlock::flockObjects()
             .map{|object| object.clone }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeTransform(object) }
             .map{|object| RequirementsOperator::transform(object) }
             .map{|object| CommonsUtils::metricOverrideTransform(object) }
-            .select{|object| object["metric"] > 0 }
+    end
+
+    def self.flockDisplayObjects()
+        CommonsUtils::flockObjectsUpgraded()
+            .select{ |object| object["metric"]>=0.2 }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end
 
-    def self.generalFlockUpgradeThenOrderedFlockObjects()
-        Bob::generalFlockUpgrade()
-        CommonsUtils::flockOrderedDisplayObjects()
-    end
-
-    def self.generalFlockUpgradeThenOrderedDisplayObjects()
-        CommonsUtils::generalFlockUpgradeThenOrderedFlockObjects().select{ |object| object["metric"]>=0.2 }
-    end
-
     # -----------------------------------------
+
+    # CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
 
     def self.putshelp()
         puts "Special General Commands"
@@ -310,27 +310,28 @@ class CommonsUtils
         puts "    interface   # select an agent and run the interface"
         puts "    lib         # Invoques the Librarian interactive"
         puts ""
-        puts "Special General Commands (inserts)"
-        puts "    wave: <description: String>>"
+        puts "Special General Commands Inserts"
+        puts "    wave: <description: String>"
         puts "    metric: <metric: Float> <description: String> # To quickly build a wave item with a metric override"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
         puts "    time: <float> <description: String>"
         puts ""
-        puts "Special Commands (object targetting)"
+        puts "Special Commands Object Targetting"
         puts ":<p> is either :<integer> or :this"
         puts "    :<p>                 # set the listing reference point"
         puts "    :<p> metric <metric> # set metric override for the item at position"
         puts "    :<p> <command>       # run command on the item at position"
         puts ""
-        puts "Special Object Commands:"
-        puts "    + # push by 1 hour"
+        puts "Special Commands Object:"
+        puts "    + # add 1 to the standard listing position"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
         puts "    metric <metric> | next # set metric override for the item, if 'next' either 5 or mid between lowest metric and 1"
-        puts "    drop # drop the item's metric override"
+        puts "    drop metric # drop the item's metric override"
         puts "    require <requirement: String>"
         puts "    requirement remove <requirement: String>"
+        puts "    >project # add the object to a project local item (interactive selection)"
         puts "    command ..."
     end
 
@@ -486,6 +487,15 @@ class CommonsUtils
             LucilleCore::pressEnterToContinue()
             return
         end
+
+        if expression == '>project' then
+            projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
+            localitem = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
+            ProjectsCore::addCatalystObjectToEntity(object["uuid"], localitem["uuid"])
+            return
+
+        end
+        
 
         if expression.start_with?('+') then
             code = expression
