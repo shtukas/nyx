@@ -48,7 +48,10 @@ class AgentProjects
                             timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
                             "( done: #{ timedoneInHours.round(2)} hours )"
                         end
-                    announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} #{timeFragment}"
+                    objectuuids = ProjectsCore::catalystObjectUUIDsForEntity(item["uuid"])
+                        .select{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+                    catalystObjectsFragment = objectuuids.size > 0 ? "{ attached Catalyst Objects: #{objectuuids.size} }" : ""
+                    announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} #{timeFragment} #{catalystObjectsFragment}"
                     metric = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.6, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
                     if announce.include?("(main)") then
                         metric = metric*0.9
@@ -59,10 +62,11 @@ class AgentProjects
                     object["metric"]    = metric
                     object["announce"]  = announce
                     object["commands"]  = Chronos::isRunning(item["uuid"]) ? ["stop"] : ["start"]
-                    object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop" : "start"
+                    object["default-expression"] = Chronos::isRunning(item["uuid"]) ? "stop" : ( objectuuids.size > 0 ? "catalyst-objects" : "start" )
                     object["is-running"] = Chronos::isRunning(item["uuid"])
                     object["item-data"] = {}
-                    object["item-data"]["data"] = data
+                    object["item-data"]["projectuuid"] = projectuuid
+                    object["item-data"]["item"] = item
                     object
                 }
                 .each{|object| TheFlock::addOrUpdateObject(object) }
@@ -70,13 +74,31 @@ class AgentProjects
     end
 
     def self.processObjectAndCommand(object, command)
+        if command=="catalyst-objects" then
+            # We show the catalyst objects against that local items and propose to start one of them
+            # We should also make it so that the item uuid is somehow recorded so that we know where to send the time when we are done.
+            item = object["item-data"]["item"]
+            objectuuids = ProjectsCore::catalystObjectUUIDsForEntity(item["uuid"])
+                .select{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+            if objectuuids.size==0 then
+                puts "No Catalyst Objects attached to this local item"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            objectuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("catalyst object", objectuuids, lambda{ |objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid)["announce"] })
+            return if objectuuid.nil?
+            object = TheFlock::getObjectByUUIDOrNull(objectuuid)
+            # We know the object is not null
+            CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
+        end
         if command=="start" then
-            Chronos::start(object["uuid"])
+            itemuuid = object["item-data"]["item"]["uuid"]
+            Chronos::start(itemuuid)
         end
         if command=="stop" then
-            itemuuid = object["uuid"]
+            itemuuid = object["item-data"]["item"]["uuid"]
             timespanInSeconds = Chronos::stop(itemuuid)
-            projectuuid = object["item-data"]["data"]["projectuuid"]
+            projectuuid = object["item-data"]["projectuuid"]
             ProjectsCore::addTimeInSecondsToProject(projectuuid, timespanInSeconds)
         end
     end

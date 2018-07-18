@@ -96,7 +96,6 @@ class CatalystInterfaceUtils
         if object["is-running"] then
             str = str.green
         end
-
         str
     end
 
