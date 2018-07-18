@@ -585,6 +585,16 @@ class AgentWave
         AgentWave::rePublishWaveObjectAtFlock(uuid)
     end
 
+    def self.disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
+        folderpath = catalystUUIDToItemFolderPathOrNull(uuid)
+        return if folderpath.nil?
+        if File.exist?("#{folderpath}/email-metatada-emailuid.txt") then
+            puts "You are recasting an email, removing file email-metatada-emailuid.txt"
+            LucilleCore::pressEnterToContinue()
+            FileUtils.rm("#{folderpath}/email-metatada-emailuid.txt")
+        end
+    end
+
     def self.processObjectAndCommand(object, command)
         uuid = object['uuid']
         schedule = object['schedule']
@@ -621,13 +631,9 @@ class AgentWave
         end
 
         if command=='recast' then
+            AgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
             schedule = AgentWave::makeNewSchedule()
             AgentWave::writeScheduleToDisk(uuid, schedule)
-            if File.exist?("#{catalystUUIDToItemFolderPathOrNull(uuid)}/email-metatada-emailuid.txt") then
-                puts "You are recastimg an email, removing file email-metatada-emailuid.txt"
-                LucilleCore::pressEnterToContinue()
-                FileUtils.rm("#{catalystUUIDToItemFolderPathOrNull(uuid)}/email-metatada-emailuid.txt")
-            end
             AgentWave::rePublishWaveObjectAtFlock(uuid)
         end
 

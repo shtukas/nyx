@@ -492,6 +492,8 @@ class CommonsUtils
             projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
             localitem = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
             ProjectsCore::addCatalystObjectToEntity(object["uuid"], localitem["uuid"])
+            # It the catalyst item was an email, we need to logically detach it from the email client
+            AgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(object["uuid"])
             return
 
         end
