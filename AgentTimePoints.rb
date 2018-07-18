@@ -47,9 +47,9 @@ class AgentTimePoints
         
     end
 
-    def self.lisaToMetric(lisa)
-        ageInHours = (Time.new.to_f - lisa['unixtime']).to_f/3600
-        0.7 + 0.15*(1-Math.exp(-ageInHours))
+    def self.ratioToMetric(ratio)
+        ratio = [ratio, 1].min
+        0.5 + 0.35*(1-ratio)
     end
 
     def self.generalFlockUpgrade()
@@ -68,7 +68,7 @@ class AgentTimePoints
                 object              = {}
                 object["uuid"]      = uuid
                 object["agent-uid"] = self.agentuuid()
-                object["metric"]    = self.lisaToMetric(lisa)
+                object["metric"]    = self.ratioToMetric(ratio)
                 object["announce"]  = "time point: #{description} ( #{100*ratio.round(2)} % of #{lisa["time-commitment-in-hours"]} hours )"
                 object["commands"]  = Chronos::isRunning(uuid) ? ["stop", "loop"] : ["start", "loop", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
