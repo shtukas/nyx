@@ -175,6 +175,7 @@ class ProjectsCore
 
     # ProjectsCore::addCatalystObjectToEntity(objectuuid, entityuuid)
     # ProjectsCore::catalystObjectUUIDsForEntity(entityuuid)
+    # ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(itemuuid)
 
     def self.addCatalystObjectToEntity(objectuuid, entityuuid)
         MiniFIFOQ::push("677bc84a-6a46-4402-b0b3-6b99c5def6a1:#{entityuuid}", objectuuid)
@@ -182,6 +183,21 @@ class ProjectsCore
 
     def self.catalystObjectUUIDsForEntity(entityuuid)
         MiniFIFOQ::values("677bc84a-6a46-4402-b0b3-6b99c5def6a1:#{entityuuid}")
+    end
+
+    def self.confirmedAliveCatalystObjectsUUIDsForProjectItem(itemuuid)
+        ProjectsCore::catalystObjectUUIDsForEntity(itemuuid)
+            .select{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+    end
+
+    def self.confirmedAliveCatalystObjectsUUIDsForProject(projectuuid)
+        localdata = ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
+        localdata["local-commitments"].map{|item| 
+            ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(item["uuid"])
+        }
+        .flatten
+        .uniq
+        .sort
     end
 
     # ---------------------------------------------------
@@ -205,21 +221,6 @@ class ProjectsCore
 
     def self.ui_projectToString(projectuuid)
         "#{ProjectsCore::ui_projectTimeStructureAsStringContantLength(projectuuid)} | #{TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid) ? ("%6.2f" % (100*[TimeStructuresOperator::projectLiveRatioDoneOrNull(projectuuid), 9.99].min)) + " %" : "        "} | #{ProjectsCore::projectUUID2NameOrNull(projectuuid)}"
-    end
-
-    def self.confirmedAliveCatalystObjectsUUIDsForProjectItem(itemuuid)
-        ProjectsCore::catalystObjectUUIDsForEntity(itemuuid)
-                .select{|objectuuid| CommonsUtils::flockObjectsUpgraded().any?{|object| object["uuid"]==objectuuid }}
-    end
-
-    def self.confirmedAliveCatalystObjectsUUIDsForProject(projectuuid)
-        localdata = ProjectsCore::getExtendedLocalTimeStructureDataFileForProjectOrNull(projectuuid)
-        localdata["local-commitments"].map{|item| 
-            ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(item["uuid"])
-        }
-        .flatten
-        .uniq
-        .sort
     end
 
     def self.ui_localItemDive(projectuuid, item)

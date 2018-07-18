@@ -48,8 +48,7 @@ class AgentProjects
                             timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(item["uuid"], timestructure)
                             "( done: #{ timedoneInHours.round(2)} hours )"
                         end
-                    objectuuids = ProjectsCore::catalystObjectUUIDsForEntity(item["uuid"])
-                        .select{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+                    objectuuids = ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(item["uuid"])
                     catalystObjectsFragment = objectuuids.size > 0 ? "{ attached Catalyst Objects: #{objectuuids.size} }" : ""
                     announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} #{timeFragment} #{catalystObjectsFragment}"
                     metric = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.6, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
@@ -78,8 +77,7 @@ class AgentProjects
             # We show the catalyst objects against that local items and propose to start one of them
             # We should also make it so that the item uuid is somehow recorded so that we know where to send the time when we are done.
             item = object["item-data"]["item"]
-            objectuuids = ProjectsCore::catalystObjectUUIDsForEntity(item["uuid"])
-                .select{|objectuuid| TheFlock::getObjectByUUIDOrNull(objectuuid) }
+            objectuuids = ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(item["uuid"])
             if objectuuids.size==0 then
                 puts "No Catalyst Objects attached to this local item"
                 LucilleCore::pressEnterToContinue()
