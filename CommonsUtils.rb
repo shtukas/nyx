@@ -302,7 +302,6 @@ class CommonsUtils
     def self.putshelp()
         puts "Special General Commands"
         puts "    help"
-        puts "    top"
         puts "    search <pattern: String>"
         puts "    requirement on <requirement: String>"
         puts "    requirement off <requirement: String>"
