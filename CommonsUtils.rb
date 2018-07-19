@@ -231,7 +231,7 @@ class CommonsUtils
         schedule["made-on-date"] = CommonsUtils::currentDay()
         AgentWave::writeScheduleToDisk(uuid,schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", "goto project", "override metric"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", "goto project"])
             break if option.nil?
             if option == "non new schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
@@ -244,10 +244,6 @@ class CommonsUtils
                         EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
                     end
                 end
-            end
-            if option == "override metric" then
-                metric = LucilleCore::askQuestionAnswerAsString("metric: ").to_f
-                CommonsUtils::setMetricOverride(uuid, metric)
             end
         }
     end
@@ -284,7 +280,6 @@ class CommonsUtils
             .map{|object| object.clone }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeTransform(object) }
             .map{|object| RequirementsOperator::transform(object) }
-            .map{|object| CommonsUtils::metricOverrideTransform(object) }
             .map{|object| 
                 if projectsObjectsUUIDs.include?(object["uuid"]) then
                     object["metric"] = 0.1
@@ -319,7 +314,6 @@ class CommonsUtils
         puts ""
         puts "Special General Commands Inserts"
         puts "    wave: <description: String>"
-        puts "    metric: <metric: Float> <description: String> # To quickly build a wave item with a metric override"
         puts "    stream: <description: String>"
         puts "    project: <description: String>"
         puts "    time: <float> <description: String>"
@@ -334,8 +328,6 @@ class CommonsUtils
         puts "    + # add 1 to the standard listing position"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
-        puts "    metric <metric> | next # set metric override for the item, if 'next' either 5 or mid between lowest metric and 1"
-        puts "    drop metric # drop the item's metric override"
         puts "    require <requirement: String>"
         puts "    requirement remove <requirement: String>"
         puts "    >project # add the object to a project local item (interactive selection)"
@@ -399,14 +391,6 @@ class CommonsUtils
             description = expression[5, expression.size].strip
             CommonsUtils::waveInsertNewItemInteractive(description)
             #LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?('metric:') then
-            token1, rest1 = StringParser::decompose(expression) # metric: 2.45 <text>
-            metric, description = StringParser::decompose(rest1) # 2.45 <text>
-            uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description) # (uuid, schedule)
-            CommonsUtils::setMetricOverride(uuid, metric)
             return
         end
 
@@ -482,13 +466,6 @@ class CommonsUtils
 
         # object needed
 
-        if CommonsUtils::hasMetricOverride(object["uuid"]) then
-            b1 = ["start", "open"].include?(expression)
-            if !b1 and ( expression=="done" or LucilleCore::askQuestionAnswerAsBoolean("Should remove metric override? : ") ) then
-                CommonsUtils::removeMetricOverride(object["uuid"])
-            end
-        end
-
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
@@ -546,35 +523,4 @@ class CommonsUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
-    # ---------------------------------------------------
-    # CommonsUtils::setMetricOverride(uuid, metric)
-    # CommonsUtils::getMetricOverrideOrNull(uuid)
-    # CommonsUtils::hasMetricOverride(uuid)
-    # CommonsUtils::metricTransform(object)
-    # CommonsUtils::removeMetricOverride(uuid)
-
-    def self.setMetricOverride(uuid, metric)
-        FKVStore::set("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{CommonsUtils::currentDay()}:#{uuid}", metric)
-    end
-
-    def self.getMetricOverrideOrNull(uuid)
-        value = FKVStore::getOrNull("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{CommonsUtils::currentDay()}:#{uuid}")
-        return value.to_f if value
-        nil
-    end
-
-    def self.hasMetricOverride(uuid)
-        !CommonsUtils::getMetricOverrideOrNull(uuid).nil?
-    end
-
-    def self.metricOverrideTransform(object)
-        if CommonsUtils::hasMetricOverride(object["uuid"]) then
-            object["metric"] = CommonsUtils::getMetricOverrideOrNull(object["uuid"])
-        end
-        object
-    end
-
-    def self.removeMetricOverride(uuid)
-        FKVStore::delete("919edeca-e70c-4dd4-81d3-5d53afcf8878:#{CommonsUtils::currentDay()}:#{uuid}")
-    end
 end

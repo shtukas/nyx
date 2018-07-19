@@ -99,13 +99,6 @@ class CatalystInterfaceUtils
         str
     end
 
-    def self.nextMetric0928()
-        objects = CommonsUtils::flockDisplayObjects()
-            .select{|object| CommonsUtils::hasMetricOverride(object["uuid"]) }
-        return 5 if objects.size == 0
-        0.5*(objects.map{|object| object["metric"] }.min+1)
-    end
-
     def self.executeCommandAgainstObject(object, command, standardlp, displayobjects)
         # The reason why we have this function and processObjectAndCommand as separate function is that they have different signatures
         # That having been said, it is true that this function could just rewrite the object and/or the command.
@@ -113,23 +106,6 @@ class CatalystInterfaceUtils
             return
         end
         if command == "+" then
-            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
-            return
-        end
-        if command == "drop metric" then
-            CommonsUtils::removeMetricOverride(object["uuid"])
-            return
-        end
-        if command.start_with?("metric") and !command.start_with?("metric:") then
-            _, metric = StringParser::decompose(command)
-            # We currently assume that it's either a float or 'next'
-            metric = 
-                if metric == "next" then
-                    CatalystInterfaceUtils::nextMetric0928()
-                else
-                    metric.to_f
-                end
-            CommonsUtils::setMetricOverride(object["uuid"], metric)
             CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
             return
         end
@@ -147,13 +123,6 @@ class CatalystInterfaceUtils
             if rest.nil? then
                 # :<position>         # set the listing reference point
                 CommonsUtils::setStandardListingPosition([position, 0].max)
-                return
-            end
-            if rest.start_with?("metric") then
-                _, metric = rest.split(" ")
-                o = displayobjects.take(position).last
-                return if o.nil?
-                CommonsUtils::setMetricOverride(o["uuid"], metric.to_f)
                 return
             end
             command = rest
@@ -187,28 +156,6 @@ class CatalystInterfaceUtils
         command
     end
 
-    def self.shouldReorganiseMetricOverrides(displayobjects)
-        displayobjects
-            .select{|object| object["metric"]>1  }
-            .any?{|object| object["metric"]<2 or object["metric"]>9 }
-    end
-
-    def self.reorganiseMetricOverrides(displayobjects)
-        objects = displayobjects
-            .select{|object| object["metric"]>1 }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] } # ordered from the one with the lowest metric to the one with the highest
-        if objects.size==1 then
-            object = objects.first
-            CommonsUtils::setMetricOverride(object["uuid"], 5)
-            return
-        end
-        # At this point we have more than one object
-        count = objects.size # >= 2
-        objects.each_with_index{|object, indx|
-            CommonsUtils::setMetricOverride(object["uuid"], 4 + indx*4.to_f/count)
-        }
-    end
-
     def self.displayLoop(codehash)
         loop {
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
@@ -239,11 +186,6 @@ class CatalystInterfaceUtils
 
             standardlp = CommonsUtils::getStandardListingPosition()
             displayobjects = CommonsUtils::flockDisplayObjects()
-
-            if CatalystInterfaceUtils::shouldReorganiseMetricOverrides(displayobjects) then
-                CatalystInterfaceUtils::reorganiseMetricOverrides(displayobjects)
-                next
-            end
 
             object = displayobjects.clone.take(standardlp).last
 
