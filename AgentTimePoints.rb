@@ -65,10 +65,17 @@ class AgentTimePoints
                 description = lisa["description"]
                 timestructure = { "time-unit-in-days"=> 1, "time-commitment-in-hours" => lisa["time-commitment-in-hours"] }
                 timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(uuid, timestructure)
+                metric = self.ratioToMetric(ratio)
+                if ratio>1 then
+                    metric = 1.5 + CommonsUtils::traceToMetricShift(uuid)
+                end
+                if Chronos::isRunning(uuid) then
+                    metric = 2 + CommonsUtils::traceToMetricShift(uuid)
+                end
                 object              = {}
                 object["uuid"]      = uuid
                 object["agent-uid"] = self.agentuuid()
-                object["metric"]    = Chronos::isRunning(uuid) ? 2 : self.ratioToMetric(ratio)
+                object["metric"]    = metric 
                 object["announce"]  = "time point: #{description} ( #{100*ratio.round(2)} % of #{lisa["time-commitment-in-hours"]} hours )"
                 object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
