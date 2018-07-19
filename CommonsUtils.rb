@@ -279,11 +279,18 @@ class CommonsUtils
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
         Bob::generalFlockUpgrade()
+        projectsObjectsUUIDs = ProjectsCore::confirmedAliveCatalystObjectsUUIDsAcrossProjects()
         TheFlock::flockObjects()
             .map{|object| object.clone }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeTransform(object) }
             .map{|object| RequirementsOperator::transform(object) }
             .map{|object| CommonsUtils::metricOverrideTransform(object) }
+            .map{|object| 
+                if projectsObjectsUUIDs.include?(object["uuid"]) then
+                    object["metric"] = 0.1
+                end
+                object
+            }
     end
 
     def self.flockDisplayObjects()

@@ -70,7 +70,7 @@ class AgentTimePoints
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = self.ratioToMetric(ratio)
                 object["announce"]  = "time point: #{description} ( #{100*ratio.round(2)} % of #{lisa["time-commitment-in-hours"]} hours )"
-                object["commands"]  = Chronos::isRunning(uuid) ? ["stop", "loop"] : ["start", "loop", "destroy"]
+                object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(uuid)
                 object["item-data"] = {}
@@ -107,7 +107,7 @@ class AgentTimePoints
                 return
             end
             if choice == "project" then
-                ProjectsCore::ui_donateTimeSpanInSecondsToProjectLocalCommitmentItem(timeSpanInSeconds)
+                ProjectsCore::ui_donateTimeSpanInSecondsToInteractivelyChosenProjectLocalCommitmentItem(timeSpanInSeconds)
             end
             lisa = object["item-data"]["lisa"]
             timestructure = { "time-unit-in-days"=> 1, "time-commitment-in-hours" => lisa["time-commitment-in-hours"] }
@@ -117,9 +117,10 @@ class AgentTimePoints
                 FileUtils.rm(filepath)
             end            
         end
-        if command=='loop' then
-            puts "You need to implement that one"
-            LucilleCore::pressEnterToContinue()
+        if command=="add-time" then
+            timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
+            Chronos::addTimeInSeconds(object["uuid"], timeInHours*3600)
+            ProjectsCore::ui_donateTimeSpanInSecondsToInteractivelyChosenProjectLocalCommitmentItem(timeInHours*3600)
         end
         if command=='destroy' 
             filepath = object["item-data"]["filepath"]

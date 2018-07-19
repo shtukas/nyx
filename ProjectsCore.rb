@@ -17,6 +17,7 @@ class ProjectsCore
     # ---------------------------------------------------
     # ProjectsCore::projectsUUIDs()
     # ProjectsCore::fs_uuid2locationOrNull(uuid)
+    # ProjectsCore::fs_uuids()
 
     def self.fs_locations()
         Dir.entries("/Galaxy/Projects")
@@ -176,6 +177,7 @@ class ProjectsCore
     # ProjectsCore::addCatalystObjectToEntity(objectuuid, entityuuid)
     # ProjectsCore::catalystObjectUUIDsForEntity(entityuuid)
     # ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(itemuuid)
+    # ProjectsCore::confirmedAliveCatalystObjectsUUIDsAcrossProjects()
 
     def self.addCatalystObjectToEntity(objectuuid, entityuuid)
         MiniFIFOQ::push("677bc84a-6a46-4402-b0b3-6b99c5def6a1:#{entityuuid}", objectuuid)
@@ -200,13 +202,21 @@ class ProjectsCore
         .sort
     end
 
+    def self.confirmedAliveCatalystObjectsUUIDsAcrossProjects()
+        ProjectsCore::fs_uuids()
+        .map{|projectuuid| ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProject(projectuuid)}
+        .flatten
+        .uniq
+        .sort
+    end
+
     # ---------------------------------------------------
     # ProjectsCore::ui_projectToString(projectuuid)
     # ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll(): projectuuid: String
     # ProjectsCore::ui_projectsDive()
     # ProjectsCore::ui_projectDive(projectuuid)
     # ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
-    # ProjectsCore::ui_donateTimeSpanInSecondsToProjectLocalCommitmentItem(timeSpanInSeconds)
+    # ProjectsCore::ui_donateTimeSpanInSecondsToInteractivelyChosenProjectLocalCommitmentItem(timeSpanInSeconds)
     # ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(itemuuid)
     # ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProject(projectuuid)
 
@@ -318,7 +328,7 @@ class ProjectsCore
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project", localdata["local-commitments"], lambda{ |item| item["description"] })
     end
 
-    def self.ui_donateTimeSpanInSecondsToProjectLocalCommitmentItem(timeSpanInSeconds)
+    def self.ui_donateTimeSpanInSecondsToInteractivelyChosenProjectLocalCommitmentItem(timeSpanInSeconds)
         projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
         return if projectuuid.nil?        
         localCommitmentItem = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
