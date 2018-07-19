@@ -6,13 +6,6 @@
 # CatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
 # CatalystDevOps::getFilepathAgeInDays(filepath)
 
-# CatalystDevOps::getArchiveTimelineSizeInMegaBytes()
-# CatalystDevOps::archivesTimelineGarbageCollectionStandard(): Array[String] 
-# CatalystDevOps::archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes): Array[String] 
-# CatalystDevOps::archivesTimelineGarbageCollection(): Array[String]
-
-# CatalystDevOps::eventsTimelineGarbageCollection()
-
 class CatalystDevOps
 
     def self.today()
@@ -47,37 +40,42 @@ class CatalystDevOps
     # -------------------------------------------
     # Archives
 
+    # CatalystDevOps::getArchiveTimelineSizeInMegaBytes()
+    # CatalystDevOps::archivesTimelineGarbageCollectionStandard(verbose): Array[String] 
+    # CatalystDevOps::archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes, verbose): Array[String] 
+    # CatalystDevOps::archivesTimelineGarbageCollection(verbose): Array[String]
+
     def self.getArchiveTimelineSizeInMegaBytes()
         LucilleCore::locationRecursiveSize(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
-    def self.archivesTimelineGarbageCollectionStandard()
+    def self.archivesTimelineGarbageCollectionStandard(verbose)
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
-            puts location
+            puts location if verbose
             LucilleCore::removeFileSystemLocation(location)
         end
     end
 
-    def self.archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes)
+    def self.archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes, verbose)
         while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             if File.file?(location) then
                 sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
             end
-            puts location
+            puts location if verbose
             LucilleCore::removeFileSystemLocation(location)
         end
 
     end
 
-    def self.archivesTimelineGarbageCollection()
+    def self.archivesTimelineGarbageCollection(verbose)
         while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
             location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
-            CatalystDevOps::archivesTimelineGarbageCollectionFast(CatalystDevOps::getArchiveTimelineSizeInMegaBytes())
+            CatalystDevOps::archivesTimelineGarbageCollectionFast(CatalystDevOps::getArchiveTimelineSizeInMegaBytes(), verbose)
         end
 
     end
@@ -112,12 +110,14 @@ class CatalystDevOps
         raise "Don't know how to garbage collect head: \n#{JSON.pretty_generate(head)}"
     end
 
-    def self.eventsTimelineGarbageCollection()
+    # CatalystDevOps::eventsTimelineGarbageCollection()
+
+    def self.eventsTimelineGarbageCollection(verbose)
         events = EventsManager::eventsAsTimeOrderedArray()
         while events.size>=2 do
             event = events.shift
             if CatalystDevOps::canRemoveEvent(event, events) then
-                puts event[":filepath:"]
+                puts event[":filepath:"] if verbose
                 FileUtils.rm(event[":filepath:"])
             end
         end

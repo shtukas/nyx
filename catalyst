@@ -158,18 +158,6 @@ class CatalystInterfaceUtils
 
     def self.displayLoop(codehash)
         loop {
-            if ( Time.new.to_i > FKVStore::getOrDefaultValue("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", "0").to_i ) and CommonsUtils::isLucille18() then
-                puts "Archives timeline garbage collection..."
-                CatalystDevOps::archivesTimelineGarbageCollection()
-                FKVStore::set("7e6a229e-8464-4f33-9b8d-9cfbe5a4af41", Time.new.to_i + Random::rand*86400)
-                next
-            end
-            if ( Time.new.to_i > FKVStore::getOrDefaultValue("9dcc9a69-cd99-48de-82af-f25d4d382df5", "0").to_i ) and CommonsUtils::isLucille18() then
-                puts "Events timeline garbage collection..."
-                CatalystDevOps::eventsTimelineGarbageCollection()
-                FKVStore::set("9dcc9a69-cd99-48de-82af-f25d4d382df5", Time.new.to_i + Random::rand*86400)
-                next
-            end
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                     puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
@@ -249,14 +237,32 @@ end
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
 
-Thread.new {
-    loop {
-        if CommonsUtils::isLucille18() then
+if CommonsUtils::isLucille18() then
+    Thread.new {
+        loop {
+            sleep 1200
             CommonsUtils::emailSync(false)
-        end
-        sleep 1200
+        }
     }
-}
+end
+
+if CommonsUtils::isLucille18() then
+    Thread.new {
+        loop {
+            sleep 3600
+            CatalystDevOps::archivesTimelineGarbageCollection(false)
+        }
+    }
+end
+
+if CommonsUtils::isLucille18() then
+    Thread.new {
+        loop {
+            sleep 3600
+            CatalystDevOps::eventsTimelineGarbageCollection(false)
+        }
+    }
+end
 
 Thread.new {
     loop {
