@@ -220,20 +220,8 @@ class CatalystInterfaceUtils
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
-            position = 0
-            if displayobjectsx.any?{|object| object["metric"]>1 } then
-                while displayobjectsx.any?{|object| object["metric"]>1 } do
-                    xobject = displayobjectsx.shift
-                    position = position+1
-                    puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(xobject, position, standardlp)
-                end
-                if displayobjectsx.any?{|object| object["metric"]<=1 } then
-                    puts ""
-                end
-            end
-            displayobjectsx.each{|object|
-                position = position+1
-                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position, standardlp)
+            displayobjectsx.each_with_index{|object, position|
+                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position+1, standardlp)
             }
             # --------------------------------------------------------------------------------
 

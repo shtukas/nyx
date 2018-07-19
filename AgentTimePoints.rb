@@ -68,7 +68,7 @@ class AgentTimePoints
                 object              = {}
                 object["uuid"]      = uuid
                 object["agent-uid"] = self.agentuuid()
-                object["metric"]    = self.ratioToMetric(ratio)
+                object["metric"]    = Chronos::isRunning(uuid) ? 2 : self.ratioToMetric(ratio)
                 object["announce"]  = "time point: #{description} ( #{100*ratio.round(2)} % of #{lisa["time-commitment-in-hours"]} hours )"
                 object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
