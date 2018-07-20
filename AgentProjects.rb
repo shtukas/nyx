@@ -55,6 +55,9 @@ class AgentProjects
                     if announce.include?("(main)") then
                         metric = metric*0.9
                     end
+                    if Chronos::isRunning(item["uuid"]) then
+                        metric = 2 + CommonsUtils::traceToMetricShift(item["uuid"])
+                    end
                     object              = {}
                     object["uuid"]      = item["uuid"]
                     object["agent-uid"] = self.agentuuid()
