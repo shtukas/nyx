@@ -51,7 +51,7 @@ class AgentProjects
                     objectuuids = ProjectsCore::confirmedAliveCatalystObjectsUUIDsForProjectItem(item["uuid"])
                     catalystObjectsFragment = objectuuids.size > 0 ? "{ attached Catalyst Objects: #{objectuuids.size} }" : ""
                     announce = "project: #{ProjectsCore::projectUUID2NameOrNull(projectuuid)} / #{item["description"]} #{timeFragment} #{catalystObjectsFragment}"
-                    metric = MetricsOfTimeStructures::metric2(item["uuid"], 0.1, 0.5, 0.6, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
+                    metric = MetricsOfTimeStructures::metric4(item["uuid"], 0.1, 0.5, 0.6, timestructure) + CommonsUtils::traceToMetricShift(item["uuid"])
                     if announce.include?("(main)") then
                         metric = metric*0.9
                     end
