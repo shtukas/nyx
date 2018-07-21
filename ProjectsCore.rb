@@ -12,17 +12,21 @@ require 'securerandom'
 
 # -------------------------------------------------------------
 
+PROJECTS_CORE_PATH_TO_PROJECTS_FOLDERS_FILE = "/Galaxy/DataBank/Catalyst/ProjectsFolders.txt"
+
 class ProjectsCore
 
     # ---------------------------------------------------
+    # ProjectsCore::fs_locations()    
     # ProjectsCore::projectsUUIDs()
     # ProjectsCore::fs_uuid2locationOrNull(uuid)
     # ProjectsCore::fs_uuids()
 
     def self.fs_locations()
-        Dir.entries("/Galaxy/Projects")
-            .select{|filename| (filename[0,1] != ".") and (filename != 'Icon'+["0D"].pack("H*")) }
-            .map{|filename| "/Galaxy/Projects/#{filename}" }
+        IO.read(PROJECTS_CORE_PATH_TO_PROJECTS_FOLDERS_FILE)
+            .lines
+            .map{|line| line.strip }
+            .select{|line| line.size>0 }
     end
 
     def self.fs_location2UUID(location)
@@ -337,3 +341,14 @@ class ProjectsCore
     end
 
 end
+
+if ProjectsCore::fs_locations().any?{|folderpath| !File.exists?(folderpath) } then
+    ProjectsCore::fs_locations()
+        .select{|folderpath| !File.exists?(folderpath) }
+        .each{|folderpath|
+            puts "Catalyst: ProjectsCore Integrity Check: Cannot see project folder: #{folderpath}"
+        }
+    exit
+end
+
+
