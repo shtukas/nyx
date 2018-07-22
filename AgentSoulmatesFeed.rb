@@ -15,7 +15,7 @@ Bob::registerAgent(
     }
 )
 
-EVEONLINE_BINARY_FILEPATH = "/Users/pascal/Desktop/SoulmatesFeed"
+SOULMATES_FEED_BINARY_FILEPATH = "/Users/pascal/Desktop/SoulmatesFeed"
 
 # AgentSoulmatesFeed::agentuuid()
 
@@ -31,32 +31,42 @@ class AgentSoulmatesFeed
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        message = FKVStore::getOrNull("ae4fcccc-e390-408e-af92-a53a5f3b708b")
-        if message.nil? then
-            if CommonsUtils::trueNoMoreOftenThanNEverySeconds("/x-space/x-cache", "4ed58d61-9c83-4e31-9444-9d663e908376", 3600*2) then
-                message = `/Galaxy/LucilleOS/Binaries/Soulmates-Feed`.strip  
-            end
+        lastQueryUnixtime = FKVStore::getOrDefaultValue("last-open-unixtime:152182f3-f039-4d87-a79b-92c9a679b03e", "0").to_i
+        if (Time.new.to_i-lastQueryUnixtime)>=3600 then
+
+
         end
-        return if message.nil?        
-        object = {
-            "uuid"      => "5d5490bb",
-            "agent-uid" => self.agentuuid(),
-            "metric"    => 1,
-            "announce"  => "#{message}",
-            "commands"  => message.start_with?("http") ? ["open"] : ["done"],
-            "default-expression" => message.start_with?("http") ? "open" : "done",
-            "message" => message
-        }
-        TheFlock::addOrUpdateObject(object)
+        if FKVStore::getOrNull("packet:64f30b2a-0a39-4ef7-acb4-f72c295cbc37") or () then
+            packet = FKVStore::getOrNull("packet:64f30b2a-0a39-4ef7-acb4-f72c295cbc37")
+            packet = 
+                if packet then
+                    JSON.parse(packet)
+                else
+                    packet = JSON.parse(`/Galaxy/LucilleOS/Binaries/Soulmates-Feed api:total-review-feeder`.strip)
+                    FKVStore::set("packet:64f30b2a-0a39-4ef7-acb4-f72c295cbc37", JSON.generate(packet))
+                    packet
+                end
+            object = {
+                "uuid"      => "d2cefd09",
+                "agent-uid" => self.agentuuid(),
+                "metric"    => 0.7*Math.exp( -(Time.new.to_i-packet[2]).to_f/3600 ) + 0.3,
+                "announce"  => "#{packet[1]}",
+                "commands"  => packet[0] ? ["open"] : ["done"],
+                "default-expression" => packet[0] ? "open" : "done",
+                "packet" => packet
+            }
+            TheFlock::addOrUpdateObject(object)
+        end
+
     end
 
     def self.processObjectAndCommand(object, command)
         if command == "open" then
-            system("open '#{object["message"]}'")
-            FKVStore::delete("ae4fcccc-e390-408e-af92-a53a5f3b708b")
-        end
-        if command == "done" then
-            FKVStore::delete("ae4fcccc-e390-408e-af92-a53a5f3b708b")
+            if object["packet"][1].start_with?("http") then
+                system("open '#{object["packet"][1]}'")
+            end
+            FKVStore::delete("packet:64f30b2a-0a39-4ef7-acb4-f72c295cbc37")
+            FKVStore::set("last-open-unixtime:152182f3-f039-4d87-a79b-92c9a679b03e", Time.new.to_i)
         end
     end
 end
