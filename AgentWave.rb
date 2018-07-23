@@ -586,8 +586,7 @@ class AgentWave
     def self.performStop(object)
         uuid = object['uuid']
         schedule = object['schedule']
-        timeSpanInSeconds = Chronos::stop(uuid)
-        ProjectsCore::ui_donateTimeSpanInSecondsToInteractivelyChosenProjectLocalCommitmentItem(timeSpanInSeconds)
+        Chronos::stop(uuid)
         AgentWave::rePublishWaveObjectAtFlock(uuid)
     end
 

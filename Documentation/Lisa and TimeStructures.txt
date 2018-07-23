@@ -1,0 +1,11 @@
+TimeStructure { 
+    :time-commitment-in-hours  : Float
+    :time-unit-in-days         : Float
+}
+
+lisa { 
+    :uuid           : String
+    :unixtime       : Integer
+    :description    : String
+    :time-structure : TimeStructure
+}

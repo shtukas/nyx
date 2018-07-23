@@ -168,8 +168,8 @@ class CatalystInterfaceUtils
             end
 
             system("clear")
-            averageDailyCommitmentInHours, doneInHours, percentageDone = ProjectsCore::projectsTimes()
-            puts "Average project time: #{"%.2f" % ProjectsCore::averageDailyCommitmentInHours()} hours/day ( #{"%.2f" % percentageDone} % done )"
+            averageDailyCommitmentInHours, doneInHours, percentageDone = [4, 3, 0.75]
+            puts "Total lisa time: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )"
             puts ""
 
             standardlp = CommonsUtils::getStandardListingPosition()

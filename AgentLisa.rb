@@ -29,15 +29,15 @@ require_relative "Bob.rb"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "AgentTimePoints2",
+        "agent-name"      => "AgentLisa",
         "agent-uid"       => "201cac75-9ecc-4cac-8ca1-2643e962a6c6",
-        "general-upgrade" => lambda { AgentTimePoints2::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentTimePoints2::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentTimePoints2::interface() }
+        "general-upgrade" => lambda { AgentLisa::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentLisa::processObjectAndCommand(object, command) },
+        "interface"       => lambda{ AgentLisa::interface() }
     }
 )
 
-class AgentTimePoints2
+class AgentLisa
 
     def self.agentuuid()
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
@@ -54,17 +54,17 @@ class AgentTimePoints2
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/time-points2")
+        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/lisas")
             .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/time-points2/#{filename}" }
+            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/lisas/#{filename}" }
             .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
             .map{|data|
                 filepath, lisa = data
-                # lisa: { :uuid, :unixtime :description, :time-struture }
+                # lisa: { :uuid, :unixtime :description, :timestructure }
                 uuid = lisa["uuid"]
                 description = lisa["description"]
                 timestructure = lisa["time-struture"]
-                timedoneInHours, timetodoInHours, ratio = TimeStructuresOperator::doneMetricsForTimeStructure(uuid, timestructure)
+                timedoneInHours, timetodoInHours, ratio = Lisa::metricsForTimeStructure(uuid, timestructure)
                 metric = self.ratioToMetric(ratio)
                 if ratio>1 then
                     metric = 1.5 + CommonsUtils::traceToMetricShift(uuid)
@@ -73,10 +73,10 @@ class AgentTimePoints2
                     metric = 2 + CommonsUtils::traceToMetricShift(uuid)
                 end
                 object              = {}
-                object["uuid"]      = uuid
+                object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = metric 
-                object["announce"]  = "time point: #{description} ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
+                object["announce"]  = "lisa: #{description} ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
                 object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(uuid)
@@ -101,12 +101,12 @@ class AgentTimePoints2
             Chronos::start(uuid)
         end
         if command=='stop' then
-            # To be implemented.            
+            uuid = object["uuid"]
+            Chronos::stop(uuid)           
         end
         if command=="add-time" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
             Chronos::addTimeInSeconds(object["uuid"], timeInHours*3600)
-            ProjectsCore::ui_donateTimeSpanInSecondsToInteractivelyChosenProjectLocalCommitmentItem(timeInHours*3600)
         end
         if command=='destroy' 
             filepath = object["item-data"]["filepath"]

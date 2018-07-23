@@ -275,17 +275,10 @@ class CommonsUtils
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
         Bob::generalFlockUpgrade()
-        projectsObjectsUUIDs = ProjectsCore::confirmedAliveCatalystObjectsUUIDsAcrossProjects()
         TheFlock::flockObjects()
             .map{|object| object.clone }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeTransform(object) }
             .map{|object| RequirementsOperator::transform(object) }
-            .map{|object| 
-                if projectsObjectsUUIDs.include?(object["uuid"]) then
-                    object["metric"] = 0.1
-                end
-                object
-            }
     end
 
     def self.flockDisplayObjects()
@@ -302,9 +295,9 @@ class CommonsUtils
     def self.putshelp()
         puts "Special General Commands"
         puts "    help"
-        puts "    search <pattern: String>"
-        puts "    requirement on <requirement: String>"
-        puts "    requirement off <requirement: String>"
+        puts "    search <pattern>"
+        puts "    requirement on <requirement>"
+        puts "    requirement off <requirement>"
         puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
         puts "    projects # projects dive"
         puts "    email-sync  # run email sync"
@@ -312,23 +305,22 @@ class CommonsUtils
         puts "    lib         # Invoques the Librarian interactive"
         puts ""
         puts "Special General Commands Inserts"
-        puts "    wave: <description: String>"
-        puts "    stream: <description: String>"
-        puts "    project: <description: String>"
-        puts "    time: <float> <description: String>"
+        puts "    wave: <description>"
+        puts "    stream: <description>"
+        puts "    project: <description>"
+        puts "    lisa: <timeCommitmentInHours> <timeUnitInDays> <description>"
         puts ""
         puts "Special Commands Object Targetting"
         puts ":<p> is either :<integer> or :this"
         puts "    :<p>                 # set the listing reference point"
-        puts "    :<p> metric <metric> # set metric override for the item at position"
         puts "    :<p> <command>       # run command on the item at position"
         puts ""
         puts "Special Commands Object:"
         puts "    + # add 1 to the standard listing position"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
-        puts "    require <requirement: String>"
-        puts "    requirement remove <requirement: String>"
+        puts "    require <requirement>"
+        puts "    requirement remove <requirement>"
         puts "    >project # add the object to a project local item (interactive selection)"
         puts "    command ..."
     end
@@ -381,11 +373,6 @@ class CommonsUtils
             return
         end
 
-        if expression == "projects" then
-            ProjectsCore::ui_projectsDive()
-            return
-        end
-
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             CommonsUtils::waveInsertNewItemInteractive(description)
@@ -402,21 +389,14 @@ class CommonsUtils
             return
         end
 
-        if expression.start_with?('project:') then
-            description = expression[8, expression.size].strip
-            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            projectuuid = ProjectsCore::createNewProject(description, LucilleCore::askQuestionAnswerAsString("Time unit in days: ").to_f, LucilleCore::askQuestionAnswerAsString("Time commitment in hours: ").to_f)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?('time:') then
-            token1, rest1 = StringParser::decompose(expression)
-            token2, rest2 = StringParser::decompose(rest1)
+        if expression.start_with?('lisa:') then
+            _, rest0 = StringParser::decompose(expression)
+            timeCommitmentInHours, rest1 = StringParser::decompose(rest0)
+            timeUnitInDays, rest2 = StringParser::decompose(rest1)
             description = rest2
-            timeCommitmentInHours = token2.to_f
-            timepoint = TimePointsOperator::issueTimePoint(timeCommitmentInHours, description)
-            puts JSON.pretty_generate(timepoint)
+            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
+            lisa = Lisa::issueNew(description, timestructure)
+            puts JSON.pretty_generate(lisa)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -470,17 +450,6 @@ class CommonsUtils
             LucilleCore::pressEnterToContinue()
             return
         end
-
-        if expression == '>project' then
-            projectuuid = ProjectsCore::ui_interactivelySelectProjectUUIDOrNUll()
-            localitem = ProjectsCore::ui_interactivelySelectProjectLocalCommitmentItemOrNUll(projectuuid)
-            ProjectsCore::addCatalystObjectToEntity(object["uuid"], localitem["uuid"])
-            # It the catalyst item was an email, we need to logically detach it from the email client
-            AgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(object["uuid"])
-            return
-
-        end
-        
 
         if expression.start_with?('+') then
             code = expression
