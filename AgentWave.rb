@@ -211,7 +211,13 @@ class WaveSchedules
 
         if schedule['@'] == 'new' then
             ageInHours = (Time.new.to_f - schedule['unixtime']).to_f/3600
-            return 0.2 + 0.630*(1-Math.exp(-ageInHours))
+            ageInDays = (Time.new.to_f - schedule['unixtime']).to_f/86400
+            # metric between 0.2 and 0.830
+            if ageInHours < 24 then
+                return 0.2 + 0.4*(1-Math.exp(-ageInHours))
+            else
+                return 0.6 + 0.230*(1-Math.exp(-ageInDays))
+            end
         end
         if schedule['@'] == 'today' then
             return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
