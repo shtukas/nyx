@@ -62,7 +62,7 @@ class WaveSchedules
 
     def self.makeScheduleObjectInteractivelyEnsureChoice()
 
-        scheduleTypes = ['new', 'today', 'sticky', 'date', 'repeat']
+        scheduleTypes = ['new', 'sticky', 'date', 'repeat']
         scheduleType = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
@@ -70,13 +70,6 @@ class WaveSchedules
             schedule = {
                 "uuid" => SecureRandom.hex,
                 "@"    => "new",
-                "unixtime" => Time.new.to_i
-            }
-        end
-        if scheduleType=='today' then
-            schedule = {
-                "uuid" => SecureRandom.hex,
-                "@"    => "today",
                 "unixtime" => Time.new.to_i
             }
         end
@@ -139,9 +132,6 @@ class WaveSchedules
         if schedule['@'] == 'new' then
             return "new"
         end
-        if schedule['@'] == 'today' then
-            return "today"
-        end
         if schedule['@'] == 'sticky' then
             # Backward compatibility
             if schedule['from-hour'].nil? then
@@ -201,12 +191,6 @@ class WaveSchedules
 
     def self.scheduleToMetric(schedule)
 
-        # Special Circumstances
-
-        if schedule['metric'] then
-            return schedule['metric'] # set by wave emails
-        end
-
         # One Offs
 
         if schedule['@'] == 'new' then
@@ -214,13 +198,10 @@ class WaveSchedules
             ageInDays = (Time.new.to_f - schedule['unixtime']).to_f/86400
             # metric between 0.2 and 0.830
             if ageInHours < 24 then
-                return 0.2 + 0.4*(1-Math.exp(-ageInHours))
+                return 0.5 + 0.2*(1-Math.exp(-ageInHours))
             else
-                return 0.6 + 0.230*(1-Math.exp(-ageInDays))
+                return 0.7 + 0.130*(1-Math.exp(-ageInDays))
             end
-        end
-        if schedule['@'] == 'today' then
-            return 0.8 - 0.05*Math.exp( -0.1*(Time.new.to_i-schedule['unixtime']).to_f/86400 )
         end
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility
@@ -575,7 +556,7 @@ class AgentWave
     def self.performDone(object)
         uuid = object['uuid']
         schedule = object['schedule']
-        if ["new", 'today', 'ondate'].include?(schedule['@']) then
+        if ["new", 'ondate'].include?(schedule['@']) then
             self.doneObjectWithOneOffTask(object)
         end
         if ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week'].include?(schedule['@']) then

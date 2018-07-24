@@ -1,14 +1,17 @@
 
          0.900  Wave: stickies
 0.840 -> 0.850  Today+Calendar
-0.500 -> 0.850  time points
+0.500 -> 0.850  lisa # metric = 1 if ratio > 1
 0.200 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats
-      -> 0.800  stream
-      -> 0.800  Vienna
-0.500 -> 0.600  projects (pause at 0.1)
-      -> 0.600  Ninja
 
-         0.200  Water Level (items below this metric are not shown)
+
+-------- 0.500  Space Level (items above this metric must be cleared before night)
+
+0.200 -> 0.500  Vienna
+0.200 -> 0.500  Ninja
+0.200 -> 0.500  Stream
+
+-------- 0.200  Water Level (items below this metric are not shown)
 
          0.000  Not To Be Done

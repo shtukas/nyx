@@ -135,7 +135,7 @@ class AgentStream
     end
 
     def self.agentMetric()
-        0.8 * Math.exp( -Chronos::summedTimespansWithDecayInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY, 1).to_f/3600 )
+        0.2 + 0.3*Math.exp( -Chronos::summedTimespansWithDecayInSeconds(CATALYST_COMMON_AGENTSTREAM_METRIC_GENERIC_TIME_TRACKING_KEY, 1).to_f/3600 )
     end
 
     def self.generalFlockUpgrade()
@@ -157,7 +157,7 @@ class AgentStream
             .each{|object|
                 uuid = object["uuid"]
                 status = Chronos::status(uuid)
-                object["metric"]              = self.agentMetric() + CommonsUtils::traceToMetricShift(uuid)
+                object["metric"]              = self.agentMetric() - CommonsUtils::traceToMetricShift(uuid)
                 object["commands"]            = AgentStream::uuid2commands(uuid, status)
                 object["default-expression"]  = AgentStream::uuid2defaultExpression(uuid, status)
                 object["item-data"]["status"] = status

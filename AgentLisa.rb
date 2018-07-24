@@ -64,7 +64,7 @@ class AgentLisa
                 timedoneInHours, timetodoInHours, ratio = Lisa::metricsForTimeStructure(uuid, timestructure)
                 metric = self.ratioToMetric(ratio)
                 if ratio>1 then
-                    metric = 1.5 + CommonsUtils::traceToMetricShift(uuid)
+                    metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
                 end
                 if Chronos::isRunning(uuid) then
                     metric = 2 + CommonsUtils::traceToMetricShift(uuid)

@@ -51,7 +51,7 @@ class AgentNinja
         object = {
             "uuid"      => "96287511",
             "agent-uid" => self.agentuuid(),
-            "metric"    => packet["metric"],
+            "metric"    => 0.2 + 0.3*packet["metric"], # The metric given by ninja is between 0 and 1
             "announce"  => "ninja: folderpath: #{packet["folderpath"]}",
             "commands"  => [],
             "default-expression" => "play",
