@@ -96,17 +96,16 @@ class AgentLisa
     end
 
     def self.processObjectAndCommand(object, command)
+        uuid = object["uuid"]
         if command=='start' then
-            uuid = object["uuid"]
             Chronos::start(uuid)
         end
         if command=='stop' then
-            uuid = object["uuid"]
-            Chronos::stop(uuid)           
+            Chronos::stop(uuid)    
         end
         if command=="add-time" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-            Chronos::addTimeInSeconds(object["uuid"], timeInHours*3600)
+            Chronos::addTimeInSeconds(uuid, timeInHours*3600)
         end
         if command=='destroy' 
             filepath = object["item-data"]["filepath"]
