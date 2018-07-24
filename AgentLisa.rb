@@ -62,7 +62,7 @@ class AgentLisa
                 description = lisa["description"]
                 timestructure = lisa["time-structure"]
                 timedoneInHours, timetodoInHours, ratio = Lisa::metricsForTimeStructure(uuid, timestructure)
-                metric = self.ratioToMetric(ratio)
+                metric = self.ratioToMetric(ratio) + CommonsUtils::traceToMetricShift(uuid)
                 if ratio>1 then
                     metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
                 end
