@@ -168,8 +168,9 @@ class CatalystInterfaceUtils
             end
 
             system("clear")
-            averageDailyCommitmentInHours, doneInHours, percentageDone = [4, 3, 0.75]
-            puts "Total lisa time: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )"
+            averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
+            percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
+            puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )"
             puts ""
 
             standardlp = CommonsUtils::getStandardListingPosition()

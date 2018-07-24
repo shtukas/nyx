@@ -54,16 +54,13 @@ class AgentLisa
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/lisas")
-            .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/lisas/#{filename}" }
-            .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
+        LisaUtils::lisasWithFilepaths()
             .map{|data|
-                filepath, lisa = data
+                lisa, filepath = data
                 # lisa: { :uuid, :unixtime :description, :timestructure }
                 uuid = lisa["uuid"]
                 description = lisa["description"]
-                timestructure = lisa["time-struture"]
+                timestructure = lisa["time-structure"]
                 timedoneInHours, timetodoInHours, ratio = Lisa::metricsForTimeStructure(uuid, timestructure)
                 metric = self.ratioToMetric(ratio)
                 if ratio>1 then

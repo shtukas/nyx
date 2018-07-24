@@ -12,7 +12,7 @@ class Lisa
             "uuid" => SecureRandom.hex(4),
             "unixtime" => Time.new.to_i,
             "description" => description,
-            "time-struture" => timestructure
+            "time-structure" => timestructure
         }
         File.open("/Galaxy/DataBank/Catalyst/Agents-Data/lisas/#{LucilleCore::timeStringL22()}.json", "w") { |f| f.puts(JSON.pretty_generate(data)) }
         data
