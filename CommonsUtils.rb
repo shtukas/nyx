@@ -299,7 +299,7 @@ class CommonsUtils
         puts "    requirement on <requirement>"
         puts "    requirement off <requirement>"
         puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    projects # projects dive"
+        puts "    lisas # lisas dive"
         puts "    email-sync  # run email sync"
         puts "    interface   # select an agent and run the interface"
         puts "    lib         # Invoques the Librarian interactive"
@@ -373,6 +373,11 @@ class CommonsUtils
             return
         end
 
+        if expression == 'lisas' then
+            LisaUtils::ui_listing()
+            return
+        end
+
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             CommonsUtils::waveInsertNewItemInteractive(description)
@@ -395,7 +400,7 @@ class CommonsUtils
             timeUnitInDays, rest2 = StringParser::decompose(rest1)
             description = rest2
             timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-            lisa = Lisa::issueNew(description, timestructure)
+            lisa = LisaUtils::issueNew(description, timestructure)
             puts JSON.pretty_generate(lisa)
             LucilleCore::pressEnterToContinue()
             return
