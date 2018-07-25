@@ -282,8 +282,9 @@ class CommonsUtils
     end
 
     def self.flockDisplayObjects()
+        displayMetric = ( CommonsUtils::getTravelMode()=="space" ) ? 0.5 : 0.2
         CommonsUtils::flockObjectsUpgraded()
-            .select{ |object| object["metric"]>=0.2 }
+            .select{ |object| object["metric"]>=displayMetric }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
     end
@@ -496,6 +497,14 @@ class CommonsUtils
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
         CommonsUtils::processObjectAndCommand(object, command)
+    end
+
+    def self.getTravelMode() # "space", "atmostphere"
+        FKVStore::getOrDefaultValue("73625650-4347-4e3f-b93f-b8c40fb89f05:#{CommonsUtils::currentDay()}", "space")
+    end
+
+    def self.moveToAtmosphere()
+        FKVStore::set("73625650-4347-4e3f-b93f-b8c40fb89f05:#{CommonsUtils::currentDay()}", "atmostphere")
     end
 
 end
