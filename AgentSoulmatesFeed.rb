@@ -43,7 +43,7 @@ class AgentSoulmatesFeed
         object = {
             "uuid"      => "d2cefd09",
             "agent-uid" => self.agentuuid(),
-            "metric"    => 0.3 + 0.7*Math.exp( -(Time.new.to_i-packet[2]).to_f/7200 ),
+            "metric"    => BulletsStream::metric("00391F0D-1579-4BA3-88FB-16BECA05E677", 1, 3),
             "announce"  => "#{packet[1]}",
             "commands"  => [],
             "default-expression" => "eab0bdd6-c6f4-4c6a-bb6b-30ef77936fdc",
@@ -58,6 +58,7 @@ class AgentSoulmatesFeed
                 system("open '#{object["packet"][1]}'")
             end
             FKVStore::delete("packet:64f30b2a-0a39-4ef7-acb4-f72c295cbc38")
+            BulletsStream::register("00391F0D-1579-4BA3-88FB-16BECA05E677")
         end
     end
 end
