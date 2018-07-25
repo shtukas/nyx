@@ -100,8 +100,12 @@ class AgentLisa
         end
         if command=='stop' then
             Chronos::stop(uuid)
-            lisa = objectt["item-data"]["lisa"]
-            if !lisa["repeat"] then
+            lisa = object["item-data"]["lisa"]
+            uuid = lisa["uuid"]
+            description = lisa["description"]
+            timestructure = lisa["time-structure"]
+            timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
+            if ratio>1 and !lisa["repeat"] then
                 puts "destroying lisa: #{JSON.generate(lisa)}"
                 LucilleCore::pressEnterToContinue()
                 filepath = object["item-data"]["filepath"]
