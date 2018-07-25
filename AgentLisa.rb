@@ -57,10 +57,11 @@ class AgentLisa
         LisaUtils::lisasWithFilepaths()
             .map{|data|
                 lisa, filepath = data
-                # lisa: { :uuid, :unixtime :description, :timestructure }
+                # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
                 uuid = lisa["uuid"]
                 description = lisa["description"]
                 timestructure = lisa["time-structure"]
+                repeat = lisa["repeat"]
                 timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
                 metric = self.ratioToMetric(ratio) + CommonsUtils::traceToMetricShift(uuid)
                 if ratio>1 then
@@ -73,7 +74,7 @@ class AgentLisa
                 object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = metric 
-                object["announce"]  = "lisa: #{description} ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
+                object["announce"]  = "lisa: #{description} #{repeat ? "[repeat]" : ""} ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
                 object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(uuid)
@@ -98,7 +99,14 @@ class AgentLisa
             Chronos::start(uuid)
         end
         if command=='stop' then
-            Chronos::stop(uuid)    
+            Chronos::stop(uuid)
+            lisa = objectt["item-data"]["lisa"]
+            if !lisa["repeat"] then
+                puts "destroying lisa: #{JSON.generate(lisa)}"
+                LucilleCore::pressEnterToContinue()
+                filepath = object["item-data"]["filepath"]
+                FileUtils.rm(filepath)
+            end
         end
         if command=="add-time" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f

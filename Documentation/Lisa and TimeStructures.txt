@@ -8,4 +8,5 @@ lisa {
     :unixtime       : Integer
     :description    : String
     :time-structure : TimeStructure
+    :repeat         : Boolean
 }

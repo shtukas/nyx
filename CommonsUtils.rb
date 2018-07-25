@@ -308,7 +308,7 @@ class CommonsUtils
         puts "    wave: <description>"
         puts "    stream: <description>"
         puts "    project: <description>"
-        puts "    lisa: <timeCommitmentInHours> <timeUnitInDays> <description>"
+        puts "    lisa: <timeCommitmentInHours> <timeUnitInDays> <repeat: boolean> <description>"
         puts ""
         puts "Special Commands Object Targetting"
         puts ":<p> is either :<integer> or :this"
@@ -398,8 +398,10 @@ class CommonsUtils
             _, rest0 = StringParser::decompose(expression)
             timeCommitmentInHours, rest1 = StringParser::decompose(rest0)
             timeUnitInDays, rest2 = StringParser::decompose(rest1)
-            description = rest2
-            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
+            repeat, rest3 = StringParser::decompose(rest2)
+            description = rest3
+            repeat = (repeat=="true")
+            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f, "repeat" => repeat }
             lisa = LisaUtils::issueNew(description, timestructure)
             puts JSON.pretty_generate(lisa)
             LucilleCore::pressEnterToContinue()

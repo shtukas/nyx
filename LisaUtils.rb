@@ -3,7 +3,7 @@
 
 class LisaUtils
 
-    # lisa: { :uuid, :unixtime :description, :timestructure }
+    # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
 
     # LisaUtils::lisasWithFilepaths()
     def self.lisasWithFilepaths()
@@ -62,7 +62,6 @@ class LisaUtils
         LisaUtils::lisasWithFilepaths()
             .each{|data|
                 lisa, filepath = data
-                # lisa: { :uuid, :unixtime :description, :timestructure }
                 puts JSON.generate(lisa)        
             }
         LucilleCore::pressEnterToContinue()
