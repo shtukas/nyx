@@ -31,6 +31,7 @@ class AgentSoulmatesFeed
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
+        return if !CommonsUtils::isLucille18()
         packet = FKVStore::getOrNull("packet:64f30b2a-0a39-4ef7-acb4-f72c295cbc38")
         packet = 
             if packet then
