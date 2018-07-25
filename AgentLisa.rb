@@ -85,7 +85,7 @@ class AgentLisa
                 object                   
             }
             .each{|object|
-                if object["item-data"]["ratio"] > 1 then
+                if object["is-running"] and object["item-data"]["ratio"] > 1 then
                     system("terminal-notifier -title 'Catalyst Lisa' -message '#{object["item-data"]["lisa"]["description"]} is done'")
                     sleep 2
                 end
