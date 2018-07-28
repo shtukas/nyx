@@ -399,7 +399,7 @@ class AgentWave
     end
 
     def self.commands(schedule)
-        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy", ">stream", ">lib", "start", "stop"]
+        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy", ">stream", ">lib"]
         commands
     end
 
@@ -443,7 +443,7 @@ class AgentWave
         if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "every-this-day-of-the-week" then
             return "done"
         end
-        Chronos::isRunning(objectuuid) ? "stop" : "start"
+        nil
     end
 
     def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
@@ -564,13 +564,6 @@ class AgentWave
         end
     end
 
-    def self.performStop(object)
-        uuid = object['uuid']
-        schedule = object['schedule']
-        Chronos::stop(uuid)
-        AgentWave::rePublishWaveObjectAtFlock(uuid)
-    end
-
     def self.disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
         folderpath = catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
@@ -585,27 +578,12 @@ class AgentWave
         uuid = object['uuid']
         schedule = object['schedule']
 
-        if command=='start' then
-            Chronos::start(uuid)
-            AgentWave::rePublishWaveObjectAtFlock(uuid)
-        end
-
-        if command=='stop' then
-            self.performStop(object)
-            if object["commands"].include?("done") and LucilleCore::askQuestionAnswerAsBoolean("Done ? ") then
-                self.performDone(object)
-            end
-        end
-
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
         end
 
         if command=='done' then
-            if Chronos::isRunning(uuid) then
-                self.performStop(object)
-            end
             self.performDone(object)
         end
 
