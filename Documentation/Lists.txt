@@ -1,0 +1,8 @@
+
+(list) {
+    "list-uuid"             : String
+    "description"           : String
+    "catalyst-object-uuids" : Array[String]
+}
+
+
