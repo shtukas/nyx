@@ -292,6 +292,16 @@ class CommonsUtils
             objects = TheFlock::flockObjects()
                 .map{|object| object.clone }
                 .select{|object| list["catalyst-object-uuids"].include?(object["uuid"]) }
+            # ---------------------------------------------------------------------
+            # see marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
+            lisauuid = FKVStore::getOrNull("lisauuid:50047ec7-3a7d-4d55-a191-708ae19e9d9f")
+            if lisauuid then
+                lisa = LisaUtils::getLisaByUUIDOrNull(lisauuid)
+                if lisa then
+                    objects << LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"]))
+                end
+            end
+            # ---------------------------------------------------------------------
             return objects
         end
     end

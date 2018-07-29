@@ -47,42 +47,12 @@ class AgentLisa
         
     end
 
-    def self.ratioToMetric(ratio)
-        ratio = [ratio, 1].min
-        0.5 + 0.35*(1-ratio)
-    end
-
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         LisaUtils::lisasWithFilepaths()
             .map{|data|
                 lisa, filepath = data
-                # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
-                uuid = lisa["uuid"]
-                description = lisa["description"]
-                timestructure = lisa["time-structure"]
-                repeat = lisa["repeat"]
-                timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
-                metric = self.ratioToMetric(ratio) + CommonsUtils::traceToMetricShift(uuid)
-                if ratio>1 then
-                    metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
-                end
-                if Chronos::isRunning(uuid) then
-                    metric = 2 + CommonsUtils::traceToMetricShift(uuid)
-                end
-                object              = {}
-                object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
-                object["agent-uid"] = self.agentuuid()
-                object["metric"]    = metric 
-                object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisa["target"] ? " #{JSON.generate(lisa["target"])}" : "" } ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
-                object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "destroy"]
-                object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
-                object["is-running"] = Chronos::isRunning(uuid)
-                object["item-data"] = {}
-                object["item-data"]["filepath"] = filepath
-                object["item-data"]["lisa"] = lisa
-                object["item-data"]["ratio"] = ratio
-                object                   
+                LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
             }
             .each{|object|
                 if object["is-running"] and object["item-data"]["ratio"] > 1 then
@@ -95,16 +65,38 @@ class AgentLisa
 
     def self.processObjectAndCommand(object, command)
         uuid = object["uuid"]
+        lisa = object["item-data"]["lisa"]
         if command=='start' then
             Chronos::start(uuid)
+            # If a starting lisa is targetting a list, that list should become the default display
+            lisa = object["item-data"]["lisa"]
+            if lisa["target"] then
+                puts "This lisa has a target: #{JSON.generate(lisa["target"])}"
+                LucilleCore::pressEnterToContinue()
+                if lisa["target"][0] == "list" then
+                    displaymode = ["list", lisa["target"][1]] # Yes displaymode is lisa["target"] :)
+                    DisplayModeManager::putDisplayMode(displaymode)
+                    # --------------------------------------------------------------------------
+                    # Marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
+                    # And now we are attempting a reverse look up so that CommonsUtils::flockObjectsUpdatedForDisplay()
+                    # ... knows this came from a Lisa
+                    FKVStore::set("lisauuid:50047ec7-3a7d-4d55-a191-708ae19e9d9f", lisa["uuid"])
+                    # This is not perfect but will do until list display modes can be set by non lisa entities
+                    # --------------------------------------------------------------------------
+                end
+            end
         end
         if command=='stop' then
             Chronos::stop(uuid)
-            lisa = object["item-data"]["lisa"]
-            uuid = lisa["uuid"]
-            description = lisa["description"]
+            if lisa["target"] then
+                if lisa["target"][0] == "list" then
+                    displaymode = ["default"]
+                    DisplayModeManager::putDisplayMode(displaymode)
+                end
+            end
+            lisauuid = lisa["uuid"]
             timestructure = lisa["time-structure"]
-            timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
+            timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(lisauuid, timestructure)
             if ratio>1 and !lisa["repeat"] then
                 puts "destroying lisa: #{JSON.generate(lisa)}"
                 LucilleCore::pressEnterToContinue()
@@ -121,7 +113,6 @@ class AgentLisa
             FileUtils.rm(filepath)
         end
         if command=='set-target'
-            lisa = object["item-data"]["lisa"]
             LisaUtils::ui_setInteractivelySelectedTargetForLisa(lisa["uuid"])
         end
     end

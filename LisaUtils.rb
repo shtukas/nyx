@@ -80,6 +80,40 @@ class LisaUtils
         nil
     end
 
+    # LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
+    def self.makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
+        ratioToMetric = lambda{|ratio|  
+            ratio = [ratio, 1].min
+            0.5 + 0.35*(1-ratio)            
+        }
+        # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
+        uuid = lisa["uuid"]
+        description = lisa["description"]
+        timestructure = lisa["time-structure"]
+        repeat = lisa["repeat"]
+        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
+        metric = ratioToMetric.call(ratio) + CommonsUtils::traceToMetricShift(uuid)
+        if ratio>1 then
+            metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
+        end
+        if Chronos::isRunning(uuid) then
+            metric = 2 + CommonsUtils::traceToMetricShift(uuid)
+        end
+        object              = {}
+        object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
+        object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+        object["metric"]    = metric 
+        object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisa["target"] ? " #{JSON.generate(lisa["target"])}" : "" } ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
+        object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "destroy"]
+        object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
+        object["is-running"] = Chronos::isRunning(uuid)
+        object["item-data"] = {}
+        object["item-data"]["filepath"] = filepath
+        object["item-data"]["lisa"] = lisa
+        object["item-data"]["ratio"] = ratio
+        object 
+    end
+
     # LisaUtils::ui_listing()
     def self.ui_listing()
         LisaUtils::lisasWithFilepaths()
