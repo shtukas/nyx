@@ -3,10 +3,15 @@ TimeStructure {
     :time-unit-in-days         : Float
 }
 
+LisaTarget:
+    null
+    ["list", <listuuid>]
+
 lisa { 
     :uuid           : String
     :unixtime       : Integer
     :description    : String
     :time-structure : TimeStructure
     :repeat         : Boolean
+    :target         : LisaTarget
 }

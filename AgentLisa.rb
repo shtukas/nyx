@@ -74,8 +74,8 @@ class AgentLisa
                 object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
                 object["agent-uid"] = self.agentuuid()
                 object["metric"]    = metric 
-                object["announce"]  = "lisa: #{description} #{repeat ? "[repeat]" : ""} ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
-                object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "destroy"]
+                object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisa["target"] ? " #{JSON.generate(lisa["target"])}" : "" } ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
+                object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "destroy"]
                 object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
                 object["is-running"] = Chronos::isRunning(uuid)
                 object["item-data"] = {}
@@ -119,6 +119,10 @@ class AgentLisa
         if command=='destroy' 
             filepath = object["item-data"]["filepath"]
             FileUtils.rm(filepath)
+        end
+        if command=='set-target'
+            lisa = object["item-data"]["lisa"]
+            LisaUtils::ui_setInteractivelySelectedTargetForLisa(lisa["uuid"])
         end
     end
 end
