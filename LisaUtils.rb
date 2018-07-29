@@ -7,9 +7,9 @@ class LisaUtils
 
     # LisaUtils::lisasWithFilepaths(): [lisa, filepath]
     def self.lisasWithFilepaths()
-        Dir.entries("/Galaxy/DataBank/Catalyst/Agents-Data/lisas")
+        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lisa")
             .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "/Galaxy/DataBank/Catalyst/Agents-Data/lisas/#{filename}" }
+            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lisa/#{filename}" }
             .map{|filepath| [JSON.parse(IO.read(filepath)), filepath] }
     end
 
@@ -39,7 +39,7 @@ class LisaUtils
 
     # LisaUtils::commitLisaToDisk(lisa, filepath)
     def self.commitLisaToDisk(lisa, filepath)
-        File.open("/Galaxy/DataBank/Catalyst/Agents-Data/lisas/#{filepath}", "w") { |f| f.puts(JSON.pretty_generate(lisa)) }
+        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lisa/#{filepath}", "w") { |f| f.puts(JSON.pretty_generate(lisa)) }
     end
     
     # LisaUtils::issueNew(description, timestructure)

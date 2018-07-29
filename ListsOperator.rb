@@ -28,14 +28,14 @@ require_relative "Constants.rb"
 # For the moment, we are not doing list manipulations from Lucille19, because of the
 # way the data is stored.
 
-# CATALYST_COMMON_DATABANK_FOLDERPATH
+# CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH
 
 class ListsOperator
 
     # ListsOperator::commitListToDisk(list)
     def self.commitListToDisk(list)
         listuuid = list["list-uuid"]
-        File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/System-Data/Lists/#{listuuid}.json", "w") {|f| f.puts(JSON.pretty_generate(list)) }
+        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json", "w") {|f| f.puts(JSON.pretty_generate(list)) }
     end
 
     # ListsOperator::createList(description)
@@ -52,14 +52,14 @@ class ListsOperator
 
     # ListsOperator::getListByUUIDOrNull(listuuid)
     def self.getListByUUIDOrNull(listuuid)
-        return nil if !File.exists?("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/System-Data/Lists/#{listuuid}.json")
-        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/System-Data/Lists/#{listuuid}.json"))
+        return nil if !File.exists?("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json")
+        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json"))
     end
 
     # ListsOperator::getLists()
     def self.getLists()
         lists = []
-        Find.find("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/System-Data/Lists") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists") do |path|
             next if File.basename(path)[-5,5] != '.json'
             lists << JSON.parse(IO.read(path))
         end

@@ -37,7 +37,7 @@ require 'mail'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 # -------------------------------------------------------------------------------------
 
-EMAIL_METADATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave/Email-Metadata"
+EMAIL_METADATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/Wave/Email-Metadata"
 
 # EmailUtils::msgToSubject(msg)
 # EmailUtils::msgToBody(msg)

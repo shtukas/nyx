@@ -28,7 +28,7 @@ require_relative "Bob.rb"
 require_relative "Constants.rb"
 # ----------------------------------------------------------------------
 
-WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Agents-Data/Wave"
+WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/Wave"
 WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # ----------------------------------------------------------------------
