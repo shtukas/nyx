@@ -272,15 +272,28 @@ class CommonsUtils
     end
 
     def self.flockObjectsUpdatedForDisplay()
-        # The first upgrade should come first as it makes objects building, metric updates etc.
-        # All the others send metric to zero when relevant and they are all commutative.
         Bob::generalFlockUpgrade()
-        allListsCatalystItemUUIDs = ListsOperator::allListsCatalystItemsUUID()
-        TheFlock::flockObjects()
-            .map{|object| object.clone }
-            .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| RequirementsOperator::updateForDisplay(object) }
-            .map{|object| ListsOperator::updateForDisplay(object, allListsCatalystItemUUIDs) }
+        displayMode = DisplayModeManager::getDisplayMode()
+        if displayMode[0] == "default" then
+            allListsCatalystItemUUIDs = ListsOperator::allListsCatalystItemsUUID()
+            objects = TheFlock::flockObjects()
+                .map{|object| object.clone }
+                .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+                .map{|object| RequirementsOperator::updateForDisplay(object) }
+                .map{|object| ListsOperator::updateForDisplay(object, allListsCatalystItemUUIDs) }
+            return objects
+        end
+        if displayMode[0] == "list" then
+            listuuid = displayMode[1]
+            list = ListsOperator::getListByUUIDOrNull(listuuid)
+            if list.nil? then
+                return []
+            end
+            objects = TheFlock::flockObjects()
+                .map{|object| object.clone }
+                .select{|object| list["catalyst-object-uuids"].include?(object["uuid"]) }
+            return objects
+        end
     end
 
     def self.flockDisplayObjects()
@@ -311,6 +324,8 @@ class CommonsUtils
         puts "    project: <description>"
         puts "    lisa: <timeCommitmentInHours> <timeUnitInDays> <repeat: boolean> <description>"
         puts "    >list"
+        puts "    display:list # select a list and display mode switch to it"
+        puts "    display:default # select a list and display mode switch to it"
         puts ""
         puts "Special Commands Object:"
         puts ":<p> is either :<integer> or :this"
@@ -445,6 +460,15 @@ class CommonsUtils
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
             return
+        end
+
+        if expression == 'display:list' then
+            list = ListsOperator::ui_interactivelySelectListOrNull()
+            DisplayModeManager::putDisplayMode(["list", list["list-uuid"]])
+        end
+
+        if expression == 'display:default' then
+            DisplayModeManager::putDisplayMode(["default"])
         end
 
         return if object.nil?

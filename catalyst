@@ -158,6 +158,9 @@ class CatalystInterfaceUtils
 
     def self.displayLoop(codehash)
         loop {
+
+            displayScreenSizeReductionIndex = 7
+
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                     puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
@@ -171,7 +174,18 @@ class CatalystInterfaceUtils
             averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
             percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
             puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )"
+
             puts ""
+
+            displayMode = DisplayModeManager::getDisplayMode()
+            if displayMode[0] == "list" then
+                listuuid = displayMode[1]
+                list = ListsOperator::getListByUUIDOrNull(listuuid)
+                if !list.nil? then
+                    puts "List: #{list["description"]}".green
+                    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
+                end
+            end
 
             standardlp = CommonsUtils::getStandardListingPosition()
             displayobjects = CommonsUtils::flockDisplayObjects()
@@ -204,12 +218,13 @@ class CatalystInterfaceUtils
 
             # --------------------------------------------------------------------------------
             # Listing display
-            amountToDisplay = [ CommonsUtils::screenHeight()-7, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
-            displayobjectsx = displayobjects.clone.take(amountToDisplay)
+            amountToDisplay = [ CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
+            displayObjectsScreenFitting = displayobjects.clone.take(amountToDisplay)
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+                displayObjectsScreenFitting.pop
             end
-            displayobjectsx.each_with_index{|object, position|
+            displayObjectsScreenFitting.each_with_index{|object, position|
                 puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position+1, standardlp)
             }
             # --------------------------------------------------------------------------------
