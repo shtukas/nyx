@@ -93,6 +93,7 @@ class EventsManager
         end
         enum.to_a.sort{|e1,e2| e1["event-time"]<=>e2["event-time"] }
     end
+    
     def self.filepaths()
         enum = Enumerator.new do |filepaths|
             Find.find(CATALYST_COMMON_PATH_TO_EVENTS_TIMELINE) do |path|

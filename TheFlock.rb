@@ -26,11 +26,8 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "Events.rb"
 # ----------------------------------------------------------------
-
 $flock = nil
-
 # ------------------------------------------------------------------------
-
 # FlockDiskIO::loadFromEventsTimeline()
 
 class FlockDiskIO
