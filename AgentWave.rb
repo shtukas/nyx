@@ -38,8 +38,7 @@ Bob::registerAgent(
         "agent-name"      => "Wave",
         "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
         "general-upgrade" => lambda { AgentWave::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentWave::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentWave::interface() }
+        "object-command-processor" => lambda{ |object, command| AgentWave::processObjectAndCommand(object, command) }
     }
 )
 
@@ -310,7 +309,6 @@ end
 # AgentWave::makeCatalystObjectOrNull(objectuuid)
 # AgentWave::objectUUIDToAnnounce(object,schedule)
 # AgentWave::removeWaveMetadataFilesAtLocation(location)
-# AgentWave::interface()
 # AgentWave::generalFlockUpgrade()
 # AgentWave::processObjectAndCommand(object, command)
 
@@ -457,15 +455,7 @@ class AgentWave
             .map{|filename| "#{location}/#{filename}" }
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
     end
-
-    def self.interface()
-        puts "You are interfacing with Wave"
-        puts "Republishing all items"
-        AgentWave::catalystUUIDsEnumerator()
-            .each{|uuid| AgentWave::rePublishWaveObjectAtFlock(uuid) }
-        LucilleCore::pressEnterToContinue()
-    end
-
+    
     def self.makeCatalystObjectOrNull(objectuuid)
         location = AgentWave::catalystUUIDToItemFolderPathOrNull(objectuuid)
         return nil if location.nil?

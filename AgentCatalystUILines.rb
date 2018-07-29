@@ -11,8 +11,7 @@ Bob::registerAgent(
         "agent-name"      => "CatalystUILines",
         "agent-uid"       => "3d637d25-e634-47f2-b5bd-3d9105ac9da7",
         "general-upgrade" => lambda { AgentCatalystUILines::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentCatalystUILines::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentCatalystUILines::interface() }
+        "object-command-processor" => lambda{ |object, command| AgentCatalystUILines::processObjectAndCommand(object, command) }
     }
 )
 
@@ -22,10 +21,6 @@ class AgentCatalystUILines
 
     def self.agentuuid()
         "3d637d25-e634-47f2-b5bd-3d9105ac9da7"
-    end
-
-    def self.interface()
-        
     end
 
     def self.generalFlockUpgrade()

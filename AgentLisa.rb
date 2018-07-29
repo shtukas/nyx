@@ -32,8 +32,7 @@ Bob::registerAgent(
         "agent-name"      => "AgentLisa",
         "agent-uid"       => "201cac75-9ecc-4cac-8ca1-2643e962a6c6",
         "general-upgrade" => lambda { AgentLisa::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentLisa::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentLisa::interface() }
+        "object-command-processor" => lambda{ |object, command| AgentLisa::processObjectAndCommand(object, command) }
     }
 )
 
@@ -41,10 +40,6 @@ class AgentLisa
 
     def self.agentuuid()
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-    end
-
-    def self.interface()
-        
     end
 
     def self.generalFlockUpgrade()

@@ -26,8 +26,7 @@ Bob::registerAgent(
         "agent-name"      => "Stream",
         "agent-uid"       => "73290154-191f-49de-ab6a-5e5a85c6af3a",
         "general-upgrade" => lambda { AgentStream::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentStream::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentStream::interface() }
+        "object-command-processor" => lambda{ |object, command| AgentStream::processObjectAndCommand(object, command) }
     }
 )
 
@@ -128,10 +127,6 @@ class AgentStream
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         folderpath
-    end
-
-    def self.interface()
-        
     end
 
     def self.agentMetric()

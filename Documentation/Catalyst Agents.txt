@@ -4,8 +4,6 @@ Standard interface for a Catalyst Agent
 agentuuid(): String
     Returns the unique id of the agent. Should never change as it is hardcoded in the stored objects
 
-interface()
-
 generalFlockUpgrade()
 
 processObjectAndCommand(Flock, object, command)

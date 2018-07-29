@@ -32,8 +32,7 @@ Bob::registerAgent(
         "agent-name"      => "Vienna",
         "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
         "general-upgrade" => lambda { AgentVienna::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentVienna::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentVienna::interface() }
+        "object-command-processor" => lambda{ |object, command| AgentVienna::processObjectAndCommand(object, command) }
     }
 )
 
@@ -80,10 +79,6 @@ class AgentVienna
     def self.metric(uuid)
         MiniFIFOQ::takeWhile("timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
         metric = 0.2 + 0.3*CommonsUtils::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) - CommonsUtils::traceToMetricShift(uuid)
-    end
-
-    def self.interface()
-        
     end
 
     def self.generalFlockUpgrade()

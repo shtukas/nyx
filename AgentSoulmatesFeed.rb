@@ -10,8 +10,7 @@ Bob::registerAgent(
         "agent-name"      => "SoulmatesFeed",
         "agent-uid"       => "d5a41176-bd22-4432-9c00-a39ea210fd23",
         "general-upgrade" => lambda { AgentSoulmatesFeed::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentSoulmatesFeed::processObjectAndCommand(object, command) },
-        "interface"       => lambda{ AgentSoulmatesFeed::interface() }
+        "object-command-processor" => lambda{ |object, command| AgentSoulmatesFeed::processObjectAndCommand(object, command) }
     }
 )
 
@@ -23,10 +22,6 @@ class AgentSoulmatesFeed
 
     def self.agentuuid()
         "d5a41176-bd22-4432-9c00-a39ea210fd23"
-    end
-
-    def self.interface()
-        
     end
 
     def self.generalFlockUpgrade()
