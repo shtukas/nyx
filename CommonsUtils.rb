@@ -304,25 +304,21 @@ class CommonsUtils
         puts "    email-sync  # run email sync"
         puts "    interface   # select an agent and run the interface"
         puts "    lib         # Invoques the Librarian interactive"
-        puts ""
-        puts "Special General Commands Inserts"
         puts "    wave: <description>"
         puts "    stream: <description>"
         puts "    project: <description>"
         puts "    lisa: <timeCommitmentInHours> <timeUnitInDays> <repeat: boolean> <description>"
+        puts "    >list"
         puts ""
-        puts "Special Commands Object Targetting"
+        puts "Special Commands Object:"
         puts ":<p> is either :<integer> or :this"
         puts "    :<p>                 # set the listing reference point"
         puts "    :<p> <command>       # run command on the item at position"
-        puts ""
-        puts "Special Commands Object:"
         puts "    + # add 1 to the standard listing position"
         puts "    +datetimecode"
         puts "    expose # pretty print the object"
         puts "    require <requirement>"
         puts "    requirement remove <requirement>"
-        puts "    >project # add the object to a project local item (interactive selection)"
         puts "    command ..."
     end
 
@@ -452,6 +448,13 @@ class CommonsUtils
         return if object.nil?
 
         # object needed
+
+        if expression == '>list' then
+            objectuuid = object["uuid"]
+            list = ListsOperator::ui_interactivelySelectListOrNull()
+            return if list.nil?
+            ListsOperator::addCatalystObjectUUIDToList(objectuuid, list["list-uuid"])
+        end
 
         if expression == 'expose' then
             puts JSON.pretty_generate(object)

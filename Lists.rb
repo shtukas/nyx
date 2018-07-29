@@ -34,6 +34,7 @@ class ListsOperator
 
     # ListsOperator::commitListToDisk(list)
     def self.commitListToDisk(list)
+        listuuid = list["list-uuid"]
         File.open("#{CATALYST_COMMON_DATABANK_FOLDERPATH}/System-Data/Lists/#{listuuid}.json", "w") {|f| f.puts(JSON.pretty_generate(list)) }
     end
 
@@ -65,7 +66,7 @@ class ListsOperator
         lists
     end
 
-    # ListsOperator::getLists()
+    # ListsOperator::addCatalystObjectUUIDToList(objectuuid, listuuid)
     def self.addCatalystObjectUUIDToList(objectuuid, listuuid)
         list = ListsOperator::getListByUUIDOrNull(listuuid)
         return if list.nil?
