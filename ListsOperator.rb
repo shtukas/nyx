@@ -80,6 +80,21 @@ class ListsOperator
         LucilleCore::selectEntityFromListOfEntitiesOrNull("list", ListsOperator::getLists(), lambda{|list| list["description"] })
     end
 
+    # ListsOperator::allListsCatalystItemsUUID()
+    def self.allListsCatalystItemsUUID()
+        ListsOperator::getLists()
+            .map{|list| list["catalyst-object-uuids"] }
+            .flatten
+    end
+
+    # ListsOperator::updateForDisplay(object, allListsCatalystItemUUIDs)
+    def self.updateForDisplay(object, allListsCatalystItemUUIDs)
+        if allListsCatalystItemUUIDs.include?(object["uuid"]) then
+            object["metric"] = [object["metric"], 0.1].min
+        end
+        object
+    end
+
 end
 
 

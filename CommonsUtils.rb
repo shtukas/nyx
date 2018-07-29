@@ -25,7 +25,7 @@ require_relative "Bob.rb"
 # CommonsUtils::traceToRealInUnitInterval(trace)
 # CommonsUtils::traceToMetricShift(trace)
 # CommonsUtils::waveInsertNewItemInteractive(description)
-# CommonsUtils::flockObjectsUpgraded()
+# CommonsUtils::flockObjectsUpdatedForDisplay()
 # CommonsUtils::flockDisplayObjects()
 
 class CommonsUtils
@@ -260,9 +260,9 @@ class CommonsUtils
 
     # -----------------------------------------
 
-    # CommonsUtils::flockObjectsUpgraded()
+    # CommonsUtils::flockObjectsUpdatedForDisplay()
 
-    def self.fDoNotShowUntilDateTimeTransform(object)
+    def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
         if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
             object["do-not-show-until-datetime"] = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
@@ -271,19 +271,21 @@ class CommonsUtils
         object
     end
 
-    def self.flockObjectsUpgraded()
+    def self.flockObjectsUpdatedForDisplay()
         # The first upgrade should come first as it makes objects building, metric updates etc.
         # All the others send metric to zero when relevant and they are all commutative.
         Bob::generalFlockUpgrade()
+        allListsCatalystItemUUIDs = ListsOperator::allListsCatalystItemsUUID()
         TheFlock::flockObjects()
             .map{|object| object.clone }
-            .map{|object| CommonsUtils::fDoNotShowUntilDateTimeTransform(object) }
-            .map{|object| RequirementsOperator::transform(object) }
+            .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+            .map{|object| RequirementsOperator::updateForDisplay(object) }
+            .map{|object| ListsOperator::updateForDisplay(object, allListsCatalystItemUUIDs) }
     end
 
     def self.flockDisplayObjects()
         displayMetric = ( CommonsUtils::getTravelMode()=="space" ) ? 0.5 : 0.2
-        CommonsUtils::flockObjectsUpgraded()
+        CommonsUtils::flockObjectsUpdatedForDisplay()
             .select{ |object| object["metric"]>=displayMetric }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse

@@ -62,7 +62,7 @@ class RequirementsOperator
     # ----------------------------------------------------------------------
 
     # RequirementsOperator::getAllRequirements()
-    # RequirementsOperator::transform(object)
+    # RequirementsOperator::updateForDisplay(object)
 
     def self.getAllRequirements()
         TheFlock::flockObjects().map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
@@ -72,7 +72,7 @@ class RequirementsOperator
         LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
     end
 
-    def self.transform(object)
+    def self.updateForDisplay(object)
         if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
             object["metric"] = 0
