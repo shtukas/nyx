@@ -37,7 +37,7 @@ class FlockDiskIO
         flock["do-not-show-until-datetime-distribution"] = {}
         flock["kvstore"] = {}
         EventsManager::eventsAsTimeOrderedArray()
-            .each{|event| 
+            .each{|event|
                 if event["event-type"] == "Catalyst:Catalyst-Object:1" then
                     object = event["object"]
                     flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
