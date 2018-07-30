@@ -333,7 +333,7 @@ class CommonsUtils
         puts "    stream: <description>"
         puts "    project: <description>"
         puts "    lisa: <timeCommitmentInHours> <timeUnitInDays> <repeat: boolean> <description>"
-        puts "    >list"
+        puts "    list: <description>"
         puts "    display:list # select a list and display mode switch to it"
         puts "    display:default # select a list and display mode switch to it"
         puts ""
@@ -400,6 +400,11 @@ class CommonsUtils
         if expression == 'lisas' then
             LisaUtils::ui_listing()
             return
+        end
+
+        if expression.start_with?("list:") then
+            description = expression[5, expression.size].strip
+            ListsOperator::createList(description)
         end
 
         if expression.start_with?('wave:') then

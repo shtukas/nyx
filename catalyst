@@ -159,7 +159,7 @@ class CatalystInterfaceUtils
     def self.displayLoop(codehash)
         loop {
 
-            displayScreenSizeReductionIndex = 7
+            displayScreenSizeReductionIndex = 8
 
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
@@ -171,11 +171,18 @@ class CatalystInterfaceUtils
             end
 
             system("clear")
+
             averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
             percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
-            puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )"
 
-            puts ""
+            puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )".green
+
+            lists = ListsOperator::getLists()
+            displayScreenSizeReductionIndex = displayScreenSizeReductionIndex - lists.size
+
+            lists.each{|list|
+                puts "list: #{list["description"]}".green
+            }
 
             displayMode = DisplayModeManager::getDisplayMode()
             if displayMode[0] == "list" then
@@ -218,6 +225,9 @@ class CatalystInterfaceUtils
 
             # --------------------------------------------------------------------------------
             # Listing display
+
+            puts ""
+
             amountToDisplay = [ CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
             displayObjectsScreenFitting = displayobjects.clone.take(amountToDisplay)
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
