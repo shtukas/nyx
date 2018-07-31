@@ -87,11 +87,6 @@ class ListsOperator
         ListsOperator::commitListToDisk(list)
     end
 
-    # ListsOperator::ui_interactivelySelectListOrNull()
-    def self.ui_interactivelySelectListOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("list", ListsOperator::getLists(), lambda{|list| list["description"] })
-    end
-
     # ListsOperator::allListsCatalystItemsUUID()
     def self.allListsCatalystItemsUUID()
         ListsOperator::getLists()
@@ -107,6 +102,9 @@ class ListsOperator
         object
     end
 
+    # ListsOperator::ui_interactivelySelectListOrNull()
+    def self.ui_interactivelySelectListOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("list", ListsOperator::getLists(), lambda{|list| list["description"] })
+    end
+
 end
-
-

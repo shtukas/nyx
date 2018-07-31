@@ -180,7 +180,7 @@ class CatalystInterfaceUtils
             lists = ListsOperator::getLists()
 
             lists.each{|list|
-                puts "list: #{list["description"]}".green
+                puts "list: #{list["description"]} (#{list["catalyst-object-uuids"].size})".green
                 displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
             }
 
