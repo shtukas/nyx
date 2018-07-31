@@ -159,7 +159,7 @@ class CatalystInterfaceUtils
     def self.displayLoop(codehash)
         loop {
 
-            displayScreenSizeReductionIndex = 8
+            displayScreenSizeReductionIndex = 6
 
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
@@ -178,10 +178,10 @@ class CatalystInterfaceUtils
             puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )".green
 
             lists = ListsOperator::getLists()
-            displayScreenSizeReductionIndex = displayScreenSizeReductionIndex - lists.size
 
             lists.each{|list|
                 puts "list: #{list["description"]}".green
+                displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
             }
 
             displayMode = DisplayModeManager::getDisplayMode()

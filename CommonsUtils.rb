@@ -332,10 +332,11 @@ class CommonsUtils
         puts "    wave: <description>"
         puts "    stream: <description>"
         puts "    project: <description>"
-        puts "    lisa: <timeCommitmentInHours> <timeUnitInDays> <repeat: boolean> <description>"
+        puts "    lisa: # details entered interactively"
         puts "    list: <description>"
         puts "    display:list # select a list and display mode switch to it"
         puts "    display:default # select a list and display mode switch to it"
+        puts "    destroy:list # destroy a list interactively selected"
         puts ""
         puts "Special Commands Object:"
         puts ":<p> is either :<integer> or :this"
@@ -346,6 +347,7 @@ class CommonsUtils
         puts "    expose # pretty print the object"
         puts "    require <requirement>"
         puts "    requirement remove <requirement>"
+        puts "    >list"
         puts "    command ..."
     end
 
@@ -404,6 +406,7 @@ class CommonsUtils
 
         if expression.start_with?("list:") then
             description = expression[5, expression.size].strip
+            return if description.size == 0 
             ListsOperator::createList(description)
         end
 
@@ -423,13 +426,11 @@ class CommonsUtils
             return
         end
 
-        if expression.start_with?('lisa:') then
-            _, rest0 = StringParser::decompose(expression)
-            timeCommitmentInHours, rest1 = StringParser::decompose(rest0)
-            timeUnitInDays, rest2 = StringParser::decompose(rest1)
-            repeat, rest3 = StringParser::decompose(rest2)
-            description = rest3
-            repeat = (repeat=="true")
+        if expression == 'lisa:' then
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
+            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f, "repeat" => repeat }
             lisa = LisaUtils::issueNew(description, timestructure)
             puts JSON.pretty_generate(lisa)
@@ -480,6 +481,11 @@ class CommonsUtils
         if expression == 'display:list' then
             list = ListsOperator::ui_interactivelySelectListOrNull()
             DisplayModeManager::putDisplayMode(["list", list["list-uuid"]])
+        end
+
+        if expression == 'destroy:list' then
+            list = ListsOperator::ui_interactivelySelectListOrNull()
+            ListsOperator::destroyList(list["list-uuid"])
         end
 
         if expression == 'display:default' then

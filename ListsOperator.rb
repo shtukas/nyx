@@ -9,6 +9,13 @@ require 'securerandom'
 require "json"
 require "find"
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "Constants.rb"
@@ -36,6 +43,11 @@ class ListsOperator
     def self.commitListToDisk(list)
         listuuid = list["list-uuid"]
         File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json", "w") {|f| f.puts(JSON.pretty_generate(list)) }
+    end
+
+    # ListsOperator::destroyList(listuuid)
+    def self.destroyList(listuuid)
+        FileUtils.rm("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json")
     end
 
     # ListsOperator::createList(description)
