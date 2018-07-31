@@ -497,6 +497,11 @@ class CommonsUtils
         # object needed
 
         if expression == '>list' then
+            if object["announce"].include?("lisa:") then
+                puts "You cannot put a lisa into a list"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             objectuuid = object["uuid"]
             list = ListsOperator::ui_interactivelySelectListOrNull()
             return if list.nil?
