@@ -13,5 +13,5 @@ lisa {
     :description    : String
     :time-structure : TimeStructure
     :repeat         : Boolean
-    :target         : LisaTarget
+    :target         : LisaTarget 
 }

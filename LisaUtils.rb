@@ -1,6 +1,26 @@
 
 # encoding: UTF-8
 
+=begin
+    This is a copy of Lisa and TimeStructure
+
+    TimeStructure { 
+        :time-commitment-in-hours  : Float
+        :time-unit-in-days         : Float
+    }
+    LisaTarget:
+        null
+        ["list", <listuuid>]
+    lisa { 
+        :uuid           : String
+        :unixtime       : Integer
+        :description    : String
+        :time-structure : TimeStructure
+        :repeat         : Boolean
+        :target         : LisaTarget 
+    }
+=end
+
 class LisaUtils
 
     # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
@@ -112,11 +132,17 @@ class LisaUtils
         if Chronos::isRunning(uuid) then
             metric = 2 + CommonsUtils::traceToMetricShift(uuid)
         end
+        timeAsString = 
+            if lisa["repeat"] then
+                " ( #{(100*ratio).round(2)} % ; #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours today )"
+            else
+                " (#{(Chronos::summedTimespansInSecondsLiveValue(uuid).to_f/3600).round(2)} hours of #{timestructure["time-commitment-in-hours"]} hours)"
+            end
         object              = {}
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = metric 
-        object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisaTargetToString.call(lisa["target"])} ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
+        object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisaTargetToString.call(lisa["target"])}#{timeAsString}"
         object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "destroy"]
         object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
         object["is-running"] = Chronos::isRunning(uuid)

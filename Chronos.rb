@@ -37,13 +37,34 @@ class Chronos
         timespan
     end
 
+    def self.timings(uuid)
+        MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+    end
+
     def self.addTimeInSeconds(uuid, timespan)
         MiniFIFOQ::push("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}", [Time.new.to_i, timespan])
     end
 
+    # Chronos::summedTimespansInSeconds(uuid)
+
+    def self.summedTimespansInSeconds(uuid)
+        Chronos::timings(uuid)
+            .select{|pair| !pair[0].nil? and !pair[1].nil? }
+            .map{|pair| pair[1] }
+            .inject(0, :+)
+    end
+
+    # Chronos::summedTimespansInSecondsLiveValue(uuid)
+    def self.summedTimespansInSecondsLiveValue(uuid)
+        time_in_seconds = Chronos::summedTimespansInSeconds(uuid)
+        status = Chronos::status(uuid)
+        live_timespan = status[0] ? Time.new.to_i - status[1] : 0
+        time_in_seconds + live_timespan
+    end
+
     def self.summedTimespansWithDecayInSeconds(uuid, timeUnitInDays)
         # The timeUnitInDays controls the rate of decay, we want the time of daily project to decay faster than the time for weekly projects
-        MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
+        Chronos::timings(uuid)
             .select{|pair| !pair[0].nil? and !pair[1].nil? }
             .map{|pair|
                 unixtime = pair[0]
@@ -72,7 +93,4 @@ class Chronos
         ratiodone
     end
 
-    def self.timings(uuid)
-        MiniFIFOQ::values("timespans:f13bdb69-9313-4097-930c-63af0696b92d:#{uuid}")
-    end
 end
