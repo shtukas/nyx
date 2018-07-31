@@ -86,6 +86,19 @@ class LisaUtils
             ratio = [ratio, 1].min
             0.5 + 0.35*(1-ratio)            
         }
+        lisaTargetToString = lambda{|target|
+            return "" if target.nil?
+            if target[0]=="list" then
+                listuuid = target[1]
+                list = ListsOperator::getListByUUIDOrNull(listuuid)
+                if list.nil? then
+                    return " [target: non existent list]"
+                else
+                    return " [target: list: #{list["description"]}]"
+                end
+            end
+            " [target: #{JSON.generate(target)}]"
+        }
         # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
         uuid = lisa["uuid"]
         description = lisa["description"]
@@ -103,7 +116,7 @@ class LisaUtils
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = metric 
-        object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisa["target"] ? " #{JSON.generate(lisa["target"])}" : "" } ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
+        object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisaTargetToString.call(lisa["target"])} ( #{(100*ratio).round(2)} % of #{timestructure["time-commitment-in-hours"]} hours )"
         object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "destroy"]
         object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
         object["is-running"] = Chronos::isRunning(uuid)
