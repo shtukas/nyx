@@ -135,7 +135,7 @@ class LisaUtils
         end
         timeAsString = 
             if lisa["repeat"] then
-                " ( #{(100*ratio).round(2)} % ; #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours today )"
+                " (#{(100*ratio).round(2)} % ; #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours today)"
             else
                 " (#{(Chronos::summedTimespansInSecondsLiveValue(uuid).to_f/3600).round(2)} hours of #{timestructure["time-commitment-in-hours"]} hours)"
             end
