@@ -23,7 +23,8 @@
 
 class LisaUtils
 
-    # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
+    # lisa: { :uuid, :unixtime :description, :timestructure, :repeat, :target }
+    # LisaTarget: null or ["list", <listuuid>]
 
     # LisaUtils::lisasWithFilepaths(): [lisa, filepath]
     def self.lisasWithFilepaths()
@@ -152,6 +153,16 @@ class LisaUtils
         object["item-data"]["ratio"] = ratio
         object 
     end
+
+    # LisaUtils::getLisasByTargetListUUID()
+    def self.getLisasByTargetListUUID(listuuid)
+        LisaUtils::lisasWithFilepaths()
+            .map{|pair| pair[0] }
+            .select{|lisa| lisa["target"] and lisa["target"][0]=="list" and lisa["target"][1]==listuuid }
+    end
+
+    # -----------------------------------------------
+    # UI Utils
 
     # LisaUtils::ui_listing()
     def self.ui_listing()
