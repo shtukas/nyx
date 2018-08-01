@@ -187,15 +187,13 @@ class CatalystInterfaceUtils
                 if lisas.size==0 then
                     puts "list: #{list["description"]} doesn't have a lisa targetting it"
                     puts "creating one:"
+                    description = "lisa for list '#{list["description"]}'"
                     timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
                     timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-                    repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
-                    description = "lisa for list '#{list["description"]}'"
                     timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-                    lisa = LisaUtils::issueNew(description, timestructure)
-                    lisa["repeat"] = repeat
-                    lisa["target"] = ["list", list["list-uuid"]]
-                    LisaUtils::commitLisaToDisk(lisa, File.basename(LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])))
+                    repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
+                    target = ["list", list["list-uuid"]]
+                    lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
                     puts JSON.pretty_generate(lisa)
                     LucilleCore::pressEnterToContinue()
                 end

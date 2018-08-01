@@ -441,14 +441,13 @@ class CommonsUtils
         end
 
         if expression == 'lisa:' then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
             timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-            lisa = LisaUtils::issueNew(description, timestructure)
-            lisa["repeat"] = repeat
-            LisaUtils::commitLisaToDisk(lisa, File.basename(LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])))
+            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
+            target = nil
+            lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
             puts JSON.pretty_generate(lisa)
             LucilleCore::pressEnterToContinue()
             return

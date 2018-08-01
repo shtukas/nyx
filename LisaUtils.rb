@@ -75,6 +75,25 @@ class LisaUtils
         lisa
     end
 
+    # LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
+    # arguments
+    #    description   : String
+    #    timestructure : TimeStructure
+    #    repeat        : Boolean
+    #    target        : LisaTarget    
+    def self.spawnNewLisa(description, timestructure, repeat, target)
+        lisa = {
+            "uuid"           => SecureRandom.hex(4),
+            "unixtime"       => Time.new.to_i,
+            "description"    => description,
+            "time-structure" => timestructure,
+            "repeat"         => repeat,
+            "target"         => target
+        }
+        LisaUtils::commitLisaToDisk(lisa, "#{LucilleCore::timeStringL22()}.json")
+        lisa
+    end
+
     # LisaUtils::metricsForTimeStructure(uuid, timestructure) # [timedoneInHours, timetodoInHours, ratio], [0, 0, nil]
     def self.metricsForTimeStructure(uuid, timestructure)
         if timestructure["time-commitment-in-hours"]==0 then
@@ -195,15 +214,22 @@ class LisaUtils
                 DisplayModeManager::putDisplayMode(displaymode)
             end
         end
-        lisauuid = lisa["uuid"]
-        timestructure = lisa["time-structure"]
-        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(lisauuid, timestructure)
-        if ratio>1 and !lisa["repeat"] then
-            puts "destroying lisa: #{JSON.generate(lisa)}"
-            LucilleCore::pressEnterToContinue()
-            filepath = object["item-data"]["filepath"]
-            FileUtils.rm(filepath)
+        if lisa["repeat"] then
+
+        else
+            lisauuid = lisa["uuid"]
+            timestructure = lisa["time-structure"]
+            if Chronos::summedTimespansInSecondsLiveValue(lisauuid).to_f/3600 >= timestructure["time-commitment-in-hours"] then
+                puts "lisa is done and is non repeat: #{LisaUtils::ui_lisaToString(lisa)}"
+                puts "Destroying..."
+                LucilleCore::pressEnterToContinue()
+                filepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisauuid)
+                return if filepath.nil?
+                puts "Deleting: #{filepath}"
+                FileUtils.rm(filepath)
+            end
         end
+
     end
 
     # -----------------------------------------------
