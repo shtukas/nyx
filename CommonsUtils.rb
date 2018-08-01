@@ -225,13 +225,24 @@ class CommonsUtils
         [uuid, schedule]
     end
 
+    def self.sendCatalystObjectToList(objectuuid, announce)
+        if announce and announce.include?("lisa:") then
+            puts "You cannot put a lisa into a list"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        list = ListsOperator::ui_interactivelySelectListOrNull()
+        return if list.nil?
+        ListsOperator::addCatalystObjectUUIDToList(objectuuid, list["list-uuid"])
+    end
+
     def self.waveInsertNewItemInteractive(description)
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description)
         schedule["made-on-date"] = CommonsUtils::currentDay()
         AgentWave::writeScheduleToDisk(uuid,schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", "goto project"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", ">list"])
             break if option.nil?
             if option == "non new schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
@@ -244,6 +255,9 @@ class CommonsUtils
                         EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
                     end
                 end
+            end
+            if option == ">list" then
+                CommonsUtils::sendCatalystObjectToList(uuid, nil)
             end
         }
     end
@@ -499,15 +513,7 @@ class CommonsUtils
         # object needed
 
         if expression == '>list' then
-            if object["announce"].include?("lisa:") then
-                puts "You cannot put a lisa into a list"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            objectuuid = object["uuid"]
-            list = ListsOperator::ui_interactivelySelectListOrNull()
-            return if list.nil?
-            ListsOperator::addCatalystObjectUUIDToList(objectuuid, list["list-uuid"])
+            CommonsUtils::sendCatalystObjectToList(object["uuid"], object["announce"])
         end
 
         if expression == 'expose' then
