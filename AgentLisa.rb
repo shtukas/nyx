@@ -51,7 +51,7 @@ class AgentLisa
             }
             .each{|object|
                 if object["is-running"] and object["item-data"]["ratio"] > 1 then
-                    system("terminal-notifier -title 'Catalyst Lisa' -message '#{object["item-data"]["lisa"]["description"]} is done'")
+                    system("terminal-notifier -title 'Catalyst Lisa' -message '#{object["item-data"]["lisa"]["description"].gsub("'","")} is done'")
                     sleep 2
                 end
                 TheFlock::addOrUpdateObject(object) 
