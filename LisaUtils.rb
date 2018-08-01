@@ -75,8 +75,11 @@ class LisaUtils
         lisa
     end
 
-    # LisaUtils::metricsForTimeStructure(uuid, timestructure) # [timedoneInHours, timetodoInHours, ratio]
+    # LisaUtils::metricsForTimeStructure(uuid, timestructure) # [timedoneInHours, timetodoInHours, ratio], [0, 0, nil]
     def self.metricsForTimeStructure(uuid, timestructure)
+        if timestructure["time-commitment-in-hours"]==0 then
+            return [0, 0, nil]
+        end
         timedoneInHours = Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, timestructure["time-unit-in-days"]).to_f/3600
         timetodoInHours = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
         ratio = timetodoInHours>0 ? timedoneInHours.to_f/timetodoInHours : nil
@@ -103,7 +106,8 @@ class LisaUtils
 
     # LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
     def self.makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
-        ratioToMetric = lambda{|ratio|  
+        ratioToMetric = lambda{|ratio|
+            return 0.1 if ratio.nil?
             ratio = [ratio, 1].min
             0.5 + 0.35*(1-ratio)            
         }
@@ -127,14 +131,14 @@ class LisaUtils
         repeat = lisa["repeat"]
         timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
         metric = ratioToMetric.call(ratio) + CommonsUtils::traceToMetricShift(uuid)
-        if ratio>1 then
+        if ratio and ratio>1 then
             metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
         end
         if Chronos::isRunning(uuid) then
             metric = 2 + CommonsUtils::traceToMetricShift(uuid)
         end
         timeAsString = 
-            if lisa["repeat"] then
+            if ratio and lisa["repeat"] then
                 " (#{(100*ratio).round(2)} % ; #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours today)"
             else
                 " (#{(Chronos::summedTimespansInSecondsLiveValue(uuid).to_f/3600).round(2)} hours of #{timestructure["time-commitment-in-hours"]} hours)"
