@@ -159,7 +159,7 @@ class CatalystInterfaceUtils
     def self.displayLoop(codehash)
         loop {
 
-            displayScreenSizeReductionIndex = 6
+            displayScreenSizeReductionIndex = 7
 
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
@@ -176,6 +176,7 @@ class CatalystInterfaceUtils
             percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
 
             puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )".green
+            puts ""
 
             lists = ListsOperator::getLists()
 
@@ -183,6 +184,14 @@ class CatalystInterfaceUtils
                 puts "list: #{list["description"]} (#{list["catalyst-object-uuids"].size})".green
                 displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
             }
+
+            notesContents = IO.read("/Users/pascal/Desktop/Catalyst-Notes.txt").strip
+            if notesContents.size>0 then
+                puts ""
+                puts "Notes.txt"
+                puts notesContents.lines.map{|line| "    "+line }
+                displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + notesContents.lines.to_a.size + 2
+            end
 
             displayMode = DisplayModeManager::getDisplayMode()
             if displayMode[0] == "list" then
