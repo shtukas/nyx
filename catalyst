@@ -191,8 +191,9 @@ class CatalystInterfaceUtils
                     timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
                     repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
                     description = "lisa for list '#{list["description"]}'"
-                    timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f, "repeat" => repeat }
+                    timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
                     lisa = LisaUtils::issueNew(description, timestructure)
+                    lisa["repeat"] = repeat
                     lisa["target"] = ["list", list["list-uuid"]]
                     LisaUtils::commitLisaToDisk(lisa, File.basename(LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])))
                     puts JSON.pretty_generate(lisa)

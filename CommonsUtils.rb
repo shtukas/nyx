@@ -431,8 +431,10 @@ class CommonsUtils
             timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
             repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f, "repeat" => repeat }
+            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
             lisa = LisaUtils::issueNew(description, timestructure)
+            lisa["repeat"] = repeat
+            LisaUtils::commitLisaToDisk(lisa, File.basename(LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])))
             puts JSON.pretty_generate(lisa)
             LucilleCore::pressEnterToContinue()
             return
