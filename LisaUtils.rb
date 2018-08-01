@@ -161,17 +161,76 @@ class LisaUtils
             .select{|lisa| lisa["target"] and lisa["target"][0]=="list" and lisa["target"][1]==listuuid }
     end
 
+    # LisaUtils::startLisa(lisa)
+    def self.startLisa(lisa)
+        Chronos::start(lisa["uuid"])
+        # If a starting lisa is targetting a list, that list should become the default display
+        if lisa["target"] then
+            puts "This lisa has a target: #{JSON.generate(lisa["target"])}"
+            LucilleCore::pressEnterToContinue()
+            if lisa["target"][0] == "list" then
+                displaymode = ["list", lisa["target"][1]] # Yes displaymode is lisa["target"] :)
+                DisplayModeManager::putDisplayMode(displaymode)
+                # --------------------------------------------------------------------------
+                # Marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
+                # And now we are attempting a reverse look up so that CommonsUtils::flockObjectsUpdatedForDisplay()
+                # ... knows this came from a Lisa
+                FKVStore::set("lisauuid:50047ec7-3a7d-4d55-a191-708ae19e9d9f", lisa["uuid"])
+                # This is not perfect but will do until list display modes can be set by non lisa entities
+                # --------------------------------------------------------------------------
+            end
+        end
+    end
+
+    # LisaUtils::stopLisa(lisa)
+    def self.stopLisa(lisa)
+        Chronos::stop(lisa["uuid"])
+        if lisa["target"] then
+            if lisa["target"][0] == "list" then
+                displaymode = ["default"]
+                DisplayModeManager::putDisplayMode(displaymode)
+            end
+        end
+        lisauuid = lisa["uuid"]
+        timestructure = lisa["time-structure"]
+        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(lisauuid, timestructure)
+        if ratio>1 and !lisa["repeat"] then
+            puts "destroying lisa: #{JSON.generate(lisa)}"
+            LucilleCore::pressEnterToContinue()
+            filepath = object["item-data"]["filepath"]
+            FileUtils.rm(filepath)
+        end
+    end
+
     # -----------------------------------------------
     # UI Utils
 
-    # LisaUtils::ui_listing()
-    def self.ui_listing()
-        LisaUtils::lisasWithFilepaths()
-            .each{|data|
-                lisa, filepath = data
-                puts JSON.generate(lisa)        
-            }
-        LucilleCore::pressEnterToContinue()
+    # LisaUtils::ui_lisaToString(lisa)
+    def self.ui_lisaToString(lisa)
+        timestructure = lisa["time-structure"]
+        timeStructureFragment = "#{timestructure["time-commitment-in-hours"]} hours / #{timestructure["time-unit-in-days"]} days"
+        "#{lisa["description"]} (#{timeStructureFragment})"
+    end
+
+    # LisaUtils::ui_lisaDive(lisa)
+    def self.ui_lisaDive(lisa)
+        puts "-> #{LisaUtils::ui_lisaToString(lisa)}"
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop"])
+        return if operation.nil?
+        if operation=="start" then
+            LisaUtils::startLisa(lisa)
+        end
+        if operation=="stop" then
+            LisaUtils::stopLisa(lisa)
+        end
+    end
+
+    # LisaUtils::ui_lisasDive()
+    def self.ui_lisasDive()
+        lisas = LisaUtils::lisasWithFilepaths()
+            .map{|data| data[0] }
+        lisa = LucilleCore::selectEntityFromListOfEntitiesOrNull("lisa:", lisas, lambda{|lisa| LisaUtils::ui_lisaToString(lisa) })
+        LisaUtils::ui_lisaDive(lisa)
     end
 
     # LisaUtils::ui_setInteractivelySelectedTargetForLisa(lisauuid)

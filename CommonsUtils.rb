@@ -400,7 +400,7 @@ class CommonsUtils
         end
 
         if expression == 'lisas' then
-            LisaUtils::ui_listing()
+            LisaUtils::ui_lisasDive()
             return
         end
 

@@ -200,6 +200,12 @@ class CatalystInterfaceUtils
                 end
             }
 
+            if !File.exists?("/Users/pascal/Desktop/Catalyst-Notes.txt") then
+                puts "Missing file: Catalyst-Notes.txt"
+                LucilleCore::pressEnterToContinue()
+                loop
+            end
+
             notesContents = IO.read("/Users/pascal/Desktop/Catalyst-Notes.txt").strip
             if notesContents.size>0 then
                 puts ""

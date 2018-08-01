@@ -62,42 +62,10 @@ class AgentLisa
         uuid = object["uuid"]
         lisa = object["item-data"]["lisa"]
         if command=='start' then
-            Chronos::start(uuid)
-            # If a starting lisa is targetting a list, that list should become the default display
-            lisa = object["item-data"]["lisa"]
-            if lisa["target"] then
-                puts "This lisa has a target: #{JSON.generate(lisa["target"])}"
-                LucilleCore::pressEnterToContinue()
-                if lisa["target"][0] == "list" then
-                    displaymode = ["list", lisa["target"][1]] # Yes displaymode is lisa["target"] :)
-                    DisplayModeManager::putDisplayMode(displaymode)
-                    # --------------------------------------------------------------------------
-                    # Marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
-                    # And now we are attempting a reverse look up so that CommonsUtils::flockObjectsUpdatedForDisplay()
-                    # ... knows this came from a Lisa
-                    FKVStore::set("lisauuid:50047ec7-3a7d-4d55-a191-708ae19e9d9f", lisa["uuid"])
-                    # This is not perfect but will do until list display modes can be set by non lisa entities
-                    # --------------------------------------------------------------------------
-                end
-            end
+            LisaUtils::startLisa(lisa)
         end
         if command=='stop' then
-            Chronos::stop(uuid)
-            if lisa["target"] then
-                if lisa["target"][0] == "list" then
-                    displaymode = ["default"]
-                    DisplayModeManager::putDisplayMode(displaymode)
-                end
-            end
-            lisauuid = lisa["uuid"]
-            timestructure = lisa["time-structure"]
-            timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(lisauuid, timestructure)
-            if ratio>1 and !lisa["repeat"] then
-                puts "destroying lisa: #{JSON.generate(lisa)}"
-                LucilleCore::pressEnterToContinue()
-                filepath = object["item-data"]["filepath"]
-                FileUtils.rm(filepath)
-            end
+            LisaUtils::stopLisa(lisa)
         end
         if command=="add-time" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
