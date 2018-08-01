@@ -219,8 +219,9 @@ class CatalystInterfaceUtils
                 listuuid = displayMode[1]
                 list = ListsOperator::getListByUUIDOrNull(listuuid)
                 if !list.nil? then
+                    puts ""
                     puts "List: #{list["description"]}".green
-                    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
+                    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 2
                 end
             end
 
