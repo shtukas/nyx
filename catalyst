@@ -110,25 +110,11 @@ class CatalystInterfaceUtils
             return
         end
         if command.start_with?(":") then
-            token, rest = StringParser::decompose(command)
-            position = nil
-            if token == ":this" then
-                position = standardlp
-            end
-            if CommonsUtils::isInteger(token[1,token.size]) then
-                position = token[1,token.size].to_i
-            end
-            return if position.nil?
-            # At that point the target position is known.
-            if rest.nil? then
-                # :<position>         # set the listing reference point
+            if CommonsUtils::isInteger(command[1, command.size]) then
+                position = command[1, command.size].to_i
                 CommonsUtils::setStandardListingPosition([position, 0].max)
                 return
             end
-            command = rest
-            o = displayobjects.take(position).last
-            return if o.nil?
-            CommonsUtils::processObjectAndCommand(o, command)
             return
         end
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
@@ -174,7 +160,7 @@ class CatalystInterfaceUtils
             else
                 ""
             end 
-        lisaTargetString = 
+        lisaTargetString =
             if lisa["target"] then
                 if lisa["target"][0] == "list" then
                     list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
@@ -188,7 +174,7 @@ class CatalystInterfaceUtils
                 end
             else
                 ""
-            end 
+            end
         "    - #{CatalystInterfaceUtils::lisaToString(lisa)} #{lisaTargetString.ljust(50)} #{lisaRepeatString.ljust(10)}"
     end
 
