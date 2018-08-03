@@ -237,21 +237,45 @@ class LisaUtils
 
     # LisaUtils::ui_lisaToString(lisa)
     def self.ui_lisaToString(lisa)
+        uuid = lisa["uuid"]
         timestructure = lisa["time-structure"]
-        timeStructureFragment = "#{timestructure["time-commitment-in-hours"]} hours / #{timestructure["time-unit-in-days"]} days"
-        "#{lisa["description"]} (#{timeStructureFragment})"
+        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
+        timeAsString = 
+            if ratio and lisa["repeat"] then
+                " (#{(100*ratio).round(2)} % ; #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours today)"
+            else
+                " (#{(Chronos::summedTimespansInSecondsLiveValue(uuid).to_f/3600).round(2)} hours of #{timestructure["time-commitment-in-hours"]} hours)"
+            end
+        "#{lisa["description"]}#{timeAsString}"
     end
 
     # LisaUtils::ui_lisaDive(lisa)
     def self.ui_lisaDive(lisa)
         puts "-> #{LisaUtils::ui_lisaToString(lisa)}"
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop"])
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "destroy"])
         return if operation.nil?
         if operation=="start" then
             LisaUtils::startLisa(lisa)
         end
         if operation=="stop" then
             LisaUtils::stopLisa(lisa)
+        end
+        if operation=="destroy" then
+            if lisa["target"] then
+                if lisa["target"][0] == "list" then
+                    listuuid = lisa["target"][1]
+                    if ListsOperator::getLists().any?{|list| list["list-uuid"]==listuuid } then
+                        puts "You are attempting to destroy a lisa pointing to a list"
+                        if LucilleCore::askQuestionAnswerAsBoolean("Confirm deletion? ") then
+                            return
+                        end
+                    end
+                end
+            end
+            lisafilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
+            if File.exists?(lisafilepath) then
+                FileUtils.rm(lisafilepath)
+            end
         end
     end
 

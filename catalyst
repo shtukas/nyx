@@ -175,13 +175,23 @@ class CatalystInterfaceUtils
             averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
             percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
 
-            puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )".green
+            puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )"
+            LisaUtils::lisasWithFilepaths()
+                .each{|pair|
+                    lisa, filepath = pair
+                    puts "    - #{LisaUtils::ui_lisaToString(lisa)}"
+                    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
+                }
+
             puts ""
 
             lists = ListsOperator::getLists()
-
+            if lists.size > 0 then
+                puts "Lists:"
+                displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
+            end
             lists.each{|list|
-                puts "list: #{list["description"]} (#{list["catalyst-object-uuids"].size})".green
+                puts "    - list: #{list["description"]} (#{list["catalyst-object-uuids"].size})"
                 displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
                 lisas = LisaUtils::getLisasByTargetListUUID(list["list-uuid"])
                 if lisas.size==0 then
