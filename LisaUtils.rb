@@ -240,12 +240,10 @@ class LisaUtils
         uuid = lisa["uuid"]
         timestructure = lisa["time-structure"]
         timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
-        timeAsString = 
-            if ratio and lisa["repeat"] then
-                " (#{(100*ratio).round(2)} % ; #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours today)"
-            else
-                " (#{(Chronos::summedTimespansInSecondsLiveValue(uuid).to_f/3600).round(2)} hours of #{timestructure["time-commitment-in-hours"]} hours)"
-            end
+        if ratio.nil? then
+            ratio = 0
+        end
+        timeAsString = " (#{"%6.2f" % (100*ratio)} % ; #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} hours today)"
         "#{lisa["description"]}#{timeAsString}"
     end
 

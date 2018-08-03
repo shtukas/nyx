@@ -139,7 +139,7 @@ class CatalystInterfaceUtils
         puts ""
         displayobjects
             .select{|object| object["metric"]>1 }
-            .each{|object| 
+            .each{|object|
                 puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, nil, nil) 
             }
         puts ""
@@ -156,10 +156,46 @@ class CatalystInterfaceUtils
         command
     end
 
+    def self.lisaToString(lisa)
+        uuid = lisa["uuid"]
+        timestructure = lisa["time-structure"]
+        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
+        if ratio.nil? then
+            ratio = 0
+        end
+        timeAsString = "(#{"%6.2f" % (100*ratio)} %, #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} hours today)"
+        "#{lisa["description"].ljust(40)}#{timeAsString}"
+    end
+
+    def self.lisaToStringForCatalystTopDisplay(lisa)
+        lisaRepeatString = 
+            if lisa["repeat"] then
+                "[repeat]" 
+            else
+                ""
+            end 
+        lisaTargetString = 
+            if lisa["target"] then
+                if lisa["target"][0] == "list" then
+                    list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
+                    if list.nil? then
+                        ""
+                    else
+                        "list: #{list["description"]} (#{list["catalyst-object-uuids"].size})"
+                    end
+                else
+                    ""
+                end
+            else
+                ""
+            end 
+        "    - #{CatalystInterfaceUtils::lisaToString(lisa)} #{lisaTargetString.ljust(50)} #{lisaRepeatString.ljust(10)}"
+    end
+
     def self.displayLoop(codehash)
         loop {
 
-            displayScreenSizeReductionIndex = 7
+            displayScreenSizeReductionIndex = 6
 
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
@@ -170,29 +206,8 @@ class CatalystInterfaceUtils
                 next
             end
 
-            system("clear")
-
-            averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
-            percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
-
-            puts "Lisa today: #{"%.2f" % averageDailyCommitmentInHours} hours/day ( #{"%.2f" % percentageDone} % done )"
-            LisaUtils::lisasWithFilepaths()
-                .each{|pair|
-                    lisa, filepath = pair
-                    puts "    - #{LisaUtils::ui_lisaToString(lisa)}"
-                    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
-                }
-
-            puts ""
-
             lists = ListsOperator::getLists()
-            if lists.size > 0 then
-                puts "Lists:"
-                displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
-            end
             lists.each{|list|
-                puts "    - list: #{list["description"]} (#{list["catalyst-object-uuids"].size})"
-                displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
                 lisas = LisaUtils::getLisasByTargetListUUID(list["list-uuid"])
                 if lisas.size==0 then
                     puts "list: #{list["description"]} doesn't have a lisa targetting it"
@@ -208,6 +223,19 @@ class CatalystInterfaceUtils
                     LucilleCore::pressEnterToContinue()
                 end
             }
+
+            system("clear")
+
+            averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
+            percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
+
+            puts "Lisa: #{"%.2f" % averageDailyCommitmentInHours} hours today ( #{"%.2f" % percentageDone} % done )"
+            LisaUtils::lisasWithFilepaths()
+                .each{|pair|
+                    lisa, filepath = pair
+                    puts CatalystInterfaceUtils::lisaToStringForCatalystTopDisplay(lisa)
+                    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
+                }
 
             if !File.exists?("/Users/pascal/Desktop/Catalyst-Notes.txt") then
                 puts "Missing file: Catalyst-Notes.txt"
