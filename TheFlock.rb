@@ -161,9 +161,13 @@ def kvstoreTimingsMark(key)
     $kvstoreTimings[key] = Time.new.to_i
 end
 
-Thread.new {
-    loop {
-        sleep 600
-        File.open("/Galaxy/DataBank/Catalyst/kvstore-timings.json", "w"){|f| f.write(JSON.pretty_generate($kvstoreTimings)) }
+if ENV["COMPUTERLUCILLENAME"] == "Lucille18" then
+    Thread.new {
+        loop {
+            sleep 600
+            File.open("/Galaxy/DataBank/Catalyst/kvstore-timings.json", "w"){|f| f.write(JSON.pretty_generate($kvstoreTimings)) }
+        }
     }
-}
+end
+
+
