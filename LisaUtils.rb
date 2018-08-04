@@ -208,9 +208,7 @@ class LisaUtils
                 DisplayModeManager::putDisplayMode(displaymode)
             end
         end
-        if lisa["repeat"] then
-
-        else
+        if !lisa["repeat"] then
             lisauuid = lisa["uuid"]
             timestructure = lisa["time-structure"]
             if Chronos::summedTimespansInSecondsLiveValue(lisauuid).to_f/3600 >= timestructure["time-commitment-in-hours"] then
