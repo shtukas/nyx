@@ -161,16 +161,42 @@ class CatalystInterfaceUtils
                 lisas = LisaUtils::getLisasByTargetListUUID(list["list-uuid"])
                 if lisas.size==0 then
                     puts "list: #{list["description"]} doesn't have a lisa targetting it"
-                    puts "creating one:"
-                    description = "lisa for list '#{list["description"]}'"
-                    timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                    timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-                    timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-                    repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
-                    target = ["list", list["list-uuid"]]
-                    lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
-                    puts JSON.pretty_generate(lisa)
-                    LucilleCore::pressEnterToContinue()
+                    puts "Existing lisas: "
+                    LisaUtils::lisasWithFilepaths()
+                        .each{|pair|
+                            lisa, _ = pair
+                            puts "    - #{LisaUtils::lisaToString_v1(lisa, 40, 50)}"
+                        }
+                    loop {
+                        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["use existing lisa", "create new lisa"])
+                        next if operation.nil?
+                        if operation == "use existing lisa" then
+                            puts "using an existing one:"
+                            lisa = LisaUtils::interactivelySelectLisaOrNull()
+                            next if lisa.nil?
+                            if lisa["target"] then
+                                puts "The lisa you have chosen already have a target"
+                                LucilleCore::pressEnterToContinue()
+                            else
+                                lisa["target"] = ["list", list["list-uuid"]]
+                                lisafilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
+                                LisaUtils::commitLisaToDisk(lisa, File.basename(lisafilepath))
+                            end
+                        end
+                        if operation == "create new lisa" then
+                            puts "creating one:"
+                            description = "lisa for list '#{list["description"]}'"
+                            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+                            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
+                            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
+                            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
+                            target = ["list", list["list-uuid"]]
+                            lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
+                            puts JSON.pretty_generate(lisa)
+                            LucilleCore::pressEnterToContinue()
+                        end
+                        break
+                    }
                 end
             }
 

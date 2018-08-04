@@ -253,7 +253,15 @@ class LisaUtils
             else
                 ""
             end 
-        "#{lisa["description"].ljust(descriptionFragmentLJustSize)}#{timeAsString} #{lisaTargetString.ljust(targetFragmentLJustSize)} #{lisaRepeatString}"
+        "lisa: #{lisa["description"].ljust(descriptionFragmentLJustSize)}#{timeAsString} #{lisaTargetString.ljust(targetFragmentLJustSize)} #{lisaRepeatString}"
+    end
+
+    # LisaUtils::interactivelySelectLisaOrNull()
+    def self.interactivelySelectLisaOrNull()
+        lisas = LisaUtils::lisasWithFilepaths()
+            .map{|data| data[0] }
+        lisa = LucilleCore::selectEntityFromListOfEntitiesOrNull("lisa:", lisas, lambda{|lisa| LisaUtils::lisaToString_v1(lisa, 40, 50) })  
+        lisa    
     end
 
 
@@ -292,9 +300,8 @@ class LisaUtils
 
     # LisaUtils::ui_lisasDive()
     def self.ui_lisasDive()
-        lisas = LisaUtils::lisasWithFilepaths()
-            .map{|data| data[0] }
-        lisa = LucilleCore::selectEntityFromListOfEntitiesOrNull("lisa:", lisas, lambda{|lisa| LisaUtils::lisaToString_v1(lisa, 0, 0) })
+        lisa = LisaUtils::interactivelySelectLisaOrNull()
+        return if lisa.nil?
         LisaUtils::ui_lisaDive(lisa)
     end
 
