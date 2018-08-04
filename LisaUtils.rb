@@ -156,17 +156,11 @@ class LisaUtils
         if Chronos::isRunning(uuid) then
             metric = 2 + CommonsUtils::traceToMetricShift(uuid)
         end
-        timeAsString = 
-            if ratio and lisa["repeat"] then
-                " (#{(100*ratio).round(2)} % ; #{(timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]).round(2)} hours today)"
-            else
-                " (#{(Chronos::summedTimespansInSecondsLiveValue(uuid).to_f/3600).round(2)} hours of #{timestructure["time-commitment-in-hours"]} hours)"
-            end
         object              = {}
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = metric 
-        object["announce"]  = "lisa: #{description}#{repeat ? " [repeat]" : ""}#{lisaTargetToString.call(lisa["target"])}#{timeAsString}"
+        object["announce"]  = LisaUtils::lisaToString_v1(lisa, 40, 50)
         object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "destroy"]
         object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
         object["is-running"] = Chronos::isRunning(uuid)
@@ -220,7 +214,7 @@ class LisaUtils
             lisauuid = lisa["uuid"]
             timestructure = lisa["time-structure"]
             if Chronos::summedTimespansInSecondsLiveValue(lisauuid).to_f/3600 >= timestructure["time-commitment-in-hours"] then
-                puts "lisa is done and is non repeat: #{LisaUtils::ui_lisaToString(lisa)}"
+                puts "lisa is done and is non repeat: #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
                 puts "Destroying..."
                 LucilleCore::pressEnterToContinue()
                 filepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisauuid)
@@ -229,27 +223,48 @@ class LisaUtils
                 FileUtils.rm(filepath)
             end
         end
-
     end
 
-    # -----------------------------------------------
-    # UI Utils
-
-    # LisaUtils::ui_lisaToString(lisa)
-    def self.ui_lisaToString(lisa)
+    # LisaUtils::lisaToString_v1(lisa, descriptionFragmentLJustSize, targetFragmentLJustSize)
+    def self.lisaToString_v1(lisa, descriptionFragmentLJustSize, targetFragmentLJustSize)
         uuid = lisa["uuid"]
         timestructure = lisa["time-structure"]
         timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
         if ratio.nil? then
             ratio = 0
         end
-        timeAsString = " (#{"%6.2f" % (100*ratio)} % ; #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} hours today)"
-        "#{lisa["description"]}#{timeAsString}"
+        timeAsString = "[ #{"%5.2f" % (100*ratio)} %, #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} hours today ]"
+        lisaTargetString =
+            if lisa["target"] then
+                if lisa["target"][0] == "list" then
+                    list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
+                    if list.nil? then
+                        ""
+                    else
+                        "list: #{list["description"]} (#{list["catalyst-object-uuids"].size})"
+                    end
+                else
+                    ""
+                end
+            else
+                ""
+            end
+        lisaRepeatString = 
+            if lisa["repeat"] then
+                "[repeat]" 
+            else
+                ""
+            end 
+        "#{lisa["description"].ljust(descriptionFragmentLJustSize)}#{timeAsString} #{lisaTargetString.ljust(targetFragmentLJustSize)} #{lisaRepeatString}"
     end
+
+
+    # -----------------------------------------------
+    # UI Utils
 
     # LisaUtils::ui_lisaDive(lisa)
     def self.ui_lisaDive(lisa)
-        puts "-> #{LisaUtils::ui_lisaToString(lisa)}"
+        puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "destroy"])
         return if operation.nil?
         if operation=="start" then
@@ -281,7 +296,7 @@ class LisaUtils
     def self.ui_lisasDive()
         lisas = LisaUtils::lisasWithFilepaths()
             .map{|data| data[0] }
-        lisa = LucilleCore::selectEntityFromListOfEntitiesOrNull("lisa:", lisas, lambda{|lisa| LisaUtils::ui_lisaToString(lisa) })
+        lisa = LucilleCore::selectEntityFromListOfEntitiesOrNull("lisa:", lisas, lambda{|lisa| LisaUtils::lisaToString_v1(lisa, 0, 0) })
         LisaUtils::ui_lisaDive(lisa)
     end
 

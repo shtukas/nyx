@@ -142,42 +142,6 @@ class CatalystInterfaceUtils
         command
     end
 
-    def self.lisaToString(lisa)
-        uuid = lisa["uuid"]
-        timestructure = lisa["time-structure"]
-        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
-        if ratio.nil? then
-            ratio = 0
-        end
-        timeAsString = "(#{"%6.2f" % (100*ratio)} %, #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} hours today)"
-        "#{lisa["description"].ljust(40)}#{timeAsString}"
-    end
-
-    def self.lisaToStringForCatalystTopDisplay(lisa)
-        lisaRepeatString = 
-            if lisa["repeat"] then
-                "[repeat]" 
-            else
-                ""
-            end 
-        lisaTargetString =
-            if lisa["target"] then
-                if lisa["target"][0] == "list" then
-                    list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
-                    if list.nil? then
-                        ""
-                    else
-                        "list: #{list["description"]} (#{list["catalyst-object-uuids"].size})"
-                    end
-                else
-                    ""
-                end
-            else
-                ""
-            end
-        "    - #{CatalystInterfaceUtils::lisaToString(lisa)} #{lisaTargetString.ljust(50)} #{lisaRepeatString.ljust(10)}"
-    end
-
     def self.displayLoop(codehash)
         loop {
 
@@ -219,7 +183,7 @@ class CatalystInterfaceUtils
             LisaUtils::lisasWithFilepaths()
                 .each{|pair|
                     lisa, filepath = pair
-                    puts CatalystInterfaceUtils::lisaToStringForCatalystTopDisplay(lisa)
+                    puts "                        - #{LisaUtils::lisaToString_v1(lisa, 40, 50)}"
                     displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
                 }
 
