@@ -147,6 +147,7 @@ class CatalystInterfaceUtils
 
             displayScreenSizeReductionIndex = 6
 
+            # Indicates over staying off requirement.
             if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                     puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
@@ -156,6 +157,8 @@ class CatalystInterfaceUtils
                 next
             end
 
+            # Ensure that evey list has a list that drives it (list is a target of the lisa)
+            # Lisa with possibly zero time requirement
             lists = ListsOperator::getLists()
             lists.each{|list|
                 lisas = LisaUtils::getLisasByTargetListUUID(list["list-uuid"])
@@ -209,14 +212,16 @@ class CatalystInterfaceUtils
             LisaUtils::lisasWithFilepaths()
                 .each{|pair|
                     lisa, filepath = pair
-                    puts "                        - #{LisaUtils::lisaToString_v1(lisa, 40, 50)}"
+                    _, _, ratio = LisaUtils::metricsForTimeStructure(lisa["uuid"], lisa["time-structure"])
+                    next if (ratio.nil? or (ratio and (ratio>1)))
+                    puts " - #{LisaUtils::lisaToString_v1(lisa, 40, 50)}"
                     displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 1
                 }
 
-            if !File.exists?("/Users/pascal/Desktop/Catalyst-Notes.txt") then
+
+            while !File.exists?("/Users/pascal/Desktop/Catalyst-Notes.txt") do
                 puts "Missing file: Catalyst-Notes.txt"
                 LucilleCore::pressEnterToContinue()
-                loop
             end
 
             notesContents = IO.read("/Users/pascal/Desktop/Catalyst-Notes.txt").strip
@@ -307,6 +312,7 @@ end
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
 
+# Email sync, starts after 20 minutes, then evey 20 minutes.
 if CommonsUtils::isLucille18() then
     Thread.new {
         loop {
@@ -316,6 +322,7 @@ if CommonsUtils::isLucille18() then
     }
 end
 
+# Timeline garbage collection, sleeps for one hour and then every hour.
 if CommonsUtils::isLucille18() then
     Thread.new {
         loop {
@@ -325,6 +332,7 @@ if CommonsUtils::isLucille18() then
     }
 end
 
+# Events timeline garbage collection, sleeps for one hour and then every hour 
 if CommonsUtils::isLucille18() then
     Thread.new {
         loop {
@@ -334,6 +342,8 @@ if CommonsUtils::isLucille18() then
     }
 end
 
+# Bob::generalFlockUpgrade, to send screen notifications on overdoing lisas.
+# Sleeps for 60 seconds and then every minute.
 Thread.new {
     loop {
         # To send on screen notifications
@@ -342,6 +352,8 @@ Thread.new {
     }
 }
 
+# FlockDiskIO::loadFromEventsTimeline(), in case there is a data sync between the two computers happening at file system level.
+# Sleeps for 60 seconds and then every minute.
 Thread.new {
     loop {
         # To let computers sync filter up
