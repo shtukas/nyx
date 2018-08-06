@@ -145,6 +145,11 @@ class CatalystInterfaceUtils
     def self.displayLoop(codehash)
         loop {
 
+            if codehash != CommonsUtils::codeHash() then
+                puts "Source code hash changed. Exiting!"
+                exit
+            end
+
             displayScreenSizeReductionIndex = 6
 
             # Indicates over staying off requirement.
@@ -246,7 +251,16 @@ class CatalystInterfaceUtils
             standardlp = CommonsUtils::getStandardListingPosition()
             displayobjects = CommonsUtils::flockDisplayObjects()
 
-            object = displayobjects.clone.take(standardlp).last
+            if displayobjects.size==0 then
+                puts "-> I can't find any catalyst object. Is that expected ?"
+                puts "-> displayMode: #{displayMode}"
+                puts "-> Moving to default display mode"
+                DisplayModeManager::putDisplayMode(["default"])
+                LucilleCore::pressEnterToContinue()
+                next
+            end            
+
+            object = displayobjects.clone.take([standardlp, displayobjects.size].min).last
 
             # --------------------------------------------------------------------------------
             # Checking that the object about to display is not orphan
@@ -298,11 +312,6 @@ class CatalystInterfaceUtils
                 if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
                     CatalystInterfaceUtils::executeCommandAgainstObject(object, command, nil, nil)
                 end
-            end
-
-            if codehash != CommonsUtils::codeHash() then
-                puts "Source code hash changed. Exiting!"
-                exit
             end
 
         }

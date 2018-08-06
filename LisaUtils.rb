@@ -186,8 +186,11 @@ class LisaUtils
             puts "This lisa has a target: #{JSON.generate(lisa["target"])}"
             LucilleCore::pressEnterToContinue()
             if lisa["target"][0] == "list" then
-                displaymode = ["list", lisa["target"][1]] # Yes displaymode is lisa["target"] :)
-                DisplayModeManager::putDisplayMode(displaymode)
+                list = ListsOperator::getListByUUIDOrNull(lisa["target"])
+                if list and list["catalyst-object-uuids"].size>0 then
+                    displaymode = ["list", lisa["target"][1]] # Yes displaymode is lisa["target"] :)
+                    DisplayModeManager::putDisplayMode(displaymode)
+                end
                 # --------------------------------------------------------------------------
                 # Marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
                 # And now we are attempting a reverse look up so that CommonsUtils::flockObjectsUpdatedForDisplay()
