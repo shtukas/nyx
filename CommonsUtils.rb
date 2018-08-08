@@ -83,47 +83,57 @@ class CommonsUtils
         `/usr/bin/env tput cols`.to_i
     end
 
-    def self.codeToDatetimeOrNull(code)
-        localsuffix = Time.new.to_s[-5,5]
-        if code[0,1]=='+' then
-            code = code[1,999]
-            if code.index('@') then
-                # The first part is an integer and the second HH:MM
-                part1 = code[0,code.index('@')]
-                part2 = code[code.index('@')+1,999]
-                "#{( DateTime.now + part1.to_i ).to_date.to_s} #{part2}:00 #{localsuffix}"
-            else
-                if code.include?('days') or code.include?('day') then
-                    if code.include?('days') then
-                        # The entire string is to be interpreted as a number of days from now
-                        "#{( DateTime.now + code[0,code.size-4].to_f ).to_time.to_s}"
-                    else
-                        # The entire string is to be interpreted as a number of days from now
-                        "#{( DateTime.now + code[0,code.size-3].to_f ).to_time.to_s}"
-                    end
+    def self.selectDateOfNextNonTodayWeekDay(weekday)
+        weekDayIndexToStringRepresentation = lambda {|indx|
+            weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+            weekdayNames[indx]
+        }
+        (1..7).each{|indx|
+            if weekDayIndexToStringRepresentation.call((Time.new+indx*86400).wday) == weekday then
+                return (Time.new+indx*86400).to_s[0,10]
+            end
+        }
+    end
 
-                elsif code.include?('hours') or code.include?('hour') then
-                    if code.include?('hours') then
-                        ( Time.new + code[0,code.size-5].to_f*3600 ).to_s
-                    else
-                        ( Time.new + code[0,code.size-4].to_f*3600 ).to_s
-                    end
-                else
-                    nil
-                end
-            end
-        else
-            # Here we expect "YYYY-MM-DD" or "YYYY-MM-DD@HH:MM"
-            if code.index('@') then
-                part1 = code[0,10]
-                part2 = code[11,999]
-                "#{part1} #{part2}:00 #{localsuffix}"
-            else
-                part1 = code[0,10]
-                part2 = code[11,999]
-                "#{part1} 00:00:00 #{localsuffix}"
-            end
+    def self.codeToDatetimeOrNull(code)
+
+        # +<weekdayname>
+        # +<integer>day(s)
+        # +<integer>hour(s)
+        # +YYYY-MM-DD
+
+        code = code[1,99]
+
+        # <weekdayname>
+        # <integer>day(s)
+        # <integer>hour(s)
+        # YYYY-MM-DD
+
+        localsuffix = Time.new.to_s[-5,5]
+        morningShowTime = "09:00:00 #{localsuffix}"
+        weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+
+        if weekdayNames.include?(code) then
+            # We have a week day
+            weekdayName = code
+            date = CommonsUtils::selectDateOfNextNonTodayWeekDay(weekdayName)
+            datetime = "#{date} #{morningShowTime}"
+            return datetime
         end
+
+        if code.include?("hour") then
+            return ( Time.new + code.to_f*3600 ).to_s
+        end
+
+        if code.include?("day") then
+            return ( DateTime.now + code.to_f ).to_time.to_s
+        end
+
+        if code[4,1]=="-" and code[7,1]=="-" then
+            return "#{code} #{morningShowTime}"
+        end
+
+        nil
     end
 
     def self.editTextUsingTextmate(text)
