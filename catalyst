@@ -150,6 +150,22 @@ class CatalystInterfaceUtils
                 exit
             end
 
+            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "ddb50cb6-7fd7-4737-90af-2c6524449937", 86400) then
+                CatalystDevOps::archivesTimelineGarbageCollection(false)
+            end
+
+            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "4b896858-bc31-407b-9c8f-3e890b408c75", 3600) then
+                CatalystDevOps::eventsTimelineGarbageCollection(true)
+            end
+
+            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "73672434-e76a-4cfd-8404-168863e9b681", 1200) then
+                CommonsUtils::emailSync(true)
+            end
+
+            if CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "0daa5393-d43f-4e4f-a9e0-9776a5c8ec46", 300) then
+                FlockDiskIO::loadFromEventsTimeline()
+            end
+            
             displayScreenSizeReductionIndex = 6
 
             # Indicates over staying off requirement.
@@ -321,36 +337,6 @@ end
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
 
-# Email sync, starts after 20 minutes, then evey 20 minutes.
-if CommonsUtils::isLucille18() then
-    Thread.new {
-        loop {
-            sleep 1200
-            CommonsUtils::emailSync(false)
-        }
-    }
-end
-
-# Timeline garbage collection, sleeps for one hour and then every hour.
-if CommonsUtils::isLucille18() then
-    Thread.new {
-        loop {
-            sleep 3600
-            CatalystDevOps::archivesTimelineGarbageCollection(false)
-        }
-    }
-end
-
-# Events timeline garbage collection, sleeps for one hour and then every hour 
-if CommonsUtils::isLucille18() then
-    Thread.new {
-        loop {
-            sleep 3600
-            CatalystDevOps::eventsTimelineGarbageCollection(false)
-        }
-    }
-end
-
 # Bob::generalFlockUpgrade, to send screen notifications on overdoing lisas.
 # Sleeps for 60 seconds and then every minute.
 Thread.new {
@@ -358,16 +344,6 @@ Thread.new {
         # To send on screen notifications
         sleep 60
         Bob::generalFlockUpgrade()
-    }
-}
-
-# FlockDiskIO::loadFromEventsTimeline(), in case there is a data sync between the two computers happening at file system level.
-# Sleeps for 60 seconds and then every minute.
-Thread.new {
-    loop {
-        # To let computers sync filter up
-        sleep 60
-        FlockDiskIO::loadFromEventsTimeline()
     }
 }
 

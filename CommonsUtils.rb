@@ -27,6 +27,7 @@ require_relative "Bob.rb"
 # CommonsUtils::waveInsertNewItemInteractive(description)
 # CommonsUtils::flockObjectsUpdatedForDisplay()
 # CommonsUtils::flockDisplayObjects()
+# CommonsUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
 
 class CommonsUtils
 
