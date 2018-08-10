@@ -186,10 +186,11 @@ class LisaUtils
             puts "This lisa has a target: #{JSON.generate(lisa["target"])}"
             LucilleCore::pressEnterToContinue()
             if lisa["target"][0] == "list" then
-                list = ListsOperator::getListByUUIDOrNull(lisa["target"])
+                list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
                 if list and list["catalyst-object-uuids"].size>0 then
                     displaymode = ["list", lisa["target"][1]] # Yes displaymode is lisa["target"] :)
                     DisplayModeManager::putDisplayMode(displaymode)
+                    CommonsUtils::setStandardListingPosition(2)
                 end
                 # --------------------------------------------------------------------------
                 # Marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
