@@ -107,4 +107,28 @@ class ListsOperator
         LucilleCore::selectEntityFromListOfEntitiesOrNull("list", ListsOperator::getLists(), lambda{|list| list["description"] })
     end
 
+    # ListsOperator::listDive(list)
+    def self.listDive(list)
+        puts list
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["rename", "show elements", "remove element"])
+        if operation == "rename" then
+            puts "Not implemented yet"
+            LucilleCore::pressEnterToContinue()
+        end
+        if operation == "show elements" then
+            puts "Not implemented yet"
+            LucilleCore::pressEnterToContinue()
+        end
+        if operation == "remove element" then
+            puts "Not implemented yet"
+            LucilleCore::pressEnterToContinue()
+        end
+    end
+
+    # ListsOperator::ui_listsDive()
+    def self.ui_listsDive()
+        list = ListsOperator::ui_interactivelySelectListOrNull()
+        ListsOperator::listDive(list)
+    end
+
 end

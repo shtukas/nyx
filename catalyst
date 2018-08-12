@@ -150,16 +150,18 @@ class CatalystInterfaceUtils
                 exit
             end
 
-            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "ddb50cb6-7fd7-4737-90af-2c6524449937", 86400) then
-                CatalystDevOps::archivesTimelineGarbageCollection(false)
+            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "ddb51cb6-7fd7-4737-90af-2c6524449937", 86400) then
+                CatalystDevOps::archivesTimelineGarbageCollection(true)
             end
 
-            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "4b896858-bc31-407b-9c8f-3e890b408c75", 3600) then
+            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "4b896858-bc31-407b-9c8f-3e890b408c75", 86400) then
                 CatalystDevOps::eventsTimelineGarbageCollection(true)
             end
 
             if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "73672434-e76a-4cfd-8404-168863e9b681", 1200) then
-                CommonsUtils::emailSync(true)
+                if LucilleCore::askQuestionAnswerAsBoolean("Email sync? ") then
+                    CommonsUtils::emailSync(true)
+                end
             end
 
             if CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "0daa5393-d43f-4e4f-a9e0-9776a5c8ec46", 300) then

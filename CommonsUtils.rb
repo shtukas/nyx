@@ -347,23 +347,27 @@ class CommonsUtils
         puts "Special General Commands"
         puts "    help"
         puts "    search <pattern>"
-        puts "    requirement on <requirement>"
-        puts "    requirement off <requirement>"
-        puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
-        puts "    email-sync              # run email sync"
-        puts "    interface               # select an agent and run the interface"
-        puts "    lib                     # Invoques the Librarian interactive"
+        puts "    :<p>                    # set the listing reference point"
+        puts "    +                       # add 1 to the standard listing position"
+        puts ""
         puts "    wave: <description>     # create a new wave with that description"
         puts "    stream: <description>   # create a new stream with that description"
         puts "    project: <description>  # create a new project with that description"
         puts "    lisa:                   # create a new lisa, details entered interactively"
         puts "    list: <description>     # create a new list with that description"
-        puts "    lisas                   # lisa listing dive"
+        puts ""
+        puts "    lisas                   # lisas listing dive"
+        puts "    lists                   # lists listing dive"
         puts "    display:list            # select a list and display mode switch to it"
         puts "    display:default         # select a list and display mode switch to it"
         puts "    destroy:list            # destroy a list interactively selected"
-        puts "    :<p>                    # set the listing reference point"
-        puts "    +                       # add 1 to the standard listing position"
+        puts ""
+        puts "    requirement on <requirement>"
+        puts "    requirement off <requirement>"
+        puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
+        puts ""
+        puts "    email-sync              # run email sync"
+        puts "    lib                     # Invoques the Librarian interactive"
         puts ""
         puts "Special Commands Object:"
         puts "    +datetimecode"
@@ -419,6 +423,11 @@ class CommonsUtils
 
         if expression == 'lisas' then
             LisaUtils::ui_lisasDive()
+            return
+        end
+
+        if expression == 'lists' then
+            ListsOperator::ui_listsDive()
             return
         end
 
