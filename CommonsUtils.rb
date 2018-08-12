@@ -394,11 +394,6 @@ class CommonsUtils
             return
         end
 
-        if expression == "interface" then
-            LucilleCore::selectEntityFromListOfEntitiesOrNull("agent", Bob::agents(), lambda{ |agent| agent["agent-name"] })["interface"].call()
-            return
-        end
-
         if expression == 'info' then
             puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
             puts "Todolists:".green
