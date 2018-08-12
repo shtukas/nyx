@@ -201,6 +201,7 @@ class WaveSchedules
             else
                 return 0.7 + 0.130*(1-Math.exp(-ageInDays))
             end
+            # New has a metric in [0.5, 0.83]
         end
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility

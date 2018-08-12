@@ -37,7 +37,6 @@ Bob::registerAgent(
 )
 
 class AgentLisa
-
     def self.agentuuid()
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
     end
@@ -70,6 +69,13 @@ class AgentLisa
         if command=="add-time" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
             Chronos::addTimeInSeconds(uuid, timeInHours*3600)
+        end
+        if command=='edit' then
+            filename = "#{SecureRandom.hex}.json"
+            filepath = "/tmp/#{filename}"
+            lisa = JSON.parse(CommonsUtils::editTextUsingTextmate(JSON.pretty_generate(lisa)))
+            lisaFilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
+            LisaUtils::commitLisaToDisk(lisa, File.basename(lisaFilepath))
         end
         if command=='destroy' 
             filepath = object["item-data"]["filepath"]

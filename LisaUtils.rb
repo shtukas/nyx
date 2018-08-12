@@ -58,9 +58,9 @@ class LisaUtils
             .to_f/3600
     end
 
-    # LisaUtils::commitLisaToDisk(lisa, filepath)
-    def self.commitLisaToDisk(lisa, filepath)
-        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lisa/#{filepath}", "w") { |f| f.puts(JSON.pretty_generate(lisa)) }
+    # LisaUtils::commitLisaToDisk(lisa, filename)
+    def self.commitLisaToDisk(lisa, filename)
+        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lisa/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(lisa)) }
     end
     
     # LisaUtils::issueNew(description, timestructure)
@@ -153,6 +153,9 @@ class LisaUtils
         if ratio and ratio>1 then
             metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
         end
+        if lisa["weekdays"] and !lisa["weekdays"].include?(CommonsUtils::currentWeekDay()) then
+            metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
+        end
         if Chronos::isRunning(uuid) then
             metric = 2 + CommonsUtils::traceToMetricShift(uuid)
         end
@@ -161,7 +164,7 @@ class LisaUtils
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = metric 
         object["announce"]  = LisaUtils::lisaToString_v1(lisa, 40, 50)
-        object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "destroy"]
+        object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "edit", "destroy"]
         object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
         object["is-running"] = Chronos::isRunning(uuid)
         object["item-data"] = {}

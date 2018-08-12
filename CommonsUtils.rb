@@ -14,29 +14,7 @@ require_relative "Bob.rb"
 
 # ---------------------------------------------------
 
-# CommonsUtils::codeToDatetimeOrNull(code)
-# CommonsUtils::isLucille18()
-# CommonsUtils::isLucille19()
-# CommonsUtils::newBinArchivesFolderpath()
-# CommonsUtils::realNumbersToZeroOne(x, origin, unit)
-# CommonsUtils::simplifyURLCarryingString(string)
-# CommonsUtils::screenHeight()
-# CommonsUtils::screenWidth()
-# CommonsUtils::traceToRealInUnitInterval(trace)
-# CommonsUtils::traceToMetricShift(trace)
-# CommonsUtils::waveInsertNewItemInteractive(description)
-# CommonsUtils::flockObjectsUpdatedForDisplay()
-# CommonsUtils::flockDisplayObjects()
-# CommonsUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
-
 class CommonsUtils
-
-    # ---------------------------------------------------
-    # CommonsUtils::currentHour()
-    # CommonsUtils::currentDay()
-    # CommonsUtils::isWeekDay()
-    # CommonsUtils::isInteger(str)
-    # CommonsUtils::isFloat(str)
 
     def self.currentHour()
         Time.new.to_s[0,13]
@@ -48,6 +26,11 @@ class CommonsUtils
 
     def self.isWeekDay()
         [1,2,3,4,5].include?(Time.new.wday)
+    end
+
+    def self.currentWeekDay()
+        weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+        weekdays[Time.new.wday]
     end
 
     def self.isInteger(str)
