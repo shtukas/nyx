@@ -78,6 +78,14 @@ class ListsOperator
         lists
     end
 
+    # ListsOperator::getListsForCatalystObjectUUID(objectuuid): Array[List]
+    def self.getListsForCatalystObjectUUID(objectuuid)
+        ListsOperator::getLists()
+            .select{|list|
+                list["catalyst-object-uuids"].include?(objectuuid)
+            }
+    end
+
     # ListsOperator::addCatalystObjectUUIDToList(objectuuid, listuuid)
     def self.addCatalystObjectUUIDToList(objectuuid, listuuid)
         list = ListsOperator::getListByUUIDOrNull(listuuid)
