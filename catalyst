@@ -158,7 +158,7 @@ class CatalystInterfaceUtils
                 CatalystDevOps::eventsTimelineGarbageCollection(true)
             end
 
-            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "73672434-e76a-4cfd-8404-168863e9b681", 1200) then
+            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "73672434-e76a-4cfd-8404-168863e9b681", 3600) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Email sync? ") then
                     CommonsUtils::emailSync(true)
                 end
