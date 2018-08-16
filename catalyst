@@ -264,25 +264,11 @@ class CatalystInterfaceUtils
                 displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + notesContents.lines.to_a.size + 2
             end
 
-            displayMode = DisplayModeManager::getDisplayMode()
-            if displayMode[0] == "list" then
-                listuuid = displayMode[1]
-                list = ListsOperator::getListByUUIDOrNull(listuuid)
-                if !list.nil? then
-                    puts ""
-                    puts "List: #{list["description"]}".green
-                    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + 2
-                end
-            end
-
             standardlp = CommonsUtils::getStandardListingPosition()
             displayobjects = CommonsUtils::flockDisplayObjects()
 
             if displayobjects.size==0 then
                 puts "-> I can't find any catalyst object. Is that expected ?"
-                puts "-> displayMode: #{displayMode}"
-                puts "-> Moving to default display mode"
-                DisplayModeManager::putDisplayMode(["default"])
                 LucilleCore::pressEnterToContinue()
                 next
             end            

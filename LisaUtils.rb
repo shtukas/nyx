@@ -190,17 +190,11 @@ class LisaUtils
             LucilleCore::pressEnterToContinue()
             if lisa["target"][0] == "list" then
                 list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
-                if list and list["catalyst-object-uuids"].size>0 then
-                    displaymode = ["list", lisa["target"][1]] # Yes displaymode is lisa["target"] :)
-                    DisplayModeManager::putDisplayMode(displaymode)
-                    CommonsUtils::setStandardListingPosition(2)
-                end
                 # --------------------------------------------------------------------------
                 # Marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
                 # And now we are attempting a reverse look up so that CommonsUtils::flockObjectsUpdatedForDisplay()
                 # ... knows this came from a Lisa
                 FKVStore::set("lisauuid:50047ec7-3a7d-4d55-a191-708ae19e9d9f", lisa["uuid"])
-                # This is not perfect but will do until list display modes can be set by non lisa entities
                 # --------------------------------------------------------------------------
             end
         end
@@ -209,12 +203,6 @@ class LisaUtils
     # LisaUtils::stopLisa(lisa)
     def self.stopLisa(lisa)
         Chronos::stop(lisa["uuid"])
-        if lisa["target"] then
-            if lisa["target"][0] == "list" then
-                displaymode = ["default"]
-                DisplayModeManager::putDisplayMode(displaymode)
-            end
-        end
         if !lisa["repeat"] then
             lisauuid = lisa["uuid"]
             timestructure = lisa["time-structure"]

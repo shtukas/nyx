@@ -1,12 +1,11 @@
 
-CatalystObject 
+CatalystObject
 {
-    "uuid"       : (uuid)
-    "agent-uid"  : String
-    "metric"     : (real)
-    "announce"   : ""
-    "commands"   : Array[String]
-    "default-expression" : Null or String
-
-    "is-running" : Boolean # optional
+    "uuid"               : UUID
+    "agent-uid"          : String
+    "metric"             : Float
+    "announce"           : String
+    "commands"           : Array[String]
+    "default-expression" : Null or String # optional 
+    "is-running"         : Boolean # optional
 }
