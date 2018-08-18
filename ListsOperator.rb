@@ -102,14 +102,6 @@ class ListsOperator
             .flatten
     end
 
-    # ListsOperator::updateForDisplay(object, allListsCatalystItemUUIDs)
-    def self.updateForDisplay(object, allListsCatalystItemUUIDs)
-        if allListsCatalystItemUUIDs.include?(object["uuid"]) then
-            object["metric"] = [object["metric"], 0.1].min
-        end
-        object
-    end
-
     # ListsOperator::ui_interactivelySelectListOrNull()
     def self.ui_interactivelySelectListOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("list", ListsOperator::getLists(), lambda{|list| list["description"] })

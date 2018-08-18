@@ -186,8 +186,6 @@ class LisaUtils
         Chronos::start(lisa["uuid"])
         # If a starting lisa is targetting a list, that list should become the default display
         if lisa["target"] then
-            puts "This lisa has a target: #{JSON.generate(lisa["target"])}"
-            LucilleCore::pressEnterToContinue()
             if lisa["target"][0] == "list" then
                 list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
                 # --------------------------------------------------------------------------

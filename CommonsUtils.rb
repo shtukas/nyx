@@ -268,8 +268,6 @@ class CommonsUtils
 
     # -----------------------------------------
 
-    # CommonsUtils::flockObjectsUpdatedForDisplay()
-
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
         if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
@@ -279,22 +277,69 @@ class CommonsUtils
         object
     end
 
+    # CommonsUtils::flockObjectsUpdatedForDisplay()
     def self.flockObjectsUpdatedForDisplay()
         Bob::generalFlockUpgrade()
-        allListsCatalystItemUUIDs = ListsOperator::allListsCatalystItemsUUID()
         objects = TheFlock::flockObjects()
-            .map{|object| object.clone }
+                    .map{|object| object.clone }
+        objects = objects
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| RequirementsOperator::updateForDisplay(object) }
-            .map{|object| ListsOperator::updateForDisplay(object, allListsCatalystItemUUIDs) }
+        objects
+    end
+
+    # CommonsUtils::lisaObjectPlacementOperator(objects)
+    def self.lisaObjectPlacementOperator(objects) # Array[CatalystObjects] -> Array[CatalystObjects]
+        allListsCatalystItemUUIDs = ListsOperator::allListsCatalystItemsUUID()
+        objects = objects
+                    .map{|object|
+                        if allListsCatalystItemUUIDs.include?(object["uuid"]) then
+                            object["metric"] = 0.1
+                        end
+                        object
+                    }
+        trueIfFirstObjectIsALisa = lambda {|objects| objects.size>0 and objects[0]["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
+        return objects if !trueIfFirstObjectIsALisa.call(objects)
+        firstCatalystObject = objects[0]
+        lisa = firstCatalystObject["item-data"]["lisa"]
+        return objects if lisa["target"].nil?
+        return objects if lisa["target"][0]!="list"
+        listuuid = lisa["target"][1]
+        list = ListsOperator::getListByUUIDOrNull(listuuid)
+        return objects if list.nil?
+        return objects if list["catalyst-object-uuids"].size==0
+        catalystObject1 = objects[0]
+        catalystObjects2OfList, catalystObjects3Others = objects[1, objects.size].partition{ |object| list["catalyst-object-uuids"].include?(object["uuid"]) }
+        # Moving part3 0.1 metric below first object
+        return ( [ firstCatalystObject ] + catalystObjects3Others ) if catalystObjects2OfList.size==0
+        catalystObjects3Others = catalystObjects3Others
+            .map{|object|
+                object["metric"] = object["metric"]-0.1 
+                object
+            }
+        # at this point there is a space of at least 0.1 between first object and every object in catalystObjects3Others
+        ienum = LucilleCore::integerEnumerator()
+        catalystObjects2OfList = catalystObjects2OfList
+            .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
+            .map{|object|
+                object["metric"] = firstCatalystObject["metric"] - 0.1*Math.exp(-ienum.next()) 
+                object[":is-first-lisa-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first lisa.
+                object
+            }
+        [ firstCatalystObject ] + catalystObjects2OfList + catalystObjects3Others
     end
 
     def self.flockDisplayObjects()
         displayMetric = ( CommonsUtils::getTravelMode()=="space" ) ? 0.5 : 0.2
-        CommonsUtils::flockObjectsUpdatedForDisplay()
+        objects = CommonsUtils::flockObjectsUpdatedForDisplay()
             .select{ |object| object["metric"]>=displayMetric }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
+        objects = CommonsUtils::lisaObjectPlacementOperator(objects)
+        objects = objects
+            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
+            .reverse
+        objects
     end
 
     # -----------------------------------------
@@ -337,8 +382,7 @@ class CommonsUtils
     def self.object2Line_v0(object)
         announce = object['announce'].lines.first.strip
         [
-            "(#{"%.3f" % object["metric"]})",
-            " [#{object["uuid"]}]",
+            object[":is-first-lisa-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
             " #{announce}",
             CommonsUtils::object2DonotShowUntilAsString(object),
         ].join()
