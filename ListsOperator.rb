@@ -109,20 +109,34 @@ class ListsOperator
 
     # ListsOperator::listDive(list)
     def self.listDive(list)
-        puts list
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["rename", "show elements", "remove element"])
-        if operation == "rename" then
-            puts "Not implemented yet"
-            LucilleCore::pressEnterToContinue()
-        end
-        if operation == "show elements" then
-            puts "Not implemented yet"
-            LucilleCore::pressEnterToContinue()
-        end
-        if operation == "remove element" then
-            puts "Not implemented yet"
-            LucilleCore::pressEnterToContinue()
-        end
+        loop {
+            puts "-> #{list["description"]}"
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["rename list", "show elements", "remove element from list", "destroy list"])
+            break if operation.nil?
+            if operation == "rename list" then
+                puts "Not implemented yet"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+            if operation == "show elements" then
+                listObjects = TheFlock::flockObjects().select{ |object| list["catalyst-object-uuids"].include?(object["uuid"]) }
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", listObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                next if selectedobject.nil?
+                CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+            end
+            if operation == "remove element from list" then
+                puts "Not implemented yet"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+            if operation == "destroy list" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy list '#{list["description"]}'? ") then
+                    listFilepath = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{list["list-uuid"]}.json"
+                    FileUtils.rm(listFilepath)
+                    break
+                end
+            end
+        }
     end
 
     # ListsOperator::ui_listsDive()

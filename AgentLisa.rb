@@ -77,7 +77,16 @@ class AgentLisa
             lisaFilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
             LisaUtils::commitLisaToDisk(lisa, File.basename(lisaFilepath))
         end
-        if command=='destroy' 
+        if command=='destroy'
+            loop {
+                break if !lisa["target"]
+                break if lisa["target"][0]!="list"
+                puts "This lisa has a list target, I need to destroy the list first"
+                puts "Not implemented yet!"
+                LucilleCore::pressEnterToContinue()
+                return
+                break
+            }
             filepath = object["item-data"]["filepath"]
             FileUtils.rm(filepath)
         end

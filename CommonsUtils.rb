@@ -372,6 +372,10 @@ class CommonsUtils
         puts ""
         puts "Special Commands Object:"
         puts "    +datetimecode"
+        puts "        +<weekdayname>"
+        puts "        +<integer>day(s)"
+        puts "        +<integer>hour(s)"
+        puts "        +YYYY-MM-DD"
         puts "    expose                  # pretty print the object"
         puts "    require <requirement>"
         puts "    requirement remove <requirement>"
@@ -431,6 +435,24 @@ class CommonsUtils
             return
         end
 
+        if expression == 'lisa:' then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
+            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
+            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
+            target = nil
+            lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
+            puts JSON.pretty_generate(lisa)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if expression == 'destroy:list' then
+            list = ListsOperator::ui_interactivelySelectListOrNull()
+            ListsOperator::destroyList(list["list-uuid"])
+        end
+
         if expression.start_with?("list:") then
             description = expression[5, expression.size].strip
             return if description.size == 0 
@@ -449,19 +471,6 @@ class CommonsUtils
             description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             folderpath = AgentStream::issueNewItemWithDescription(description)
             puts "created item: #{folderpath}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression == 'lisa:' then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
-            target = nil
-            lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
-            puts JSON.pretty_generate(lisa)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -504,11 +513,6 @@ class CommonsUtils
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
             return
-        end
-
-        if expression == 'destroy:list' then
-            list = ListsOperator::ui_interactivelySelectListOrNull()
-            ListsOperator::destroyList(list["list-uuid"])
         end
 
         return if object.nil?
