@@ -332,11 +332,11 @@ class CommonsUtils
     def self.flockDisplayObjects()
         displayMetric = ( CommonsUtils::getTravelMode()=="space" ) ? 0.5 : 0.2
         objects = CommonsUtils::flockObjectsUpdatedForDisplay()
-            .select{ |object| object["metric"]>=displayMetric }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
         objects = CommonsUtils::lisaObjectPlacementOperator(objects)
         objects = objects
+            .select{ |object| object["metric"]>=displayMetric }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
         objects
