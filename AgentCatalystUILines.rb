@@ -25,27 +25,6 @@ class AgentCatalystUILines
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        if CommonsUtils::getTravelMode()=="space" then
-            object = {
-                "uuid"      => "8e4ead40",
-                "agent-uid" => self.agentuuid(),
-                "metric"    => 0.5,
-                "announce"  => "-- space line ----------------------------",
-                "commands"  => [],
-                "default-expression" => "enter-atmosphere"
-            }
-            TheFlock::addOrUpdateObject(object)
-        else
-            object = {
-                "uuid"      => "7291fdd8",
-                "agent-uid" => self.agentuuid(),
-                "metric"    => 0.2,
-                "announce"  => "-- water line ----------------------------",
-                "commands"  => [],
-                "default-expression" => nil
-            }
-            TheFlock::addOrUpdateObject(object)
-        end
     end
 
     def self.processObjectAndCommand(object, command)

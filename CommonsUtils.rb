@@ -339,6 +339,30 @@ class CommonsUtils
             .select{ |object| object["metric"]>=displayMetric }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
+        if objects.size==0 and CommonsUtils::getTravelMode()=="space" then
+            objects = [
+                {
+                    "uuid"      => "8e4ead40",
+                    "agent-uid" => "3d637d25-e634-47f2-b5bd-3d9105ac9da7",
+                    "metric"    => 0.5,
+                    "announce"  => "-- space line --",
+                    "commands"  => [],
+                    "default-expression" => "enter-atmosphere"
+                }
+            ]
+        end
+        if objects.size==0 and CommonsUtils::getTravelMode()=="atmostphere" then
+            objects = [
+                {
+                    "uuid"      => "7291fdd8",
+                    "agent-uid" => self.agentuuid(),
+                    "metric"    => 0.2,
+                    "announce"  => "-- water line -- (go have a nap) --",
+                    "commands"  => [],
+                    "default-expression" => nil
+                }
+            ]
+        end
         objects
     end
 
