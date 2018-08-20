@@ -29,6 +29,24 @@ require_relative "catalyst.rb"
 
 class CatalystInterfaceUtils
 
+    # CatalystInterfaceUtils::objectInferfaceString(object)
+    def self.objectInferfaceString(object)
+        announce = object['announce'].strip
+        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
+        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        listIng = ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).size > 0 ? " [list: #{ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).map{|list| list["description"] }}]" : ""
+        part2 = 
+            [
+                "#{requirementsAsString.green}",
+                CommonsUtils::object2DonotShowUntilAsString(object),
+                listIng,
+                " (#{object["commands"].join(" ").red})",
+                " \"#{defaultExpressionAsString.green}\""
+            ].join()
+        part2        
+    end
+
     def self.object2Line_v1(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
@@ -44,14 +62,7 @@ class CatalystInterfaceUtils
         if object["is-running"] then
             part1 = part1.green
         end
-        part2 = 
-            [
-                "#{requirementsAsString.green}",
-                CommonsUtils::object2DonotShowUntilAsString(object),
-                listIng,
-                " (#{object["commands"].join(" ").red})",
-                " \"#{defaultExpressionAsString.green}\""
-            ].join()
+        part2 = CatalystInterfaceUtils::objectInferfaceString(object)
         part1 + part2
     end
 
@@ -150,24 +161,6 @@ class CatalystInterfaceUtils
             if codehash != CommonsUtils::codeHash() then
                 puts "Source code hash changed. Exiting!"
                 exit
-            end
-
-            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "ddb51cb6-7fd7-4737-90af-2c6524449937", 86400) then
-                CatalystDevOps::archivesTimelineGarbageCollection(true)
-            end
-
-            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "4b896858-bc31-407b-9c8f-3e890b408c75", 86400) then
-                CatalystDevOps::eventsTimelineGarbageCollection(true)
-            end
-
-            if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "73672434-e76a-4cfd-8404-168863e9b681", 3600) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Email sync? ") then
-                    CommonsUtils::emailSync(true)
-                end
-            end
-
-            if CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "0daa5393-d43f-4e4f-a9e0-9776a5c8ec46", 300) then
-                FlockDiskIO::loadFromEventsTimeline()
             end
             
             displayScreenSizeReductionIndex = 6
@@ -273,14 +266,14 @@ class CatalystInterfaceUtils
                 next
             end            
 
-            object = displayobjects.clone.take([standardlp, displayobjects.size].min).last
+            focusobject = displayobjects.clone.take([standardlp, displayobjects.size].min).last
 
             # --------------------------------------------------------------------------------
             # Checking that the object about to display is not orphan
-            if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
+            if Bob::agentuuid2AgentData(focusobject["agent-uid"]).nil? then
                 LucilleCore::pressEnterToContinue()
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(focusobject["uuid"]))
+                TheFlock::removeObjectIdentifiedByUUID(focusobject["uuid"])
                 next
             end
             # --------------------------------------------------------------------------------
@@ -288,11 +281,11 @@ class CatalystInterfaceUtils
             # --------------------------------------------------------------------------------
             # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
             # In such a case they are still in Flock and should not be showed
-            if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
-                if object["schedule"][":wave-email:"] then
-                    if !File.exists?(object["item-data"]["folderpath"]) then
-                        TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
-                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
+            if focusobject["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
+                if focusobject["schedule"][":wave-email:"] then
+                    if !File.exists?(focusobject["item-data"]["folderpath"]) then
+                        TheFlock::removeObjectIdentifiedByUUID(focusobject["uuid"])
+                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(focusobject["uuid"]))
                         next
                     end
                 end
@@ -310,20 +303,22 @@ class CatalystInterfaceUtils
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
                 displayObjectsScreenFitting.pop
             end
-            displayObjectsScreenFitting.each_with_index{|object, position|
-                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, position+1, standardlp)
+            displayObjectsScreenFitting.each_with_index{|xobject, position|
+                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(xobject, position+1, standardlp)
+                if position+1 == standardlp then
+                    puts (" "*14)+CatalystInterfaceUtils::objectInferfaceString(xobject)
+                end
             }
             # --------------------------------------------------------------------------------
 
             puts ""
+            print "--> "
+            command = STDIN.gets().strip
+            CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, standardlp, displayobjects.clone)
 
-            command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
-
-            CatalystInterfaceUtils::executeCommandAgainstObject(object, command, standardlp, displayobjects.clone)
-
-            if object["schedule"] and object["schedule"][":wave-email:"] and ( command == "open" ) then
+            if focusobject["schedule"] and focusobject["schedule"][":wave-email:"] and ( command == "open" ) then
                 if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
-                    CatalystInterfaceUtils::executeCommandAgainstObject(object, command, nil, nil)
+                    CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, nil, nil)
                 end
             end
 
@@ -334,12 +329,46 @@ end
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
 
-# Bob::generalFlockUpgrade, to send screen notifications on overdoing lisas.
-# Sleeps for 60 seconds and then every minute.
 Thread.new {
     loop {
-        # To send on screen notifications
-        sleep 60
+        sleep 60 * ( 1 + rand )
+        if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "ddb51cb6-7fd7-4737-90af-2c6524449937", 86400) then
+            CatalystDevOps::archivesTimelineGarbageCollection(false)
+        end
+    }
+}
+
+Thread.new {
+    loop {
+        sleep 60 * ( 1 + rand )
+        if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "4b896858-bc31-407b-9c8f-3e890b408c75", 86400) then
+            CatalystDevOps::eventsTimelineGarbageCollection(false)
+        end
+    }
+}
+
+Thread.new {
+    loop {
+        sleep 60 * ( 1 + rand )
+        if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "73672434-e76a-4cfd-8404-168863e9b681", 3600) then
+            CommonsUtils::emailSync(false)
+        end
+    }
+}
+
+Thread.new {
+    loop {
+        sleep 60 * ( 1 + rand )
+        if CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "0daa5393-d43f-4e4f-a9e0-9776a5c8ec46", 300) then
+            FlockDiskIO::loadFromEventsTimeline()
+        end
+    }
+}
+
+Thread.new {
+    loop {
+        # Bob::generalFlockUpgrade, to send screen notifications on overdoing lisas.
+        sleep 60 * ( 1 + rand )
         Bob::generalFlockUpgrade()
     }
 }
