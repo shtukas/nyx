@@ -266,13 +266,17 @@ class LisaUtils
     def self.ui_lisaDive(lisa)
         loop {
             puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 LisaUtils::startLisa(lisa)
             end
             if operation=="stop" then
                 LisaUtils::stopLisa(lisa)
+            end
+            if operation=="add-time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
+                Chronos::addTimeInSeconds(lisa["uuid"], timeInHours*3600)
             end
             if operation=="destroy" then
                 if lisa["target"] then
