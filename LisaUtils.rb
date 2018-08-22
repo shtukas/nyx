@@ -246,6 +246,7 @@ class LisaUtils
             else
                 ""
             end 
+        descriptionFragmentLJustSize = [ descriptionFragmentLJustSize, lisa["description"].size+1 ].max
         "lisa: #{lisa["description"].ljust(descriptionFragmentLJustSize)}#{timeAsString} #{lisaTargetString.ljust(targetFragmentLJustSize)} #{lisaRepeatString}"
     end
 
@@ -263,39 +264,47 @@ class LisaUtils
 
     # LisaUtils::ui_lisaDive(lisa)
     def self.ui_lisaDive(lisa)
-        puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "destroy"])
-        return if operation.nil?
-        if operation=="start" then
-            LisaUtils::startLisa(lisa)
-        end
-        if operation=="stop" then
-            LisaUtils::stopLisa(lisa)
-        end
-        if operation=="destroy" then
-            if lisa["target"] then
-                if lisa["target"][0] == "list" then
-                    listuuid = lisa["target"][1]
-                    if ListsOperator::getLists().any?{|list| list["list-uuid"]==listuuid } then
-                        puts "You are attempting to destroy a lisa pointing to a list"
-                        if LucilleCore::askQuestionAnswerAsBoolean("Confirm deletion? ") then
-                            return
+        loop {
+            puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "destroy"])
+            break if operation.nil?
+            if operation=="start" then
+                LisaUtils::startLisa(lisa)
+            end
+            if operation=="stop" then
+                LisaUtils::stopLisa(lisa)
+            end
+            if operation=="destroy" then
+                if lisa["target"] then
+                    if lisa["target"][0] == "list" then
+                        listuuid = lisa["target"][1]
+                        if ListsOperator::getLists().any?{|list| list["list-uuid"]==listuuid } then
+                            puts "-> You are attempting to destroy a lisa pointing to a list"
+                            puts "-> I am going to destroy the list and then the lisa"
+                            if LucilleCore::askQuestionAnswerAsBoolean("Confirm deletion? ") then
+                                ListsOperator::destroyList(listuuid)
+                            else
+                                next    
+                            end
                         end
                     end
                 end
+                lisafilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
+                if File.exists?(lisafilepath) then
+                    FileUtils.rm(lisafilepath)
+                end
+                break
             end
-            lisafilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
-            if File.exists?(lisafilepath) then
-                FileUtils.rm(lisafilepath)
-            end
-        end
+        }
     end
 
     # LisaUtils::ui_lisasDive()
     def self.ui_lisasDive()
-        lisa = LisaUtils::interactivelySelectLisaOrNull()
-        return if lisa.nil?
-        LisaUtils::ui_lisaDive(lisa)
+        loop {
+            lisa = LisaUtils::interactivelySelectLisaOrNull()
+            return if lisa.nil?
+            LisaUtils::ui_lisaDive(lisa)
+        }
     end
 
     # LisaUtils::ui_setInteractivelySelectedTargetForLisa(lisauuid)
