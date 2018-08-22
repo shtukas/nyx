@@ -244,19 +244,6 @@ class CatalystInterfaceUtils
 
             puts "Lisa: #{"%.2f" % averageDailyCommitmentInHours} hours today ( #{"%.2f" % percentageDone} % done )"
 
-            while !File.exists?("/Users/pascal/Desktop/Catalyst-Notes.txt") do
-                puts "Missing file: Catalyst-Notes.txt"
-                LucilleCore::pressEnterToContinue()
-            end
-
-            notesContents = IO.read("/Users/pascal/Desktop/Catalyst-Notes.txt").strip
-            if notesContents.size>0 then
-                puts ""
-                puts "Notes.txt"
-                puts notesContents.lines.map{|line| "    "+line }
-                displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + notesContents.lines.to_a.size + 2
-            end
-
             standardlp = CommonsUtils::getStandardListingPosition()
             displayobjects = CommonsUtils::flockDisplayObjects()
 
