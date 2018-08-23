@@ -266,7 +266,7 @@ class LisaUtils
     def self.ui_lisaDive(lisa)
         loop {
             puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "cast new time structure", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 LisaUtils::startLisa(lisa)
@@ -277,6 +277,13 @@ class LisaUtils
             if operation=="add-time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 Chronos::addTimeInSeconds(lisa["uuid"], timeInHours*3600)
+            end
+            if operation=="cast new time structure" then
+                timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+                timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
+                timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
+                lisa["time-structure"] = timestructure
+                LisaUtils::commitLisaToDisk(lisa, File.basename(LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])))
             end
             if operation=="destroy" then
                 if lisa["target"] then
