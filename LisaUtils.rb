@@ -224,7 +224,7 @@ class LisaUtils
         if ratio.nil? then
             ratio = 0
         end
-        timeAsString = "[ #{"%6.2f" % (100*ratio)} %, #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} hours today ]"
+        timeAsString = "[ #{"%6.2f" % (100*ratio)} % of #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} h today, #{"%5.2f" % timestructure["time-commitment-in-hours"]} / #{timestructure["time-unit-in-days"]} ]"
         lisaTargetString =
             if lisa["target"] then
                 if lisa["target"][0] == "list" then
