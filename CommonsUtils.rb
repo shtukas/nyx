@@ -332,6 +332,8 @@ class CommonsUtils
     def self.flockDisplayObjects()
         displayMetric = ( CommonsUtils::getTravelMode()=="space" ) ? 0.5 : 0.2
         objects = CommonsUtils::flockObjectsUpdatedForDisplay()
+        objects = objects.map{|object| CyclesOperator::updateObjectWithNewMetricIfNeeded(object) }
+        objects = objects
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
         objects = CommonsUtils::lisaObjectPlacementOperator(objects)
@@ -395,6 +397,7 @@ class CommonsUtils
         puts "    lib                     # Invoques the Librarian interactive"
         puts ""
         puts "Special Commands Object:"
+        puts "    cycle"
         puts "    +datetimecode"
         puts "        +<weekdayname>"
         puts "        +<integer>day(s)"
@@ -542,6 +545,10 @@ class CommonsUtils
         return if object.nil?
 
         # object needed
+
+        if expression == 'cycle' then
+            CyclesOperator::setUnixtimeMark(object["uuid"])
+        end
 
         if expression == '>list' then
             CommonsUtils::sendCatalystObjectToList(object["uuid"], object["announce"])
