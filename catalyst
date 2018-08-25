@@ -309,6 +309,15 @@ class CatalystInterfaceUtils
                 end
             end
 
+            shouldRemoveUnixtimeMark = lambda{|object, command|
+                return true if command == "done"
+                false
+            }
+
+            if shouldRemoveUnixtimeMark.call(focusobject, command) then
+                CyclesOperator::removeUnixtimeMark(focusobject["uuid"])
+            end
+
         }
     end
 end
