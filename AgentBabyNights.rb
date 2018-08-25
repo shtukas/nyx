@@ -26,7 +26,7 @@ class AgentBabyNights
     end
 
     def self.names()
-        ["pascal", "tracy"]
+        ["pascal", "tracy", "holidays"]
     end
 
     def self.generalFlockUpgrade()
@@ -49,10 +49,17 @@ class AgentBabyNights
         if command == "595bc18c-48a9-4fa2-bfd3-8795f8902766" then
             xname = nil
             loop {
+                puts "options: #{AgentBabyNights::names().join(", ")}"
                 xname = LucilleCore::askQuestionAnswerAsString(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/question.txt"))
                 next if !AgentBabyNights::names().include?(xname)
                 break
             }
+            if xname == "holidays" then
+                puts "👶 Nights [holidays expection]"
+                LucilleCore::pressEnterToContinue()
+                FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}", "done")
+                return
+            end
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
             data[xname] = data[xname]+1
             if data["pascal"] >= 10 and data["tracy"] >= 10 then
