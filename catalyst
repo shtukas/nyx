@@ -21,7 +21,6 @@ require 'find'
 require 'drb/drb'
 require 'thread'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
@@ -311,6 +310,7 @@ class CatalystInterfaceUtils
 
             shouldRemoveUnixtimeMark = lambda{|object, command|
                 return true if command == "done"
+                return true if command.start_with?("+")
                 false
             }
 

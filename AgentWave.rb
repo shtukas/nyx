@@ -19,7 +19,6 @@ require 'fileutils'
 # FileUtils.rm_rf('dir/to/remove')
 require 'find'
 require 'drb/drb'
-require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest

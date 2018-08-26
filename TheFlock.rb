@@ -23,7 +23,6 @@ require 'digest/sha1'
 require 'drb/drb'
 require 'thread'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
-require "/Galaxy/LucilleOS/Librarian/Librarian-Exported-Functions.rb"
 require_relative "Events.rb"
 # ----------------------------------------------------------------
 $flock = nil
