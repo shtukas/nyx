@@ -192,15 +192,7 @@ class WaveSchedules
         # One Offs
 
         if schedule['@'] == 'new' then
-            ageInHours = (Time.new.to_f - schedule['unixtime']).to_f/3600
-            ageInDays = (Time.new.to_f - schedule['unixtime']).to_f/86400
-            # metric between 0.2 and 0.830
-            if ageInHours < 24 then
-                return 0.5 + 0.2*(1-Math.exp(-ageInHours))
-            else
-                return 0.7 + 0.130*(1-Math.exp(-ageInDays))
-            end
-            # New has a metric in [0.5, 0.83]
+            return CommonsUtils::unixtimeToMetricNS1935(schedule['unixtime'])
         end
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility

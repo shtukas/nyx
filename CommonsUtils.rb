@@ -266,8 +266,6 @@ class CommonsUtils
         end 
     end
 
-    # -----------------------------------------
-
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
         if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
@@ -367,10 +365,6 @@ class CommonsUtils
         end
         objects
     end
-
-    # -----------------------------------------
-
-    # CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
 
     def self.putshelp()
         puts "Special General Commands"
@@ -606,6 +600,18 @@ class CommonsUtils
 
     def self.moveToAtmosphere()
         FKVStore::set("73625650-4347-4e3f-b93f-b8c40fb89f05:#{CommonsUtils::currentDay()}", "atmostphere")
+    end
+
+    # CommonsUtils::unixtimeToMetricNS1935(unixtime)
+    def self.unixtimeToMetricNS1935(unixtime)
+        ageInHours = (Time.new.to_f - unixtime).to_f/3600
+        ageInDays = (Time.new.to_f - unixtime).to_f/86400
+        if ageInHours < 24 then
+            0.5 + 0.2*(1-Math.exp(-ageInHours))
+        else
+            0.7 + 0.130*(1-Math.exp(-ageInDays))
+        end
+        # Metric between 0.5 and 0.83s
     end
 
 end
