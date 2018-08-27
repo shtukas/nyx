@@ -24,9 +24,18 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
-# CatalystInterfaceUtils::commandLineStreamInterface()
-
 class CatalystInterfaceUtils
+
+    def self.makeGenesysDisplayState() # : DisplayState
+
+    end
+
+    # DisplayState = [ objectsAlreadyProcessed, objectsStillToGo, linesToDisplayAsASideEffectOfTheTransition, allListingObjects ]
+    # When a DisplayState is returned from a transition step, then the linesToDisplayAsASideEffectOfTheTransition should be printed immediately
+    # CatalystInterfaceUtils::displayStateTransition(displaystate: DisplayState) : DisplayState
+    def self.displayStateTransition(displaystate) # return: DisplayState
+
+    end
 
     # CatalystInterfaceUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
