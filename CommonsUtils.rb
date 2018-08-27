@@ -391,7 +391,7 @@ class CommonsUtils
         puts "    lib                     # Invoques the Librarian interactive"
         puts ""
         puts "Special Commands Object:"
-        puts "    cycle"
+        puts "    ,, # cycle"
         puts "    +datetimecode"
         puts "        +<weekdayname>"
         puts "        +<integer>day(s)"
@@ -540,12 +540,14 @@ class CommonsUtils
 
         # object needed
 
-        if expression == 'cycle' then
+        if expression == ',,' then
             CyclesOperator::setUnixtimeMark(object["uuid"])
+            return
         end
 
         if expression == '>list' then
             CommonsUtils::sendCatalystObjectToList(object["uuid"], object["announce"])
+            return
         end
 
         if expression == 'expose' then

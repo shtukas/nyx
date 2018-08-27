@@ -300,13 +300,6 @@ class CatalystInterfaceUtils
             puts ""
             print "--> "
             command = STDIN.gets().strip
-            CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, standardlp, displayobjects.clone)
-
-            if focusobject["schedule"] and focusobject["schedule"][":wave-email:"] and ( command == "open" ) then
-                if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
-                    CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, nil, nil)
-                end
-            end
 
             shouldRemoveUnixtimeMark = lambda{|object, command|
                 return true if command == "done"
@@ -316,6 +309,14 @@ class CatalystInterfaceUtils
 
             if shouldRemoveUnixtimeMark.call(focusobject, command) then
                 CyclesOperator::removeUnixtimeMark(focusobject["uuid"])
+            end
+
+            CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, standardlp, displayobjects.clone)
+
+            if focusobject["schedule"] and focusobject["schedule"][":wave-email:"] and ( command == "open" ) then
+                if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
+                    CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, nil, nil)
+                end
             end
 
         }
