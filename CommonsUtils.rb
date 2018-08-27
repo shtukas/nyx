@@ -328,7 +328,6 @@ class CommonsUtils
     end
 
     def self.flockDisplayObjects()
-        displayMetric = ( CommonsUtils::getTravelMode()=="space" ) ? 0.5 : 0.2
         objects = CommonsUtils::flockObjectsUpdatedForDisplay()
         objects = objects.map{|object| CyclesOperator::updateObjectWithNewMetricIfNeeded(object) }
         objects = objects
@@ -336,33 +335,9 @@ class CommonsUtils
             .reverse
         objects = CommonsUtils::lisaObjectPlacementOperator(objects)
         objects = objects
-            .select{ |object| object["metric"]>=displayMetric }
+            .select{ |object| object["metric"] >= 0.2 }
             .sort{|o1,o2| o1['metric']<=>o2['metric'] }
             .reverse
-        if objects.size==0 and CommonsUtils::getTravelMode()=="space" then
-            objects = [
-                {
-                    "uuid"      => "8e4ead40",
-                    "agent-uid" => "3d637d25-e634-47f2-b5bd-3d9105ac9da7",
-                    "metric"    => 0.5,
-                    "announce"  => "-- space line --",
-                    "commands"  => [],
-                    "default-expression" => "enter-atmosphere"
-                }
-            ]
-        end
-        if objects.size==0 and CommonsUtils::getTravelMode()=="atmostphere" then
-            objects = [
-                {
-                    "uuid"      => "7291fdd8",
-                    "agent-uid" => self.agentuuid(),
-                    "metric"    => 0.2,
-                    "announce"  => "-- water line -- (go have a nap) --",
-                    "commands"  => [],
-                    "default-expression" => nil
-                }
-            ]
-        end
         objects
     end
 
@@ -596,24 +571,11 @@ class CommonsUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
-    def self.getTravelMode() # "space", "atmostphere"
-        FKVStore::getOrDefaultValue("73625650-4347-4e3f-b93f-b8c40fb89f05:#{CommonsUtils::currentDay()}", "space")
-    end
-
-    def self.moveToAtmosphere()
-        FKVStore::set("73625650-4347-4e3f-b93f-b8c40fb89f05:#{CommonsUtils::currentDay()}", "atmostphere")
-    end
-
     # CommonsUtils::unixtimeToMetricNS1935(unixtime)
     def self.unixtimeToMetricNS1935(unixtime)
         ageInHours = (Time.new.to_f - unixtime).to_f/3600
         ageInDays = (Time.new.to_f - unixtime).to_f/86400
-        if ageInHours < 24 then
-            0.5 + 0.2*(1-Math.exp(-ageInHours))
-        else
-            0.7 + 0.130*(1-Math.exp(-ageInDays))
-        end
-        # Metric between 0.5 and 0.83s
+        0.2 + 0.6*(1-Math.exp(-ageInHours.to_f/6))
     end
 
 end
