@@ -94,7 +94,11 @@ class CatalystInterfaceUtils
     end
 
     def self.objectToLineMainListing(object, position, standardlp)
-        "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        if position == standardlp then
+            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::object2Line_v0(object)}"
+        else
+            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+        end
     end
 
     def self.objectToLineMainListingLambdaWithColour(object, position, standardlp)
