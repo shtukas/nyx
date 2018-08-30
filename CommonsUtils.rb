@@ -283,6 +283,10 @@ class CommonsUtils
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| RequirementsOperator::updateForDisplay(object) }
             .map{|object| CyclesOperator::updateObjectWithNewMetricIfNeeded(object) }
+            .map{|object| 
+                object[":updated-for-display-metric-8a2be8c6:"] = object["metric"]
+                object
+            }
     end
 
     def self.putshelp()
