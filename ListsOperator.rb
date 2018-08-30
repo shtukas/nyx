@@ -142,6 +142,7 @@ class ListsOperator
     # ListsOperator::ui_listsDive()
     def self.ui_listsDive()
         list = ListsOperator::ui_interactivelySelectListOrNull()
+        return if list.nil?
         ListsOperator::listDive(list)
     end
 

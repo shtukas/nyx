@@ -278,67 +278,11 @@ class CommonsUtils
     # CommonsUtils::flockObjectsUpdatedForDisplay()
     def self.flockObjectsUpdatedForDisplay()
         Bob::generalFlockUpgrade()
-        objects = TheFlock::flockObjects()
-                    .map{|object| object.clone }
-        objects = objects
+        TheFlock::flockObjects()
+            .map{|object| object.clone }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| RequirementsOperator::updateForDisplay(object) }
-        objects
-    end
-
-    # CommonsUtils::lisaObjectPlacementOperator(objects)
-    def self.lisaObjectPlacementOperator(objects) # Array[CatalystObjects] -> Array[CatalystObjects]
-        allListsCatalystItemUUIDs = ListsOperator::allListsCatalystItemsUUID()
-        objects = objects
-                    .map{|object|
-                        if allListsCatalystItemUUIDs.include?(object["uuid"]) then
-                            object["metric"] = 0.1
-                        end
-                        object
-                    }
-        trueIfFirstObjectIsALisa = lambda {|objects| objects.size>0 and objects[0]["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
-        return objects if !trueIfFirstObjectIsALisa.call(objects)
-        firstCatalystObject = objects[0]
-        lisa = firstCatalystObject["item-data"]["lisa"]
-        return objects if lisa["target"].nil?
-        return objects if lisa["target"][0]!="list"
-        listuuid = lisa["target"][1]
-        list = ListsOperator::getListByUUIDOrNull(listuuid)
-        return objects if list.nil?
-        return objects if list["catalyst-object-uuids"].size==0
-        catalystObject1 = objects[0]
-        catalystObjects2OfList, catalystObjects3Others = objects[1, objects.size].partition{ |object| list["catalyst-object-uuids"].include?(object["uuid"]) }
-        # Moving part3 0.1 metric below first object
-        return ( [ firstCatalystObject ] + catalystObjects3Others ) if catalystObjects2OfList.size==0
-        catalystObjects3Others = catalystObjects3Others
-            .map{|object|
-                object["metric"] = object["metric"]-0.1 
-                object
-            }
-        # at this point there is a space of at least 0.1 between first object and every object in catalystObjects3Others
-        ienum = LucilleCore::integerEnumerator()
-        catalystObjects2OfList = catalystObjects2OfList
-            .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
-            .map{|object|
-                object["metric"] = firstCatalystObject["metric"] - 0.1*Math.exp(-ienum.next()) 
-                object[":is-first-lisa-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first lisa.
-                object
-            }
-        [ firstCatalystObject ] + catalystObjects2OfList + catalystObjects3Others
-    end
-
-    def self.flockDisplayObjects()
-        objects = CommonsUtils::flockObjectsUpdatedForDisplay()
-        objects = objects.map{|object| CyclesOperator::updateObjectWithNewMetricIfNeeded(object) }
-        objects = objects
-            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-            .reverse
-        objects = CommonsUtils::lisaObjectPlacementOperator(objects)
-        objects = objects
-            .select{ |object| object["metric"] >= 0.2 }
-            .sort{|o1,o2| o1['metric']<=>o2['metric'] }
-            .reverse
-        objects
+            .map{|object| CyclesOperator::updateObjectWithNewMetricIfNeeded(object) }
     end
 
     def self.putshelp()
@@ -382,7 +326,7 @@ class CommonsUtils
     def self.object2Line_v0(object)
         announce = object['announce'].lines.first.strip
         [
-            object[":is-first-lisa-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
+            object[":is-lisa-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
             " #{announce}",
             CommonsUtils::object2DonotShowUntilAsString(object),
         ].join()

@@ -24,18 +24,127 @@ require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require_relative "catalyst.rb"
 # -----------------------------------------------------------------
 
+=begin
+
+(DisplayState) {
+    "nsx26:all-catalyst-objects-above-water"        => Array[CatalystObject],
+    "nsx26:objects-already-processed"   => Array[CatalystObject],
+    "nsx26:object-still-to-go"          => Array[CatalystObject],
+    "nsx26:lines-to-display"            => Array[String],
+    "nsx26:screen-left-height"          => 10,
+    "nsx26:standard-listing-position"   => Int
+    "nsx26:current-position-cursor"     => Int,
+    "nsx26:should-stop-display-process" => Boolean
+    "nsx26:focus-object"                => nil or object
+}
+
+=end
+
+class TheUltimateDisplayOperator
+
+    # TheUltimateDisplayOperator::makeGenesysDisplayState()
+    def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
+        objectsAboveWater = CommonsUtils::flockObjectsUpdatedForDisplay()
+                                .select{ |object| object["metric"] >= 0.2 }
+        listsObjectsUUIDs = ListsOperator::allListsCatalystItemsUUID()
+        regularObjects, listsObjects = objectsAboveWater.partition {|object| !listsObjectsUUIDs.include?(object["uuid"]) } 
+        {
+            "nsx26:all-catalyst-objects-above-water" => objectsAboveWater,
+            "nsx26:objects-already-processed"        => [],
+            "nsx26:object-still-to-go"               => regularObjects.select{ |object| object["metric"] >= 0.2 }.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
+            "nsx26:lines-to-display"                 => [],
+            "nsx26:screen-left-height"               => screenLeftHeight,
+            "nsx26:standard-listing-position"        => standardlp,
+            "nsx26:current-position-cursor"          => 0,
+            "nsx26:should-stop-display-process"      => false,
+            "nsx26:focus-object"                     => nil
+        }
+    end
+
+    # TheUltimateDisplayOperator::displayStateTransition(displayState: DisplayState) : DisplayState
+    def self.displayStateTransition(displayState) # return: DisplayState
+
+        displayState["nsx26:current-position-cursor"] = displayState["nsx26:current-position-cursor"]+1
+        displayState["nsx26:lines-to-display"] = []
+
+        object = displayState["nsx26:object-still-to-go"].shift
+
+        # --------------------------------------------------------------------------------
+        if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
+            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
+            TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+            return nil
+        end
+        # --------------------------------------------------------------------------------
+
+        # --------------------------------------------------------------------------------
+        # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
+        # In such a case they are still in Flock and should not be showed
+        if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
+            if object["schedule"][":wave-email:"] then
+                if !File.exists?(object["item-data"]["folderpath"]) then
+                    TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+                    EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
+                    return nil
+                end
+            end
+        end
+        # --------------------------------------------------------------------------------
+
+        displayState["nsx26:objects-already-processed"] << object
+        displayState["nsx26:lines-to-display"] << CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, displayState["nsx26:current-position-cursor"], displayState["nsx26:standard-listing-position"])
+        displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
+
+        if displayState["nsx26:current-position-cursor"] == displayState["nsx26:standard-listing-position"] then
+            displayState["nsx26:focus-object"] = object
+            displayState["nsx26:lines-to-display"] << (" "*14)+CatalystInterfaceUtils::objectInferfaceString(object)
+            displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
+        end
+
+        if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" then
+            # We have a lisa object
+            displayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"]
+                .map{|o| 
+                    o["metric"] = o["metric"]-0.01 
+                    o
+                }
+            loop {
+                lisa = object["item-data"]["lisa"]
+                break if lisa["target"].nil?
+                break if lisa["target"][0]!="list"
+                listuuid = lisa["target"][1]
+                list = ListsOperator::getListByUUIDOrNull(listuuid)
+                break if list["catalyst-object-uuids"].size==0
+                ienum = LucilleCore::integerEnumerator() 
+                displayState["nsx26:all-catalyst-objects-above-water"]
+                    .select{|o| list["catalyst-object-uuids"].include?(o["uuid"]) }   
+                    .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
+                    .map{|o|
+                        o["metric"] = object["metric"] - 0.01*Math.exp(-ienum.next()) 
+                        o[":is-lisa-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first lisa.
+                        o
+                    }
+                    .each{|o|
+                        displayState["nsx26:object-still-to-go"].unshift(o)
+                    }
+                break
+            }
+
+        end
+
+        if displayState["nsx26:screen-left-height"] <= 0 then
+            displayState["nsx26:should-stop-display-process"] = true
+        end
+
+        if displayState["nsx26:object-still-to-go"].count == 0 then
+            displayState["nsx26:should-stop-display-process"] = true
+        end
+
+        displayState
+    end
+end
+
 class CatalystInterfaceUtils
-
-    def self.makeGenesysDisplayState() # : DisplayState
-
-    end
-
-    # DisplayState = [ objectsAlreadyProcessed, objectsStillToGo, linesToDisplayAsASideEffectOfTheTransition, allListingObjects ]
-    # When a DisplayState is returned from a transition step, then the linesToDisplayAsASideEffectOfTheTransition should be printed immediately
-    # CatalystInterfaceUtils::displayStateTransition(displaystate: DisplayState) : DisplayState
-    def self.displayStateTransition(displaystate) # return: DisplayState
-
-    end
 
     # CatalystInterfaceUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
@@ -124,7 +233,7 @@ class CatalystInterfaceUtils
         str
     end
 
-    def self.executeCommandAgainstObject(object, command, standardlp, displayobjects)
+    def self.executeCommandAgainstObject(object, command, standardlp)
         # The reason why we have this function and processObjectAndCommand as separate function is that they have different signatures
         # That having been said, it is true that this function could just rewrite the object and/or the command.
         if command == "." then
@@ -146,20 +255,6 @@ class CatalystInterfaceUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
-    def self.processObjectForMetricRequirement(object, displayobjects)
-        puts ""
-        displayobjects
-            .select{|object| object["metric"]>1 }
-            .each{|object|
-                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, nil, nil) 
-            }
-        puts ""
-        puts "Middle of week day:"
-        puts "Processing object for metric requirements (do, postpone, or metric <metric>):"
-        command = CatalystInterfaceUtils::doDisplayObjectAndPromptAndReturnCommand(object, nil)
-        CatalystInterfaceUtils::executeCommandAgainstObject(object, command, nil, nil)
-    end
-
     def self.doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
         CatalystInterfaceUtils::displayObject(object, standardlp)
         print "--> "
@@ -174,7 +269,7 @@ class CatalystInterfaceUtils
                 puts "Source code hash changed. Exiting!"
                 exit
             end
-            
+
             displayScreenSizeReductionIndex = 6
 
             # Indicates over staying off requirement.
@@ -251,64 +346,31 @@ class CatalystInterfaceUtils
 
             system("clear")
 
+            standardlp = CommonsUtils::getStandardListingPosition()
+
             averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
             percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
 
             puts "Lisa: #{"%.2f" % averageDailyCommitmentInHours} hours today ( #{"%.2f" % percentageDone} % done )"
 
-            standardlp = CommonsUtils::getStandardListingPosition()
-            displayobjects = CommonsUtils::flockDisplayObjects()
-
-            if displayobjects.size==0 then
-                puts "-> I can't find any catalyst object. Is that expected ?"
-                LucilleCore::pressEnterToContinue()
-                next
-            end            
-
-            focusobject = displayobjects.clone.take([standardlp, displayobjects.size].min).last
-
-            # --------------------------------------------------------------------------------
-            # Checking that the object about to display is not orphan
-            if Bob::agentuuid2AgentData(focusobject["agent-uid"]).nil? then
-                LucilleCore::pressEnterToContinue()
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(focusobject["uuid"]))
-                TheFlock::removeObjectIdentifiedByUUID(focusobject["uuid"])
-                next
-            end
-            # --------------------------------------------------------------------------------
-
-            # --------------------------------------------------------------------------------
-            # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
-            # In such a case they are still in Flock and should not be showed
-            if focusobject["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
-                if focusobject["schedule"][":wave-email:"] then
-                    if !File.exists?(focusobject["item-data"]["folderpath"]) then
-                        TheFlock::removeObjectIdentifiedByUUID(focusobject["uuid"])
-                        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(focusobject["uuid"]))
-                        next
-                    end
-                end
-            end
-            # --------------------------------------------------------------------------------
-
-            # --------------------------------------------------------------------------------
-            # Listing display
-
             puts ""
 
-            amountToDisplay = [ CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, self.positionOfLastRunningItemOrZero(displayobjects.clone) ].max
-            displayObjectsScreenFitting = displayobjects.clone.take(amountToDisplay)
             if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                 puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-                displayObjectsScreenFitting.pop
             end
-            displayObjectsScreenFitting.each_with_index{|xobject, position|
-                puts CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(xobject, position+1, standardlp)
-                if position+1 == standardlp then
-                    puts (" "*14)+CatalystInterfaceUtils::objectInferfaceString(xobject)
-                end
+
+            focusobject = nil
+        
+            displayState = TheUltimateDisplayOperator::makeGenesysDisplayState(CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
+            loop {
+                displayState["nsx26:lines-to-display"].each{|line|
+                    puts line
+                }
+                displayState = TheUltimateDisplayOperator::displayStateTransition(displayState)
+                break if displayState.nil?
+                focusobject = displayState["nsx26:focus-object"]
+                break if displayState["nsx26:should-stop-display-process"]
             }
-            # --------------------------------------------------------------------------------
 
             puts ""
             print "--> "
@@ -317,6 +379,8 @@ class CatalystInterfaceUtils
             shouldRemoveUnixtimeMark = lambda{|object, command|
                 return true if command == "done"
                 return true if command.start_with?("+")
+                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "add-time" ) # lisa
+                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # lisa
                 false
             }
 
@@ -324,11 +388,11 @@ class CatalystInterfaceUtils
                 CyclesOperator::removeUnixtimeMark(focusobject["uuid"])
             end
 
-            CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, standardlp, displayobjects.clone)
+            CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, standardlp)
 
-            if focusobject["schedule"] and focusobject["schedule"][":wave-email:"] and ( command == "open" ) then
+            if focusobject and focusobject["schedule"] and focusobject["schedule"][":wave-email:"] and ( command == "open" ) then
                 if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
-                    CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, nil, nil)
+                    CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, nil)
                 end
             end
 
