@@ -47,27 +47,24 @@ class AgentBabyNights
 
     def self.processObjectAndCommand(object, command)
         if command == "595bc18c-48a9-4fa2-bfd3-8795f8902766" then
-            xname = nil
-            loop {
-                puts "options: #{AgentBabyNights::names().join(", ")}"
-                xname = LucilleCore::askQuestionAnswerAsString(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/question.txt"))
-                next if !AgentBabyNights::names().include?(xname)
-                break
-            }
-            if xname == "holidays" then
-                puts "👶 Nights [holidays expection]"
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Pascal", "Tracy", "Exception:"])
+            if operation == "Exception:" then
+                exception = LucilleCore::askQuestionAnswerAsString("Exception: ")
+                puts "👶 Nights Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
                 FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}", "done")
                 return
             end
+            xname = operation
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
             data[xname] = data[xname]+1
+            puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             if data["pascal"] >= 10 and data["tracy"] >= 10 then
                 data["pascal"] = data["pascal"] - 10 
                 data["tracy"] = data["tracy"] - 10 
+                puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             end
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
-            puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             LucilleCore::pressEnterToContinue()
             FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}", "done")
         end 
