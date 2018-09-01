@@ -284,7 +284,7 @@ class CommonsUtils
             .map{|object| RequirementsOperator::updateForDisplay(object) }
             .map{|object| CyclesOperator::updateObjectWithNewMetricIfNeeded(object) }
             .map{|object| 
-                object[":updated-for-display-metric-8a2be8c6:"] = object["metric"]
+                object[":object-original-updated-for-display-metric-8a2be8c6:"] = object["metric"]
                 object
             }
     end
