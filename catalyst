@@ -114,6 +114,7 @@ class TheUltimateDisplayOperator
                 break if lisa["target"][0]!="list"
                 listuuid = lisa["target"][1]
                 list = ListsOperator::getListByUUIDOrNull(listuuid)
+                break if list.nil?
                 break if list["catalyst-object-uuids"].size==0
                 ienum = LucilleCore::integerEnumerator() 
                 displayState["nsx26:all-catalyst-objects-above-water"]
