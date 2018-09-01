@@ -157,7 +157,6 @@ class CatalystInterfaceUtils
         part2 = 
             [
                 "#{requirementsAsString.green}",
-                CommonsUtils::object2DonotShowUntilAsString(object),
                 listIng,
                 " (#{object["commands"].join(" ").red})",
                 " \"#{defaultExpressionAsString.green}\""
