@@ -285,6 +285,7 @@ class LisaUtils
                 LisaUtils::commitLisaToDisk(lisa, File.basename(LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])))
             end
             if operation=="destroy" then
+                next if !LucilleCore::askQuestionAnswerAsBoolean("Do you really want to destroy lisa '#{lisa["description"]}' ? ")
                 if lisa["target"] then
                     if lisa["target"][0] == "list" then
                         listuuid = lisa["target"][1]
