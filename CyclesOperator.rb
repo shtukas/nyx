@@ -24,6 +24,7 @@ class CyclesOperator
     def self.updateObjectWithNewMetricIfNeeded(object)
         unixtime = CyclesOperator::getUnixtimeOrNull(object["uuid"])
         return object if unixtime.nil?
+        return object if object["metric"] >= 1
         object["metric"] = CommonsUtils::unixtimeToMetricNS1935(unixtime.to_i)
         object
     end
