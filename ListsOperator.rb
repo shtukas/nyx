@@ -111,7 +111,7 @@ class ListsOperator
     def self.listDive(list)
         loop {
             puts "-> #{list["description"]}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["rename list", "show elements", "remove element from list", "destroy list"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["rename list", "show elements", "remove elements from list", "destroy list"])
             break if operation.nil?
             if operation == "rename list" then
                 puts "Not implemented yet"
@@ -124,10 +124,14 @@ class ListsOperator
                 next if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             end
-            if operation == "remove element from list" then
-                puts "Not implemented yet"
-                LucilleCore::pressEnterToContinue()
-                next
+            if operation == "remove elements from list" then
+                loop {
+                    listObjects = TheFlock::flockObjects().select{ |object| list["catalyst-object-uuids"].include?(object["uuid"]) }
+                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", listObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                    break if selectedobject.nil?
+                    list["catalyst-object-uuids"].delete(selectedobject["uuid"])
+                    ListsOperator::commitListToDisk(list)
+                }
             end
             if operation == "destroy list" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy list '#{list["description"]}'? ") then
