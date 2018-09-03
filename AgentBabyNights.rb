@@ -55,7 +55,7 @@ class AgentBabyNights
                 FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}", "done")
                 return
             end
-            xname = operation
+            xname = operation.downcase
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
             data[xname] = data[xname]+1
             puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
