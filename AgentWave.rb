@@ -273,11 +273,10 @@ class WaveDevOps
             .each{|sourcelocation|
                 uuid = SecureRandom.hex(4)
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                schedule["made-on-date"] = CommonsUtils::currentDay()
                 folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-                AgentWave::writeScheduleToDisk(uuid,schedule)
+                AgentWave::writeScheduleToDisk(uuid, schedule)
                 if File.file?(sourcelocation) then
                     FileUtils.cp(sourcelocation,folderpath)
                 else
@@ -293,7 +292,7 @@ end
 # AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
 # AgentWave::catalystUUIDsEnumerator()
 # AgentWave::timestring22ToFolderpath(timestring22)
-# AgentWave::writeScheduleToDisk(uuid,schedule)
+# AgentWave::writeScheduleToDisk(uuid, schedule)
 # AgentWave::readScheduleFromWaveItemOrNull(uuid)
 # AgentWave::makeNewSchedule()
 # AgentWave::archiveWaveItem(uuid)
@@ -352,7 +351,7 @@ class AgentWave
         "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
     end
 
-    def self.writeScheduleToDisk(uuid,schedule)
+    def self.writeScheduleToDisk(uuid, schedule)
         folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         return if !File.exists?(folderpath)

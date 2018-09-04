@@ -72,43 +72,27 @@ class AgentVienna
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
     end
 
-    def self.setLinkAsRead(link)
-
-    end
-
-    def self.metric(uuid)
-        MiniFIFOQ::takeWhile("timestamps-f0dc-44f8-87d0-f43515e7eba0", lambda{|unixtime| (Time.new.to_i - unixtime)>86400 })
-        metric = 0.2 + 0.3*CommonsUtils::realNumbersToZeroOne($viennaLinkFeeder.links().count, 100, 50)*Math.exp(-MiniFIFOQ::size("timestamps-f0dc-44f8-87d0-f43515e7eba0").to_f/20) - CommonsUtils::traceToMetricShift(uuid)
-    end
-
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if !CommonsUtils::isLucille18()
-        link = $viennaLinkFeeder.next()
-        return if link.nil?
-        uuid = Digest::SHA1.hexdigest("cc8c96fe-efa3-4f8a-9f81-5c61f12d6872:#{link}")[0,8]
-        object = 
-            {
-                "uuid" => uuid,
-                "agent-uid" => self.agentuuid(),
-                "metric" => AgentVienna::metric(uuid),
-                "announce" => "vienna: #{link}",
-                "commands" => ['open', 'done'],
-                "default-expression" => "open done",
-                "item-data" => {
-                    "link" => link
-                }
-            }
-        TheFlock::addOrUpdateObject(object)
+        return if !FKVStore::getOrNull("2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}").nil?
+        10.times {
+            link = $viennaLinkFeeder.next()
+            next if link.nil?
+            uuid = SecureRandom.hex(4)
+            folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            FileUtils.mkpath folderpath
+            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(link) }
+            schedule = WaveSchedules::makeScheduleObjectTypeNew()
+            AgentWave::writeScheduleToDisk(uuid, schedule)
+            $viennaLinkFeeder.done(link)
+
+        }
+        FKVStore::set("2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}", "done")
     end
 
     def self.processObjectAndCommand(object, command)
-        if command=='open' then
-            system("open '#{object["item-data"]["link"]}'")
-        end
-        if command=='done' then
-            $viennaLinkFeeder.done(object["item-data"]["link"])
-            MiniFIFOQ::push("timestamps-f0dc-44f8-87d0-f43515e7eba0", Time.new.to_i)
-        end
+
     end
 end

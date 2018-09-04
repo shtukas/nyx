@@ -203,8 +203,7 @@ class CommonsUtils
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         schedule = WaveSchedules::makeScheduleObjectTypeNew()
-        schedule["made-on-date"] = CommonsUtils::currentDay()
-        AgentWave::writeScheduleToDisk(uuid,schedule)
+        AgentWave::writeScheduleToDisk(uuid, schedule)
         uuid
     end
 
@@ -215,7 +214,7 @@ class CommonsUtils
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         schedule = WaveSchedules::makeScheduleObjectTypeNew()
-        AgentWave::writeScheduleToDisk(uuid,schedule) 
+        AgentWave::writeScheduleToDisk(uuid, schedule) 
         [uuid, schedule]
     end
 
@@ -233,14 +232,13 @@ class CommonsUtils
     def self.waveInsertNewItemInteractive(description)
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description)
-        schedule["made-on-date"] = CommonsUtils::currentDay()
-        AgentWave::writeScheduleToDisk(uuid,schedule)    
+        AgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", ">list"])
             break if option.nil?
             if option == "non new schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-                AgentWave::writeScheduleToDisk(uuid,schedule)  
+                AgentWave::writeScheduleToDisk(uuid, schedule)  
             end
             if option == "datetime code" then
                 if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then

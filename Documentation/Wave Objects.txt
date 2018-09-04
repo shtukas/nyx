@@ -19,7 +19,6 @@
     "uuid" => SecureRandom.hex,
     "@": "new"
     "unixtime": 1506925527
-    "made-on-date" => Date # optional start with a lower metric during the same day
 }
 
 {

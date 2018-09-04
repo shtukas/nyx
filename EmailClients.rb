@@ -246,7 +246,7 @@ class GeneralEmailClient
                 schedule[':wave-email:'] = true # read by Wave agent
                 schedule[':wave-email-datetime:'] = EmailUtils::msgToDateTime(msg)
                 schedule[':wave-email-catalyst-registration-datetime:'] = Time.new.to_s
-                AgentWave::writeScheduleToDisk(catalystuuid,schedule)
+                AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
                 File.open("#{folderpath}/email-metatada-emailuid.txt", 'w') {|f| f.write(emailuid) }
                 next
