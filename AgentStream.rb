@@ -63,7 +63,6 @@ class AgentStream
         AgentStream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
             .first(1)
             .each{|folderpath1|
-                puts folderpath1
                 folderpath2 = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 system("mv #{folderpath1} #{folderpath2}")
                 uuid = SecureRandom.hex(4)
