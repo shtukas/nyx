@@ -87,7 +87,6 @@ class AgentVienna
             schedule = WaveSchedules::makeScheduleObjectTypeNew()
             AgentWave::writeScheduleToDisk(uuid, schedule)
             $viennaLinkFeeder.done(link)
-
         }
         FKVStore::set("2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}", "done")
     end
