@@ -43,6 +43,23 @@ class AgentLisa
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
+
+        if FKVStore::getOrNull("a18c4a10-a552-446c-91bb-0a799b4f4707:#{CommonsUtils::currentDay()}").nil? then
+            LisaUtils::lisasWithFilepaths()
+                .each{|data|
+                    lisa, filepath = data
+                    timestructure = lisa["time-structure"]
+                    timeCommitmentInHours = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
+                    timeproton = {}
+                    timeproton["uuid"] = SecureRandom.hex(4)
+                    timeproton["description"] = "(#{lisa["description"]})"
+                    timeproton["time-commitment-in-hours"] = timeCommitmentInHours.round(2)
+                    timeproton["lisa-uuid"] = lisa["uuid"]
+                    File.open("/Galaxy/DataBank/Catalyst/Agents-Data/Time-Protons/#{timeproton["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(timeproton)) }
+                }
+            FKVStore::set("a18c4a10-a552-446c-91bb-0a799b4f4707:#{CommonsUtils::currentDay()}", "done")
+        end
+
         LisaUtils::lisasWithFilepaths()
             .map{|data|
                 lisa, filepath = data

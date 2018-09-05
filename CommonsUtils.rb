@@ -170,7 +170,7 @@ class CommonsUtils
     end
 
     def self.object2DonotShowUntilAsString(object)
-        ( object["do-not-show-until-datetime"] and Time.new.to_s < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+        ( object["do-not-show-until-datetime"] and Time.now.utc.iso8601 < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
     end
 
     def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
@@ -267,7 +267,7 @@ class CommonsUtils
     end
 
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
-        if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.new.to_s < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
+        if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.now.utc.iso8601 < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
             object["do-not-show-until-datetime"] = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
             object["metric"] = 0
@@ -464,6 +464,11 @@ class CommonsUtils
         # object needed
 
         if expression == ',,' then
+            if object["agent-uid"]=="ed85a047-2ea1-42a8-a9c7-ab724cc66aef" then
+                puts "You cannot CyclesOperator::setUnixtimeMark a TimeProton"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             CyclesOperator::setUnixtimeMark(object["uuid"])
             return
         end

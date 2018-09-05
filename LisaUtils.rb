@@ -265,6 +265,7 @@ class LisaUtils
     def self.ui_lisaDive(lisa)
         loop {
             puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
+            puts "-> lisa uuid: #{lisa["uuid"]}"
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "cast new time structure", "destroy"])
             break if operation.nil?
             if operation=="start" then
