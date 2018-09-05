@@ -34,6 +34,7 @@ require 'mail'
     mail.message_id      #=> '<4D6AA7EB.6490534@xxx.xxx>'
     mail.body.decoded    #=> 'This is the body of the email...
 =end
+require "time"
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 # -------------------------------------------------------------------------------------
 
@@ -89,9 +90,9 @@ class EmailUtils
         File.open(filepath, 'w') {|f| f.write(msg) }
         mailObject = Mail.read(filepath)
         begin
-            DateTime.parse(mailObject.date.to_s).to_time.to_s
+            DateTime.parse(mailObject.date.to_s).to_time.utc.iso8601
         rescue
-            Time.new.to_s
+            Time.now.utc.iso8601
         end
     end
 
@@ -173,7 +174,7 @@ class OperatorEmailClient
                 schedule["unixtime"] = EmailUtils::msgToUnixtime(msg)
                 schedule[':wave-email:'] = true # read by Wave agent
                 schedule[':wave-email-datetime:'] = EmailUtils::msgToDateTime(msg)
-                schedule[':wave-email-catalyst-registration-datetime:'] = Time.new.to_s
+                schedule[':wave-email-catalyst-registration-datetime:'] = Time.now.utc.iso8601
                 AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: #{emailuid}") }
             else
@@ -186,7 +187,7 @@ class OperatorEmailClient
                 schedule["unixtime"] = EmailUtils::msgToUnixtime(msg)
                 schedule[':wave-email:'] = true # read by Wave agent
                 schedule[':wave-email-datetime:'] = EmailUtils::msgToDateTime(msg)
-                schedule[':wave-email-catalyst-registration-datetime:'] = Time.new.to_s
+                schedule[':wave-email-catalyst-registration-datetime:'] = Time.now.utc.iso8601
                 AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("operator@alseyn.net: subject line: #{subjectline}") }
             end
@@ -245,7 +246,7 @@ class GeneralEmailClient
                 schedule["unixtime"] = EmailUtils::msgToUnixtime(msg)
                 schedule[':wave-email:'] = true # read by Wave agent
                 schedule[':wave-email-datetime:'] = EmailUtils::msgToDateTime(msg)
-                schedule[':wave-email-catalyst-registration-datetime:'] = Time.new.to_s
+                schedule[':wave-email-catalyst-registration-datetime:'] = Time.now.utc.iso8601
                 AgentWave::writeScheduleToDisk(catalystuuid, schedule)
                 File.open("#{folderpath}/description.txt", 'w') {|f| f.write("email: #{EmailUtils::msgToSubject(msg)}") }
                 File.open("#{folderpath}/email-metatada-emailuid.txt", 'w') {|f| f.write(emailuid) }

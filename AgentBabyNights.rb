@@ -6,6 +6,7 @@ require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+require "time"
 require_relative "Bob.rb"
 # -------------------------------------------------------------------------------------
 
@@ -31,7 +32,7 @@ class AgentBabyNights
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        if FKVStore::getOrNull("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}").nil? and Time.new.hour>=6 then
+        if FKVStore::getOrNull("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
                     "uuid"      => "4b9bcf0a",
@@ -52,7 +53,7 @@ class AgentBabyNights
                 exception = LucilleCore::askQuestionAnswerAsString("Exception: ")
                 puts "👶 Nights Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
-                FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}", "done")
+                FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
                 return
             end
             xname = operation.downcase
@@ -66,7 +67,7 @@ class AgentBabyNights
             end
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
-            FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.new.to_s[0,10]}", "done")
+            FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
         end 
     end
 end

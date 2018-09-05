@@ -10,6 +10,8 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
+require "time"
+
 require_relative "Bob.rb"
 
 # ---------------------------------------------------
@@ -17,11 +19,11 @@ require_relative "Bob.rb"
 class CommonsUtils
 
     def self.currentHour()
-        Time.new.to_s[0,13]
+        Time.now.utc.iso8601[0,13]
     end
 
     def self.currentDay()
-        Time.new.to_s[0,10]
+        Time.now.utc.iso8601[0,10]
     end
 
     def self.isWeekDay()
