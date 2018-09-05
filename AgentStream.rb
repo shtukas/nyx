@@ -64,6 +64,9 @@ class AgentStream
             .first(1)
             .each{|folderpath1|
                 folderpath2 = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                if !File.exists?(File.dirname(folderpath2)) then
+                    FileUtils.mkpath File.dirname(folderpath2)
+                end
                 system("mv #{folderpath1} #{folderpath2}")
                 uuid = SecureRandom.hex(4)
                 File.open("#{folderpath2}/catalyst-uuid", 'w') {|f| f.write(uuid) }
