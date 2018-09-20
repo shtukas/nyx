@@ -388,7 +388,7 @@ class AgentWave
     end
 
     def self.commands(schedule)
-        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy", ">stream", ">lib"]
+        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy", ">lib"]
         commands
     end
 
@@ -602,15 +602,6 @@ class AgentWave
                 TheFlock::removeObjectIdentifiedByUUID(uuid)
                 EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
-        end
-
-        if command=='>stream' then
-            sourcelocation = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
-            targetfolderpath = "#{CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER}/#{LucilleCore::timeStringL22()}"
-            FileUtils.mv(sourcelocation, targetfolderpath)
-            AgentWave::removeWaveMetadataFilesAtLocation(targetfolderpath)
-            TheFlock::removeObjectIdentifiedByUUID(uuid)
-            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         end
 
         if command=='>lib' then
