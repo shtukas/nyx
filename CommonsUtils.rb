@@ -267,9 +267,11 @@ class CommonsUtils
     end
 
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
-        if !TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]].nil? and (Time.now.utc.iso8601 < TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]) and object["metric"]<=1 then
-            # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
-            object["do-not-show-until-datetime"] = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+        datetime = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+        return object if datetime.nil?
+        datetime = DateTime.parse(datetime).to_time.utc.iso8601
+        object["do-not-show-until-datetime"] = datetime
+        if Time.now.utc.iso8601 < datetime then
             object["metric"] = 0
         end
         object
@@ -467,7 +469,9 @@ class CommonsUtils
         if expression == ',,' then
             if Time.new.hour >= 22 then
                 CyclesOperator::removeUnixtimeMark(object["uuid"])
-                TheFlock::setDoNotShowUntilDateTime(object["uuid"], (Time.new + 3600*6).utc.iso8601)
+                datetime = (Time.new+3600*6).utc.iso8601
+                TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             else
                 CyclesOperator::setUnixtimeMark(object["uuid"])
             end
