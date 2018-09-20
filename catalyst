@@ -397,7 +397,7 @@ class CatalystInterfaceUtils
                 break if displayState.nil?
                 #puts JSON.pretty_generate(displayStateToShowable.call(displayState))
                 #LucilleCore::pressEnterToContinue()
-                focusobject = displayState["nsx26:focus-object"].clone
+                focusobject = displayState["nsx26:focus-object"]
                 break if displayState["nsx26:should-stop-display-process"]
             }
 
