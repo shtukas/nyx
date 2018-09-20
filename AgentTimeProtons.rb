@@ -63,6 +63,7 @@ class AgentTimeProtons
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
+        return if ( Time.new.wday==6 or Time.new.wday==0 )
         catalystobjects = AgentTimeProtons::protonFilepaths()
             .map{|filepath|
                 object = JSON.parse(IO.read(filepath))

@@ -464,11 +464,6 @@ class CommonsUtils
         # object needed
 
         if expression == ',,' then
-            if object["agent-uid"]=="ed85a047-2ea1-42a8-a9c7-ab724cc66aef" then
-                puts "You cannot CyclesOperator::setUnixtimeMark a TimeProton"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
             CyclesOperator::setUnixtimeMark(object["uuid"])
             return
         end
