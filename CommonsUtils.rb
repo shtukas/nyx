@@ -513,7 +513,7 @@ class CommonsUtils
 
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
-        puts CatalystInterfaceUtils::object2Line_v1(object)
+        puts CatalystInterfaceUtils::objectToString(object)
         print "--> "
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )

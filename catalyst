@@ -161,7 +161,7 @@ class CatalystInterfaceUtils
         part2        
     end
 
-    def self.object2Line_v1(object)
+    def self.objectToString(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
@@ -190,9 +190,9 @@ class CatalystInterfaceUtils
 
     def self.displayObject(object, standardlp)
         if standardlp then
-            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::object2Line_v1(object)}"
+            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::objectToString(object)}"
         else
-            puts CatalystInterfaceUtils::object2Line_v1(object)
+            puts CatalystInterfaceUtils::objectToString(object)
         end
     end
 
