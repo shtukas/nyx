@@ -76,6 +76,8 @@ class RequirementsOperator
         if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
             object["metric"] = 0
+            # There is also something else we need to do: removing the cycle marker
+            CyclesOperator::removeUnixtimeMark(object["uuid"])
         end
         object
     end
