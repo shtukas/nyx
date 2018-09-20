@@ -40,9 +40,9 @@ require_relative "catalyst.rb"
 
 =end
 
-class TheUltimateDisplayOperator
+class DisplayStateUtils
 
-    # TheUltimateDisplayOperator::makeGenesysDisplayState()
+    # DisplayStateUtils::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
         objectsAboveWater = CommonsUtils::flockObjectsUpdatedForDisplay()
                                 .select{ |object| object["metric"] >= 0.2 }
@@ -61,7 +61,7 @@ class TheUltimateDisplayOperator
         }
     end
 
-    # TheUltimateDisplayOperator::displayStateTransition(displayState: DisplayState) : DisplayState
+    # DisplayStateUtils::displayStateTransition(displayState: DisplayState) : DisplayState
     def self.displayStateTransition(displayState) # return: DisplayState
 
         displayState["nsx26:current-position-cursor"] = displayState["nsx26:current-position-cursor"]+1
@@ -83,7 +83,7 @@ class TheUltimateDisplayOperator
             if object["schedule"][":wave-email:"] then
                 if !File.exists?(object["item-data"]["folderpath"]) then
                     CatalystInterfaceUtils::executeCommandAgainstObject(object, "done", 1)
-                    return TheUltimateDisplayOperator::displayStateTransition(displayState)
+                    return DisplayStateUtils::displayStateTransition(displayState)
                 end
             end
         end
@@ -386,14 +386,14 @@ class CatalystInterfaceUtils
                 newDisplayState
             }
 
-            displayState = TheUltimateDisplayOperator::makeGenesysDisplayState(CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
+            displayState = DisplayStateUtils::makeGenesysDisplayState(CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
             loop {
                 displayState["nsx26:lines-to-display"].each{|line|
                     puts line
                 }
                 #puts JSON.pretty_generate(displayStateToShowable.call(displayState))
                 #LucilleCore::pressEnterToContinue()
-                displayState = TheUltimateDisplayOperator::displayStateTransition(displayStateCloner.call(displayState))
+                displayState = DisplayStateUtils::displayStateTransition(displayStateCloner.call(displayState))
                 break if displayState.nil?
                 #puts JSON.pretty_generate(displayStateToShowable.call(displayState))
                 #LucilleCore::pressEnterToContinue()
