@@ -331,6 +331,7 @@ class CommonsUtils
         announce = object['announce'].lines.first.strip
         [
             object[":is-lisa-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
+            object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
             " #{announce}",
             CommonsUtils::object2DonotShowUntilAsString(object),
         ].join()
