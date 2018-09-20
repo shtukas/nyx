@@ -47,7 +47,7 @@ class TheUltimateDisplayOperator
         objectsAboveWater = CommonsUtils::flockObjectsUpdatedForDisplay()
                                 .select{ |object| object["metric"] >= 0.2 }
         listsObjectsUUIDs = ListsOperator::allListsCatalystItemsUUID()
-        regularObjects, listsObjects = objectsAboveWater.partition {|object| !listsObjectsUUIDs.include?(object["uuid"]) } 
+        regularObjects, listsObjects = objectsAboveWater.partition {|object| !listsObjectsUUIDs.include?(object["uuid"]) }
         {
             "nsx26:all-catalyst-objects-above-water" => objectsAboveWater,
             "nsx26:objects-already-processed"        => [],
@@ -75,7 +75,6 @@ class TheUltimateDisplayOperator
             TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
             return nil
         end
-        # --------------------------------------------------------------------------------
 
         # --------------------------------------------------------------------------------
         # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
@@ -83,13 +82,11 @@ class TheUltimateDisplayOperator
         if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
             if object["schedule"][":wave-email:"] then
                 if !File.exists?(object["item-data"]["folderpath"]) then
-                    TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
-                    EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
-                    return nil
+                    CatalystInterfaceUtils::executeCommandAgainstObject(object, "done", 1)
+                    return TheUltimateDisplayOperator::displayStateTransition(displayState)
                 end
             end
         end
-        # --------------------------------------------------------------------------------
 
         displayState["nsx26:objects-already-processed"] << object
         displayState["nsx26:lines-to-display"] << CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, displayState["nsx26:current-position-cursor"], displayState["nsx26:standard-listing-position"])
@@ -360,17 +357,56 @@ class CatalystInterfaceUtils
             end
 
             focusobject = nil
-        
+
+            displayStateCloner = lambda { |displayState|
+                newDisplayState = {}
+                newDisplayState["nsx26:all-catalyst-objects-above-water"] = displayState["nsx26:all-catalyst-objects-above-water"].map{|o| o.clone }
+                newDisplayState["nsx26:objects-already-processed"] = displayState["nsx26:objects-already-processed"].map{|o| o.clone }
+                newDisplayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"].map{|o| o.clone }
+                newDisplayState["nsx26:lines-to-display"] = displayState["nsx26:lines-to-display"].clone
+                newDisplayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"]
+                newDisplayState["nsx26:standard-listing-position"] = displayState["nsx26:standard-listing-position"]
+                newDisplayState["nsx26:current-position-cursor"] = displayState["nsx26:current-position-cursor"]
+                newDisplayState["nsx26:should-stop-display-process"] = displayState["nsx26:should-stop-display-process"]
+                newDisplayState["nsx26:focus-object"] = displayState["nsx26:focus-object"] ? displayState["nsx26:focus-object"].clone : nil
+                newDisplayState
+            }
+
+            displayStateToShowable = lambda { |displayState|
+                newDisplayState = {}
+                newDisplayState["nsx26:all-catalyst-objects-above-water"] = displayState["nsx26:all-catalyst-objects-above-water"].size
+                newDisplayState["nsx26:objects-already-processed"] = displayState["nsx26:objects-already-processed"].size
+                newDisplayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"].size
+                newDisplayState["nsx26:lines-to-display"] = displayState["nsx26:lines-to-display"].clone
+                newDisplayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"]
+                newDisplayState["nsx26:standard-listing-position"] = displayState["nsx26:standard-listing-position"]
+                newDisplayState["nsx26:current-position-cursor"] = displayState["nsx26:current-position-cursor"]
+                newDisplayState["nsx26:should-stop-display-process"] = displayState["nsx26:should-stop-display-process"]
+                newDisplayState["nsx26:focus-object"] = displayState["nsx26:focus-object"] ? displayState["nsx26:focus-object"].clone : nil
+                newDisplayState
+            }
+
             displayState = TheUltimateDisplayOperator::makeGenesysDisplayState(CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
             loop {
                 displayState["nsx26:lines-to-display"].each{|line|
                     puts line
                 }
-                displayState = TheUltimateDisplayOperator::displayStateTransition(displayState)
+                #puts JSON.pretty_generate(displayStateToShowable.call(displayState))
+                #LucilleCore::pressEnterToContinue()
+                displayState = TheUltimateDisplayOperator::displayStateTransition(displayStateCloner.call(displayState))
                 break if displayState.nil?
-                focusobject = displayState["nsx26:focus-object"]
+                #puts JSON.pretty_generate(displayStateToShowable.call(displayState))
+                #LucilleCore::pressEnterToContinue()
+                focusobject = displayState["nsx26:focus-object"].clone
                 break if displayState["nsx26:should-stop-display-process"]
             }
+
+            if focusobject.nil? then
+                puts "Nothing to do for the moment (^_^)"
+                puts "Sleeping for 60 seconds"
+                sleep 60
+                next
+            end
 
             puts ""
             print "--> "
