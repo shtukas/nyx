@@ -120,14 +120,14 @@ class ListsOperator
             end
             if operation == "show elements" then
                 listObjects = TheFlock::flockObjects().select{ |object| list["catalyst-object-uuids"].include?(object["uuid"]) }
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", listObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", listObjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 next if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             end
             if operation == "remove elements from list" then
                 loop {
                     listObjects = TheFlock::flockObjects().select{ |object| list["catalyst-object-uuids"].include?(object["uuid"]) }
-                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", listObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", listObjects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
                     list["catalyst-object-uuids"].delete(selectedobject["uuid"])
                     ListsOperator::commitListToDisk(list)

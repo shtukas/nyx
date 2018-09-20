@@ -89,7 +89,7 @@ class DisplayStateUtils
         end
 
         displayState["nsx26:objects-already-processed"] << object
-        displayState["nsx26:lines-to-display"] << CatalystInterfaceUtils::objectToLineMainListingLambdaWithColour(object, displayState["nsx26:current-position-cursor"], displayState["nsx26:standard-listing-position"])
+        displayState["nsx26:lines-to-display"] << CatalystInterfaceUtils::objectToColoredLineForMainListing(object, displayState["nsx26:current-position-cursor"], displayState["nsx26:standard-listing-position"])
         displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
 
         if displayState["nsx26:current-position-cursor"] == displayState["nsx26:standard-listing-position"] then
@@ -208,16 +208,16 @@ class CatalystInterfaceUtils
         end
     end
 
-    def self.objectToLineMainListing(object, position, standardlp)
+    def self.objectToLineForMainListing(object, position, standardlp)
         if position == standardlp then
-            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::object2Line_v0(object)}"
+            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::objectToString(object)}"
         else
-            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::object2Line_v0(object)[0,CommonsUtils::screenWidth()-9]}"
+            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::objectToString(object)[0,CommonsUtils::screenWidth()-9]}"
         end
     end
 
-    def self.objectToLineMainListingLambdaWithColour(object, position, standardlp)
-        str = CatalystInterfaceUtils::objectToLineMainListing(object, position, standardlp)
+    def self.objectToColoredLineForMainListing(object, position, standardlp)
+        str = CatalystInterfaceUtils::objectToLineForMainListing(object, position, standardlp)
         if object["metric"]>1 then
             str = str.yellow
         end

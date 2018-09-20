@@ -327,7 +327,7 @@ class CommonsUtils
         puts "    command ..."
     end
 
-    def self.object2Line_v0(object)
+    def self.objectToString(object)
         announce = object['announce'].lines.first.strip
         [
             object[":is-lisa-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
@@ -438,7 +438,7 @@ class CommonsUtils
             end
             loop {
                 requirementObjects = TheFlock::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 break if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
@@ -450,9 +450,9 @@ class CommonsUtils
             loop {
                 FlockDiskIO::loadFromEventsTimeline()
                 Bob::generalFlockUpgrade()
-                searchobjects = TheFlock::flockObjects().select{|object| CommonsUtils::object2Line_v0(object).downcase.include?(pattern.downcase) }
+                searchobjects = TheFlock::flockObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::object2Line_v0(object) })
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 break if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
