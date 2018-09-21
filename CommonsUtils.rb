@@ -467,7 +467,7 @@ class CommonsUtils
         # object needed
 
         if expression == ',,' then
-            if Time.new.hour >= 22 then
+            if Time.new.hour >= 22 or Time.new.hour < 3 then
                 CyclesOperator::removeUnixtimeMark(object["uuid"])
                 datetime = (Time.new+3600*6).utc.iso8601
                 TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
