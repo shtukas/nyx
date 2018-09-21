@@ -67,6 +67,11 @@ class DisplayStateUtils
         displayState["nsx26:current-position-cursor"] = displayState["nsx26:current-position-cursor"]+1
         displayState["nsx26:lines-to-display"] = []
 
+        if displayState["nsx26:object-still-to-go"].size==0 then
+            displayState["nsx26:should-stop-display-process"] = true
+            return displayState
+        end
+
         object = displayState["nsx26:object-still-to-go"].shift
 
         # --------------------------------------------------------------------------------
