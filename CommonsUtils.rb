@@ -467,17 +467,7 @@ class CommonsUtils
         # object needed
 
         if expression == ',,' then
-            if Time.new.hour >= 22 or Time.new.hour < 3 then
-                CyclesOperator::removeUnixtimeMark(object["uuid"])
-                datetime = (Time.new+3600*6).utc.iso8601
-                TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
-                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
-            else
-                CyclesOperator::setUnixtimeMark(object["uuid"])
-                datetime = (Time.new+3600).utc.iso8601
-                TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
-                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
-            end
+            CyclesOperator::setUnixtimeMark(object["uuid"])
             return
         end
 
@@ -536,7 +526,7 @@ class CommonsUtils
     def self.unixtimeToMetricNS1935(unixtime)
         ageInHours = (Time.new.to_f - unixtime).to_f/3600
         ageInDays = (Time.new.to_f - unixtime).to_f/86400
-        0.2 + 0.6*(1-Math.exp(-ageInHours.to_f/6))
+        0.1 + 0.7*(1-Math.exp(-ageInHours.to_f/6))
     end
 
 end
