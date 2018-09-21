@@ -474,6 +474,9 @@ class CommonsUtils
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             else
                 CyclesOperator::setUnixtimeMark(object["uuid"])
+                datetime = (Time.new+3600).utc.iso8601
+                TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
+                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return
         end
