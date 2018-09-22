@@ -72,35 +72,30 @@ class LisaUtils
         nil
     end
 
+    def self.lisa2Metric(lisa)
+        # Logic: set to 0.9 and I let Cycles Operator deal with it.
+        currentStatus = lisa["current-status"]
+        metric = 0.9
+        metric = 0.1 if ( currentStatus[0] == "sleeping" )
+        metric + CommonsUtils::traceToMetricShift(uuid)
+    end
+
+    def self.trueIfLisaIsRunning(lisa)
+        lisa["current-status"][0] == "active-runnning"
+    end
+
     # LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
     def self.makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
-        lisaTargetToString = lambda{|target|
-            return "" if target.nil?
-            if target[0]=="list" then
-                listuuid = target[1]
-                list = ListsOperator::getListByUUIDOrNull(listuuid)
-                if list.nil? then
-                    return " [target: non existent list]"
-                else
-                    return " [target: list: #{list["description"]}]"
-                end
-            end
-            " [target: #{JSON.generate(target)}]"
-        }
         uuid = lisa["uuid"]
         description = lisa["description"]
-        metric = 0.9 + CommonsUtils::traceToMetricShift(uuid)
-        if Chronos::isRunning(uuid) then
-            metric = 2 + CommonsUtils::traceToMetricShift(uuid)
-        end
         object              = {}
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = metric 
+        object["metric"]    = LisaUtils::lisa2Metric(lisa)
         object["announce"]  = LisaUtils::lisaToString_v1(lisa, 40, 50)
-        object["commands"]  = Chronos::isRunning(uuid) ? ["stop"] : ["start", "add-time", "set-target", "edit", "destroy"]
-        object["default-expression"] = Chronos::isRunning(uuid) ? "stop" : "start"
-        object["is-running"] = Chronos::isRunning(uuid)
+        object["commands"]  = LisaUtils::trueIfLisaIsRunning(lisa) ? ["stop"] : ["start", "add-time", "set-target", "edit", "destroy"]
+        object["default-expression"] = LisaUtils::trueIfLisaIsRunning(lisa) ? "stop" : "start"
+        object["is-running"] = LisaUtils::trueIfLisaIsRunning(lisa)
         object["item-data"] = {}
         object["item-data"]["filepath"] = filepath
         object["item-data"]["lisa"] = lisa

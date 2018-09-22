@@ -20,8 +20,8 @@ class CyclesOperator
         FKVStore::delete("630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}")     
     end
 
-    # CyclesOperator::updateObjectWithNewMetricIfNeeded(object)
-    def self.updateObjectWithNewMetricIfNeeded(object)
+    # CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object)
+    def self.updateObjectWithNS1935MetricIfNeeded(object)
         unixtime = CyclesOperator::getUnixtimeOrNull(object["uuid"])
         return object if unixtime.nil?
         return object if object["metric"] >= 1

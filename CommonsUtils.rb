@@ -284,7 +284,7 @@ class CommonsUtils
             .map{|object| object.clone }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| RequirementsOperator::updateForDisplay(object) }
-            .map{|object| CyclesOperator::updateObjectWithNewMetricIfNeeded(object) }
+            .map{|object| CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| 
                 object[":object-original-updated-for-display-metric-8a2be8c6:"] = object["metric"]
                 object
