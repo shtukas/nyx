@@ -60,6 +60,10 @@ class ViennaLinkFeeder
         system("sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'")
         @links.shift
     end
+    def count()
+       query = "select link from messages where read_flag=0;"
+       `sqlite3 '#{VIENNA_PATH_TO_DATA}' '#{query}'`.lines.count
+    end
 end
 
 $viennaLinkFeeder = ViennaLinkFeeder.new()

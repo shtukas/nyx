@@ -352,8 +352,8 @@ class CommonsUtils
         if expression == 'info' then
             puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
             puts "Todolists:".green
-            puts "    Stream count : #{( count1 = AgentStream::getUUIDs().size )}".green
-            puts "    Vienna count : #{(count3 = $viennaLinkFeeder.links().count)}".green
+            puts "    Stream count : #{( count1 = AgentStream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER).size )}".green
+            puts "    Vienna count : #{(count3 = $viennaLinkFeeder.count())}".green
             puts "    Total        : #{(count1+count3)}".green
             puts "Requirements:".green
             puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green

@@ -44,13 +44,6 @@ Bob::registerAgent(
 
 class AgentStream
 
-
-    # --------------------------------------------------
-    # --------------- # Deprecated !! # ----------------
-    # --------------------------------------------------
-
-    @@firstRun = true
-
     def self.agentuuid()
         "73290154-191f-49de-ab6a-5e5a85c6af3a"
     end
