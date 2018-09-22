@@ -1,30 +1,7 @@
 
 # encoding: UTF-8
 
-=begin
-    This is a copy of Lisa and TimeStructure
-
-    TimeStructure { 
-        :time-commitment-in-hours  : Float
-        :time-unit-in-days         : Float
-    }
-    LisaTarget:
-        null
-        ["list", <listuuid>]
-    lisa { 
-        :uuid           : String
-        :unixtime       : Integer
-        :description    : String
-        :time-structure : TimeStructure
-        :repeat         : Boolean
-        :target         : LisaTarget 
-    }
-=end
-
 class LisaUtils
-
-    # lisa: { :uuid, :unixtime :description, :timestructure, :repeat, :target }
-    # LisaTarget: null or ["list", <listuuid>]
 
     # LisaUtils::lisasWithFilepaths(): [lisa, filepath]
     def self.lisasWithFilepaths()
@@ -39,20 +16,22 @@ class LisaUtils
         LisaUtils::lisasWithFilepaths()
             .map{|data| 
                 lisa = data[0]
-                lisa["time-structure"] 
+                lisa["time-commitment-every-20-hours"]
             }
-            .map{|timestructure| timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"] }
             .inject(0, :+)
     end
 
     # LisaUtils::currentCollectivelyDoneInHours()
     def self.currentCollectivelyDoneInHours()
         LisaUtils::lisasWithFilepaths()
+            .select{|data| 
+                lisa = data[0]
+                ["active-paused", "active-runnning"].include?(lisa["current-status"])
+            }
             .map{|data| 
                 lisa = data[0]
-                uuid = lisa["uuid"]
-                timeUnitInDays = lisa["time-structure"]["time-unit-in-days"]
-                Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, timeUnitInDays) 
+                currentStatus = lisa["current-status"]
+                currentStatus[1]
             }
             .inject(0, :+)
             .to_f/3600
@@ -62,47 +41,17 @@ class LisaUtils
     def self.commitLisaToDisk(lisa, filename)
         File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lisa/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(lisa)) }
     end
-    
-    # LisaUtils::issueNew(description, timestructure)
-    def self.issueNew(description, timestructure)
-        lisa = {
-            "uuid" => SecureRandom.hex(4),
-            "unixtime" => Time.new.to_i,
-            "description" => description,
-            "time-structure" => timestructure
-        }
-        LisaUtils::commitLisaToDisk(lisa, "#{LucilleCore::timeStringL22()}.json")
-        lisa
-    end
-
-    # LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
-    # arguments
-    #    description   : String
-    #    timestructure : TimeStructure
-    #    repeat        : Boolean
-    #    target        : LisaTarget    
-    def self.spawnNewLisa(description, timestructure, repeat, target)
+ 
+    def self.spawnNewLisa(description, timeCommitmentEvery20Hours, target)
         lisa = {
             "uuid"           => SecureRandom.hex(4),
             "unixtime"       => Time.new.to_i,
             "description"    => description,
-            "time-structure" => timestructure,
-            "repeat"         => repeat,
+            "time-commitment-every-20-hours" => timeCommitmentEvery20Hours,
             "target"         => target
         }
         LisaUtils::commitLisaToDisk(lisa, "#{LucilleCore::timeStringL22()}.json")
         lisa
-    end
-
-    # LisaUtils::metricsForTimeStructure(uuid, timestructure) # [timedoneInHours, timetodoInHours, ratio], [0, 0, nil]
-    def self.metricsForTimeStructure(uuid, timestructure)
-        if timestructure["time-commitment-in-hours"]==0 then
-            return [0, 0, nil]
-        end
-        timedoneInHours = Chronos::summedTimespansWithDecayInSecondsLiveValue(uuid, timestructure["time-unit-in-days"]).to_f/3600
-        timetodoInHours = timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"]
-        ratio = timetodoInHours>0 ? timedoneInHours.to_f/timetodoInHours : nil
-        [timedoneInHours, timetodoInHours, ratio]
     end
 
     # LisaUtils::getLisaByUUIDOrNull(lisauuid)
@@ -125,7 +74,6 @@ class LisaUtils
 
     # LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
     def self.makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
-
         lisaTargetToString = lambda{|target|
             return "" if target.nil?
             if target[0]=="list" then
@@ -139,12 +87,8 @@ class LisaUtils
             end
             " [target: #{JSON.generate(target)}]"
         }
-        # lisa: { :uuid, :unixtime :description, :timestructure, :repeat }
         uuid = lisa["uuid"]
         description = lisa["description"]
-        timestructure = lisa["time-structure"]
-        repeat = lisa["repeat"]
-        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
         metric = 0.9 + CommonsUtils::traceToMetricShift(uuid)
         if Chronos::isRunning(uuid) then
             metric = 2 + CommonsUtils::traceToMetricShift(uuid)
@@ -160,7 +104,6 @@ class LisaUtils
         object["item-data"] = {}
         object["item-data"]["filepath"] = filepath
         object["item-data"]["lisa"] = lisa
-        object["item-data"]["ratio"] = ratio
         object 
     end
 
@@ -173,48 +116,41 @@ class LisaUtils
 
     # LisaUtils::startLisa(lisa)
     def self.startLisa(lisa)
-        Chronos::start(lisa["uuid"])
-        # If a starting lisa is targetting a list, that list should become the default display
-        if lisa["target"] then
-            if lisa["target"][0] == "list" then
-                list = ListsOperator::getListByUUIDOrNull(lisa["target"][1])
-                # --------------------------------------------------------------------------
-                # Marker: a53eb0fc-b557-4265-a13b-a6e4a397cf87
-                # And now we are attempting a reverse look up so that CommonsUtils::flockObjectsUpdatedForDisplay()
-                # ... knows this came from a Lisa
-                FKVStore::set("lisauuid:50047ec7-3a7d-4d55-a191-708ae19e9d9f", lisa["uuid"])
-                # --------------------------------------------------------------------------
-            end
+        currentStatus = lisa["current-status"]
+        return if currentStatus[0] == "active-runnning" 
+        if currentStatus[0] == "active-paused" then
+            status = ["active-runnning", currentStatus[1], Time.new.to_i] 
         end
+        if currentStatus[0] == "sleeping" then
+            status = ["active-runnning", 0, Time.new.to_i] 
+        end 
+        lisa["status"] = status
+        filepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
+        LisaUtils::commitLisaToDisk(lisa, File.basename(filepath))
     end
 
     # LisaUtils::stopLisa(lisa)
     def self.stopLisa(lisa)
-        Chronos::stop(lisa["uuid"])
-        if !lisa["repeat"] then
-            lisauuid = lisa["uuid"]
-            timestructure = lisa["time-structure"]
-            if Chronos::summedTimespansInSecondsLiveValue(lisauuid).to_f/3600 >= timestructure["time-commitment-in-hours"] then
-                puts "lisa is done and is non repeat: #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
-                puts "Destroying..."
-                LucilleCore::pressEnterToContinue()
-                filepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisauuid)
-                return if filepath.nil?
-                puts "Deleting: #{filepath}"
-                FileUtils.rm(filepath)
+        currentStatus = lisa["current-status"]
+        return if currentStatus[0] == "sleeping"
+        return if currentStatus[0] == "active-paused"
+        lastStartedRunningTime = currentStatus[2]
+        timeDoneInSeconds = Time.new.to_i - lastStartedRunningTime
+        status =
+            if timeDoneInSeconds < lisa["time-commitment-every-20-hours"]*3600 then
+                ["active-paused", timeDoneInSeconds]
+            else
+                ["sleeping", Time.new.to_i]
             end
-        end
+        lisa["status"] = status
+        filepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
+        LisaUtils::commitLisaToDisk(lisa, File.basename(filepath))
     end
 
     # LisaUtils::lisaToString_v1(lisa, descriptionFragmentLJustSize, targetFragmentLJustSize)
     def self.lisaToString_v1(lisa, descriptionFragmentLJustSize, targetFragmentLJustSize)
         uuid = lisa["uuid"]
-        timestructure = lisa["time-structure"]
-        timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
-        if ratio.nil? then
-            ratio = 0
-        end
-        timeAsString = "[ #{"%6.2f" % (100*ratio)} % of #{"%.2f" % (timestructure["time-commitment-in-hours"].to_f/timestructure["time-unit-in-days"])} h today, #{"%5.2f" % timestructure["time-commitment-in-hours"]} / #{timestructure["time-unit-in-days"]} ]"
+        timeAsString = "[ #{lisa["time-commitment-every-20-hours"]} ]"
         lisaTargetString =
             if lisa["target"] then
                 if lisa["target"][0] == "list" then
@@ -256,7 +192,7 @@ class LisaUtils
         loop {
             puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
             puts "-> lisa uuid: #{lisa["uuid"]}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "cast new time structure", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "set new time commitment", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 LisaUtils::startLisa(lisa)
@@ -268,11 +204,9 @@ class LisaUtils
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 Chronos::addTimeInSeconds(lisa["uuid"], timeInHours*3600)
             end
-            if operation=="cast new time structure" then
-                timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-                timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-                lisa["time-structure"] = timestructure
+            if operation=="set new time commitment" then
+                timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
+                lisa["time-commitment-every-20-hours"] = timeCommitmentEvery20Hours
                 LisaUtils::commitLisaToDisk(lisa, File.basename(LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])))
             end
             if operation=="destroy" then

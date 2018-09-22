@@ -1,0 +1,16 @@
+Lisa { 
+    :uuid           : String
+    :unixtime       : Integer
+    :description    : String
+    :time-commitment-every-20-hours : Float
+    :current-status : LisaCurrentStatus
+    :target         : null | LisaTarget
+}
+
+LisaCurrentStatus: ["sleeping", timeSinceSleeping: Unixtime]
+                   ["active-paused", timeDoneInSeconds: Float] 
+                   ["active-runnning", timeDoneInSeconds: Float, lastStartedRunningTime: Unixtime] 
+
+LisaTarget:
+    null
+    ["list", <listuuid>]

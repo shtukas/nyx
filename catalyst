@@ -315,12 +315,9 @@ class CatalystInterfaceUtils
                         if operation == "create new lisa" then
                             puts "creating one:"
                             description = "lisa for list '#{list["description"]}'"
-                            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-                            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-                            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
+                            timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
                             target = ["list", list["list-uuid"]]
-                            lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
+                            lisa = LisaUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
                             puts JSON.pretty_generate(lisa)
                             LucilleCore::pressEnterToContinue()
                         end
@@ -331,20 +328,6 @@ class CatalystInterfaceUtils
                     }
                 end
             }
-
-            # Ensure that every lisa has a time commitment greater than 0
-            LisaUtils::lisasWithFilepaths()
-                .each{|pair|
-                    lisa, filepath = pair
-                    next if lisa["time-structure"]["time-commitment-in-hours"] > 0
-                    puts "The following lisa has a time commitment equal to zero"
-                    puts JSON.pretty_generate(lisa)
-                    timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                    timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-                    timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-                    lisa["time-structure"] = timestructure
-                    LisaUtils::commitLisaToDisk(lisa, File.basename(filepath))
-                }
 
             system("clear")
 

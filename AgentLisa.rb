@@ -43,18 +43,6 @@ class AgentLisa
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        LisaUtils::lisasWithFilepaths()
-            .map{|data|
-                lisa, filepath = data
-                LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
-            }
-            .each{|object|
-                if object["is-running"] and object["item-data"]["ratio"] > 1 then
-                    system("terminal-notifier -title 'Catalyst Lisa' -message '#{object["item-data"]["lisa"]["description"].gsub("'","")} is done'")
-                    sleep 2
-                end
-                TheFlock::addOrUpdateObject(object) 
-            }
     end
 
     def self.processObjectAndCommand(object, command)

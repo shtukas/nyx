@@ -384,12 +384,9 @@ class CommonsUtils
 
         if expression == 'lisa:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-            timeUnitInDays = LucilleCore::askQuestionAnswerAsString("time unit in days: ").to_f
-            timestructure = { "time-commitment-in-hours"=> timeCommitmentInHours.to_f, "time-unit-in-days" => timeUnitInDays.to_f }
-            repeat = LucilleCore::askQuestionAnswerAsBoolean("should repeat?: ")
+            timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
             target = nil
-            lisa = LisaUtils::spawnNewLisa(description, timestructure, repeat, target)
+            lisa = LisaUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
             puts JSON.pretty_generate(lisa)
             LucilleCore::pressEnterToContinue()
             return

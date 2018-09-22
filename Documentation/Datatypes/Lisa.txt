@@ -1,8 +1,0 @@
-lisa { 
-    :uuid           : String
-    :unixtime       : Integer
-    :description    : String
-    :time-structure : TimeStructure
-    :repeat         : Boolean
-    :target         : null | LisaTarget
-}

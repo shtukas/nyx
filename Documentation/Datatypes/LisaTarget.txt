@@ -1,3 +1,0 @@
-LisaTarget:
-    null
-    ["list", <listuuid>]

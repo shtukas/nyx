@@ -1,4 +1,0 @@
-TimeStructure { 
-    :time-commitment-in-hours  : Float
-    :time-unit-in-days         : Float
-}
