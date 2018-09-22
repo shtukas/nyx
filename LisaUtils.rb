@@ -106,7 +106,7 @@ class LisaUtils
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lisa
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = LisaUtils::lisa2Metric(lisa)
-        object["announce"]  = LisaUtils::lisaToString_v1(lisa, 40, 50)
+        object["announce"]  = LisaUtils::lisaToString(lisa)
         object["commands"]  = LisaUtils::trueIfLisaIsRunning(lisa) ? ["stop"] : ["start", "add-time", "set-target", "edit", "destroy"]
         object["default-expression"] = LisaUtils::trueIfLisaIsRunning(lisa) ? "stop" : "start"
         object["is-running"] = LisaUtils::trueIfLisaIsRunning(lisa)
@@ -156,10 +156,10 @@ class LisaUtils
         LisaUtils::commitLisaToDisk(lisa, File.basename(filepath))
     end
 
-    # LisaUtils::lisaToString_v1(lisa, descriptionFragmentLJustSize, targetFragmentLJustSize)
-    def self.lisaToString_v1(lisa, descriptionFragmentLJustSize, targetFragmentLJustSize)
+    # LisaUtils::lisaToString(lisa)
+    def self.lisaToString(lisa)
         uuid = lisa["uuid"]
-        timeAsString = "[ #{lisa["time-commitment-every-20-hours"]} ]"
+        timeAsString = "(#{lisa["time-commitment-every-20-hours"].round(2)} hours)"
         lisaTargetString =
             if lisa["target"] then
                 if lisa["target"][0] == "list" then
@@ -167,7 +167,7 @@ class LisaUtils
                     if list.nil? then
                         ""
                     else
-                        "list: #{list["description"]} (#{list["catalyst-object-uuids"].size})"
+                        "list: #{list["description"]} (#{list["catalyst-object-uuids"].size} objects)"
                     end
                 else
                     ""
@@ -175,21 +175,14 @@ class LisaUtils
             else
                 ""
             end
-        lisaRepeatString = 
-            if lisa["repeat"] then
-                "[repeat]" 
-            else
-                ""
-            end 
-        descriptionFragmentLJustSize = [ descriptionFragmentLJustSize, lisa["description"].size+1 ].max
-        "lisa: #{lisa["description"].ljust(descriptionFragmentLJustSize)}#{timeAsString} #{lisaTargetString.ljust(targetFragmentLJustSize)} #{lisaRepeatString}"
+        "lisa: #{lisa["description"]} #{timeAsString} #{lisaTargetString}"
     end
 
     # LisaUtils::interactivelySelectLisaOrNull()
     def self.interactivelySelectLisaOrNull()
         lisas = LisaUtils::lisasWithFilepaths()
             .map{|data| data[0] }
-        lisa = LucilleCore::selectEntityFromListOfEntitiesOrNull("lisa:", lisas, lambda{|lisa| LisaUtils::lisaToString_v1(lisa, 40, 50) })  
+        lisa = LucilleCore::selectEntityFromListOfEntitiesOrNull("lisa:", lisas, lambda{|lisa| LisaUtils::lisaToString(lisa) })  
         lisa    
     end
 
@@ -199,7 +192,7 @@ class LisaUtils
     # LisaUtils::ui_lisaDive(lisa)
     def self.ui_lisaDive(lisa)
         loop {
-            puts "-> #{LisaUtils::lisaToString_v1(lisa, 0, 0)}"
+            puts "-> #{LisaUtils::lisaToString(lisa)}"
             puts "-> lisa uuid: #{lisa["uuid"]}"
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "set new time commitment", "destroy"])
             break if operation.nil?
