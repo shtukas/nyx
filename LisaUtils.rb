@@ -125,11 +125,7 @@ class LisaUtils
 
     # LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
     def self.makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
-        ratioToMetric = lambda{|ratio|
-            return 0.1 if ratio.nil?
-            ratio = [ratio, 1].min
-            0.5 + 0.35*(1-ratio)            
-        }
+
         lisaTargetToString = lambda{|target|
             return "" if target.nil?
             if target[0]=="list" then
@@ -149,13 +145,7 @@ class LisaUtils
         timestructure = lisa["time-structure"]
         repeat = lisa["repeat"]
         timedoneInHours, timetodoInHours, ratio = LisaUtils::metricsForTimeStructure(uuid, timestructure)
-        metric = ratioToMetric.call(ratio) + CommonsUtils::traceToMetricShift(uuid)
-        if ratio and ratio>1 then
-            metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
-        end
-        if lisa["weekdays"] and !lisa["weekdays"].include?(CommonsUtils::currentWeekDay()) then
-            metric = 0.1 + CommonsUtils::traceToMetricShift(uuid)
-        end
+        metric = 0.9 + CommonsUtils::traceToMetricShift(uuid)
         if Chronos::isRunning(uuid) then
             metric = 2 + CommonsUtils::traceToMetricShift(uuid)
         end

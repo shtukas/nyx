@@ -5,5 +5,4 @@ lisa {
     :time-structure : TimeStructure
     :repeat         : Boolean
     :target         : null | LisaTarget
-    :weekdays       : null | Array[String] # "monday", ... , "sunday"
 }

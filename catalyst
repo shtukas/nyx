@@ -445,6 +445,12 @@ class CatalystInterfaceUtils
     end
 end
 
+if !CommonsUtils::isLucille18() then
+    puts "We are not running Catalyst outside Lucille18"
+    exit
+end
+
+
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
 
