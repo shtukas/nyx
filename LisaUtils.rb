@@ -26,11 +26,11 @@ class LisaUtils
         LisaUtils::lisasWithFilepaths()
             .select{|data| 
                 lisa = data[0]
-                ["active-paused", "active-runnning"].include?(lisa["current-status"])
+                ["active-paused", "active-runnning"].include?(lisa["status"])
             }
             .map{|data| 
                 lisa = data[0]
-                currentStatus = lisa["current-status"]
+                currentStatus = lisa["status"]
                 currentStatus[1]
             }
             .inject(0, :+)
@@ -74,18 +74,32 @@ class LisaUtils
 
     def self.lisa2Metric(lisa)
         # Logic: set to 0.9 and I let Cycles Operator deal with it.
-        currentStatus = lisa["current-status"]
-        metric = 0.9
-        metric = 0.1 if ( currentStatus[0] == "sleeping" )
-        metric + CommonsUtils::traceToMetricShift(uuid)
+        currentStatus = lisa["status"]
+        metric =
+            if currentStatus[0] == "sleeping" then
+                0.1
+            else
+                0.9
+            end
+        metric + CommonsUtils::traceToMetricShift(lisa["uuid"])
     end
 
     def self.trueIfLisaIsRunning(lisa)
-        lisa["current-status"][0] == "active-runnning"
+        lisa["status"][0] == "active-runnning"
     end
 
     # LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
     def self.makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
+        # There is a check we need to do here: whether or not the lisa should be taken out of sleeping
+        if lisa["status"][0] == "sleeping" then
+            timeSinceGoingToSleep = Time.new.to_i - lisa["status"][1]
+            if timeSinceGoingToSleep >= lisa["time-commitment-every-20-hours"]*3600 then
+                # Here we need to get it out of sleep
+                lisa["status"] = ["active-paused", 0]
+                LisaUtils::commitLisaToDisk(lisa, File.basename(filepath))
+            end
+        end
+
         uuid = lisa["uuid"]
         description = lisa["description"]
         object              = {}
@@ -111,7 +125,7 @@ class LisaUtils
 
     # LisaUtils::startLisa(lisa)
     def self.startLisa(lisa)
-        currentStatus = lisa["current-status"]
+        currentStatus = lisa["status"]
         return if currentStatus[0] == "active-runnning" 
         if currentStatus[0] == "active-paused" then
             status = ["active-runnning", currentStatus[1], Time.new.to_i] 
@@ -126,7 +140,7 @@ class LisaUtils
 
     # LisaUtils::stopLisa(lisa)
     def self.stopLisa(lisa)
-        currentStatus = lisa["current-status"]
+        currentStatus = lisa["status"]
         return if currentStatus[0] == "sleeping"
         return if currentStatus[0] == "active-paused"
         lastStartedRunningTime = currentStatus[2]

@@ -3,7 +3,7 @@ Lisa {
     :unixtime       : Integer
     :description    : String
     :time-commitment-every-20-hours : Float
-    :current-status : LisaCurrentStatus
+    :status : LisaCurrentStatus
     :target         : null | LisaTarget
 }
 

@@ -43,6 +43,12 @@ class AgentLisa
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
+        LisaUtils::lisasWithFilepaths()
+            .each{|pair|
+                lisa, filepath = pair
+                object = LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
+                TheFlock::addOrUpdateObject(object)
+            }
     end
 
     def self.processObjectAndCommand(object, command)

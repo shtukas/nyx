@@ -71,7 +71,6 @@ end
 # TheFlock::flockObjects()
 # TheFlock::removeObjectIdentifiedByUUID(uuid)
 # TheFlock::removeObjectsFromAgent(agentuuid)
-# TheFlock::addOrUpdateObject(object)
 # TheFlock::addOrUpdateObjects(objects)
 # TheFlock::getDoNotShowUntilDateTimeDistribution()
 # TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
@@ -90,6 +89,7 @@ class TheFlock
         $flock["objects"] = $flock["objects"].reject{|o| o["agent-uid"]==agentuuid }
     end
 
+    # TheFlock::addOrUpdateObject(object)
     def self.addOrUpdateObject(object)
         TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
         $flock["objects"] =  $flock["objects"] + [ object ]
