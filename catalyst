@@ -22,6 +22,15 @@ require 'drb/drb'
 require 'thread'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require_relative "catalyst.rb"
+
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -----------------------------------------------------------------
 
 =begin
@@ -267,6 +276,19 @@ class CatalystInterfaceUtils
     def self.displayLoop(codehash)
         loop {
 
+            $THETASKSINDEX = ($THETASKSINDEX+1) % $THETASKS.size
+            task = $THETASKS[$THETASKSINDEX]
+            if Time.new.to_i - ( $THETASKSSHEDULING[task[0]] || 0 ) > task[1] then
+                puts "Task: #{task[3]}"
+                task[2].call()
+                $THETASKSSHEDULING[task[0]] = Time.new.to_i
+                KeyValueStore::set(nil, "b0e73fa2-f035-4833-8945-b55f9463d87d", JSON.generate($THETASKSSHEDULING))
+                if task[4] then
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+            end
+
             if codehash != CommonsUtils::codeHash() then
                 puts "Source code hash changed. Exiting!"
                 exit
@@ -437,48 +459,68 @@ end
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
 
-Thread.new {
-    loop {
-        sleep 60 * ( 1 + rand )
-        if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "ddb51cb6-7fd7-4737-90af-2c6524449937", 86400) then
-            CatalystDevOps::archivesTimelineGarbageCollection(false)
-        end
-    }
-}
+=begin
 
-Thread.new {
-    loop {
-        sleep 60 * ( 1 + rand )
-        if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "4b896858-bc31-407b-9c8f-3e890b408c75", 86400) then
-            CatalystDevOps::eventsTimelineGarbageCollection(false)
-        end
-    }
-}
+The Task system
 
-Thread.new {
-    loop {
-        sleep 60 * ( 1 + rand )
-        if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "73672434-e76a-4cfd-8404-168863e9b681", 3600) then
-            CommonsUtils::emailSync(false)
-        end
-    }
-}
+A task is a lambda and a period in seconds
 
-Thread.new {
-    loop {
-        sleep 60 * ( 1 + rand )
-        if CommonsUtils::trueNoMoreOftenThanNEverySeconds(nil, "0daa5393-d43f-4e4f-a9e0-9776a5c8ec46", 300) then
-            FlockDiskIO::loadFromEventsTimeline()
-        end
-    }
-}
+We put the tasks into an array and loop over that array. 
+This ewnsure that only one task run at the same time, that there is enough pause between two task and
+that we run the tasks roughtly as often as they should run.
 
-Thread.new {
-    loop {
-        # Bob::generalFlockUpgrade, to send screen notifications on overdoing lisas.
-        sleep 60 * ( 1 + rand )
-        Bob::generalFlockUpgrade()
-    }
-}
+=end
+
+# Task(taskUniqueId, period, lambda, name, shouldCausePromptAndReload)
+
+$THETASKS = []
+$THETASKS << [
+    "49429DCB",
+    86400,
+    lambda {
+         CatalystDevOps::archivesTimelineGarbageCollection(true)
+    },
+    "CatalystDevOps::archivesTimelineGarbageCollection(true)",
+    true
+]
+$THETASKS << [
+    "59429DCB",
+    86400,
+    lambda {
+         CatalystDevOps::eventsTimelineGarbageCollection(true)
+    },
+    "CatalystDevOps::eventsTimelineGarbageCollection(true)",
+    true
+]
+$THETASKS << [
+    "69429DCB",
+    1200,
+    lambda {
+         CommonsUtils::emailSync(true)
+    },
+    "CommonsUtils::emailSync(true)",
+    true
+]
+$THETASKS << [
+    "79429DCB",
+    60,
+    lambda {
+         FlockDiskIO::loadFromEventsTimeline()
+    },
+    "FlockDiskIO::loadFromEventsTimeline()",
+    false
+]
+$THETASKS << [
+    "89429DCB",
+    60,
+    lambda {
+         Bob::generalFlockUpgrade()
+    },
+    "Bob::generalFlockUpgrade()",
+    false
+]
+
+$THETASKSINDEX = 0
+$THETASKSSHEDULING = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "b0e73fa2-f035-4833-8945-b55f9463d87d", "{}"))
 
 CatalystInterfaceUtils::displayLoop(codehash)
