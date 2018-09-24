@@ -104,7 +104,7 @@ class TimeProtonUtils
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = TimeProtonUtils::timeProton2Metric(timeProton)
         object["announce"]  = TimeProtonUtils::timeProtonToString(timeProton)
-        object["commands"]  = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? ["stop"] : ["start", "add-time", "set-target", "edit", "destroy"]
+        object["commands"]  = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? ["stop"] : ["start", "time:", "set-target", "edit", "destroy"]
         object["default-expression"] = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? "stop" : "start"
         object["is-running"] = TimeProtonUtils::trueIfLisaIsRunning(timeProton)
         object["item-data"] = {}
@@ -156,7 +156,17 @@ class TimeProtonUtils
     # TimeProtonUtils::timeProtonToString(timeProton)
     def self.timeProtonToString(timeProton)
         uuid = timeProton["uuid"]
-        timeAsString = "(#{timeProton["time-commitment-every-20-hours"].round(2)} hours)"
+        status = timeProton["status"]
+        if status[0]=="sleeping" then
+            percentageAsString = "sleeping / "
+        end
+        if status[0]=="active-paused" then
+            percentageAsString = "#{ (100*status[1].to_f/(3600*timeProton["time-commitment-every-20-hours"])).round(2) }% of "
+        end
+        if status[0]=="active-runnning" then
+            percentageAsString = "#{ (100*status[1].to_f/(3600*timeProton["time-commitment-every-20-hours"])).round(2) }% of "
+        end
+        timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours"].round(2)} hours)"
         timeProtonTargetString =
             if timeProton["target"] then
                 if timeProton["target"][0] == "list" then
@@ -191,7 +201,7 @@ class TimeProtonUtils
         loop {
             puts "-> #{TimeProtonUtils::timeProtonToString(timeProton)}"
             puts "-> timeProton uuid: #{timeProton["uuid"]}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "add-time", "set new time commitment", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "set new time commitment", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 TimeProtonUtils::startTimeProton(timeProton)
@@ -199,7 +209,7 @@ class TimeProtonUtils
             if operation=="stop" then
                 TimeProtonUtils::stopTimeProton(timeProton)
             end
-            if operation=="add-time" then
+            if operation=="time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 Chronos::addTimeInSeconds(timeProton["uuid"], timeInHours*3600)
             end

@@ -3,7 +3,7 @@ TimeProton {
     :unixtime       : Integer
     :description    : String
     :time-commitment-every-20-hours : Float
-    :status : TimeProtonCurrentStatus
+    :status         : TimeProtonCurrentStatus
     :target         : null | TimeProtonTarget
 }
 
