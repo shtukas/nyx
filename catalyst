@@ -283,10 +283,6 @@ class CatalystInterfaceUtils
                 task[2].call()
                 $THETASKSSHEDULING[task[0]] = Time.new.to_i
                 KeyValueStore::set(nil, "b0e73fa2-f035-4833-8945-b55f9463d87d", JSON.generate($THETASKSSHEDULING))
-                if task[4] then
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
             end
 
             if codehash != CommonsUtils::codeHash() then
@@ -480,8 +476,7 @@ $THETASKS << [
     lambda {
          CatalystDevOps::archivesTimelineGarbageCollection(true)
     },
-    "CatalystDevOps::archivesTimelineGarbageCollection(true)",
-    true
+    "CatalystDevOps::archivesTimelineGarbageCollection(true)"
 ]
 $THETASKS << [
     "59429DCB",
@@ -489,8 +484,7 @@ $THETASKS << [
     lambda {
          CatalystDevOps::eventsTimelineGarbageCollection(true)
     },
-    "CatalystDevOps::eventsTimelineGarbageCollection(true)",
-    true
+    "CatalystDevOps::eventsTimelineGarbageCollection(true)"
 ]
 $THETASKS << [
     "69429DCB",
@@ -498,8 +492,7 @@ $THETASKS << [
     lambda {
          CommonsUtils::emailSync(true)
     },
-    "CommonsUtils::emailSync(true)",
-    true
+    "CommonsUtils::emailSync(true)"
 ]
 $THETASKS << [
     "79429DCB",
@@ -507,8 +500,7 @@ $THETASKS << [
     lambda {
          FlockDiskIO::loadFromEventsTimeline()
     },
-    "FlockDiskIO::loadFromEventsTimeline()",
-    false
+    "FlockDiskIO::loadFromEventsTimeline()"
 ]
 $THETASKS << [
     "89429DCB",
@@ -516,8 +508,7 @@ $THETASKS << [
     lambda {
          Bob::generalFlockUpgrade()
     },
-    "Bob::generalFlockUpgrade()",
-    false
+    "Bob::generalFlockUpgrade()"
 ]
 
 $THETASKSINDEX = 0
