@@ -75,12 +75,9 @@ class TimeProtonUtils
     def self.timeProton2Metric(timeProton)
         # Logic: set to 0.9 and I let Cycles Operator deal with it.
         currentStatus = timeProton["status"]
-        metric =
-            if currentStatus[0] == "sleeping" then
-                0.1
-            else
-                0.9
-            end
+        metric = 0.9
+        metric = 0.1 if currentStatus[0] == "sleeping"
+        metric = 2.0 if currentStatus[0] == "active-runnning"
         metric + CommonsUtils::traceToMetricShift(timeProton["uuid"])
     end
 
