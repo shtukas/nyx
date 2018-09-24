@@ -1,7 +1,7 @@
 
          0.900  Wave: stickies
 0.840 -> 0.850  Today+Calendar
-0.500 -> 0.850  lisa
+0.500 -> 0.850  timeProton
 0.200 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats
 0.200 -> 0.700  Stream

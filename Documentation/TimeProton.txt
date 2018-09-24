@@ -1,16 +1,16 @@
-Lisa { 
+TimeProton { 
     :uuid           : String
     :unixtime       : Integer
     :description    : String
     :time-commitment-every-20-hours : Float
-    :status : LisaCurrentStatus
-    :target         : null | LisaTarget
+    :status : TimeProtonCurrentStatus
+    :target         : null | TimeProtonTarget
 }
 
-LisaCurrentStatus: ["sleeping", timeSinceSleeping: Unixtime]
+TimeProtonCurrentStatus: ["sleeping", timeSinceSleeping: Unixtime]
                    ["active-paused", timeDoneInSeconds: Float] 
                    ["active-runnning", timeDoneInSeconds: Float, lastStartedRunningTime: Unixtime] 
 
-LisaTarget:
+TimeProtonTarget:
     null
     ["list", <listuuid>]

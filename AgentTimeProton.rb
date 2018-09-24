@@ -29,36 +29,36 @@ require_relative "Bob.rb"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "AgentLisa",
+        "agent-name"      => "AgentTimeProton",
         "agent-uid"       => "201cac75-9ecc-4cac-8ca1-2643e962a6c6",
-        "general-upgrade" => lambda { AgentLisa::generalFlockUpgrade() },
-        "object-command-processor" => lambda{ |object, command| AgentLisa::processObjectAndCommand(object, command) }
+        "general-upgrade" => lambda { AgentTimeProton::generalFlockUpgrade() },
+        "object-command-processor" => lambda{ |object, command| AgentTimeProton::processObjectAndCommand(object, command) }
     }
 )
 
-class AgentLisa
+class AgentTimeProton
     def self.agentuuid()
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
     end
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        LisaUtils::lisasWithFilepaths()
+        TimeProtonUtils::timeProtonsWithFilepaths()
             .each{|pair|
-                lisa, filepath = pair
-                object = LisaUtils::makeCatalystObjectFromLisaAndFilepath(lisa, filepath)
+                timeProton, filepath = pair
+                object = TimeProtonUtils::makeCatalystObjectFromTimeProtonAndFilepath(timeProton, filepath)
                 TheFlock::addOrUpdateObject(object)
             }
     end
 
     def self.processObjectAndCommand(object, command)
         uuid = object["uuid"]
-        lisa = object["item-data"]["lisa"]
+        timeProton = object["item-data"]["timeProton"]
         if command=='start' then
-            LisaUtils::startLisa(lisa)
+            TimeProtonUtils::startTimeProton(timeProton)
         end
         if command=='stop' then
-            LisaUtils::stopLisa(lisa)
+            TimeProtonUtils::stopTimeProton(timeProton)
         end
         if command=="add-time" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
@@ -67,15 +67,15 @@ class AgentLisa
         if command=='edit' then
             filename = "#{SecureRandom.hex}.json"
             filepath = "/tmp/#{filename}"
-            lisa = JSON.parse(CommonsUtils::editTextUsingTextmate(JSON.pretty_generate(lisa)))
-            lisaFilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
-            LisaUtils::commitLisaToDisk(lisa, File.basename(lisaFilepath))
+            timeProton = JSON.parse(CommonsUtils::editTextUsingTextmate(JSON.pretty_generate(timeProton)))
+            timeProtonFilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+            TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(timeProtonFilepath))
         end
         if command=='destroy'
             loop {
-                break if !lisa["target"]
-                break if lisa["target"][0]!="list"
-                puts "This lisa has a list target, I need to destroy the list first"
+                break if !timeProton["target"]
+                break if timeProton["target"][0]!="list"
+                puts "This timeProton has a list target, I need to destroy the list first"
                 puts "Not implemented yet!"
                 LucilleCore::pressEnterToContinue()
                 return
@@ -85,7 +85,7 @@ class AgentLisa
             FileUtils.rm(filepath)
         end
         if command=='set-target'
-            LisaUtils::ui_setInteractivelySelectedTargetForLisa(lisa["uuid"])
+            TimeProtonUtils::setInteractivelySelectedTargetForTimeProton(timeProton["uuid"])
         end
     end
 end

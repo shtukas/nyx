@@ -221,8 +221,8 @@ class CommonsUtils
     end
 
     def self.sendCatalystObjectToList(objectuuid, announce)
-        if announce and announce.include?("lisa:") then
-            puts "You cannot put a lisa into a list"
+        if announce and announce.include?("timeProton:") then
+            puts "You cannot put a timeProton into a list"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -301,10 +301,10 @@ class CommonsUtils
         puts "    wave: <description>     # create a new wave with that description"
         puts "    stream: <description>   # create a new stream with that description"
         puts "    project: <description>  # create a new project with that description"
-        puts "    lisa:                   # create a new lisa, details entered interactively"
+        puts "    timeProton:                   # create a new timeProton, details entered interactively"
         puts "    list: <description>     # create a new list with that description"
         puts ""
-        puts "    lisas                   # lisas listing dive"
+        puts "    timeProtons                   # timeProtons listing dive"
         puts "    lists                   # lists listing dive"
         puts "    destroy:list            # destroy a list interactively selected"
         puts ""
@@ -332,7 +332,7 @@ class CommonsUtils
     def self.objectToString(object)
         announce = object['announce'].lines.first.strip
         [
-            object[":is-lisa-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
+            object[":is-timeProton-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
             object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
             " #{announce}",
             CommonsUtils::object2DonotShowUntilAsString(object),
@@ -372,8 +372,8 @@ class CommonsUtils
             return
         end
 
-        if expression == 'lisas' then
-            LisaUtils::ui_lisasDive()
+        if expression == 'timeProtons' then
+            TimeProtonUtils::timeProtonsDive()
             return
         end
 
@@ -382,12 +382,12 @@ class CommonsUtils
             return
         end
 
-        if expression == 'lisa:' then
+        if expression == 'timeProton:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
             target = nil
-            lisa = LisaUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
-            puts JSON.pretty_generate(lisa)
+            timeProton = TimeProtonUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
+            puts JSON.pretty_generate(timeProton)
             LucilleCore::pressEnterToContinue()
             return
         end

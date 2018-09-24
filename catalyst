@@ -113,17 +113,17 @@ class DisplayStateUtils
         end
 
         if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" then
-            # We have a lisa object
+            # We have a timeProton object
             displayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"]
                 .map{|o| 
                     o["metric"] = o["metric"]-0.01 
                     o
                 }
             loop {
-                lisa = object["item-data"]["lisa"]
-                break if lisa["target"].nil?
-                break if lisa["target"][0]!="list"
-                listuuid = lisa["target"][1]
+                timeProton = object["item-data"]["timeProton"]
+                break if timeProton["target"].nil?
+                break if timeProton["target"][0]!="list"
+                listuuid = timeProton["target"][1]
                 list = ListsOperator::getListByUUIDOrNull(listuuid)
                 break if list.nil?
                 break if list["catalyst-object-uuids"].size==0
@@ -133,7 +133,7 @@ class DisplayStateUtils
                     .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
                     .map{|o|
                         o["metric"] = object["metric"] - 0.01*Math.exp(-ienum.next()) 
-                        o[":is-lisa-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first lisa.
+                        o[":is-timeProton-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first timeProton.
                         o
                     }
                     .each{|o|
@@ -302,41 +302,41 @@ class CatalystInterfaceUtils
                 next
             end
 
-            # Ensure that every list has a lisa that drives it (list is a target of the lisa)
+            # Ensure that every list has a timeProton that drives it (list is a target of the timeProton)
             lists = ListsOperator::getLists()
             lists.each{|list|
-                lisas = LisaUtils::getLisasByTargetListUUID(list["list-uuid"])
-                if lisas.size==0 then
-                    puts "list: #{list["description"]} doesn't have a lisa targetting it"
-                    puts "Existing lisas: "
-                    LisaUtils::lisasWithFilepaths()
+                timeProtons = TimeProtonUtils::getTimeProtonsByTargetListUUID(list["list-uuid"])
+                if timeProtons.size==0 then
+                    puts "list: #{list["description"]} doesn't have a timeProton targetting it"
+                    puts "Existing timeProtons: "
+                    TimeProtonUtils::timeProtonsWithFilepaths()
                         .each{|pair|
-                            lisa, _ = pair
-                            puts "    #{LisaUtils::lisaToString(lisa)}"
+                            timeProton, _ = pair
+                            puts "    #{TimeProtonUtils::timeProtonToString(timeProton)}"
                         }
                     loop {
-                        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["use existing lisa", "create new lisa", "destroy the list"])
+                        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["use existing timeProton", "create new timeProton", "destroy the list"])
                         next if operation.nil?
-                        if operation == "use existing lisa" then
+                        if operation == "use existing timeProton" then
                             puts "using an existing one:"
-                            lisa = LisaUtils::interactivelySelectLisaOrNull()
-                            next if lisa.nil?
-                            if lisa["target"] then
-                                puts "The lisa you have chosen already have a target"
+                            timeProton = TimeProtonUtils::interactivelySelectLisaOrNull()
+                            next if timeProton.nil?
+                            if timeProton["target"] then
+                                puts "The timeProton you have chosen already have a target"
                                 LucilleCore::pressEnterToContinue()
                             else
-                                lisa["target"] = ["list", list["list-uuid"]]
-                                lisafilepath = LisaUtils::getLisaFilepathFromLisaUUIDOrNull(lisa["uuid"])
-                                LisaUtils::commitLisaToDisk(lisa, File.basename(lisafilepath))
+                                timeProton["target"] = ["list", list["list-uuid"]]
+                                timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+                                TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(timeprotonfilepath))
                             end
                         end
-                        if operation == "create new lisa" then
+                        if operation == "create new timeProton" then
                             puts "creating one:"
-                            description = "lisa for list '#{list["description"]}'"
+                            description = "timeProton for list '#{list["description"]}'"
                             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
                             target = ["list", list["list-uuid"]]
-                            lisa = LisaUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
-                            puts JSON.pretty_generate(lisa)
+                            timeProton = TimeProtonUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
+                            puts JSON.pretty_generate(timeProton)
                             LucilleCore::pressEnterToContinue()
                         end
                         if operation == "destroy the list" then
@@ -351,8 +351,8 @@ class CatalystInterfaceUtils
 
             standardlp = CommonsUtils::getStandardListingPosition()
 
-            averageDailyCommitmentInHours = LisaUtils::dailyCommitmentInHours()
-            percentageDone = 100 * ( LisaUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
+            averageDailyCommitmentInHours = TimeProtonUtils::dailyCommitmentInHours()
+            percentageDone = 100 * ( TimeProtonUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
 
             puts "Lisa: #{"%.2f" % averageDailyCommitmentInHours} hours today ( #{"%.2f" % percentageDone} % done )"
 
@@ -425,8 +425,8 @@ class CatalystInterfaceUtils
             shouldRemoveUnixtimeMark = lambda{|object, command|
                 return true if command == "done"
                 return true if command.start_with?("+")
-                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "add-time" ) # lisa
-                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # lisa
+                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "add-time" ) # timeProton
+                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # timeProton
                 false
             }
 
