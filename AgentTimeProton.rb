@@ -60,7 +60,7 @@ class AgentTimeProton
         if command=='stop' then
             TimeProtonUtils::stopTimeProton(timeProton)
         end
-        if command=="add-time" then
+        if command=="time:" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
             Chronos::addTimeInSeconds(uuid, timeInHours*3600)
         end
