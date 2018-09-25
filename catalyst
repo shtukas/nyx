@@ -36,7 +36,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
 =begin
 
 (DisplayState) {
-    "nsx26:all-catalyst-objects-above-water"        => Array[CatalystObject],
+    "nsx26:all-catalyst-objects"        => Array[CatalystObject],
     "nsx26:objects-already-processed"   => Array[CatalystObject],
     "nsx26:object-still-to-go"          => Array[CatalystObject],
     "nsx26:lines-to-display"            => Array[String],
@@ -53,14 +53,13 @@ class DisplayStateUtils
 
     # DisplayStateUtils::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
-        objectsAboveWater = CommonsUtils::flockObjectsUpdatedForDisplay()
-                                .select{ |object| object["metric"] >= 0.2 }
+        objects = CommonsUtils::flockObjectsProcessedForCatalystDisplay()
         listsObjectsUUIDs = ListsOperator::allListsCatalystItemsUUID()
-        regularObjects, listsObjects = objectsAboveWater.partition {|object| !listsObjectsUUIDs.include?(object["uuid"]) }
+        regularObjects, listsObjects = objects.partition {|object| !listsObjectsUUIDs.include?(object["uuid"]) }
         {
-            "nsx26:all-catalyst-objects-above-water" => objectsAboveWater,
+            "nsx26:all-catalyst-objects"             => objects,
             "nsx26:objects-already-processed"        => [],
-            "nsx26:object-still-to-go"               => regularObjects.select{ |object| object["metric"] >= 0.2 }.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
+            "nsx26:object-still-to-go"               => regularObjects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
             "nsx26:lines-to-display"                 => [],
             "nsx26:screen-left-height"               => screenLeftHeight,
             "nsx26:standard-listing-position"        => standardlp,
@@ -82,6 +81,8 @@ class DisplayStateUtils
         end
 
         object = displayState["nsx26:object-still-to-go"].shift
+
+        return nil if object["metric"] < 0.2 
 
         # --------------------------------------------------------------------------------
         if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
@@ -128,7 +129,7 @@ class DisplayStateUtils
                 break if list.nil?
                 break if list["catalyst-object-uuids"].size==0
                 ienum = LucilleCore::integerEnumerator() 
-                displayState["nsx26:all-catalyst-objects-above-water"]
+                displayState["nsx26:all-catalyst-objects"]
                     .select{|o| list["catalyst-object-uuids"].include?(o["uuid"]) }   
                     .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
                     .map{|o|
@@ -366,7 +367,7 @@ class CatalystInterfaceUtils
 
             displayStateCloner = lambda { |displayState|
                 newDisplayState = {}
-                newDisplayState["nsx26:all-catalyst-objects-above-water"] = displayState["nsx26:all-catalyst-objects-above-water"].map{|o| o.clone }
+                newDisplayState["nsx26:all-catalyst-objects"] = displayState["nsx26:all-catalyst-objects"].map{|o| o.clone }
                 newDisplayState["nsx26:objects-already-processed"] = displayState["nsx26:objects-already-processed"].map{|o| o.clone }
                 newDisplayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"].map{|o| o.clone }
                 newDisplayState["nsx26:lines-to-display"] = displayState["nsx26:lines-to-display"].clone
@@ -380,7 +381,7 @@ class CatalystInterfaceUtils
 
             displayStateToShowable = lambda { |displayState|
                 newDisplayState = {}
-                newDisplayState["nsx26:all-catalyst-objects-above-water"] = displayState["nsx26:all-catalyst-objects-above-water"].size
+                newDisplayState["nsx26:all-catalyst-objects"] = displayState["nsx26:all-catalyst-objects"].size
                 newDisplayState["nsx26:objects-already-processed"] = displayState["nsx26:objects-already-processed"].size
                 newDisplayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"].size
                 newDisplayState["nsx26:lines-to-display"] = displayState["nsx26:lines-to-display"].clone
@@ -409,16 +410,13 @@ class CatalystInterfaceUtils
 
             if focusobject.nil? then
                 puts "Nothing to do for the moment (^_^)"
-                puts "Sleeping for 60 seconds"
-                sleep 60
-                next
             end
 
             puts ""
             print "--> "
             command = STDIN.gets().strip
 
-            if ( command == "")  and focusobject["default-expression"] then
+            if ( command == "") and focusobject and focusobject["default-expression"] then
                 command = focusobject["default-expression"]
             end
 
@@ -430,7 +428,7 @@ class CatalystInterfaceUtils
                 false
             }
 
-            if shouldRemoveUnixtimeMark.call(focusobject, command) then
+            if focusobject and shouldRemoveUnixtimeMark.call(focusobject, command) then
                 CyclesOperator::removeUnixtimeMark(focusobject["uuid"])
             end
 

@@ -277,16 +277,20 @@ class CommonsUtils
         object
     end
 
-    # CommonsUtils::flockObjectsUpdatedForDisplay()
-    def self.flockObjectsUpdatedForDisplay()
+    # CommonsUtils::flockObjectsProcessedForCatalystDisplay()
+    def self.flockObjectsProcessedForCatalystDisplay()
         Bob::generalFlockUpgrade()
         TheFlock::flockObjects()
             .map{|object| object.clone }
+            .map{|object| 
+                object[":metric-from-agent:"] = object["metric"]
+                object
+            }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| RequirementsOperator::updateForDisplay(object) }
             .map{|object| CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| 
-                object[":object-original-updated-for-display-metric-8a2be8c6:"] = object["metric"]
+                object[":metric-after-flock-processing-for-display:"] = object["metric"]
                 object
             }
     end
