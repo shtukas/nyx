@@ -97,7 +97,12 @@ class TimeProtonUtils
             end
         end
 
-        if TimeProtonUtils::timeProtonToLivePercentage(timeProton) > 100 then
+        if timeProton["status"][0] == "active-paused" and TimeProtonUtils::timeProtonToLivePercentage(timeProton) > 100 then
+            timeProton["status"] = ["sleeping", Time.new.to_i]
+            TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+        end
+
+        if timeProton["status"][0] == "active-runnning" and TimeProtonUtils::timeProtonToLivePercentage(timeProton) > 100 then
             system("terminal-notifier -title 'Catalyst TimeProton' -message '#{timeProton["description"].gsub("'","")} is done'")
         end
 
@@ -124,8 +129,10 @@ class TimeProtonUtils
             .select{|timeProton| timeProton["target"] and timeProton["target"][0]=="list" and timeProton["target"][1]==listuuid }
     end
 
-    # TimeProtonUtils::startTimeProton(timeProton)
-    def self.startTimeProton(timeProton)
+    # TimeProtonUtils::startTimeProton(timeprotonuuid)
+    def self.startTimeProton(timeprotonuuid)
+        timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
+        return if timeProton.nil?
         currentStatus = timeProton["status"]
         return if currentStatus[0] == "active-runnning" 
         if currentStatus[0] == "active-paused" then
@@ -139,8 +146,10 @@ class TimeProtonUtils
         TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
     end
 
-    # TimeProtonUtils::stopTimeProton(timeProton)
-    def self.stopTimeProton(timeProton)
+    # TimeProtonUtils::stopTimeProton(timeprotonuuid)
+    def self.stopTimeProton(timeprotonuuid)
+        timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
+        return if timeProton.nil?
         currentStatus = timeProton["status"]
         return if currentStatus[0] == "sleeping"
         return if currentStatus[0] == "active-paused"

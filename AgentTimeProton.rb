@@ -54,15 +54,19 @@ class AgentTimeProton
     def self.processObjectAndCommand(object, command)
         uuid = object["uuid"]
         timeProton = object["item-data"]["timeProton"]
+        filepath   = object["item-data"]["filepath"]
         if command=='start' then
-            TimeProtonUtils::startTimeProton(timeProton)
+            TimeProtonUtils::startTimeProton(uuid)
         end
         if command=='stop' then
-            TimeProtonUtils::stopTimeProton(timeProton)
+            TimeProtonUtils::stopTimeProton(uuid)
         end
         if command=="time:" then
+            timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(uuid)
+            return if timeProton.nil?
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-            Chronos::addTimeInSeconds(uuid, timeInHours*3600)
+            timeProton["status"][1] = timeProton["status"][1] + timeInHours*3600
+            TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
         end
         if command=='edit' then
             filename = "#{SecureRandom.hex}.json"
