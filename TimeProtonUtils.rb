@@ -97,6 +97,10 @@ class TimeProtonUtils
             end
         end
 
+        if TimeProtonUtils::timeProtonToLivePercentage(timeProton) > 100 then
+            system("terminal-notifier -title 'Catalyst TimeProton' -message '#{timeProton["description"].gsub("'","")} is done'")
+        end
+
         uuid = timeProton["uuid"]
         description = timeProton["description"]
         object              = {}
@@ -153,6 +157,19 @@ class TimeProtonUtils
         TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
     end
 
+    # TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)
+    def self.timeProtonToLiveDoneTimeSpan(timeProton)
+        status = timeProton["status"]
+        return 0 if status[0]=="sleeping"
+        return status[1] if status[0]=="active-paused"
+        status[1] + (Time.new.to_i-status[2])
+    end
+
+    # TimeProtonUtils::timeProtonToLivePercentage(timeProton)
+    def self.timeProtonToLivePercentage(timeProton)
+        100*TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton).to_f/(3600*timeProton["time-commitment-every-20-hours"])
+    end
+
     # TimeProtonUtils::timeProtonToString(timeProton)
     def self.timeProtonToString(timeProton)
         uuid = timeProton["uuid"]
@@ -161,10 +178,10 @@ class TimeProtonUtils
             percentageAsString = "sleeping / "
         end
         if status[0]=="active-paused" then
-            percentageAsString = "#{ (100*status[1].to_f/(3600*timeProton["time-commitment-every-20-hours"])).round(2) }% of "
+            percentageAsString = "#{TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)}% of "
         end
         if status[0]=="active-runnning" then
-            percentageAsString = "#{ (100*status[1].to_f/(3600*timeProton["time-commitment-every-20-hours"])).round(2) }% of "
+            percentageAsString = "#{TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)}% of "
         end
         timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours"].round(2)} hours)"
         timeProtonTargetString =

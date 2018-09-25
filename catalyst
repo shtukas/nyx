@@ -416,8 +416,12 @@ class CatalystInterfaceUtils
             print "--> "
             command = STDIN.gets().strip
 
-            if ( command == "") and focusobject and focusobject["default-expression"] then
+            if ( command == "..") and focusobject and focusobject["default-expression"] then
                 command = focusobject["default-expression"]
+            end
+
+            if command == "" then
+                next
             end
 
             shouldRemoveUnixtimeMark = lambda{|object, command|

@@ -321,6 +321,7 @@ class CommonsUtils
         puts ""
         puts "Special Commands Object:"
         puts "    ,, # cycle"
+        puts "    .. # default command"
         puts "    +datetimecode"
         puts "        +<weekdayname>"
         puts "        +<integer>day(s)"
