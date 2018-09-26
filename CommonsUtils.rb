@@ -170,7 +170,7 @@ class CommonsUtils
     end
 
     def self.object2DonotShowUntilAsString(object)
-        ( object["do-not-show-until-datetime"] and Time.now.utc.iso8601 < object["do-not-show-until-datetime"] ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
+        ( object["do-not-show-until-datetime"] and ( Time.now.utc.iso8601 < DateTime.parse(object["do-not-show-until-datetime"]).to_time.utc.iso8601 ) ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
     end
 
     def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
@@ -270,7 +270,6 @@ class CommonsUtils
         datetime = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
         return object if datetime.nil?
         datetime = DateTime.parse(datetime).to_time.utc.iso8601
-        object["do-not-show-until-datetime"] = datetime
         if Time.now.utc.iso8601 < datetime then
             object["metric"] = 0
         end
