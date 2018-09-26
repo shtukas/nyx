@@ -276,15 +276,6 @@ class CatalystInterfaceUtils
     def self.displayLoop(codehash)
         loop {
 
-            $THETASKSINDEX = ($THETASKSINDEX+1) % $THETASKS.size
-            task = $THETASKS[$THETASKSINDEX]
-            if Time.new.to_i - ( $THETASKSSHEDULING[task[0]] || 0 ) > task[1] then
-                puts "Task: #{task[3]}"
-                task[2].call()
-                $THETASKSSHEDULING[task[0]] = Time.new.to_i
-                KeyValueStore::set(nil, "b0e73fa2-f035-4833-8945-b55f9463d87d", JSON.generate($THETASKSSHEDULING))
-            end
-
             if codehash != CommonsUtils::codeHash() then
                 puts "Source code hash changed. Exiting!"
                 exit
@@ -456,6 +447,7 @@ end
 codehash = CommonsUtils::codeHash()
 FlockDiskIO::loadFromEventsTimeline()
 
+# -------------------------------------------------------------------------
 =begin
 
 The Task system
@@ -514,5 +506,21 @@ $THETASKS << [
 
 $THETASKSINDEX = 0
 $THETASKSSHEDULING = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "b0e73fa2-f035-4833-8945-b55f9463d87d", "{}"))
+
+Thread.new {
+    sleep 60
+    loop {
+        $THETASKSINDEX = ($THETASKSINDEX+1) % $THETASKS.size
+        task = $THETASKS[$THETASKSINDEX]
+        if Time.new.to_i - ( $THETASKSSHEDULING[task[0]] || 0 ) > task[1] then
+            puts "Task: #{task[3]}"
+            task[2].call()
+            $THETASKSSHEDULING[task[0]] = Time.new.to_i
+            KeyValueStore::set(nil, "b0e73fa2-f035-4833-8945-b55f9463d87d", JSON.generate($THETASKSSHEDULING))
+        end
+        sleep 60
+    }
+}
+# -------------------------------------------------------------------------
 
 CatalystInterfaceUtils::displayLoop(codehash)
