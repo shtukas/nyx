@@ -467,25 +467,25 @@ $THETASKS << [
     "49429DCB",
     86400,
     lambda {
-         CatalystDevOps::archivesTimelineGarbageCollection(true)
+         CatalystDevOps::archivesTimelineGarbageCollection(false)
     },
-    "CatalystDevOps::archivesTimelineGarbageCollection(true)"
+    "CatalystDevOps::archivesTimelineGarbageCollection(false)"
 ]
 $THETASKS << [
     "59429DCB",
     86400,
     lambda {
-         CatalystDevOps::eventsTimelineGarbageCollection(true)
+         CatalystDevOps::eventsTimelineGarbageCollection(false)
     },
-    "CatalystDevOps::eventsTimelineGarbageCollection(true)"
+    "CatalystDevOps::eventsTimelineGarbageCollection(false)"
 ]
 $THETASKS << [
     "69429DCB",
     1200,
     lambda {
-         CommonsUtils::emailSync(true)
+         CommonsUtils::emailSync(false)
     },
-    "CommonsUtils::emailSync(true)"
+    "CommonsUtils::emailSync(false)"
 ]
 $THETASKS << [
     "79429DCB",
@@ -513,7 +513,7 @@ Thread.new {
         $THETASKSINDEX = ($THETASKSINDEX+1) % $THETASKS.size
         task = $THETASKS[$THETASKSINDEX]
         if Time.new.to_i - ( $THETASKSSHEDULING[task[0]] || 0 ) > task[1] then
-            puts "Task: #{task[3]}"
+            #puts "Task: #{task[3]}"
             task[2].call()
             $THETASKSSHEDULING[task[0]] = Time.new.to_i
             KeyValueStore::set(nil, "b0e73fa2-f035-4833-8945-b55f9463d87d", JSON.generate($THETASKSSHEDULING))
