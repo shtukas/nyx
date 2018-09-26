@@ -424,7 +424,7 @@ class CatalystInterfaceUtils
             end
 
             shouldRemoveUnixtimeMark = lambda{|object, command|
-                return true if command == "done"
+                return true if command.include?("done")
                 return true if command.start_with?("+")
                 return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "time:" ) # timeProton
                 return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # timeProton
