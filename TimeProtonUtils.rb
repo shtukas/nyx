@@ -16,7 +16,7 @@ class TimeProtonUtils
         TimeProtonUtils::timeProtonsWithFilepaths()
             .map{|data| 
                 timeProton = data[0]
-                timeProton["time-commitment-every-20-hours"]
+                timeProton["time-commitment-every-20-hours-in-hours"]
             }
             .inject(0, :+)
     end
@@ -47,7 +47,7 @@ class TimeProtonUtils
             "uuid"           => SecureRandom.hex(4),
             "unixtime"       => Time.new.to_i,
             "description"    => description,
-            "time-commitment-every-20-hours" => timeCommitmentEvery20Hours,
+            "time-commitment-every-20-hours-in-hours" => timeCommitmentEvery20Hours,
             "target"         => target
         }
         TimeProtonUtils::commitTimeProtonToDisk(timeProton, "#{LucilleCore::timeStringL22()}.json")
@@ -156,7 +156,7 @@ class TimeProtonUtils
         lastStartedRunningTime = currentStatus[2]
         timeDoneInSeconds = Time.new.to_i - lastStartedRunningTime
         status =
-            if timeDoneInSeconds < timeProton["time-commitment-every-20-hours"]*3600 then
+            if timeDoneInSeconds < timeProton["time-commitment-every-20-hours-in-hours"]*3600 then
                 ["active-paused", timeDoneInSeconds]
             else
                 ["sleeping", Time.new.to_i]
@@ -164,6 +164,9 @@ class TimeProtonUtils
         timeProton["status"] = status
         filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
         TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+
+        # Admin for the day
+        TimeProtonDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeDoneInSeconds)
     end
 
     # TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)
@@ -176,7 +179,7 @@ class TimeProtonUtils
 
     # TimeProtonUtils::timeProtonToLivePercentage(timeProton)
     def self.timeProtonToLivePercentage(timeProton)
-        100*TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton).to_f/(3600*timeProton["time-commitment-every-20-hours"])
+        100*TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton).to_f/(3600*timeProton["time-commitment-every-20-hours-in-hours"])
     end
 
     # TimeProtonUtils::timeProtonToString(timeProton)
@@ -192,7 +195,7 @@ class TimeProtonUtils
         if status[0]=="active-runnning" then
             percentageAsString = "#{TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)}% of "
         end
-        timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours"].round(2)} hours)"
+        timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours-in-hours"].round(2)} hours)"
         timeProtonTargetString =
             if timeProton["target"] then
                 list = ListsOperator::getListByUUIDOrNull(timeProton["target"])
@@ -237,7 +240,7 @@ class TimeProtonUtils
             end
             if operation=="set new time commitment" then
                 timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
-                timeProton["time-commitment-every-20-hours"] = timeCommitmentEvery20Hours
+                timeProton["time-commitment-every-20-hours-in-hours"] = timeCommitmentEvery20Hours
                 TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])))
             end
             if operation=="destroy" then

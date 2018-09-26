@@ -345,7 +345,8 @@ class CatalystInterfaceUtils
             averageDailyCommitmentInHours = TimeProtonUtils::dailyCommitmentInHours()
             percentageDone = 100 * ( TimeProtonUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
 
-            puts "Lisa: #{"%.2f" % averageDailyCommitmentInHours} hours today ( #{"%.2f" % percentageDone} % done )"
+            numbers = TimeProtonDailyTimeTracking::numbersDayTotalAndPercentage()
+            puts "Lisa: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )"
 
             puts ""
 

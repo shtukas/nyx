@@ -2,7 +2,7 @@ TimeProton {
     :uuid           : String
     :unixtime       : Integer
     :description    : String
-    :time-commitment-every-20-hours : Float
+    :time-commitment-every-20-hours-in-hours : Float
     :status         : TimeProtonCurrentStatus
     :target         : null | ListUUID
 }
