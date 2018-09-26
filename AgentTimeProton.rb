@@ -64,6 +64,9 @@ class AgentTimeProton
         if command=="time:" then
             timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(uuid)
             return if timeProton.nil?
+            if timeProton["status"][0] == "sleeping" then
+                timeProton["status"] = ["active-paused", 0]
+            end
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
             timeProton["status"][1] = timeProton["status"][1] + timeInHours*3600
             TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
