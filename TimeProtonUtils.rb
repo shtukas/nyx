@@ -113,7 +113,7 @@ class TimeProtonUtils
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = TimeProtonUtils::timeProton2Metric(timeProton)
         object["announce"]  = TimeProtonUtils::timeProtonToString(timeProton)
-        object["commands"]  = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? ["stop"] : ["start", "time:", "set-target", "edit", "destroy"]
+        object["commands"]  = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? ["stop"] : ["start", "time:", "list:", "edit", "destroy"]
         object["default-expression"] = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? "stop" : "start"
         object["is-running"] = TimeProtonUtils::trueIfLisaIsRunning(timeProton)
         object["item-data"] = {}

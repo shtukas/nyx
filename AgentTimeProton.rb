@@ -88,7 +88,7 @@ class AgentTimeProton
             filepath = object["item-data"]["filepath"]
             FileUtils.rm(filepath)
         end
-        if command=='set-target'
+        if command=='list:'
             TimeProtonUtils::setInteractivelySelectedTargetForTimeProton(timeProton["uuid"])
         end
     end
