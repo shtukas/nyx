@@ -90,20 +90,14 @@ class TimeProtonUtils
         # There is a check we need to do here: whether or not the timeProton should be taken out of sleeping
         if timeProton["status"][0] == "sleeping" then
             timeSinceGoingToSleep = Time.new.to_i - timeProton["status"][1]
-            if timeSinceGoingToSleep >= timeProton["time-commitment-every-20-hours"]*3600 then
+            if timeSinceGoingToSleep >= 20*3600 then
                 # Here we need to get it out of sleep
-                #puts timeProton
-                #puts "Moving to active paused"
-                #LucilleCore::pressEnterToContinue()
                 timeProton["status"] = ["active-paused", 0]
                 TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
             end
         end
 
         if timeProton["status"][0] == "active-paused" and TimeProtonUtils::timeProtonToLivePercentage(timeProton) > 100 then
-           #puts timeProton
-            #puts "Moving to sleeping"
-            #LucilleCore::pressEnterToContinue()
             timeProton["status"] = ["sleeping", Time.new.to_i]
             TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
         end
