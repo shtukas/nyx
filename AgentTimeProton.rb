@@ -77,8 +77,7 @@ class AgentTimeProton
         end
         if command=='destroy'
             loop {
-                break if !timeProton["target"]
-                break if timeProton["target"][0]!="list"
+                break if timeProton["target"]
                 puts "This timeProton has a list target, I need to destroy the list first"
                 puts "Not implemented yet!"
                 LucilleCore::pressEnterToContinue()

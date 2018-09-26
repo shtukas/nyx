@@ -4,13 +4,9 @@ TimeProton {
     :description    : String
     :time-commitment-every-20-hours : Float
     :status         : TimeProtonCurrentStatus
-    :target         : null | TimeProtonTarget
+    :target         : null | ListUUID
 }
 
 TimeProtonCurrentStatus: ["sleeping", timeSinceSleeping: Unixtime]
                    ["active-paused", timeDoneInSeconds: Float] 
-                   ["active-runnning", timeDoneInSeconds: Float, lastStartedRunningTime: Unixtime] 
-
-TimeProtonTarget:
-    null
-    ["list", <listuuid>]
+                   ["active-runnning", timeDoneInSeconds: Float, lastStartedRunningTime: Unixtime]

@@ -126,7 +126,7 @@ class TimeProtonUtils
     def self.getTimeProtonsByTargetListUUID(listuuid)
         TimeProtonUtils::timeProtonsWithFilepaths()
             .map{|pair| pair[0] }
-            .select{|timeProton| timeProton["target"] and timeProton["target"][0]=="list" and timeProton["target"][1]==listuuid }
+            .select{|timeProton| timeProton["target"]==listuuid }
     end
 
     # TimeProtonUtils::startTimeProton(timeprotonuuid)
@@ -195,15 +195,11 @@ class TimeProtonUtils
         timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours"].round(2)} hours)"
         timeProtonTargetString =
             if timeProton["target"] then
-                if timeProton["target"][0] == "list" then
-                    list = ListsOperator::getListByUUIDOrNull(timeProton["target"][1])
-                    if list.nil? then
-                        ""
-                    else
-                        "list: #{list["description"]} (#{list["catalyst-object-uuids"].size} objects)"
-                    end
-                else
+                list = ListsOperator::getListByUUIDOrNull(timeProton["target"])
+                if list.nil? then
                     ""
+                else
+                    "list: #{list["description"]} (#{list["catalyst-object-uuids"].size} objects)"
                 end
             else
                 ""
@@ -247,16 +243,14 @@ class TimeProtonUtils
             if operation=="destroy" then
                 next if !LucilleCore::askQuestionAnswerAsBoolean("Do you really want to destroy timeProton '#{timeProton["description"]}' ? ")
                 if timeProton["target"] then
-                    if timeProton["target"][0] == "list" then
-                        listuuid = timeProton["target"][1]
-                        if ListsOperator::getLists().any?{|list| list["list-uuid"]==listuuid } then
-                            puts "-> You are attempting to destroy a timeProton pointing to a list"
-                            puts "-> I am going to destroy the list and then the timeProton"
-                            if LucilleCore::askQuestionAnswerAsBoolean("Confirm deletion? ") then
-                                ListsOperator::destroyList(listuuid)
-                            else
-                                next    
-                            end
+                    listuuid = timeProton["target"]
+                    if ListsOperator::getLists().any?{|list| list["list-uuid"]==listuuid } then
+                        puts "-> You are attempting to destroy a timeProton pointing to a list"
+                        puts "-> I am going to destroy the list and then the timeProton"
+                        if LucilleCore::askQuestionAnswerAsBoolean("Confirm deletion? ") then
+                            ListsOperator::destroyList(listuuid)
+                        else
+                            next    
                         end
                     end
                 end
@@ -287,7 +281,7 @@ class TimeProtonUtils
         if targetType == "list" then
             list = ListsOperator::ui_interactivelySelectListOrNull()
             return if list.nil?
-            timeProton["target"] = ["list", list["list-uuid"]]
+            timeProton["target"] = list["list-uuid"]
             timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeprotonuuid)
             return if timeprotonfilepath.nil?
             TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(timeprotonfilepath))

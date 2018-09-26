@@ -123,8 +123,7 @@ class DisplayStateUtils
             loop {
                 timeProton = object["item-data"]["timeProton"]
                 break if timeProton["target"].nil?
-                break if timeProton["target"][0]!="list"
-                listuuid = timeProton["target"][1]
+                listuuid = timeProton["target"]
                 list = ListsOperator::getListByUUIDOrNull(listuuid)
                 break if list.nil?
                 break if list["catalyst-object-uuids"].size==0
@@ -326,7 +325,7 @@ class CatalystInterfaceUtils
                                 puts "The timeProton you have chosen already have a target"
                                 LucilleCore::pressEnterToContinue()
                             else
-                                timeProton["target"] = ["list", list["list-uuid"]]
+                                timeProton["target"] = list["list-uuid"]
                                 timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
                                 TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(timeprotonfilepath))
                             end
@@ -335,7 +334,7 @@ class CatalystInterfaceUtils
                             puts "creating one:"
                             description = "timeProton for list '#{list["description"]}'"
                             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
-                            target = ["list", list["list-uuid"]]
+                            target = list["list-uuid"]
                             timeProton = TimeProtonUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
                             puts JSON.pretty_generate(timeProton)
                             LucilleCore::pressEnterToContinue()
