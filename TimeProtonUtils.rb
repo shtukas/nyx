@@ -209,10 +209,10 @@ class TimeProtonUtils
             percentageAsString = "sleeping / "
         end
         if status[0]=="active-paused" then
-            percentageAsString = "#{TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)}% of "
+            percentageAsString = "#{TimeProtonUtils::timeProtonToLivePercentage(timeProton).round(2)}% of "
         end
         if status[0]=="active-runnning" then
-            percentageAsString = "#{TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)}% of "
+            percentageAsString = "#{TimeProtonUtils::timeProtonToLivePercentage(timeProton).round(2)}% of "
         end
         timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours-in-hours"].round(2)} hours)"
         timeProtonTargetString =
