@@ -309,7 +309,7 @@ class CommonsUtils
         puts ""
         puts "    timeprotons             # timeProtons listing dive"
         puts "    lists                   # lists listing dive"
-        puts "    destroy:list            # destroy a list interactively selected"
+        puts "    list:destroy            # destroy a list interactively selected"
         puts ""
         puts "    requirement on <requirement>"
         puts "    requirement off <requirement>"
@@ -396,7 +396,7 @@ class CommonsUtils
             return
         end
 
-        if expression == 'destroy:list' then
+        if expression == 'list:destroy' then
             list = ListsOperator::ui_interactivelySelectListOrNull()
             ListsOperator::destroyList(list["list-uuid"])
         end

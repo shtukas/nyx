@@ -49,7 +49,8 @@ class TimeProtonUtils
             "unixtime"       => Time.new.to_i,
             "description"    => description,
             "time-commitment-every-20-hours-in-hours" => timeCommitmentEvery20Hours,
-            "target"         => target
+            "target"         => target,
+            "status"         => ["sleeping", 0]
         }
         TimeProtonUtils::commitTimeProtonToDisk(timeProton, "#{LucilleCore::timeStringL22()}.json")
         timeProton
