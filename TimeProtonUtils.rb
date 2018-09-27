@@ -245,7 +245,7 @@ class TimeProtonUtils
         loop {
             puts "-> #{TimeProtonUtils::timeProtonToString(timeProton)}"
             puts "-> timeProton uuid: #{timeProton["uuid"]}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "set new time commitment", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "set new time commitment", "edit", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 TimeProtonUtils::startTimeProton(timeProton)
@@ -261,6 +261,10 @@ class TimeProtonUtils
                 timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
                 timeProton["time-commitment-every-20-hours-in-hours"] = timeCommitmentEvery20Hours
                 TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])))
+            end
+            if operation=="edit" then
+                filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+                system("open '#{filepath}'")
             end
             if operation=="destroy" then
                 next if !LucilleCore::askQuestionAnswerAsBoolean("Do you really want to destroy timeProton '#{timeProton["description"]}' ? ")
