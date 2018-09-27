@@ -304,10 +304,10 @@ class CommonsUtils
         puts "    wave: <description>     # create a new wave with that description"
         puts "    stream: <description>   # create a new stream with that description"
         puts "    project: <description>  # create a new project with that description"
-        puts "    timeProton:                   # create a new timeProton, details entered interactively"
+        puts "    timeproton:             # create a new timeProton, details entered interactively"
         puts "    list: <description>     # create a new list with that description"
         puts ""
-        puts "    timeProtons                   # timeProtons listing dive"
+        puts "    timeprotons             # timeProtons listing dive"
         puts "    lists                   # lists listing dive"
         puts "    destroy:list            # destroy a list interactively selected"
         puts ""
@@ -376,7 +376,7 @@ class CommonsUtils
             return
         end
 
-        if expression == 'timeProtons' then
+        if expression == 'timeprotons' then
             TimeProtonUtils::timeProtonsDive()
             return
         end
@@ -386,11 +386,11 @@ class CommonsUtils
             return
         end
 
-        if expression == 'timeProton:' then
+        if expression == 'timeproton:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
             target = nil
-            timeProton = TimeProtonUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
+            timeProton = TimeProtonUtils::makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
             puts JSON.pretty_generate(timeProton)
             LucilleCore::pressEnterToContinue()
             return

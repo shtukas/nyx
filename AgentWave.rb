@@ -466,7 +466,6 @@ class AgentWave
         object['commands'] = AgentWave::commands(schedule)
         object["default-expression"] = AgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule
-        object["is-running"] = Chronos::isRunning(objectuuid)
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location
         object["item-data"]["folder-probe-metadata"] = folderProbeMetadata

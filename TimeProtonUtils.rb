@@ -41,8 +41,9 @@ class TimeProtonUtils
     def self.commitTimeProtonToDisk(timeProton, filename)
         File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Time-Protons/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(timeProton)) }
     end
- 
-    def self.spawnNewLisa(description, timeCommitmentEvery20Hours, target)
+
+    # TimeProtonUtils::makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
+    def self.makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
         timeProton = {
             "uuid"           => SecureRandom.hex(4),
             "unixtime"       => Time.new.to_i,
@@ -72,6 +73,7 @@ class TimeProtonUtils
         nil
     end
 
+    # TimeProtonUtils::timeProton2Metric(timeProton)
     def self.timeProton2Metric(timeProton)
         # Logic: set to 0.9 and I let Cycles Operator deal with it.
         currentStatus = timeProton["status"]
@@ -81,7 +83,8 @@ class TimeProtonUtils
         metric + CommonsUtils::traceToMetricShift(timeProton["uuid"])
     end
 
-    def self.trueIfLisaIsRunning(timeProton)
+    # TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton)
+    def self.trueIfTimeProtonIsRunning(timeProton)
         timeProton["status"][0] == "active-runnning"
     end
 
@@ -113,9 +116,9 @@ class TimeProtonUtils
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = TimeProtonUtils::timeProton2Metric(timeProton)
         object["announce"]  = TimeProtonUtils::timeProtonToString(timeProton)
-        object["commands"]  = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? ["stop"] : ["start", "time:", "list:", "edit", "destroy"]
-        object["default-expression"] = TimeProtonUtils::trueIfLisaIsRunning(timeProton) ? "stop" : "start"
-        object["is-running"] = TimeProtonUtils::trueIfLisaIsRunning(timeProton)
+        object["commands"]  = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton) ? ["stop"] : ["start", "time:", "list:", "edit", "destroy"]
+        object["default-expression"] = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton) ? "stop" : "start"
+        object["is-running"] = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton)
         object["item-data"] = {}
         object["item-data"]["filepath"] = filepath
         object["item-data"]["timeProton"] = timeProton
@@ -169,6 +172,22 @@ class TimeProtonUtils
         TimeProtonDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeDoneInSeconds)
     end
 
+    # TimeProtonUtils::timeProtonAddTime(timeprotonuuid, timeInHours)
+    def self.timeProtonAddTime(timeprotonuuid, timeInHours)
+        timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
+        return if timeProton.nil?
+        filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeprotonuuid)
+        return if filepath.nil?
+        if timeProton["status"][0] == "sleeping" then
+            timeProton["status"] = ["active-paused", 0]
+        end
+        timeProton["status"][1] = timeProton["status"][1] + timeInHours*3600
+        TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+
+        # Admin for the day
+        TimeProtonDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeInHours*3600)
+    end
+
     # TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)
     def self.timeProtonToLiveDoneTimeSpan(timeProton)
         status = timeProton["status"]
@@ -210,8 +229,8 @@ class TimeProtonUtils
         "timeProton: #{timeProton["description"]} #{timeAsString} #{timeProtonTargetString}"
     end
 
-    # TimeProtonUtils::interactivelySelectLisaOrNull()
-    def self.interactivelySelectLisaOrNull()
+    # TimeProtonUtils::interactivelySelectTimeProtonOrNull()
+    def self.interactivelySelectTimeProtonOrNull()
         timeProtons = TimeProtonUtils::timeProtonsWithFilepaths()
             .map{|data| data[0] }
         timeProton = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeProton:", timeProtons, lambda{|timeProton| TimeProtonUtils::timeProtonToString(timeProton) })  
@@ -236,7 +255,7 @@ class TimeProtonUtils
             end
             if operation=="time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-                Chronos::addTimeInSeconds(timeProton["uuid"], timeInHours*3600)
+                TimeProtonUtils::timeProtonAddTime(timeprotonuuid, timeInHours)
             end
             if operation=="set new time commitment" then
                 timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
@@ -269,7 +288,7 @@ class TimeProtonUtils
     # TimeProtonUtils::timeProtonsDive()
     def self.timeProtonsDive()
         loop {
-            timeProton = TimeProtonUtils::interactivelySelectLisaOrNull()
+            timeProton = TimeProtonUtils::interactivelySelectTimeProtonOrNull()
             return if timeProton.nil?
             TimeProtonUtils::timeProtonDive(timeProton)
         }

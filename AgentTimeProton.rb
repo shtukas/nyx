@@ -62,17 +62,8 @@ class AgentTimeProton
             TimeProtonUtils::stopTimeProton(uuid)
         end
         if command=="time:" then
-            timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(uuid)
-            return if timeProton.nil?
-            if timeProton["status"][0] == "sleeping" then
-                timeProton["status"] = ["active-paused", 0]
-            end
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-            timeProton["status"][1] = timeProton["status"][1] + timeInHours*3600
-            TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
-
-            # Admin for the day
-            TimeProtonDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeInHours*3600)
+            TimeProtonUtils::timeProtonAddTime(timeprotonuuid, timeInHours)
         end
         if command=='edit' then
             filename = "#{SecureRandom.hex}.json"

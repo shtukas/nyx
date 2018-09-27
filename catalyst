@@ -310,7 +310,7 @@ class CatalystInterfaceUtils
                         next if operation.nil?
                         if operation == "use existing timeProton" then
                             puts "using an existing one:"
-                            timeProton = TimeProtonUtils::interactivelySelectLisaOrNull()
+                            timeProton = TimeProtonUtils::interactivelySelectTimeProtonOrNull()
                             next if timeProton.nil?
                             if timeProton["target"] then
                                 puts "The timeProton you have chosen already have a target"
@@ -326,7 +326,7 @@ class CatalystInterfaceUtils
                             description = "timeProton for list '#{list["description"]}'"
                             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
                             target = list["list-uuid"]
-                            timeProton = TimeProtonUtils::spawnNewLisa(description, timeCommitmentEvery20Hours, target)
+                            timeProton = TimeProtonUtils::makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
                             puts JSON.pretty_generate(timeProton)
                             LucilleCore::pressEnterToContinue()
                         end
@@ -346,7 +346,7 @@ class CatalystInterfaceUtils
             percentageDone = 100 * ( TimeProtonUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
 
             numbers = TimeProtonDailyTimeTracking::numbersDayTotalAndPercentage()
-            puts "Lisa: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )"
+            puts "Time Protons: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )"
 
             puts ""
 
