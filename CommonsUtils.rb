@@ -141,11 +141,11 @@ class CommonsUtils
     end
     
     def self.getStandardListingPosition()
-        KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
+        KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
     end
 
     def self.setStandardListingPosition(position)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "301bc639-db20-4eff-bc84-94b4b9e4c133", position)
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end
 
     def self.codeHash()
@@ -267,7 +267,7 @@ class CommonsUtils
     end
 
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
-        datetime = TheFlock::getDoNotShowUntilDateTimeDistribution()[object["uuid"]]
+        datetime = DoNotShowUntilDatetime::getDatetimeOrNull(object["uuid"])
         return object if datetime.nil?
         datetime = DateTime.parse(datetime).to_time.utc.iso8601
         if Time.now.utc.iso8601 < datetime then
@@ -294,6 +294,7 @@ class CommonsUtils
             }
     end
 
+    # CommonsUtils::putshelp()
     def self.putshelp()
         puts "Special General Commands"
         puts "    help"

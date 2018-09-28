@@ -321,7 +321,7 @@ class AgentWave
     end
 
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -333,7 +333,7 @@ class AgentWave
         end
         #puts "AgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = AgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
         maybepath
     end
 

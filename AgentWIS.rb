@@ -35,7 +35,7 @@ class AgentWIS
             {
                 "uuid"      => "ad127a50",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}").nil? ? 1 : 0,
+                "metric"    => KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}").nil? ? 1 : 0,
                 "announce"  => "wis",
                 "commands"  => [],
                 "default-expression" => "8ec2da5f-a46b-428b-9484-046232aa116d"
@@ -52,15 +52,15 @@ class AgentWIS
                 .select{|line| line.strip.start_with?(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/wis/line-test").strip) }
                 .map{|line| line.strip.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_') }
                 .each{|line|
-                    if KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}").nil? then
+                    if KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}").nil? then
                         url = line[26, 999]
                         url = url[0, url.index('"')]
                         puts url
                         CommonsUtils::waveInsertNewItemDefaults(url)
-                        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}", "done") 
+                        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}", "done") 
                     end
                 }
-            KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}", "done")
+            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}", "done")
             LucilleCore::pressEnterToContinue()
         end 
     end

@@ -42,7 +42,6 @@ class FlockDiskIO
     def self.loadFromEventsTimeline()
         flock = {}
         flock["objects"] = []
-        flock["do-not-show-until-datetime-distribution"] = {}
         EventsManager::eventsAsTimeOrderedArray()
             .each{|event|
                 if event["event-type"] == "Catalyst:Catalyst-Object:1" then
@@ -57,7 +56,7 @@ class FlockDiskIO
                     next
                 end
                 if event["event-type"] == "Catalyst:Metadata:DoNotShowUntilDateTime:1" then
-                    flock["do-not-show-until-datetime-distribution"][event["object-uuid"]] = event["datetime"]
+                    DoNotShowUntilDatetime::setDatetime(event["object-uuid"], event["datetime"])
                     next
                 end
                 if event["event-type"] == "Flock:KeyValueStore:Set:1" then    
@@ -78,7 +77,6 @@ end
 # TheFlock::removeObjectIdentifiedByUUID(uuid)
 # TheFlock::removeObjectsFromAgent(agentuuid)
 # TheFlock::addOrUpdateObjects(objects)
-# TheFlock::getDoNotShowUntilDateTimeDistribution()
 # TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
 # TheFlock::getObjectByUUIDOrNull(uuid)
 
@@ -107,12 +105,8 @@ class TheFlock
         }
     end    
     
-    def self.getDoNotShowUntilDateTimeDistribution()
-        $flock["do-not-show-until-datetime-distribution"]
-    end
-
     def self.setDoNotShowUntilDateTime(uuid, datetime)
-        $flock["do-not-show-until-datetime-distribution"][uuid] = datetime
+        DoNotShowUntilDatetime::setDatetime(uuid, datetime)
     end
 
     def self.getObjectByUUIDOrNull(uuid)

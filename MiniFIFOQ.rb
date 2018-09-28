@@ -25,16 +25,16 @@
 class MiniFIFOQ
 
     def self.getElement(queueuuid, indx)
-        value = KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "8d93c17a/#{queueuuid}/#{indx}", "[null]")
+        value = KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "8d93c17a/#{queueuuid}/#{indx}", "[null]")
         JSON.parse(value).first
     end
 
     def self.setElement(queueuuid, indx, value)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "8d93c17a/#{queueuuid}/#{indx}", JSON.generate([value]))
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "8d93c17a/#{queueuuid}/#{indx}", JSON.generate([value]))
     end
 
     def self.getQueueParametersOrNull(queueuuid)
-        params = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "2b796fa5/#{queueuuid}")
+        params = KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b796fa5/#{queueuuid}")
         if params.nil? then
             [0, 0]
         else
@@ -43,7 +43,7 @@ class MiniFIFOQ
     end
 
     def self.updateQueueParameters(queueuuid, params)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "2b796fa5/#{queueuuid}", JSON.generate(params))
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b796fa5/#{queueuuid}", JSON.generate(params))
     end
 
     # ---------------------------------------------

@@ -5,19 +5,19 @@ class CyclesOperator
 
     # CyclesOperator::getUnixtimeOrNull(objectuuid)
     def self.getUnixtimeOrNull(objectuuid)
-        unixtime = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}")
+        unixtime = KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}")
         return nil if unixtime.nil?
         unixtime.to_i
     end
 
     # CyclesOperator::setUnixtimeMark(objectuuid)
     def self.setUnixtimeMark(objectuuid)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}", Time.new.to_i)
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}", Time.new.to_i)
     end
 
     # CyclesOperator::removeUnixtimeMark(objectuuid)
     def self.removeUnixtimeMark(objectuuid)
-        KeyValueStore::delete("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}")     
+        KeyValueStore::delete(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}")     
     end
 
     # CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object)

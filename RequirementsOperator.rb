@@ -11,19 +11,19 @@ class RequirementsOperator
     # RequirementsOperator::requirementIsCurrentlySatisfied(requirement)
 
     def self.getCurrentlyUnsatisfiedRequirements()
-        JSON.parse(KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
     end
 
     def self.setUnsatisfiedRequirement(requirement)
         rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = (rs + [ requirement ]).uniq
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
     end
 
     def self.setSatisfifiedRequirement(requirement)
         rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = rs.reject{|r| r==requirement }
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
     end
 
     def self.requirementIsCurrentlySatisfied(requirement)
@@ -39,11 +39,11 @@ class RequirementsOperator
     # RequirementsOperator::objectMeetsRequirements(uuid)
 
     def self.getObjectRequirements(uuid)
-        JSON.parse(KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
     end
 
     def self.setObjectRequirements(uuid, requirements)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
     end
 
     def self.addRequirementToObject(uuid,requirement)
