@@ -24,6 +24,15 @@ require 'drb/drb'
 require 'thread'
 require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
 require_relative "Events.rb"
+
+require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # ----------------------------------------------------------------
 $flock = nil
 # ------------------------------------------------------------------------
@@ -124,9 +133,13 @@ end
 
 class FKVStore
     def self.getOrNull(key)
-        if CommonsUtils::isLucille18() then
+        value = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key)
+        return JSON.parse(value)[0] if value
+        value = $flock["kvstore"][key]
+        if value then
+            KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key, JSON.generate([value]))
         end
-        $flock["kvstore"][key]
+        value
     end
 
     def self.getOrDefaultValue(key, defaultValue)
@@ -138,15 +151,11 @@ class FKVStore
     end
 
     def self.set(key, value)
-        $flock["kvstore"][key] = value
-        EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
-        if CommonsUtils::isLucille18() then
-        end
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key, JSON.generate([value]))
     end
 
     def self.delete(key)
-        $flock["kvstore"].delete(key)
-        EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreDelete(key))
+        KeyValueStore::destroy("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key)
     end
 end
 
