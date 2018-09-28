@@ -57,7 +57,7 @@ class AgentStream
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        return if !FKVStore::getOrNull("b6b96f14-3cb5-4182-8f1e-925d83d01e89:#{CommonsUtils::currentDay()}").nil?
+        return if !KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "b6b96f14-3cb5-4182-8f1e-925d83d01e89:#{CommonsUtils::currentDay()}").nil?
         AgentStream::folderpaths(CATALYST_COMMON_PATH_TO_STREAM_DATA_FOLDER)
             .first(1)
             .each{|folderpath1|
@@ -71,7 +71,7 @@ class AgentStream
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
                 AgentWave::writeScheduleToDisk(uuid, schedule)
             }
-        FKVStore::set("b6b96f14-3cb5-4182-8f1e-925d83d01e89:#{CommonsUtils::currentDay()}", "done")
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "b6b96f14-3cb5-4182-8f1e-925d83d01e89:#{CommonsUtils::currentDay()}", "done")
     end
 
     def self.processObjectAndCommand(object, command)

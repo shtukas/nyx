@@ -32,7 +32,7 @@ class AgentBabyNights
 
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
-        if FKVStore::getOrNull("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}").nil? and Time.new.hour>=6 then
+        if KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
                     "uuid"      => "4b9bcf0a",
@@ -53,7 +53,7 @@ class AgentBabyNights
                 exception = LucilleCore::askQuestionAnswerAsString("Exception: ")
                 puts "👶 Nights Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
-                FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
+                KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
                 return
             end
             xname = operation.downcase
@@ -67,7 +67,7 @@ class AgentBabyNights
             end
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
-            FKVStore::set("2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
+            KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
         end 
     end
 end

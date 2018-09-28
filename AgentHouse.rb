@@ -29,13 +29,13 @@ class AgentHouse
     end
 
     def self.shouldDoTask(task)
-        unixtime = FKVStore::getOrDefaultValue("7aec05d2-0156-404b-883a-4024348c1907:#{task}", "0").to_i
+        unixtime = KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "7aec05d2-0156-404b-883a-4024348c1907:#{task}", "0").to_i
         periodInDays = task.split(";")[0].to_f 
         (Time.new.to_i-unixtime) > periodInDays*86400
     end
 
     def self.markTaskAsDone(task)
-        FKVStore::set("7aec05d2-0156-404b-883a-4024348c1907:#{task}", Time.new.to_i)
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "7aec05d2-0156-404b-883a-4024348c1907:#{task}", Time.new.to_i)
     end
 
     def self.taskToCatalystObject(task)

@@ -123,34 +123,4 @@ end
 
 # ------------------------------------------------------------------------
 
-class FKVStore
-
-    # FKVStore::getOrNull(key): value
-    def self.getOrNull(key)
-        value = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key)
-        return JSON.parse(value)[0] if value
-        nil
-    end
-
-    # FKVStore::getOrDefaultValue(key, defaultValue): value
-    def self.getOrDefaultValue(key, defaultValue)
-        value = FKVStore::getOrNull(key)
-        if value.nil? then
-            value = defaultValue
-        end
-        value
-    end
-
-    # FKVStore::set(key, value)
-    def self.set(key, value)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key, JSON.generate([value]))
-    end
-
-    # FKVStore::delete(key)
-    def self.delete(key)
-        KeyValueStore::destroy("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key)
-    end
-
-end
-
 

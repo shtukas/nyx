@@ -141,11 +141,11 @@ class CommonsUtils
     end
     
     def self.getStandardListingPosition()
-        FKVStore::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
+        KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
     end
 
     def self.setStandardListingPosition(position)
-        FKVStore::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end
 
     def self.codeHash()

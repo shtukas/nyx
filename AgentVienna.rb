@@ -79,7 +79,7 @@ class AgentVienna
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if !CommonsUtils::isLucille18()
-        return if !FKVStore::getOrNull("2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}").nil?
+        return if !KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}").nil?
         10.times {
             link = $viennaLinkFeeder.next()
             next if link.nil?
@@ -92,7 +92,7 @@ class AgentVienna
             AgentWave::writeScheduleToDisk(uuid, schedule)
             $viennaLinkFeeder.done(link)
         }
-        FKVStore::set("2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}", "done")
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}", "done")
     end
 
     def self.processObjectAndCommand(object, command)

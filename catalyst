@@ -284,12 +284,12 @@ class CatalystInterfaceUtils
             displayScreenSizeReductionIndex = 6
 
             # Indicates over staying off requirement.
-            if ( Time.new.to_i > FKVStore::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
+            if ( Time.new.to_i > KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
                 if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
                     puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
                     LucilleCore::pressEnterToContinue()
                 end
-                FKVStore::set("e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
+                KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", "e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
                 next
             end
 
