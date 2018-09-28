@@ -125,7 +125,6 @@ end
 class FKVStore
     def self.getOrNull(key)
         if CommonsUtils::isLucille18() then
-            kvstoreTimingsMark(key)
         end
         $flock["kvstore"][key]
     end
@@ -142,7 +141,6 @@ class FKVStore
         $flock["kvstore"][key] = value
         EventsManager::commitEventToTimeline(EventsMaker::fKeyValueStoreSet(key, value))
         if CommonsUtils::isLucille18() then
-            kvstoreTimingsMark(key)
         end
     end
 
@@ -155,10 +153,6 @@ end
 # ----------------------------------------------------------------
 
 $kvstoreTimings = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/kvstore-timings.json"))
-
-def kvstoreTimingsMark(key)
-    $kvstoreTimings[key] = Time.new.to_i
-end
 
 if ENV["COMPUTERLUCILLENAME"] == "Lucille18" then
     Thread.new {
