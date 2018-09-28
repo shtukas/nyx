@@ -29,6 +29,8 @@ class AgentHouse
     end
 
     def self.shouldDoTask(task)
+        return false if Time.new.hour < 6
+        return false if Time.new.hour > 9 
         unixtime = KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "7aec05d2-0156-404b-883a-4024348c1907:#{task}", "0").to_i
         periodInDays = task.split(";")[0].to_f 
         (Time.new.to_i-unixtime) > periodInDays*86400

@@ -262,6 +262,7 @@ class CommonsUtils
         }
     end
 
+    # CommonsUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
     def self.trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
         unixtime = KeyValueStore::getOrDefaultValue(repositorylocation, "9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", "0").to_i
         if ( Time.new.to_i - unixtime) > timespanInSeconds then
@@ -272,6 +273,7 @@ class CommonsUtils
         end 
     end
 
+    # CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object)
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
         datetime = DoNotShowUntilDatetime::getDatetimeOrNull(object["uuid"])
         return object if datetime.nil?
