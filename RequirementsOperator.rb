@@ -11,19 +11,19 @@ class RequirementsOperator
     # RequirementsOperator::requirementIsCurrentlySatisfied(requirement)
 
     def self.getCurrentlyUnsatisfiedRequirements()
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", "[]"))
+        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", "[]"))
     end
 
     def self.setUnsatisfiedRequirement(requirement)
         rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = (rs + [ requirement ]).uniq
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", JSON.generate(rs))
     end
 
     def self.setSatisfifiedRequirement(requirement)
         rs = RequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = rs.reject{|r| r==requirement }
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337e", JSON.generate(rs))
+        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", JSON.generate(rs))
     end
 
     def self.requirementIsCurrentlySatisfied(requirement)
