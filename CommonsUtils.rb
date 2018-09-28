@@ -224,11 +224,12 @@ class CommonsUtils
         if announce and announce.include?("timeProton:") then
             puts "You cannot put a timeProton into a list"
             LucilleCore::pressEnterToContinue()
-            return
+            return nil
         end
         list = ListsOperator::ui_interactivelySelectListOrNull()
-        return if list.nil?
+        return nil if list.nil?
         ListsOperator::addCatalystObjectUUIDToList(objectuuid, list["list-uuid"])
+        list
     end
 
     def self.waveInsertNewItemInteractive(description)
@@ -236,22 +237,27 @@ class CommonsUtils
         uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description)
         AgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["non new schedule", "datetime code", ">list"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">list"])
             break if option.nil?
-            if option == "non new schedule" then
+            if option == "schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+                puts JSON.pretty_generate(schedule)
                 AgentWave::writeScheduleToDisk(uuid, schedule)  
             end
             if option == "datetime code" then
                 if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
                     if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
+                        puts "Won't show until: #{datetime}"
                         DoNotShowUntilDatetime::setDatetime(uuid, datetime)
                         EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
                     end
                 end
             end
             if option == ">list" then
-                CommonsUtils::sendCatalystObjectToList(uuid, nil)
+                list = CommonsUtils::sendCatalystObjectToList(uuid, nil)
+                if list then
+                    puts JSON.pretty_generate(list)
+                end
             end
         }
     end
@@ -334,6 +340,7 @@ class CommonsUtils
         puts "    command ..."
     end
 
+    # CommonsUtils::objectToString(object)
     def self.objectToString(object)
         announce = object['announce'].lines.first.strip
         [
@@ -344,6 +351,7 @@ class CommonsUtils
         ].join()
     end
 
+    # CommonsUtils::processObjectAndCommand(object, expression)
     def self.processObjectAndCommand(object, expression)
 
         # no object needed
@@ -514,6 +522,7 @@ class CommonsUtils
         end
     end
 
+    # CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
         puts CatalystInterfaceUtils::objectToString(object)
