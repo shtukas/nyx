@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)

@@ -20,10 +20,10 @@ require 'digest/sha1'
 require 'find'
 require 'drb/drb'
 require 'thread'
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require_relative "catalyst.rb"
 
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)

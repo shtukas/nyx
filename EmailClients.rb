@@ -35,7 +35,7 @@ require 'mail'
     mail.body.decoded    #=> 'This is the body of the email...
 =end
 require "time"
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 # -------------------------------------------------------------------------------------
 
 EMAIL_METADATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/Wave/Email-Metadata"

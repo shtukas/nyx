@@ -4,7 +4,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require_relative "Constants.rb"
 
 # ---------------------------------------------------------------------

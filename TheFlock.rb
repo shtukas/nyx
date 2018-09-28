@@ -22,10 +22,10 @@ require 'digest/sha1'
 # Digest::SHA1.file(myFile).hexdigest
 require 'drb/drb'
 require 'thread'
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require_relative "Events.rb"
 
-require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
@@ -33,7 +33,7 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/SetsOperator.rb"
 =begin
     # setuuids are used as namespace, therefore the same uuid in different sets are different values.
     SetsOperator::insert(repositorylocation or nil, setuuid, valueuuid, value)

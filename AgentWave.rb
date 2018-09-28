@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require 'json'
 require 'date'
 require 'digest/sha1'
@@ -22,7 +22,7 @@ require 'drb/drb'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-require "/Galaxy/local-resources/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require_relative "Bob.rb"
 require_relative "Constants.rb"
 # ----------------------------------------------------------------------
