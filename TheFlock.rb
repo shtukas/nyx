@@ -150,17 +150,4 @@ class FKVStore
     end
 end
 
-# ----------------------------------------------------------------
-
-$kvstoreTimings = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/kvstore-timings.json"))
-
-if ENV["COMPUTERLUCILLENAME"] == "Lucille18" then
-    Thread.new {
-        loop {
-            sleep 600
-            File.open("/Galaxy/DataBank/Catalyst/kvstore-timings.json", "w"){|f| f.write(JSON.pretty_generate($kvstoreTimings)) }
-        }
-    }
-end
-
 
