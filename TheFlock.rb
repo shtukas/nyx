@@ -33,47 +33,18 @@ require "/Galaxy/local-resources/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-# ----------------------------------------------------------------
-$flock = nil
-# ------------------------------------------------------------------------
-# FlockDiskIO::loadFromEventsTimeline()
-
-class FlockDiskIO
-    def self.loadFromEventsTimeline()
-        flock = {}
-        flock["objects"] = []
-        EventsManager::eventsAsTimeOrderedArray()
-            .each{|event|
-                if event["event-type"] == "Catalyst:Catalyst-Object:1" then
-                    object = event["object"]
-                    flock["objects"].reject!{|o| o["uuid"]==object["uuid"] }
-                    flock["objects"] << object
-                    next
-                end
-                if event["event-type"] == "Catalyst:Destroy-Catalyst-Object:1" then
-                    objectuuid = event["object-uuid"]
-                    flock["objects"].reject!{|o| o["uuid"]==objectuuid }
-                    next
-                end
-                if event["event-type"] == "Catalyst:Metadata:DoNotShowUntilDateTime:1" then
-                    DoNotShowUntilDatetime::setDatetime(event["object-uuid"], event["datetime"])
-                    next
-                end
-                if event["event-type"] == "Flock:KeyValueStore:Set:1" then    
-                    next
-                end
-                if event["event-type"] == "Flock:KeyValueStore:Delete:1" then
-                    next
-                end
-                raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
-            }
-        $flock = flock
-    end
-end
+require "/Galaxy/local-resources/Ruby-Libraries/SetsOperator.rb"
+=begin
+    # setuuids are used as namespace, therefore the same uuid in different sets are different values.
+    SetsOperator::insert(repositorylocation or nil, setuuid, valueuuid, value)
+    SetsOperator::getOrNull(repositorylocation or nil, setuuid, valueuuid)
+    SetsOperator::delete(repositorylocation or nil, setuuid, valueuuid)
+    SetsOperator::values(repositorylocation or nil, setuuid)
+=end
 
 # ----------------------------------------------------------------
 
-# TheFlock::flockObjects()
+
 # TheFlock::removeObjectIdentifiedByUUID(uuid)
 # TheFlock::removeObjectsFromAgent(agentuuid)
 # TheFlock::addOrUpdateObjects(objects)
@@ -81,24 +52,30 @@ end
 # TheFlock::getObjectByUUIDOrNull(uuid)
 
 class TheFlock
+
+    # TheFlock::flockObjects()
     def self.flockObjects()
-        $flock["objects"].clone
+        SetsOperator::values(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "7c4296f8-092b-4e4e-ba08-f867ab871bab")
     end
 
+    # TheFlock::removeObjectIdentifiedByUUID(uuid)
     def self.removeObjectIdentifiedByUUID(uuid)
-        $flock["objects"] = $flock["objects"].reject{|o| o["uuid"]==uuid }
+        SetsOperator::delete(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "7c4296f8-092b-4e4e-ba08-f867ab871bab", uuid)
     end
 
+    # TheFlock::removeObjectsFromAgent(agentuuid)
     def self.removeObjectsFromAgent(agentuuid)
-        $flock["objects"] = $flock["objects"].reject{|o| o["agent-uid"]==agentuuid }
+        TheFlock::flockObjects()
+            .select{|object| object["agent-uid"]==agentuuid }
+            .each{|object| TheFlock::removeObjectIdentifiedByUUID(object["uuid"]) }
     end
 
     # TheFlock::addOrUpdateObject(object)
     def self.addOrUpdateObject(object)
-        TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
-        $flock["objects"] =  $flock["objects"] + [ object ]
+        SetsOperator::insert(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "7c4296f8-092b-4e4e-ba08-f867ab871bab", object["uuid"], object)
     end
 
+    # TheFlock::addOrUpdateObjects(objects)
     def self.addOrUpdateObjects(objects)
         objects.each{|object|
             TheFlock::addOrUpdateObject(object)
@@ -110,7 +87,7 @@ class TheFlock
     end
 
     def self.getObjectByUUIDOrNull(uuid)
-        TheFlock::flockObjects().select{|object| object["uuid"]==uuid }.first
+        SetsOperator::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "7c4296f8-092b-4e4e-ba08-f867ab871bab", uuid)
     end
 
 end

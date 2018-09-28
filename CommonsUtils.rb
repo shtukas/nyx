@@ -453,7 +453,6 @@ class CommonsUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                FlockDiskIO::loadFromEventsTimeline()
                 Bob::generalFlockUpgrade()
                 searchobjects = TheFlock::flockObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0

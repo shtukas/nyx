@@ -446,7 +446,6 @@ end
 
 
 codehash = CommonsUtils::codeHash()
-FlockDiskIO::loadFromEventsTimeline()
 
 # -------------------------------------------------------------------------
 =begin
@@ -487,14 +486,6 @@ $THETASKS << [
          CommonsUtils::emailSync(false)
     },
     "CommonsUtils::emailSync(false)"
-]
-$THETASKS << [
-    "79429DCB",
-    60,
-    lambda {
-         FlockDiskIO::loadFromEventsTimeline()
-    },
-    "FlockDiskIO::loadFromEventsTimeline()"
 ]
 $THETASKS << [
     "89429DCB",
