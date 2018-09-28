@@ -245,7 +245,7 @@ class CommonsUtils
             if option == "datetime code" then
                 if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
                     if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
-                        TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
+                        DoNotShowUntilDatetime::setDatetime(uuid, datetime)
                         EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
                     end
                 end
@@ -486,7 +486,7 @@ class CommonsUtils
         if expression.start_with?('+') then
             code = expression
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
-                TheFlock::setDoNotShowUntilDateTime(object["uuid"], datetime)
+                DoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
                 EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return

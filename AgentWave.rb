@@ -522,7 +522,7 @@ class AgentWave
         uuid = object['uuid']
         schedule = object['schedule']
         datetime = WaveSchedules::scheduleToDoNotShowDatetime(uuid, schedule)
-        TheFlock::setDoNotShowUntilDateTime(uuid, datetime)
+        DoNotShowUntilDatetime::setDatetime(uuid, datetime)
         EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
     end
 

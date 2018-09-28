@@ -81,11 +81,8 @@ class TheFlock
             TheFlock::addOrUpdateObject(object)
         }
     end    
-    
-    def self.setDoNotShowUntilDateTime(uuid, datetime)
-        DoNotShowUntilDatetime::setDatetime(uuid, datetime)
-    end
 
+    # TheFlock::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
         SetsOperator::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "7c4296f8-092b-4e4e-ba08-f867ab871bab", uuid)
     end
