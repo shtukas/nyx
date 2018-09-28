@@ -43,7 +43,6 @@ class FlockDiskIO
         flock = {}
         flock["objects"] = []
         flock["do-not-show-until-datetime-distribution"] = {}
-        flock["kvstore"] = {}
         EventsManager::eventsAsTimeOrderedArray()
             .each{|event|
                 if event["event-type"] == "Catalyst:Catalyst-Object:1" then
@@ -61,12 +60,10 @@ class FlockDiskIO
                     flock["do-not-show-until-datetime-distribution"][event["object-uuid"]] = event["datetime"]
                     next
                 end
-                if event["event-type"] == "Flock:KeyValueStore:Set:1" then
-                    flock["kvstore"][event["key"]] = event["value"]
+                if event["event-type"] == "Flock:KeyValueStore:Set:1" then    
                     next
                 end
                 if event["event-type"] == "Flock:KeyValueStore:Delete:1" then
-                    flock["kvstore"].delete(event["key"])
                     next
                 end
                 raise "Don't know how to interpret event: \n#{JSON.pretty_generate(event)}"
@@ -126,22 +123,16 @@ end
 
 # ------------------------------------------------------------------------
 
-# FKVStore::set(key, value)
-# FKVStore::getOrNull(key): value
-# FKVStore::getOrDefaultValue(key, defaultValue): value
-# FKVStore::delete(key)
-
 class FKVStore
+
+    # FKVStore::getOrNull(key): value
     def self.getOrNull(key)
         value = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key)
         return JSON.parse(value)[0] if value
-        value = $flock["kvstore"][key]
-        if value then
-            KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key, JSON.generate([value]))
-        end
-        value
+        nil
     end
 
+    # FKVStore::getOrDefaultValue(key, defaultValue): value
     def self.getOrDefaultValue(key, defaultValue)
         value = FKVStore::getOrNull(key)
         if value.nil? then
@@ -150,13 +141,16 @@ class FKVStore
         value
     end
 
+    # FKVStore::set(key, value)
     def self.set(key, value)
         KeyValueStore::set("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key, JSON.generate([value]))
     end
 
+    # FKVStore::delete(key)
     def self.delete(key)
         KeyValueStore::destroy("/Galaxy/DataBank/Catalyst/KeyValueStoreRepository", key)
     end
+
 end
 
 

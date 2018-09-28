@@ -12,7 +12,6 @@ require_relative "Constants.rb"
 # EventsMaker::destroyCatalystObject(uuid)
 # EventsMaker::catalystObject(object)
 # EventsMaker::doNotShowUntilDateTime(uuid, datetime)
-# EventsMaker::fKeyValueStoreSet(key, value)
 
 class EventsMaker
     def self.destroyCatalystObject(uuid)
@@ -40,22 +39,6 @@ class EventsMaker
         }
     end
 
-    def self.fKeyValueStoreSet(key, value)
-        {
-            "event-type" => "Flock:KeyValueStore:Set:1",
-            "event-time" => Time.new.to_f,
-            "key"        => key,
-            "value"      => value
-        }
-    end
-
-    def self.fKeyValueStoreDelete(key)
-        {
-            "event-type" => "Flock:KeyValueStore:Delete:1",
-            "event-time" => Time.new.to_f,
-            "key"        => key
-        }
-    end
 end
 
 # EventsManager::pathToActiveEventsIndexFolder()
