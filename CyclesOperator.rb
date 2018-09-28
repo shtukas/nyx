@@ -17,7 +17,7 @@ class CyclesOperator
 
     # CyclesOperator::removeUnixtimeMark(objectuuid)
     def self.removeUnixtimeMark(objectuuid)
-        KeyValueStore::delete(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}")     
+        KeyValueStore::destroy(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "630d820a-2c80-49a0-96ae-23837e13f0b0:#{objectuuid}")     
     end
 
     # CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object)
