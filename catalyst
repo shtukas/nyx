@@ -164,7 +164,7 @@ class CatalystInterfaceUtils
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        listIng = ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).size > 0 ? " [list: #{ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).map{|list| list["description"] }}]" : ""
+        listIng = ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).size > 0 ? " [ list(s): #{ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).map{|list| list["description"] }.join(", ")} ]" : ""
         part2 = 
             [
                 "#{requirementsAsString.green}",

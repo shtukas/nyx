@@ -63,7 +63,7 @@ class AgentTimeProton
         end
         if command=="time:" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-            TimeProtonUtils::timeProtonAddTime(timeprotonuuid, timeInHours)
+            TimeProtonUtils::timeProtonAddTime(timeProton["uuid"], timeInHours)
         end
         if command=='edit' then
             filename = "#{SecureRandom.hex}.json"
