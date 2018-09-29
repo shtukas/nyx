@@ -22,6 +22,7 @@ class CommonsUtils
         Time.now.utc.iso8601[0,13]
     end
 
+    # CommonsUtils::currentDay()
     def self.currentDay()
         Time.now.utc.iso8601[0,10]
     end

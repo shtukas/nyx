@@ -46,7 +46,7 @@ class AgentHouse
             "agent-uid"          => self.agentuuid(),
             "metric"             => 1,
             "announce"           => "House: #{task}",
-            "commands"           => ["done"],
+            "commands"           => ["done", "kill-house"],
             "default-expression" => "done",
             "is-running"         => false,
             ":task:"             => task
@@ -54,14 +54,15 @@ class AgentHouse
     end
 
     def self.generalFlockUpgrade()
+        TheFlock::removeObjectsFromAgent(self.agentuuid())
+        return if KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}")
+
         tasksFilepath = "/Galaxy/DataBank/Catalyst/Agents-Data/House/tasks.txt"
         tasks = IO.read(tasksFilepath)
             .lines
             .map{|line| line.strip }
             .select{|line| line.size>0 }
             .select{|line| !line.start_with?("#") }
-
-        TheFlock::removeObjectsFromAgent(self.agentuuid())
 
         objects = tasks
             .select{|task| AgentHouse::shouldDoTask(task) }
@@ -74,6 +75,9 @@ class AgentHouse
     def self.processObjectAndCommand(object, command)
         if command == "done" then
             AgentHouse::markTaskAsDone(object[":task:"])
-        end 
+        end
+        if command == "kill-house" then
+            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}", "killed")
+        end
     end
 end
