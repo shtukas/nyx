@@ -62,10 +62,18 @@ class ListsOperator
         list
     end
 
+    # ListsOperator::curateListObjectsListing(list)
+    def self.curateListObjectsListing(list)
+        list["catalyst-object-uuids"] = list["catalyst-object-uuids"].select{|objectuuid| Canary::isAlive(objectuuid) }
+        list
+    end
+
     # ListsOperator::getListByUUIDOrNull(listuuid)
     def self.getListByUUIDOrNull(listuuid)
         return nil if !File.exists?("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json")
-        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json"))
+        list = JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists/#{listuuid}.json"))
+        list = ListsOperator::curateListObjectsListing(list)
+        list
     end
 
     # ListsOperator::getLists()
@@ -73,7 +81,9 @@ class ListsOperator
         lists = []
         Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Lists") do |path|
             next if File.basename(path)[-5,5] != '.json'
-            lists << JSON.parse(IO.read(path))
+            list =  JSON.parse(IO.read(path))
+            list = ListsOperator::curateListObjectsListing(list)
+            lists << list
         end
         lists
     end

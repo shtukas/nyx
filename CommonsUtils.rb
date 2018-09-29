@@ -291,6 +291,10 @@ class CommonsUtils
         TheFlock::flockObjects()
             .map{|object| object.clone }
             .map{|object| 
+                Canary::mark(object["uuid"]) 
+                object
+            }
+            .map{|object| 
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
