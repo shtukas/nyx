@@ -4,9 +4,11 @@ TimeProton {
     :description    : String
     :time-commitment-every-20-hours-in-hours : Float
     :status         : TimeProtonCurrentStatus
-    :target         : null | ListUUID
+    :catalyst-object-uuids : Array[String#CatalystObjectUUID]
 }
 
-TimeProtonCurrentStatus: ["sleeping", timeSinceSleeping: Unixtime]
-                   ["active-paused", timeDoneInSeconds: Float] 
-                   ["active-runnning", timeDoneInSeconds: Float, lastStartedRunningTime: Unixtime]
+TimeProtonCurrentStatus: 
+	["sleeping", timeSinceSleeping: Unixtime]
+	["active-paused", timeDoneInSeconds: Float]
+	["active-runnning", timeDoneInSeconds: Float, lastStartedRunningTime: Unixtime]
+

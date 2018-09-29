@@ -54,8 +54,8 @@ class DisplayStateUtils
     # DisplayStateUtils::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
         objects = CommonsUtils::flockObjectsProcessedForCatalystDisplay()
-        listsObjectsUUIDs = ListsOperator::allListsCatalystItemsUUID()
-        regularObjects, listsObjects = objects.partition {|object| !listsObjectsUUIDs.include?(object["uuid"]) }
+        combinedTimeProtonObjectUUID = TimeProtonUtils::allCatalystItemsUUID()
+        regularObjects, timeProtonObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
         {
             "nsx26:all-catalyst-objects"             => objects,
             "nsx26:objects-already-processed"        => [],
@@ -86,7 +86,6 @@ class DisplayStateUtils
 
         # --------------------------------------------------------------------------------
         if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
-            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(object["uuid"]))
             TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
             return nil
         end
@@ -122,14 +121,10 @@ class DisplayStateUtils
                 }
             loop {
                 timeProton = object["item-data"]["timeProton"]
-                break if timeProton["target"].nil?
-                listuuid = timeProton["target"]
-                list = ListsOperator::getListByUUIDOrNull(listuuid)
-                break if list.nil?
-                break if list["catalyst-object-uuids"].size==0
+                break if timeProton["catalyst-object-uuids"].size==0
                 ienum = LucilleCore::integerEnumerator() 
                 displayState["nsx26:all-catalyst-objects"]
-                    .select{|o| list["catalyst-object-uuids"].include?(o["uuid"]) }   
+                    .select{|o| timeProton["catalyst-object-uuids"].include?(o["uuid"]) }   
                     .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
                     .map{|o|
                         o["metric"] = object["metric"] - 0.01*Math.exp(-ienum.next()) 
@@ -164,11 +159,9 @@ class CatalystInterfaceUtils
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(", ")} )" : ''
-        listIng = ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).size > 0 ? " [ list(s): #{ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).map{|list| list["description"] }.join(", ")} ]" : ""
         part2 = 
             [
                 "#{requirementsAsString.green}",
-                listIng,
                 " (#{object["commands"].join(" ").red})",
                 " \"#{defaultExpressionAsString.green}\""
             ].join()
@@ -180,7 +173,6 @@ class CatalystInterfaceUtils
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
-        listIng = ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).size > 0 ? " [list: #{ListsOperator::getListsForCatalystObjectUUID(object["uuid"]).map{|list| list["description"] }}]" : ""
         part1 = 
             [
                 "(#{"%.3f" % object["metric"]})",
@@ -293,52 +285,9 @@ class CatalystInterfaceUtils
                 next
             end
 
-            # Ensure that every list has a timeProton that drives it (list is a target of the timeProton)
-            lists = ListsOperator::getLists()
-            lists.each{|list|
-                timeProtons = TimeProtonUtils::getTimeProtonsByTargetListUUID(list["list-uuid"])
-                if timeProtons.size==0 then
-                    puts "list: #{list["description"]} doesn't have a timeProton targetting it"
-                    puts "Existing timeProtons: "
-                    TimeProtonUtils::timeProtonsWithFilepaths()
-                        .each{|pair|
-                            timeProton, _ = pair
-                            puts "    #{TimeProtonUtils::timeProtonToString(timeProton)}"
-                        }
-                    loop {
-                        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["use existing timeProton", "create new timeProton", "destroy the list"])
-                        next if operation.nil?
-                        if operation == "use existing timeProton" then
-                            puts "using an existing one:"
-                            timeProton = TimeProtonUtils::interactivelySelectTimeProtonOrNull()
-                            next if timeProton.nil?
-                            if timeProton["target"] then
-                                puts "The timeProton you have chosen already have a target"
-                                LucilleCore::pressEnterToContinue()
-                            else
-                                timeProton["target"] = list["list-uuid"]
-                                timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
-                                TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(timeprotonfilepath))
-                            end
-                        end
-                        if operation == "create new timeProton" then
-                            puts "creating one:"
-                            description = "timeProton for list '#{list["description"]}'"
-                            timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
-                            target = list["list-uuid"]
-                            timeProton = TimeProtonUtils::makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
-                            puts JSON.pretty_generate(timeProton)
-                            LucilleCore::pressEnterToContinue()
-                        end
-                        if operation == "destroy the list" then
-                            ListsOperator::destroyList(list["list-uuid"])
-                        end
-                        break
-                    }
-                end
-            }
-
             system("clear")
+
+            puts "Special Commands Object: ,, .. // <timeEstimationInHours> //. //.. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >timeproton, >daybucket".green
 
             standardlp = CommonsUtils::getStandardListingPosition()
 
@@ -346,7 +295,7 @@ class CatalystInterfaceUtils
             percentageDone = 100 * ( TimeProtonUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
 
             numbers = TimeProtonDailyTimeTracking::numbersDayTotalAndPercentage()
-            puts "Time Protons: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )"
+            puts "Time Protons: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )".yellow
 
             puts ""
 
@@ -469,14 +418,6 @@ $THETASKS << [
          CatalystDevOps::archivesTimelineGarbageCollection(false)
     },
     "CatalystDevOps::archivesTimelineGarbageCollection(false)"
-]
-$THETASKS << [
-    "59429DCB",
-    86400,
-    lambda {
-         CatalystDevOps::eventsTimelineGarbageCollection(false)
-    },
-    "CatalystDevOps::eventsTimelineGarbageCollection(false)"
 ]
 $THETASKS << [
     "69429DCB",

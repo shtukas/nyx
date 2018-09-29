@@ -23,7 +23,6 @@ require 'digest/sha1'
 require 'drb/drb'
 require 'thread'
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
-require_relative "Events.rb"
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin

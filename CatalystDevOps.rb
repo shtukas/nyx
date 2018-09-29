@@ -110,17 +110,4 @@ class CatalystDevOps
         raise "Don't know how to garbage collect head: \n#{JSON.pretty_generate(head)}"
     end
 
-    # CatalystDevOps::eventsTimelineGarbageCollection()
-
-    def self.eventsTimelineGarbageCollection(verbose)
-        events = EventsManager::eventsAsTimeOrderedArray()
-        while events.size>=2 do
-            event = events.shift
-            if CatalystDevOps::canRemoveEvent(event, events) then
-                puts event[":filepath:"] if verbose
-                FileUtils.rm(event[":filepath:"])
-            end
-        end
-    end
-
 end

@@ -388,7 +388,7 @@ class AgentWave
     end
 
     def self.commands(schedule)
-        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy", ">lib"]
+        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy"]
         commands
     end
 
@@ -475,7 +475,6 @@ class AgentWave
     def self.rePublishWaveObjectAtFlock(uuid)
         object = AgentWave::makeCatalystObjectOrNull(uuid)
         return if object.nil?
-        EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
         TheFlock::addOrUpdateObject(object)        
     end
 
@@ -500,7 +499,6 @@ class AgentWave
         unregisteredUUIDs.each{|uuid|
             # We need to build the object, then make a Flock update and emit an event
             object = AgentWave::makeCatalystObjectOrNull(uuid)
-            EventsManager::commitEventToTimeline(EventsMaker::catalystObject(object))
             TheFlock::addOrUpdateObject(object)
         }
         # ------------------------------------------------------------------------------
@@ -523,13 +521,11 @@ class AgentWave
         schedule = object['schedule']
         datetime = WaveSchedules::scheduleToDoNotShowDatetime(uuid, schedule)
         DoNotShowUntilDatetime::setDatetime(uuid, datetime)
-        EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
     end
 
     def self.doneObjectWithOneOffTask(object)
         uuid = object['uuid']
         TheFlock::removeObjectIdentifiedByUUID(uuid)
-        EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
         AgentWave::archiveWaveItem(uuid)
     end
 
@@ -599,25 +595,8 @@ class AgentWave
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 AgentWave::archiveWaveItem(uuid)
                 TheFlock::removeObjectIdentifiedByUUID(uuid)
-                EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
             end
         end
 
-        if command=='>lib' then
-            atlasreference = "atlas-#{SecureRandom.hex(8)}"
-            sourcelocation = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
-            staginglocation = "/Users/pascal/Desktop/#{atlasreference}"
-            LucilleCore::copyFileSystemLocation(sourcelocation, staginglocation)
-            AgentWave::removeWaveMetadataFilesAtLocation(staginglocation)
-            puts "Data moved to the staging folder (Desktop), edit and press [Enter]"
-            LucilleCore::pressEnterToContinue()
-            LibrarianExportedFunctions::librarianUserInterface_makeNewPermanodeInteractive(staginglocation, nil, nil, atlasreference, nil, nil)
-            targetlocation = R136CoreUtils::getNewUniqueDataTimelineFolderpath()
-            LucilleCore::copyFileSystemLocation(staginglocation, targetlocation)
-            LucilleCore::removeFileSystemLocation(staginglocation)
-            AgentWave::archiveWaveItem(uuid)
-            TheFlock::removeObjectIdentifiedByUUID(uuid)
-            EventsManager::commitEventToTimeline(EventsMaker::destroyCatalystObject(uuid))
-        end
     end
 end

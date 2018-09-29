@@ -10,8 +10,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =end
 
 =begin
-    Canary exists because lists are not notified of an object having been discarded.
-    Lists will know whether or not an object has not been seen for a while using Canary. 
+    Canary exists because TimeProtons are not notified of an object having been discarded.
+    TimeProtons will know whether or not an object has not been seen for a while using Canary. 
 =end
 
 class Canary
@@ -33,6 +33,6 @@ class Canary
         if unixtime.nil? then
             unixtime = Canary::mark(objectuuid)
         end
-        (Time.new.to_i - unixtime) > 86400*7 
+        (Time.new.to_i - unixtime) < 86400*7 
     end
 end

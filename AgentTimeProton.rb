@@ -65,27 +65,8 @@ class AgentTimeProton
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
             TimeProtonUtils::timeProtonAddTime(timeProton["uuid"], timeInHours)
         end
-        if command=='edit' then
-            filename = "#{SecureRandom.hex}.json"
-            filepath = "/tmp/#{filename}"
-            timeProton = JSON.parse(CommonsUtils::editTextUsingTextmate(JSON.pretty_generate(timeProton)))
-            timeProtonFilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
-            TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(timeProtonFilepath))
-        end
-        if command=='destroy'
-            loop {
-                break if timeProton["target"]
-                puts "This timeProton has a list target, I need to destroy the list first"
-                puts "Not implemented yet!"
-                LucilleCore::pressEnterToContinue()
-                return
-                break
-            }
-            filepath = object["item-data"]["filepath"]
-            FileUtils.rm(filepath)
-        end
-        if command=='list:'
-            TimeProtonUtils::setInteractivelySelectedTargetForTimeProton(timeProton["uuid"])
+        if command=='dive' then
+            TimeProtonUtils::timeProtonDive(timeProton)
         end
     end
 end

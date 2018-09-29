@@ -221,16 +221,14 @@ class CommonsUtils
         [uuid, schedule]
     end
 
-    def self.sendCatalystObjectToList(objectuuid, announce)
-        if announce and announce.include?("timeProton:") then
-            puts "You cannot put a timeProton into a list"
-            LucilleCore::pressEnterToContinue()
-            return nil
-        end
-        list = ListsOperator::ui_interactivelySelectListOrNull()
-        return nil if list.nil?
-        ListsOperator::addCatalystObjectUUIDToList(objectuuid, list["list-uuid"])
-        list
+    # CommonsUtils::sendCatalystObjectToTimeProton(objectuuid)
+    def self.sendCatalystObjectToTimeProton(objectuuid)
+        timeProton = TimeProtonUtils::interactivelySelectTimeProtonOrNull()
+        return nil if timeProton.nil?
+        timeProton["catalyst-object-uuids"] << objectuuid
+        filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+        TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+        timeProton
     end
 
     def self.waveInsertNewItemInteractive(description)
@@ -238,7 +236,7 @@ class CommonsUtils
         uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description)
         AgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">list"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">timeproton"])
             break if option.nil?
             if option == "schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
@@ -250,14 +248,13 @@ class CommonsUtils
                     if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
                         puts "Won't show until: #{datetime}"
                         DoNotShowUntilDatetime::setDatetime(uuid, datetime)
-                        EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(uuid, datetime))
                     end
                 end
             end
-            if option == ">list" then
-                list = CommonsUtils::sendCatalystObjectToList(uuid, nil)
-                if list then
-                    puts JSON.pretty_generate(list)
+            if option == ">timeproton" then
+                timeProton = CommonsUtils::sendCatalystObjectToTimeProton(uuid)
+                if timeProton then
+                    puts JSON.pretty_generate(timeProton)
                 end
             end
         }
@@ -298,11 +295,13 @@ class CommonsUtils
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
+            .map{|object| CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| RequirementsOperator::updateForDisplay(object) }
-            .map{|object| CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| 
-                object[":metric-after-flock-processing-for-display:"] = object["metric"]
+                if DayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten.include?(object["uuid"]) then
+                    object["metric"] = 0
+                end
                 object
             }
     end
@@ -319,32 +318,15 @@ class CommonsUtils
         puts "    stream: <description>   # create a new stream with that description"
         puts "    project: <description>  # create a new project with that description"
         puts "    timeproton:             # create a new timeProton, details entered interactively"
-        puts "    list: <description>     # create a new list with that description"
         puts ""
         puts "    timeprotons             # timeProtons listing dive"
-        puts "    lists                   # lists listing dive"
-        puts "    list:destroy            # destroy a list interactively selected"
         puts ""
         puts "    requirement on <requirement>"
         puts "    requirement off <requirement>"
         puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
         puts ""
         puts "    email-sync              # run email sync"
-        puts "    lib                     # Invoques the Librarian interactive"
         puts ""
-        puts "Special Commands Object:"
-        puts "    ,, # cycle"
-        puts "    .. # default command"
-        puts "    +datetimecode"
-        puts "        +<weekdayname>"
-        puts "        +<integer>day(s)"
-        puts "        +<integer>hour(s)"
-        puts "        +YYYY-MM-DD"
-        puts "    expose                  # pretty print the object"
-        puts "    require <requirement>"
-        puts "    requirement remove <requirement>"
-        puts "    >list"
-        puts "    command ..."
     end
 
     # CommonsUtils::objectToString(object)
@@ -382,11 +364,6 @@ class CommonsUtils
             return
         end
 
-        if expression == 'lib' then
-            LibrarianExportedFunctions::librarianUserInterface_librarianInteractive()
-            return
-        end
-
         if expression == 'email-sync' then
             CommonsUtils::emailSync(true)
             return
@@ -394,11 +371,6 @@ class CommonsUtils
 
         if expression == 'timeprotons' then
             TimeProtonUtils::timeProtonsDive()
-            return
-        end
-
-        if expression == 'lists' then
-            ListsOperator::ui_listsDive()
             return
         end
 
@@ -410,17 +382,6 @@ class CommonsUtils
             puts JSON.pretty_generate(timeProton)
             LucilleCore::pressEnterToContinue()
             return
-        end
-
-        if expression == 'list:destroy' then
-            list = ListsOperator::ui_interactivelySelectListOrNull()
-            ListsOperator::destroyList(list["list-uuid"])
-        end
-
-        if expression.start_with?("list:") then
-            description = expression[5, expression.size].strip
-            return if description.size == 0 
-            ListsOperator::createList(description)
         end
 
         if expression.start_with?('wave:') then
@@ -487,8 +448,32 @@ class CommonsUtils
             return
         end
 
-        if expression == '>list' then
-            CommonsUtils::sendCatalystObjectToList(object["uuid"], object["announce"])
+        if expression == '>timeproton' then
+            CommonsUtils::sendCatalystObjectToTimeProton(object["uuid"])
+            return
+        end
+
+        if expression == '>daybucket' then
+            timeEstimationInHours = LucilleCore::askQuestionAnswerAsString("`Time estimation in hours: ").to_f
+            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
+            return
+        end
+
+        if expression.start_with?('//') then
+            timeEstimationInHours = expression[2,99].to_f
+            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
+            return
+        end
+
+        if expression == '//.' then
+            timeEstimationInHours = 0.1
+            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
+            return
+        end
+
+        if expression == '//..' then
+            timeEstimationInHours = 0.5
+            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
             return
         end
 
@@ -502,7 +487,6 @@ class CommonsUtils
             code = expression
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
                 DoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
-                EventsManager::commitEventToTimeline(EventsMaker::doNotShowUntilDateTime(object["uuid"], datetime))
             end
             return
         end

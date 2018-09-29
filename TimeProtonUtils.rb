@@ -5,10 +5,37 @@ class TimeProtonUtils
 
     # TimeProtonUtils::timeProtonsWithFilepaths(): [timeProton, filepath]
     def self.timeProtonsWithFilepaths()
-        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Time-Protons")
+        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/TimeProtons")
             .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Time-Protons/#{filename}" }
+            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/TimeProtons/#{filename}" }
             .map{|filepath| [JSON.parse(IO.read(filepath)), filepath] }
+            .map{|pair|
+                timeProton, filepath = pair
+                if timeProton["catalyst-object-uuids"].nil? then
+                    timeProton["catalyst-object-uuids"] = []
+                end
+                count1 = timeProton["catalyst-object-uuids"].size
+                timeProton["catalyst-object-uuids"] = timeProton["catalyst-object-uuids"].select{|objectuuid| Canary::isAlive(objectuuid) }
+                count2 = timeProton["catalyst-object-uuids"].size
+                if count1!=count2 then
+                    TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+                end
+                [timeProton, filepath]
+            }
+    end
+
+    # TimeProtonUtils::curateListObjectsListing(list)
+    def self.curateListObjectsListing(list)
+        list["catalyst-object-uuids"] = list["catalyst-object-uuids"].select{|objectuuid| Canary::isAlive(objectuuid) }
+        list
+    end
+
+    # TimeProtonUtils::allCatalystItemsUUID()
+    def self.allCatalystItemsUUID()
+        TimeProtonUtils::timeProtonsWithFilepaths()
+            .map{|pair| pair[0]["catalyst-object-uuids"] }
+            .flatten
+            .uniq
     end
 
     # TimeProtonUtils::dailyCommitmentInHours()
@@ -39,7 +66,7 @@ class TimeProtonUtils
 
     # TimeProtonUtils::commitTimeProtonToDisk(timeProton, filename)
     def self.commitTimeProtonToDisk(timeProton, filename)
-        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Time-Protons/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(timeProton)) }
+        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/TimeProtons/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(timeProton)) }
     end
 
     # TimeProtonUtils::makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
@@ -49,7 +76,6 @@ class TimeProtonUtils
             "unixtime"       => Time.new.to_i,
             "description"    => description,
             "time-commitment-every-20-hours-in-hours" => timeCommitmentEvery20Hours,
-            "target"         => target,
             "status"         => ["sleeping", 0]
         }
         TimeProtonUtils::commitTimeProtonToDisk(timeProton, "#{LucilleCore::timeStringL22()}.json")
@@ -117,20 +143,13 @@ class TimeProtonUtils
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = TimeProtonUtils::timeProton2Metric(timeProton)
         object["announce"]  = TimeProtonUtils::timeProtonToString(timeProton)
-        object["commands"]  = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton) ? ["stop"] : ["start", "time:", "list:", "edit", "destroy"]
+        object["commands"]  = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton) ? ["stop"] : ["start", "time:", "dive"]
         object["default-expression"] = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton) ? "stop" : "start"
         object["is-running"] = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton)
         object["item-data"] = {}
         object["item-data"]["filepath"] = filepath
         object["item-data"]["timeProton"] = timeProton
         object 
-    end
-
-    # TimeProtonUtils::getTimeProtonsByTargetListUUID()
-    def self.getTimeProtonsByTargetListUUID(listuuid)
-        TimeProtonUtils::timeProtonsWithFilepaths()
-            .map{|pair| pair[0] }
-            .select{|timeProton| timeProton["target"]==listuuid }
     end
 
     # TimeProtonUtils::startTimeProton(timeprotonuuid)
@@ -216,18 +235,8 @@ class TimeProtonUtils
             percentageAsString = "#{TimeProtonUtils::timeProtonToLivePercentage(timeProton).round(2)}% of "
         end
         timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours-in-hours"].round(2)} hours)"
-        timeProtonTargetString =
-            if timeProton["target"] then
-                list = ListsOperator::getListByUUIDOrNull(timeProton["target"])
-                if list.nil? then
-                    ""
-                else
-                    "list: #{list["description"]} (#{list["catalyst-object-uuids"].size} objects)"
-                end
-            else
-                ""
-            end
-        "timeProton: #{timeProton["description"]} #{timeAsString} #{timeProtonTargetString}"
+        itemsAsString = "(#{timeProton["catalyst-object-uuids"].size} objects)"
+        "timeProton: #{timeProton["description"]} #{timeAsString} #{itemsAsString}"
     end
 
     # TimeProtonUtils::interactivelySelectTimeProtonOrNull()
@@ -246,7 +255,7 @@ class TimeProtonUtils
         loop {
             puts "-> #{TimeProtonUtils::timeProtonToString(timeProton)}"
             puts "-> timeProton uuid: #{timeProton["uuid"]}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "set new time commitment", "edit", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 TimeProtonUtils::startTimeProton(timeProton)
@@ -258,32 +267,40 @@ class TimeProtonUtils
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 TimeProtonUtils::timeProtonAddTime(timeprotonuuid, timeInHours)
             end
-            if operation=="set new time commitment" then
+            if operation == "show items" then
+                loop {
+                    objects = TheFlock::flockObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
+                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
+                    break if selectedobject.nil?
+                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                }
+            end
+            if operation == "remove items" then
+                loop {
+                    objects = TheFlock::flockObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
+                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
+                    break if selectedobject.nil?
+                    timeProton["catalyst-object-uuids"].delete(selectedobject["uuid"])
+                    filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+                    TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+                }
+            end
+            if operation=="time commitment:" then
                 timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
                 timeProton["time-commitment-every-20-hours-in-hours"] = timeCommitmentEvery20Hours
                 TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])))
             end
-            if operation=="edit" then
+            if operation=="edit object" then
                 filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
                 system("open '#{filepath}'")
             end
             if operation=="destroy" then
-                next if !LucilleCore::askQuestionAnswerAsBoolean("Do you really want to destroy timeProton '#{timeProton["description"]}' ? ")
-                if timeProton["target"] then
-                    listuuid = timeProton["target"]
-                    if ListsOperator::getLists().any?{|list| list["list-uuid"]==listuuid } then
-                        puts "-> You are attempting to destroy a timeProton pointing to a list"
-                        puts "-> I am going to destroy the list and then the timeProton"
-                        if LucilleCore::askQuestionAnswerAsBoolean("Confirm deletion? ") then
-                            ListsOperator::destroyList(listuuid)
-                        else
-                            next    
-                        end
+                answer = LucilleCore::askQuestionAnswerAsBoolean("You are about to destroy this Time Proton, are you sure you want to do that ? ")
+                if answer then
+                    timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+                    if File.exists?(timeprotonfilepath) then
+                        FileUtils.rm(timeprotonfilepath)
                     end
-                end
-                timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
-                if File.exists?(timeprotonfilepath) then
-                    FileUtils.rm(timeprotonfilepath)
                 end
                 break
             end
@@ -297,22 +314,6 @@ class TimeProtonUtils
             return if timeProton.nil?
             TimeProtonUtils::timeProtonDive(timeProton)
         }
-    end
-
-    # TimeProtonUtils::setInteractivelySelectedTargetForTimeProton(timeprotonuuid)
-    def self.setInteractivelySelectedTargetForTimeProton(timeprotonuuid)
-        timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
-        return if timeProton.nil?
-        targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeProton target type", ["list"])
-        return if targetType.nil?
-        if targetType == "list" then
-            list = ListsOperator::ui_interactivelySelectListOrNull()
-            return if list.nil?
-            timeProton["target"] = list["list-uuid"]
-            timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeprotonuuid)
-            return if timeprotonfilepath.nil?
-            TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(timeprotonfilepath))
-        end
     end
 
 end

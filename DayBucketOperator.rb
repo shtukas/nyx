@@ -97,6 +97,11 @@ class DayBucketOperator
             .sort{|b1, b2| b1["date"]<=>b2["date"] }
     end
 
+    # DayBucketOperator::futureBuckets()
+    def self.futureBuckets()
+        DayBucketOperator::getBuckets().select{|bucket| bucket["date"] > DayBucketOperator::today() }
+    end
+
     # DayBucketOperator::bucketToTimestampInHours(bucket)
     def self.bucketToTimestampInHours(bucket)
         bucket["items"].map{|item| item["timespan-in-hours"] }.inject(0, :+)
