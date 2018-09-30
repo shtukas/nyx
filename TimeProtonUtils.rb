@@ -269,7 +269,7 @@ class TimeProtonUtils
             end
             if operation == "show items" then
                 loop {
-                    objects = TheFlock::flockObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
+                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
                     CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
@@ -277,7 +277,7 @@ class TimeProtonUtils
             end
             if operation == "remove items" then
                 loop {
-                    objects = TheFlock::flockObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
+                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
                     timeProton["catalyst-object-uuids"].delete(selectedobject["uuid"])

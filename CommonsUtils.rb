@@ -284,9 +284,8 @@ class CommonsUtils
 
     # CommonsUtils::flockObjectsProcessedForCatalystDisplay()
     def self.flockObjectsProcessedForCatalystDisplay()
-        Bob::generalFlockUpgrade()
         futureBucketsObjectsUUID = DayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten
-        TheFlock::flockObjects()
+        CatalystObjectsOperator::getObjects()
             .map{|object| object.clone }
             .map{|object| 
                 Canary::mark(object["uuid"]) 
@@ -409,7 +408,7 @@ class CommonsUtils
                 requirement = CommonsUtils::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = TheFlock::flockObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = CatalystObjectsOperator::getObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 break if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
@@ -420,8 +419,7 @@ class CommonsUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                Bob::generalFlockUpgrade()
-                searchobjects = TheFlock::flockObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }
+                searchobjects = CatalystObjectsOperator::getObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 break if selectedobject.nil?
@@ -497,10 +495,12 @@ class CommonsUtils
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                Bob::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, command)
+                signal = Bob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
+                CatalystObjectsOperator::processAgentProcessorSignal(signal)
             }
         else
-            Bob::agentuuid2AgentData(object["agent-uid"])["object-command-processor"].call(object, "")
+            signal = Bob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, "")
+            CatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
     end
 

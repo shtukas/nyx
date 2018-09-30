@@ -14,23 +14,22 @@ require_relative "Bob.rb"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "WIS",
-        "agent-uid"       => "3397e320-6c09-423d-ac58-2aea5f85eacb",
-        "general-upgrade" => lambda { AgentWIS::generalFlockUpgrade() },
+        "agent-name"  => "WIS",
+        "agent-uid"   => "3397e320-6c09-423d-ac58-2aea5f85eacb",
+        "get-objects" => lambda { AgentWIS::getObjects() },
         "object-command-processor" => lambda{ |object, command| AgentWIS::processObjectAndCommand(object, command) }
     }
 )
 
-# AgentWIS::generalFlockUpgrade()
+# AgentWIS::getObjects()
 
 class AgentWIS
     def self.agentuuid()
         "3397e320-6c09-423d-ac58-2aea5f85eacb"
     end
 
-    def self.generalFlockUpgrade()
-        TheFlock::removeObjectsFromAgent(self.agentuuid())
-        return
+    def self.getObjects()
+        return []
         object =
             {
                 "uuid"      => "ad127a50",
@@ -40,7 +39,7 @@ class AgentWIS
                 "commands"  => [],
                 "default-expression" => "8ec2da5f-a46b-428b-9484-046232aa116d"
             }
-        TheFlock::addOrUpdateObject(object)
+        [object]
     end
 
     def self.processObjectAndCommand(object, command)
@@ -62,7 +61,9 @@ class AgentWIS
                 }
             KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}", "done")
             LucilleCore::pressEnterToContinue()
-        end 
+            return ["reload-agent-objects", self::agentuuid()]
+        end
+        ["nothing"]
     end
 end
 

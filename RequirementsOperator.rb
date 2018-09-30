@@ -61,7 +61,7 @@ class RequirementsOperator
 
     # RequirementsOperator::getAllRequirements()
     def self.getAllRequirements()
-        TheFlock::flockObjects().map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
+        CatalystObjectsOperator::getObjects().map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
     end
 
     # RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()

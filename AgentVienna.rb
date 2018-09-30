@@ -29,9 +29,9 @@ require_relative "Bob.rb"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "Vienna",
-        "agent-uid"       => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
-        "general-upgrade" => lambda { AgentVienna::generalFlockUpgrade() },
+        "agent-name"  => "Vienna",
+        "agent-uid"   => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
+        "get-objects" => lambda { AgentVienna::getObjects() },
         "object-command-processor" => lambda{ |object, command| AgentVienna::processObjectAndCommand(object, command) }
     }
 )
@@ -76,9 +76,8 @@ class AgentVienna
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
     end
 
-    def self.generalFlockUpgrade()
-        TheFlock::removeObjectsFromAgent(self.agentuuid())
-        return if !CommonsUtils::isLucille18()
+    def self.getObjects()
+        return [] if !CommonsUtils::isLucille18()
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
@@ -93,9 +92,10 @@ class AgentVienna
             $viennaLinkFeeder.done(link)
             DayBucketOperator::addObjectToNextAvailableBucket(uuid, 0.2)
         }
+        []
     end
 
     def self.processObjectAndCommand(object, command)
-
+        ["nothing"]
     end
 end

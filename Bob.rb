@@ -1,30 +1,25 @@
 
 # encoding: UTF-8
 
-# Bob::agents()
-# Bob::agentuuid2AgentData(agentuuid)
-# Bob::generalFlockUpgrade()
+
+$BOB_AGENTS_IDENTITIES = []
 
 class Bob
 
-    @@agentsIdentities = []
-
     def self.registerAgent(data)
-        @@agentsIdentities << data
+        $BOB_AGENTS_IDENTITIES << data
     end
 
+    # Bob::agents()
     def self.agents()
-        @@agentsIdentities
+        $BOB_AGENTS_IDENTITIES
     end
 
-    def self.agentuuid2AgentData(agentuuid)
+    # Bob::agentuuid2AgentDataOrNull(agentuuid)
+    def self.agentuuid2AgentDataOrNull(agentuuid)
         Bob::agents()
             .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
             .first
-    end
-
-    def self.generalFlockUpgrade()
-        Bob::agents().each{|agentinterface| agentinterface["general-upgrade"].call() }
     end
 end
 

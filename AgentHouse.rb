@@ -14,16 +14,18 @@ require_relative "Bob.rb"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "House",
-        "agent-uid"       => "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10",
-        "general-upgrade" => lambda { AgentHouse::generalFlockUpgrade() },
+        "agent-name"  => "House",
+        "agent-uid"   => "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10",
+        "get-objects" => lambda { AgentHouse::getObjects() },
         "object-command-processor" => lambda{ |object, command| AgentHouse::processObjectAndCommand(object, command) }
     }
 )
 
-# AgentHouse::generalFlockUpgrade()
+# AgentHouse::getObjects()
 
 class AgentHouse
+
+    # AgentHouse::agentuuid()
     def self.agentuuid()
         "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10"
     end
@@ -53,31 +55,28 @@ class AgentHouse
         }
     end
 
-    def self.generalFlockUpgrade()
-        TheFlock::removeObjectsFromAgent(self.agentuuid())
-        return if KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}")
-
+    def self.getObjects()
+        return [] if KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}")
         tasksFilepath = "/Galaxy/DataBank/Catalyst/Agents-Data/House/tasks.txt"
         tasks = IO.read(tasksFilepath)
             .lines
             .map{|line| line.strip }
             .select{|line| line.size>0 }
             .select{|line| !line.start_with?("#") }
-
-        objects = tasks
+        tasks
             .select{|task| AgentHouse::shouldDoTask(task) }
             .map{|task| AgentHouse::taskToCatalystObject(task) }
-
-        TheFlock::addOrUpdateObjects(objects)
-
     end
 
     def self.processObjectAndCommand(object, command)
         if command == "done" then
             AgentHouse::markTaskAsDone(object[":task:"])
+            return ["remove", object["uuid"]]
         end
         if command == "kill-house" then
             KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}", "killed")
+            return ["reload-agent-objects", self::agentuuid()]
         end
+        ["nothing"]
     end
 end

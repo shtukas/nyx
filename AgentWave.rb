@@ -34,9 +34,9 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "Wave",
-        "agent-uid"       => "283d34dd-c871-4a55-8610-31e7c762fb0d",
-        "general-upgrade" => lambda { AgentWave::generalFlockUpgrade() },
+        "agent-name"  => "Wave",
+        "agent-uid"   => "283d34dd-c871-4a55-8610-31e7c762fb0d",
+        "get-objects" => lambda { AgentWave::getObjects() },
         "object-command-processor" => lambda{ |object, command| AgentWave::processObjectAndCommand(object, command) }
     }
 )
@@ -300,7 +300,7 @@ end
 # AgentWave::makeCatalystObjectOrNull(objectuuid)
 # AgentWave::objectUUIDToAnnounce(object,schedule)
 # AgentWave::removeWaveMetadataFilesAtLocation(location)
-# AgentWave::generalFlockUpgrade()
+# AgentWave::getObjects()
 # AgentWave::processObjectAndCommand(object, command)
 
 class AgentWave
@@ -447,6 +447,7 @@ class AgentWave
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
     end
     
+    # AgentWave::makeCatalystObjectOrNull(objectuuid)
     def self.makeCatalystObjectOrNull(objectuuid)
         location = AgentWave::catalystUUIDToItemFolderPathOrNull(objectuuid)
         return nil if location.nil?
@@ -472,49 +473,11 @@ class AgentWave
         object
     end
 
-    def self.rePublishWaveObjectAtFlock(uuid)
-        object = AgentWave::makeCatalystObjectOrNull(uuid)
-        return if object.nil?
-        TheFlock::addOrUpdateObject(object)        
-    end
-
-    def self.generalFlockUpgrade()
-
+    def self.getObjects()
         WaveDevOps::collectWave()
-
-        if CommonsUtils::isLucille18() and CommonsUtils::trueNoMoreOftenThanNEverySeconds("/x-space/x-cache", "21036e4c-dc76-4cb9-a6b7-40b786e00c87", 3600) then
-            AgentWave::catalystUUIDsEnumerator()
-                .each{|uuid| AgentWave::rePublishWaveObjectAtFlock(uuid) }
-        end
-
-        # ------------------------------------------------------------------------------
-        # We add to the flock the objects on the repository that are not there yet
-        # This happens because some of them are created externally, with the intent that the agent will pick them up
-
-        existingUUIDsFromFlock = TheFlock::flockObjects()
-            .select{|object| object["agent-uid"]==self.agentuuid() }
-            .map{|object| object["uuid"] }
-        existingUUIDsFromDisk = AgentWave::catalystUUIDsEnumerator().to_a
-        unregisteredUUIDs = existingUUIDsFromDisk - existingUUIDsFromFlock
-        unregisteredUUIDs.each{|uuid|
-            # We need to build the object, then make a Flock update and emit an event
-            object = AgentWave::makeCatalystObjectOrNull(uuid)
-            TheFlock::addOrUpdateObject(object)
+        AgentWave::catalystUUIDsEnumerator().map{|uuid|
+            AgentWave::makeCatalystObjectOrNull(uuid)
         }
-
-        # ------------------------------------------------------------------------------
-        # Update the metric driven by the schedule
-        # As time passes the metric changes, for instance repeat item pass their sleeping period
-
-        TheFlock::flockObjects()
-            .select{|object| object["agent-uid"]==self.agentuuid() }
-            .map{|object|
-                uuid = object["uuid"]
-                schedule = object["schedule"]
-                trace = schedule[":wave-email:"] ? 0 : CommonsUtils::traceToMetricShift(uuid)
-                object["metric"] = WaveSchedules::scheduleToMetric(schedule) + trace
-                TheFlock::addOrUpdateObject(object)
-            }
     end
 
     def self.doneObjectWithRepeatSchedule(object)
@@ -525,9 +488,7 @@ class AgentWave
     end
 
     def self.doneObjectWithOneOffTask(object)
-        uuid = object['uuid']
-        TheFlock::removeObjectIdentifiedByUUID(uuid)
-        AgentWave::archiveWaveItem(uuid)
+        AgentWave::archiveWaveItem(object['uuid'])
     end
 
     def self.performDone(object)
@@ -558,24 +519,29 @@ class AgentWave
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
             FolderProbe::openActionOnMetadata(metadata)
+            return ["nothing"]
         end
 
         if command=='done' then
             self.performDone(object)
-        end
-
-        if command=='loop' then
-            return if schedule["@"] != "new"
-            schedule["unixtime"] = Time.new.to_f
-            AgentWave::writeScheduleToDisk(uuid, schedule)
-            return
+            newobject = AgentWave::makeCatalystObjectOrNull(object["uuid"])
+            if newobject then
+                return ["update", newobject]
+            else
+                return ["remove", object["uuid"]]
+            end
         end
 
         if command=='recast' then
             AgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
             schedule = AgentWave::makeNewSchedule()
             AgentWave::writeScheduleToDisk(uuid, schedule)
-            AgentWave::rePublishWaveObjectAtFlock(uuid)
+            newobject = AgentWave::makeCatalystObjectOrNull(object["uuid"])
+            if newobject then
+                return ["update", newobject]
+            else
+                return ["remove", object["uuid"]]
+            end
         end
 
         if command == 'description:' then
@@ -583,21 +549,29 @@ class AgentWave
             uuid = object["uuid"]
             folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
-            AgentWave::rePublishWaveObjectAtFlock(uuid)
+            newobject = AgentWave::makeCatalystObjectOrNull(object["uuid"])
+            if newobject then
+                return ["update", newobject]
+            else
+                return ["remove", object["uuid"]]
+            end
         end
 
         if command=='folder' then
             location = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
+            return ["nothing"]
         end
 
         if command=='destroy' then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 AgentWave::archiveWaveItem(uuid)
-                TheFlock::removeObjectIdentifiedByUUID(uuid)
+                return ["remove", object["uuid"]]
+            else
+                return ["nothing"]
             end
         end
-
+        ["nothing"]
     end
 end

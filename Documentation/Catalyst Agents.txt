@@ -4,6 +4,13 @@ Standard interface for a Catalyst Agent
 agentuuid(): String
     Returns the unique id of the agent. Should never change as it is hardcoded in the stored objects
 
-generalFlockUpgrade()
+getObjects(): Array[CatalystObject]
 
-processObjectAndCommand(Flock, object, command)
+processObjectAndCommand(object, command): ProcessorSignal
+
+ProcessorSignal
+	["nothing"]
+	["update", CatalystObject]
+	["remove", CatalystObjectUUID]      # ["remove", object["uuid"]]
+	["reload-agent-objects", AgentUUID] # ["reload-agent-objects", self::agentuuid()]
+

@@ -9,7 +9,7 @@ Bob::registerAgent(
     {
         "agent-name"      => "Ninja",
         "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
-        "general-upgrade" => lambda { AgentNinja::generalFlockUpgrade() },
+        "get-objects" => lambda { AgentNinja::getObjects() },
         "object-command-processor" => lambda{ |object, command| AgentNinja::processObjectAndCommand(object, command) }
     }
 )
@@ -17,7 +17,7 @@ Bob::registerAgent(
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
-# AgentNinja::generalFlockUpgrade()
+# AgentNinja::getObjects()
 
 class NinjaCLIProxy
     @@packet = nil
@@ -40,9 +40,9 @@ class AgentNinja
         "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
     end
 
-    def self.generalFlockUpgrade()
+    def self.getObjects()
         packet = NinjaCLIProxy::packet()
-        return if packet.nil?
+        return [] if packet.nil?
         object = {
             "uuid"      => "96287511",
             "agent-uid" => self.agentuuid(),
@@ -54,7 +54,7 @@ class AgentNinja
                 "ninja-folderpath" => packet["folderpath"]
             }
         }
-        TheFlock::addOrUpdateObject(object)
+        [object]
     end
 
     def self.processObjectAndCommand(object, command)
@@ -62,7 +62,8 @@ class AgentNinja
             folderpath = object["item-data"]["ninja-folderpath"]
             system("ninja api:play-folderpath '#{folderpath}'")
             NinjaCLIProxy::reset()
-            TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+            return ["remove", object["uuid"]]
         end
+        ["nothing"]
     end
 end

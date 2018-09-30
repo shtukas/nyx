@@ -12,14 +12,14 @@ require_relative "Bob.rb"
 
 Bob::registerAgent(
     {
-        "agent-name"      => "BabyNights",
-        "agent-uid"       => "83837e64-554b-4dd0-a478-04386d8010ea",
-        "general-upgrade" => lambda { AgentBabyNights::generalFlockUpgrade() },
+        "agent-name"  => "BabyNights",
+        "agent-uid"   => "83837e64-554b-4dd0-a478-04386d8010ea",
+        "get-objects" => lambda { AgentBabyNights::getObjects() },
         "object-command-processor" => lambda{ |object, command| AgentBabyNights::processObjectAndCommand(object, command) }
     }
 )
 
-# AgentBabyNights::generalFlockUpgrade()
+# AgentBabyNights::getObjects()
 
 class AgentBabyNights
     def self.agentuuid()
@@ -30,8 +30,8 @@ class AgentBabyNights
         ["pascal", "tracy", "holidays"]
     end
 
-    def self.generalFlockUpgrade()
-        TheFlock::removeObjectsFromAgent(self.agentuuid())
+    def self.getObjects()
+        objects = []
         if KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
@@ -40,14 +40,15 @@ class AgentBabyNights
                     "metric"    => 1,
                     "announce"  => "Baby Nights",
                     "commands"  => [],
-                    "default-expression" => "595bc18c-48a9-4fa2-bfd3-8795f8902766"
+                    "default-expression" => "print"
                 }
-            TheFlock::addOrUpdateObject(object)
+            objects << object
         end
+        objects
     end
 
     def self.processObjectAndCommand(object, command)
-        if command == "595bc18c-48a9-4fa2-bfd3-8795f8902766" then
+        if command == "print" then
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Pascal", "Tracy", "Exception:"])
             if operation == "Exception:" then
                 exception = LucilleCore::askQuestionAnswerAsString("Exception: ")
@@ -68,6 +69,8 @@ class AgentBabyNights
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
             KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
-        end 
+            return ["destroy", object["uuid"]]
+        end
+        ["nothing"]
     end
 end

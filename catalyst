@@ -85,8 +85,8 @@ class DisplayStateUtils
         return nil if object["metric"] < 0.2 
 
         # --------------------------------------------------------------------------------
-        if Bob::agentuuid2AgentData(object["agent-uid"]).nil? then
-            TheFlock::removeObjectIdentifiedByUUID(object["uuid"])
+        if Bob::agentuuid2AgentDataOrNull(object["agent-uid"]).nil? then
+            CatalystObjectsOperator::processAgentProcessorSignal(["remove", object["uuid"]])
             return nil
         end
 
@@ -426,14 +426,6 @@ $THETASKS << [
          CommonsUtils::emailSync(false)
     },
     "CommonsUtils::emailSync(false)"
-]
-$THETASKS << [
-    "89429DCB",
-    60,
-    lambda {
-         Bob::generalFlockUpgrade()
-    },
-    "Bob::generalFlockUpgrade()"
 ]
 
 $THETASKSINDEX = 0
