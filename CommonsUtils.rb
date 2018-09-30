@@ -252,7 +252,7 @@ class CommonsUtils
             if option == ">timeproton" then
                 timeProton = CommonsUtils::sendCatalystObjectToTimeProton(uuid)
                 if timeProton then
-                    puts JSON.pretty_generate(timeProton)
+                    puts "Inserted in #{timeProton["description"]}"
                 end
             end
         }
@@ -384,7 +384,6 @@ class CommonsUtils
         if expression.start_with?('wave:') then
             description = expression[5, expression.size].strip
             CommonsUtils::waveInsertNewItemInteractive(description)
-            #LucilleCore::pressEnterToContinue()
             return
         end
 
