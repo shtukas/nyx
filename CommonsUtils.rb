@@ -285,6 +285,7 @@ class CommonsUtils
     # CommonsUtils::flockObjectsProcessedForCatalystDisplay()
     def self.flockObjectsProcessedForCatalystDisplay()
         Bob::generalFlockUpgrade()
+        futureBucketsObjectsUUID = DayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten
         TheFlock::flockObjects()
             .map{|object| object.clone }
             .map{|object| 
@@ -299,7 +300,7 @@ class CommonsUtils
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| RequirementsOperator::updateForDisplay(object) }
             .map{|object| 
-                if DayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten.include?(object["uuid"]) then
+                if futureBucketsObjectsUUID.include?(object["uuid"]) then
                     object["metric"] = 0
                 end
                 object

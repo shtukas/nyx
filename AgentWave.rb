@@ -501,6 +501,7 @@ class AgentWave
             object = AgentWave::makeCatalystObjectOrNull(uuid)
             TheFlock::addOrUpdateObject(object)
         }
+
         # ------------------------------------------------------------------------------
         # Update the metric driven by the schedule
         # As time passes the metric changes, for instance repeat item pass their sleeping period
