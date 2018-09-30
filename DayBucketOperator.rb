@@ -152,27 +152,4 @@ class DayBucketOperator
         end
     end
 
-    def self.CatalystObjectOrNull()
-        today = DayBucketOperator::today()
-        dates = DayBucketOperator::getBucketDays()
-        pastdays = dates.select{ |date| date < today }
-        if pastdays.size>0 then
-            # Bad pascal, Bad.
-            pastdays.each{|date|
-                bucket = DayBucketOperator::getBucketByDateOrNull(date)
-                next if bucket.nil
-                puts "Rescheduling the following bucket:"
-                puts JSON.generate(bucket)
-                LucilleCore::pressEnterToContinue()
-                bucket["item"].each{|item|
-                    puts "Rescheduling item: #{item}"
-                    DayBucketOperator::addObjectToNextAvailableBucket(item["objectuuid"], item["timespan-in-hours"])
-                }
-                # We should now be able to delete the bucket now that it has no items left to reshedule 
-                puts "Destroying bucket: #{bucket["date"]}"
-                DayBucketOperator::destroyBucket(bucket["date"])
-            }
-        end
-    end
-
 end
