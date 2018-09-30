@@ -158,7 +158,7 @@ class CatalystInterfaceUtils
     def self.objectInferfaceString(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirements = MetadataInterface::getObjectsRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(", ")} )" : ''
         part2 = 
             [
@@ -172,7 +172,7 @@ class CatalystInterfaceUtils
     def self.objectToString(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = RequirementsOperator::getObjectRequirements(object['uuid'])
+        requirements = MetadataInterface::getObjectsRequirements(object['uuid'])
         requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
         part1 = 
             [
@@ -374,7 +374,7 @@ class CatalystInterfaceUtils
             }
 
             if focusobject and shouldRemoveUnixtimeMark.call(focusobject, command) then
-                CyclesOperator::removeUnixtimeMark(focusobject["uuid"])
+                MetadataInterface::unSetMetricCycleUnixtimeForObject(focusobject["uuid"])
             end
 
             CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, standardlp)

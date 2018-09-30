@@ -61,6 +61,9 @@ Structure of individual objects metadata
 
 class MetadataInterface
 
+    # -----------------------------------------------------------------------
+    # TimeProton CatalystObject link
+
     # MetadataInterface::setTimeProtonObjectLink(timeProtonUUID, objectuuid)
     def self.setTimeProtonObjectLink(timeProtonUUID, objectuuid)
         metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
@@ -90,7 +93,6 @@ class MetadataInterface
             }
             .map{|metadata| metadata["objectuuid"] }
             .uniq
-
     end
 
     # MetadataInterface::timeProtonsAllCatalystObjectsUUIDs()
@@ -101,6 +103,74 @@ class MetadataInterface
                 metadata["objectuuid"]
             }
             .uniq
+    end
+
+    # -----------------------------------------------------------------------
+    # Objects Requirements
+
+    # MetadataInterface::setRequirementForObject(objectuuid, requirement)
+    def self.setRequirementForObject(objectuuid, requirement)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        if metadata["nsx-requirements-c633a5d8"].nil? then
+            metadata["nsx-requirements-c633a5d8"] = []
+        end
+        metadata["nsx-requirements-c633a5d8"] << requirement
+        metadata["nsx-requirements-c633a5d8"] = metadata["nsx-requirements-c633a5d8"].uniq
+        CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)        
+    end
+
+    # MetadataInterface::unSetRequirementForObject(objectuuid, requirement)
+    def self.unSetRequirementForObject(objectuuid, requirement)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        if metadata["nsx-requirements-c633a5d8"].nil? then
+            metadata["nsx-requirements-c633a5d8"] = []
+        end
+        metadata["nsx-requirements-c633a5d8"].delete(requirement)
+        metadata["nsx-requirements-c633a5d8"] = metadata["nsx-requirements-c633a5d8"].uniq
+        CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)        
+    end
+
+    # MetadataInterface::getObjectsRequirements(objectuuid)
+    def self.getObjectsRequirements(objectuuid)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        metadata["nsx-requirements-c633a5d8"] || []        
+    end
+
+    # MetadataInterface::allObjectRequirementsAreSatisfied(objectuuid)
+    def self.allObjectRequirementsAreSatisfied(objectuuid)
+        MetadataInterface::getObjectsRequirements(objectuuid)
+            .all?{|requirement| RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
+    end
+
+    # MetadataInterface::allKnownRequirementsCarriedByObjects()
+    def self.allKnownRequirementsCarriedByObjects()
+        CatalystObjectsNonAgentMetadataUtils::getAllMetadataObjects()
+            .map{|metadata| metadata["nsx-requirements-c633a5d8"] || []}
+            .flatten
+            .uniq
+    end
+
+    # -----------------------------------------------------------------------
+    # Cycle Unixtimes
+
+    # MetadataInterface::setMetricCycleUnixtimeForObject(objectuuid,  unixtime)
+    def self.setMetricCycleUnixtimeForObject(objectuuid,  unixtime)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        metadata["nsx-cycle-unixtime-a3390e5c"] =  unixtime
+        CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)        
+    end
+
+    # MetadataInterface::unSetMetricCycleUnixtimeForObject(objectuuid)
+    def self.unSetMetricCycleUnixtimeForObject(objectuuid)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        metadata.delete("nsx-cycle-unixtime-a3390e5c")     
+        CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)
+    end    
+
+    # MetadataInterface::getMetricCycleUnixtimeForObjectOrNull(objectuuid)
+    def self.getMetricCycleUnixtimeForObjectOrNull(objectuuid)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        metadata["nsx-cycle-unixtime-a3390e5c"]       
     end
 
 end

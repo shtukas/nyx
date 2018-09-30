@@ -31,51 +31,18 @@ class RequirementsOperator
 
     # ----------------------------------------------------------------------
 
-    # RequirementsOperator::getObjectRequirements(uuid)    
-    def self.getObjectRequirements(uuid)
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", "[]"))
-    end
-
-    # RequirementsOperator::setObjectRequirements(uuid, requirements)
-    def self.setObjectRequirements(uuid, requirements)
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Object-Requirements-List-6acb38bd-3c4a-4265-a920-2c89154125ce:#{uuid}", JSON.generate(requirements))
-    end
-
-    # RequirementsOperator::addRequirementToObject(uuid,requirement)
-    def self.addRequirementToObject(uuid,requirement)
-        RequirementsOperator::setObjectRequirements(uuid, (RequirementsOperator::getObjectRequirements(uuid) + [requirement]).uniq)
-    end
-
-    # RequirementsOperator::removeRequirementFromObject(uuid,requirement)
-    def self.removeRequirementFromObject(uuid,requirement)
-        RequirementsOperator::setObjectRequirements(uuid, (RequirementsOperator::getObjectRequirements(uuid).reject{|r| r==requirement }))
-    end
-
-    # RequirementsOperator::objectMeetsRequirements(uuid)
-    def self.objectMeetsRequirements(uuid)
-        RequirementsOperator::getObjectRequirements(uuid)
-            .all?{|requirement| RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
-    end
-
-    # ----------------------------------------------------------------------
-
-    # RequirementsOperator::getAllRequirements()
-    def self.getAllRequirements()
-        CatalystObjectsOperator::getObjects().map{|object| RequirementsOperator::getObjectRequirements(object["uuid"]) }.flatten.uniq
-    end
-
     # RequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
     def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", MetadataInterface::allKnownRequirementsCarriedByObjects())
     end
 
     # RequirementsOperator::updateForDisplay(object)
     def self.updateForDisplay(object)
-        if !RequirementsOperator::objectMeetsRequirements(object["uuid"]) and object["metric"]<=1 then
+        if !MetadataInterface::allObjectRequirementsAreSatisfied(object["uuid"]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
             object["metric"] = 0
             # There is also something else we need to do: removing the cycle marker
-            CyclesOperator::removeUnixtimeMark(object["uuid"])
+            MetadataInterface::unSetMetricCycleUnixtimeForObject(object["uuid"])
         end
         object
     end

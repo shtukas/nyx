@@ -195,7 +195,7 @@ class CommonsUtils
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", RequirementsOperator::getAllRequirements())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", MetadataInterface::allKnownRequirementsCarriedByObjects())
     end
 
     def self.waveInsertNewItemDefaults(description) # uuid: String
@@ -355,7 +355,7 @@ class CommonsUtils
             puts "    Vienna count : #{(count3 = $viennaLinkFeeder.count())}".green
             puts "    Total        : #{(count1+count3)}".green
             puts "Requirements:".green
-            puts "    On  : #{(RequirementsOperator::getAllRequirements() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    On  : #{(MetadataInterface::allKnownRequirementsCarriedByObjects() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
             puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
@@ -406,7 +406,7 @@ class CommonsUtils
                 requirement = CommonsUtils::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = CatalystObjectsOperator::getObjects().select{ |object| RequirementsOperator::getObjectRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = CatalystObjectsOperator::getObjects().select{ |object| MetadataInterface::getObjectsRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 break if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
@@ -433,7 +433,7 @@ class CommonsUtils
         # object needed
 
         if expression == ',,' then
-            CyclesOperator::setUnixtimeMark(object["uuid"])
+            MetadataInterface::setMetricCycleUnixtimeForObject(object["uuid"], Time.new.to_i)
             return
         end
 
@@ -484,13 +484,13 @@ class CommonsUtils
 
         if expression.start_with?("require") then
             _, requirement = expression.split(" ").map{|t| t.strip }
-            RequirementsOperator::addRequirementToObject(object['uuid'],requirement)
+            MetadataInterface::setRequirementForObject(object['uuid'],requirement)
             return
         end
 
         if expression.start_with?("requirement remove") then
             _, _, requirement = expression.split(" ").map{|t| t.strip }
-            RequirementsOperator::removeRequirementFromObject(object['uuid'],requirement)
+            MetadataInterface::unSetRequirementForObject(object['uuid'],requirement)
             return
         end
 
