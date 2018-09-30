@@ -315,7 +315,6 @@ class CommonsUtils
         puts "    +                       # add 1 to the standard listing position"
         puts ""
         puts "    wave: <description>     # create a new wave with that description"
-        puts "    stream: <description>   # create a new stream with that description"
         puts "    project: <description>  # create a new project with that description"
         puts "    timeproton:             # create a new timeProton, details entered interactively"
         puts ""
@@ -388,15 +387,6 @@ class CommonsUtils
             description = expression[5, expression.size].strip
             CommonsUtils::waveInsertNewItemInteractive(description)
             #LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if expression.start_with?('stream:') then
-            description = expression[7, expression.size].strip
-            description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            folderpath = AgentStream::issueNewItemWithDescription(description)
-            puts "created item: #{folderpath}"
-            LucilleCore::pressEnterToContinue()
             return
         end
 

@@ -79,10 +79,10 @@ class AgentVienna
     def self.generalFlockUpgrade()
         TheFlock::removeObjectsFromAgent(self.agentuuid())
         return if !CommonsUtils::isLucille18()
-        return if !KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}").nil?
-        10.times {
+        loop {
             link = $viennaLinkFeeder.next()
-            next if link.nil?
+            break if link.nil?
+            puts "AgentVienna. Importing: #{link}"
             uuid = SecureRandom.hex(4)
             folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
@@ -91,8 +91,8 @@ class AgentVienna
             schedule = WaveSchedules::makeScheduleObjectTypeNew()
             AgentWave::writeScheduleToDisk(uuid, schedule)
             $viennaLinkFeeder.done(link)
+            DayBucketOperator::addObjectToNextAvailableBucket(uuid, 0.2)
         }
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2bd883bf-291f-4d9a-8e5c-e2b4883b9b6d:#{CommonsUtils::currentDay()}", "done")
     end
 
     def self.processObjectAndCommand(object, command)
