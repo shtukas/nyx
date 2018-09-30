@@ -225,9 +225,7 @@ class CommonsUtils
     def self.sendCatalystObjectToTimeProton(objectuuid)
         timeProton = TimeProtonUtils::interactivelySelectTimeProtonOrNull()
         return nil if timeProton.nil?
-        timeProton["catalyst-object-uuids"] << objectuuid
-        filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
-        TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+        MetadataInterface::setTimeProtonObjectLink(timeProton["uuid"], objectuuid)
         timeProton
     end
 
@@ -419,7 +417,9 @@ class CommonsUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects = CatalystObjectsOperator::getObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }
+                searchobjects1 = CatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
+                searchobjects2 = CatalystObjectsOperator::getObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }                
+                searchobjects = searchobjects1 + searchobjects2
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 break if selectedobject.nil?
@@ -468,6 +468,8 @@ class CommonsUtils
 
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
+            metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(object["uuid"])
+            puts JSON.pretty_generate(metadata)
             LucilleCore::pressEnterToContinue()
             return
         end

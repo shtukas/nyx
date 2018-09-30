@@ -54,7 +54,7 @@ class DisplayStateUtils
     # DisplayStateUtils::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
         objects = CommonsUtils::flockObjectsProcessedForCatalystDisplay()
-        combinedTimeProtonObjectUUID = TimeProtonUtils::allCatalystItemsUUID()
+        combinedTimeProtonObjectUUID = MetadataInterface::timeProtonsAllCatalystObjectsUUIDs()
         regularObjects, timeProtonObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
         {
             "nsx26:all-catalyst-objects"             => objects,
@@ -121,10 +121,11 @@ class DisplayStateUtils
                 }
             loop {
                 timeProton = object["item-data"]["timeProton"]
-                break if timeProton["catalyst-object-uuids"].size==0
+                timeProtonCatalystObjectsUUIDs = MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"])
+                break if timeProtonCatalystObjectsUUIDs.size==0
                 ienum = LucilleCore::integerEnumerator() 
                 displayState["nsx26:all-catalyst-objects"]
-                    .select{|o| timeProton["catalyst-object-uuids"].include?(o["uuid"]) }   
+                    .select{|o| timeProtonCatalystObjectsUUIDs.include?(o["uuid"]) }   
                     .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
                     .map{|o|
                         o["metric"] = object["metric"] - 0.01*Math.exp(-ienum.next()) 

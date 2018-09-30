@@ -4,7 +4,6 @@ TimeProton {
     :description    : String
     :time-commitment-every-20-hours-in-hours : Float
     :status         : TimeProtonCurrentStatus
-    :catalyst-object-uuids : Array[String#CatalystObjectUUID]
 }
 
 TimeProtonCurrentStatus: 

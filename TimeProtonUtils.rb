@@ -9,33 +9,6 @@ class TimeProtonUtils
             .select{|filename| filename[-5, 5]=='.json' }
             .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/TimeProtons/#{filename}" }
             .map{|filepath| [JSON.parse(IO.read(filepath)), filepath] }
-            .map{|pair|
-                timeProton, filepath = pair
-                if timeProton["catalyst-object-uuids"].nil? then
-                    timeProton["catalyst-object-uuids"] = []
-                end
-                count1 = timeProton["catalyst-object-uuids"].size
-                timeProton["catalyst-object-uuids"] = timeProton["catalyst-object-uuids"].select{|objectuuid| Canary::isAlive(objectuuid) }
-                count2 = timeProton["catalyst-object-uuids"].size
-                if count1!=count2 then
-                    TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
-                end
-                [timeProton, filepath]
-            }
-    end
-
-    # TimeProtonUtils::curateListObjectsListing(list)
-    def self.curateListObjectsListing(list)
-        list["catalyst-object-uuids"] = list["catalyst-object-uuids"].select{|objectuuid| Canary::isAlive(objectuuid) }
-        list
-    end
-
-    # TimeProtonUtils::allCatalystItemsUUID()
-    def self.allCatalystItemsUUID()
-        TimeProtonUtils::timeProtonsWithFilepaths()
-            .map{|pair| pair[0]["catalyst-object-uuids"] }
-            .flatten
-            .uniq
     end
 
     # TimeProtonUtils::dailyCommitmentInHours()
@@ -223,7 +196,6 @@ class TimeProtonUtils
 
     # TimeProtonUtils::timeProtonToString(timeProton)
     def self.timeProtonToString(timeProton)
-        uuid = timeProton["uuid"]
         status = timeProton["status"]
         if status[0]=="sleeping" then
             percentageAsString = "sleeping / "
@@ -235,7 +207,7 @@ class TimeProtonUtils
             percentageAsString = "#{TimeProtonUtils::timeProtonToLivePercentage(timeProton).round(2)}% of "
         end
         timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours-in-hours"].round(2)} hours)"
-        itemsAsString = "(#{timeProton["catalyst-object-uuids"].size} objects)"
+        itemsAsString = "(#{MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"]).size} objects)"
         "timeProton: #{timeProton["description"]} #{timeAsString} #{itemsAsString}"
     end
 
@@ -269,7 +241,8 @@ class TimeProtonUtils
             end
             if operation == "show items" then
                 loop {
-                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
+                    timeProtonCatalystObjectsUUIDs = MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"])
+                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProtonCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
                     CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
@@ -277,12 +250,11 @@ class TimeProtonUtils
             end
             if operation == "remove items" then
                 loop {
-                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProton["catalyst-object-uuids"].include?(object["uuid"]) }
+                    timeProtonCatalystObjectsUUIDs = MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"])
+                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProtonCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
-                    timeProton["catalyst-object-uuids"].delete(selectedobject["uuid"])
-                    filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
-                    TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+                    MetadataInterface::unSetTimeProtonObjectLink(timeProton["uuid"], selectedobject["uuid"])
                 }
             end
             if operation=="time commitment:" then
