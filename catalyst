@@ -54,7 +54,7 @@ class DisplayStateUtils
     # DisplayStateUtils::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
         objects = CommonsUtils::flockObjectsProcessedForCatalystDisplay()
-        combinedTimeProtonObjectUUID = MetadataInterface::timeProtonsAllCatalystObjectsUUIDs()
+        combinedTimeProtonObjectUUID = MetadataInterface::lightThreadsAllCatalystObjectsUUIDs()
         regularObjects, timeProtonObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
         {
             "nsx26:all-catalyst-objects"             => objects,
@@ -121,11 +121,11 @@ class DisplayStateUtils
                 }
             loop {
                 timeProton = object["item-data"]["timeProton"]
-                timeProtonCatalystObjectsUUIDs = MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"])
-                break if timeProtonCatalystObjectsUUIDs.size==0
+                lightThreadCatalystObjectsUUIDs = MetadataInterface::lightThreadCatalystObjectsUUIDs(timeProton["uuid"])
+                break if lightThreadCatalystObjectsUUIDs.size==0
                 ienum = LucilleCore::integerEnumerator() 
                 displayState["nsx26:all-catalyst-objects"]
-                    .select{|o| timeProtonCatalystObjectsUUIDs.include?(o["uuid"]) }   
+                    .select{|o| lightThreadCatalystObjectsUUIDs.include?(o["uuid"]) }   
                     .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
                     .map{|o|
                         o["metric"] = object["metric"] - 0.01*Math.exp(-ienum.next()) 
@@ -288,14 +288,14 @@ class CatalystInterfaceUtils
 
             system("clear")
 
-            puts "Special Commands Object: ,, .. // <timeEstimationInHours> //. //.. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >timeproton, >daybucket".green
+            puts "Special Commands Object: ,, .. // <timeEstimationInHours> //. //.. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >daybucket".green
 
             standardlp = CommonsUtils::getStandardListingPosition()
 
-            averageDailyCommitmentInHours = TimeProtonUtils::dailyCommitmentInHours()
-            percentageDone = 100 * ( TimeProtonUtils::currentCollectivelyDoneInHours().to_f/averageDailyCommitmentInHours )
+            averageDailyCommitmentInHours = LightThreadUtils::totalDailyCommitmentInHours()
+            percentageDone = 100 * ( LightThreadUtils::currentTotalDoneInHours().to_f/averageDailyCommitmentInHours )
 
-            numbers = TimeProtonDailyTimeTracking::numbersDayTotalAndPercentage()
+            numbers = LightThreadDailyTimeTracking::numbersDayTotalAndPercentage()
             puts "Time Protons: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )".yellow
 
             puts ""

@@ -223,7 +223,7 @@ class CommonsUtils
 
     # CommonsUtils::sendCatalystObjectToTimeProton(objectuuid)
     def self.sendCatalystObjectToTimeProton(objectuuid)
-        timeProton = TimeProtonUtils::interactivelySelectTimeProtonOrNull()
+        timeProton = LightThreadUtils::interactivelySelectLightThreadOrNull()
         return nil if timeProton.nil?
         MetadataInterface::setTimeProtonObjectLink(timeProton["uuid"], objectuuid)
         timeProton
@@ -234,7 +234,7 @@ class CommonsUtils
         uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description)
         AgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">timeproton"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">thread"])
             break if option.nil?
             if option == "schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
@@ -249,7 +249,7 @@ class CommonsUtils
                     end
                 end
             end
-            if option == ">timeproton" then
+            if option == ">thread" then
                 timeProton = CommonsUtils::sendCatalystObjectToTimeProton(uuid)
                 if timeProton then
                     puts "Inserted in #{timeProton["description"]}"
@@ -367,7 +367,7 @@ class CommonsUtils
         end
 
         if expression == 'timeprotons' then
-            TimeProtonUtils::timeProtonsDive()
+            LightThreadUtils::lightThreadsDive()
             return
         end
 
@@ -375,7 +375,7 @@ class CommonsUtils
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
             target = nil
-            timeProton = TimeProtonUtils::makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
+            timeProton = LightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
             puts JSON.pretty_generate(timeProton)
             LucilleCore::pressEnterToContinue()
             return
@@ -436,7 +436,7 @@ class CommonsUtils
             return
         end
 
-        if expression == '>timeproton' then
+        if expression == '>thread' then
             CommonsUtils::sendCatalystObjectToTimeProton(object["uuid"])
             return
         end

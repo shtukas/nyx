@@ -17,21 +17,21 @@ DailyStructure: Map[TimeProtonUUID, (ExpectedTime: Float, Done:Time; Float)
 
 =end
 
-class TimeProtonDailyTimeTracking
+class LightThreadDailyTimeTracking
 
-    # TimeProtonDailyTimeTracking::currentDay()
+    # LightThreadDailyTimeTracking::currentDay()
     def self.currentDay()
         Time.now.utc.iso8601[0,10]
     end
 
-    # TimeProtonDailyTimeTracking::getDailyStructure()
+    # LightThreadDailyTimeTracking::getDailyStructure()
     def self.getDailyStructure()
-        currentday = TimeProtonDailyTimeTracking::currentDay()
+        currentday = LightThreadDailyTimeTracking::currentDay()
         structure = KeyValueStore::getOrNull(nil, "a30bdedc-4f71-4837-bec6-efb648864dce:#{currentday}")
         if structure.nil? then
             structure = {}
             # First call of the day
-            TimeProtonUtils::timeProtonsWithFilepaths().each{|pair|
+            LightThreadUtils::lightThreadsWithFilepaths().each{|pair|
                 timeProton = pair[0]
                 structure[timeProton["uuid"]] = [timeProton["time-commitment-every-20-hours-in-hours"]*3600, 0]
             }
@@ -41,22 +41,22 @@ class TimeProtonDailyTimeTracking
         structure
     end
 
-    # TimeProtonDailyTimeTracking::putDailyStucture(structure)
+    # LightThreadDailyTimeTracking::putDailyStucture(structure)
     def self.putDailyStucture(structure)
-        currentday = TimeProtonDailyTimeTracking::currentDay()
+        currentday = LightThreadDailyTimeTracking::currentDay()
         KeyValueStore::set(nil, "a30bdedc-4f71-4837-bec6-efb648864dce:#{currentday}", JSON.generate(structure))        
     end
 
-    # TimeProtonDailyTimeTracking::addTimespanForTimeProton(timeProtonUUID, timespan)
+    # LightThreadDailyTimeTracking::addTimespanForTimeProton(timeProtonUUID, timespan)
     def self.addTimespanForTimeProton(timeProtonUUID, timespan)
-        structure = TimeProtonDailyTimeTracking::getDailyStructure()
+        structure = LightThreadDailyTimeTracking::getDailyStructure()
         structure[timeProtonUUID][1] = structure[timeProtonUUID][1] + timespan
-        TimeProtonDailyTimeTracking::putDailyStucture(structure)
+        LightThreadDailyTimeTracking::putDailyStucture(structure)
     end
 
-    # TimeProtonDailyTimeTracking::numbersDayTotalAndPercentage()
+    # LightThreadDailyTimeTracking::numbersDayTotalAndPercentage()
     def self.numbersDayTotalAndPercentage()
-        structure = TimeProtonDailyTimeTracking::getDailyStructure()
+        structure = LightThreadDailyTimeTracking::getDailyStructure()
         expected = structure.keys.map{|uuid| structure[uuid][0] }.inject(0, :+)
         done = structure.keys.map{|uuid| structure[uuid][1] }.inject(0, :+)
         [expected, 100*done.to_f/expected]

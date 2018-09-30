@@ -55,6 +55,8 @@ Structure of individual objects metadata
 {
     "objectuuid" : UUID
     "nsx-timeprotons-uuids-e9b8519d" : Array[CatalystObjectUUIDs]
+    "nsx-requirements-c633a5d8"      : Array[String]
+    "nsx-cycle-unixtime-a3390e5c"    : Unixitime
 }
 
 =end
@@ -85,8 +87,8 @@ class MetadataInterface
         CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)
     end
 
-    # MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProtonUUID)
-    def self.timeProtonCatalystObjectsUUIDs(timeProtonUUID)
+    # MetadataInterface::lightThreadCatalystObjectsUUIDs(timeProtonUUID)
+    def self.lightThreadCatalystObjectsUUIDs(timeProtonUUID)
         CatalystObjectsNonAgentMetadataUtils::getAllMetadataObjects()
             .select{|metadata|
                 (metadata["nsx-timeprotons-uuids-e9b8519d"] || []).include?(timeProtonUUID)
@@ -95,8 +97,8 @@ class MetadataInterface
             .uniq
     end
 
-    # MetadataInterface::timeProtonsAllCatalystObjectsUUIDs()
-    def self.timeProtonsAllCatalystObjectsUUIDs()
+    # MetadataInterface::lightThreadsAllCatalystObjectsUUIDs()
+    def self.lightThreadsAllCatalystObjectsUUIDs()
         CatalystObjectsNonAgentMetadataUtils::getAllMetadataObjects()
             .select{|metadata| (metadata["nsx-timeprotons-uuids-e9b8519d"] || []).size>0 }
             .map{|metadata|

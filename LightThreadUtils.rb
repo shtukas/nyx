@@ -1,19 +1,19 @@
 
 # encoding: UTF-8
 
-class TimeProtonUtils
+class LightThreadUtils
 
-    # TimeProtonUtils::timeProtonsWithFilepaths(): [timeProton, filepath]
-    def self.timeProtonsWithFilepaths()
-        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/TimeProtons")
+    # LightThreadUtils::lightThreadsWithFilepaths(): [timeProton, filepath]
+    def self.lightThreadsWithFilepaths()
+        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Light-Threads")
             .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/TimeProtons/#{filename}" }
+            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Light-Threads/#{filename}" }
             .map{|filepath| [JSON.parse(IO.read(filepath)), filepath] }
     end
 
-    # TimeProtonUtils::dailyCommitmentInHours()
-    def self.dailyCommitmentInHours()
-        TimeProtonUtils::timeProtonsWithFilepaths()
+    # LightThreadUtils::totalDailyCommitmentInHours()
+    def self.totalDailyCommitmentInHours()
+        LightThreadUtils::lightThreadsWithFilepaths()
             .map{|data| 
                 timeProton = data[0]
                 timeProton["time-commitment-every-20-hours-in-hours"]
@@ -21,9 +21,9 @@ class TimeProtonUtils
             .inject(0, :+)
     end
 
-    # TimeProtonUtils::currentCollectivelyDoneInHours()
-    def self.currentCollectivelyDoneInHours()
-        TimeProtonUtils::timeProtonsWithFilepaths()
+    # LightThreadUtils::currentTotalDoneInHours()
+    def self.currentTotalDoneInHours()
+        LightThreadUtils::lightThreadsWithFilepaths()
             .select{|data| 
                 timeProton = data[0]
                 ["active-paused", "active-runnning"].include?(timeProton["status"])
@@ -37,13 +37,13 @@ class TimeProtonUtils
             .to_f/3600
     end
 
-    # TimeProtonUtils::commitTimeProtonToDisk(timeProton, filename)
-    def self.commitTimeProtonToDisk(timeProton, filename)
-        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/TimeProtons/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(timeProton)) }
+    # LightThreadUtils::commitLightThreadToDisk(timeProton, filename)
+    def self.commitLightThreadToDisk(timeProton, filename)
+        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Light-Threads/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(timeProton)) }
     end
 
-    # TimeProtonUtils::makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
-    def self.makeNewTimeProton(description, timeCommitmentEvery20Hours, target)
+    # LightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
+    def self.makeNewLightThread(description, timeCommitmentEvery20Hours, target)
         timeProton = {
             "uuid"           => SecureRandom.hex(4),
             "unixtime"       => Time.new.to_i,
@@ -51,21 +51,21 @@ class TimeProtonUtils
             "time-commitment-every-20-hours-in-hours" => timeCommitmentEvery20Hours,
             "status"         => ["sleeping", 0]
         }
-        TimeProtonUtils::commitTimeProtonToDisk(timeProton, "#{LucilleCore::timeStringL22()}.json")
+        LightThreadUtils::commitLightThreadToDisk(timeProton, "#{LucilleCore::timeStringL22()}.json")
         timeProton
     end
 
-    # TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
-    def self.getTimeProtonByUUIDOrNull(timeprotonuuid)
-        TimeProtonUtils::timeProtonsWithFilepaths()
+    # LightThreadUtils::getLightThreadByUUIDOrNull(timeprotonuuid)
+    def self.getLightThreadByUUIDOrNull(timeprotonuuid)
+        LightThreadUtils::lightThreadsWithFilepaths()
             .map{|pair| pair.first }
             .select{|timeProton| timeProton["uuid"]==timeprotonuuid }
             .first
     end
 
-    # TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeprotonuuid)
-    def self.getTimeProtonFilepathFromItsUUIDOrNull(timeprotonuuid)
-        TimeProtonUtils::timeProtonsWithFilepaths()
+    # LightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(timeprotonuuid)
+    def self.getLightThreadFilepathFromItsUUIDOrNull(timeprotonuuid)
+        LightThreadUtils::lightThreadsWithFilepaths()
             .select{|pair| pair[0]["uuid"]==timeprotonuuid }
             .each{|pair|  
                 return pair[1]
@@ -73,8 +73,8 @@ class TimeProtonUtils
         nil
     end
 
-    # TimeProtonUtils::timeProton2Metric(timeProton)
-    def self.timeProton2Metric(timeProton)
+    # LightThreadUtils::lightThread2Metric(timeProton)
+    def self.lightThread2Metric(timeProton)
         # Logic: set to 0.9 and I let Cycles Operator deal with it.
         currentStatus = timeProton["status"]
         metric = 0.9
@@ -83,29 +83,29 @@ class TimeProtonUtils
         metric + CommonsUtils::traceToMetricShift(timeProton["uuid"])
     end
 
-    # TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton)
-    def self.trueIfTimeProtonIsRunning(timeProton)
+    # LightThreadUtils::trueIfLightThreadIsRunning(timeProton)
+    def self.trueIfLightThreadIsRunning(timeProton)
         timeProton["status"][0] == "active-runnning"
     end
 
-    # TimeProtonUtils::makeCatalystObjectFromTimeProtonAndFilepath(timeProton, filepath)
-    def self.makeCatalystObjectFromTimeProtonAndFilepath(timeProton, filepath)
+    # LightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(timeProton, filepath)
+    def self.makeCatalystObjectFromLightThreadAndFilepath(timeProton, filepath)
         # There is a check we need to do here: whether or not the timeProton should be taken out of sleeping
         if timeProton["status"][0] == "sleeping" then
             timeSinceGoingToSleep = Time.new.to_i - timeProton["status"][1]
             if timeSinceGoingToSleep >= 20*3600 then
                 # Here we need to get it out of sleep
                 timeProton["status"] = ["active-paused", 0]
-                TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+                LightThreadUtils::commitLightThreadToDisk(timeProton, File.basename(filepath))
             end
         end
 
-        if timeProton["status"][0] == "active-paused" and TimeProtonUtils::timeProtonToLivePercentage(timeProton) > 100 then
+        if timeProton["status"][0] == "active-paused" and LightThreadUtils::lightThreadToLivePercentage(timeProton) > 100 then
             timeProton["status"] = ["sleeping", Time.new.to_i]
-            TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+            LightThreadUtils::commitLightThreadToDisk(timeProton, File.basename(filepath))
         end
 
-        if timeProton["status"][0] == "active-runnning" and TimeProtonUtils::timeProtonToLivePercentage(timeProton) > 100 then
+        if timeProton["status"][0] == "active-runnning" and LightThreadUtils::lightThreadToLivePercentage(timeProton) > 100 then
             system("terminal-notifier -title 'Catalyst TimeProton' -message '#{timeProton["description"].gsub("'","")} is done'")
         end
 
@@ -114,20 +114,20 @@ class TimeProtonUtils
         object              = {}
         object["uuid"]      = uuid # the catalyst object has the same uuid as the timeProton
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = TimeProtonUtils::timeProton2Metric(timeProton)
-        object["announce"]  = TimeProtonUtils::timeProtonToString(timeProton)
-        object["commands"]  = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton) ? ["stop"] : ["start", "time:", "dive"]
-        object["default-expression"] = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton) ? "stop" : "start"
-        object["is-running"] = TimeProtonUtils::trueIfTimeProtonIsRunning(timeProton)
+        object["metric"]    = LightThreadUtils::lightThread2Metric(timeProton)
+        object["announce"]  = LightThreadUtils::timeProtonToString(timeProton)
+        object["commands"]  = LightThreadUtils::trueIfLightThreadIsRunning(timeProton) ? ["stop"] : ["start", "time:", "dive"]
+        object["default-expression"] = LightThreadUtils::trueIfLightThreadIsRunning(timeProton) ? "stop" : "start"
+        object["is-running"] = LightThreadUtils::trueIfLightThreadIsRunning(timeProton)
         object["item-data"] = {}
         object["item-data"]["filepath"] = filepath
         object["item-data"]["timeProton"] = timeProton
         object 
     end
 
-    # TimeProtonUtils::startTimeProton(timeprotonuuid)
-    def self.startTimeProton(timeprotonuuid)
-        timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
+    # LightThreadUtils::startLightThread(timeprotonuuid)
+    def self.startLightThread(timeprotonuuid)
+        timeProton = LightThreadUtils::getLightThreadByUUIDOrNull(timeprotonuuid)
         return if timeProton.nil?
         currentStatus = timeProton["status"]
         return if currentStatus[0] == "active-runnning" 
@@ -138,13 +138,13 @@ class TimeProtonUtils
             status = ["active-runnning", 0, Time.new.to_i] 
         end 
         timeProton["status"] = status
-        filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
-        TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+        filepath = LightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(timeProton["uuid"])
+        LightThreadUtils::commitLightThreadToDisk(timeProton, File.basename(filepath))
     end
 
-    # TimeProtonUtils::stopTimeProton(timeprotonuuid)
-    def self.stopTimeProton(timeprotonuuid)
-        timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
+    # LightThreadUtils::stopLightThread(timeprotonuuid)
+    def self.stopLightThread(timeprotonuuid)
+        timeProton = LightThreadUtils::getLightThreadByUUIDOrNull(timeprotonuuid)
         return if timeProton.nil?
         currentStatus = timeProton["status"]
         return if currentStatus[0] == "sleeping"
@@ -158,91 +158,91 @@ class TimeProtonUtils
                 ["sleeping", Time.new.to_i]
             end
         timeProton["status"] = status
-        filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
-        TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+        filepath = LightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(timeProton["uuid"])
+        LightThreadUtils::commitLightThreadToDisk(timeProton, File.basename(filepath))
 
         # Admin for the day
-        TimeProtonDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeDoneInSeconds)
+        LightThreadDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeDoneInSeconds)
     end
 
-    # TimeProtonUtils::timeProtonAddTime(timeprotonuuid, timeInHours)
-    def self.timeProtonAddTime(timeprotonuuid, timeInHours)
-        timeProton = TimeProtonUtils::getTimeProtonByUUIDOrNull(timeprotonuuid)
+    # LightThreadUtils::lightThreadAddTime(timeprotonuuid, timeInHours)
+    def self.lightThreadAddTime(timeprotonuuid, timeInHours)
+        timeProton = LightThreadUtils::getLightThreadByUUIDOrNull(timeprotonuuid)
         return if timeProton.nil?
-        filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeprotonuuid)
+        filepath = LightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(timeprotonuuid)
         return if filepath.nil?
         if timeProton["status"][0] == "sleeping" then
             timeProton["status"] = ["active-paused", 0]
         end
         timeProton["status"][1] = timeProton["status"][1] + timeInHours*3600
-        TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(filepath))
+        LightThreadUtils::commitLightThreadToDisk(timeProton, File.basename(filepath))
 
         # Admin for the day
-        TimeProtonDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeInHours*3600)
+        LightThreadDailyTimeTracking::addTimespanForTimeProton(timeProton["uuid"], timeInHours*3600)
     end
 
-    # TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton)
-    def self.timeProtonToLiveDoneTimeSpan(timeProton)
+    # LightThreadUtils::lightThreadToLiveDoneTimeSpan(timeProton)
+    def self.lightThreadToLiveDoneTimeSpan(timeProton)
         status = timeProton["status"]
         return 0 if status[0]=="sleeping"
         return status[1] if status[0]=="active-paused"
         status[1] + (Time.new.to_i-status[2])
     end
 
-    # TimeProtonUtils::timeProtonToLivePercentage(timeProton)
-    def self.timeProtonToLivePercentage(timeProton)
-        100*TimeProtonUtils::timeProtonToLiveDoneTimeSpan(timeProton).to_f/(3600*timeProton["time-commitment-every-20-hours-in-hours"])
+    # LightThreadUtils::lightThreadToLivePercentage(timeProton)
+    def self.lightThreadToLivePercentage(timeProton)
+        100*LightThreadUtils::lightThreadToLiveDoneTimeSpan(timeProton).to_f/(3600*timeProton["time-commitment-every-20-hours-in-hours"])
     end
 
-    # TimeProtonUtils::timeProtonToString(timeProton)
+    # LightThreadUtils::timeProtonToString(timeProton)
     def self.timeProtonToString(timeProton)
         status = timeProton["status"]
         if status[0]=="sleeping" then
             percentageAsString = "sleeping / "
         end
         if status[0]=="active-paused" then
-            percentageAsString = "#{TimeProtonUtils::timeProtonToLivePercentage(timeProton).round(2)}% of "
+            percentageAsString = "#{LightThreadUtils::lightThreadToLivePercentage(timeProton).round(2)}% of "
         end
         if status[0]=="active-runnning" then
-            percentageAsString = "#{TimeProtonUtils::timeProtonToLivePercentage(timeProton).round(2)}% of "
+            percentageAsString = "#{LightThreadUtils::lightThreadToLivePercentage(timeProton).round(2)}% of "
         end
         timeAsString = "(#{percentageAsString}#{timeProton["time-commitment-every-20-hours-in-hours"].round(2)} hours)"
-        itemsAsString = "(#{MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"]).size} objects)"
+        itemsAsString = "(#{MetadataInterface::lightThreadCatalystObjectsUUIDs(timeProton["uuid"]).size} objects)"
         "timeProton: #{timeProton["description"]} #{timeAsString} #{itemsAsString}"
     end
 
-    # TimeProtonUtils::interactivelySelectTimeProtonOrNull()
-    def self.interactivelySelectTimeProtonOrNull()
-        timeProtons = TimeProtonUtils::timeProtonsWithFilepaths()
+    # LightThreadUtils::interactivelySelectLightThreadOrNull()
+    def self.interactivelySelectLightThreadOrNull()
+        timeProtons = LightThreadUtils::lightThreadsWithFilepaths()
             .map{|data| data[0] }
-        timeProton = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeProton:", timeProtons, lambda{|timeProton| TimeProtonUtils::timeProtonToString(timeProton) })  
+        timeProton = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeProton:", timeProtons, lambda{|timeProton| LightThreadUtils::timeProtonToString(timeProton) })  
         timeProton    
     end
 
     # -----------------------------------------------
     # UI Utils
 
-    # TimeProtonUtils::timeProtonDive(timeProton)
-    def self.timeProtonDive(timeProton)
+    # LightThreadUtils::lightThreadDive(timeProton)
+    def self.lightThreadDive(timeProton)
         loop {
-            puts "-> #{TimeProtonUtils::timeProtonToString(timeProton)}"
+            puts "-> #{LightThreadUtils::timeProtonToString(timeProton)}"
             puts "-> timeProton uuid: #{timeProton["uuid"]}"
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
             break if operation.nil?
             if operation=="start" then
-                TimeProtonUtils::startTimeProton(timeProton)
+                LightThreadUtils::startLightThread(timeProton)
             end
             if operation=="stop" then
-                TimeProtonUtils::stopTimeProton(timeProton)
+                LightThreadUtils::stopLightThread(timeProton)
             end
             if operation=="time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-                TimeProtonUtils::timeProtonAddTime(timeprotonuuid, timeInHours)
+                LightThreadUtils::lightThreadAddTime(timeprotonuuid, timeInHours)
             end
             if operation == "show items" then
                 loop {
-                    timeProtonCatalystObjectsUUIDs = MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"])
-                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProtonCatalystObjectsUUIDs.include?(object["uuid"]) }
+                    lightThreadCatalystObjectsUUIDs = MetadataInterface::lightThreadCatalystObjectsUUIDs(timeProton["uuid"])
+                    objects = CatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
                     CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
@@ -250,8 +250,8 @@ class TimeProtonUtils
             end
             if operation == "remove items" then
                 loop {
-                    timeProtonCatalystObjectsUUIDs = MetadataInterface::timeProtonCatalystObjectsUUIDs(timeProton["uuid"])
-                    objects = CatalystObjectsOperator::getObjects().select{ |object| timeProtonCatalystObjectsUUIDs.include?(object["uuid"]) }
+                    lightThreadCatalystObjectsUUIDs = MetadataInterface::lightThreadCatalystObjectsUUIDs(timeProton["uuid"])
+                    objects = CatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
                     MetadataInterface::unSetTimeProtonObjectLink(timeProton["uuid"], selectedobject["uuid"])
@@ -260,16 +260,16 @@ class TimeProtonUtils
             if operation=="time commitment:" then
                 timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
                 timeProton["time-commitment-every-20-hours-in-hours"] = timeCommitmentEvery20Hours
-                TimeProtonUtils::commitTimeProtonToDisk(timeProton, File.basename(TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])))
+                LightThreadUtils::commitLightThreadToDisk(timeProton, File.basename(LightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(timeProton["uuid"])))
             end
             if operation=="edit object" then
-                filepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+                filepath = LightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(timeProton["uuid"])
                 system("open '#{filepath}'")
             end
             if operation=="destroy" then
                 answer = LucilleCore::askQuestionAnswerAsBoolean("You are about to destroy this Time Proton, are you sure you want to do that ? ")
                 if answer then
-                    timeprotonfilepath = TimeProtonUtils::getTimeProtonFilepathFromItsUUIDOrNull(timeProton["uuid"])
+                    timeprotonfilepath = LightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(timeProton["uuid"])
                     if File.exists?(timeprotonfilepath) then
                         FileUtils.rm(timeprotonfilepath)
                     end
@@ -279,12 +279,12 @@ class TimeProtonUtils
         }
     end
 
-    # TimeProtonUtils::timeProtonsDive()
-    def self.timeProtonsDive()
+    # LightThreadUtils::lightThreadsDive()
+    def self.lightThreadsDive()
         loop {
-            timeProton = TimeProtonUtils::interactivelySelectTimeProtonOrNull()
+            timeProton = LightThreadUtils::interactivelySelectLightThreadOrNull()
             return if timeProton.nil?
-            TimeProtonUtils::timeProtonDive(timeProton)
+            LightThreadUtils::lightThreadDive(timeProton)
         }
     end
 
