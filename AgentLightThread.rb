@@ -44,14 +44,14 @@ class AgentLightThread
     def self.getObjects()
         LightThreadUtils::lightThreadsWithFilepaths()
             .map{|pair|
-                timeProton, filepath = pair
-                LightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(timeProton, filepath)
+                lightThread, filepath = pair
+                LightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
             }
     end
 
     def self.processObjectAndCommand(object, command)
         uuid = object["uuid"]
-        timeProton = object["item-data"]["timeProton"]
+        lightThread = object["item-data"]["lightThread"]
         filepath   = object["item-data"]["filepath"]
         if command=='start' then
             LightThreadUtils::startLightThread(uuid)
@@ -63,11 +63,11 @@ class AgentLightThread
         end
         if command=="time:" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-            LightThreadUtils::lightThreadAddTime(timeProton["uuid"], timeInHours)
+            LightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
             return ["reload-agent-objects", self::agentuuid()]
         end
         if command=='dive' then
-            LightThreadUtils::lightThreadDive(timeProton)
+            LightThreadUtils::lightThreadDive(lightThread)
             return ["reload-agent-objects", self::agentuuid()]
         end
         ["nothing"]

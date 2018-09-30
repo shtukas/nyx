@@ -66,19 +66,19 @@ class MetadataInterface
     # -----------------------------------------------------------------------
     # TimeProton CatalystObject link
 
-    # MetadataInterface::setTimeProtonObjectLink(timeProtonUUID, objectuuid)
-    def self.setTimeProtonObjectLink(timeProtonUUID, objectuuid)
+    # MetadataInterface::setTimeProtonObjectLink(lightThreadUUID, objectuuid)
+    def self.setTimeProtonObjectLink(lightThreadUUID, objectuuid)
         metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
         if metadata["nsx-timeprotons-uuids-e9b8519d"].nil? then
             metadata["nsx-timeprotons-uuids-e9b8519d"] = []
         end
-        metadata["nsx-timeprotons-uuids-e9b8519d"] << timeProtonUUID
+        metadata["nsx-timeprotons-uuids-e9b8519d"] << lightThreadUUID
         metadata["nsx-timeprotons-uuids-e9b8519d"] = metadata["nsx-timeprotons-uuids-e9b8519d"].uniq
         CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)
     end
 
-    # MetadataInterface::unSetTimeProtonObjectLink(timeProtonUUID, objectuuid)
-    def self.unSetTimeProtonObjectLink(timeProtonUUID, objectuuid)
+    # MetadataInterface::unSetTimeProtonObjectLink(lightThreadUUID, objectuuid)
+    def self.unSetTimeProtonObjectLink(lightThreadUUID, objectuuid)
         metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
         if metadata["nsx-timeprotons-uuids-e9b8519d"].nil? then
             metadata["nsx-timeprotons-uuids-e9b8519d"] = []
@@ -87,11 +87,11 @@ class MetadataInterface
         CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)
     end
 
-    # MetadataInterface::lightThreadCatalystObjectsUUIDs(timeProtonUUID)
-    def self.lightThreadCatalystObjectsUUIDs(timeProtonUUID)
+    # MetadataInterface::lightThreadCatalystObjectsUUIDs(lightThreadUUID)
+    def self.lightThreadCatalystObjectsUUIDs(lightThreadUUID)
         CatalystObjectsNonAgentMetadataUtils::getAllMetadataObjects()
             .select{|metadata|
-                (metadata["nsx-timeprotons-uuids-e9b8519d"] || []).include?(timeProtonUUID)
+                (metadata["nsx-timeprotons-uuids-e9b8519d"] || []).include?(lightThreadUUID)
             }
             .map{|metadata| metadata["objectuuid"] }
             .uniq

@@ -32,8 +32,8 @@ class LightThreadDailyTimeTracking
             structure = {}
             # First call of the day
             LightThreadUtils::lightThreadsWithFilepaths().each{|pair|
-                timeProton = pair[0]
-                structure[timeProton["uuid"]] = [timeProton["time-commitment-every-20-hours-in-hours"]*3600, 0]
+                lightThread = pair[0]
+                structure[lightThread["uuid"]] = [lightThread["time-commitment-every-20-hours-in-hours"]*3600, 0]
             }
         else
             structure = JSON.parse(structure)
@@ -47,10 +47,10 @@ class LightThreadDailyTimeTracking
         KeyValueStore::set(nil, "a30bdedc-4f71-4837-bec6-efb648864dce:#{currentday}", JSON.generate(structure))        
     end
 
-    # LightThreadDailyTimeTracking::addTimespanForTimeProton(timeProtonUUID, timespan)
-    def self.addTimespanForTimeProton(timeProtonUUID, timespan)
+    # LightThreadDailyTimeTracking::addTimespanForTimeProton(lightThreadUUID, timespan)
+    def self.addTimespanForTimeProton(lightThreadUUID, timespan)
         structure = LightThreadDailyTimeTracking::getDailyStructure()
-        structure[timeProtonUUID][1] = structure[timeProtonUUID][1] + timespan
+        structure[lightThreadUUID][1] = structure[lightThreadUUID][1] + timespan
         LightThreadDailyTimeTracking::putDailyStucture(structure)
     end
 

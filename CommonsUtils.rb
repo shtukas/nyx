@@ -223,10 +223,10 @@ class CommonsUtils
 
     # CommonsUtils::sendCatalystObjectToTimeProton(objectuuid)
     def self.sendCatalystObjectToTimeProton(objectuuid)
-        timeProton = LightThreadUtils::interactivelySelectLightThreadOrNull()
-        return nil if timeProton.nil?
-        MetadataInterface::setTimeProtonObjectLink(timeProton["uuid"], objectuuid)
-        timeProton
+        lightThread = LightThreadUtils::interactivelySelectLightThreadOrNull()
+        return nil if lightThread.nil?
+        MetadataInterface::setTimeProtonObjectLink(lightThread["uuid"], objectuuid)
+        lightThread
     end
 
     def self.waveInsertNewItemInteractive(description)
@@ -250,9 +250,9 @@ class CommonsUtils
                 end
             end
             if option == ">thread" then
-                timeProton = CommonsUtils::sendCatalystObjectToTimeProton(uuid)
-                if timeProton then
-                    puts "Inserted in #{timeProton["description"]}"
+                lightThread = CommonsUtils::sendCatalystObjectToTimeProton(uuid)
+                if lightThread then
+                    puts "Inserted in #{lightThread["description"]}"
                 end
             end
         }
@@ -314,9 +314,9 @@ class CommonsUtils
         puts ""
         puts "    wave: <description>     # create a new wave with that description"
         puts "    project: <description>  # create a new project with that description"
-        puts "    timeproton:             # create a new timeProton, details entered interactively"
+        puts "    thread:                 # create a new lightThread, details entered interactively"
         puts ""
-        puts "    timeprotons             # timeProtons listing dive"
+        puts "    threads                 # lightThreads listing dive"
         puts ""
         puts "    requirement on <requirement>"
         puts "    requirement off <requirement>"
@@ -330,7 +330,7 @@ class CommonsUtils
     def self.objectToString(object)
         announce = object['announce'].lines.first.strip
         [
-            object[":is-timeProton-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
+            object[":is-lightThread-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
             object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
             " #{announce}",
             CommonsUtils::object2DonotShowUntilAsString(object),
@@ -366,17 +366,17 @@ class CommonsUtils
             return
         end
 
-        if expression == 'timeprotons' then
+        if expression == 'threads' then
             LightThreadUtils::lightThreadsDive()
             return
         end
 
-        if expression == 'timeproton:' then
+        if expression == 'thread:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
             target = nil
-            timeProton = LightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
-            puts JSON.pretty_generate(timeProton)
+            lightThread = LightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
+            puts JSON.pretty_generate(lightThread)
             LucilleCore::pressEnterToContinue()
             return
         end

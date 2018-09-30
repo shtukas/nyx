@@ -55,7 +55,7 @@ class DisplayStateUtils
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
         objects = CommonsUtils::flockObjectsProcessedForCatalystDisplay()
         combinedTimeProtonObjectUUID = MetadataInterface::lightThreadsAllCatalystObjectsUUIDs()
-        regularObjects, timeProtonObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
+        regularObjects, lightThreadObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
         {
             "nsx26:all-catalyst-objects"             => objects,
             "nsx26:objects-already-processed"        => [],
@@ -113,15 +113,15 @@ class DisplayStateUtils
         end
 
         if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" then
-            # We have a timeProton object
+            # We have a lightThread object
             displayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"]
                 .map{|o| 
                     o["metric"] = o["metric"]-0.01 
                     o
                 }
             loop {
-                timeProton = object["item-data"]["timeProton"]
-                lightThreadCatalystObjectsUUIDs = MetadataInterface::lightThreadCatalystObjectsUUIDs(timeProton["uuid"])
+                lightThread = object["item-data"]["lightThread"]
+                lightThreadCatalystObjectsUUIDs = MetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
                 break if lightThreadCatalystObjectsUUIDs.size==0
                 ienum = LucilleCore::integerEnumerator() 
                 displayState["nsx26:all-catalyst-objects"]
@@ -129,7 +129,7 @@ class DisplayStateUtils
                     .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
                     .map{|o|
                         o["metric"] = object["metric"] - 0.01*Math.exp(-ienum.next()) 
-                        o[":is-timeProton-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first timeProton.
+                        o[":is-lightThread-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first lightThread.
                         o
                     }
                     .each{|o|
@@ -368,8 +368,8 @@ class CatalystInterfaceUtils
             shouldRemoveUnixtimeMark = lambda{|object, command|
                 return true if command.include?("done")
                 return true if command.start_with?("+")
-                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "time:" ) # timeProton
-                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # timeProton
+                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "time:" ) # lightThread
+                return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # lightThread
                 false
             }
 
