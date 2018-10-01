@@ -440,7 +440,7 @@ class CommonsUtils
             return
         end
 
-        if expression == '>daybucket' then
+        if expression == '>bucket' then
             timeEstimationInHours = LucilleCore::askQuestionAnswerAsString("`Time estimation in hours: ").to_f
             DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
             return

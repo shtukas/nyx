@@ -288,7 +288,7 @@ class CatalystInterfaceUtils
 
             system("clear")
 
-            puts "Special Commands Object: ,, .. // <timeEstimationInHours> //. //.. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >daybucket".green
+            puts "Special Commands Object: ,, .. // <timeEstimationInHours> //. //.. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >bucket".green
 
             standardlp = CommonsUtils::getStandardListingPosition()
 
