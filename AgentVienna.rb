@@ -81,7 +81,7 @@ class AgentVienna
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
-            puts "AgentVienna. Importing: #{link}"
+            # puts "AgentVienna. Importing: #{link}"
             uuid = SecureRandom.hex(4)
             folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
