@@ -46,6 +46,7 @@ class CatalystObjectsOperator
         puts "signal: #{signal.join(" ")}"
         return if signal[0] == "nothing"
         if signal[0] == "update" then
+            object = signal[1]
             $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object
         end
         if signal[0] == "remove" then
