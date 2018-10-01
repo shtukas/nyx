@@ -55,7 +55,7 @@ class AgentBabyNights
                 puts "👶 Nights Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
                 KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
-                return
+                return ["remove", object["uuid"]]
             end
             xname = operation.downcase
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
@@ -69,7 +69,7 @@ class AgentBabyNights
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
             KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
-            return ["destroy", object["uuid"]]
+            return ["remove", object["uuid"]]
         end
         ["nothing"]
     end
