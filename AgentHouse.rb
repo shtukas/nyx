@@ -46,7 +46,7 @@ class AgentHouse
         {
             "uuid"               => Digest::SHA1.hexdigest(task)[0,8],
             "agent-uid"          => self.agentuuid(),
-            "metric"             => 1,
+            "metric"             => 0.950,
             "announce"           => "House: #{task}",
             "commands"           => ["done", "kill-house"],
             "default-expression" => "done",
