@@ -100,12 +100,12 @@ class LightThreadUtils
             end
         end
 
-        if lightThread["status"][0] == "active-paused" and LightThreadUtils::lightThreadToLivePercentage(lightThread) > 100 then
+        if lightThread["status"][0] == "active-paused" and LightThreadUtils::lightThreadToLivePercentage(lightThread) >= 100 then
             lightThread["status"] = ["sleeping", Time.new.to_i]
             LightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
         end
 
-        if lightThread["status"][0] == "active-runnning" and LightThreadUtils::lightThreadToLivePercentage(lightThread) > 100 then
+        if lightThread["status"][0] == "active-runnning" and LightThreadUtils::lightThreadToLivePercentage(lightThread) >= 100 then
             system("terminal-notifier -title 'Catalyst TimeProton' -message '#{lightThread["description"].gsub("'","")} is done'")
         end
 
