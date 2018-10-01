@@ -313,7 +313,6 @@ class CommonsUtils
         puts "    +                       # add 1 to the standard listing position"
         puts ""
         puts "    wave: <description>     # create a new wave with that description"
-        puts "    project: <description>  # create a new project with that description"
         puts "    thread:                 # create a new lightThread, details entered interactively"
         puts ""
         puts "    threads                 # lightThreads listing dive"
