@@ -163,6 +163,7 @@ class CommonsUtils
         end
     end
 
+    # CommonsUtils::newBinArchivesFolderpath()
     def self.newBinArchivesFolderpath()
         time = Time.new
         targetFolder = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"

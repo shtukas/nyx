@@ -1,0 +1,6 @@
+ProcessorSignal
+	["nothing"]
+	["update", CatalystObject]
+	["remove", CatalystObjectUUID]      # ["remove", object["uuid"]]
+	["reload-agent-objects", AgentUUID] # ["reload-agent-objects", self::agentuuid()]
+
