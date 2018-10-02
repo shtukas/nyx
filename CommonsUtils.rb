@@ -323,6 +323,8 @@ class CommonsUtils
         puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
         puts ""
         puts "    email-sync              # run email sync"
+        puts "    house-on"
+        puts "    house-off"
         puts ""
     end
 
@@ -364,6 +366,18 @@ class CommonsUtils
         if expression == 'email-sync' then
             CommonsUtils::emailSync(true)
             return
+        end
+
+        if expression == "house-on" then
+            KeyValueStore::destroy(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}")
+            signal = ["reload-agent-objects", AgentHouse::agentuuid()]
+            CatalystObjectsOperator::processAgentProcessorSignal(signal)
+        end
+
+        if expression == "house-off" then
+            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}", "killed")
+            signal = ["reload-agent-objects", AgentHouse::agentuuid()]
+            CatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if expression == 'threads' then

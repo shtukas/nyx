@@ -32,7 +32,6 @@ class AgentHouse
 
     def self.shouldDoTask(task)
         return false if Time.new.hour < 6
-        return false if Time.new.hour > 9 
         unixtime = KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "7aec05d2-0156-404b-883a-4024348c1907:#{task}", "0").to_i
         periodInDays = task.split(";")[0].to_f 
         (Time.new.to_i-unixtime) > periodInDays*86400
@@ -48,7 +47,7 @@ class AgentHouse
             "agent-uid"          => self.agentuuid(),
             "metric"             => 0.950,
             "announce"           => "House: #{task}",
-            "commands"           => ["done", "kill-house"],
+            "commands"           => ["done"],
             "default-expression" => "done",
             "is-running"         => false,
             ":task:"             => task
@@ -72,10 +71,6 @@ class AgentHouse
         if command == "done" then
             AgentHouse::markTaskAsDone(object[":task:"])
             return ["remove", object["uuid"]]
-        end
-        if command == "kill-house" then
-            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}", "killed")
-            return ["reload-agent-objects", self::agentuuid()]
         end
         ["nothing"]
     end
