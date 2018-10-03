@@ -12,6 +12,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 # ----------------------------------------------------------------------------------
 
 $CATALYST_OBJECTS_IN_MEMORY = {}
+$semaphore22d1768a = Mutex.new
 
 class CatalystObjectsOperator
 
@@ -22,7 +23,9 @@ class CatalystObjectsOperator
 
     # CatalystObjectsOperator::commitCollectionToDisk()
     def self.commitCollectionToDisk()
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "80ce3a9c-1b06-4f05-ab8e-a285b1945c8d", JSON.generate($CATALYST_OBJECTS_IN_MEMORY))
+        $semaphore22d1768a.synchronize {
+            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "80ce3a9c-1b06-4f05-ab8e-a285b1945c8d", JSON.generate($CATALYST_OBJECTS_IN_MEMORY))
+        }
     end
 
     # CatalystObjectsOperator::getObjectsFromAgents()
@@ -48,10 +51,12 @@ class CatalystObjectsOperator
         if signal[0] == "update" then
             object = signal[1]
             $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object
+            CatalystObjectsOperator::commitCollectionToDisk()
         end
         if signal[0] == "remove" then
             objectuuid = signal[1]
             $CATALYST_OBJECTS_IN_MEMORY.delete(objectuuid)
+            CatalystObjectsOperator::commitCollectionToDisk()
         end
         if signal[0] == "reload-agent-objects" then
             agentuuid = signal[1]
@@ -66,6 +71,7 @@ class CatalystObjectsOperator
             return if agentinterface.nil?
             objects = agentinterface["get-objects"].call()
             objects.each{|object| $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object }
+            CatalystObjectsOperator::commitCollectionToDisk()
         end
     end
 

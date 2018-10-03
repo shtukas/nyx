@@ -169,14 +169,15 @@ class CatalystInterfaceUtils
         part2        
     end
 
+    # CatalystInterfaceUtils::objectToString(object)
     def self.objectToString(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = MetadataInterface::getObjectsRequirements(object['uuid'])
-        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(" ")} )" : ''
+        maybeOrdinal = MetadataInterface::getOrdinalOrNull(object['uuid'])
         part1 = 
             [
                 "(#{"%.3f" % object["metric"]})",
+                maybeOrdinal ? " {ordinal: #{maybeOrdinal}}" : "",
                 " [#{object["uuid"]}]",
                 " #{announce}",
             ].join()
@@ -193,14 +194,6 @@ class CatalystInterfaceUtils
             objects.pop
         end
         objects.size
-    end
-
-    def self.displayObject(object, standardlp)
-        if standardlp then
-            puts "[  #{"%2d" % standardlp}] #{CatalystInterfaceUtils::objectToString(object)}"
-        else
-            puts CatalystInterfaceUtils::objectToString(object)
-        end
     end
 
     def self.positionDisplay(standardlp, position)
@@ -259,13 +252,6 @@ class CatalystInterfaceUtils
         CommonsUtils::processObjectAndCommand(object, command)
     end
 
-    def self.doDisplayObjectAndPromptAndReturnCommand(object, standardlp)
-        CatalystInterfaceUtils::displayObject(object, standardlp)
-        print "--> "
-        command = STDIN.gets().strip
-        command
-    end
-
     def self.displayLoop(codehash)
         loop {
 
@@ -288,7 +274,7 @@ class CatalystInterfaceUtils
 
             system("clear")
 
-            puts "Special Commands Object: ,, .. // <timeEstimationInHours> //. //.. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >bucket".green
+            puts "Special Commands Object: ,, .. ordinal: <ordinal> // <timeEstimationInHours> +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >bucket".green
 
             standardlp = CommonsUtils::getStandardListingPosition()
 
@@ -448,4 +434,5 @@ Thread.new {
 }
 # -------------------------------------------------------------------------
 
+CatalystObjectsOperator::getObjectsFromAgents()
 CatalystInterfaceUtils::displayLoop(codehash)

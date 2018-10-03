@@ -31,17 +31,18 @@ class AgentOrdinals
     end
 
     def self.getObjects()
-        Ordinals::getCatalystObjects()
+        OrdinalsFile::getCatalystObjects()
     end
 
     def self.processObjectAndCommand(object, command)
         if command == "done" then
-            Ordinals::doDone(object["uuid"])
+            OrdinalsFile::doDone(object["uuid"])
             return ["remove", object["uuid"]]
         end
-        if command == "ordinal:" then
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            Ordinals::setNewOrdinal(object["uuid"], ordinal)
+        
+        if command == 'ordinal:' then
+            ordinal = ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            OrdinalsFile::setNewOrdinal(object["data:description"], ordinal)
             return ["reload-agent-objects", AgentOrdinals::agentuuid()]
         end
         ["nothing"]

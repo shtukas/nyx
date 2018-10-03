@@ -272,11 +272,13 @@ class CommonsUtils
 
     # CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object)
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
+        return object if object["is-running"]
         datetime = DoNotShowUntilDatetime::getDatetimeOrNull(object["uuid"])
         return object if datetime.nil?
         datetime = DateTime.parse(datetime).to_time.utc.iso8601
         if Time.now.utc.iso8601 < datetime then
             object["metric"] = 0
+            object[":metric-set-to-zero-by:CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay:"]
         end
         object
     end
@@ -300,6 +302,14 @@ class CommonsUtils
             .map{|object| 
                 if futureBucketsObjectsUUID.include?(object["uuid"]) then
                     object["metric"] = 0
+                    object[":metric-updated-by:futureBuckets:"] = true
+                end
+                object
+            }
+            .map{|object| 
+                if ( ordinal = MetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
+                    object["metric"] = Ordinal::ordinalToMetric(ordinal)
+                    object[":metric-updated-by:Ordinal::ordinalToMetric:"] = true
                 end
                 object
             }
@@ -331,8 +341,10 @@ class CommonsUtils
     # CommonsUtils::objectToString(object)
     def self.objectToString(object)
         announce = object['announce'].lines.first.strip
+        maybeOrdinal = MetadataInterface::getOrdinalOrNull(object['uuid'])
         [
             object[":is-lightThread-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
+            maybeOrdinal ? " {ordinal: #{maybeOrdinal}}" : "",
             object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
             " #{announce}",
             CommonsUtils::object2DonotShowUntilAsString(object),
@@ -467,16 +479,14 @@ class CommonsUtils
             return
         end
 
-        if expression == '//.' then
-            timeEstimationInHours = 0.1
-            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
-            return
-        end
-
-        if expression == '//..' then
-            timeEstimationInHours = 0.5
-            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
-            return
+        if expression == 'ordinal:' then
+            if object["agent-uid"] != "9bafca47-5084-45e6-bdc3-a53194e6fe62" then
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                MetadataInterface::setOrdinal(object["uuid"], ordinal)
+                signal = ["reload-agent-objects", object["agent-uid"]]
+                CatalystObjectsOperator::processAgentProcessorSignal(signal)
+                return
+            end
         end
 
         if expression == 'expose' then
@@ -522,7 +532,8 @@ class CommonsUtils
     # CommonsUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
-        puts CatalystInterfaceUtils::objectToString(object)
+        puts CommonsUtils::objectToString(object)
+        puts CatalystInterfaceUtils::objectInferfaceString(object)
         print "--> "
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )

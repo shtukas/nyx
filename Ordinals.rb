@@ -9,24 +9,37 @@ require 'digest/sha1'
 
 # ----------------------------------------------------------------------
 
-class Ordinals
+class Ordinal
+
+    # Ordinal::ordinalToMetric(ordinal)
+    def self.ordinalToMetric(ordinal)
+        1.5 + Math.exp(-ordinal).to_f/10
+    end
+
+    # Ordinal::setOrdinalForToday(uuid, ordinal)
+    def self.setOrdinalForToday(uuid, ordinal)
+
+    end
+end
+
+class OrdinalsFile
     
-    # Ordinals::pathToFile()
+    # OrdinalsFile::pathToFile()
     def self.pathToFile()
         "/Users/pascal/Desktop/Catalyst-Ordinals.txt"
     end
 
-    # Ordinals::fileLines()
+    # OrdinalsFile::fileLines()
     def self.fileLines()
-    	IO.read(Ordinals::pathToFile())
+    	IO.read(OrdinalsFile::pathToFile())
     		.lines
     		.map{|line| line.strip }
     		.select{|line| line.size>0 }
     end
 
-    # Ordinals::getFileAsStructure()
+    # OrdinalsFile::getFileAsStructure()
     def self.getFileAsStructure()
-    	Ordinals::fileLines()
+    	OrdinalsFile::fileLines()
 			.map{|line|
 				spacePosition = line.index(" ")
 				{
@@ -36,7 +49,7 @@ class Ordinals
 			}
     end
 
-    # Ordinals::structureToFileContents(structure)
+    # OrdinalsFile::structureToFileContents(structure)
     def self.structureToFileContents(structure)
     	structure
     		.sort{|i1,i2|
@@ -46,64 +59,65 @@ class Ordinals
     		.join("\n")
     end
 
-    # Ordinals::sendStructureToDisk(structure)
+    # OrdinalsFile::sendStructureToDisk(structure)
     def self.sendStructureToDisk(structure)
     	folderpath = CommonsUtils::newBinArchivesFolderpath()
-    	system("cp '#{Ordinals::pathToFile()}' '#{folderpath}/Catalyst-Ordinals.txt'")
-		filecontents = Ordinals::structureToFileContents(structure)
-		File.open(Ordinals::pathToFile(), "w"){|f| f.puts(filecontents) }    	
+    	system("cp '#{OrdinalsFile::pathToFile()}' '#{folderpath}/Catalyst-Ordinals.txt'")
+		filecontents = OrdinalsFile::structureToFileContents(structure)
+		File.open(OrdinalsFile::pathToFile(), "w"){|f| f.puts(filecontents) }    	
     end
 
-    # Ordinals::doAddRecordsToFile(ordinal, description)
+    # OrdinalsFile::doAddRecordsToFile(ordinal, description)
     def self.doAddRecordsToFile(ordinal, description)
-    	structure = Ordinals::getFileAsStructure()
+    	structure = OrdinalsFile::getFileAsStructure()
     	structure << {
 						"ordinal" => ordinal,
 						"description" => description
 					 }
-		Ordinals::sendStructureToDisk(structure)
+		OrdinalsFile::sendStructureToDisk(structure)
     end
 
-    # Ordinals::itemToUUID(item)
+    # OrdinalsFile::itemToUUID(item)
     def self.itemToUUID(item)
     	Digest::SHA1.hexdigest("#{item["ordinal"]} #{item["description"]}")[0, 8]
     end
 
-    # Ordinals::structureItemToCatalystObject(item)
+    # OrdinalsFile::structureItemToCatalystObject(item)
     def self.structureItemToCatalystObject(item)
 		{
-			"uuid"               => Ordinals::itemToUUID(item),
+			"uuid"               => OrdinalsFile::itemToUUID(item),
 			"agent-uid"          => "9bafca47-5084-45e6-bdc3-a53194e6fe62",
-			"metric"             => 1.5 + Math.exp(-item["ordinal"]).to_f/10,
-			"announce"           => "[#{"%6.3f" % item["ordinal"]}] #{item["description"]}",
-			"commands"           => ["done", "ordinal:"],
+			"metric"             => Ordinal::ordinalToMetric(item["ordinal"]),
+			"announce"           => "{ordinal: #{"%6.3f" % item["ordinal"]}} #{item["description"]}",
+			"commands"           => ["done", "ordinal: <ordinal>"],
 			"default-expression" => "done",
-			"is-running"         => false
+			"is-running"         => false,
+            "data:description"   => item["description"]
 		}  	
     end
 
-    # Ordinals::getCatalystObjects()
+    # OrdinalsFile::getCatalystObjects()
     def self.getCatalystObjects()
-    	Ordinals::getFileAsStructure()
-    		.map{|item| Ordinals::structureItemToCatalystObject(item) }
+    	OrdinalsFile::getFileAsStructure()
+    		.map{|item| OrdinalsFile::structureItemToCatalystObject(item) }
     end
 
-    # Ordinals::doDone(uuid)
+    # OrdinalsFile::doDone(uuid)
     def self.doDone(uuid)
-    	structure = Ordinals::getFileAsStructure()
-    		.select{|item| Ordinals::itemToUUID(item)!=uuid }
-		Ordinals::sendStructureToDisk(structure)    	
+    	structure = OrdinalsFile::getFileAsStructure()
+    		.select{|item| OrdinalsFile::itemToUUID(item)!=uuid }
+		OrdinalsFile::sendStructureToDisk(structure)    	
     end
 
-    def Ordinals::setNewOrdinal(objectuuid, ordinal)
-    	updatedstructure = Ordinals::getFileAsStructure()
+    def OrdinalsFile::setNewOrdinal(objectdescription, ordinal)
+    	updatedstructure = OrdinalsFile::getFileAsStructure()
     		.map{|item|
-    			if Ordinals::itemToUUID(item)==objectuuid then
+    			if item["description"]==objectdescription then
     				item["ordinal"] = ordinal
     			end
     			item
     		}
-    	Ordinals::sendStructureToDisk(updatedstructure)
+    	OrdinalsFile::sendStructureToDisk(updatedstructure)
     end
 
 end

@@ -57,11 +57,34 @@ Structure of individual objects metadata
     "nsx-timeprotons-uuids-e9b8519d" : Array[CatalystObjectUUIDs]
     "nsx-requirements-c633a5d8"      : Array[String]
     "nsx-cycle-unixtime-a3390e5c"    : Unixitime
+    "nsx-ordinal-per-day"            : Map[Date, Ordinal]
 }
 
 =end
 
 class MetadataInterface
+
+    # -----------------------------------------------------------------------
+    # Ordinal
+
+    # MetadataInterface::setOrdinal(objectuuid, ordinal)
+    def self.setOrdinal(objectuuid, ordinal)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        if metadata["nsx-ordinal-per-day"].nil? then
+            metadata["nsx-ordinal-per-day"] = {}
+        end
+        metadata["nsx-ordinal-per-day"][CommonsUtils::currentDay()] = ordinal
+        CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)
+    end
+
+    # MetadataInterface::getOrdinalOrNull(objectuuid)
+    def self.getOrdinalOrNull(objectuuid)
+        metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(objectuuid)
+        if metadata["nsx-ordinal-per-day"].nil? then
+            metadata["nsx-ordinal-per-day"] = {}
+        end
+        metadata["nsx-ordinal-per-day"][CommonsUtils::currentDay()]
+    end
 
     # -----------------------------------------------------------------------
     # TimeProton CatalystObject link
