@@ -106,7 +106,7 @@ class MetadataInterface
         if metadata["nsx-timeprotons-uuids-e9b8519d"].nil? then
             metadata["nsx-timeprotons-uuids-e9b8519d"] = []
         end
-        metadata["nsx-timeprotons-uuids-e9b8519d"].delete(objectuuid)
+        metadata["nsx-timeprotons-uuids-e9b8519d"].delete(lightThreadUUID)
         CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)
     end
 
