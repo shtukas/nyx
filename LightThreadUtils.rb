@@ -237,7 +237,7 @@ class LightThreadUtils
             end
             if operation=="time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-                LightThreadUtils::lightThreadAddTime(lightThreadUUID, timeInHours)
+                LightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
             end
             if operation == "show items" then
                 loop {
