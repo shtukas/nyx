@@ -11,18 +11,21 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # ----------------------------------------------------------------------------------
 
-$CATALYST_OBJECTS_NON_AGENT_METADATA = {}
+DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Data-Manager/Catalyst-Metadata"
+
+$DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = {}
 
 class NSXCatalystMetadataOperator
 
     # NSXCatalystMetadataOperator::initialLoadFromDisk()
     def self.initialLoadFromDisk()
-        $CATALYST_OBJECTS_NON_AGENT_METADATA = JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "52e0f71b-2914-4fdc-b491-0828b50aad05", "{}"))
+        filepath = "#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json"
+        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = JSON.parse(IO.read(filepath))
     end
 
     # NSXCatalystMetadataOperator::commitCollectionToDisk()
     def self.commitCollectionToDisk()
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "52e0f71b-2914-4fdc-b491-0828b50aad05", JSON.generate($CATALYST_OBJECTS_NON_AGENT_METADATA))
+        File.open("#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH)) }
     end
 
     # NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
@@ -30,24 +33,23 @@ class NSXCatalystMetadataOperator
         newmetadata = {
             "objectuuid" => objectuuid
         }
-        ($CATALYST_OBJECTS_NON_AGENT_METADATA[objectuuid] || newmetadata).clone
+        ($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[objectuuid] || newmetadata).clone
     end
 
     # NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
     def self.setMetadataForObject(objectuuid, metadata)
-        $CATALYST_OBJECTS_NON_AGENT_METADATA[objectuuid] = metadata
+        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[objectuuid] = metadata
         NSXCatalystMetadataOperator::commitCollectionToDisk()
     end
 
     # NSXCatalystMetadataOperator::getAllMetadataObjects()
     def self.getAllMetadataObjects()
-        $CATALYST_OBJECTS_NON_AGENT_METADATA.values.map{|object| object.clone }
+        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH.values.map{|object| object.clone }
     end
 
 end
 
 NSXCatalystMetadataOperator::initialLoadFromDisk()
-
 
 =begin
 
