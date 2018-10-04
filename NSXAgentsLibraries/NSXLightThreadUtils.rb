@@ -199,7 +199,7 @@ class NSXLightThreadUtils
                     objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                     break if selectedobject.nil?
-                    NSXMiscUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                    NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(selectedobject)
                 }
             end
             if operation == "remove items" then

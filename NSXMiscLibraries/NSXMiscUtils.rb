@@ -331,17 +331,6 @@ class NSXMiscUtils
         ].join()
     end
 
-    # NSXMiscUtils::doPresentObjectInviteAndExecuteCommand(object)
-    def self.doPresentObjectInviteAndExecuteCommand(object)
-        return if object.nil?
-        puts NSXMiscUtils::objectToString(object)
-        puts CatalystInterfaceUtils::objectInferfaceString(object)
-        print "--> "
-        command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        NSXGeneralCommandHandler::processCommand(object, command)
-    end
-
     # NSXMiscUtils::unixtimeToMetricNS1935(unixtime)
     def self.unixtimeToMetricNS1935(unixtime)
         ageInHours = (Time.new.to_f - unixtime).to_f/3600

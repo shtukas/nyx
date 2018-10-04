@@ -41,7 +41,6 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     def self.processAgentProcessorSignal(signal)
-        puts "signal: #{signal.join(" ")}"
         return if signal[0] == "nothing"
         if signal[0] == "update" then
             object = signal[1]
@@ -73,13 +72,4 @@ class NSXCatalystObjectsOperator
 end
 
 NSXCatalystObjectsOperator::initialLoadFromDisk()
-NSXCatalystObjectsOperator::commitCollectionToDisk()
-
-Thread.new {
-    loop {
-        sleep 120
-        NSXCatalystObjectsOperator::getObjectsFromAgents()
-        NSXCatalystObjectsOperator::commitCollectionToDisk()
-    }
-}
 

@@ -13,6 +13,19 @@ class NSXGeneralCommandHandler
 
         # no object needed
 
+        if command == "+" then
+            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
+            return
+        end
+        
+        if command.start_with?(":") then
+            if NSXMiscUtils::isInteger(command[1, command.size]) then
+                position = command[1, command.size].strip.to_i
+                NSXMiscUtils::setStandardListingPosition([position, 0].max)
+            end
+            return
+        end
+
         if command == 'help' then
             NSXMiscUtils::putshelp()
             LucilleCore::pressEnterToContinue()
@@ -87,7 +100,7 @@ class NSXGeneralCommandHandler
                 requirementObjects = NSXCatalystObjectsOperator::getObjects().select{ |object| NSXCatalystMetadataInterface::getObjectsRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                 break if selectedobject.nil?
-                NSXMiscUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
             return
         end
@@ -101,7 +114,7 @@ class NSXGeneralCommandHandler
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                 break if selectedobject.nil?
-                NSXMiscUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
             return
         end
