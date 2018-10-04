@@ -35,12 +35,20 @@ require_relative "Constants.rb"
 
 # -----------------------------------------------------------------
 
-require_relative "NSXPureFunctions/NSXMiscUtils.rb"
+require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
+require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
-require_relative "NSXDataCookForDisplay.rb"
-require_relative "NSXDataManager.rb"
-require_relative "NSXDisplayOperator.rb"
-require_relative "NSXGeneralCommandHandler.rb"
+require_relative "NSXSystemLibraries/NSXDoNotShowUntilDatetime.rb"
+require_relative "NSXSystemLibraries/NSXCanary.rb"
+require_relative "NSXSystemLibraries/NSXCyclesOperator.rb"
+require_relative "NSXSystemLibraries/NSXDayBucketOperator.rb"
+require_relative "NSXSystemLibraries/NSXEmailClients.rb"
+require_relative "NSXSystemLibraries/NSXRequirementsOperator.rb"
+
+require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
+require_relative "NSXAgentsLibraries/NSXLightThreadDailyTimeTracking.rb"
+require_relative "NSXAgentsLibraries/NSXLightThreadUtils.rb"
+require_relative "NSXAgentsLibraries/NSXOrdinals.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
@@ -50,7 +58,13 @@ require_relative "NSXAgents/NSXAgentOrdinals.rb"
 require_relative "NSXAgents/NSXAgentVienna.rb"
 require_relative "NSXAgents/NSXAgentWave.rb"
 require_relative "NSXAgents/NSXAgentWIS.rb"
+
 require_relative "NSXBob.rb"
+
+require_relative "NSXDataCookForDisplay.rb"
+require_relative "NSXDataManager.rb"
+require_relative "NSXDisplayOperator.rb"
+require_relative "NSXGeneralCommandHandler.rb"
 
 # -----------------------------------------------------------------
 
@@ -116,7 +130,7 @@ class DisplayStateUtils
         end
 
         # --------------------------------------------------------------------------------
-        # Sometimes a wave item that is an email, gets deleted by the EmailClients process.
+        # Sometimes a wave item that is an email, gets deleted by the NSXEmailClients process.
         # In such a case they are still in Flock and should not be showed
         if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
             if object["schedule"][":wave-email:"] then
@@ -289,8 +303,8 @@ class CatalystInterfaceUtils
 
             # Indicates over staying off requirement.
             if ( Time.new.to_i > KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
-                if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-                    puts "REQUIREMENTS OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
+                if NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                    puts "REQUIREMENTS OFF: #{NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
                     LucilleCore::pressEnterToContinue()
                 end
                 KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
@@ -303,16 +317,16 @@ class CatalystInterfaceUtils
 
             standardlp = CommonsUtils::getStandardListingPosition()
 
-            averageDailyCommitmentInHours = LightThreadUtils::totalDailyCommitmentInHours()
-            percentageDone = 100 * ( LightThreadUtils::currentTotalDoneInHours().to_f/averageDailyCommitmentInHours )
+            averageDailyCommitmentInHours = NSXLightThreadUtils::totalDailyCommitmentInHours()
+            percentageDone = 100 * ( NSXLightThreadUtils::currentTotalDoneInHours().to_f/averageDailyCommitmentInHours )
 
-            numbers = LightThreadDailyTimeTracking::numbersDayTotalAndPercentage()
+            numbers = NSXLightThreadDailyTimeTracking::numbersDayTotalAndPercentage()
             puts "Time Protons: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )".yellow
 
             puts ""
 
-            if RequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-                puts "REQUIREMENTS: OFF: #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
+            if NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
+                puts "REQUIREMENTS: OFF: #{NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
             end
 
             focusobject = nil

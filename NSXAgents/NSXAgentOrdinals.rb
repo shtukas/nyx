@@ -12,29 +12,29 @@ require 'digest/sha1'
 
 # -------------------------------------------------------------------------------------
 
-# AgentOrdinals::getObjects()
+# NSXAgentOrdinals::getObjects()
 
-class AgentOrdinals
+class NSXAgentOrdinals
 
-    # AgentOrdinals::agentuuid()
+    # NSXAgentOrdinals::agentuuid()
     def self.agentuuid()
         "9bafca47-5084-45e6-bdc3-a53194e6fe62"
     end
 
     def self.getObjects()
-        OrdinalsFile::getCatalystObjects()
+        NSXOrdinalsFile::getCatalystObjects()
     end
 
     def self.processObjectAndCommand(object, command)
         if command == "done" then
-            OrdinalsFile::doDone(object["uuid"])
+            NSXOrdinalsFile::doDone(object["uuid"])
             return ["remove", object["uuid"]]
         end
         
         if command == 'ordinal:' then
             ordinal = ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            OrdinalsFile::setNewOrdinal(object["data:description"], ordinal)
-            return ["reload-agent-objects", AgentOrdinals::agentuuid()]
+            NSXOrdinalsFile::setNewOrdinal(object["data:description"], ordinal)
+            return ["reload-agent-objects", NSXAgentOrdinals::agentuuid()]
         end
         ["nothing"]
     end

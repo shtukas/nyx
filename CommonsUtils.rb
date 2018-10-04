@@ -191,29 +191,29 @@ class CommonsUtils
     def self.waveInsertNewItemDefaults(description) # uuid: String
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
-        folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         schedule = WaveSchedules::makeScheduleObjectTypeNew()
-        AgentWave::writeScheduleToDisk(uuid, schedule)
+        NSXAgentWave::writeScheduleToDisk(uuid, schedule)
         uuid
     end
 
     def self.buildCatalystObjectFromDescription(description) # (uuid, schedule)
         uuid = SecureRandom.hex(4)
-        folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         schedule = WaveSchedules::makeScheduleObjectTypeNew()
-        AgentWave::writeScheduleToDisk(uuid, schedule) 
+        NSXAgentWave::writeScheduleToDisk(uuid, schedule) 
         [uuid, schedule]
     end
 
     # CommonsUtils::sendCatalystObjectToTimeProton(objectuuid)
     def self.sendCatalystObjectToTimeProton(objectuuid)
-        lightThread = LightThreadUtils::interactivelySelectLightThreadOrNull()
+        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
         return nil if lightThread.nil?
         MetadataInterface::setTimeProtonObjectLink(lightThread["uuid"], objectuuid)
         lightThread
@@ -222,20 +222,20 @@ class CommonsUtils
     def self.waveInsertNewItemInteractive(description)
         description = CommonsUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid, schedule = CommonsUtils::buildCatalystObjectFromDescription(description)
-        AgentWave::writeScheduleToDisk(uuid, schedule)    
+        NSXAgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">thread"])
             break if option.nil?
             if option == "schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
                 puts JSON.pretty_generate(schedule)
-                AgentWave::writeScheduleToDisk(uuid, schedule)  
+                NSXAgentWave::writeScheduleToDisk(uuid, schedule)  
             end
             if option == "datetime code" then
                 if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
                     if (datetime = CommonsUtils::codeToDatetimeOrNull(datetimecode)) then
                         puts "Won't show until: #{datetime}"
-                        DoNotShowUntilDatetime::setDatetime(uuid, datetime)
+                        NSXDoNotShowUntilDatetime::setDatetime(uuid, datetime)
                     end
                 end
             end
@@ -262,7 +262,7 @@ class CommonsUtils
     # CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object)
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
         return object if object["is-running"]
-        datetime = DoNotShowUntilDatetime::getDatetimeOrNull(object["uuid"])
+        datetime = NSXDoNotShowUntilDatetime::getDatetimeOrNull(object["uuid"])
         return object if datetime.nil?
         datetime = DateTime.parse(datetime).to_time.utc.iso8601
         if Time.now.utc.iso8601 < datetime then
@@ -274,20 +274,20 @@ class CommonsUtils
 
     # CommonsUtils::flockObjectsProcessedForCatalystDisplay()
     def self.flockObjectsProcessedForCatalystDisplay()
-        futureBucketsObjectsUUID = DayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten
+        futureBucketsObjectsUUID = NSXDayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten
         CatalystObjectsOperator::getObjects()
             .map{|object| object.clone }
             .map{|object| 
-                Canary::mark(object["uuid"]) 
+                NSXCanary::mark(object["uuid"]) 
                 object
             }
             .map{|object| 
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
-            .map{|object| CyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
+            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| CommonsUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| RequirementsOperator::updateForDisplay(object) }
+            .map{|object| NSXRequirementsOperator::updateForDisplay(object) }
             .map{|object| 
                 if futureBucketsObjectsUUID.include?(object["uuid"]) then
                     object["metric"] = 0
@@ -297,8 +297,8 @@ class CommonsUtils
             }
             .map{|object| 
                 if ( ordinal = MetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
-                    object["metric"] = Ordinal::ordinalToMetric(ordinal)
-                    object[":metric-updated-by:Ordinal::ordinalToMetric:"] = true
+                    object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
+                    object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
                 end
                 object
             }
@@ -354,8 +354,8 @@ class CommonsUtils
         if expression == 'info' then
             puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
             puts "Requirements:".green
-            puts "    On  : #{(MetadataInterface::allKnownRequirementsCarriedByObjects() - RequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
-            puts "    Off : #{RequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
+            puts "    On  : #{(MetadataInterface::allKnownRequirementsCarriedByObjects() - NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    Off : #{NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -367,18 +367,18 @@ class CommonsUtils
 
         if expression == "house-on" then
             KeyValueStore::destroy(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
-            signal = ["reload-agent-objects", AgentHouse::agentuuid()]
+            signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
             CatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if expression == "house-off" then
             KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}", "killed")
-            signal = ["reload-agent-objects", AgentHouse::agentuuid()]
+            signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
             CatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if expression == 'threads' then
-            LightThreadUtils::lightThreadsDive()
+            NSXLightThreadUtils::lightThreadsDive()
             return
         end
 
@@ -386,7 +386,7 @@ class CommonsUtils
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
             target = nil
-            lightThread = LightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
+            lightThread = NSXLightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
             puts JSON.pretty_generate(lightThread)
             LucilleCore::pressEnterToContinue()
             return
@@ -400,13 +400,13 @@ class CommonsUtils
 
         if expression.start_with?("requirement on") then
             _, _, requirement = expression.split(" ").map{|t| t.strip }
-            RequirementsOperator::setSatisfifiedRequirement(requirement)
+            NSXRequirementsOperator::setSatisfifiedRequirement(requirement)
             return
         end
 
         if expression.start_with?("requirement off") then
             _, _, requirement = expression.split(" ").map{|t| t.strip }
-            RequirementsOperator::setUnsatisfiedRequirement(requirement)
+            NSXRequirementsOperator::setUnsatisfiedRequirement(requirement)
             return
         end
 
@@ -454,13 +454,13 @@ class CommonsUtils
 
         if expression == '>bucket' then
             timeEstimationInHours = LucilleCore::askQuestionAnswerAsString("`Time estimation in hours: ").to_f
-            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
+            NSXDayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
             return
         end
 
         if expression.start_with?('//') then
             timeEstimationInHours = expression[2,99].to_f
-            DayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
+            NSXDayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
             return
         end
 
@@ -485,7 +485,7 @@ class CommonsUtils
         if expression.start_with?('+') then
             code = expression
             if (datetime = CommonsUtils::codeToDatetimeOrNull(code)) then
-                DoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
+                NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             end
             return
         end

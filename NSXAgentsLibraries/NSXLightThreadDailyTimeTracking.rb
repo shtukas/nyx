@@ -17,21 +17,21 @@ DailyStructure: Map[TimeProtonUUID, (ExpectedTime: Float, Done:Time; Float)
 
 =end
 
-class LightThreadDailyTimeTracking
+class NSXLightThreadDailyTimeTracking
 
-    # LightThreadDailyTimeTracking::currentDay()
+    # NSXLightThreadDailyTimeTracking::currentDay()
     def self.currentDay()
         Time.now.utc.iso8601[0,10]
     end
 
-    # LightThreadDailyTimeTracking::getDailyStructure()
+    # NSXLightThreadDailyTimeTracking::getDailyStructure()
     def self.getDailyStructure()
-        currentday = LightThreadDailyTimeTracking::currentDay()
+        currentday = NSXLightThreadDailyTimeTracking::currentDay()
         structure = KeyValueStore::getOrNull(nil, "a30bdedc-4f71-4837-bec6-efb648864dce:#{currentday}")
         if structure.nil? then
             structure = {}
             # First call of the day
-            LightThreadUtils::lightThreadsWithFilepaths().each{|pair|
+            NSXLightThreadUtils::lightThreadsWithFilepaths().each{|pair|
                 lightThread = pair[0]
                 structure[lightThread["uuid"]] = [lightThread["time-commitment-every-20-hours-in-hours"]*3600, 0]
             }
@@ -41,22 +41,22 @@ class LightThreadDailyTimeTracking
         structure
     end
 
-    # LightThreadDailyTimeTracking::putDailyStucture(structure)
+    # NSXLightThreadDailyTimeTracking::putDailyStucture(structure)
     def self.putDailyStucture(structure)
-        currentday = LightThreadDailyTimeTracking::currentDay()
+        currentday = NSXLightThreadDailyTimeTracking::currentDay()
         KeyValueStore::set(nil, "a30bdedc-4f71-4837-bec6-efb648864dce:#{currentday}", JSON.generate(structure))        
     end
 
-    # LightThreadDailyTimeTracking::addTimespanForTimeProton(lightThreadUUID, timespan)
+    # NSXLightThreadDailyTimeTracking::addTimespanForTimeProton(lightThreadUUID, timespan)
     def self.addTimespanForTimeProton(lightThreadUUID, timespan)
-        structure = LightThreadDailyTimeTracking::getDailyStructure()
+        structure = NSXLightThreadDailyTimeTracking::getDailyStructure()
         structure[lightThreadUUID][1] = structure[lightThreadUUID][1] + timespan
-        LightThreadDailyTimeTracking::putDailyStucture(structure)
+        NSXLightThreadDailyTimeTracking::putDailyStucture(structure)
     end
 
-    # LightThreadDailyTimeTracking::numbersDayTotalAndPercentage()
+    # NSXLightThreadDailyTimeTracking::numbersDayTotalAndPercentage()
     def self.numbersDayTotalAndPercentage()
-        structure = LightThreadDailyTimeTracking::getDailyStructure()
+        structure = NSXLightThreadDailyTimeTracking::getDailyStructure()
         expected = structure.keys.map{|uuid| structure[uuid][0] }.inject(0, :+)
         done = structure.keys.map{|uuid| structure[uuid][1] }.inject(0, :+)
         [expected, 100*done.to_f/expected]

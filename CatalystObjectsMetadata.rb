@@ -164,7 +164,7 @@ class MetadataInterface
     # MetadataInterface::allObjectRequirementsAreSatisfied(objectuuid)
     def self.allObjectRequirementsAreSatisfied(objectuuid)
         MetadataInterface::getObjectsRequirements(objectuuid)
-            .all?{|requirement| RequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
+            .all?{|requirement| NSXRequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
     end
 
     # MetadataInterface::allKnownRequirementsCarriedByObjects()

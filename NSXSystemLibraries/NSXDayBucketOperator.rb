@@ -18,8 +18,6 @@ require 'fileutils'
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
-require_relative "Constants.rb"
-
 # ----------------------------------------------------------------------
 
 =begin
@@ -40,32 +38,32 @@ Filenames for buckets are of the form: YYYY-MM-DD.json
 
 DAY_BUCKETS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/System-Data/Day-Buckets"
 
-class DayBucketOperator
+class NSXDayBucketOperator
 
-    # DayBucketOperator::today()
+    # NSXDayBucketOperator::today()
     def self.today()
         Time.new.to_s[0,10]
     end
 
-    # DayBucketOperator::bucketMaxWeightInHours()
+    # NSXDayBucketOperator::bucketMaxWeightInHours()
     def self.bucketMaxWeightInHours()
         3
     end
 
-    # DayBucketOperator::getBucketsFilepaths()
+    # NSXDayBucketOperator::getBucketsFilepaths()
     def self.getBucketsFilepaths()
         Dir.entries(DAY_BUCKETS_FOLDERPATH)
             .select{|filename| filename[-5, 5]==".json" }
             .map{|filename| "#{DAY_BUCKETS_FOLDERPATH}/#{filename}" }
     end
 
-    # DayBucketOperator::getBucketDays()
+    # NSXDayBucketOperator::getBucketDays()
     def self.getBucketDays()
-        DayBucketOperator::getBucketsFilepaths()
+        NSXDayBucketOperator::getBucketsFilepaths()
             .map{|filepath| File.basename(filepath)[0,10] }
     end
 
-    # DayBucketOperator::commitBucketToDisk(bucket)
+    # NSXDayBucketOperator::commitBucketToDisk(bucket)
     def self.commitBucketToDisk(bucket)
         date = bucket["date"]
         filename = "#{date}.json"
@@ -73,14 +71,14 @@ class DayBucketOperator
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(bucket)) }
     end
 
-    # DayBucketOperator::destroyBucket(date)
+    # NSXDayBucketOperator::destroyBucket(date)
     def self.destroyBucket(date)
         filename = "#{date}.json"
         filepath = "#{DAY_BUCKETS_FOLDERPATH}/#{date}.json"
         FileUtils.rm(filepath)
     end
 
-    # DayBucketOperator::getBucketByDateOrNull(date)
+    # NSXDayBucketOperator::getBucketByDateOrNull(date)
     def self.getBucketByDateOrNull(date)
         filename = "#{date}.json"
         filepath = "#{DAY_BUCKETS_FOLDERPATH}/#{date}.json"
@@ -90,32 +88,32 @@ class DayBucketOperator
         nil
     end
 
-    # DayBucketOperator::getBuckets()
+    # NSXDayBucketOperator::getBuckets()
     def self.getBuckets()
-        DayBucketOperator::getBucketsFilepaths()
+        NSXDayBucketOperator::getBucketsFilepaths()
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|b1, b2| b1["date"]<=>b2["date"] }
     end
 
-    # DayBucketOperator::futureBuckets()
+    # NSXDayBucketOperator::futureBuckets()
     def self.futureBuckets()
-        DayBucketOperator::getBuckets().select{|bucket| bucket["date"] > DayBucketOperator::today() }
+        NSXDayBucketOperator::getBuckets().select{|bucket| bucket["date"] > NSXDayBucketOperator::today() }
     end
 
-    # DayBucketOperator::bucketToTimestampInHours(bucket)
+    # NSXDayBucketOperator::bucketToTimestampInHours(bucket)
     def self.bucketToTimestampInHours(bucket)
         bucket["items"].map{|item| item["timespan-in-hours"] }.inject(0, :+)
     end
 
-    # DayBucketOperator::nextDate()
+    # NSXDayBucketOperator::nextDate()
     def self.nextDate()
         (1..1000)
             .map{|index| (Time.at(Time.new.to_i+(86400*index))).to_s[0,10] }
-            .select{|date| !DayBucketOperator::getBucketDays().include?(date) }
+            .select{|date| !NSXDayBucketOperator::getBucketDays().include?(date) }
             .first
     end
 
-    # DayBucketOperator::createNewBucketAtDateWithFirstitem(date, objectuuid, timeEstimationInHours)
+    # NSXDayBucketOperator::createNewBucketAtDateWithFirstitem(date, objectuuid, timeEstimationInHours)
     def self.createNewBucketAtDateWithFirstitem(date, objectuuid, timeEstimationInHours)
         bucket = {
             "date"   => date,
@@ -125,29 +123,29 @@ class DayBucketOperator
             "objectuuid" => objectuuid,
             "timespan-in-hours" => timeEstimationInHours
         }
-        DayBucketOperator::commitBucketToDisk(bucket)
+        NSXDayBucketOperator::commitBucketToDisk(bucket)
     end
 
-    # DayBucketOperator::addObjectToNextAvailableBucket(objectuuid, timeEstimationInHours)
+    # NSXDayBucketOperator::addObjectToNextAvailableBucket(objectuuid, timeEstimationInHours)
     def self.addObjectToNextAvailableBucket(objectuuid, timeEstimationInHours)
-        buckets = DayBucketOperator::getBuckets()
+        buckets = NSXDayBucketOperator::getBuckets()
         if buckets.size==0 then
-            date = DayBucketOperator::nextDate()
-            DayBucketOperator::createNewBucketAtDateWithFirstitem(date, objectuuid, timeEstimationInHours)
+            date = NSXDayBucketOperator::nextDate()
+            NSXDayBucketOperator::createNewBucketAtDateWithFirstitem(date, objectuuid, timeEstimationInHours)
         else
             bucket = buckets
-                    .select{|bucket| bucket["date"] > DayBucketOperator::today() }
-                    .select{|bucket| (DayBucketOperator::bucketToTimestampInHours(bucket)+timeEstimationInHours) <= DayBucketOperator::bucketMaxWeightInHours()*1.2 }
+                    .select{|bucket| bucket["date"] > NSXDayBucketOperator::today() }
+                    .select{|bucket| (NSXDayBucketOperator::bucketToTimestampInHours(bucket)+timeEstimationInHours) <= NSXDayBucketOperator::bucketMaxWeightInHours()*1.2 }
                     .first
             if bucket then
                 bucket["items"] << {
                     "objectuuid" => objectuuid,
                     "timespan-in-hours" => timeEstimationInHours
                 }
-                DayBucketOperator::commitBucketToDisk(bucket)
+                NSXDayBucketOperator::commitBucketToDisk(bucket)
             else
-                date = DayBucketOperator::nextDate()
-                DayBucketOperator::createNewBucketAtDateWithFirstitem(date, objectuuid, timeEstimationInHours)             
+                date = NSXDayBucketOperator::nextDate()
+                NSXDayBucketOperator::createNewBucketAtDateWithFirstitem(date, objectuuid, timeEstimationInHours)             
             end
         end
     end

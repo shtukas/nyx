@@ -59,9 +59,9 @@ end
 
 $viennaLinkFeeder = ViennaLinkFeeder.new()
 
-# AgentVienna::processObjectAndCommand(object, command)
+# NSXAgentVienna::processObjectAndCommand(object, command)
 
-class AgentVienna
+class NSXAgentVienna
 
     def self.agentuuid()
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
@@ -72,16 +72,16 @@ class AgentVienna
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
-            # puts "AgentVienna. Importing: #{link}"
+            # puts "NSXAgentVienna. Importing: #{link}"
             uuid = SecureRandom.hex(4)
-            folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+            folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
             FileUtils.mkpath folderpath
             File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
             File.open("#{folderpath}/description.txt", 'w') {|f| f.write(link) }
             schedule = WaveSchedules::makeScheduleObjectTypeNew()
-            AgentWave::writeScheduleToDisk(uuid, schedule)
+            NSXAgentWave::writeScheduleToDisk(uuid, schedule)
             $viennaLinkFeeder.done(link)
-            DayBucketOperator::addObjectToNextAvailableBucket(uuid, 0.2)
+            NSXDayBucketOperator::addObjectToNextAvailableBucket(uuid, 0.2)
         }
         []
     end

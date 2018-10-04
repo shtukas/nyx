@@ -10,9 +10,9 @@ require "time"
 
 # -------------------------------------------------------------------------------------
 
-# AgentBabyNights::getObjects()
+# NSXAgentBabyNights::getObjects()
 
-class AgentBabyNights
+class NSXAgentBabyNights
     def self.agentuuid()
         "83837e64-554b-4dd0-a478-04386d8010ea"
     end

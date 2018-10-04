@@ -27,16 +27,16 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # -------------------------------------------------------------------------------------
 
-class AgentLightThread
+class NSXAgentLightThread
     def self.agentuuid()
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
     end
 
     def self.getObjects()
-        LightThreadUtils::lightThreadsWithFilepaths()
+        NSXLightThreadUtils::lightThreadsWithFilepaths()
             .map{|pair|
                 lightThread, filepath = pair
-                LightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
+                NSXLightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
             }
     end
 
@@ -45,20 +45,20 @@ class AgentLightThread
         lightThread = object["item-data"]["lightThread"]
         filepath   = object["item-data"]["filepath"]
         if command=='start' then
-            LightThreadUtils::startLightThread(uuid)
+            NSXLightThreadUtils::startLightThread(uuid)
             return ["reload-agent-objects", self::agentuuid()]
         end
         if command=='stop' then
-            LightThreadUtils::stopLightThread(uuid)
+            NSXLightThreadUtils::stopLightThread(uuid)
             return ["reload-agent-objects", self::agentuuid()]
         end
         if command=="time:" then
             timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-            LightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
+            NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
             return ["reload-agent-objects", self::agentuuid()]
         end
         if command=='dive' then
-            LightThreadUtils::lightThreadDive(lightThread)
+            NSXLightThreadUtils::lightThreadDive(lightThread)
             return ["reload-agent-objects", self::agentuuid()]
         end
         ["nothing"]

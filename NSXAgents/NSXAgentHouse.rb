@@ -12,11 +12,11 @@ require 'digest/sha1'
 
 # -------------------------------------------------------------------------------------
 
-# AgentHouse::getObjects()
+# NSXAgentHouse::getObjects()
 
-class AgentHouse
+class NSXAgentHouse
 
-    # AgentHouse::agentuuid()
+    # NSXAgentHouse::agentuuid()
     def self.agentuuid()
         "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10"
     end
@@ -54,13 +54,13 @@ class AgentHouse
             .select{|line| line.size>0 }
             .select{|line| !line.start_with?("#") }
         tasks
-            .select{|task| AgentHouse::shouldDoTask(task) }
-            .map{|task| AgentHouse::taskToCatalystObject(task) }
+            .select{|task| NSXAgentHouse::shouldDoTask(task) }
+            .map{|task| NSXAgentHouse::taskToCatalystObject(task) }
     end
 
     def self.processObjectAndCommand(object, command)
         if command == "done" then
-            AgentHouse::markTaskAsDone(object[":task:"])
+            NSXAgentHouse::markTaskAsDone(object[":task:"])
             return ["remove", object["uuid"]]
         end
         ["nothing"]

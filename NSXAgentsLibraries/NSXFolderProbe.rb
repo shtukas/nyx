@@ -2,8 +2,8 @@
 # encoding: UTF-8
 
 
-# FolderProbe::nonDotFilespathsAtFolder(folderpath)
-# FolderProbe::folderpath2metadata(folderpath)
+# NSXFolderProbe::nonDotFilespathsAtFolder(folderpath)
+# NSXFolderProbe::folderpath2metadata(folderpath)
     #    {
     #        "target-type" => "folder"
     #        "target-location" =>
@@ -29,9 +29,9 @@
     #        "announce" =>
     #    }
 
-# FolderProbe::openActionOnMetadata(metadata)
+# NSXFolderProbe::openActionOnMetadata(metadata)
 
-class FolderProbe
+class NSXFolderProbe
     def self.nonDotFilespathsAtFolder(folderpath)
         Dir.entries(folderpath)
             .select{|filename| filename[0,1]!="." }
@@ -46,7 +46,7 @@ class FolderProbe
         # Trying to read a description file
 
         getDescriptionFilepathMaybe = lambda{|folderpath|
-            filepaths = FolderProbe::nonDotFilespathsAtFolder(folderpath)
+            filepaths = NSXFolderProbe::nonDotFilespathsAtFolder(folderpath)
             if filepaths.any?{|filepath| File.basename(filepath).include?("description.txt") } then
                 filepaths.select{|filepath| File.basename(filepath).include?("description.txt") }.first
             else
@@ -76,7 +76,7 @@ class FolderProbe
         # --------------------------------------------------------------------
         #
 
-        files = FolderProbe::nonDotFilespathsAtFolder(folderpath)
+        files = NSXFolderProbe::nonDotFilespathsAtFolder(folderpath)
                 .select{|filepath| !File.basename(filepath).start_with?('wave') }
                 .select{|filepath| !File.basename(filepath).start_with?('catalyst') }
 

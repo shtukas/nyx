@@ -223,9 +223,9 @@ end
 
 class WaveEmailSupport
     def self.emailUIDToCatalystUUIDOrNull(emailuid)
-        AgentWave::catalystUUIDsEnumerator()
+        NSXAgentWave::catalystUUIDsEnumerator()
             .each{|uuid|
-                folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+                folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
                 next if folderpath.nil?
                 emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
                 next if !File.exist?(emailuidfilepath)
@@ -235,9 +235,9 @@ class WaveEmailSupport
         nil
     end
     def self.allEmailUIDs()
-        AgentWave::catalystUUIDsEnumerator()
+        NSXAgentWave::catalystUUIDsEnumerator()
             .map{|uuid|
-                folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+                folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
                 if folderpath then
                     emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
                     if File.exist?(emailuidfilepath) then
@@ -263,10 +263,10 @@ class WaveDevOps
             .each{|sourcelocation|
                 uuid = SecureRandom.hex(4)
                 schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                folderpath = AgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+                folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
                 FileUtils.mkpath folderpath
                 File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-                AgentWave::writeScheduleToDisk(uuid, schedule)
+                NSXAgentWave::writeScheduleToDisk(uuid, schedule)
                 if File.file?(sourcelocation) then
                     FileUtils.cp(sourcelocation,folderpath)
                 else
@@ -277,23 +277,23 @@ class WaveDevOps
     end
 end
 
-# AgentWave::agentuuid()
-# AgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-# AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
-# AgentWave::catalystUUIDsEnumerator()
-# AgentWave::timestring22ToFolderpath(timestring22)
-# AgentWave::writeScheduleToDisk(uuid, schedule)
-# AgentWave::readScheduleFromWaveItemOrNull(uuid)
-# AgentWave::makeNewSchedule()
-# AgentWave::archiveWaveItem(uuid)
-# AgentWave::commands(schedule)
-# AgentWave::makeCatalystObjectOrNull(objectuuid)
-# AgentWave::objectUUIDToAnnounce(object,schedule)
-# AgentWave::removeWaveMetadataFilesAtLocation(location)
-# AgentWave::getObjects()
-# AgentWave::processObjectAndCommand(object, command)
+# NSXAgentWave::agentuuid()
+# NSXAgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+# NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+# NSXAgentWave::catalystUUIDsEnumerator()
+# NSXAgentWave::timestring22ToFolderpath(timestring22)
+# NSXAgentWave::writeScheduleToDisk(uuid, schedule)
+# NSXAgentWave::readScheduleFromWaveItemOrNull(uuid)
+# NSXAgentWave::makeNewSchedule()
+# NSXAgentWave::archiveWaveItem(uuid)
+# NSXAgentWave::commands(schedule)
+# NSXAgentWave::makeCatalystObjectOrNull(objectuuid)
+# NSXAgentWave::objectUUIDToAnnounce(object,schedule)
+# NSXAgentWave::removeWaveMetadataFilesAtLocation(location)
+# NSXAgentWave::getObjects()
+# NSXAgentWave::processObjectAndCommand(object, command)
 
-class AgentWave
+class NSXAgentWave
 
     def self.agentuuid()
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
@@ -321,8 +321,8 @@ class AgentWave
                 end
             end
         end
-        #puts "AgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
-        maybepath = AgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+        #puts "NSXAgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
+        maybepath = NSXAgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
         maybepath
     end
@@ -342,7 +342,7 @@ class AgentWave
     end
 
     def self.writeScheduleToDisk(uuid, schedule)
-        folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         return if !File.exists?(folderpath)
         LucilleCore::removeFileSystemLocation("#{folderpath}/catalyst-schedule.json")
@@ -350,7 +350,7 @@ class AgentWave
     end
 
     def self.readScheduleFromWaveItemOrNull(uuid)
-        folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return nil if folderpath.nil?
         filepath =
             if File.exists?("#{folderpath}/wave-schedule.json") then
@@ -370,7 +370,7 @@ class AgentWave
 
     def self.archiveWaveItem(uuid)
         return if uuid.nil?
-        folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         retrun if !File.exists?(folderpath)
         targetFolder = CommonsUtils::newBinArchivesFolderpath()
@@ -437,25 +437,25 @@ class AgentWave
             .each{|filepath| LucilleCore::removeFileSystemLocation(filepath) }
     end
     
-    # AgentWave::makeCatalystObjectOrNull(objectuuid)
+    # NSXAgentWave::makeCatalystObjectOrNull(objectuuid)
     def self.makeCatalystObjectOrNull(objectuuid)
-        location = AgentWave::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        location = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(objectuuid)
         return nil if location.nil?
-        schedule = AgentWave::readScheduleFromWaveItemOrNull(objectuuid)
+        schedule = NSXAgentWave::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
             schedule = WaveSchedules::makeScheduleObjectTypeNew()
             File.open("#{location}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
         end
-        folderProbeMetadata = FolderProbe::folderpath2metadata(location)
+        folderProbeMetadata = NSXFolderProbe::folderpath2metadata(location)
         metric = WaveSchedules::scheduleToMetric(schedule)
-        announce = AgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        announce = NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object = {}
         object['uuid'] = objectuuid
         object["agent-uid"] = self.agentuuid()
         object['metric'] = metric + CommonsUtils::traceToMetricShift(objectuuid)
         object['announce'] = announce
-        object['commands'] = AgentWave::commands(schedule)
-        object["default-expression"] = AgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
+        object['commands'] = NSXAgentWave::commands(schedule)
+        object["default-expression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location
@@ -465,8 +465,8 @@ class AgentWave
 
     def self.getObjects()
         WaveDevOps::collectWave()
-        AgentWave::catalystUUIDsEnumerator().map{|uuid|
-            AgentWave::makeCatalystObjectOrNull(uuid)
+        NSXAgentWave::catalystUUIDsEnumerator().map{|uuid|
+            NSXAgentWave::makeCatalystObjectOrNull(uuid)
         }
     end
 
@@ -474,11 +474,11 @@ class AgentWave
         uuid = object['uuid']
         schedule = object['schedule']
         datetime = WaveSchedules::scheduleToDoNotShowDatetime(uuid, schedule)
-        DoNotShowUntilDatetime::setDatetime(uuid, datetime)
+        NSXDoNotShowUntilDatetime::setDatetime(uuid, datetime)
     end
 
     def self.doneObjectWithOneOffTask(object)
-        AgentWave::archiveWaveItem(object['uuid'])
+        NSXAgentWave::archiveWaveItem(object['uuid'])
     end
 
     def self.performDone(object)
@@ -508,13 +508,13 @@ class AgentWave
 
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
-            FolderProbe::openActionOnMetadata(metadata)
+            NSXFolderProbe::openActionOnMetadata(metadata)
             return ["nothing"]
         end
 
         if command=='done' then
             self.performDone(object)
-            newobject = AgentWave::makeCatalystObjectOrNull(object["uuid"])
+            newobject = NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
             if newobject then
                 return ["update", newobject]
             else
@@ -523,10 +523,10 @@ class AgentWave
         end
 
         if command=='recast' then
-            AgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
-            schedule = AgentWave::makeNewSchedule()
-            AgentWave::writeScheduleToDisk(uuid, schedule)
-            newobject = AgentWave::makeCatalystObjectOrNull(object["uuid"])
+            NSXAgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
+            schedule = NSXAgentWave::makeNewSchedule()
+            NSXAgentWave::writeScheduleToDisk(uuid, schedule)
+            newobject = NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
             if newobject then
                 return ["update", newobject]
             else
@@ -537,9 +537,9 @@ class AgentWave
         if command == 'description:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             uuid = object["uuid"]
-            folderpath = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+            folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
-            newobject = AgentWave::makeCatalystObjectOrNull(object["uuid"])
+            newobject = NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
             if newobject then
                 return ["update", newobject]
             else
@@ -548,7 +548,7 @@ class AgentWave
         end
 
         if command=='folder' then
-            location = AgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+            location = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
             return ["nothing"]
@@ -556,7 +556,7 @@ class AgentWave
 
         if command=='destroy' then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                AgentWave::archiveWaveItem(uuid)
+                NSXAgentWave::archiveWaveItem(uuid)
                 return ["remove", object["uuid"]]
             else
                 return ["nothing"]

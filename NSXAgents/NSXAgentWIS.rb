@@ -12,9 +12,9 @@ require "time"
 
 # -------------------------------------------------------------------------------------
 
-# AgentWIS::getObjects()
+# NSXAgentWIS::getObjects()
 
-class AgentWIS
+class NSXAgentWIS
     def self.agentuuid()
         "3397e320-6c09-423d-ac58-2aea5f85eacb"
     end

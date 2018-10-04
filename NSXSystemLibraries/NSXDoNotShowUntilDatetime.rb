@@ -26,17 +26,15 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Constants.rb"
-
 # ----------------------------------------------------------------------
 
-class DoNotShowUntilDatetime
-	# DoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
+class NSXDoNotShowUntilDatetime
+	# NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     def self.setDatetime(objectuuid, datetime)
         KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}", datetime)
     end
 
-	# DoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
+	# NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
     def self.getDatetimeOrNull(objectuuid)
     	KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}")
     end

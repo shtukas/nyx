@@ -8,7 +8,7 @@ require 'json'
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
-# AgentNinja::getObjects()
+# NSXAgentNinja::getObjects()
 
 class NinjaCLIProxy
     @@packet = nil
@@ -23,9 +23,9 @@ class NinjaCLIProxy
     end
 end
 
-# AgentNinja::agentuuid()
+# NSXAgentNinja::agentuuid()
 
-class AgentNinja
+class NSXAgentNinja
 
     def self.agentuuid()
         "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58"
