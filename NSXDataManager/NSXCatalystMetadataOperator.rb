@@ -1,31 +1,27 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
 # ----------------------------------------------------------------------------------
 
 DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Data-Manager/Catalyst-Metadata"
-
 $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = {}
+$DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE = Mutex.new
 
 class NSXCatalystMetadataOperator
 
     # NSXCatalystMetadataOperator::initialLoadFromDisk()
     def self.initialLoadFromDisk()
         filepath = "#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json"
-        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = JSON.parse(IO.read(filepath))
+        $DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
+            $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = JSON.parse(IO.read(filepath))
+        }
     end
 
     # NSXCatalystMetadataOperator::commitCollectionToDisk()
     def self.commitCollectionToDisk()
-        File.open("#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH)) }
+        $DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
+            File.open("#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH)) }
+        }
     end
 
     # NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)

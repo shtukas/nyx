@@ -1,30 +1,25 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
 # ----------------------------------------------------------------------------------
 
-$CATALYST_OBJECTS_IN_MEMORY = {}
-$semaphore22d1768a = Mutex.new
+DATA_MANAGER_CATALYST_OBJECTS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Data-Manager/Catalyst-Objects"
+$DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH = {}
+$DATA_MANAGER_CATALYST_OBJECTS_IO_SEMAPHORE = Mutex.new
 
 class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::initialLoadFromDisk()
     def self.initialLoadFromDisk()
-        $CATALYST_OBJECTS_IN_MEMORY = JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "80ce3a9c-1b06-4f05-ab8e-a285b1945c8d", "{}"))
+        $DATA_MANAGER_CATALYST_OBJECTS_IO_SEMAPHORE.synchronize {
+            $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH = JSON.parse(IO.read("#{DATA_MANAGER_CATALYST_OBJECTS_REPOSITORY_FOLDERPATH}/ffbea143-d99f-4e91-9061-027622b11c09.json"))
+        }
     end
 
     # NSXCatalystObjectsOperator::commitCollectionToDisk()
     def self.commitCollectionToDisk()
-        $semaphore22d1768a.synchronize {
-            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "80ce3a9c-1b06-4f05-ab8e-a285b1945c8d", JSON.generate($CATALYST_OBJECTS_IN_MEMORY))
+        $DATA_MANAGER_CATALYST_OBJECTS_IO_SEMAPHORE.synchronize {
+            File.open("#{DATA_MANAGER_CATALYST_OBJECTS_REPOSITORY_FOLDERPATH}/ffbea143-d99f-4e91-9061-027622b11c09.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH)) }
         }
     end
 
@@ -34,14 +29,14 @@ class NSXCatalystObjectsOperator
             .each{|agentinterface| 
                 agentinterface["get-objects"].call()
                     .each{|object|
-                        $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object
+                        $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH[object["uuid"]] = object
                     } 
             }
     end
 
     # NSXCatalystObjectsOperator::getObjects()
     def self.getObjects()
-        $CATALYST_OBJECTS_IN_MEMORY.values.compact.map{|object| object.clone }
+        $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH.values.compact.map{|object| object.clone }
     end
 
     # NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
@@ -50,27 +45,27 @@ class NSXCatalystObjectsOperator
         return if signal[0] == "nothing"
         if signal[0] == "update" then
             object = signal[1]
-            $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object
+            $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH[object["uuid"]] = object
             NSXCatalystObjectsOperator::commitCollectionToDisk()
         end
         if signal[0] == "remove" then
             objectuuid = signal[1]
-            $CATALYST_OBJECTS_IN_MEMORY.delete(objectuuid)
+            $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH.delete(objectuuid)
             NSXCatalystObjectsOperator::commitCollectionToDisk()
         end
         if signal[0] == "reload-agent-objects" then
             agentuuid = signal[1]
             # Removing the objects of that agent
-            $CATALYST_OBJECTS_IN_MEMORY.keys.each{|objectuuid|
-                object = $CATALYST_OBJECTS_IN_MEMORY[objectuuid]
+            $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH.keys.each{|objectuuid|
+                object = $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH[objectuuid]
                 next if object["agent-uid"] != agentuuid
-                $CATALYST_OBJECTS_IN_MEMORY.delete(object["uuid"])
+                $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH.delete(object["uuid"])
             }
             # Recalling agent objects
             agentinterface = NSXBob::agentuuid2AgentDataOrNull(agentuuid)
             return if agentinterface.nil?
             objects = agentinterface["get-objects"].call()
-            objects.each{|object| $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object }
+            objects.each{|object| $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH[object["uuid"]] = object }
             NSXCatalystObjectsOperator::commitCollectionToDisk()
         end
     end
