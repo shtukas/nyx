@@ -185,7 +185,7 @@ class CommonsUtils
     end
 
     def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", MetadataInterface::allKnownRequirementsCarriedByObjects())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", NSXCatalystMetadataInterface::allKnownRequirementsCarriedByObjects())
     end
 
     def self.waveInsertNewItemDefaults(description) # uuid: String
@@ -215,7 +215,7 @@ class CommonsUtils
     def self.sendCatalystObjectToTimeProton(objectuuid)
         lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
         return nil if lightThread.nil?
-        MetadataInterface::setTimeProtonObjectLink(lightThread["uuid"], objectuuid)
+        NSXCatalystMetadataInterface::setTimeProtonObjectLink(lightThread["uuid"], objectuuid)
         lightThread
     end
 
@@ -275,7 +275,7 @@ class CommonsUtils
     # CommonsUtils::flockObjectsProcessedForCatalystDisplay()
     def self.flockObjectsProcessedForCatalystDisplay()
         futureBucketsObjectsUUID = NSXDayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten
-        CatalystObjectsOperator::getObjects()
+        NSXCatalystObjectsOperator::getObjects()
             .map{|object| object.clone }
             .map{|object| 
                 NSXCanary::mark(object["uuid"]) 
@@ -296,7 +296,7 @@ class CommonsUtils
                 object
             }
             .map{|object| 
-                if ( ordinal = MetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
+                if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
                     object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
                     object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
                 end
@@ -330,7 +330,7 @@ class CommonsUtils
     # CommonsUtils::objectToString(object)
     def self.objectToString(object)
         announce = object['announce'].lines.first.strip
-        maybeOrdinal = MetadataInterface::getOrdinalOrNull(object['uuid'])
+        maybeOrdinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object['uuid'])
         [
             object[":is-lightThread-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
             maybeOrdinal ? " {ordinal: #{maybeOrdinal}}" : "",
@@ -354,7 +354,7 @@ class CommonsUtils
         if expression == 'info' then
             puts "CatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{CatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
             puts "Requirements:".green
-            puts "    On  : #{(MetadataInterface::allKnownRequirementsCarriedByObjects() - NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
+            puts "    On  : #{(NSXCatalystMetadataInterface::allKnownRequirementsCarriedByObjects() - NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
             puts "    Off : #{NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
             LucilleCore::pressEnterToContinue()
             return
@@ -368,13 +368,13 @@ class CommonsUtils
         if expression == "house-on" then
             KeyValueStore::destroy(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
             signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
-            CatalystObjectsOperator::processAgentProcessorSignal(signal)
+            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if expression == "house-off" then
             KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}", "killed")
             signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
-            CatalystObjectsOperator::processAgentProcessorSignal(signal)
+            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if expression == 'threads' then
@@ -416,7 +416,7 @@ class CommonsUtils
                 requirement = CommonsUtils::selectRequirementFromExistingRequirementsOrNull()
             end
             loop {
-                requirementObjects = CatalystObjectsOperator::getObjects().select{ |object| MetadataInterface::getObjectsRequirements(object['uuid']).include?(requirement) }
+                requirementObjects = NSXCatalystObjectsOperator::getObjects().select{ |object| NSXCatalystMetadataInterface::getObjectsRequirements(object['uuid']).include?(requirement) }
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| CommonsUtils::objectToString(object) })
                 break if selectedobject.nil?
                 CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
@@ -427,8 +427,8 @@ class CommonsUtils
         if expression.start_with?("search") then
             pattern = expression[6,expression.size].strip
             loop {
-                searchobjects1 = CatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = CatalystObjectsOperator::getObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }                
+                searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
+                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| CommonsUtils::objectToString(object).downcase.include?(pattern.downcase) }                
                 searchobjects = searchobjects1 + searchobjects2
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| CommonsUtils::objectToString(object) })
@@ -443,7 +443,7 @@ class CommonsUtils
         # object needed
 
         if expression == ',,' then
-            MetadataInterface::setMetricCycleUnixtimeForObject(object["uuid"], Time.new.to_i)
+            NSXCatalystMetadataInterface::setMetricCycleUnixtimeForObject(object["uuid"], Time.new.to_i)
             return
         end
 
@@ -467,16 +467,16 @@ class CommonsUtils
         if expression == 'ordinal:' then
             if object["agent-uid"] != "9bafca47-5084-45e6-bdc3-a53194e6fe62" then
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                MetadataInterface::setOrdinal(object["uuid"], ordinal)
+                NSXCatalystMetadataInterface::setOrdinal(object["uuid"], ordinal)
                 signal = ["reload-agent-objects", object["agent-uid"]]
-                CatalystObjectsOperator::processAgentProcessorSignal(signal)
+                NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
                 return
             end
         end
 
         if expression == 'expose' then
             puts JSON.pretty_generate(object)
-            metadata = CatalystObjectsNonAgentMetadataUtils::getMetadataForObject(object["uuid"])
+            metadata = NSXCatalystMetadataOperator::getMetadataForObject(object["uuid"])
             puts JSON.pretty_generate(metadata)
             LucilleCore::pressEnterToContinue()
             return
@@ -492,13 +492,13 @@ class CommonsUtils
 
         if expression.start_with?("require") then
             _, requirement = expression.split(" ").map{|t| t.strip }
-            MetadataInterface::setRequirementForObject(object['uuid'],requirement)
+            NSXCatalystMetadataInterface::setRequirementForObject(object['uuid'],requirement)
             return
         end
 
         if expression.start_with?("requirement remove") then
             _, _, requirement = expression.split(" ").map{|t| t.strip }
-            MetadataInterface::unSetRequirementForObject(object['uuid'],requirement)
+            NSXCatalystMetadataInterface::unSetRequirementForObject(object['uuid'],requirement)
             return
         end
 
@@ -506,11 +506,11 @@ class CommonsUtils
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
                 signal = NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
-                CatalystObjectsOperator::processAgentProcessorSignal(signal)
+                NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             }
         else
             signal = NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, "")
-            CatalystObjectsOperator::processAgentProcessorSignal(signal)
+            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
     end
 

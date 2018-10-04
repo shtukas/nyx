@@ -14,21 +14,21 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 $CATALYST_OBJECTS_IN_MEMORY = {}
 $semaphore22d1768a = Mutex.new
 
-class CatalystObjectsOperator
+class NSXCatalystObjectsOperator
 
-    # CatalystObjectsOperator::initialLoadFromDisk()
+    # NSXCatalystObjectsOperator::initialLoadFromDisk()
     def self.initialLoadFromDisk()
         $CATALYST_OBJECTS_IN_MEMORY = JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "80ce3a9c-1b06-4f05-ab8e-a285b1945c8d", "{}"))
     end
 
-    # CatalystObjectsOperator::commitCollectionToDisk()
+    # NSXCatalystObjectsOperator::commitCollectionToDisk()
     def self.commitCollectionToDisk()
         $semaphore22d1768a.synchronize {
             KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "80ce3a9c-1b06-4f05-ab8e-a285b1945c8d", JSON.generate($CATALYST_OBJECTS_IN_MEMORY))
         }
     end
 
-    # CatalystObjectsOperator::getObjectsFromAgents()
+    # NSXCatalystObjectsOperator::getObjectsFromAgents()
     def self.getObjectsFromAgents()
         NSXBob::agents()
             .each{|agentinterface| 
@@ -39,24 +39,24 @@ class CatalystObjectsOperator
             }
     end
 
-    # CatalystObjectsOperator::getObjects()
+    # NSXCatalystObjectsOperator::getObjects()
     def self.getObjects()
         $CATALYST_OBJECTS_IN_MEMORY.values.compact.map{|object| object.clone }
     end
 
-    # CatalystObjectsOperator::processAgentProcessorSignal(signal)
+    # NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     def self.processAgentProcessorSignal(signal)
         puts "signal: #{signal.join(" ")}"
         return if signal[0] == "nothing"
         if signal[0] == "update" then
             object = signal[1]
             $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object
-            CatalystObjectsOperator::commitCollectionToDisk()
+            NSXCatalystObjectsOperator::commitCollectionToDisk()
         end
         if signal[0] == "remove" then
             objectuuid = signal[1]
             $CATALYST_OBJECTS_IN_MEMORY.delete(objectuuid)
-            CatalystObjectsOperator::commitCollectionToDisk()
+            NSXCatalystObjectsOperator::commitCollectionToDisk()
         end
         if signal[0] == "reload-agent-objects" then
             agentuuid = signal[1]
@@ -71,20 +71,20 @@ class CatalystObjectsOperator
             return if agentinterface.nil?
             objects = agentinterface["get-objects"].call()
             objects.each{|object| $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object }
-            CatalystObjectsOperator::commitCollectionToDisk()
+            NSXCatalystObjectsOperator::commitCollectionToDisk()
         end
     end
 
 end
 
-CatalystObjectsOperator::initialLoadFromDisk()
+NSXCatalystObjectsOperator::initialLoadFromDisk()
 
 Thread.new {
     loop {
         sleep 12
-        CatalystObjectsOperator::getObjectsFromAgents()
+        NSXCatalystObjectsOperator::getObjectsFromAgents()
         sleep 120
-        CatalystObjectsOperator::commitCollectionToDisk()
+        NSXCatalystObjectsOperator::commitCollectionToDisk()
     }
 }
 

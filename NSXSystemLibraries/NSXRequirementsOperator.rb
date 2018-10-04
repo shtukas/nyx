@@ -33,17 +33,17 @@ class NSXRequirementsOperator
 
     # NSXRequirementsOperator::selectRequirementFromExistingRequirementsOrNull()
     def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", MetadataInterface::allKnownRequirementsCarriedByObjects())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", NSXCatalystMetadataInterface::allKnownRequirementsCarriedByObjects())
     end
 
     # NSXRequirementsOperator::updateForDisplay(object)
     def self.updateForDisplay(object)
-        if !MetadataInterface::allObjectRequirementsAreSatisfied(object["uuid"]) and object["metric"]<=1 then
+        if !NSXCatalystMetadataInterface::allObjectRequirementsAreSatisfied(object["uuid"]) and object["metric"]<=1 then
             # The second condition in case we start running an object that wasn't scheduled to be shown today (they can be found through search)
             object["metric"] = 0
             object[":netric-updated-by:NSXRequirementsOperator::updateForDisplay:"] = true
             # There is also something else we need to do: removing the cycle marker
-            MetadataInterface::unSetMetricCycleUnixtimeForObject(object["uuid"])
+            NSXCatalystMetadataInterface::unSetMetricCycleUnixtimeForObject(object["uuid"])
         end
         object
     end

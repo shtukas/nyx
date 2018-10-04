@@ -207,7 +207,7 @@ class NSXLightThreadUtils
             percentageAsString = "#{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}% of "
         end
         timeAsString = "(#{percentageAsString}#{lightThread["time-commitment-every-20-hours-in-hours"].round(2)} hours)"
-        itemsAsString = "(#{MetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"]).size} objects)"
+        itemsAsString = "(#{NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"]).size} objects)"
         "lightThread: #{lightThread["description"]} #{timeAsString} #{itemsAsString}"
     end
 
@@ -241,8 +241,8 @@ class NSXLightThreadUtils
             end
             if operation == "show items" then
                 loop {
-                    lightThreadCatalystObjectsUUIDs = MetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
-                    objects = CatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
+                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
+                    objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
                     CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
@@ -250,11 +250,11 @@ class NSXLightThreadUtils
             end
             if operation == "remove items" then
                 loop {
-                    lightThreadCatalystObjectsUUIDs = MetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
-                    objects = CatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
+                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
+                    objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
                     break if selectedobject.nil?
-                    MetadataInterface::unSetTimeProtonObjectLink(lightThread["uuid"], selectedobject["uuid"])
+                    NSXCatalystMetadataInterface::unSetTimeProtonObjectLink(lightThread["uuid"], selectedobject["uuid"])
                 }
             end
             if operation=="time commitment:" then
