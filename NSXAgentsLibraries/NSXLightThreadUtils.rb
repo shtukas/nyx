@@ -152,9 +152,9 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        percentageAsString = "#{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}%"
-        itemsAsString = "(#{NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"]).size} objects)"
-        "lightThread: #{lightThread["description"]} { #{percentageAsString} } #{itemsAsString}"
+        percentageAsString = "{ #{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}% / #{lightThread["commitment"].round(2)} hours/day }"
+        itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"]).size} objects )"
+        "lightThread: #{lightThread["description"]} #{percentageAsString} #{itemsAsString}"
     end
 
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
@@ -173,6 +173,7 @@ class NSXLightThreadUtils
         loop {
             puts "-> #{NSXLightThreadUtils::lightThreadToString(lightThread)}"
             puts "-> lightThread uuid: #{lightThread["uuid"]}"
+            puts "-> lightThread commitment: #{lightThread["commitment"]}"
             puts "-> lightThreadToLivePercentage: #{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread)}"
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
             break if operation.nil?
