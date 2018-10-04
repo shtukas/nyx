@@ -38,6 +38,7 @@ require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
 require_relative "NSXSystemLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXSystemLibraries/NSXCanary.rb"
+require_relative "NSXSystemLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXSystemLibraries/NSXCyclesOperator.rb"
 require_relative "NSXSystemLibraries/NSXDayBucketOperator.rb"
 require_relative "NSXSystemLibraries/NSXEmailClients.rb"
@@ -90,7 +91,7 @@ class DisplayStateUtils
 
     # DisplayStateUtils::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
-        objects = CommonsUtils::flockObjectsProcessedForCatalystDisplay()
+        objects = NSXMiscUtils::flockObjectsProcessedForCatalystDisplay()
         combinedTimeProtonObjectUUID = NSXCatalystMetadataInterface::lightThreadsAllCatalystObjectsUUIDs()
         regularObjects, lightThreadObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
         {
@@ -247,9 +248,9 @@ class CatalystInterfaceUtils
 
     def self.objectToLineForMainListing(object, position, standardlp)
         if position == standardlp then
-            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::objectToString(object)}"
+            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)}"
         else
-            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{CommonsUtils::objectToString(object)[0,CommonsUtils::screenWidth()-9]}"
+            "#{CatalystInterfaceUtils::positionDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)[0,NSXMiscUtils::screenWidth()-9]}"
         end
     end
 
@@ -274,28 +275,23 @@ class CatalystInterfaceUtils
             return
         end
         if command == "+" then
-            CommonsUtils::setStandardListingPosition(CommonsUtils::getStandardListingPosition()+1)
+            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
             return
         end
         if command.start_with?(":") then
-            if CommonsUtils::isInteger(command[1, command.size]) then
+            if NSXMiscUtils::isInteger(command[1, command.size]) then
                 position = command[1, command.size].to_i
-                CommonsUtils::setStandardListingPosition([position, 0].max)
+                NSXMiscUtils::setStandardListingPosition([position, 0].max)
                 return
             end
             return
         end
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        CommonsUtils::processObjectAndCommand(object, command)
+        NSXMiscUtils::processObjectAndCommand(object, command)
     end
 
-    def self.displayLoop(codehash)
+    def self.displayLoop()
         loop {
-
-            if codehash != CommonsUtils::codeHash() then
-                puts "Source code hash changed. Exiting!"
-                exit
-            end
 
             displayScreenSizeReductionIndex = 6
 
@@ -313,7 +309,7 @@ class CatalystInterfaceUtils
 
             puts "Special Commands Object: ,, .. ordinal: <ordinal> // <timeEstimationInHours> +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >bucket".green
 
-            standardlp = CommonsUtils::getStandardListingPosition()
+            standardlp = NSXMiscUtils::getStandardListingPosition()
 
             averageDailyCommitmentInHours = NSXLightThreadUtils::totalDailyCommitmentInHours()
             percentageDone = 100 * ( NSXLightThreadUtils::currentTotalDoneInHours().to_f/averageDailyCommitmentInHours )
@@ -357,7 +353,7 @@ class CatalystInterfaceUtils
                 newDisplayState
             }
 
-            displayState = DisplayStateUtils::makeGenesysDisplayState(CommonsUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
+            displayState = DisplayStateUtils::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
             loop {
                 displayState["nsx26:lines-to-display"].each{|line|
                     puts line
@@ -412,12 +408,10 @@ class CatalystInterfaceUtils
     end
 end
 
-if !CommonsUtils::isLucille18() then
+if !NSXMiscUtils::isLucille18() then
     puts "We are not running Catalyst outside Lucille18"
     exit
 end
-
-codehash = CommonsUtils::codeHash()
 
 # -------------------------------------------------------------------------
 =begin
@@ -439,17 +433,17 @@ $THETASKS << [
     "49429DCB",
     86400,
     lambda {
-         CatalystDevOps::archivesTimelineGarbageCollection(false)
+         NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
     },
-    "CatalystDevOps::archivesTimelineGarbageCollection(false)"
+    "NSXCatalystDevOps::archivesTimelineGarbageCollection(false)"
 ]
 $THETASKS << [
     "69429DCB",
     1200,
     lambda {
-         CommonsUtils::emailSync(false)
+         NSXMiscUtils::emailSync(false)
     },
-    "CommonsUtils::emailSync(false)"
+    "NSXMiscUtils::emailSync(false)"
 ]
 
 $THETASKSINDEX = 0
@@ -472,4 +466,4 @@ Thread.new {
 # -------------------------------------------------------------------------
 
 NSXCatalystObjectsOperator::getObjectsFromAgents()
-CatalystInterfaceUtils::displayLoop(codehash)
+CatalystInterfaceUtils::displayLoop()

@@ -61,7 +61,7 @@ class NSXOrdinalsFile
 
     # NSXOrdinalsFile::sendStructureToDisk(structure)
     def self.sendStructureToDisk(structure)
-    	folderpath = CommonsUtils::newBinArchivesFolderpath()
+    	folderpath = NSXMiscUtils::newBinArchivesFolderpath()
     	system("cp '#{NSXOrdinalsFile::pathToFile()}' '#{folderpath}/Catalyst-Ordinals.txt'")
 		filecontents = NSXOrdinalsFile::structureToFileContents(structure)
 		File.open(NSXOrdinalsFile::pathToFile(), "w"){|f| f.puts(filecontents) }    	

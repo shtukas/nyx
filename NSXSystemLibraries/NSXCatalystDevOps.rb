@@ -2,11 +2,11 @@
 # encoding: UTF-8
 
 
-# CatalystDevOps::today()
-# CatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
-# CatalystDevOps::getFilepathAgeInDays(filepath)
+# NSXCatalystDevOps::today()
+# NSXCatalystDevOps::getFirstDiveFirstLocationAtLocation(location)
+# NSXCatalystDevOps::getFilepathAgeInDays(filepath)
 
-class CatalystDevOps
+class NSXCatalystDevOps
 
     def self.today()
         DateTime.now.to_date.to_s
@@ -25,7 +25,7 @@ class CatalystDevOps
             else
                 locationsdirectories = locations.select{|location| File.directory?(location) }
                 if locationsdirectories.size>0 then
-                    CatalystDevOps::getFirstDiveFirstLocationAtLocation(locationsdirectories.first)
+                    NSXCatalystDevOps::getFirstDiveFirstLocationAtLocation(locationsdirectories.first)
                 else
                     locations.first
                 end
@@ -40,18 +40,18 @@ class CatalystDevOps
     # -------------------------------------------
     # Archives
 
-    # CatalystDevOps::getArchiveTimelineSizeInMegaBytes()
-    # CatalystDevOps::archivesTimelineGarbageCollectionStandard(verbose): Array[String] 
-    # CatalystDevOps::archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes, verbose): Array[String] 
-    # CatalystDevOps::archivesTimelineGarbageCollection(verbose): Array[String]
+    # NSXCatalystDevOps::getArchiveTimelineSizeInMegaBytes()
+    # NSXCatalystDevOps::archivesTimelineGarbageCollectionStandard(verbose): Array[String] 
+    # NSXCatalystDevOps::archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes, verbose): Array[String] 
+    # NSXCatalystDevOps::archivesTimelineGarbageCollection(verbose): Array[String]
 
     def self.getArchiveTimelineSizeInMegaBytes()
         LucilleCore::locationRecursiveSize(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
     def self.archivesTimelineGarbageCollectionStandard(verbose)
-        while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
+        while NSXCatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
+            location = NSXCatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             puts location if verbose
             LucilleCore::removeFileSystemLocation(location)
@@ -60,7 +60,7 @@ class CatalystDevOps
 
     def self.archivesTimelineGarbageCollectionFast(sizeEstimationInMegaBytes, verbose)
         while sizeEstimationInMegaBytes > 1024 do # Gigabytes of Archives
-            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
+            location = NSXCatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
             if File.file?(location) then
                 sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
@@ -72,10 +72,10 @@ class CatalystDevOps
     end
 
     def self.archivesTimelineGarbageCollection(verbose)
-        while CatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
-            location = CatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
+        while NSXCatalystDevOps::getArchiveTimelineSizeInMegaBytes() > 1024 do # Gigabytes of Archives
+            location = NSXCatalystDevOps::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH)
             break if location == CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH
-            CatalystDevOps::archivesTimelineGarbageCollectionFast(CatalystDevOps::getArchiveTimelineSizeInMegaBytes(), verbose)
+            NSXCatalystDevOps::archivesTimelineGarbageCollectionFast(NSXCatalystDevOps::getArchiveTimelineSizeInMegaBytes(), verbose)
         end
 
     end

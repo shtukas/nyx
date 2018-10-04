@@ -80,7 +80,7 @@ class NSXLightThreadUtils
         metric = 0.9
         metric = 0.1 if currentStatus[0] == "sleeping"
         metric = 2.0 if currentStatus[0] == "active-runnning"
-        metric + CommonsUtils::traceToMetricShift(lightThread["uuid"])
+        metric + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
     # NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
@@ -243,16 +243,16 @@ class NSXLightThreadUtils
                 loop {
                     lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
                     objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
-                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
+                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                     break if selectedobject.nil?
-                    CommonsUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                    NSXMiscUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
                 }
             end
             if operation == "remove items" then
                 loop {
                     lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
                     objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
-                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| CommonsUtils::objectToString(object) })
+                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                     break if selectedobject.nil?
                     NSXCatalystMetadataInterface::unSetTimeProtonObjectLink(lightThread["uuid"], selectedobject["uuid"])
                 }

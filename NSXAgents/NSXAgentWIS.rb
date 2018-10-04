@@ -46,7 +46,7 @@ class NSXAgentWIS
                         url = line[26, 999]
                         url = url[0, url.index('"')]
                         puts url
-                        CommonsUtils::waveInsertNewItemDefaults(url)
+                        NSXMiscUtils::waveInsertNewItemDefaults(url)
                         KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}", "done") 
                     end
                 }

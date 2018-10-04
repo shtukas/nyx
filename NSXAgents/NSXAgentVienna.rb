@@ -68,7 +68,7 @@ class NSXAgentVienna
     end
 
     def self.getObjects()
-        return [] if !CommonsUtils::isLucille18()
+        return [] if !NSXMiscUtils::isLucille18()
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?

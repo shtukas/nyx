@@ -182,7 +182,7 @@ class WaveSchedules
         # One Offs
 
         if schedule['@'] == 'new' then
-            return CommonsUtils::unixtimeToMetricNS1935(schedule['unixtime'])
+            return NSXMiscUtils::unixtimeToMetricNS1935(schedule['unixtime'])
         end
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility
@@ -373,7 +373,7 @@ class NSXAgentWave
         folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         retrun if !File.exists?(folderpath)
-        targetFolder = CommonsUtils::newBinArchivesFolderpath()
+        targetFolder = NSXMiscUtils::newBinArchivesFolderpath()
         FileUtils.mv("#{folderpath}",targetFolder)
     end
 
@@ -452,7 +452,7 @@ class NSXAgentWave
         object = {}
         object['uuid'] = objectuuid
         object["agent-uid"] = self.agentuuid()
-        object['metric'] = metric + CommonsUtils::traceToMetricShift(objectuuid)
+        object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
         object['announce'] = announce
         object['commands'] = NSXAgentWave::commands(schedule)
         object["default-expression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)

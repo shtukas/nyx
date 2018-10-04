@@ -101,7 +101,7 @@ class NSXFolderProbe
             contents = IO.read(filepath)
             return nil if contents.lines.to_a.size != 1
             line = contents.lines.first.strip
-            line = CommonsUtils::simplifyURLCarryingString(line)
+            line = NSXMiscUtils::simplifyURLCarryingString(line)
             return nil if !line.start_with?("http")
             line
         }
@@ -214,7 +214,7 @@ class NSXFolderProbe
 
         end
         if metadata["target-type"]=="url" then
-            if CommonsUtils::isLucille18() then
+            if NSXMiscUtils::isLucille18() then
                 system("open '#{metadata["url"]}'")
             else
                 system("open -na 'Google Chrome' --args --new-window '#{metadata["url"]}'")

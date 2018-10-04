@@ -8,7 +8,7 @@ class NSXCyclesOperator
         return object if object["metric"] >= 1
         unixtime = NSXCatalystMetadataInterface::getMetricCycleUnixtimeForObjectOrNull(object["uuid"])
         return object if unixtime.nil?
-        object["metric"] = CommonsUtils::unixtimeToMetricNS1935(unixtime.to_i)
+        object["metric"] = NSXMiscUtils::unixtimeToMetricNS1935(unixtime.to_i)
         object[":metric-updated-by:NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded:"] = true
         object
     end
