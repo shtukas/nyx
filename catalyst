@@ -45,7 +45,6 @@ require_relative "NSXSystemLibraries/NSXEmailClients.rb"
 require_relative "NSXSystemLibraries/NSXRequirementsOperator.rb"
 
 require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
-require_relative "NSXAgentsLibraries/NSXLightThreadDailyTimeTracking.rb"
 require_relative "NSXAgentsLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXAgentsLibraries/NSXOrdinals.rb"
 
@@ -289,7 +288,7 @@ class CatalystInterfaceUtils
     def self.displayLoop()
         loop {
 
-            displayScreenSizeReductionIndex = 6
+            displayScreenSizeReductionIndex = 5
 
             # Indicates over staying off requirement.
             if ( Time.new.to_i > KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i ) then
@@ -306,12 +305,6 @@ class CatalystInterfaceUtils
             puts "Special Commands Object: ,, .. ordinal: <ordinal> // <timeEstimationInHours> +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >bucket".green
 
             standardlp = NSXMiscUtils::getStandardListingPosition()
-
-            averageDailyCommitmentInHours = NSXLightThreadUtils::totalDailyCommitmentInHours()
-            percentageDone = 100 * ( NSXLightThreadUtils::currentTotalDoneInHours().to_f/averageDailyCommitmentInHours )
-
-            numbers = NSXLightThreadDailyTimeTracking::numbersDayTotalAndPercentage()
-            puts "Time Protons: #{"%.2f" % (numbers[0].to_f/3600)} hours today ( #{"%.2f" % (numbers[1])} % done )".yellow
 
             puts ""
 

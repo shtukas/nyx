@@ -1,0 +1,14 @@
+LightThread { 
+    :uuid        : String
+    :unixtime    : Integer
+    :description : String
+    :commitment  : Float  # In hours per day.
+    :status      : LightThreadStatus
+    :done        : Array[LightThreadTimeRecordItem]
+}
+
+LightThreadStatus
+	["paused"]
+	["running-since", Unixtime]
+
+LightThreadTimeRecordItem: [Unixtime, Float] # second component is how much time has been done on that day.

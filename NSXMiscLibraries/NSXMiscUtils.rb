@@ -375,9 +375,9 @@ class NSXMiscUtils
 
         if expression == 'thread:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
+            commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
             target = nil
-            lightThread = NSXLightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
+            lightThread = NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
             puts JSON.pretty_generate(lightThread)
             LucilleCore::pressEnterToContinue()
             return

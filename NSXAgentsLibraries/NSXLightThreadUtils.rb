@@ -11,46 +11,22 @@ class NSXLightThreadUtils
             .map{|filepath| [JSON.parse(IO.read(filepath)), filepath] }
     end
 
-    # NSXLightThreadUtils::totalDailyCommitmentInHours()
-    def self.totalDailyCommitmentInHours()
-        NSXLightThreadUtils::lightThreadsWithFilepaths()
-            .map{|data| 
-                lightThread = data[0]
-                lightThread["time-commitment-every-20-hours-in-hours"]
-            }
-            .inject(0, :+)
-    end
-
-    # NSXLightThreadUtils::currentTotalDoneInHours()
-    def self.currentTotalDoneInHours()
-        NSXLightThreadUtils::lightThreadsWithFilepaths()
-            .select{|data| 
-                lightThread = data[0]
-                ["active-paused", "active-runnning"].include?(lightThread["status"])
-            }
-            .map{|data| 
-                lightThread = data[0]
-                currentStatus = lightThread["status"]
-                currentStatus[1]
-            }
-            .inject(0, :+)
-            .to_f/3600
-    end
-
     # NSXLightThreadUtils::commitLightThreadToDisk(lightThread, filename)
     def self.commitLightThreadToDisk(lightThread, filename)
         File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Light-Threads/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(lightThread)) }
     end
 
-    # NSXLightThreadUtils::makeNewLightThread(description, timeCommitmentEvery20Hours, target)
-    def self.makeNewLightThread(description, timeCommitmentEvery20Hours, target)
+    # NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
+    def self.makeNewLightThread(description, commitment, target)
         lightThread = {
-            "uuid"           => SecureRandom.hex(4),
-            "unixtime"       => Time.new.to_i,
-            "description"    => description,
-            "time-commitment-every-20-hours-in-hours" => timeCommitmentEvery20Hours,
-            "status"         => ["sleeping", 0]
+            "uuid"        => SecureRandom.hex(4),
+            "unixtime"    => Time.new.to_i,
+            "description" => description,
+            "commitment"  => commitment,
+            "status"      => ["paused"],
+            "done"        => []
         }
+        lightThread["done"] << [Time.new.to_i, 0]
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, "#{LucilleCore::timeStringL22()}.json")
         lightThread
     end
@@ -73,39 +49,16 @@ class NSXLightThreadUtils
         nil
     end
 
-    # NSXLightThreadUtils::lightThread2Metric(lightThread)
-    def self.lightThread2Metric(lightThread)
-        # Logic: set to 0.9 and I let Cycles Operator deal with it.
-        currentStatus = lightThread["status"]
-        metric = 0.9
-        metric = 0.1 if currentStatus[0] == "sleeping"
-        metric = 2.0 if currentStatus[0] == "active-runnning"
-        metric + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
-    end
-
     # NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
     def self.trueIfLightThreadIsRunning(lightThread)
-        lightThread["status"][0] == "active-runnning"
+        lightThread["status"][0] == "running-since"
     end
 
     # NSXLightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
     def self.makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
         # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
-        if lightThread["status"][0] == "sleeping" then
-            timeSinceGoingToSleep = Time.new.to_i - lightThread["status"][1]
-            if timeSinceGoingToSleep >= 20*3600 then
-                # Here we need to get it out of sleep
-                lightThread["status"] = ["active-paused", 0]
-                NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
-            end
-        end
 
-        if lightThread["status"][0] == "active-paused" and NSXLightThreadUtils::lightThreadToLivePercentage(lightThread) >= 100 then
-            lightThread["status"] = ["sleeping", Time.new.to_i]
-            NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
-        end
-
-        if lightThread["status"][0] == "active-runnning" and NSXLightThreadUtils::lightThreadToLivePercentage(lightThread) >= 100 then
+        if lightThread["status"][0] == "running-since" and NSXLightThreadUtils::lightThreadToLivePercentage(lightThread) >= 100 then
             system("terminal-notifier -title 'Catalyst TimeProton' -message '#{lightThread["description"].gsub("'","")} is done'")
         end
 
@@ -129,86 +82,79 @@ class NSXLightThreadUtils
     def self.startLightThread(lightThreadUUID)
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
-        currentStatus = lightThread["status"]
-        return if currentStatus[0] == "active-runnning" 
-        if currentStatus[0] == "active-paused" then
-            status = ["active-runnning", currentStatus[1], Time.new.to_i] 
-        end
-        if currentStatus[0] == "sleeping" then
-            status = ["active-runnning", 0, Time.new.to_i] 
-        end 
-        lightThread["status"] = status
+        return if lightThread["status"][0] == "running-since" 
+        lightThread["status"] = ["running-since", Time.new.to_i]
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
+        ## Because we do not return anything, every call to this command should be followed by 
+        ## signal = ["reload-agent-objects", self::agentuuid()]
+        ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXLightThreadUtils::stopLightThread(lightThreadUUID)
     def self.stopLightThread(lightThreadUUID)
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
-        currentStatus = lightThread["status"]
-        return if currentStatus[0] == "sleeping"
-        return if currentStatus[0] == "active-paused"
-        lastStartedRunningTime = currentStatus[2]
-        timeDoneInSeconds = Time.new.to_i - lastStartedRunningTime
-        status =
-            if timeDoneInSeconds < lightThread["time-commitment-every-20-hours-in-hours"]*3600 then
-                ["active-paused", timeDoneInSeconds]
-            else
-                ["sleeping", Time.new.to_i]
-            end
-        lightThread["status"] = status
+        return if lightThread["status"][0] == "paused" 
+        recordItem = [ lightThread["status"][1], Time.new.to_i - lightThread["status"][1] ]
+        lightThread["done"] << recordItem
+        lightThread["status"] = ["paused"]
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
-
-        # Admin for the day
-        NSXLightThreadDailyTimeTracking::addTimespanForTimeProton(lightThread["uuid"], timeDoneInSeconds)
+        ## Because we do not return anything, every call to this command should be followed by 
+        ## signal = ["reload-agent-objects", self::agentuuid()]
+        ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timeInHours)
     def self.lightThreadAddTime(lightThreadUUID, timeInHours)
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
+        lightThread["done"] << [Time.new.to_i, timeInHours * 3600]
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThreadUUID)
-        return if filepath.nil?
-        if lightThread["status"][0] == "sleeping" then
-            lightThread["status"] = ["active-paused", 0]
-        end
-        lightThread["status"][1] = lightThread["status"][1] + timeInHours*3600
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
-
-        # Admin for the day
-        NSXLightThreadDailyTimeTracking::addTimespanForTimeProton(lightThread["uuid"], timeInHours*3600)
+        ## Because we do not return anything, every call to this command should be followed by 
+        ## signal = ["reload-agent-objects", self::agentuuid()]
+        ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
-    # NSXLightThreadUtils::lightThreadToLiveDoneTimeSpan(lightThread)
-    def self.lightThreadToLiveDoneTimeSpan(lightThread)
-        status = lightThread["status"]
-        return 0 if status[0]=="sleeping"
-        return status[1] if status[0]=="active-paused"
-        status[1] + (Time.new.to_i-status[2])
+    # NSXLightThreadUtils::lightThread2Metric(lightThread)
+    def self.lightThread2Metric(lightThread)
+        return 2 if lightThread["status"][0] == "running-since"
+        metric = 0.8 - 0.5*NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).to_f/100 # at 100% we are still at 0.3
+        metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+    end
+
+    # NSXLightThreadUtils::lightThreadToRealisedTimeSpanInSeconds(lightThread)
+    def self.lightThreadToRealisedTimeSpanInSeconds(lightThread)
+        lightThread["done"].map{|item| item[1] }.inject(0, :+)
+    end
+
+    # NSXLightThreadUtils::lightThreadToLiveDoneTimeSpanInSeconds(lightThread)
+    def self.lightThreadToLiveDoneTimeSpanInSeconds(lightThread)
+        doneTime = NSXLightThreadUtils::lightThreadToRealisedTimeSpanInSeconds(lightThread)
+        if lightThread["status"][0] == "running-since" then
+            doneTime = Time.new.to_i - lightThread["status"][1]
+        end
+        doneTime
     end
 
     # NSXLightThreadUtils::lightThreadToLivePercentage(lightThread)
     def self.lightThreadToLivePercentage(lightThread)
-        100*NSXLightThreadUtils::lightThreadToLiveDoneTimeSpan(lightThread).to_f/(3600*lightThread["time-commitment-every-20-hours-in-hours"])
+        return 0 if lightThread["done"].size==0
+        oldestUnixtime = lightThread["done"][0][0]
+        calendarTimespanInSeconds = Time.new.to_i - oldestUnixtime
+        calendarTimespanInDays = calendarTimespanInSeconds.to_f/86400
+        timeDoneExpectationInHours = calendarTimespanInDays * lightThread["commitment"]
+        timeDoneRealisedInHours = NSXLightThreadUtils::lightThreadToLiveDoneTimeSpanInSeconds(lightThread).to_f/3600
+        100 * (timeDoneRealisedInHours.to_f / timeDoneExpectationInHours)
     end
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        status = lightThread["status"]
-        if status[0]=="sleeping" then
-            percentageAsString = "sleeping / "
-        end
-        if status[0]=="active-paused" then
-            percentageAsString = "#{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}% of "
-        end
-        if status[0]=="active-runnning" then
-            percentageAsString = "#{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}% of "
-        end
-        timeAsString = "(#{percentageAsString}#{lightThread["time-commitment-every-20-hours-in-hours"].round(2)} hours)"
+        percentageAsString = "#{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}%"
         itemsAsString = "(#{NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"]).size} objects)"
-        "lightThread: #{lightThread["description"]} #{timeAsString} #{itemsAsString}"
+        "lightThread: #{lightThread["description"]} { #{percentageAsString} } #{itemsAsString}"
     end
 
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
@@ -227,17 +173,24 @@ class NSXLightThreadUtils
         loop {
             puts "-> #{NSXLightThreadUtils::lightThreadToString(lightThread)}"
             puts "-> lightThread uuid: #{lightThread["uuid"]}"
+            puts "-> lightThreadToLivePercentage: #{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread)}"
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 NSXLightThreadUtils::startLightThread(lightThread)
+                signal = ["reload-agent-objects", self::agentuuid()]
+                NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation=="stop" then
                 NSXLightThreadUtils::stopLightThread(lightThread)
+                signal = ["reload-agent-objects", self::agentuuid()]
+                NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation=="time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
+                signal = ["reload-agent-objects", self::agentuuid()]
+                NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation == "show items" then
                 loop {
@@ -258,8 +211,8 @@ class NSXLightThreadUtils
                 }
             end
             if operation=="time commitment:" then
-                timeCommitmentEvery20Hours = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
-                lightThread["time-commitment-every-20-hours-in-hours"] = timeCommitmentEvery20Hours
+                commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
+                lightThread["commitment"] = commitment
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])))
             end
             if operation=="edit object" then
