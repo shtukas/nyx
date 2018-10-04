@@ -70,8 +70,8 @@ class NSXAgentsDataOperator
             FileUtils.mkpath(folderpath)
         end
         File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-        if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuid]].nil? then
-            $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuid]] = {}
+        if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].nil? then
+            $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid] = {}
         end        
         $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid][key] = value
     end

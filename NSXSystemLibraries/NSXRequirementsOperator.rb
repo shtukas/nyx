@@ -7,21 +7,21 @@ class NSXRequirementsOperator
 
     # NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements()
     def self.getCurrentlyUnsatisfiedRequirements()
-        JSON.parse(KeyValueStore::getOrDefaultValue(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", "[]"))
+        NSXSystemDataOperator::getOrDefaultValue("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", [])
     end
 
     # NSXRequirementsOperator::setUnsatisfiedRequirement(requirement)    
     def self.setUnsatisfiedRequirement(requirement)
         rs = NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = (rs + [ requirement ]).uniq
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", JSON.generate(rs))
+        NSXSystemDataOperator::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", rs)
     end
 
     # NSXRequirementsOperator::setSatisfifiedRequirement(requirement)    
     def self.setSatisfifiedRequirement(requirement)
         rs = NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements()
         rs = rs.reject{|r| r==requirement }
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", JSON.generate(rs))
+        NSXSystemDataOperator::set("Currently-Unsatisfied-Requirements-7f8bba56-6755-401c-a1d2-490c0176337f", rs)
     end
 
     # NSXRequirementsOperator::requirementIsCurrentlySatisfied(requirement)    

@@ -21,13 +21,6 @@ require 'find'
 require 'drb/drb'
 require 'thread'
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
 
 # -----------------------------------------------------------------
 

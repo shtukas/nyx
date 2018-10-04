@@ -1,14 +1,6 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
-
 =begin
     NSXCanary exists because TimeProtons are not notified of an object having been discarded.
     TimeProtons will know whether or not an object has not been seen for a while using NSXCanary. 
@@ -18,12 +10,12 @@ class NSXCanary
     # NSXCanary::mark(objectuuid)
     def self.mark(objectuuid)
         unixtime = Time.new.to_i
-        KeyValueStore::set(nil, "7b748ba4-6ef1-463c-97fc-19186bbeb1d0:#{objectuuid}", Time.new.to_i)
+        NSXSystemDataOperator::set("7b748ba4-6ef1-463c-97fc-19186bbeb1d0:#{objectuuid}", Time.new.to_i)
         unixtime
     end
     # NSXCanary::getLastSeenUnixtimeOrNull(objectuuid)
     def self.getLastSeenUnixtimeOrNull(objectuuid)
-        unixtime = KeyValueStore::getOrNull(nil, "7b748ba4-6ef1-463c-97fc-19186bbeb1d0:#{objectuuid}")
+        unixtime = NSXSystemDataOperator::getOrNull("7b748ba4-6ef1-463c-97fc-19186bbeb1d0:#{objectuuid}")
         return nil if unixtime.nil?
         unixtime.to_i
     end
