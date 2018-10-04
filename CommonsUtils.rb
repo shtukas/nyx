@@ -12,8 +12,6 @@ require 'securerandom'
 
 require "time"
 
-require_relative "Bob.rb"
-
 # ---------------------------------------------------
 
 class CommonsUtils
@@ -507,11 +505,11 @@ class CommonsUtils
         if expression.size > 0 then
             tokens = expression.split(" ").map{|t| t.strip }
             .each{|command|
-                signal = Bob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
+                signal = NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
                 CatalystObjectsOperator::processAgentProcessorSignal(signal)
             }
         else
-            signal = Bob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, "")
+            signal = NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, "")
             CatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
     end

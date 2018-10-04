@@ -2,17 +2,8 @@
 
 # encoding: UTF-8
 require 'json'
-require_relative "Bob.rb"
-# -------------------------------------------------------------------------------------
 
-Bob::registerAgent(
-    {
-        "agent-name"      => "Ninja",
-        "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
-        "get-objects" => lambda { AgentNinja::getObjects() },
-        "object-command-processor" => lambda{ |object, command| AgentNinja::processObjectAndCommand(object, command) }
-    }
-)
+# -------------------------------------------------------------------------------------
 
 NINJA_BINARY_FILEPATH = "/Galaxy/LucilleOS/Binaries/ninja"
 NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"

@@ -7,17 +7,8 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require "time"
-require_relative "Bob.rb"
-# -------------------------------------------------------------------------------------
 
-Bob::registerAgent(
-    {
-        "agent-name"  => "BabyNights",
-        "agent-uid"   => "83837e64-554b-4dd0-a478-04386d8010ea",
-        "get-objects" => lambda { AgentBabyNights::getObjects() },
-        "object-command-processor" => lambda{ |object, command| AgentBabyNights::processObjectAndCommand(object, command) }
-    }
-)
+# -------------------------------------------------------------------------------------
 
 # AgentBabyNights::getObjects()
 

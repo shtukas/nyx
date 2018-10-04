@@ -24,17 +24,8 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
-require_relative "Bob.rb"
-# -------------------------------------------------------------------------------------
 
-Bob::registerAgent(
-    {
-        "agent-name"  => "Vienna",
-        "agent-uid"   => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
-        "get-objects" => lambda { AgentVienna::getObjects() },
-        "object-command-processor" => lambda{ |object, command| AgentVienna::processObjectAndCommand(object, command) }
-    }
-)
+# -------------------------------------------------------------------------------------
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
 

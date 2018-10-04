@@ -30,7 +30,7 @@ class CatalystObjectsOperator
 
     # CatalystObjectsOperator::getObjectsFromAgents()
     def self.getObjectsFromAgents()
-        Bob::agents()
+        NSXBob::agents()
             .each{|agentinterface| 
                 agentinterface["get-objects"].call()
                     .each{|object|
@@ -67,7 +67,7 @@ class CatalystObjectsOperator
                 $CATALYST_OBJECTS_IN_MEMORY.delete(object["uuid"])
             }
             # Recalling agent objects
-            agentinterface = Bob::agentuuid2AgentDataOrNull(agentuuid)
+            agentinterface = NSXBob::agentuuid2AgentDataOrNull(agentuuid)
             return if agentinterface.nil?
             objects = agentinterface["get-objects"].call()
             objects.each{|object| $CATALYST_OBJECTS_IN_MEMORY[object["uuid"]] = object }

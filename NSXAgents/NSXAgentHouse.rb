@@ -9,17 +9,8 @@ require 'securerandom'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-require_relative "Bob.rb"
-# -------------------------------------------------------------------------------------
 
-Bob::registerAgent(
-    {
-        "agent-name"  => "House",
-        "agent-uid"   => "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10",
-        "get-objects" => lambda { AgentHouse::getObjects() },
-        "object-command-processor" => lambda{ |object, command| AgentHouse::processObjectAndCommand(object, command) }
-    }
-)
+# -------------------------------------------------------------------------------------
 
 # AgentHouse::getObjects()
 

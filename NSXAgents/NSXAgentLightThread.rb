@@ -24,17 +24,8 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
-require_relative "Bob.rb"
-# -------------------------------------------------------------------------------------
 
-Bob::registerAgent(
-    {
-        "agent-name"  => "AgentLightThread",
-        "agent-uid"   => "201cac75-9ecc-4cac-8ca1-2643e962a6c6",
-        "get-objects" => lambda { AgentLightThread::getObjects() },
-        "object-command-processor" => lambda{ |object, command| AgentLightThread::processObjectAndCommand(object, command) }
-    }
-)
+# -------------------------------------------------------------------------------------
 
 class AgentLightThread
     def self.agentuuid()

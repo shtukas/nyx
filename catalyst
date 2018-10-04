@@ -29,15 +29,32 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "catalyst.rb"
+# -----------------------------------------------------------------
+
+require_relative "Constants.rb"
 
 # -----------------------------------------------------------------
+
+require_relative "NSXPureFunctions/NSXMiscUtils.rb"
 
 require_relative "NSXDataCookForDisplay.rb"
 require_relative "NSXDataManager.rb"
 require_relative "NSXDisplayOperator.rb"
 require_relative "NSXGeneralCommandHandler.rb"
-require_relative "NSXPureFunctions/NSXMiscUtils.rb"
+
+require_relative "NSXAgents/NSXAgentBabyNights.rb"
+require_relative "NSXAgents/NSXAgentHouse.rb"
+require_relative "NSXAgents/NSXAgentLightThread.rb"
+require_relative "NSXAgents/NSXAgentNinja.rb"
+require_relative "NSXAgents/NSXAgentOrdinals.rb"
+require_relative "NSXAgents/NSXAgentVienna.rb"
+require_relative "NSXAgents/NSXAgentWave.rb"
+require_relative "NSXAgents/NSXAgentWIS.rb"
+require_relative "NSXBob.rb"
+
+# -----------------------------------------------------------------
+
+require_relative "catalyst.rb"
 
 # -----------------------------------------------------------------
 
@@ -93,7 +110,7 @@ class DisplayStateUtils
         return nil if object["metric"] < 0.2 
 
         # --------------------------------------------------------------------------------
-        if Bob::agentuuid2AgentDataOrNull(object["agent-uid"]).nil? then
+        if NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"]).nil? then
             CatalystObjectsOperator::processAgentProcessorSignal(["remove", object["uuid"]])
             return nil
         end

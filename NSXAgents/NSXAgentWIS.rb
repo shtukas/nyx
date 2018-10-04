@@ -9,17 +9,8 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require "time"
-require_relative "Bob.rb"
-# -------------------------------------------------------------------------------------
 
-Bob::registerAgent(
-    {
-        "agent-name"  => "WIS",
-        "agent-uid"   => "3397e320-6c09-423d-ac58-2aea5f85eacb",
-        "get-objects" => lambda { AgentWIS::getObjects() },
-        "object-command-processor" => lambda{ |object, command| AgentWIS::processObjectAndCommand(object, command) }
-    }
-)
+# -------------------------------------------------------------------------------------
 
 # AgentWIS::getObjects()
 
