@@ -73,13 +73,13 @@ class NSXAgentsDataOperator
         if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuuid]].nil? then
             $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuuid]] = {}
         end        
-        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid][key] = value.clone
+        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid][key] = value
     end
 
     # NSXAgentsDataOperator::getOrNull(agentuuuid, key)
     def self.getOrNull(agentuuuid, key)
         return nil if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid].nil?
-        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid][key].clone
+        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid][key]
     end
 
     # NSXAgentsDataOperator::getOrDefaultValue(agentuuuid, key, defaultValue)

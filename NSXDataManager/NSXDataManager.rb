@@ -5,4 +5,4 @@
 require_relative "NSXAgentsDataOperator.rb"
 require_relative "NSXCatalystMetadataOperator.rb"
 require_relative "NSXCatalystObjectsOperator.rb"
-require_relative "NSXCatalystSystemDataOperator.rb"
+require_relative "NSXSystemDataOperator.rb"

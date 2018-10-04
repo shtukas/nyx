@@ -65,12 +65,12 @@ class NSXSystemDataOperator
             FileUtils.mkpath(folderpath)
         end
         File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH[key] = value.clone
+        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH[key] = value
     end
 
     # NSXSystemDataOperator::getOrNull(key)
     def self.getOrNull(key)
-        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH[key].clone
+        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH[key]
     end
 
     # NSXSystemDataOperator::getOrDefaultValue(key, defaultValue)
