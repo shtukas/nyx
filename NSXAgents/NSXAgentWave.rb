@@ -277,24 +277,9 @@ class WaveDevOps
     end
 end
 
-# NSXAgentWave::agentuuid()
-# NSXAgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-# NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
-# NSXAgentWave::catalystUUIDsEnumerator()
-# NSXAgentWave::timestring22ToFolderpath(timestring22)
-# NSXAgentWave::writeScheduleToDisk(uuid, schedule)
-# NSXAgentWave::readScheduleFromWaveItemOrNull(uuid)
-# NSXAgentWave::makeNewSchedule()
-# NSXAgentWave::archiveWaveItem(uuid)
-# NSXAgentWave::commands(schedule)
-# NSXAgentWave::makeCatalystObjectOrNull(objectuuid)
-# NSXAgentWave::objectUUIDToAnnounce(object,schedule)
-# NSXAgentWave::removeWaveMetadataFilesAtLocation(location)
-# NSXAgentWave::getObjects()
-# NSXAgentWave::processObjectAndCommand(object, command)
-
 class NSXAgentWave
 
+    # NSXAgentWave::agentuuid()
     def self.agentuuid()
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
@@ -311,7 +296,7 @@ class NSXAgentWave
     end
 
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = NSXAgentsDataOperator::getOrNull(NSXAgentWave::agentuuid(), "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -323,7 +308,7 @@ class NSXAgentWave
         end
         #puts "NSXAgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = NSXAgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
+        NSXAgentsDataOperator::set(NSXAgentWave::agentuuid(), "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
         maybepath
     end
 
