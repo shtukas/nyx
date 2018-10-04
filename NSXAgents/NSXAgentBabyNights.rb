@@ -13,6 +13,8 @@ require "time"
 # NSXAgentBabyNights::getObjects()
 
 class NSXAgentBabyNights
+
+    # NSXAgentBabyNights::agentuuid()
     def self.agentuuid()
         "83837e64-554b-4dd0-a478-04386d8010ea"
     end
@@ -23,7 +25,7 @@ class NSXAgentBabyNights
 
     def self.getObjects()
         objects = []
-        if KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}").nil? and Time.new.hour>=6 then
+        if NSXAgentsDataOperator::getOrNull(NSXAgentBabyNights::agentuuid(), "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}").nil? and Time.new.hour>=6 then
             object =
                 {
                     "uuid"      => "4b9bcf0a",
@@ -45,7 +47,7 @@ class NSXAgentBabyNights
                 exception = LucilleCore::askQuestionAnswerAsString("Exception: ")
                 puts "👶 Nights Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
-                KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
+                NSXAgentsDataOperator::set(NSXAgentBabyNights::agentuuid(), "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
                 return ["remove", object["uuid"]]
             end
             xname = operation.downcase
@@ -59,7 +61,7 @@ class NSXAgentBabyNights
             end
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
-            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
+            NSXAgentsDataOperator::set(NSXAgentBabyNights::agentuuid(), "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
             return ["remove", object["uuid"]]
         end
         ["nothing"]
