@@ -18,15 +18,6 @@ require_relative "Bob.rb"
 
 class CommonsUtils
 
-    def self.currentHour()
-        Time.now.utc.iso8601[0,13]
-    end
-
-    # CommonsUtils::currentDay()
-    def self.currentDay()
-        Time.now.utc.iso8601[0,10]
-    end
-
     def self.isWeekDay()
         [1,2,3,4,5].include?(Time.new.wday)
     end
@@ -377,13 +368,13 @@ class CommonsUtils
         end
 
         if expression == "house-on" then
-            KeyValueStore::destroy(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}")
+            KeyValueStore::destroy(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
             signal = ["reload-agent-objects", AgentHouse::agentuuid()]
             CatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if expression == "house-off" then
-            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{CommonsUtils::currentDay()}", "killed")
+            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}", "killed")
             signal = ["reload-agent-objects", AgentHouse::agentuuid()]
             CatalystObjectsOperator::processAgentProcessorSignal(signal)
         end

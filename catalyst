@@ -21,8 +21,6 @@ require 'find'
 require 'drb/drb'
 require 'thread'
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
-require_relative "catalyst.rb"
-
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
@@ -30,6 +28,16 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
+
+require_relative "catalyst.rb"
+
+# -----------------------------------------------------------------
+
+require_relative "NSXDataCookForDisplay.rb"
+require_relative "NSXDataManager.rb"
+require_relative "NSXDisplayOperator.rb"
+require_relative "NSXGeneralCommandHandler.rb"
+require_relative "NSXPureFunctions/NSXMiscUtils.rb"
 
 # -----------------------------------------------------------------
 

@@ -73,7 +73,7 @@ class MetadataInterface
         if metadata["nsx-ordinal-per-day"].nil? then
             metadata["nsx-ordinal-per-day"] = {}
         end
-        metadata["nsx-ordinal-per-day"][CommonsUtils::currentDay()] = ordinal
+        metadata["nsx-ordinal-per-day"][NSXMiscUtils::currentDay()] = ordinal
         CatalystObjectsNonAgentMetadataUtils::setMetadataForObject(objectuuid, metadata)
     end
 
@@ -83,7 +83,7 @@ class MetadataInterface
         if metadata["nsx-ordinal-per-day"].nil? then
             metadata["nsx-ordinal-per-day"] = {}
         end
-        metadata["nsx-ordinal-per-day"][CommonsUtils::currentDay()]
+        metadata["nsx-ordinal-per-day"][NSXMiscUtils::currentDay()]
     end
 
     # -----------------------------------------------------------------------
