@@ -129,7 +129,7 @@ class DisplayStateUtils
         if object["agent-uid"]=="283d34dd-c871-4a55-8610-31e7c762fb0d" then
             if object["schedule"][":wave-email:"] then
                 if !File.exists?(object["item-data"]["folderpath"]) then
-                    CatalystInterfaceUtils::executeCommandAgainstObject(object, "done", 1)
+                    NSXGeneralCommandHandler::processCommand(object, "done")
                     return DisplayStateUtils::displayStateTransition(displayState)
                 end
             end
@@ -263,7 +263,7 @@ class CatalystInterfaceUtils
         str
     end
 
-    def self.executeCommandAgainstObject(object, command, standardlp)
+    def self.executeCommandAgainstObject(object, command)
         # The reason why we have this function and processObjectAndCommand as separate function is that they have different signatures
         # That having been said, it is true that this function could just rewrite the object and/or the command.
         if command == "." then
@@ -282,7 +282,7 @@ class CatalystInterfaceUtils
             return
         end
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        NSXMiscUtils::processObjectAndCommand(object, command)
+        NSXGeneralCommandHandler::processCommand(object, command)
     end
 
     def self.displayLoop()
@@ -385,11 +385,11 @@ class CatalystInterfaceUtils
                 NSXCatalystMetadataInterface::unSetMetricCycleUnixtimeForObject(focusobject["uuid"])
             end
 
-            CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, standardlp)
+            NSXGeneralCommandHandler::processCommand(focusobject, command)
 
             if focusobject and focusobject["schedule"] and focusobject["schedule"][":wave-email:"] and command=="open" then
                 if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
-                    CatalystInterfaceUtils::executeCommandAgainstObject(focusobject, command, nil)
+                    NSXGeneralCommandHandler::processCommand(focusobject, command)
                 end
             end
 

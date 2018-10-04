@@ -9,7 +9,7 @@ require 'digest/sha1'
 
 # ----------------------------------------------------------------------
 
-class Ordinal
+class NSXOrdinal
 
     # NSXOrdinal::ordinalToMetric(ordinal)
     def self.ordinalToMetric(ordinal)

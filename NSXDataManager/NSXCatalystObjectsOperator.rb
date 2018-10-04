@@ -73,12 +73,12 @@ class NSXCatalystObjectsOperator
 end
 
 NSXCatalystObjectsOperator::initialLoadFromDisk()
+NSXCatalystObjectsOperator::commitCollectionToDisk()
 
 Thread.new {
     loop {
-        sleep 12
-        NSXCatalystObjectsOperator::getObjectsFromAgents()
         sleep 120
+        NSXCatalystObjectsOperator::getObjectsFromAgents()
         NSXCatalystObjectsOperator::commitCollectionToDisk()
     }
 }
