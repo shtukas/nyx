@@ -23,7 +23,7 @@ $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH = {}
 
 =begin
 {
-    "agentuuuid" => String
+    "agentuuid" => String
     "key"        => String
     "value"      => Value
 }
@@ -48,45 +48,56 @@ class NSXAgentsDataOperator
             .each{|filepath|
                 begin
                     packet = JSON.parse(IO.read(filepath))
-                    if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuuid"]].nil? then
-                        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuuid"]] = {}
+                    if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuid"]].nil? then
+                        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuid"]] = {}
                     end
-                    $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuuid"]][packet["key"]] = packet["value"]
+                    $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuid"]][packet["key"]] = packet["value"]
                 rescue
                 end
             }
     end
 
-    # NSXAgentsDataOperator::set(agentuuuid, key, value)
-    def self.set(agentuuuid, key, value)
+    # NSXAgentsDataOperator::set(agentuuid, key, value)
+    def self.set(agentuuid, key, value)
         packet = {
-            "agentuuuid" => agentuuuid,
+            "agentuuid" => agentuuid,
             "key"        => key,
             "value"      => value
         }
         filename = "#{Digest::SHA1.hexdigest(key)}.json"
-        folderpath = "#{DATA_MANAGER_AGENTS_DATA_REPOSITORY_FOLDERPATH}/#{agentuuuid}/#{filename[0,2]}/#{filename[2,2]}"
+        folderpath = "#{DATA_MANAGER_AGENTS_DATA_REPOSITORY_FOLDERPATH}/#{agentuuid}/#{filename[0,2]}/#{filename[2,2]}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
         File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-        if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuuid]].nil? then
-            $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuuid]] = {}
+        if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuid]].nil? then
+            $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet[agentuuid]] = {}
         end        
-        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid][key] = value
+        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid][key] = value
     end
 
-    # NSXAgentsDataOperator::getOrNull(agentuuuid, key)
-    def self.getOrNull(agentuuuid, key)
-        return nil if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid].nil?
-        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuuid][key]
+    # NSXAgentsDataOperator::getOrNull(agentuuid, key)
+    def self.getOrNull(agentuuid, key)
+        return nil if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].nil?
+        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid][key]
     end
 
-    # NSXAgentsDataOperator::getOrDefaultValue(agentuuuid, key, defaultValue)
-    def self.getOrDefaultValue(agentuuuid, key, defaultValue)
-        value = NSXAgentsDataOperator::getOrNull(agentuuuid, key)
+    # NSXAgentsDataOperator::getOrDefaultValue(agentuuid, key, defaultValue)
+    def self.getOrDefaultValue(agentuuid, key, defaultValue)
+        value = NSXAgentsDataOperator::getOrNull(agentuuid, key)
         return value if value
         defaultValue
+    end
+
+    # NSXAgentsDataOperator::destroy(agentuuid, key)
+    def self.destroy(agentuuid, key)
+        filename = "#{Digest::SHA1.hexdigest(key)}.json"
+        folderpath = "#{DATA_MANAGER_AGENTS_DATA_REPOSITORY_FOLDERPATH}/#{agentuuid}/#{filename[0,2]}/#{filename[2,2]}"
+        filepath = "#{folderpath}/#{filename}"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+        return if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].nil?
+        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].delete(key)
     end
 
 end

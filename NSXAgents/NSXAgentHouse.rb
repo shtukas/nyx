@@ -46,7 +46,7 @@ class NSXAgentHouse
     end
 
     def self.getObjects()
-        return [] if KeyValueStore::getOrNull(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
+        return [] if NSXAgentsDataOperator::getOrNull(NSXAgentHouse::agentuuid(), "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
         tasksFilepath = "/Galaxy/DataBank/Catalyst/Agents-Data/House/tasks.txt"
         tasks = IO.read(tasksFilepath)
             .lines

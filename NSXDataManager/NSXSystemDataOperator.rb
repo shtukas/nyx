@@ -80,6 +80,16 @@ class NSXSystemDataOperator
         defaultValue
     end
 
+    # NSXSystemDataOperator::destroy(key)
+    def self.destroy(key)
+        filename   = "#{Digest::SHA1.hexdigest(key)}.json"
+        folderpath = "#{DATA_MANAGER_SYSTEM_DATA_REPOSITORY_FOLDERPATH}/#{filename[0,2]}/#{filename[2,2]}"
+        filepath   = "#{folderpath}/#{filename}"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH.delete(key)
+    end
+
 end
 
 NSXSystemDataOperator::initialLoadFromDisk()

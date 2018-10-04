@@ -34,13 +34,13 @@ class NSXGeneralCommandHandler
         end
 
         if command == "house-on" then
-            KeyValueStore::destroy(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
+            NSXAgentsDataOperator::destroy(NSXAgentHouse::agentuuid(), "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
             signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
             NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if command == "house-off" then
-            KeyValueStore::set(CATALYST_COMMON_PATH_TO_KV_REPOSITORY, "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}", "killed")
+            NSXAgentsDataOperator::set(NSXAgentHouse::agentuuid(), "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}", "killed")
             signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
             NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
