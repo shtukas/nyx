@@ -1,26 +1,85 @@
 
 # encoding: UTF-8
 
+require "json"
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 # ----------------------------------------------------------------------------------
 
 DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Data-Manager/Catalyst-Metadata"
+DATA_MANAGER_CATALYST_METADATA_V1_REPOSITORY_FOLDERPATH = "#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/metadata-v1"
 $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = {}
+=begin
+Map[ObjectUUI, MetadataItem]
+MetadataItem {
+    "objectuuid" : UUID
+    (other key value pairs)
+}
+=end
 $DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE = Mutex.new
 
 class NSXCatalystMetadataOperator
 
+    # NSXCatalystMetadataOperator::metadataV1FilePaths()
+    def self.metadataV1FilePaths()
+        filepaths = []
+        Find.find(DATA_MANAGER_CATALYST_METADATA_V1_REPOSITORY_FOLDERPATH) do |path|
+            next if !File.file?(path)
+            next if path[-5,5] != ".json"
+            filepaths << path
+        end
+        filepaths
+    end
+
+    # NSXCatalystMetadataOperator::metadataV1InitialLoadFromDisk()
+    def self.metadataV1InitialLoadFromDisk()
+        NSXCatalystMetadataOperator::metadataV1FilePaths()
+            .each{|filepath|
+                begin
+                    metadata = JSON.parse(IO.read(filepath))
+                    $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[metadata["objectuuid"]] = metadata
+                rescue
+                end
+            }
+    end
+
+    # NSXCatalystMetadataOperator::putItem(metadata)
+    def self.putItem(metadata)
+        filename = "#{Digest::SHA1.hexdigest(metadata["objectuuid"])}.json"
+        folderpath = "#{DATA_MANAGER_CATALYST_METADATA_V1_REPOSITORY_FOLDERPATH}/#{filename[0,2]}/#{filename[2,2]}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(metadata)) }
+        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[metadata["objectuuid"]] = metadata
+    end
+
     # NSXCatalystMetadataOperator::initialLoadFromDisk()
     def self.initialLoadFromDisk()
-        filepath = "#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json"
-        $DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
-            $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = JSON.parse(IO.read(filepath))
-        }
+        #filepath = "#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json"
+        #$DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
+        #    $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = JSON.parse(IO.read(filepath))
+        #}
+        NSXCatalystMetadataOperator::metadataV1InitialLoadFromDisk()
     end
 
     # NSXCatalystMetadataOperator::commitCollectionToDisk()
     def self.commitCollectionToDisk()
-        $DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
-            File.open("#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH)) }
+        #$DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
+        #    File.open("#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH)) }
+        #}
+        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH.each{|objectuuid, metadata| 
+            NSXCatalystMetadataOperator::putItem(metadata)
         }
     end
 
@@ -34,8 +93,7 @@ class NSXCatalystMetadataOperator
 
     # NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
     def self.setMetadataForObject(objectuuid, metadata)
-        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[objectuuid] = metadata
-        NSXCatalystMetadataOperator::commitCollectionToDisk()
+        NSXCatalystMetadataOperator::putItem(metadata)
     end
 
     # NSXCatalystMetadataOperator::getAllMetadataObjects()
