@@ -36,7 +36,7 @@ Filenames for buckets are of the form: YYYY-MM-DD.json
 
 =end
 
-DAY_BUCKETS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/System-Data/Day-Buckets"
+DAY_BUCKETS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Day-Buckets"
 
 class NSXDayBucketOperator
 

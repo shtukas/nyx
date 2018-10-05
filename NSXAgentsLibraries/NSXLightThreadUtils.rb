@@ -1,19 +1,21 @@
 
 # encoding: UTF-8
 
+LIGHT_THREADS_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads"
+
 class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadsWithFilepaths(): [lightThread, filepath]
     def self.lightThreadsWithFilepaths()
-        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Light-Threads")
+        Dir.entries(LIGHT_THREADS_FOLDER_PATH)
             .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Light-Threads/#{filename}" }
+            .map{|filename| "#{LIGHT_THREADS_FOLDER_PATH}/#{filename}" }
             .map{|filepath| [JSON.parse(IO.read(filepath)), filepath] }
     end
 
     # NSXLightThreadUtils::commitLightThreadToDisk(lightThread, filename)
     def self.commitLightThreadToDisk(lightThread, filename)
-        File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/System-Data/Light-Threads/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(lightThread)) }
+        File.open("#{LIGHT_THREADS_FOLDER_PATH}/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(lightThread)) }
     end
 
     # NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
