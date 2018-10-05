@@ -116,6 +116,8 @@ Thread.new {
     }
 }
 
+# -------------------------------------------------------------------------
+
 loop {
 
     displayScreenSizeReductionIndex = 5

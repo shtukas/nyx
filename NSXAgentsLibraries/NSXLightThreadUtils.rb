@@ -2,6 +2,7 @@
 # encoding: UTF-8
 
 LIGHT_THREADS_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads"
+LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 
 class NSXLightThreadUtils
 
@@ -10,7 +11,11 @@ class NSXLightThreadUtils
         Dir.entries(LIGHT_THREADS_FOLDER_PATH)
             .select{|filename| filename[-5, 5]=='.json' }
             .map{|filename| "#{LIGHT_THREADS_FOLDER_PATH}/#{filename}" }
-            .map{|filepath| [JSON.parse(IO.read(filepath)), filepath] }
+            .map{|filepath|
+                object = JSON.parse(IO.read(filepath))
+                object["done"] = object["done"].select{|item| (Time.new.to_i-item[0]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
+                [object, filepath]
+            }
     end
 
     # NSXLightThreadUtils::commitLightThreadToDisk(lightThread, filename)
