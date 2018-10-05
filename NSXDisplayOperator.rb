@@ -20,21 +20,6 @@
 
 class NSXDisplayOperator
 
-    # NSXDisplayOperator::newDisplayState(displayState)
-	def self.newDisplayState(displayState)
-        newDisplayState = {}
-        newDisplayState["nsx26:all-catalyst-objects"] = displayState["nsx26:all-catalyst-objects"].map{|o| o.clone }
-        newDisplayState["nsx26:objects-already-processed"] = displayState["nsx26:objects-already-processed"].map{|o| o.clone }
-        newDisplayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"].map{|o| o.clone }
-        newDisplayState["nsx26:lines-to-display"] = displayState["nsx26:lines-to-display"].clone
-        newDisplayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"]
-        newDisplayState["nsx26:standard-listing-position"] = displayState["nsx26:standard-listing-position"]
-        newDisplayState["nsx26:current-position-cursor"] = displayState["nsx26:current-position-cursor"]
-        newDisplayState["nsx26:should-stop-display-process"] = displayState["nsx26:should-stop-display-process"]
-        newDisplayState["nsx26:focus-object"] = displayState["nsx26:focus-object"] ? displayState["nsx26:focus-object"].clone : nil
-        newDisplayState
-	end
-
     # NSXDisplayOperator::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
         objects = NSXMiscUtils::flockObjectsProcessedForCatalystDisplay()
@@ -143,7 +128,7 @@ class NSXDisplayOperator
             displayState["nsx26:lines-to-display"].each{|line|
                 puts line
             }
-            displayState = NSXDisplayOperator::displayStateTransition(NSXDisplayOperator::newDisplayState(displayState))
+            displayState = NSXDisplayOperator::displayStateTransition(displayState)
             break if displayState.nil?
             focusobject = displayState["nsx26:focus-object"]
             break if displayState["nsx26:should-stop-display-process"]
@@ -166,11 +151,8 @@ class NSXDisplayOperator
     def self.objectInferfaceString(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        requirements = NSXCatalystMetadataInterface::getObjectsRequirements(object['uuid'])
-        requirementsAsString = requirements.size>0 ? " ( #{requirements.join(", ")} )" : ''
         part2 = 
             [
-                "#{requirementsAsString.green}",
                 " (#{object["commands"].join(" ").red})",
                 " \"#{defaultExpressionAsString.green}\""
             ].join()

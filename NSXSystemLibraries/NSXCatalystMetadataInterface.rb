@@ -20,11 +20,10 @@ require 'fileutils'
 
 Structure of individual objects metadata
 {
-    "objectuuid" : UUID
-    "nsx-timeprotons-uuids-e9b8519d" : Array[CatalystObjectUUIDs]
-    "nsx-requirements-c633a5d8"      : Array[String]
-    "nsx-cycle-unixtime-20181005-085102-091691"    : Unixitime
-    "nsx-ordinal-per-day"            : Map[Date, Ordinal]
+    "objectuuid"                                : UUID
+    "nsx-timeprotons-uuids-e9b8519d"            : Array[CatalystObjectUUIDs]
+    "nsx-cycle-unixtime-20181005-085102-091691" : Unixitime
+    "nsx-ordinal-per-day"                       : Map[Date, Ordinal]
 }
 
 =end
@@ -94,51 +93,6 @@ class NSXCatalystMetadataInterface
             .map{|metadata|
                 metadata["objectuuid"]
             }
-            .uniq
-    end
-
-    # -----------------------------------------------------------------------
-    # Objects Requirements
-
-    # NSXCatalystMetadataInterface::setRequirementForObject(objectuuid, requirement)
-    def self.setRequirementForObject(objectuuid, requirement)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        if metadata["nsx-requirements-c633a5d8"].nil? then
-            metadata["nsx-requirements-c633a5d8"] = []
-        end
-        metadata["nsx-requirements-c633a5d8"] << requirement
-        metadata["nsx-requirements-c633a5d8"] = metadata["nsx-requirements-c633a5d8"].uniq
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)        
-    end
-
-    # NSXCatalystMetadataInterface::unSetRequirementForObject(objectuuid, requirement)
-    def self.unSetRequirementForObject(objectuuid, requirement)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        if metadata["nsx-requirements-c633a5d8"].nil? then
-            metadata["nsx-requirements-c633a5d8"] = []
-        end
-        metadata["nsx-requirements-c633a5d8"].delete(requirement)
-        metadata["nsx-requirements-c633a5d8"] = metadata["nsx-requirements-c633a5d8"].uniq
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)        
-    end
-
-    # NSXCatalystMetadataInterface::getObjectsRequirements(objectuuid)
-    def self.getObjectsRequirements(objectuuid)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        metadata["nsx-requirements-c633a5d8"] || []        
-    end
-
-    # NSXCatalystMetadataInterface::allObjectRequirementsAreSatisfied(objectuuid)
-    def self.allObjectRequirementsAreSatisfied(objectuuid)
-        NSXCatalystMetadataInterface::getObjectsRequirements(objectuuid)
-            .all?{|requirement| NSXRequirementsOperator::requirementIsCurrentlySatisfied(requirement) }
-    end
-
-    # NSXCatalystMetadataInterface::allKnownRequirementsCarriedByObjects()
-    def self.allKnownRequirementsCarriedByObjects()
-        NSXCatalystMetadataOperator::getAllMetadataObjects()
-            .map{|metadata| metadata["nsx-requirements-c633a5d8"] || []}
-            .flatten
             .uniq
     end
 

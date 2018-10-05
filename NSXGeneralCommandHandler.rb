@@ -32,15 +32,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'info' then
-            puts "NSXCatalystDevOps::getArchiveTimelineSizeInMegaBytes(): #{NSXCatalystDevOps::getArchiveTimelineSizeInMegaBytes()}".green
-            puts "Requirements:".green
-            puts "    On  : #{(NSXCatalystMetadataInterface::allKnownRequirementsCarriedByObjects() - NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements()).join(", ")}".green
-            puts "    Off : #{NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".green
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if command == 'email-sync' then
             NSXMiscUtils::emailSync(true)
             return
@@ -76,32 +67,6 @@ class NSXGeneralCommandHandler
         if command.start_with?('wave:') then
             description = command[5, command.size].strip
             NSXMiscUtils::waveInsertNewItemInteractive(description)
-            return
-        end
-
-        if command.start_with?("requirement on") then
-            _, _, requirement = command.split(" ").map{|t| t.strip }
-            NSXRequirementsOperator::setSatisfifiedRequirement(requirement)
-            return
-        end
-
-        if command.start_with?("requirement off") then
-            _, _, requirement = command.split(" ").map{|t| t.strip }
-            NSXRequirementsOperator::setUnsatisfiedRequirement(requirement)
-            return
-        end
-
-        if command.start_with?("requirement show") then
-            _, _, requirement = command.split(" ").map{|t| t.strip }
-            if requirement.nil? or requirement.size==0 then
-                requirement = NSXMiscUtils::selectRequirementFromExistingRequirementsOrNull()
-            end
-            loop {
-                requirementObjects = NSXCatalystObjectsOperator::getObjects().select{ |object| NSXCatalystMetadataInterface::getObjectsRequirements(object['uuid']).include?(requirement) }
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", requirementObjects, lambda{ |object| NSXMiscUtils::objectToString(object) })
-                break if selectedobject.nil?
-                NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(selectedobject)
-            }
             return
         end
 
@@ -168,18 +133,6 @@ class NSXGeneralCommandHandler
             if (datetime = NSXMiscUtils::codeToDatetimeOrNull(code)) then
                 NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             end
-            return
-        end
-
-        if command.start_with?("require") then
-            _, requirement = command.split(" ").map{|t| t.strip }
-            NSXCatalystMetadataInterface::setRequirementForObject(object['uuid'],requirement)
-            return
-        end
-
-        if command.start_with?("requirement remove") then
-            _, _, requirement = command.split(" ").map{|t| t.strip }
-            NSXCatalystMetadataInterface::unSetRequirementForObject(object['uuid'],requirement)
             return
         end
 

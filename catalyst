@@ -30,13 +30,11 @@ require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
 require_relative "NSXSystemLibraries/NSXDoNotShowUntilDatetime.rb"
-require_relative "NSXSystemLibraries/NSXCanary.rb"
 require_relative "NSXSystemLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXSystemLibraries/NSXCatalystMetadataInterface.rb"
 require_relative "NSXSystemLibraries/NSXCyclesOperator.rb"
 require_relative "NSXSystemLibraries/NSXDayBucketOperator.rb"
 require_relative "NSXSystemLibraries/NSXEmailClients.rb"
-require_relative "NSXSystemLibraries/NSXRequirementsOperator.rb"
 
 require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
 require_relative "NSXAgentsLibraries/NSXLightThreadUtils.rb"
@@ -56,6 +54,34 @@ require_relative "NSXBob.rb"
 require_relative "NSXDataManager/NSXDataManager.rb"
 require_relative "NSXDisplayOperator.rb"
 require_relative "NSXGeneralCommandHandler.rb"
+
+# -------------------------------------------------------------------------
+
+class Timer
+    def initialize(name)
+        @name = name
+        @times = []
+        @startedTime = nil
+    end
+    def start()
+        if @startedTime.nil? then
+            @startedTime = Time.new.to_f
+        else 
+            raise "Trying to start an already started timer"
+        end
+    end
+    def stop()
+        if @startedTime.nil? then
+            raise "Trying to stop a non started timer"
+        else
+            @times << Time.new.to_f - @startedTime
+            @startedTime = nil
+        end
+    end
+    def printTimes()
+        puts "#{@name}: #{@times.join(", ")}"
+    end
+end
 
 # -------------------------------------------------------------------------
 =begin
@@ -123,27 +149,13 @@ loop {
 
     displayScreenSizeReductionIndex = 5
 
-    # Indicates over staying off requirement.
-    if Time.new.to_i > NSXSystemDataOperator::getOrDefaultValue("e138267d-2aff-4a34-99bf-e396e0ddb6cb", "0").to_i then
-        if NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-            puts "REQUIREMENTS OFF: #{NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}"
-            LucilleCore::pressEnterToContinue()
-        end
-        NSXSystemDataOperator::set("e138267d-2aff-4a34-99bf-e396e0ddb6cb", Time.new.to_i + Random::rand*3600*2)
-        next
-    end
-
     system("clear")
 
-    puts "Special Commands Object: ,, .. ordinal: <ordinal> // <timeEstimationInHours> +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, require <requirement>, requirement remove <requirement>, >thread, >bucket".green
+    puts "Special Commands Object: ,, .. ordinal: <ordinal> // <timeEstimationInHours> +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread, >bucket".green
 
     standardlp = NSXMiscUtils::getStandardListingPosition()
 
     puts ""
-
-    if NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().size>0 then
-        puts "REQUIREMENTS: OFF: #{NSXRequirementsOperator::getCurrentlyUnsatisfiedRequirements().join(", ")}".yellow
-    end
 
     focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
 

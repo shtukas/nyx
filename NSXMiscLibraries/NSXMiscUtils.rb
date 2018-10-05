@@ -176,10 +176,6 @@ class NSXMiscUtils
         string
     end
 
-    def self.selectRequirementFromExistingRequirementsOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("requirement", NSXCatalystMetadataInterface::allKnownRequirementsCarriedByObjects())
-    end
-
     def self.waveInsertNewItemDefaults(description) # uuid: String
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
@@ -268,18 +264,12 @@ class NSXMiscUtils
     def self.flockObjectsProcessedForCatalystDisplay()
         futureBucketsObjectsUUID = NSXDayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten
         NSXCatalystObjectsOperator::getObjects()
-            .map{|object| object.clone }
-            .map{|object| 
-                NSXCanary::mark(object["uuid"]) 
-                object
-            }
             .map{|object| 
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
             .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXRequirementsOperator::updateForDisplay(object) }
             .map{|object| 
                 if futureBucketsObjectsUUID.include?(object["uuid"]) then
                     object["metric"] = 0
@@ -308,10 +298,6 @@ class NSXMiscUtils
         puts "    thread:                 # create a new lightThread, details entered interactively"
         puts ""
         puts "    threads                 # lightThreads listing dive"
-        puts ""
-        puts "    requirement on <requirement>"
-        puts "    requirement off <requirement>"
-        puts "    requirement show [requirement] # optional parameter # shows all the objects of that requirement"
         puts ""
         puts "    email-sync              # run email sync"
         puts "    house-on"
