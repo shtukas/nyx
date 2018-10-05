@@ -33,10 +33,11 @@ class NSXAgentHouse
     end
 
     def self.taskToCatalystObject(task)
+        uuid = Digest::SHA1.hexdigest(task)[0,8]
         {
-            "uuid"               => Digest::SHA1.hexdigest(task)[0,8],
+            "uuid"               => uuid,
             "agent-uid"          => self.agentuuid(),
-            "metric"             => 0.950,
+            "metric"             => 0.950 + NSXMiscUtils::traceToMetricShift(uuid),
             "announce"           => "House: #{task}",
             "commands"           => ["done"],
             "default-expression" => "done",

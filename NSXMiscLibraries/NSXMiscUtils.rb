@@ -34,6 +34,7 @@ class NSXMiscUtils
         ( '0.'+Digest::SHA1.hexdigest(trace).gsub(/[^\d]/, '') ).to_f
     end
 
+    # NSXMiscUtils::traceToMetricShift(trace)
     def self.traceToMetricShift(trace)
         0.001*NSXMiscUtils::traceToRealInUnitInterval(trace)
     end
