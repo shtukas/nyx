@@ -33,7 +33,6 @@ require_relative "NSXSystemLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXSystemLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXSystemLibraries/NSXCatalystMetadataInterface.rb"
 require_relative "NSXSystemLibraries/NSXCyclesOperator.rb"
-require_relative "NSXSystemLibraries/NSXDayBucketOperator.rb"
 require_relative "NSXSystemLibraries/NSXEmailClients.rb"
 
 require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
@@ -82,6 +81,10 @@ class Timer
         puts "#{@name}: #{@times.join(", ")}"
     end
 end
+
+# -------------------------------------------------------------------------
+
+
 
 # -------------------------------------------------------------------------
 =begin
@@ -151,7 +154,7 @@ loop {
 
     system("clear")
 
-    puts "Special Commands Object: ,, .. ordinal: <ordinal> // <timeEstimationInHours> +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread, >bucket".green
+    puts "Special Commands Object: ,, .. ordinal: <ordinal>, +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread".green
 
     numbers = NSXLightThreadUtils::lightThreadsWithFilepaths().map{|pair| [NSXLightThreadUtils::lightThreadToLivePercentage(pair[0]), 100].min }
     if numbers.size>0 then

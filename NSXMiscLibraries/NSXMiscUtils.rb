@@ -262,7 +262,6 @@ class NSXMiscUtils
 
     # NSXMiscUtils::flockObjectsProcessedForCatalystDisplay()
     def self.flockObjectsProcessedForCatalystDisplay()
-        futureBucketsObjectsUUID = NSXDayBucketOperator::futureBuckets().map{|bucket| bucket["items"].map{|item| item["objectuuid"] } }.flatten
         NSXCatalystObjectsOperator::getObjects()
             .map{|object| 
                 object[":metric-from-agent:"] = object["metric"]
@@ -270,13 +269,6 @@ class NSXMiscUtils
             }
             .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| 
-                if futureBucketsObjectsUUID.include?(object["uuid"]) then
-                    object["metric"] = 0
-                    object[":metric-updated-by:futureBuckets:"] = true
-                end
-                object
-            }
             .map{|object| 
                 if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
                     object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)

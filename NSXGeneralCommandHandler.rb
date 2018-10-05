@@ -98,18 +98,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == '>bucket' then
-            timeEstimationInHours = LucilleCore::askQuestionAnswerAsString("`Time estimation in hours: ").to_f
-            NSXDayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
-            return
-        end
-
-        if command.start_with?('//') then
-            timeEstimationInHours = command[2,99].to_f
-            NSXDayBucketOperator::addObjectToNextAvailableBucket(object["uuid"], timeEstimationInHours)
-            return
-        end
-
         if command == 'ordinal:' then
             if object["agent-uid"] != "9bafca47-5084-45e6-bdc3-a53194e6fe62" then
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f

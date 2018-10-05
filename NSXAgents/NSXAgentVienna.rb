@@ -81,7 +81,6 @@ class NSXAgentVienna
             schedule = WaveSchedules::makeScheduleObjectTypeNew()
             NSXAgentWave::writeScheduleToDisk(uuid, schedule)
             $viennaLinkFeeder.done(link)
-            NSXDayBucketOperator::addObjectToNextAvailableBucket(uuid, 0.2)
         }
         []
     end
