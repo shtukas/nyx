@@ -113,7 +113,6 @@ Thread.new {
     loop {
         sleep 120
         NSXCatalystObjectsOperator::getObjectsFromAgents()
-        NSXCatalystObjectsOperator::commitCollectionToDisk()
     }
 }
 

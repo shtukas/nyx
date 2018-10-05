@@ -102,5 +102,6 @@ class NSXAgentsDataOperator
 
 end
 
+puts "NSXAgentsDataOperator::initialLoadFromDisk()"
 NSXAgentsDataOperator::initialLoadFromDisk()
 

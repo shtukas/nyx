@@ -45,6 +45,7 @@ class NSXCatalystMetadataOperator
 
 end
 
+puts "NSXCatalystMetadataOperator::initialLoadFromDisk()"
 NSXCatalystMetadataOperator::initialLoadFromDisk()
 
 =begin

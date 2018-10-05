@@ -92,6 +92,7 @@ class NSXSystemDataOperator
 
 end
 
+puts "NSXSystemDataOperator::initialLoadFromDisk()"
 NSXSystemDataOperator::initialLoadFromDisk()
 
 
