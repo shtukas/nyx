@@ -1,8 +1,11 @@
 
 # encoding: UTF-8
 
+require 'time'
+
 LIGHT_THREADS_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads"
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
+LIGHT_THREAD_LOG_FILEPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads-Log.txt"
 
 class NSXLightThreadUtils
 
@@ -103,11 +106,13 @@ class NSXLightThreadUtils
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
         return if lightThread["status"][0] == "paused" 
-        recordItem = [ lightThread["status"][1], Time.new.to_i - lightThread["status"][1] ]
+        timespanInSeconds = Time.new.to_i - lightThread["status"][1]
+        recordItem = [ lightThread["status"][1], timespanInSeconds ]
         lightThread["done"] << recordItem
         lightThread["status"] = ["paused"]
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
+        NSXLightThreadUtils::addTimespanToLogFile(lightThread, timespanInSeconds.to_f/3600)
         ## Because we do not return anything, every call to this command should be followed by 
         ## signal = ["reload-agent-objects", self::agentuuid()]
         ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
@@ -120,6 +125,7 @@ class NSXLightThreadUtils
         lightThread["done"] << [Time.new.to_i, timeInHours * 3600]
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThreadUUID)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
+        NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
         ## Because we do not return anything, every call to this command should be followed by 
         ## signal = ["reload-agent-objects", self::agentuuid()]
         ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
@@ -170,6 +176,11 @@ class NSXLightThreadUtils
             .map{|data| data[0] }
         lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })  
         lightThread    
+    end
+
+    # NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
+    def self.addTimespanToLogFile(lightThread, timeInHours)
+        File.open(LIGHT_THREAD_LOG_FILEPATH, "a"){|f| f.puts("#{Time.now.utc.iso8601} , #{lightThread["description"]} , #{timeInHours.round(2)} hours") }
     end
 
     # -----------------------------------------------
