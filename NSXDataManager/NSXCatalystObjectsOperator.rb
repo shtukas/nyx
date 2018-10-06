@@ -53,7 +53,18 @@ class NSXCatalystObjectsOperator
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
-        File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(object)) }
+        filepath = "#{folderpath}/#{filename}"
+        filecontents = JSON.pretty_generate(object)
+        if File.exists?(filecontents) then
+            if filecontents != IO.read(filepath) then
+                File.open(filepath, "w"){|f| f.puts(filecontents) }
+            else
+                # We do nothing in this case
+                # The reason being that the modification time is otherwise updated and unison will want to move all of them across the other computer 
+            end
+        else
+            File.open(filepath, "w"){|f| f.puts(filecontents) }
+        end
         $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH[object["uuid"]] = object
     end
 
@@ -66,24 +77,6 @@ class NSXCatalystObjectsOperator
             FileUtils.rm(filepath)
         end        
         $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH.delete(objectuuid)
-    end
-
-    # NSXCatalystObjectsOperator::initialLoadFromDisk()
-    def self.initialLoadFromDisk()
-        #$DATA_MANAGER_CATALYST_OBJECTS_IO_SEMAPHORE.synchronize {
-        #    $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH = JSON.parse(IO.read("#{DATA_MANAGER_CATALYST_OBJECTS_REPOSITORY_FOLDERPATH}/ffbea143-d99f-4e91-9061-027622b11c09.json"))
-        #}
-        NSXCatalystObjectsOperator::objectsV1InitialLoadFromDisk()
-    end
-
-    # NSXCatalystObjectsOperator::commitCollectionToDisk()
-    def self.commitCollectionToDisk()
-        #$DATA_MANAGER_CATALYST_OBJECTS_IO_SEMAPHORE.synchronize {
-        #    File.open("#{DATA_MANAGER_CATALYST_OBJECTS_REPOSITORY_FOLDERPATH}/ffbea143-d99f-4e91-9061-027622b11c09.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH)) }
-        #}
-        $DATA_MANAGER_CATALYST_OBJECTS_IN_MEMORY_HASH.each{|objectuuid, object| 
-            NSXCatalystObjectsOperator::putObject(object)
-        }
     end
 
     # NSXCatalystObjectsOperator::getObjectsFromAgents()
@@ -133,7 +126,7 @@ class NSXCatalystObjectsOperator
 
 end
 
-puts "NSXCatalystObjectsOperator::initialLoadFromDisk()"
-NSXCatalystObjectsOperator::initialLoadFromDisk()
+puts "NSXCatalystObjectsOperator::objectsV1InitialLoadFromDisk()"
+NSXCatalystObjectsOperator::objectsV1InitialLoadFromDisk()
 
 

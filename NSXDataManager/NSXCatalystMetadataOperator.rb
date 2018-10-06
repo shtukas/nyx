@@ -64,25 +64,6 @@ class NSXCatalystMetadataOperator
         $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[metadata["objectuuid"]] = metadata
     end
 
-    # NSXCatalystMetadataOperator::initialLoadFromDisk()
-    def self.initialLoadFromDisk()
-        #filepath = "#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json"
-        #$DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
-        #    $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = JSON.parse(IO.read(filepath))
-        #}
-        NSXCatalystMetadataOperator::metadataV1InitialLoadFromDisk()
-    end
-
-    # NSXCatalystMetadataOperator::commitCollectionToDisk()
-    def self.commitCollectionToDisk()
-        #$DATA_MANAGER_CATALYST_METADATA_IO_SEMAPHORE.synchronize {
-        #    File.open("#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/f98188eb-49eb-4cee-9342-1a39815d01e5.json", "w"){|f| f.puts(JSON.pretty_generate($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH)) }
-        #}
-        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH.each{|objectuuid, metadata| 
-            NSXCatalystMetadataOperator::putItem(metadata)
-        }
-    end
-
     # NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
     def self.getMetadataForObject(objectuuid)
         newmetadata = {
@@ -103,6 +84,6 @@ class NSXCatalystMetadataOperator
 
 end
 
-puts "NSXCatalystMetadataOperator::initialLoadFromDisk()"
-NSXCatalystMetadataOperator::initialLoadFromDisk()
+puts "NSXCatalystMetadataOperator::metadataV1InitialLoadFromDisk()"
+NSXCatalystMetadataOperator::metadataV1InitialLoadFromDisk()
 
