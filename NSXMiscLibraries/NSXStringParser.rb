@@ -3,9 +3,9 @@
 
 # ----------------------------------------------------------------------
 
-# NSXStringParser::decompose(string): [null, null] or (token, null) or (token, rest) where rest is non empty
-
 class NSXStringParser
+
+    # NSXStringParser::decompose(string): [null, null] or (token, null) or (token, rest) where rest is non empty
     def self.decompose(string)
         string = string.strip
         if string.size==0 then

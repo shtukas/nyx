@@ -154,7 +154,7 @@ loop {
 
     system("clear")
 
-    puts "Special Commands Object: ,, .. ordinal: <ordinal>, +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread".green
+    puts NSXGeneralCommandHandler::specialObjectCommandsAsString().green
 
     numbers = NSXLightThreadUtils::lightThreadsWithFilepaths().map{|pair| [NSXLightThreadUtils::lightThreadToLivePercentage(pair[0]), 100].min }
     if numbers.size>0 then

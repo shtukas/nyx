@@ -8,6 +8,30 @@
 
 class NSXGeneralCommandHandler
 
+    # NSXGeneralCommandHandler::putshelp()
+    def self.putshelp()
+        puts "Special General Commands"
+        puts "    help"
+        puts "    search <pattern>"
+        puts "    :<p>                    # set the listing reference point"
+        puts "    +                       # add 1 to the standard listing position"
+        puts ""
+        puts "    wave: <description>     # create a new wave with that description"
+        puts "    thread:                 # create a new lightThread, details entered interactively"
+        puts ""
+        puts "    threads                 # lightThreads listing dive"
+        puts ""
+        puts "    email-sync              # run email sync"
+        puts "    house-on"
+        puts "    house-off"
+        puts ""
+    end
+
+    # NSXGeneralCommandHandler::specialObjectCommandsAsString()
+    def self.specialObjectCommandsAsString()
+        "Special Object Commands : ,, .. ordinal: <ordinal>, +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
+    end
+
     # NSXGeneralCommandHandler::processCommand(object, command)
     def self.processCommand(object, command)
 
@@ -27,7 +51,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == 'help' then
-            NSXMiscUtils::putshelp()
+            NSXGeneralCommandHandler::putshelp()
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -98,14 +122,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'ordinal:' then
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            NSXCatalystMetadataInterface::setOrdinal(object["uuid"], ordinal)
-            signal = ["reload-agent-objects", object["agent-uid"]]
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
-            return
-        end
-
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             metadata = NSXCatalystMetadataOperator::getMetadataForObject(object["uuid"])
@@ -119,6 +135,20 @@ class NSXGeneralCommandHandler
             if (datetime = NSXMiscUtils::codeToDatetimeOrNull(code)) then
                 NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             end
+            return
+        end
+
+        if command.start_with?('ordinal:') then
+            _, ordinal = NSXStringParser::decompose(string)
+            if ordinal.nil? then
+                puts "usage: ordinal: <ordinal>"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            ordinal = ordinal.to_f
+            NSXCatalystMetadataInterface::setOrdinal(object["uuid"], ordinal)
+            signal = ["reload-agent-objects", object["agent-uid"]]
+            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             return
         end
 

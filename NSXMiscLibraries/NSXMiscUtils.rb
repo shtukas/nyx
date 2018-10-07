@@ -284,25 +284,6 @@ class NSXMiscUtils
             }
     end
 
-    # NSXMiscUtils::putshelp()
-    def self.putshelp()
-        puts "Special General Commands"
-        puts "    help"
-        puts "    search <pattern>"
-        puts "    :<p>                    # set the listing reference point"
-        puts "    +                       # add 1 to the standard listing position"
-        puts ""
-        puts "    wave: <description>     # create a new wave with that description"
-        puts "    thread:                 # create a new lightThread, details entered interactively"
-        puts ""
-        puts "    threads                 # lightThreads listing dive"
-        puts ""
-        puts "    email-sync              # run email sync"
-        puts "    house-on"
-        puts "    house-off"
-        puts ""
-    end
-
     # NSXMiscUtils::objectToString(object)
     def self.objectToString(object)
         announce = object['announce'].lines.first.strip

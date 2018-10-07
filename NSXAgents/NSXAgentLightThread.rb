@@ -52,8 +52,14 @@ class NSXAgentLightThread
             NSXLightThreadUtils::stopLightThread(uuid)
             return ["reload-agent-objects", self::agentuuid()]
         end
-        if command=="time:" then
-            timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
+        if command.start_with?("time:") then
+            _, timeInHours = NSXStringParser::decompose(string)
+            if timeInHours.nil? then
+                puts "usage: time: <timeInHours>"
+                LucilleCore::pressEnterToContinue()
+                return ["nothing"]
+            end
+            timeInHours = timeInHours.to_f
             NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
             return ["reload-agent-objects", self::agentuuid()]
         end

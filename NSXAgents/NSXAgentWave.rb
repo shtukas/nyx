@@ -363,7 +363,7 @@ class NSXAgentWave
     end
 
     def self.commands(schedule)
-        commands = ["open", "done", "<uuid>", "loop", "recast", "description:", "folder", "destroy"]
+        commands = ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "folder", "destroy"]
         commands
     end
 
@@ -520,7 +520,12 @@ class NSXAgentWave
         end
 
         if command == 'description:' then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            _, description = NSXStringParser::decompose(string)
+            if description.nil? then
+                puts "usage: description: <description>"
+                LucilleCore::pressEnterToContinue()
+                return ["nothing"]
+            end
             uuid = object["uuid"]
             folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }

@@ -79,7 +79,7 @@ class NSXLightThreadUtils
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadUtils::lightThread2Metric(lightThread)
         object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
-        object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time:", "dive"]
+        object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
         object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
         object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
