@@ -81,7 +81,7 @@ class NSXDisplayOperator
             displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
         end
 
-        if displayState["nsx26:standard-listing-position"]==displayState["nsx26:current-position-cursor"] and object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" then
+        if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" then
             # We have a lightThread object
             displayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"]
                 .map{|o| 

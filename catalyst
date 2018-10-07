@@ -200,6 +200,15 @@ loop {
         NSXCatalystMetadataInterface::unSetMetricCycleUnixtimeForObject(focusobject["uuid"])
     end
 
+    shouldRemoveOrdinalMark = lambda{|object, command|
+        return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # lightThread
+        false
+    }
+
+    if focusobject and shouldRemoveOrdinalMark.call(focusobject, command) then
+        NSXCatalystMetadataInterface::unSetOrdinal(focusobject["uuid"])
+    end
+
     NSXGeneralCommandHandler::processCommand(focusobject, command)
 
     if command=="open" and focusobject and focusobject["schedule"] and focusobject["schedule"][":wave-email:"] then

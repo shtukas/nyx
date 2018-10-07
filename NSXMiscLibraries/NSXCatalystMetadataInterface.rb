@@ -43,6 +43,16 @@ class NSXCatalystMetadataInterface
         NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
     end
 
+    # NSXCatalystMetadataInterface::unSetOrdinal(objectuuid)
+    def self.unSetOrdinal(objectuuid)
+        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
+        if metadata["nsx-ordinal-per-day"].nil? then
+            metadata["nsx-ordinal-per-day"] = {}
+        end
+        metadata["nsx-ordinal-per-day"].delete(NSXMiscUtils::currentDay())
+        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
+    end
+
     # NSXCatalystMetadataInterface::getOrdinalOrNull(objectuuid)
     def self.getOrdinalOrNull(objectuuid)
         metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
