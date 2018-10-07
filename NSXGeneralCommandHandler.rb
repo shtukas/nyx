@@ -99,13 +99,11 @@ class NSXGeneralCommandHandler
         end
 
         if command == 'ordinal:' then
-            if object["agent-uid"] != "9bafca47-5084-45e6-bdc3-a53194e6fe62" then
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                NSXCatalystMetadataInterface::setOrdinal(object["uuid"], ordinal)
-                signal = ["reload-agent-objects", object["agent-uid"]]
-                NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
-                return
-            end
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            NSXCatalystMetadataInterface::setOrdinal(object["uuid"], ordinal)
+            signal = ["reload-agent-objects", object["agent-uid"]]
+            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
+            return
         end
 
         if command == 'expose' then

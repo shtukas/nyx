@@ -28,22 +28,20 @@ require_relative "NSXConstants.rb"
 
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
-
-require_relative "NSXSystemLibraries/NSXDoNotShowUntilDatetime.rb"
-require_relative "NSXSystemLibraries/NSXCatalystDevOps.rb"
-require_relative "NSXSystemLibraries/NSXCatalystMetadataInterface.rb"
-require_relative "NSXSystemLibraries/NSXCyclesOperator.rb"
-require_relative "NSXSystemLibraries/NSXEmailClients.rb"
+require_relative "NSXMiscLibraries/NSXOrdinals.rb"
+require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
+require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
+require_relative "NSXMiscLibraries/NSXCatalystMetadataInterface.rb"
+require_relative "NSXMiscLibraries/NSXCyclesOperator.rb"
+require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 
 require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
 require_relative "NSXAgentsLibraries/NSXLightThreadUtils.rb"
-require_relative "NSXAgentsLibraries/NSXOrdinals.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
 require_relative "NSXAgents/NSXAgentLightThread.rb"
 require_relative "NSXAgents/NSXAgentNinja.rb"
-require_relative "NSXAgents/NSXAgentOrdinals.rb"
 require_relative "NSXAgents/NSXAgentVienna.rb"
 require_relative "NSXAgents/NSXAgentWave.rb"
 require_relative "NSXAgents/NSXAgentWIS.rb"
@@ -147,6 +145,8 @@ Thread.new {
 }
 
 # -------------------------------------------------------------------------
+
+NSXCatalystObjectsOperator::getObjectsFromAgents()
 
 loop {
 

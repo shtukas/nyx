@@ -212,12 +212,16 @@ class NSXMiscUtils
         uuid, schedule = NSXMiscUtils::buildCatalystObjectFromDescription(description)
         NSXAgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">thread"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "ordinal", "datetime code", ">thread"])
             break if option.nil?
             if option == "schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
                 puts JSON.pretty_generate(schedule)
                 NSXAgentWave::writeScheduleToDisk(uuid, schedule)  
+            end
+            if option == "ordinal" then
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                NSXCatalystMetadataInterface::setOrdinal(uuid, ordinal)  
             end
             if option == "datetime code" then
                 if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
@@ -234,6 +238,8 @@ class NSXMiscUtils
                 end
             end
         }
+        signal = ["reload-agent-objects", NSXAgentWave::agentuuid()]
+        NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
@@ -267,8 +273,8 @@ class NSXMiscUtils
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
-            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| 
                 if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
                     object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
