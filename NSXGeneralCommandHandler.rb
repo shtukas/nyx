@@ -139,7 +139,7 @@ class NSXGeneralCommandHandler
         end
 
         if command.start_with?('ordinal:') then
-            _, ordinal = NSXStringParser::decompose(string)
+            _, ordinal = NSXStringParser::decompose(command)
             if ordinal.nil? then
                 puts "usage: ordinal: <ordinal>"
                 LucilleCore::pressEnterToContinue()

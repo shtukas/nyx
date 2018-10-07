@@ -520,7 +520,7 @@ class NSXAgentWave
         end
 
         if command == 'description:' then
-            _, description = NSXStringParser::decompose(string)
+            _, description = NSXStringParser::decompose(command)
             if description.nil? then
                 puts "usage: description: <description>"
                 LucilleCore::pressEnterToContinue()

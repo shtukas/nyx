@@ -53,7 +53,7 @@ class NSXAgentLightThread
             return ["reload-agent-objects", self::agentuuid()]
         end
         if command.start_with?("time:") then
-            _, timeInHours = NSXStringParser::decompose(string)
+            _, timeInHours = NSXStringParser::decompose(command)
             if timeInHours.nil? then
                 puts "usage: time: <timeInHours>"
                 LucilleCore::pressEnterToContinue()
