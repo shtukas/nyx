@@ -215,13 +215,13 @@ class NSXDisplayOperator
         end
     end
 
-    # NSXDisplayOperator::lightThreadAnnounce(objectuuid)
-    def self.lightThreadAnnounce(objectuuid)
+    # NSXDisplayOperator::lightThreadUpdatesOrNil(objectuuid)
+    def self.lightThreadUpdatesOrNil(objectuuid)
         lightThreadUUID = NSXCatalystMetadataInterface::getLightThreadUUIDOrNull(objectuuid)
-        return "" if lightThreadUUID.nil?
+        return nil if lightThreadUUID.nil?
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
-        return "" if lightThread.nil?
-        lightThread["description"].green + ": "
+        return nil if lightThread.nil?
+        [lightThread["description"], 0]
     end
 
     # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
@@ -231,6 +231,16 @@ class NSXDisplayOperator
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
+            .map{|object|
+                lightThreadUpdates = NSXDisplayOperator::lightThreadUpdatesOrNil(object["uuid"])
+                if lightThreadUpdates then
+                    lightThreadDescription, metric = lightThreadUpdates
+                    object["announce"] = "#{lightThreadDescription.green}: #{object["announce"]}"
+                    object["metric"] = metric
+                    object[":lightThreadUpdates:"] = lightThreadUpdates
+                end
+                object
+            }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| 
@@ -238,12 +248,6 @@ class NSXDisplayOperator
                     object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
                     object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
                 end
-                object
-            }
-            .map{|object|
-                announce = object["announce"]
-                lightThreadAnnounce = NSXDisplayOperator::lightThreadAnnounce(object["uuid"])
-                object["announce"] = lightThreadAnnounce+announce
                 object
             }
     end
