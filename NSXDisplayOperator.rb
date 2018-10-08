@@ -70,7 +70,11 @@ class NSXDisplayOperator
 
         if displayState["nsx26:current-position-cursor"] == displayState["nsx26:standard-listing-position"] then
             displayState["nsx26:focus-object"] = object
-            displayState["nsx26:lines-to-display"] << (" "*14)+NSXDisplayOperator::objectInferfaceString(object)
+            if object[":LightThreadUpdates:"] then
+                displayState["nsx26:lines-to-display"] << (" "*15) + "(" + ( object[":LightThreadUpdates:"]["running-status"] ? "light off" : "light on" ).red + ")"
+                displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
+            end
+            displayState["nsx26:lines-to-display"] << (" "*15)+NSXDisplayOperator::objectInferfaceString(object)
             displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
         end
 
@@ -121,7 +125,7 @@ class NSXDisplayOperator
                 " (#{object["commands"].join(" ").red})",
                 " \"#{defaultExpressionAsString.green}\""
             ].join()
-        part2        
+        part2.strip
     end
 
     # NSXDisplayOperator::objectToString(object)
@@ -186,7 +190,12 @@ class NSXDisplayOperator
         return nil if lightThreadUUID.nil?
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return nil if lightThread.nil?
-        [ lightThread["description"], 1.01*ltmap[lightThread["uuid"]]+NSXMiscUtils::traceToMetricShift(objectuuid) ]
+        {
+            "light-thread"   => lightThread,
+            "description"    => lightThread["description"],
+            "metric"         => 1.01*ltmap[lightThread["uuid"]]+NSXMiscUtils::traceToMetricShift(objectuuid),
+            "running-status" => NSXCatalystMetadataInterface::getLightThreadRunningStatusOrNUll(objectuuid)
+        }
     end
 
     # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
@@ -216,10 +225,9 @@ class NSXDisplayOperator
             .map{|object|
                 lightThreadUpdates = NSXDisplayOperator::lightThreadUpdatesOrNil(object["uuid"],ltmap)
                 if lightThreadUpdates then
-                    lightThreadDescription, metric = lightThreadUpdates
-                    object["announce"] = "#{lightThreadDescription.green}: #{object["announce"]}"
-                    object["metric"] = metric
-                    object[":lightThreadUpdates:"] = lightThreadUpdates
+                    object[":LightThreadUpdates:"] = lightThreadUpdates
+                    object["announce"] = "#{lightThreadUpdates["description"].green}: #{object["announce"]}"
+                    object["metric"] = lightThreadUpdates["metric"]
                 end
                 object
             }

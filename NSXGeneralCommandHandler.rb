@@ -117,6 +117,29 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == "light on" then
+            if object[":LightThreadUpdates:"] then
+                if object[":LightThreadUpdates:"]["running-status"].nil? then
+                    # A legitimate light on for an object of a LightThread that is not currently running
+                    NSXCatalystMetadataInterface::setLightThreadRunningStatus(object["uuid"], object[":LightThreadUpdates:"]["light-thread"]["uuid"], Time.new.to_i)
+                end
+            end
+            return
+        end
+
+        if command == "light off" then
+            if object[":LightThreadUpdates:"] then
+                if object[":LightThreadUpdates:"]["running-status"] then
+                    runningStatus = NSXCatalystMetadataInterface::getLightThreadRunningStatusOrNUll(object["uuid"])
+                    lightThreadUUID = runningStatus["light-thread-uuid"]
+                    timeSpanInSeconds = Time.new.to_i - runningStatus["start-unixtime"]
+                    NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timeSpanInSeconds.to_f/3600)
+                    NSXCatalystMetadataInterface::unSetLightThreadRunningStatus(object["uuid"])
+                end
+            end
+            return
+        end
+
         if command == '>thread' then
             NSXMiscUtils::sendCatalystObjectToTimeProton(object["uuid"])
             return

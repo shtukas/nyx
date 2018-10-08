@@ -21,14 +21,47 @@ require 'fileutils'
 Structure of individual objects metadata
 {
     "objectuuid"                                : UUID
-    "nsx-timeprotons-uuids-e9b8519d"            : Array[CatalystObjectUUIDs]
-    "nsx-cycle-unixtime-20181005-085102-091691" : Unixitime
-    "nsx-ordinal-per-day"                       : Map[Date, Ordinal]
+    "object-lightthread-link-2793690c"          : nil | LightThread UUID
+    "nsx-cycle-unixtime-20181005-085102-091691" : nil | Unixitime
+    "nsx-ordinal-per-day"                       : nil | Map[Date, Ordinal]
+    "light-thread-running-status"               : nil | CatalystObjectLightThreadRunningStatus
+}
+
+CatalystObjectLightThreadRunningStatus {
+    "light-thread-uuid" : UUID
+    "start-unixtime"    : Unixtime
 }
 
 =end
 
 class NSXCatalystMetadataInterface
+
+    # -----------------------------------------------------------------------
+    # CatalystObjectLightThreadRunningStatus
+
+
+    # NSXCatalystMetadataInterface::setLightThreadRunningStatus(catalystObjectUUID, lightthreaduuid, startunixtime)
+    def self.setLightThreadRunningStatus(catalystObjectUUID, lightthreaduuid, startunixtime)
+        metadata = NSXCatalystMetadataOperator::getMetadataForObject(catalystObjectUUID)
+        metadata["light-thread-running-status"] = {
+            "light-thread-uuid" => lightthreaduuid,
+            "start-unixtime"    => startunixtime
+        }
+        NSXCatalystMetadataOperator::setMetadataForObject(catalystObjectUUID, metadata)
+    end
+
+    # NSXCatalystMetadataInterface::getLightThreadRunningStatusOrNUll(catalystObjectUUID)
+    def self.getLightThreadRunningStatusOrNUll(catalystObjectUUID)
+        metadata = NSXCatalystMetadataOperator::getMetadataForObject(catalystObjectUUID)
+        metadata["light-thread-running-status"]
+    end
+
+    # NSXCatalystMetadataInterface::unSetLightThreadRunningStatus(catalystObjectUUID)
+    def self.unSetLightThreadRunningStatus(catalystObjectUUID)
+        metadata = NSXCatalystMetadataOperator::getMetadataForObject(catalystObjectUUID)
+        metadata.delete("light-thread-running-status")
+        NSXCatalystMetadataOperator::setMetadataForObject(catalystObjectUUID, metadata)
+    end
 
     # -----------------------------------------------------------------------
     # Ordinal
