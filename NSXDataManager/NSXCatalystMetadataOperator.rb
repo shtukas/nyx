@@ -18,7 +18,7 @@ require 'fileutils'
 
 DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Data-Manager/Catalyst-Metadata"
 DATA_MANAGER_CATALYST_METADATA_V1_REPOSITORY_FOLDERPATH = "#{DATA_MANAGER_CATALYST_METADATA_REPOSITORY_FOLDERPATH}/metadata-v1"
-$DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH = {}
+$DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_MAP = {}
 =begin
 Map[ObjectUUI, MetadataItem]
 MetadataItem {
@@ -47,7 +47,7 @@ class NSXCatalystMetadataOperator
             .each{|filepath|
                 begin
                     metadata = JSON.parse(IO.read(filepath))
-                    $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[metadata["objectuuid"]] = metadata
+                    $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_MAP[metadata["objectuuid"]] = metadata
                 rescue
                 end
             }
@@ -61,7 +61,7 @@ class NSXCatalystMetadataOperator
             FileUtils.mkpath(folderpath)
         end
         File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(metadata)) }
-        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[metadata["objectuuid"]] = metadata
+        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_MAP[metadata["objectuuid"]] = metadata
     end
 
     # NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
@@ -69,7 +69,7 @@ class NSXCatalystMetadataOperator
         newmetadata = {
             "objectuuid" => objectuuid
         }
-        ($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH[objectuuid] || newmetadata).clone
+        ($DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_MAP[objectuuid] || newmetadata).clone
     end
 
     # NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
@@ -79,7 +79,7 @@ class NSXCatalystMetadataOperator
 
     # NSXCatalystMetadataOperator::getAllMetadataObjects()
     def self.getAllMetadataObjects()
-        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_HASH.values.map{|object| object.clone }
+        $DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_MAP.values.map{|object| object.clone }
     end
 
 end

@@ -22,8 +22,8 @@ class NSXDisplayOperator
 
     # NSXDisplayOperator::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
-        objects = NSXMiscUtils::flockObjectsProcessedForCatalystDisplay()
-        combinedTimeProtonObjectUUID = NSXCatalystMetadataInterface::lightThreadsAllCatalystObjectsUUIDs()
+        objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
+        combinedTimeProtonObjectUUID = NSXCatalystMetadataInterface::lightThreadsCatalystObjectUUIDs()
         regularObjects, lightThreadObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
         {
             "nsx26:all-catalyst-objects"             => objects,
@@ -90,7 +90,7 @@ class NSXDisplayOperator
                 }
             loop {
                 lightThread = object["item-data"]["lightThread"]
-                lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
+                lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
                 break if lightThreadCatalystObjectsUUIDs.size==0
                 ienum = LucilleCore::integerEnumerator() 
                 displayState["nsx26:all-catalyst-objects"]
@@ -213,6 +213,39 @@ class NSXDisplayOperator
                 "[]"
             end
         end
+    end
+
+    # NSXDisplayOperator::lightThreadAnnounce(objectuuid)
+    def self.lightThreadAnnounce(objectuuid)
+        lightThreadUUID = NSXCatalystMetadataInterface::getLightThreadUUIDOrNull(objectuuid)
+        return "" if lightThreadUUID.nil?
+        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
+        return "" if lightThread.nil?
+        lightThread["description"].green + ": "
+    end
+
+    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
+    def self.flockObjectsProcessedForCatalystDisplay()
+        NSXCatalystObjectsOperator::getObjects()
+            .map{|object| 
+                object[":metric-from-agent:"] = object["metric"]
+                object
+            }
+            .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
+            .map{|object| 
+                if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
+                    object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
+                    object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
+                end
+                object
+            }
+            .map{|object|
+                announce = object["announce"]
+                lightThreadAnnounce = NSXDisplayOperator::lightThreadAnnounce(object["uuid"])
+                object["announce"] = lightThreadAnnounce+announce
+                object
+            }
     end
 
 end

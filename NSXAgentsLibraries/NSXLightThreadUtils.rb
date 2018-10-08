@@ -166,7 +166,7 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
         percentageAsString = "{ #{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}% / #{lightThread["commitment"].round(2)} hours/day }"
-        itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"]).size} objects )"
+        itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects )"
         "lightThread: #{lightThread["description"]} #{percentageAsString} #{itemsAsString}"
     end
 
@@ -213,7 +213,7 @@ class NSXLightThreadUtils
             end
             if operation == "show items" then
                 loop {
-                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
+                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
                     objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                     break if selectedobject.nil?
@@ -222,11 +222,11 @@ class NSXLightThreadUtils
             end
             if operation == "remove items" then
                 loop {
-                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThread["uuid"])
+                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
                     objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                     break if selectedobject.nil?
-                    NSXCatalystMetadataInterface::unSetTimeProtonObjectLink(lightThread["uuid"], selectedobject["uuid"])
+                    NSXCatalystMetadataInterface::unSetLightThread(selectedobject["uuid"])
                 }
             end
             if operation=="time commitment:" then

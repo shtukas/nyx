@@ -82,7 +82,21 @@ end
 
 # -------------------------------------------------------------------------
 
+=begin
 
+$DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_MAP
+.values
+.select{|value| value["nsx-timeprotons-uuids-e9b8519d"] }
+.each{|value|
+    puts JSON.pretty_generate(value)
+    value["object-lightthread-link-2793690c"] = value["nsx-timeprotons-uuids-e9b8519d"].first
+    value.delete("nsx-timeprotons-uuids-e9b8519d")
+    puts JSON.pretty_generate(value)
+    NSXCatalystMetadataOperator::putItem(value)
+}
+exit
+
+=end
 
 # -------------------------------------------------------------------------
 =begin

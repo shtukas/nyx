@@ -203,7 +203,7 @@ class NSXMiscUtils
     def self.sendCatalystObjectToTimeProton(objectuuid)
         lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
         return nil if lightThread.nil?
-        NSXCatalystMetadataInterface::setTimeProtonObjectLink(lightThread["uuid"], objectuuid)
+        NSXCatalystMetadataInterface::setLightThread(objectuuid, lightThread["uuid"])
         lightThread
     end
 
@@ -264,24 +264,6 @@ class NSXMiscUtils
             object[":metric-set-to-zero-by:NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay:"]
         end
         object
-    end
-
-    # NSXMiscUtils::flockObjectsProcessedForCatalystDisplay()
-    def self.flockObjectsProcessedForCatalystDisplay()
-        NSXCatalystObjectsOperator::getObjects()
-            .map{|object| 
-                object[":metric-from-agent:"] = object["metric"]
-                object
-            }
-            .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
-            .map{|object| 
-                if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
-                    object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
-                    object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
-                end
-                object
-            }
     end
 
     # NSXMiscUtils::objectToString(object)

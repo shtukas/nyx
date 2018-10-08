@@ -63,47 +63,40 @@ class NSXCatalystMetadataInterface
     end
 
     # -----------------------------------------------------------------------
-    # TimeProton CatalystObject link
+    # Catalyst Object LightThread Link
 
-    # NSXCatalystMetadataInterface::setTimeProtonObjectLink(lightThreadUUID, objectuuid)
-    def self.setTimeProtonObjectLink(lightThreadUUID, objectuuid)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        if metadata["nsx-timeprotons-uuids-e9b8519d"].nil? then
-            metadata["nsx-timeprotons-uuids-e9b8519d"] = []
-        end
-        metadata["nsx-timeprotons-uuids-e9b8519d"] << lightThreadUUID
-        metadata["nsx-timeprotons-uuids-e9b8519d"] = metadata["nsx-timeprotons-uuids-e9b8519d"].uniq
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
+    # NSXCatalystMetadataInterface::setLightThread(catalystObjectUUID, lightThreadUUID)
+    def self.setLightThread(catalystObjectUUID, lightThreadUUID)
+        metadata = NSXCatalystMetadataOperator::getMetadataForObject(catalystObjectUUID)
+        metadata["object-lightthread-link-2793690c"] = lightThreadUUID
+        NSXCatalystMetadataOperator::setMetadataForObject(catalystObjectUUID, metadata)
     end
 
-    # NSXCatalystMetadataInterface::unSetTimeProtonObjectLink(lightThreadUUID, objectuuid)
-    def self.unSetTimeProtonObjectLink(lightThreadUUID, objectuuid)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        if metadata["nsx-timeprotons-uuids-e9b8519d"].nil? then
-            metadata["nsx-timeprotons-uuids-e9b8519d"] = []
-        end
-        metadata["nsx-timeprotons-uuids-e9b8519d"].delete(lightThreadUUID)
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
+    # NSXCatalystMetadataInterface::unSetLightThread(catalystObjectUUID)
+    def self.unSetLightThread(catalystObjectUUID)
+        metadata = NSXCatalystMetadataOperator::getMetadataForObject(catalystObjectUUID)
+        metadata.delete("object-lightthread-link-2793690c")
+        NSXCatalystMetadataOperator::setMetadataForObject(catalystObjectUUID, metadata)        
     end
 
-    # NSXCatalystMetadataInterface::lightThreadCatalystObjectsUUIDs(lightThreadUUID)
-    def self.lightThreadCatalystObjectsUUIDs(lightThreadUUID)
+    # NSXCatalystMetadataInterface::getLightThreadUUIDOrNull(catalystObjectUUID)
+    def self.getLightThreadUUIDOrNull(catalystObjectUUID)
+        metadata = NSXCatalystMetadataOperator::getMetadataForObject(catalystObjectUUID)
+        metadata["object-lightthread-link-2793690c"]       
+    end
+
+    # NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThreadUUID)
+    def self.lightThreadCatalystObjectUUIDs(lightThreadUUID)
         NSXCatalystMetadataOperator::getAllMetadataObjects()
-            .select{|metadata|
-                (metadata["nsx-timeprotons-uuids-e9b8519d"] || []).include?(lightThreadUUID)
-            }
+            .select{|metadata| metadata["object-lightthread-link-2793690c"]==lightThreadUUID }
             .map{|metadata| metadata["objectuuid"] }
-            .uniq
     end
 
-    # NSXCatalystMetadataInterface::lightThreadsAllCatalystObjectsUUIDs()
-    def self.lightThreadsAllCatalystObjectsUUIDs()
+    # NSXCatalystMetadataInterface::lightThreadsCatalystObjectUUIDs()
+    def self.lightThreadsCatalystObjectUUIDs()
         NSXCatalystMetadataOperator::getAllMetadataObjects()
-            .select{|metadata| (metadata["nsx-timeprotons-uuids-e9b8519d"] || []).size>0 }
-            .map{|metadata|
-                metadata["objectuuid"]
-            }
-            .uniq
+            .select{|metadata| metadata["object-lightthread-link-2793690c"] }
+            .map{|metadata| metadata["objectuuid"] }
     end
 
     # -----------------------------------------------------------------------
