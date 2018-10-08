@@ -5,8 +5,6 @@
 =begin
 
 (DisplayState) {
-    "nsx26:all-catalyst-objects"        => Array[CatalystObject],
-    "nsx26:objects-already-processed"   => Array[CatalystObject],
     "nsx26:object-still-to-go"          => Array[CatalystObject],
     "nsx26:lines-to-display"            => Array[String],
     "nsx26:screen-left-height"          => 10,
@@ -23,12 +21,8 @@ class NSXDisplayOperator
     # NSXDisplayOperator::makeGenesysDisplayState()
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
         objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
-        combinedTimeProtonObjectUUID = NSXCatalystMetadataInterface::lightThreadsCatalystObjectUUIDs()
-        regularObjects, lightThreadObjects = objects.partition {|object| !combinedTimeProtonObjectUUID.include?(object["uuid"]) }
         {
-            "nsx26:all-catalyst-objects"             => objects,
-            "nsx26:objects-already-processed"        => [],
-            "nsx26:object-still-to-go"               => regularObjects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
+            "nsx26:object-still-to-go"               => objects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
             "nsx26:lines-to-display"                 => [],
             "nsx26:screen-left-height"               => screenLeftHeight,
             "nsx26:standard-listing-position"        => standardlp,
@@ -71,7 +65,6 @@ class NSXDisplayOperator
             end
         end
 
-        displayState["nsx26:objects-already-processed"] << object
         displayState["nsx26:lines-to-display"] << NSXDisplayOperator::objectToColoredLineForMainListing(object, displayState["nsx26:current-position-cursor"], displayState["nsx26:standard-listing-position"])
         displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
 
@@ -79,34 +72,6 @@ class NSXDisplayOperator
             displayState["nsx26:focus-object"] = object
             displayState["nsx26:lines-to-display"] << (" "*14)+NSXDisplayOperator::objectInferfaceString(object)
             displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
-        end
-
-        if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" then
-            # We have a lightThread object
-            displayState["nsx26:object-still-to-go"] = displayState["nsx26:object-still-to-go"]
-                .map{|o| 
-                    o["metric"] = o["metric"]-0.01 
-                    o
-                }
-            loop {
-                lightThread = object["item-data"]["lightThread"]
-                lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
-                break if lightThreadCatalystObjectsUUIDs.size==0
-                ienum = LucilleCore::integerEnumerator() 
-                displayState["nsx26:all-catalyst-objects"]
-                    .select{|o| lightThreadCatalystObjectsUUIDs.include?(o["uuid"]) }   
-                    .sort{|o1,o2| o1["uuid"]<=>o2["uuid"] }
-                    .map{|o|
-                        o["metric"] = object["metric"] - 0.01*Math.exp(-ienum.next()) 
-                        o[":is-lightThread-listing-7fdfb1be:"] = true # This is an unofficial marker for objects which have been positioned as followers of the first lightThread.
-                        o
-                    }
-                    .each{|o|
-                        displayState["nsx26:object-still-to-go"].unshift(o)
-                    }
-                break
-            }
-
         end
 
         if displayState["nsx26:screen-left-height"] <= 0 then
@@ -215,24 +180,41 @@ class NSXDisplayOperator
         end
     end
 
-    # NSXDisplayOperator::lightThreadUpdatesOrNil(objectuuid)
-    def self.lightThreadUpdatesOrNil(objectuuid)
+    # NSXDisplayOperator::lightThreadUpdatesOrNil(objectuuid, ltmap)
+    def self.lightThreadUpdatesOrNil(objectuuid, ltmap)
         lightThreadUUID = NSXCatalystMetadataInterface::getLightThreadUUIDOrNull(objectuuid)
         return nil if lightThreadUUID.nil?
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return nil if lightThread.nil?
-        [lightThread["description"], 0]
+        [ lightThread["description"], 1.01*ltmap[lightThread["uuid"]]+NSXMiscUtils::traceToMetricShift(objectuuid) ]
     end
 
     # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
     def self.flockObjectsProcessedForCatalystDisplay()
+        ltmap = {}
+
+        NSXCatalystObjectsOperator::getObjects()
+            .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
+            .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
+            .map{|object| 
+                if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
+                    object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
+                    object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
+                end
+                object
+            }
+            .each{|object|
+                ltmap[object["item-data"]["lightThread"]["uuid"]] = object["metric"]
+            }
+
         NSXCatalystObjectsOperator::getObjects()
             .map{|object| 
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
             .map{|object|
-                lightThreadUpdates = NSXDisplayOperator::lightThreadUpdatesOrNil(object["uuid"])
+                lightThreadUpdates = NSXDisplayOperator::lightThreadUpdatesOrNil(object["uuid"],ltmap)
                 if lightThreadUpdates then
                     lightThreadDescription, metric = lightThreadUpdates
                     object["announce"] = "#{lightThreadDescription.green}: #{object["announce"]}"
