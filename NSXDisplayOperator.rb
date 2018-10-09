@@ -225,10 +225,27 @@ class NSXDisplayOperator
             .map{|object|
                 lightThreadUpdates = NSXDisplayOperator::lightThreadUpdatesOrNil(object["uuid"],ltmap)
                 if lightThreadUpdates then
+                    runningStatement = 
+                        if lightThreadUpdates["running-status"] then
+                            runningForInSeconds = Time.new.to_i - lightThreadUpdates["running-status"]["start-unixtime"]
+                            lightThreadUpdates["running-status"] ? " [" + "running for #{ (runningForInSeconds.to_f/3600).round(2) } hours".yellow + "]" : ""
+                        else
+                            ""
+                        end
+                    metric =
+                        if lightThreadUpdates["running-status"] then
+                            2
+                        else
+                            lightThreadUpdates["metric"]
+                        end  
+                    if lightThreadUpdates["running-status"] then
+                        object["is-running"] = true
+                    end
                     object[":LightThreadUpdates:"] = lightThreadUpdates
-                    object["announce"] = "#{lightThreadUpdates["description"].green}: #{object["announce"]}"
-                    object["metric"] = lightThreadUpdates["metric"]
+                    object["announce"] = "#{lightThreadUpdates["description"].green}#{runningStatement}: #{object["announce"]}"
+                    object["metric"] = metric
                 end
+
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
