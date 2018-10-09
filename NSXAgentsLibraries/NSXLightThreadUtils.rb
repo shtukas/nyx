@@ -174,6 +174,9 @@ class NSXLightThreadUtils
     def self.interactivelySelectLightThreadOrNull()
         lightThreads = NSXLightThreadUtils::lightThreadsWithFilepaths()
             .map{|data| data[0] }
+            .sort{|lt1,lt2|
+                NSXLightThreadUtils::lightThreadToLivePercentage(lt1) <=> NSXLightThreadUtils::lightThreadToLivePercentage(lt2)
+            }
         lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })  
         lightThread    
     end
