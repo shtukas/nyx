@@ -202,10 +202,19 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::lightThreadDive(lightThread)
     def self.lightThreadDive(lightThread)
         loop {
-            puts "-> #{NSXLightThreadUtils::lightThreadToStringForLightThreadDive(lightThread)}"
-            puts "-> lightThread uuid: #{lightThread["uuid"]}"
-            puts "-> lightThread commitment: #{lightThread["commitment"]}"
-            puts "-> lightThreadToLivePercentage: #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7)}"
+            puts "LightThread"
+            puts "     description: #{lightThread["description"]}"
+            puts "     uuid: #{lightThread["uuid"]}"
+            puts "     daily commitment: #{lightThread["commitment"]}"
+            puts "     LivePercentage (1 days): #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}%"
+            puts "     LivePercentage (7 days): #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7).round(2)}%"
+            puts "Items:"
+            NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
+                .each{|uuid|
+                    object = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"]==uuid }.first
+                    next if object.nil?
+                    puts "    "+NSXMiscUtils::objectToString(object)
+                }
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
             break if operation.nil?
             if operation=="start" then
