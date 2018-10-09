@@ -188,10 +188,16 @@ class NSXDisplayOperator
         return nil if lightThreadUUID.nil?
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return nil if lightThread.nil?
+        metric =
+            if lightThread["status"][0]=="running-since" then
+                0.99*ltmap[lightThread["uuid"]]-NSXMiscUtils::traceToMetricShift(objectuuid)
+            else
+                1.01*ltmap[lightThread["uuid"]]-NSXMiscUtils::traceToMetricShift(objectuuid)
+            end
         {
             "light-thread"   => lightThread,
             "description"    => lightThread["description"],
-            "metric"         => 1.01*ltmap[lightThread["uuid"]]+NSXMiscUtils::traceToMetricShift(objectuuid),
+            "metric"         => metric,
             "running-status" => NSXCatalystMetadataInterface::getLightThreadRunningStatusOrNUll(objectuuid)
         }
     end
@@ -223,20 +229,13 @@ class NSXDisplayOperator
                         else
                             ""
                         end
-                    metric =
-                        if lightThreadUpdates["running-status"] then
-                            2
-                        else
-                            lightThreadUpdates["metric"]
-                        end  
                     if lightThreadUpdates["running-status"] then
                         object["is-running"] = true
                     end
                     object[":LightThreadUpdates:"] = lightThreadUpdates
                     object["announce"] = "#{lightThreadUpdates["description"].green}#{runningStatement}: #{object["announce"]}"
-                    object["metric"] = metric
+                    object["metric"] = lightThreadUpdates["metric"]
                 end
-
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }

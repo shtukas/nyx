@@ -40,6 +40,12 @@ class NSXLightThreadMetrics
         metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
+    # NSXLightThreadMetrics::lightThread2MetricForListing(lightThread)
+    def self.lightThread2MetricForListing(lightThread)
+        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
+        (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx) }.min
+    end
+
 end
 
 class NSXLightThreadUtils
@@ -112,7 +118,7 @@ class NSXLightThreadUtils
         object              = {}
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lightThread
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, 7)
+        object["metric"]    = NSXLightThreadMetrics::lightThread2MetricForListing(lightThread)
         object["announce"]  = NSXLightThreadUtils::lightThreadToStringForCatalystListing(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
         object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
@@ -168,14 +174,14 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToStringForCatalystListing(lightThread)
     def self.lightThreadToStringForCatalystListing(lightThread)
-        percentageAsString = "{ #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours}"
+        percentageAsString = "{ #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours }"
         itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects )"
         "lightThread: #{lightThread["description"]} #{percentageAsString} #{itemsAsString}"
     end
 
     # NSXLightThreadUtils::lightThreadToStringForLightThreadDive(lightThread)
     def self.lightThreadToStringForLightThreadDive(lightThread)
-        percentageAsString = "{ #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7).round(2)}% of #{lightThread["commitment"].round(2)} hours}"
+        percentageAsString = "{ #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7).round(2)}% of #{lightThread["commitment"].round(2)} hours }"
         itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects )"
         "lightThread: #{lightThread["description"]} #{percentageAsString} #{itemsAsString}"
     end
