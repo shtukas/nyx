@@ -519,7 +519,7 @@ class NSXAgentWave
             end
         end
 
-        if command == 'description:' then
+        if command.start_with?('description:') then
             _, description = NSXStringParser::decompose(command)
             if description.nil? then
                 puts "usage: description: <description>"

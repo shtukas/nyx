@@ -7,6 +7,41 @@ LIGHT_THREADS_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Lig
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREAD_LOG_FILEPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads-Log.txt"
 
+class NSXLightThreadMetrics
+
+    # NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread, n)
+    def self.lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread, n)
+        lightThread["done"]
+            .select{|item| (Time.new.to_i-item[0])<=(86400*n) }
+            .map{|item| item[1] }.inject(0, :+)
+    end
+
+    # NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n)
+    def self.lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n)
+        doneTime = NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread, n)
+        if lightThread["status"][0] == "running-since" then
+            doneTime = Time.new.to_i - lightThread["status"][1]
+        end
+        doneTime
+    end
+
+    # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n)
+    def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n)
+        return 0 if lightThread["done"].size==0
+        timeDoneExpectationInHours = n * lightThread["commitment"] # The commitment is daily
+        timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n).to_f/3600
+        100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
+    end
+
+    # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n)
+    def self.lightThread2MetricOverThePastNDays(lightThread, n)
+        return 2 if lightThread["status"][0] == "running-since"
+        metric = 0.8 - 0.5*NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n).to_f/100 # at 100% we are still at 0.3
+        metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+    end
+
+end
+
 class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadsWithFilepaths(): [lightThread, filepath]
@@ -68,7 +103,7 @@ class NSXLightThreadUtils
     def self.makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
         # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
 
-        if lightThread["status"][0] == "running-since" and NSXLightThreadUtils::lightThreadToLivePercentage(lightThread) >= 100 then
+        if lightThread["status"][0] == "running-since" and NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) >= 100 then
             system("terminal-notifier -title 'Catalyst TimeProton' -message '#{lightThread["description"].gsub("'","")} is done'")
         end
 
@@ -77,8 +112,8 @@ class NSXLightThreadUtils
         object              = {}
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lightThread
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = NSXLightThreadUtils::lightThread2Metric(lightThread)
-        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
+        object["metric"]    = NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, 7)
+        object["announce"]  = NSXLightThreadUtils::lightThreadToStringForCatalystListing(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
         object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
         object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
@@ -131,41 +166,16 @@ class NSXLightThreadUtils
         ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
-    # NSXLightThreadUtils::lightThread2Metric(lightThread)
-    def self.lightThread2Metric(lightThread)
-        return 2 if lightThread["status"][0] == "running-since"
-        metric = 0.8 - 0.5*NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).to_f/100 # at 100% we are still at 0.3
-        metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+    # NSXLightThreadUtils::lightThreadToStringForCatalystListing(lightThread)
+    def self.lightThreadToStringForCatalystListing(lightThread)
+        percentageAsString = "{ #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours}"
+        itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects )"
+        "lightThread: #{lightThread["description"]} #{percentageAsString} #{itemsAsString}"
     end
 
-    # NSXLightThreadUtils::lightThreadToRealisedTimeSpanInSeconds(lightThread)
-    def self.lightThreadToRealisedTimeSpanInSeconds(lightThread)
-        lightThread["done"].map{|item| item[1] }.inject(0, :+)
-    end
-
-    # NSXLightThreadUtils::lightThreadToLiveDoneTimeSpanInSeconds(lightThread)
-    def self.lightThreadToLiveDoneTimeSpanInSeconds(lightThread)
-        doneTime = NSXLightThreadUtils::lightThreadToRealisedTimeSpanInSeconds(lightThread)
-        if lightThread["status"][0] == "running-since" then
-            doneTime = Time.new.to_i - lightThread["status"][1]
-        end
-        doneTime
-    end
-
-    # NSXLightThreadUtils::lightThreadToLivePercentage(lightThread)
-    def self.lightThreadToLivePercentage(lightThread)
-        return 0 if lightThread["done"].size==0
-        oldestUnixtime = lightThread["done"][0][0]
-        calendarTimespanInSeconds = Time.new.to_i - oldestUnixtime
-        calendarTimespanInDays = calendarTimespanInSeconds.to_f/86400
-        timeDoneExpectationInHours = calendarTimespanInDays * lightThread["commitment"]
-        timeDoneRealisedInHours = NSXLightThreadUtils::lightThreadToLiveDoneTimeSpanInSeconds(lightThread).to_f/3600
-        100 * (timeDoneRealisedInHours.to_f / timeDoneExpectationInHours)
-    end
-
-    # NSXLightThreadUtils::lightThreadToString(lightThread)
-    def self.lightThreadToString(lightThread)
-        percentageAsString = "{ #{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread).round(2)}% / #{lightThread["commitment"].round(2)} hours/day }"
+    # NSXLightThreadUtils::lightThreadToStringForLightThreadDive(lightThread)
+    def self.lightThreadToStringForLightThreadDive(lightThread)
+        percentageAsString = "{ #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7).round(2)}% of #{lightThread["commitment"].round(2)} hours}"
         itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects )"
         "lightThread: #{lightThread["description"]} #{percentageAsString} #{itemsAsString}"
     end
@@ -175,9 +185,9 @@ class NSXLightThreadUtils
         lightThreads = NSXLightThreadUtils::lightThreadsWithFilepaths()
             .map{|data| data[0] }
             .sort{|lt1,lt2|
-                NSXLightThreadUtils::lightThreadToLivePercentage(lt1) <=> NSXLightThreadUtils::lightThreadToLivePercentage(lt2)
+                NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt1, 7) <=> NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt2, 7)
             }
-        lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })  
+        lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToStringForCatalystListing(lightThread) })  
         lightThread    
     end
 
@@ -192,10 +202,10 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::lightThreadDive(lightThread)
     def self.lightThreadDive(lightThread)
         loop {
-            puts "-> #{NSXLightThreadUtils::lightThreadToString(lightThread)}"
+            puts "-> #{NSXLightThreadUtils::lightThreadToStringForLightThreadDive(lightThread)}"
             puts "-> lightThread uuid: #{lightThread["uuid"]}"
             puts "-> lightThread commitment: #{lightThread["commitment"]}"
-            puts "-> lightThreadToLivePercentage: #{NSXLightThreadUtils::lightThreadToLivePercentage(lightThread)}"
+            puts "-> lightThreadToLivePercentage: #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7)}"
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
             break if operation.nil?
             if operation=="start" then
