@@ -205,7 +205,7 @@ class NSXDisplayOperator
         NSXCatalystObjectsOperator::getObjects()
             .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
+            .map{|object| NSXCyclesUtils::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| 
                 if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
                     object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
@@ -249,7 +249,7 @@ class NSXDisplayOperator
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXCyclesOperator::updateObjectWithNS1935MetricIfNeeded(object) }
+            .map{|object| NSXCyclesUtils::updateObjectWithNS1935MetricIfNeeded(object) }
             .map{|object| 
                 if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
                     object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)

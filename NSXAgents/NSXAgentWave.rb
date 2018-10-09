@@ -177,12 +177,19 @@ class WaveSchedules
         end
     end
 
+    # NSXMiscUtils::metricForNewObjects(unixtime
+    def self.metricForNewObjects(unixtime)
+        ageInHours = (Time.new.to_f - unixtime).to_f/3600
+        ageInDays = (Time.new.to_f - unixtime).to_f/86400
+        0.1 + 0.7*(1-Math.exp(-ageInHours.to_f/6))
+    end
+
     def self.scheduleToMetric(schedule)
 
         # One Offs
 
         if schedule['@'] == 'new' then
-            return NSXMiscUtils::unixtimeToMetricNS1935(schedule['unixtime'])
+            return WaveSchedules::metricForNewObjects(schedule['unixtime'])
         end
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility

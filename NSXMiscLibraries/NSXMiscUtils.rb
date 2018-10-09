@@ -279,11 +279,4 @@ class NSXMiscUtils
         ].join()
     end
 
-    # NSXMiscUtils::unixtimeToMetricNS1935(unixtime)
-    def self.unixtimeToMetricNS1935(unixtime)
-        ageInHours = (Time.new.to_f - unixtime).to_f/3600
-        ageInDays = (Time.new.to_f - unixtime).to_f/86400
-        0.1 + 0.7*(1-Math.exp(-ageInHours.to_f/6))
-    end
-
 end

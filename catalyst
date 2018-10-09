@@ -32,7 +32,7 @@ require_relative "NSXMiscLibraries/NSXOrdinals.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXCatalystMetadataInterface.rb"
-require_relative "NSXMiscLibraries/NSXCyclesOperator.rb"
+require_relative "NSXMiscLibraries/NSXCyclesUtils.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 
 require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
