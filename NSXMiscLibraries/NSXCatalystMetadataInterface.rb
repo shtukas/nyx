@@ -22,7 +22,6 @@ Structure of individual objects metadata
 {
     "objectuuid"                                : UUID
     "object-lightthread-link-2793690c"          : nil | LightThread UUID
-    "nsx-cycle-unixtime-20181005-085102-091691" : nil | Unixitime
     "light-thread-running-status"               : nil | CatalystObjectLightThreadRunningStatus
 }
 
@@ -97,31 +96,6 @@ class NSXCatalystMetadataInterface
         NSXCatalystMetadataOperator::getAllMetadataObjects()
             .select{|metadata| metadata["object-lightthread-link-2793690c"] }
             .map{|metadata| metadata["objectuuid"] }
-    end
-
-    # -----------------------------------------------------------------------
-    # Cycle Unixtimes
-
-    # NSXCatalystMetadataInterface::setMetricCycleUnixtimeForObject(objectuuid,  unixtime)
-    def self.setMetricCycleUnixtimeForObject(objectuuid,  unixtime)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        metadata["nsx-cycle-unixtime-20181005-085102-091691"] =  [NSXMiscUtils::currentDay(), unixtime]
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)        
-    end
-
-    # NSXCatalystMetadataInterface::unSetMetricCycleUnixtimeForObject(objectuuid)
-    def self.unSetMetricCycleUnixtimeForObject(objectuuid)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        metadata.delete("nsx-cycle-unixtime-20181005-085102-091691")     
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
-    end    
-
-    # NSXCatalystMetadataInterface::getMetricCycleUnixtimeForObjectOrNull(objectuuid)
-    def self.getMetricCycleUnixtimeForObjectOrNull(objectuuid)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        pair = metadata["nsx-cycle-unixtime-20181005-085102-091691"]
-        return nil if pair.nil?
-        (pair[0] == NSXMiscUtils::currentDay()) ? pair[1] : nil
     end
 
 end

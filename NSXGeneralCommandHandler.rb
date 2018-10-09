@@ -29,7 +29,7 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::specialObjectCommandsAsString()
     def self.specialObjectCommandsAsString()
-        "Special Object Commands : ,, .. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
+        "Special Object Commands : .. ;; +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
     end
 
     # NSXGeneralCommandHandler::processCommand(object, command)
@@ -111,11 +111,6 @@ class NSXGeneralCommandHandler
         return if object.nil?
 
         # object needed
-
-        if command == ',,' then
-            NSXCatalystMetadataInterface::setMetricCycleUnixtimeForObject(object["uuid"], Time.new.to_i)
-            return
-        end
 
         if command == "light on" then
             if object[":LightThreadUpdates:"] then

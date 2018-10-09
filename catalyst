@@ -31,7 +31,6 @@ require_relative "NSXMiscLibraries/NSXStringParser.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXCatalystMetadataInterface.rb"
-require_relative "NSXMiscLibraries/NSXCyclesUtils.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 
 require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
@@ -199,18 +198,6 @@ loop {
 
     if command == ';;' then
         command = 'open; done'
-    end
-
-    shouldRemoveUnixtimeMark = lambda{|object, command|
-        return true if command.include?("done")
-        return true if command.start_with?("+")
-        return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "time:" ) # lightThread
-        return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # lightThread
-        false
-    }
-
-    if focusobject and shouldRemoveUnixtimeMark.call(focusobject, command) then
-        NSXCatalystMetadataInterface::unSetMetricCycleUnixtimeForObject(focusobject["uuid"])
     end
 
     NSXGeneralCommandHandler::processCommand(focusobject, command)

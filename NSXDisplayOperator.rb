@@ -209,7 +209,6 @@ class NSXDisplayOperator
         NSXCatalystObjectsOperator::getObjects()
             .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXCyclesUtils::updateObjectWithCycleMetricIfNeeded(object) }
             .each{|object|
                 ltmap[object["item-data"]["lightThread"]["uuid"]] = object["metric"]
             }
@@ -239,7 +238,6 @@ class NSXDisplayOperator
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXCyclesUtils::updateObjectWithCycleMetricIfNeeded(object) }
     end
 
 end
