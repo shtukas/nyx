@@ -29,7 +29,7 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::specialObjectCommandsAsString()
     def self.specialObjectCommandsAsString()
-        "Special Object Commands : ,, .. ordinal: <ordinal>, +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
+        "Special Object Commands : ,, .. +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
     end
 
     # NSXGeneralCommandHandler::processCommand(object, command)
@@ -160,21 +160,7 @@ class NSXGeneralCommandHandler
             end
             return
         end
-
-        if command.start_with?('ordinal:') then
-            _, ordinal = NSXStringParser::decompose(command)
-            if ordinal.nil? then
-                puts "usage: ordinal: <ordinal>"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            ordinal = ordinal.to_f
-            NSXCatalystMetadataInterface::setOrdinal(object["uuid"], ordinal)
-            signal = ["reload-agent-objects", object["agent-uid"]]
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
-            return
-        end
-
+        
         command.split(";").map{|t| t.strip }
             .each{|command|
                 signal = NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, command)

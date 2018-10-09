@@ -132,11 +132,9 @@ class NSXDisplayOperator
     def self.objectToString(object)
         announce = object['announce'].strip
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        maybeOrdinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object['uuid'])
         part1 = 
             [
                 "(#{"%.3f" % object["metric"]})",
-                maybeOrdinal ? " {ordinal: #{maybeOrdinal}}" : "",
                 " [#{object["uuid"]}]",
                 " #{announce}",
             ].join()
@@ -205,14 +203,7 @@ class NSXDisplayOperator
         NSXCatalystObjectsOperator::getObjects()
             .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXCyclesUtils::updateObjectWithNS1935MetricIfNeeded(object) }
-            .map{|object| 
-                if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
-                    object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
-                    object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
-                end
-                object
-            }
+            .map{|object| NSXCyclesUtils::updateObjectWithCycleMetricIfNeeded(object) }
             .each{|object|
                 ltmap[object["item-data"]["lightThread"]["uuid"]] = object["metric"]
             }
@@ -249,14 +240,7 @@ class NSXDisplayOperator
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXCyclesUtils::updateObjectWithNS1935MetricIfNeeded(object) }
-            .map{|object| 
-                if ( ordinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object["uuid"]) ) then
-                    object["metric"] = NSXOrdinal::ordinalToMetric(ordinal)
-                    object[":metric-updated-by:NSXOrdinal::ordinalToMetric:"] = true
-                end
-                object
-            }
+            .map{|object| NSXCyclesUtils::updateObjectWithCycleMetricIfNeeded(object) }
     end
 
 end

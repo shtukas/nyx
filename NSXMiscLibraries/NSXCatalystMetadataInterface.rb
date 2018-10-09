@@ -23,7 +23,6 @@ Structure of individual objects metadata
     "objectuuid"                                : UUID
     "object-lightthread-link-2793690c"          : nil | LightThread UUID
     "nsx-cycle-unixtime-20181005-085102-091691" : nil | Unixitime
-    "nsx-ordinal-per-day"                       : nil | Map[Date, Ordinal]
     "light-thread-running-status"               : nil | CatalystObjectLightThreadRunningStatus
 }
 
@@ -61,38 +60,6 @@ class NSXCatalystMetadataInterface
         metadata = NSXCatalystMetadataOperator::getMetadataForObject(catalystObjectUUID)
         metadata.delete("light-thread-running-status")
         NSXCatalystMetadataOperator::setMetadataForObject(catalystObjectUUID, metadata)
-    end
-
-    # -----------------------------------------------------------------------
-    # Ordinal
-
-    # NSXCatalystMetadataInterface::setOrdinal(objectuuid, ordinal)
-    def self.setOrdinal(objectuuid, ordinal)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        if metadata["nsx-ordinal-per-day"].nil? then
-            metadata["nsx-ordinal-per-day"] = {}
-        end
-        metadata["nsx-ordinal-per-day"][NSXMiscUtils::currentDay()] = ordinal
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
-    end
-
-    # NSXCatalystMetadataInterface::unSetOrdinal(objectuuid)
-    def self.unSetOrdinal(objectuuid)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        if metadata["nsx-ordinal-per-day"].nil? then
-            metadata["nsx-ordinal-per-day"] = {}
-        end
-        metadata["nsx-ordinal-per-day"].delete(NSXMiscUtils::currentDay())
-        NSXCatalystMetadataOperator::setMetadataForObject(objectuuid, metadata)
-    end
-
-    # NSXCatalystMetadataInterface::getOrdinalOrNull(objectuuid)
-    def self.getOrdinalOrNull(objectuuid)
-        metadata = NSXCatalystMetadataOperator::getMetadataForObject(objectuuid)
-        if metadata["nsx-ordinal-per-day"].nil? then
-            metadata["nsx-ordinal-per-day"] = {}
-        end
-        metadata["nsx-ordinal-per-day"][NSXMiscUtils::currentDay()]
     end
 
     # -----------------------------------------------------------------------

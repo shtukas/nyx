@@ -28,7 +28,6 @@ require_relative "NSXConstants.rb"
 
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
-require_relative "NSXMiscLibraries/NSXOrdinals.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXCatalystMetadataInterface.rb"
@@ -212,17 +211,6 @@ loop {
 
     if focusobject and shouldRemoveUnixtimeMark.call(focusobject, command) then
         NSXCatalystMetadataInterface::unSetMetricCycleUnixtimeForObject(focusobject["uuid"])
-    end
-
-    shouldRemoveOrdinalMark = lambda{|object, command|
-        return true if command == ',,'
-        return true if command.start_with?("+")
-        return true if ( object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" and command == "stop" ) # lightThread
-        false
-    }
-
-    if focusobject and shouldRemoveOrdinalMark.call(focusobject, command) then
-        NSXCatalystMetadataInterface::unSetOrdinal(focusobject["uuid"])
     end
 
     NSXGeneralCommandHandler::processCommand(focusobject, command)

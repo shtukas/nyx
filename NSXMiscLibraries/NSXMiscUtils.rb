@@ -212,16 +212,12 @@ class NSXMiscUtils
         uuid, schedule = NSXMiscUtils::buildCatalystObjectFromDescription(description)
         NSXAgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "ordinal", "datetime code", ">thread"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">thread"])
             break if option.nil?
             if option == "schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
                 puts JSON.pretty_generate(schedule)
                 NSXAgentWave::writeScheduleToDisk(uuid, schedule)  
-            end
-            if option == "ordinal" then
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                NSXCatalystMetadataInterface::setOrdinal(uuid, ordinal)  
             end
             if option == "datetime code" then
                 if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
@@ -269,10 +265,8 @@ class NSXMiscUtils
     # NSXMiscUtils::objectToString(object)
     def self.objectToString(object)
         announce = object['announce'].lines.first.strip
-        maybeOrdinal = NSXCatalystMetadataInterface::getOrdinalOrNull(object['uuid'])
         [
             object[":is-lightThread-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
-            maybeOrdinal ? " {ordinal: #{maybeOrdinal}}" : "",
             object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
             " #{announce}",
             NSXMiscUtils::object2DonotShowUntilAsString(object),
