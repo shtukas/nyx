@@ -138,7 +138,7 @@ class NSXLightThreadUtils
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
         ## Because we do not return anything, every call to this command should be followed by 
-        ## signal = ["reload-agent-objects", self::agentuuid()]
+        ## signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
@@ -155,7 +155,7 @@ class NSXLightThreadUtils
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
         NSXLightThreadUtils::addTimespanToLogFile(lightThread, timespanInSeconds.to_f/3600)
         ## Because we do not return anything, every call to this command should be followed by 
-        ## signal = ["reload-agent-objects", self::agentuuid()]
+        ## signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
@@ -168,7 +168,7 @@ class NSXLightThreadUtils
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
         NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
         ## Because we do not return anything, every call to this command should be followed by 
-        ## signal = ["reload-agent-objects", self::agentuuid()]
+        ## signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
@@ -225,18 +225,18 @@ class NSXLightThreadUtils
             break if operation.nil?
             if operation=="start" then
                 NSXLightThreadUtils::startLightThread(lightThread)
-                signal = ["reload-agent-objects", self::agentuuid()]
+                signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation=="stop" then
                 NSXLightThreadUtils::stopLightThread(lightThread)
-                signal = ["reload-agent-objects", self::agentuuid()]
+                signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation=="time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
-                signal = ["reload-agent-objects", self::agentuuid()]
+                signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation == "show items" then

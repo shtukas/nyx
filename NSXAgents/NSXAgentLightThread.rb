@@ -28,6 +28,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 # -------------------------------------------------------------------------------------
 
 class NSXAgentLightThread
+
+    # NSXAgentLightThread::agentuuid()
     def self.agentuuid()
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
     end
