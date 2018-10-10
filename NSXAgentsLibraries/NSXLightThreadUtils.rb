@@ -224,12 +224,12 @@ class NSXLightThreadUtils
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
             break if operation.nil?
             if operation=="start" then
-                NSXLightThreadUtils::startLightThread(lightThread)
+                NSXLightThreadUtils::startLightThread(lightThread["uuid"])
                 signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation=="stop" then
-                NSXLightThreadUtils::stopLightThread(lightThread)
+                NSXLightThreadUtils::stopLightThread(lightThread["uuid"])
                 signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
