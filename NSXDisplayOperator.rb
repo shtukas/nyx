@@ -223,6 +223,7 @@ class NSXDisplayOperator
                 if lightThreadUpdates then
                     runningStatement = 
                         if lightThreadUpdates["running-status"] then
+                            lightThreadUpdates["metric"] = 2
                             runningForInSeconds = Time.new.to_i - lightThreadUpdates["running-status"]["start-unixtime"]
                             lightThreadUpdates["running-status"] ? " [" + "running for #{ (runningForInSeconds.to_f/3600).round(2) } hours".yellow + "]" : ""
                         else
