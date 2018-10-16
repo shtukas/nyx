@@ -259,7 +259,7 @@ class NSXLightThreadUtils
                 }
             end
             if operation=="time commitment:" then
-                commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
+                commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day: ").to_f
                 lightThread["commitment"] = commitment
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])))
             end

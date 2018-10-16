@@ -80,7 +80,7 @@ class NSXGeneralCommandHandler
 
         if command == 'thread:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day (every 20 hours): ").to_f
+            commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day: ").to_f
             target = nil
             lightThread = NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
             puts JSON.pretty_generate(lightThread)
