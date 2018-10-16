@@ -174,7 +174,8 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToStringForCatalystListing(lightThread)
     def self.lightThreadToStringForCatalystListing(lightThread)
-        percentageAsString = "{ #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours }"
+        percentages = (1..7).to_a.reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
+        percentageAsString = "{ #{percentages.join(" ")} % of #{lightThread["commitment"].round(2)} hours }"
         itemsAsString = "( #{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects )"
         "lightThread: #{lightThread["description"]} #{percentageAsString} #{itemsAsString}"
     end
@@ -194,7 +195,7 @@ class NSXLightThreadUtils
                 NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt1, 7) <=> NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt2, 7)
             }
         lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToStringForCatalystListing(lightThread) })  
-        lightThread    
+        lightThread
     end
 
     # NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)

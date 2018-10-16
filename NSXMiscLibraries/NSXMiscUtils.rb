@@ -3,6 +3,7 @@
 # encoding: UTF-8
 
 class NSXMiscUtils
+ 
     # NSXMiscUtils::currentHour()
     def self.currentHour()
         Time.now.utc.iso8601[0,13]
@@ -132,6 +133,7 @@ class NSXMiscUtils
         NSXSystemDataOperator::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", 1)
     end
 
+    # NSXMiscUtils::setStandardListingPosition(position)
     def self.setStandardListingPosition(position)
         NSXSystemDataOperator::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end

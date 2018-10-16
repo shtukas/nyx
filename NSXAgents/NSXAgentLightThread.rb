@@ -48,6 +48,7 @@ class NSXAgentLightThread
         filepath   = object["item-data"]["filepath"]
         if command=='start' then
             NSXLightThreadUtils::startLightThread(uuid)
+            NSXMiscUtils::setStandardListingPosition(1)
             return ["reload-agent-objects", self::agentuuid()]
         end
         if command=='stop' then
