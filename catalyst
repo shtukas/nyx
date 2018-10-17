@@ -186,8 +186,8 @@ loop {
             }
 
     selectedLightThreads
-            .each{|lightThread|  
-                puts "    #{NSXLightThreadUtils::lightThreadToStringForUserInterfaceFront(lightThread)}".yellow
+            .each_with_index{|lightThread, indx|  
+                puts "    [lt:#{indx.to_s.rjust(2)}] #{NSXLightThreadUtils::lightThreadToStringForUserInterfaceFront(lightThread)}".yellow
             }
 
     displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + selectedLightThreads.size
@@ -208,6 +208,13 @@ loop {
 
     if command == "" then
         next
+    end
+
+    if command.start_with?("lt:") then
+        indx = command[3,9].to_i
+        selectedLightThread = selectedLightThreads[indx]
+        next if selectedLightThread.nil?
+        NSXLightThreadUtils::startLightThread(selectedLightThread["uuid"])
     end
 
     if ( command == "..") and focusobject and focusobject["default-expression"] then

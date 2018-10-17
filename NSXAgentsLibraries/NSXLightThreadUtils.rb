@@ -137,9 +137,8 @@ class NSXLightThreadUtils
         lightThread["status"] = ["running-since", Time.new.to_i]
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
-        ## Because we do not return anything, every call to this command should be followed by 
-        ## signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
-        ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
+        signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
+        NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXLightThreadUtils::stopLightThread(lightThreadUUID)
@@ -154,9 +153,8 @@ class NSXLightThreadUtils
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
         NSXLightThreadUtils::addTimespanToLogFile(lightThread, timespanInSeconds.to_f/3600)
-        ## Because we do not return anything, every call to this command should be followed by 
-        ## signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
-        ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
+        signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
+        NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timeInHours)
@@ -201,8 +199,8 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToStringForUserInterfaceFront(lightThread)
     def self.lightThreadToStringForUserInterfaceFront(lightThread)
-        percentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)
-        percentageAsString = "{ #{percentage} % of #{lightThread["commitment"].round(2)} hours }"
+        percentages = [1,2].reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
+        percentageAsString = "{ #{percentages.join(" ")} % of #{lightThread["commitment"].round(2)} hours }"
         "#{lightThread["description"]} #{percentageAsString}"
     end
 
