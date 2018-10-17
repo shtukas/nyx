@@ -163,7 +163,7 @@ NSXCatalystObjectsOperator::getObjectsFromAgents()
 
 loop {
 
-    displayScreenSizeReductionIndex = 5
+    displayScreenSizeReductionIndex = 7
 
     system("clear")
 
@@ -172,12 +172,29 @@ loop {
     numbers = NSXLightThreadUtils::lightThreadsWithFilepaths().map{|pair| [NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(pair[0], 7), 100].min }
     if numbers.size>0 then
         lightThreadCompletion = numbers.inject(0, :+).to_f/numbers.size
-        puts "LightThread completion: #{lightThreadCompletion.round(2)} %"
+        puts "LightThread completion (7 days): #{lightThreadCompletion.round(2)} %"
     end
 
-    standardlp = NSXMiscUtils::getStandardListingPosition()
+    puts ""
+    puts "LightThreads day outstanding:"
+
+    selectedLightThreads = NSXLightThreadUtils::lightThreadsWithFilepaths()
+            .map{|data| data[0] }
+            .select{|lightThread| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) < 100 }
+            .sort{|lt1, lt2|
+                NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt1, 2) <=> NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt2, 2)
+            }
+
+    selectedLightThreads
+            .each{|lightThread|  
+                puts "    #{NSXLightThreadUtils::lightThreadToStringForUserInterfaceFront(lightThread)}".yellow
+            }
+
+    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + selectedLightThreads.size
 
     puts ""
+
+    standardlp = NSXMiscUtils::getStandardListingPosition()
 
     focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
 
