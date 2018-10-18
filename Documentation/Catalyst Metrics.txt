@@ -2,12 +2,16 @@
          0.950  House
          0.900  Wave: stickies
 0.840 -> 0.850  Today+Calendar
+
+-------- 0.850  Space Level 
+                Items below this are not showned if 
+                	- NSXMiscUtils::areCoreHoursOfTheDay(), and
+                	- "LightThread completion (7 days)" is less than 90%
+
 0.500 -> 0.850  lightThread
 0.200 -> 0.830  Wave: new
 0.750 -> 0.800  Wave: today, ondate, repeats
 0.200 -> 0.700  Stream
-
--------- 0.500  Space Level (items above this metric must be cleared before night)
 
 0.200 -> 0.500  Vienna
 0.200 -> 0.500  Ninja

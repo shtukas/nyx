@@ -169,34 +169,36 @@ loop {
 
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString().green
 
+    lightThreadCompletion = 100
+
     numbers = NSXLightThreadUtils::lightThreadsWithFilepaths().map{|pair| [NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(pair[0], 7), 100].min }
     if numbers.size>0 then
         lightThreadCompletion = numbers.inject(0, :+).to_f/numbers.size
         puts "LightThread completion (7 days): #{lightThreadCompletion.round(2)} %"
     end
 
-    puts ""
-    puts "LightThreads day outstanding:"
-
-    selectedLightThreads = NSXLightThreadUtils::lightThreadsWithFilepaths()
+    selectedLightThreads = nil
+    if NSXMiscUtils::areCoreHoursOfTheDay() then
+        puts ""
+        puts "LightThreads day outstanding:"
+        selectedLightThreads = NSXLightThreadUtils::lightThreadsWithFilepaths()
             .map{|data| data[0] }
+            .select{|lightThread| NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(lightThread["uuid"]) }
             .select{|lightThread| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) < 100 }
             .sort{|lt1, lt2|
-                NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt1, 2) <=> NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lt2, 2)
+                NSXLightThreadMetrics::lightThread2Metric(lt1) <=> NSXLightThreadMetrics::lightThread2Metric(lt2)
             }
-
-    selectedLightThreads
+            .reverse
+        selectedLightThreads
             .each_with_index{|lightThread, indx|  
-                puts "    [lt:#{indx.to_s.rjust(2)}] #{NSXLightThreadUtils::lightThreadToStringForUserInterfaceFront(lightThread)}".yellow
+                puts "    [lt:#{indx.to_s.rjust(2)}] #{NSXLightThreadUtils::lightThreadToString(lightThread)}".yellow
             }
-
-    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + selectedLightThreads.size
+        displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + selectedLightThreads.size
+    end
 
     puts ""
-
     standardlp = NSXMiscUtils::getStandardListingPosition()
-
-    focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
+    focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp, lightThreadCompletion>=90)
 
     if focusobject.nil? then
         puts "Nothing to do for the moment (^_^)"
@@ -210,7 +212,7 @@ loop {
         next
     end
 
-    if command.start_with?("lt:") then
+    if command.start_with?("lt:") and selectedLightThreads then
         indx = command[3,9].to_i
         selectedLightThread = selectedLightThreads[indx]
         next if selectedLightThread.nil?

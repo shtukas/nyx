@@ -18,9 +18,9 @@
 
 class NSXDisplayOperator
 
-    # NSXDisplayOperator::makeGenesysDisplayState()
-    def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
-        objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
+    # NSXDisplayOperator::makeGenesysDisplayState(screenLeftHeight, standardlp, shouldShowBelowSpaceLevel)
+    def self.makeGenesysDisplayState(screenLeftHeight, standardlp, shouldShowBelowSpaceLevel) # : DisplayState
+        objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay(shouldShowBelowSpaceLevel)
         {
             "nsx26:object-still-to-go"               => objects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
             "nsx26:lines-to-display"                 => [],
@@ -89,10 +89,10 @@ class NSXDisplayOperator
         displayState
     end
 
-    # NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
-    def self.printScreen(displayScreenSizeReductionIndex, standardlp)
+    # NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp, shouldShowBelowSpaceLevel)
+    def self.printScreen(displayScreenSizeReductionIndex, standardlp, shouldShowBelowSpaceLevel)
         focusobject = nil
-        displayState = NSXDisplayOperator::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
+        displayState = NSXDisplayOperator::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp, shouldShowBelowSpaceLevel)
         loop {
             displayState["nsx26:lines-to-display"].each{|line|
                 puts line
@@ -202,15 +202,25 @@ class NSXDisplayOperator
         }
     end
 
-    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
-    def self.flockObjectsProcessedForCatalystDisplay()
-        ltmap = {}
+    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay(shouldShowBelowSpaceLevel)
+    def self.flockObjectsProcessedForCatalystDisplay(shouldShowBelowSpaceLevel)
+        
+        ltmap = {} # Map[LightThreadUUID, Metric]
 
         NSXCatalystObjectsOperator::getObjects()
             .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .each{|object|
                 ltmap[object["item-data"]["lightThread"]["uuid"]] = object["metric"]
+            }
+
+        lightThreadObjectUUIDs = []
+
+        NSXCatalystObjectsOperator::getObjects()
+            .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
+            .each{|lightThread|
+                lightThreadObjectUUIDs << lightThread["uuid"]
+                NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).each{|objectuuid| lightThreadObjectUUIDs << objectuuid }
             }
 
         NSXCatalystObjectsOperator::getObjects()
@@ -239,6 +249,13 @@ class NSXDisplayOperator
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+            .select{|object|
+                if shouldShowBelowSpaceLevel then
+                    true
+                else
+                    !NSXMiscUtils::areCoreHoursOfTheDay() or (object["metric"] >= 0.850) or lightThreadObjectUUIDs.include?(object["uuid"])
+                end
+            }
     end
 
 end

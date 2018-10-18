@@ -14,6 +14,11 @@ class NSXMiscUtils
         Time.now.utc.iso8601[0,10]
     end
 
+    # NSXMiscUtils::currentDayTime()
+    def self.currentDayTime()
+        Time.now.utc.iso8601
+    end
+
     def self.isWeekDay()
         [1,2,3,4,5].include?(Time.new.wday)
     end
@@ -21,6 +26,11 @@ class NSXMiscUtils
     def self.currentWeekDay()
         weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
         weekdays[Time.new.wday]
+    end
+
+    # NSXMiscUtils::areCoreHoursOfTheDay()
+    def self.areCoreHoursOfTheDay()
+        (Time.new.hour >= 8) and (Time.new.hour < 16)
     end
 
     def self.isInteger(str)
@@ -97,15 +107,15 @@ class NSXMiscUtils
         end
 
         if code.include?("hour") then
-            return ( Time.new + code.to_f*3600 ).to_s
+            return ( Time.new + code.to_f*3600 ).utc.iso8601
         end
 
         if code.include?("day") then
-            return ( DateTime.now + code.to_f ).to_time.to_s
+            return ( DateTime.now + code.to_f ).to_time.utc.iso8601
         end
 
         if code[4,1]=="-" and code[7,1]=="-" then
-            return "#{code} #{morningShowTime}"
+            return DateTime.parse("#{code} #{morningShowTime}").to_time.utc.iso8601
         end
 
         nil
@@ -251,16 +261,17 @@ class NSXMiscUtils
         end 
     end
 
+    # NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(objectuuid)
+    def self.shouldDisplayRelativelyToDoNotShowUntilDateTime(objectuuid)
+        (NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid) || NSXMiscUtils::currentDayTime()) <= NSXMiscUtils::currentDayTime()
+    end
+
     # NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object)
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
         return object if object["is-running"]
-        datetime = NSXDoNotShowUntilDatetime::getDatetimeOrNull(object["uuid"])
-        return object if datetime.nil?
-        datetime = DateTime.parse(datetime).to_time.utc.iso8601
-        if Time.now.utc.iso8601 < datetime then
-            object["metric"] = 0
-            object[":metric-set-to-zero-by:NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay:"]
-        end
+        return object if NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(object["uuid"])
+        object["metric"] = 0
+        object[":metric-set-to-zero-by:NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay:"]
         object
     end
 

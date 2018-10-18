@@ -9,6 +9,8 @@ require 'securerandom'
 require "json"
 require "find"
 
+require 'time'
+
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
@@ -28,6 +30,8 @@ class NSXDoNotShowUntilDatetime
 
 	# NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
     def self.getDatetimeOrNull(objectuuid)
-    	NSXSystemDataOperator::getOrNull("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}")
+    	datetime = NSXSystemDataOperator::getOrNull("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}")
+		return nil if datetime.nil?
+    	DateTime.parse(datetime).to_time.utc.iso8601
     end
 end
