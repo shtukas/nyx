@@ -20,7 +20,7 @@ class NSXLightThreadMetrics
     def self.lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n)
         doneTime = NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread, n)
         if lightThread["status"][0] == "running-since" then
-            doneTime = Time.new.to_i - lightThread["status"][1]
+            doneTime = doneTime + (Time.new.to_i - lightThread["status"][1])
         end
         doneTime
     end
@@ -193,7 +193,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        "lightThread: #{lightThread["description"]} (#{lightThread["commitment"].round(2)} hours) (#{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects)"
+        "lightThread: #{lightThread["description"]} (#{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours today) (#{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects)"
     end
 
     # -----------------------------------------------
