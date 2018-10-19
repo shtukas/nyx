@@ -88,7 +88,6 @@ end
 
 # -------------------------------------------------------------------------
 
-
 # -------------------------------------------------------------------------
 =begin
 
@@ -163,7 +162,7 @@ loop {
 
     lightThreadCompletion = 100
 
-    numbers = NSXLightThreadUtils::lightThreadsWithFilepaths().map{|pair| [NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(pair[0], 7), 100].min }
+    numbers = NSXLightThreadUtils::lightThreads().map{|lightThread| [NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7), 100].min }
     if numbers.size>0 then
         lightThreadCompletion = numbers.inject(0, :+).to_f/numbers.size
         puts "LightThread completion (7 days): #{lightThreadCompletion.round(2)} %"
@@ -173,8 +172,7 @@ loop {
     if NSXMiscUtils::areCoreHoursOfTheDay() then
         puts ""
         puts "LightThreads day outstanding:"
-        selectedLightThreads = NSXLightThreadUtils::lightThreadsWithFilepaths()
-            .map{|data| data[0] }
+        selectedLightThreads = NSXLightThreadUtils::lightThreads()
             .select{|lightThread| NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(lightThread["uuid"]) }
             .select{|lightThread| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) < 100 }
             .sort{|lt1, lt2|

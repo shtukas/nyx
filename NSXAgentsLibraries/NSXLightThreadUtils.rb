@@ -10,9 +10,9 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
     Iphetra::getObjects(repositoryRootFolderPath, setuuid)
 =end
 
-LIGHT_THREADS_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads"
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREAD_LOG_FILEPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads-Log.txt"
+LIGHT_THREADS_SETUUID = "d85fe272-b37a-4afa-9815-afa2cf5041ff"
 
 class NSXLightThreadMetrics
 
@@ -60,19 +60,14 @@ end
 
 class NSXLightThreadUtils
 
-    # NSXLightThreadUtils::lightThreadsWithFilepaths(): Array[(lightThread, filepath)]
-    def self.lightThreadsWithFilepaths()
-        Dir.entries(LIGHT_THREADS_FOLDER_PATH)
-            .select{|filename| filename[-5, 5]=='.json' }
-            .map{|filename| "#{LIGHT_THREADS_FOLDER_PATH}/#{filename}" }
-            .map{|filepath|
-                [JSON.parse(IO.read(filepath)), filepath]
-            }
+    # NSXLightThreadUtils::lightThreads(): Array[LightThread]
+    def self.lightThreads()
+        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID)
     end
 
-    # NSXLightThreadUtils::commitLightThreadToDisk(lightThread, filename)
-    def self.commitLightThreadToDisk(lightThread, filename)
-        File.open("#{LIGHT_THREADS_FOLDER_PATH}/#{filename}", "w") { |f| f.puts(JSON.pretty_generate(lightThread)) }
+    # NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+    def self.commitLightThreadToDisk(lightThread)
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThread)
     end
 
     # NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
@@ -86,26 +81,13 @@ class NSXLightThreadUtils
             "status"      => ["paused"]
         }
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, 0)
-        NSXLightThreadUtils::commitLightThreadToDisk(lightThread, "#{LucilleCore::timeStringL22()}.json")
+        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         lightThread
     end
 
     # NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
     def self.getLightThreadByUUIDOrNull(lightThreadUUID)
-        NSXLightThreadUtils::lightThreadsWithFilepaths()
-            .map{|pair| pair.first }
-            .select{|lightThread| lightThread["uuid"]==lightThreadUUID }
-            .first
-    end
-
-    # NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThreadUUID)
-    def self.getLightThreadFilepathFromItsUUIDOrNull(lightThreadUUID)
-        NSXLightThreadUtils::lightThreadsWithFilepaths()
-            .select{|pair| pair[0]["uuid"]==lightThreadUUID }
-            .each{|pair|  
-                return pair[1]
-            }
-        nil
+        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThreadUUID)
     end
 
     # NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
@@ -113,8 +95,8 @@ class NSXLightThreadUtils
         lightThread["status"][0] == "running-since"
     end
 
-    # NSXLightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
-    def self.makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
+    # NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
+    def self.lightThreadToCatalystObject(lightThread)
         # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
 
         if lightThread["status"][0] == "running-since" and NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) >= 100 then
@@ -132,7 +114,6 @@ class NSXLightThreadUtils
         object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
         object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
-        object["item-data"]["filepath"] = filepath
         object["item-data"]["lightThread"] = lightThread
         object 
     end
@@ -143,8 +124,7 @@ class NSXLightThreadUtils
         return if lightThread.nil?
         return if lightThread["status"][0] == "running-since" 
         lightThread["status"] = ["running-since", Time.new.to_i]
-        filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
-        NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
+        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
@@ -158,8 +138,7 @@ class NSXLightThreadUtils
         timespanInSeconds = Time.new.to_i - unixtime
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], unixtime, timespanInSeconds)
         lightThread["status"] = ["paused"]
-        filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
-        NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
+        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         NSXLightThreadUtils::addTimespanToLogFile(lightThread, timespanInSeconds.to_f/3600)
         signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
@@ -170,16 +149,14 @@ class NSXLightThreadUtils
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInHours * 3600)
-        filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThreadUUID)
-        NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
+        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
         NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
     def self.interactivelySelectLightThreadOrNull()
-        lightThreads = NSXLightThreadUtils::lightThreadsWithFilepaths()
-            .map{|data| data[0] }
+        lightThreads = NSXLightThreadUtils::lightThreads()
             .sort{|lt1,lt2|
                 NSXLightThreadMetrics::lightThread2Metric(lt1) <=> NSXLightThreadMetrics::lightThread2Metric(lt2)
             }
@@ -238,7 +215,7 @@ class NSXLightThreadUtils
                     next if object.nil?
                     puts "    "+NSXMiscUtils::objectToString(object)
                 }
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "edit object", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 NSXLightThreadUtils::startLightThread(lightThread["uuid"])
@@ -277,19 +254,12 @@ class NSXLightThreadUtils
             if operation=="time commitment:" then
                 commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day: ").to_f
                 lightThread["commitment"] = commitment
-                NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])))
-            end
-            if operation=="edit object" then
-                filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
-                system("open '#{filepath}'")
+                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
             if operation=="destroy" then
-                answer = LucilleCore::askQuestionAnswerAsBoolean("You are about to destroy this Time Proton, are you sure you want to do that ? ")
+                answer = LucilleCore::askQuestionAnswerAsBoolean("You are about to destroy this LightThread, are you sure you want to do that ? ")
                 if answer then
-                    lightThreadFilepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
-                    if File.exists?(lightThreadFilepath) then
-                        FileUtils.rm(lightThreadFilepath)
-                    end
+                    Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThread["uuid"])
                 end
                 break
             end

@@ -35,11 +35,8 @@ class NSXAgentLightThread
     end
 
     def self.getObjects()
-        NSXLightThreadUtils::lightThreadsWithFilepaths()
-            .map{|pair|
-                lightThread, filepath = pair
-                NSXLightThreadUtils::makeCatalystObjectFromLightThreadAndFilepath(lightThread, filepath)
-            }
+        NSXLightThreadUtils::lightThreads()
+            .map{|lightThread| NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) }
     end
 
     def self.processObjectAndCommand(object, command)
