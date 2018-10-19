@@ -11,7 +11,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
 =end
 
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
-LIGHT_THREAD_LOG_FILEPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads-Log.txt"
 LIGHT_THREADS_SETUUID = "d85fe272-b37a-4afa-9815-afa2cf5041ff"
 
 class NSXLightThreadMetrics
@@ -139,7 +138,6 @@ class NSXLightThreadUtils
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], unixtime, timespanInSeconds)
         lightThread["status"] = ["paused"]
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-        NSXLightThreadUtils::addTimespanToLogFile(lightThread, timespanInSeconds.to_f/3600)
         signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
@@ -150,7 +148,6 @@ class NSXLightThreadUtils
         return if lightThread.nil?
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInHours * 3600)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-        NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
         NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
@@ -162,11 +159,6 @@ class NSXLightThreadUtils
             }
         lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })  
         lightThread
-    end
-
-    # NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
-    def self.addTimespanToLogFile(lightThread, timeInHours)
-        File.open(LIGHT_THREAD_LOG_FILEPATH, "a"){|f| f.puts("#{Time.now.utc.iso8601} , #{lightThread["description"]} , #{timeInHours.round(2)} hours") }
     end
 
     # NSXLightThreadUtils::issueLightThreadTimeRecordItem(unixtime, timespanInSeconds)
