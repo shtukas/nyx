@@ -47,7 +47,6 @@ require_relative "NSXAgents/NSXAgentWIS.rb"
 require_relative "NSXBob.rb"
 
 require_relative "NSXDataManager/NSXDataManager.rb"
-require_relative "NSXDataManager/NSXDataLog.rb"
 require_relative "NSXDisplayOperator.rb"
 require_relative "NSXGeneralCommandHandler.rb"
 
