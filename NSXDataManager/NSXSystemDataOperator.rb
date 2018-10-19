@@ -18,59 +18,31 @@ require 'json'
 
 # ----------------------------------------------------------------------------------
 
-DATA_MANAGER_SYSTEM_DATA_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Data-Manager/System-Data"
-$DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH = {}
+CATALYST_SYSTEM_DATA_IPHETRA_SETUUID = "e13183f1-4615-49a9-8862-b23a38783f26"
 
 =begin
 {
-    "key"   => String
-    "value" => Value
+    "uuid"  => key,
+    "value" => value
 }
 =end
 
 class NSXSystemDataOperator
 
-    # NSXSystemDataOperator::objectFilePaths()
-    def self.objectFilePaths()
-        filepaths = []
-        Find.find(DATA_MANAGER_SYSTEM_DATA_REPOSITORY_FOLDERPATH) do |path|
-            next if !File.file?(path)
-            next if path[-5,5] != ".json"
-            filepaths << path
-        end
-        filepaths
-    end
-
-    # NSXSystemDataOperator::initialLoadFromDisk()
-    def self.initialLoadFromDisk()
-        NSXSystemDataOperator::objectFilePaths()
-            .each{|filepath|
-                begin
-                    packet = JSON.parse(IO.read(filepath))
-                    $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH[packet["key"]] = packet["value"]
-                rescue
-                end
-            }
-    end
-
     # NSXSystemDataOperator::set(key, value)
     def self.set(key, value)
-        packet = {
-            "key"   => key,
+        object = {
+            "uuid"  => key,
             "value" => value
         }
-        filename = "#{Digest::SHA1.hexdigest(key)}.json"
-        folderpath = "#{DATA_MANAGER_SYSTEM_DATA_REPOSITORY_FOLDERPATH}/#{filename[0,2]}/#{filename[2,2]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH[key] = value
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, CATALYST_SYSTEM_DATA_IPHETRA_SETUUID, object)
     end
 
     # NSXSystemDataOperator::getOrNull(key)
     def self.getOrNull(key)
-        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH[key]
+        object = Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, CATALYST_SYSTEM_DATA_IPHETRA_SETUUID, key)
+        return nil if object.nil?
+        object["value"]
     end
 
     # NSXSystemDataOperator::getOrDefaultValue(key, defaultValue)
@@ -82,17 +54,9 @@ class NSXSystemDataOperator
 
     # NSXSystemDataOperator::destroy(key)
     def self.destroy(key)
-        filename   = "#{Digest::SHA1.hexdigest(key)}.json"
-        folderpath = "#{DATA_MANAGER_SYSTEM_DATA_REPOSITORY_FOLDERPATH}/#{filename[0,2]}/#{filename[2,2]}"
-        filepath   = "#{folderpath}/#{filename}"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-        $DATA_MANAGER_SYSTEM_DATA_IN_MEMORY_HASH.delete(key)
+        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, CATALYST_SYSTEM_DATA_IPHETRA_SETUUID, key)
     end
 
 end
-
-puts "NSXSystemDataOperator::initialLoadFromDisk()"
-NSXSystemDataOperator::initialLoadFromDisk()
 
 
