@@ -3,6 +3,13 @@
 
 require 'time'
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
+=begin
+    Iphetra::commitObjectToDisk(repositoryRootFolderPath, setuuid, object)
+    Iphetra::getObjectByUUIDOrNull(repositoryRootFolderPath, setuuid, objectuuid)
+    Iphetra::getObjects(repositoryRootFolderPath, setuuid)
+=end
+
 LIGHT_THREADS_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads"
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREAD_LOG_FILEPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Light-Threads-Log.txt"
@@ -11,9 +18,9 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread, n)
     def self.lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread, n)
-        lightThread["done"]
-            .select{|item| (Time.new.to_i-item[0])<=(86400*n) }
-            .map{|item| item[1] }.inject(0, :+)
+        NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
+            .select{|item| (Time.new.to_i-item["unixtime"])<=(86400*n) }
+            .map{|item| item["timespan"] }.inject(0, :+)
     end
 
     # NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n)
@@ -27,7 +34,8 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n)
     def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n)
-        return 0 if lightThread["done"].size==0
+        items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
+        return 0 if items.size==0
         timeDoneExpectationInHours = n * lightThread["commitment"] # The commitment is daily
         timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n).to_f/3600
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
@@ -52,15 +60,13 @@ end
 
 class NSXLightThreadUtils
 
-    # NSXLightThreadUtils::lightThreadsWithFilepaths(): [lightThread, filepath]
+    # NSXLightThreadUtils::lightThreadsWithFilepaths(): Array[(lightThread, filepath)]
     def self.lightThreadsWithFilepaths()
         Dir.entries(LIGHT_THREADS_FOLDER_PATH)
             .select{|filename| filename[-5, 5]=='.json' }
             .map{|filename| "#{LIGHT_THREADS_FOLDER_PATH}/#{filename}" }
             .map{|filepath|
-                object = JSON.parse(IO.read(filepath))
-                object["done"] = object["done"].select{|item| (Time.new.to_i-item[0]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
-                [object, filepath]
+                [JSON.parse(IO.read(filepath)), filepath]
             }
     end
 
@@ -71,15 +77,15 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
     def self.makeNewLightThread(description, commitment, target)
+        uuid = SecureRandom.hex(4)
         lightThread = {
-            "uuid"        => SecureRandom.hex(4),
+            "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
             "commitment"  => commitment,
-            "status"      => ["paused"],
-            "done"        => []
+            "status"      => ["paused"]
         }
-        lightThread["done"] << [Time.new.to_i, 0]
+        NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, 0)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, "#{LucilleCore::timeStringL22()}.json")
         lightThread
     end
@@ -148,9 +154,9 @@ class NSXLightThreadUtils
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
         return if lightThread["status"][0] == "paused" 
-        timespanInSeconds = Time.new.to_i - lightThread["status"][1]
-        recordItem = [ lightThread["status"][1], timespanInSeconds ]
-        lightThread["done"] << recordItem
+        unixtime = lightThread["status"][1]
+        timespanInSeconds = Time.new.to_i - unixtime
+        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], unixtime, timespanInSeconds)
         lightThread["status"] = ["paused"]
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThread["uuid"])
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
@@ -163,13 +169,11 @@ class NSXLightThreadUtils
     def self.lightThreadAddTime(lightThreadUUID, timeInHours)
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
-        lightThread["done"] << [Time.new.to_i, timeInHours * 3600]
+        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInHours * 3600)
         filepath = NSXLightThreadUtils::getLightThreadFilepathFromItsUUIDOrNull(lightThreadUUID)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread, File.basename(filepath))
         NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
-        ## Because we do not return anything, every call to this command should be followed by 
-        ## signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
-        ## NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
+        NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
@@ -186,6 +190,24 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::addTimespanToLogFile(lightThread, timeInHours)
     def self.addTimespanToLogFile(lightThread, timeInHours)
         File.open(LIGHT_THREAD_LOG_FILEPATH, "a"){|f| f.puts("#{Time.now.utc.iso8601} , #{lightThread["description"]} , #{timeInHours.round(2)} hours") }
+    end
+
+    # NSXLightThreadUtils::issueLightThreadTimeRecordItem(unixtime, timespanInSeconds)
+    def self.issueLightThreadTimeRecordItem(lightThreadUUID, unixtime, timespanInSeconds)
+        setuuid = "#{lightThreadUUID}:DFB99806"
+        object = {
+            "uuid"     => SecureRandom.hex,
+            "unixtime" => unixtime,
+            "timespan" => timespanInSeconds
+        }
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, setuuid, object)
+    end
+
+    # NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
+    def self.getLightThreadTimeRecordItems(lightThreadUUID)
+        setuuid = "#{lightThreadUUID}:DFB99806"
+        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, setuuid)
+            .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
     # -----------------------------------------------

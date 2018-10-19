@@ -45,7 +45,7 @@ class NSXAgentLightThread
     def self.processObjectAndCommand(object, command)
         uuid = object["uuid"]
         lightThread = object["item-data"]["lightThread"]
-        filepath   = object["item-data"]["filepath"]
+        filepath = object["item-data"]["filepath"]
         if command=='start' then
             NSXLightThreadUtils::startLightThread(uuid)
             NSXMiscUtils::setStandardListingPosition(1)

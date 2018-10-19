@@ -20,6 +20,14 @@ require 'digest/sha1'
 require 'find'
 require 'drb/drb'
 require 'thread'
+
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
+=begin
+    Iphetra::commitObjectToDisk(repositoryRootFolderPath, setuuid, object)
+    Iphetra::getObjectByUUIDOrNull(repositoryRootFolderPath, setuuid, objectuuid)
+    Iphetra::getObjects(repositoryRootFolderPath, setuuid)
+=end
+
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # -----------------------------------------------------------------
@@ -80,21 +88,6 @@ end
 
 # -------------------------------------------------------------------------
 
-=begin
-
-$DATA_MANAGER_CATALYST_METADATA_IN_MEMORY_MAP
-.values
-.select{|value| value["nsx-timeprotons-uuids-e9b8519d"] }
-.each{|value|
-    puts JSON.pretty_generate(value)
-    value["object-lightthread-link-2793690c"] = value["nsx-timeprotons-uuids-e9b8519d"].first
-    value.delete("nsx-timeprotons-uuids-e9b8519d")
-    puts JSON.pretty_generate(value)
-    NSXCatalystMetadataOperator::putItem(value)
-}
-exit
-
-=end
 
 # -------------------------------------------------------------------------
 =begin

@@ -11,4 +11,13 @@ LightThreadStatus
 	["paused"]
 	["running-since", Unixtime]
 
-LightThreadTimeRecordItem: [Unixtime, Float] # second component is how much time has been done on that day.
+LightThreadTimeRecordItem: {
+	"uuid"     => not particularly relevant, random
+	"unixtime" => Unixtime
+	"timespan" => Integer, in seconds
+}
+
+LightThreadTimeRecordItem(s) are stored in a Iphetra set of uuid "<LightThreadUUID>:DFB99806"
+
+
+
