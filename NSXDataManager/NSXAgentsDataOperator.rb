@@ -18,68 +18,36 @@ require 'json'
 
 # ----------------------------------------------------------------------------------
 
-DATA_MANAGER_AGENTS_DATA_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Data-Manager/Agents-Data"
-$DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH = {}
+CATALYST_AGENT_DATA_IPHETRA_SETUUID_PREFIX = "d0b1f843-324d-469e-80e6-b0f330491287"
 
 =begin
 {
-    "agentuuid" => String
-    "key"        => String
-    "value"      => Value
+    "uuid"  => key,
+    "value" => value
 }
 =end
 
 class NSXAgentsDataOperator
 
-    # NSXAgentsDataOperator::objectFilePaths()
-    def self.objectFilePaths()
-        filepaths = []
-        Find.find(DATA_MANAGER_AGENTS_DATA_REPOSITORY_FOLDERPATH) do |path|
-            next if !File.file?(path)
-            next if path[-5,5] != ".json"
-            filepaths << path
-        end
-        filepaths
-    end
-
-    # NSXAgentsDataOperator::initialLoadFromDisk()
-    def self.initialLoadFromDisk()
-        NSXAgentsDataOperator::objectFilePaths()
-            .each{|filepath|
-                begin
-                    packet = JSON.parse(IO.read(filepath))
-                    if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuid"]].nil? then
-                        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuid"]] = {}
-                    end
-                    $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[packet["agentuuid"]][packet["key"]] = packet["value"]
-                rescue
-                end
-            }
+    # NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid)
+    def self.agentuuidToSetUUID(agentuuid)
+        "#{CATALYST_AGENT_DATA_IPHETRA_SETUUID_PREFIX}:#{agentuuid}"
     end
 
     # NSXAgentsDataOperator::set(agentuuid, key, value)
     def self.set(agentuuid, key, value)
-        packet = {
-            "agentuuid" => agentuuid,
-            "key"        => key,
-            "value"      => value
+        object = {
+            "uuid"  => key,
+            "value" => value
         }
-        filename = "#{Digest::SHA1.hexdigest(key)}.json"
-        folderpath = "#{DATA_MANAGER_AGENTS_DATA_REPOSITORY_FOLDERPATH}/#{agentuuid}/#{filename[0,2]}/#{filename[2,2]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        File.open("#{folderpath}/#{filename}", "w"){|f| f.puts(JSON.pretty_generate(packet)) }
-        if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].nil? then
-            $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid] = {}
-        end        
-        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid][key] = value
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), object)        
     end
 
     # NSXAgentsDataOperator::getOrNull(agentuuid, key)
     def self.getOrNull(agentuuid, key)
-        return nil if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].nil?
-        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid][key]
+        object = Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), key)
+        return nil if object.nil?
+        object["value"]
     end
 
     # NSXAgentsDataOperator::getOrDefaultValue(agentuuid, key, defaultValue)
@@ -91,17 +59,9 @@ class NSXAgentsDataOperator
 
     # NSXAgentsDataOperator::destroy(agentuuid, key)
     def self.destroy(agentuuid, key)
-        filename = "#{Digest::SHA1.hexdigest(key)}.json"
-        folderpath = "#{DATA_MANAGER_AGENTS_DATA_REPOSITORY_FOLDERPATH}/#{agentuuid}/#{filename[0,2]}/#{filename[2,2]}"
-        filepath = "#{folderpath}/#{filename}"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-        return if $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].nil?
-        $DATA_MANAGER_AGENTS_DATA_IN_MEMORY_HASH[agentuuid].delete(key)
+        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), key)
     end
 
 end
 
-puts "NSXAgentsDataOperator::initialLoadFromDisk()"
-NSXAgentsDataOperator::initialLoadFromDisk()
 
