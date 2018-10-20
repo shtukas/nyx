@@ -34,15 +34,14 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "NSXConstants.rb"
 
-require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
-require_relative "NSXMiscLibraries/NSXStringParser.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXCatalystMetadataInterface.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
-
-require_relative "NSXAgentsLibraries/NSXFolderProbe.rb"
-require_relative "NSXAgentsLibraries/NSXLightThreadUtils.rb"
+require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
+require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
+require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
+require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
@@ -54,7 +53,7 @@ require_relative "NSXAgents/NSXAgentWIS.rb"
 
 require_relative "NSXBob.rb"
 
-require_relative "NSXDataManager/NSXDataManager.rb"
+require_relative "NSXDataManager.rb"
 require_relative "NSXDisplayOperator.rb"
 require_relative "NSXGeneralCommandHandler.rb"
 
@@ -87,6 +86,8 @@ class Timer
 end
 
 # -------------------------------------------------------------------------
+
+
 
 # -------------------------------------------------------------------------
 =begin

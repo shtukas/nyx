@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require 'json'
 require 'date'
 require 'digest/sha1'
@@ -23,6 +22,13 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
 
 # ----------------------------------------------------------------------
 
@@ -302,8 +308,9 @@ class NSXAgentWave
         nil
     end
 
+    # NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = NSXAgentsDataOperator::getOrNull(NSXAgentWave::agentuuid(), "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}")
+        storedValue = KeyValueStore::getOrNull(nil, "9f4e1f2e-0bab-4a56-9de7-7976805ca04d:#{uuid}")
         if storedValue then
             path = JSON.parse(storedValue)[0]
             if !path.nil? then
@@ -313,9 +320,11 @@ class NSXAgentWave
                 end
             end
         end
-        #puts "NSXAgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
+        puts "NSXAgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = NSXAgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        NSXAgentsDataOperator::set(NSXAgentWave::agentuuid(), "ed459722-ca2e-4139-a7c0-796968ef5b66:#{uuid}", JSON.generate([maybepath])) if maybepath
+        if maybepath then
+            KeyValueStore::set(nil, "9f4e1f2e-0bab-4a56-9de7-7976805ca04d:#{uuid}", JSON.generate([maybepath]))
+        end
         maybepath
     end
 

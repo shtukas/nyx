@@ -1,0 +1,8 @@
+
+
+The Iphetra integration happened on October 19th, 2018.
+
+The set are 
+	CATALYST_IPHETRA_AGENT_DATA_SETUUID_PREFIX+":"+agentuuid
+	CATALYST_IPHETRA_METADATA_SETUUID
+	CATALYST_IPHETRA_SYSTEM_DATA_SETUUID
