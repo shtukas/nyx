@@ -112,38 +112,36 @@ class NSXGeneralCommandHandler
 
         # object needed
 
-        if command == "light on" then
-            if object[":LightThreadUpdates:"] then
-                if object[":LightThreadUpdates:"]["running-status"].nil? then
-                    # A legitimate light on for an object of a LightThread that is not currently running
-                    NSXCatalystMetadataInterface::setLightThreadRunningStatus(object["uuid"], object[":LightThreadUpdates:"]["light-thread"]["uuid"], Time.new.to_i)
+        if command == "/start" then
+            if object[":light-thread-data:"] then
+                if object[":light-thread-data:"]["secondary-object-run-status"].nil? then
+                    lightThreadUUID = object[":light-thread-data:"]["light-thread"]["uuid"]               
+                    NSXMiscUtils::startLightThreadSecondaryObject(object["uuid"], lightThreadUUID)
                 end
             end
             return
         end
 
-        if command == "light off" then
-            if object[":LightThreadUpdates:"] then
-                if object[":LightThreadUpdates:"]["running-status"] then
-                    runningStatus = NSXCatalystMetadataInterface::getLightThreadRunningStatusOrNUll(object["uuid"])
-                    lightThreadUUID = runningStatus["light-thread-uuid"]
+        if command == "/stop" then
+            if object[":light-thread-data:"] then
+                if object[":light-thread-data:"]["secondary-object-run-status"] then
+                    lightThreadUUID = object[":light-thread-data:"]["light-thread"]["uuid"]
+                    runningStatus = NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(object["uuid"])
                     timeSpanInSeconds = Time.new.to_i - runningStatus["start-unixtime"]
                     NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timeSpanInSeconds.to_f/3600)
-                    NSXCatalystMetadataInterface::unSetLightThreadRunningStatus(object["uuid"])
+                    NSXMiscUtils::unsetLightThreadSecondaryObjectRunningStatus(object["uuid"])
                 end
             end
             return
         end
 
         if command == '>thread' then
-            NSXMiscUtils::sendCatalystObjectToTimeProton(object["uuid"])
+            NSXMiscUtils::InteractiveLightThreadChoiceAndMakeLT1526Claim(object["uuid"])
             return
         end
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
-            metadata = NSXCatalystMetadataOperator::getMetadataForObject(object["uuid"])
-            puts JSON.pretty_generate(metadata)
             LucilleCore::pressEnterToContinue()
             return
         end

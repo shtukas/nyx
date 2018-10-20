@@ -19,5 +19,8 @@ LightThreadTimeRecordItem: {
 
 LightThreadTimeRecordItem(s) are stored in a Iphetra set of uuid "<LightThreadUUID>:DFB99806"
 
-
+LightThreadSecondaryObjectClaim, LT1526Claim = {
+    "uuid"              => secondaryObjectUUID,
+    "light-thread-uuid" => 
+}
 

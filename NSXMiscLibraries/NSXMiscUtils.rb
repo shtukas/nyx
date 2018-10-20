@@ -2,6 +2,9 @@
 
 # encoding: UTF-8
 
+LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
+LT1526_SETUUID  = "05183ee7-3e44-4363-a6c4-8cab4c0e46bd"
+
 class NSXMiscUtils
  
     # NSXMiscUtils::currentHour()
@@ -211,11 +214,11 @@ class NSXMiscUtils
         [uuid, schedule]
     end
 
-    # NSXMiscUtils::sendCatalystObjectToTimeProton(objectuuid)
-    def self.sendCatalystObjectToTimeProton(objectuuid)
+    # NSXMiscUtils::InteractiveLightThreadChoiceAndMakeLT1526Claim(objectuuid)
+    def self.InteractiveLightThreadChoiceAndMakeLT1526Claim(objectuuid)
         lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
         return nil if lightThread.nil?
-        NSXCatalystMetadataInterface::setLightThread(objectuuid, lightThread["uuid"])
+        NSXMiscUtils::makeLT1526Claim(objectuuid, lightThread["uuid"])
         lightThread
     end
 
@@ -240,7 +243,7 @@ class NSXMiscUtils
                 end
             end
             if option == ">thread" then
-                lightThread = NSXMiscUtils::sendCatalystObjectToTimeProton(uuid)
+                lightThread = NSXMiscUtils::InteractiveLightThreadChoiceAndMakeLT1526Claim(uuid)
                 if lightThread then
                     puts "Inserted in #{lightThread["description"]}"
                 end
@@ -284,6 +287,58 @@ class NSXMiscUtils
             " #{announce}",
             NSXMiscUtils::object2DonotShowUntilAsString(object),
         ].join()
+    end
+
+    # NSXMiscUtils::startLightThreadSecondaryObject(secondaryObjectUUID, lightThreadUUID)
+    def self.startLightThreadSecondaryObject(secondaryObjectUUID, lightThreadUUID)
+        # Here we only need to record the current unixtime
+        object = {
+            "uuid"              => secondaryObjectUUID,
+            "light-thread-uuid" => lightThreadUUID,
+            "start-unixtime"    => Time.new.to_i
+        }
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, object)
+    end
+
+    # NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
+    def self.getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
+        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, secondaryObjectUUID)
+    end
+
+    # NSXMiscUtils::unsetLightThreadSecondaryObjectRunningStatus(secondaryObjectUUID)
+    def self.unsetLightThreadSecondaryObjectRunningStatus(secondaryObjectUUID)
+        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, secondaryObjectUUID)
+    end
+
+    # NSXMiscUtils::makeLT1526Claim(secondaryObjectUUID, lightThreadUUID)
+    def self.makeLT1526Claim(secondaryObjectUUID, lightThreadUUID)
+        object = {
+            "uuid" => secondaryObjectUUID,
+            "light-thread-uuid" => lightThreadUUID
+        }
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID, object)
+    end
+
+    # NSXMiscUtils::destroyLT1526Claim(secondaryObjectUUID)
+    def self.destroyLT1526Claim(secondaryObjectUUID)
+        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID, secondaryObjectUUID)
+    end
+
+    # NSXMiscUtils::getLT1526ClaimOrNull(secondaryObjectUUID)
+    def self.getLT1526ClaimOrNull(secondaryObjectUUID)
+        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID, secondaryObjectUUID)
+    end
+
+    # NSXMiscUtils::getLT1526Claims()
+    def self.getLT1526Claims()
+        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID)
+    end
+
+    # NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThreadUUID)
+    def self.getLT1526SecondaryObjectUUIDsForLightThread(lightThreadUUID)
+        NSXMiscUtils::getLT1526Claims()
+            .select{|claim| claim["light-thread-uuid"]==lightThreadUUID }
+            .map{|claim| claim["uuid"] }
     end
 
 end

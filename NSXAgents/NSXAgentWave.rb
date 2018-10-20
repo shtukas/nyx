@@ -320,7 +320,7 @@ class NSXAgentWave
                 end
             end
         end
-        puts "NSXAgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
+        #puts "NSXAgentWave::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
         maybepath = NSXAgentWave::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         if maybepath then
             KeyValueStore::set(nil, "9f4e1f2e-0bab-4a56-9de7-7976805ca04d:#{uuid}", JSON.generate([maybepath]))

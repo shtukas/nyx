@@ -13,6 +13,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREADS_SETUUID = "d85fe272-b37a-4afa-9815-afa2cf5041ff"
 
+
 class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread, n)
@@ -148,6 +149,7 @@ class NSXLightThreadUtils
         return if lightThread.nil?
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInHours * 3600)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+        signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
@@ -184,7 +186,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        "lightThread: #{lightThread["description"]} (#{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours today) (#{NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).size} objects)"
+        "lightThread: #{lightThread["description"]} (#{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours today) (#{NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).size} objects)"
     end
 
     # -----------------------------------------------
@@ -201,7 +203,7 @@ class NSXLightThreadUtils
             puts "     LivePercentage (7 days): #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7).round(2)}%"
             puts "     NSXDoNotShowUntilDatetime: #{NSXDoNotShowUntilDatetime::getDatetimeOrNull(lightThread["uuid"])}"
             puts "Items:"
-            NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
+            NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
                 .each{|uuid|
                     object = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"]==uuid }.first
                     next if object.nil?
@@ -227,7 +229,7 @@ class NSXLightThreadUtils
             end
             if operation == "show items" then
                 loop {
-                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
+                    lightThreadCatalystObjectsUUIDs = NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
                     objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                     break if selectedobject.nil?
@@ -236,11 +238,11 @@ class NSXLightThreadUtils
             end
             if operation == "remove items" then
                 loop {
-                    lightThreadCatalystObjectsUUIDs = NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"])
+                    lightThreadCatalystObjectsUUIDs = NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
                     objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
                     selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
                     break if selectedobject.nil?
-                    NSXCatalystMetadataInterface::unSetLightThread(selectedobject["uuid"])
+                    NSXMiscUtils::destroyLT1526Claim(selectedobject["uuid"])
                 }
             end
             if operation=="time commitment:" then

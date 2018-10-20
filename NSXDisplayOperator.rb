@@ -70,8 +70,8 @@ class NSXDisplayOperator
 
         if displayState["nsx26:current-position-cursor"] == displayState["nsx26:standard-listing-position"] then
             displayState["nsx26:focus-object"] = object
-            if object[":LightThreadUpdates:"] then
-                displayState["nsx26:lines-to-display"] << (" "*15) + "(" + ( object[":LightThreadUpdates:"]["running-status"] ? "light off" : "light on" ).red + ")"
+            if object[":light-thread-data:"] then
+                displayState["nsx26:lines-to-display"] << (" "*15) + "(" + ( object[":light-thread-data:"]["secondary-object-run-status"] ? "/stop" : "/start" ).red + ")"
                 displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
             end
             displayState["nsx26:lines-to-display"] << (" "*15)+NSXDisplayOperator::objectInferfaceString(object)
@@ -182,23 +182,24 @@ class NSXDisplayOperator
         end
     end
 
-    # NSXDisplayOperator::lightThreadUpdatesOrNil(objectuuid, ltmap)
-    def self.lightThreadUpdatesOrNil(objectuuid, ltmap)
-        lightThreadUUID = NSXCatalystMetadataInterface::getLightThreadUUIDOrNull(objectuuid)
-        return nil if lightThreadUUID.nil?
+    # NSXDisplayOperator::lightThreadDataForSecondaryObjectOrNull(secondaryObjectUUID, ltmap)
+    def self.lightThreadDataForSecondaryObjectOrNull(secondaryObjectUUID, ltmap)
+        claim = NSXMiscUtils::getLT1526ClaimOrNull(secondaryObjectUUID)
+        return nil if claim.nil?
+        lightThreadUUID = claim["light-thread-uuid"]
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return nil if lightThread.nil?
         metric =
             if lightThread["status"][0]=="running-since" then
-                0.99*ltmap[lightThread["uuid"]]-NSXMiscUtils::traceToMetricShift(objectuuid)
+                0.99*ltmap[lightThread["uuid"]]-NSXMiscUtils::traceToMetricShift(secondaryObjectUUID)
             else
-                1.01*ltmap[lightThread["uuid"]]-NSXMiscUtils::traceToMetricShift(objectuuid)
+                1.01*ltmap[lightThread["uuid"]]-NSXMiscUtils::traceToMetricShift(secondaryObjectUUID)
             end
         {
-            "light-thread"   => lightThread,
-            "description"    => lightThread["description"],
-            "metric"         => metric,
-            "running-status" => NSXCatalystMetadataInterface::getLightThreadRunningStatusOrNUll(objectuuid)
+            "light-thread" => lightThread,
+            "description"  => lightThread["description"],
+            "metric"       => metric,
+            "secondary-object-run-status" => NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
         }
     end
 
@@ -220,31 +221,33 @@ class NSXDisplayOperator
             .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
             .each{|lightThread|
                 lightThreadObjectUUIDs << lightThread["uuid"]
-                NSXCatalystMetadataInterface::lightThreadCatalystObjectUUIDs(lightThread["uuid"]).each{|objectuuid| lightThreadObjectUUIDs << objectuuid }
+                NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).each{|objectuuid| lightThreadObjectUUIDs << objectuuid }
             }
 
         NSXCatalystObjectsOperator::getObjects()
+            .map{|object|
+                object.clone
+            }
             .map{|object| 
                 object[":metric-from-agent:"] = object["metric"]
                 object
             }
             .map{|object|
-                lightThreadUpdates = NSXDisplayOperator::lightThreadUpdatesOrNil(object["uuid"],ltmap)
-                if lightThreadUpdates then
+                if ( lightThreadDataForSecondaryObject = NSXDisplayOperator::lightThreadDataForSecondaryObjectOrNull(object["uuid"],ltmap) ) then
                     runningStatement = 
-                        if lightThreadUpdates["running-status"] then
-                            lightThreadUpdates["metric"] = 2
-                            runningForInSeconds = Time.new.to_i - lightThreadUpdates["running-status"]["start-unixtime"]
-                            lightThreadUpdates["running-status"] ? " [" + "running for #{ (runningForInSeconds.to_f/3600).round(2) } hours".yellow + "]" : ""
+                        if lightThreadDataForSecondaryObject["secondary-object-run-status"] then
+                            lightThreadDataForSecondaryObject["metric"] = 2
+                            runningForInSeconds = Time.new.to_i - lightThreadDataForSecondaryObject["secondary-object-run-status"]["start-unixtime"]
+                            " [" + "running for #{ (runningForInSeconds.to_f/3600).round(2) } hours".yellow + "]"
                         else
                             ""
                         end
-                    if lightThreadUpdates["running-status"] then
+                    if lightThreadDataForSecondaryObject["secondary-object-run-status"] then
                         object["is-running"] = true
                     end
-                    object[":LightThreadUpdates:"] = lightThreadUpdates
-                    object["announce"] = "#{lightThreadUpdates["description"].green}#{runningStatement}: #{object["announce"]}"
-                    object["metric"] = lightThreadUpdates["metric"]
+                    object[":light-thread-data:"] = lightThreadDataForSecondaryObject
+                    object["announce"] = "#{lightThreadDataForSecondaryObject["description"].green}#{runningStatement}: #{object["announce"]}"
+                    object["metric"] = lightThreadDataForSecondaryObject["metric"]
                 end
                 object
             }
