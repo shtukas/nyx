@@ -152,6 +152,7 @@ NSXCatalystObjectsOperator::getObjectsFromAgents()
 Thread.new {
     loop {
         sleep 120
+        Iphetra::resetInMemoryData()
         NSXCatalystObjectsOperator::getObjectsFromAgents()
     }
 }
