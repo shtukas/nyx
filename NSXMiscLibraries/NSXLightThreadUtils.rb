@@ -199,8 +199,8 @@ class NSXLightThreadUtils
             puts "     description: #{lightThread["description"]}"
             puts "     uuid: #{lightThread["uuid"]}"
             puts "     daily commitment: #{lightThread["commitment"]}"
-            puts "     LivePercentage (1 days): #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}%"
-            puts "     LivePercentage (7 days): #{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7).round(2)}%"
+            livePercentages = (1..7).to_a.reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
+            puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     NSXDoNotShowUntilDatetime: #{NSXDoNotShowUntilDatetime::getDatetimeOrNull(lightThread["uuid"])}"
             puts "Items:"
             NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
