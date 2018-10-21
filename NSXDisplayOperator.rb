@@ -234,6 +234,8 @@ class NSXDisplayOperator
             }
             .map{|object|
                 if ( lightThreadDataForSecondaryObject = NSXDisplayOperator::lightThreadDataForSecondaryObjectOrNull(object["uuid"],ltmap) ) then
+                    originalAnnounce = object["announce"] # might be used in the notification
+
                     runningStatement = 
                         if lightThreadDataForSecondaryObject["secondary-object-run-status"] then
                             lightThreadDataForSecondaryObject["metric"] = 2
@@ -248,6 +250,12 @@ class NSXDisplayOperator
                     object[":light-thread-data:"] = lightThreadDataForSecondaryObject
                     object["announce"] = "#{lightThreadDataForSecondaryObject["description"].green}#{runningStatement}: #{object["announce"]}"
                     object["metric"] = lightThreadDataForSecondaryObject["metric"]
+
+                    # Notification
+                    percentage = NSXMiscUtils::lightThreadSecondaryObjectUUIDToLightThreadLivePercentageOrNull(object["uuid"])
+                    if percentage and (percentage>100) then
+                        NSXMiscUtils::issueScreenNotification("Catalyst Display Operator", "#{originalAnnounce} is done")
+                    end
                 end
                 object
             }

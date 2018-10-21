@@ -304,6 +304,11 @@ class NSXMiscUtils
     # NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
     def self.getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
         Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, secondaryObjectUUID)
+        #    {
+        #       "uuid"              => secondaryObjectUUID,
+        #       "light-thread-uuid" => lightThreadUUID,
+        #       "start-unixtime"    => Time.new.to_i
+        #    }
     end
 
     # NSXMiscUtils::unsetLightThreadSecondaryObjectRunningStatus(secondaryObjectUUID)
@@ -340,6 +345,30 @@ class NSXMiscUtils
         NSXMiscUtils::getLT1526Claims()
             .select{|claim| claim["light-thread-uuid"]==lightThreadUUID }
             .map{|claim| claim["uuid"] }
+    end
+
+    # NSXMiscUtils::lightThreadSecondaryObjectUUIDToLightThreadLivePercentageOrNull(secondaryObjectUUID)
+    def self.lightThreadSecondaryObjectUUIDToLightThreadLivePercentageOrNull(secondaryObjectUUID)
+        secondaryObjectRunStatus = NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
+        return nil if secondaryObjectRunStatus.nil?
+        claim = NSXMiscUtils::getLT1526ClaimOrNull(secondaryObjectUUID)
+        return nil if claim.nil?
+        lightThreadUUID = claim["light-thread-uuid"]
+        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
+        return nil if lightThread.nil?
+        timespanInSeconds = Time.new.to_i - secondaryObjectRunStatus["start-unixtime"]
+        NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1, timespanInSeconds)
+    end
+
+    # NSXMiscUtils::issueScreenNotification(title, message)
+    def self.issueScreenNotification(title, message)
+        title = title.gsub("'","")
+        message = message.gsub("'","")
+        message = message.gsub("[","|")
+        message = message.gsub("]","|")
+        command = "terminal-notifier -title '#{title}' -message '#{message}'"
+        puts command
+        system(command)
     end
 
 end

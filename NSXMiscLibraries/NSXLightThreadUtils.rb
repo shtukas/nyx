@@ -32,12 +32,13 @@ class NSXLightThreadMetrics
         doneTime
     end
 
-    # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n)
-    def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n)
+    # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+    def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
         items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
         return 0 if items.size==0
         timeDoneExpectationInHours = n * lightThread["commitment"] # The commitment is daily
         timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n).to_f/3600
+        timeDoneLiveInHours = timeDoneLiveInHours + simulationTimeInSeconds.to_f/3600
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
@@ -100,7 +101,7 @@ class NSXLightThreadUtils
         # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
 
         if lightThread["status"][0] == "running-since" and NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) >= 100 then
-            system("terminal-notifier -title 'Catalyst TimeProton' -message '#{lightThread["description"].gsub("'","")} is done'")
+            NSXMiscUtils::issueScreenNotification("Catalyst TimeProton", "#{lightThread["description"].gsub("'","")} is done")
         end
 
         uuid = lightThread["uuid"]
