@@ -103,41 +103,49 @@ that we run the tasks roughtly as often as they should run.
 
 # Task(taskUniqueId, period, lambda, name, shouldCausePromptAndReload)
 
-$THETASKS = []
-$THETASKS << [
-    "49429DCB",
-    86400,
-    lambda {
-         NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
-    },
-    "NSXCatalystDevOps::archivesTimelineGarbageCollection(false)"
-]
-$THETASKS << [
-    "69429DCB",
-    1200,
-    lambda {
-         NSXMiscUtils::emailSync(false)
-    },
-    "NSXMiscUtils::emailSync(false)"
-]
+if NSXMiscUtils::isLucille18() then
 
-$THETASKSINDEX = 0
-$THETASKSSHEDULING = NSXSystemDataOperator::getOrDefaultValue("b0e73fa2-f035-4833-8945-b55f9463d87d", {})
+    $THETASKS = []
+    $THETASKS << [
+        "49429DCB",
+        86400,
+        lambda {
+             NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
+        },
+        "NSXCatalystDevOps::archivesTimelineGarbageCollection(false)"
+    ]
+    $THETASKS << [
+        "69429DCB",
+        1200,
+        lambda {
+             NSXMiscUtils::emailSync(false)
+        },
+        "NSXMiscUtils::emailSync(false)"
+    ]
 
-Thread.new {
-    sleep 60
-    loop {
-        $THETASKSINDEX = ($THETASKSINDEX+1) % $THETASKS.size
-        task = $THETASKS[$THETASKSINDEX]
-        if Time.new.to_i - ( $THETASKSSHEDULING[task[0]] || 0 ) > task[1] then
-            #puts "Task: #{task[3]}"
-            task[2].call()
-            $THETASKSSHEDULING[task[0]] = Time.new.to_i
-            NSXSystemDataOperator::set("b0e73fa2-f035-4833-8945-b55f9463d87d", $THETASKSSHEDULING)
-        end
+    $THETASKSINDEX = 0
+    $THETASKSSHEDULING = NSXSystemDataOperator::getOrDefaultValue("b0e73fa2-f035-4833-8945-b55f9463d87d", {})
+
+    Thread.new {
         sleep 60
+        loop {
+            $THETASKSINDEX = ($THETASKSINDEX+1) % $THETASKS.size
+            task = $THETASKS[$THETASKSINDEX]
+            if Time.new.to_i - ( $THETASKSSHEDULING[task[0]] || 0 ) > task[1] then
+                #puts "Task: #{task[3]}"
+                task[2].call()
+                $THETASKSSHEDULING[task[0]] = Time.new.to_i
+                NSXSystemDataOperator::set("b0e73fa2-f035-4833-8945-b55f9463d87d", $THETASKSSHEDULING)
+            end
+            sleep 60
+        }
     }
-}
+
+end
+
+# -------------------------------------------------------------------------
+
+NSXCatalystObjectsOperator::getObjectsFromAgents()
 
 # -------------------------------------------------------------------------
 
@@ -149,8 +157,6 @@ Thread.new {
 }
 
 # -------------------------------------------------------------------------
-
-NSXCatalystObjectsOperator::getObjectsFromAgents()
 
 loop {
 

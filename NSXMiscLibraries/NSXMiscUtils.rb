@@ -134,6 +134,7 @@ class NSXMiscUtils
       IO.read(filepath)
     end
 
+    # NSXMiscUtils::isLucille18()
     def self.isLucille18()
         ENV["COMPUTERLUCILLENAME"] == "Lucille18"
     end
