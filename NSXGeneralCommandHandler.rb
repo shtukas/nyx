@@ -117,6 +117,7 @@ class NSXGeneralCommandHandler
                 if object[":light-thread-data:"]["secondary-object-run-status"].nil? then
                     lightThreadUUID = object[":light-thread-data:"]["light-thread"]["uuid"]               
                     NSXMiscUtils::startLightThreadSecondaryObject(object["uuid"], lightThreadUUID)
+                    NSXMiscUtils::setStandardListingPosition(1)
                 end
             end
             return
