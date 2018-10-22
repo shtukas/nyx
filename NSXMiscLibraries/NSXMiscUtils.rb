@@ -367,7 +367,6 @@ class NSXMiscUtils
         message = message.gsub("[","|")
         message = message.gsub("]","|")
         command = "terminal-notifier -title '#{title}' -message '#{message}'"
-        puts command
         system(command)
     end
 
