@@ -145,7 +145,7 @@ end
 
 # -------------------------------------------------------------------------
 
-NSXCatalystObjectsOperator::getObjectsFromAgents()
+NSXCatalystObjectsOperator::reloadObjectsFromAgents()
 
 # -------------------------------------------------------------------------
 
@@ -153,7 +153,8 @@ Thread.new {
     loop {
         sleep 120
         Iphetra::resetInMemoryData()
-        NSXCatalystObjectsOperator::getObjectsFromAgents()
+        NSXCatalystObjectsOperator::flushInMemoryObjects()
+        NSXCatalystObjectsOperator::reloadObjectsFromAgents()
     }
 }
 

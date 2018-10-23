@@ -61,13 +61,13 @@ class NSXCatalystObjectsOperator
         $CATALYST_OBJECTS_996CA6AB[object["uuid"]] = object
     end
 
-    # NSXCatalystObjectsOperator::destroyObject(objectuuid)
-    def self.destroyObject(objectuuid)
+    # NSXCatalystObjectsOperator::deleteObjectFromInMemory(objectuuid)
+    def self.deleteObjectFromInMemory(objectuuid)
         $CATALYST_OBJECTS_996CA6AB.delete(objectuuid)
     end
 
-    # NSXCatalystObjectsOperator::getObjectsFromAgents()
-    def self.getObjectsFromAgents()
+    # NSXCatalystObjectsOperator::reloadObjectsFromAgents()
+    def self.reloadObjectsFromAgents()
         NSXBob::agents()
             .each{|agentinterface| 
                 agentinterface["get-objects"].call()
@@ -82,6 +82,11 @@ class NSXCatalystObjectsOperator
         $CATALYST_OBJECTS_996CA6AB.values
     end
 
+    # NSXCatalystObjectsOperator::flushInMemoryObjects()
+    def self.flushInMemoryObjects()
+        $CATALYST_OBJECTS_996CA6AB = {}
+    end
+
     # NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     def self.processAgentProcessorSignal(signal)
         return if signal[0] == "nothing"
@@ -91,14 +96,14 @@ class NSXCatalystObjectsOperator
         end
         if signal[0] == "remove" then
             objectuuid = signal[1]
-            NSXCatalystObjectsOperator::destroyObject(objectuuid)
+            NSXCatalystObjectsOperator::deleteObjectFromInMemory(objectuuid)
         end
         if signal[0] == "reload-agent-objects" then
             agentuuid = signal[1]
             # Removing the objects of that agent
             NSXCatalystObjectsOperator::getObjects().each{|object|
                 next if object["agent-uid"] != agentuuid
-                NSXCatalystObjectsOperator::destroyObject(object["uuid"])
+                NSXCatalystObjectsOperator::deleteObjectFromInMemory(object["uuid"])
             }
             # Recalling agent objects
             agentinterface = NSXBob::agentuuid2AgentDataOrNull(agentuuid)
