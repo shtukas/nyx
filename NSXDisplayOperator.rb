@@ -260,13 +260,6 @@ class NSXDisplayOperator
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .select{|object|
-                if shouldShowBelowSpaceLevel then
-                    true
-                else
-                    !NSXMiscUtils::areCoreHoursOfTheDay() or (object["metric"] >= 0.850) or lightThreadObjectUUIDs.include?(object["uuid"])
-                end
-            }
     end
 
 end

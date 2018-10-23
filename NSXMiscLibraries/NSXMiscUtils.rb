@@ -31,11 +31,6 @@ class NSXMiscUtils
         weekdays[Time.new.wday]
     end
 
-    # NSXMiscUtils::areCoreHoursOfTheDay()
-    def self.areCoreHoursOfTheDay()
-        (Time.new.hour >= 8) and (Time.new.hour < 16)
-    end
-
     def self.isInteger(str)
         str.to_i.to_s == str
     end
