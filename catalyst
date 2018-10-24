@@ -41,6 +41,7 @@ require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
+require_relative "NSXMiscLibraries/NSXMetricWeight.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
@@ -162,7 +163,7 @@ Thread.new {
 
 loop {
 
-    displayScreenSizeReductionIndex = 7
+    displayScreenSizeReductionIndex = 6
 
     system("clear")
 
@@ -175,23 +176,6 @@ loop {
         lightThreadCompletion = numbers.inject(0, :+).to_f/numbers.size
         puts "LightThread completion (7 days): #{lightThreadCompletion.round(2)} %"
     end
-    
-    selectedLightThreads = NSXLightThreadUtils::lightThreads()
-        .select{|lightThread| NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(lightThread["uuid"]) }
-        .select{|lightThread| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) < 100 }
-        .sort{|lt1, lt2|
-            NSXLightThreadMetrics::lightThread2Metric(lt1) <=> NSXLightThreadMetrics::lightThread2Metric(lt2)
-        }
-        .reverse
-    totalTimeInHours = selectedLightThreads.map{|lightThread| lightThread["commitment"] }.inject(0, :+)
-    eta = (Time.new + totalTimeInHours*3600).to_s
-    puts ""
-    puts "LightThreads day outstanding (#{totalTimeInHours.round(2)} hours), ETA: #{eta}:"
-    selectedLightThreads
-        .each_with_index{|lightThread, indx|  
-            puts "    [lt:#{indx.to_s.rjust(2)}] #{NSXLightThreadUtils::lightThreadToString(lightThread)}".yellow
-        }
-    displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + selectedLightThreads.size
 
     puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
@@ -209,11 +193,9 @@ loop {
         next
     end
 
-    if command.start_with?("lt:") and selectedLightThreads then
-        indx = command[3,9].to_i
-        selectedLightThread = selectedLightThreads[indx]
-        next if selectedLightThread.nil?
-        NSXLightThreadUtils::startLightThread(selectedLightThread["uuid"])
+    if command == ",," then
+        NSXMetricWeight::markObject(focusobject["uuid"])
+        next
     end
 
     if ( command == "..") and focusobject and focusobject["default-expression"] then
