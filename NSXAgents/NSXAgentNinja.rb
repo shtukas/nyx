@@ -37,7 +37,7 @@ class NSXAgentNinja
         object = {
             "uuid"      => "96287511",
             "agent-uid" => self.agentuuid(),
-            "metric"    => 0.2 + 0.3*packet["metric"], # The metric given by ninja is between 0 and 1
+            "metric"    => 0.2 + 0.6*packet["metric"], # The metric given by ninja is between 0 and 1
             "announce"  => "ninja: folderpath: #{packet["folderpath"]}",
             "commands"  => [],
             "default-expression" => "play",

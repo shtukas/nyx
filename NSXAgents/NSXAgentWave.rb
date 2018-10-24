@@ -186,8 +186,7 @@ class WaveSchedules
     # NSXMiscUtils::metricForNewObjects(unixtime
     def self.metricForNewObjects(unixtime)
         ageInHours = (Time.new.to_f - unixtime).to_f/3600
-        ageInDays = (Time.new.to_f - unixtime).to_f/86400
-        0.1 + 0.7*(1-Math.exp(-ageInHours.to_f/6))
+        0.6 + 0.2*(1-Math.exp(-ageInHours.to_f/6))
     end
 
     def self.scheduleToMetric(schedule)
@@ -202,30 +201,30 @@ class WaveSchedules
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? 0.9 : 0
+            return Time.new.hour >= schedule['from-hour'] ? 0.92 : 0
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.77
+                return 0.85
             end
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.78
+            return 0.91
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.78
+            return 0.91
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.78
+            return 0.70
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.78
+            return 0.70
         end
         1
     end

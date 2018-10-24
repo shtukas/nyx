@@ -27,7 +27,7 @@ class NSXAgentWIS
             {
                 "uuid"      => "ad127a50",
                 "agent-uid" => self.agentuuid(),
-                "metric"    => NSXAgentsDataOperator::getOrNull(NSXAgentWIS::agentuuid(), "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}").nil? ? 1 : 0,
+                "metric"    => NSXAgentsDataOperator::getOrNull(NSXAgentWIS::agentuuid(), "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}").nil? ? 0.82 : 0,
                 "announce"  => "wis",
                 "commands"  => [],
                 "default-expression" => "8ec2da5f-a46b-428b-9484-046232aa116d"

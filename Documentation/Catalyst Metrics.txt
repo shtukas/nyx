@@ -1,16 +1,8 @@
-         1.000  Baby Nights
-         0.950  House
-         0.900  Wave: stickies
-0.840 -> 0.850  Today+Calendar
 
-0.500 -> 0.850  lightThread
-0.200 -> 0.830  Wave: new
-0.750 -> 0.800  Wave: today, ondate, repeats
-0.200 -> 0.700  Stream
+The bulk of the metrics are between 0.2 and 0.8
 
-0.200 -> 0.500  Vienna
-0.200 -> 0.500  Ninja
-
--------- 0.200  Water Level (items below this metric are not shown)
-
-         0.000  Not To Be Done
+    -> 0.2 : Should not be worried about, not even displayed
+0.2 -> 0.8 : The fight zone
+0.8 -> 0.9 : Today
+0.9 -> 1.0 : Now
+       2.0 : Running items

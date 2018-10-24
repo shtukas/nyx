@@ -45,7 +45,7 @@ class NSXLightThreadMetrics
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n)
     def self.lightThread2MetricOverThePastNDays(lightThread, n)
         return 2 if lightThread["status"][0] == "running-since"
-        metric = 0.8 - 0.5*NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n).to_f/100 # at 100% we are still at 0.3
+        metric = 0.8 - 0.4*NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n).to_f/100 # at 100% we are still at 0.4
         metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
