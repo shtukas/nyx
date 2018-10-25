@@ -22,8 +22,6 @@ class NSXGeneralCommandHandler
         puts "    threads                 # lightThreads listing dive"
         puts ""
         puts "    email-sync              # run email sync"
-        puts "    house-on"
-        puts "    house-off"
         puts ""
     end
 
@@ -59,18 +57,6 @@ class NSXGeneralCommandHandler
         if command == 'email-sync' then
             NSXMiscUtils::emailSync(true)
             return
-        end
-
-        if command == "house-on" then
-            NSXAgentsDataOperator::destroy(NSXAgentHouse::agentuuid(), "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}")
-            signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
-        end
-
-        if command == "house-off" then
-            NSXAgentsDataOperator::set(NSXAgentHouse::agentuuid(), "6af0644d-175e-4af9-97fb-099f71b505f5:#{NSXMiscUtils::currentDay()}", "killed")
-            signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
 
         if command == 'threads' then
