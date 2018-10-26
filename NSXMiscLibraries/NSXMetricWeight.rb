@@ -37,7 +37,7 @@ class NSXMetricWeight
     # NSXMetricWeight::unixtimesMetricCombination(unixtimes, metric): [weightCoefficientMultiplier, newMetric]
     def self.unixtimesMetricCombination(unixtimes, metric)
         weightCoefficientMultiplier = NSXMetricWeight::unixtimesToWeightCoefficientMultiplier(unixtimes)
-        [ weightCoefficientMultiplier, weightCoefficientMultiplier*(metric-0.2)+0.2 ]
+        [ weightCoefficientMultiplier, weightCoefficientMultiplier*metric ]
     end
 
     # NSXMetricWeight::markObject(objectuuid)
