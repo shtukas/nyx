@@ -18,9 +18,9 @@
 
 class NSXDisplayOperator
 
-    # NSXDisplayOperator::makeGenesysDisplayState(screenLeftHeight, standardlp, shouldShowBelowSpaceLevel)
-    def self.makeGenesysDisplayState(screenLeftHeight, standardlp, shouldShowBelowSpaceLevel) # : DisplayState
-        objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay(shouldShowBelowSpaceLevel)
+    # NSXDisplayOperator::makeGenesysDisplayState(screenLeftHeight, standardlp)
+    def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
+        objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
         {
             "nsx26:object-still-to-go"               => objects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
             "nsx26:lines-to-display"                 => [],
@@ -89,10 +89,10 @@ class NSXDisplayOperator
         displayState
     end
 
-    # NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp, shouldShowBelowSpaceLevel)
-    def self.printScreen(displayScreenSizeReductionIndex, standardlp, shouldShowBelowSpaceLevel)
+    # NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
+    def self.printScreen(displayScreenSizeReductionIndex, standardlp)
         focusobject = nil
-        displayState = NSXDisplayOperator::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp, shouldShowBelowSpaceLevel)
+        displayState = NSXDisplayOperator::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
         loop {
             displayState["nsx26:lines-to-display"].each{|line|
                 puts line
@@ -203,8 +203,8 @@ class NSXDisplayOperator
         }
     end
 
-    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay(shouldShowBelowSpaceLevel)
-    def self.flockObjectsProcessedForCatalystDisplay(shouldShowBelowSpaceLevel)
+    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
+    def self.flockObjectsProcessedForCatalystDisplay()
         
         ltmap = {} # Map[LightThreadUUID, Metric]
 

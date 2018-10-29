@@ -175,15 +175,9 @@ loop {
 
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString().green
 
-    lightThreadCompletion = 100
-
-    numbers = NSXLightThreadUtils::lightThreads().map{|lightThread| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 7) }
-    lightThreadCompletion = numbers.inject(0, :+).to_f/numbers.size
-    puts "LightThread completion (7 days): #{lightThreadCompletion.round(2)} %"
-
     puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
-    focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp, lightThreadCompletion>=90)
+    focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
 
     if focusobject.nil? then
         puts "Nothing to do for the moment (^_^)"
