@@ -66,4 +66,9 @@ class NSXAgentBabyNights
         end
         ["nothing"]
     end
+
+    def self.interface()
+
+    end
+
 end

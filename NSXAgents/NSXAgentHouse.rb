@@ -65,4 +65,9 @@ class NSXAgentHouse
         end
         ["nothing"]
     end
+
+    def self.interface()
+
+    end
+
 end

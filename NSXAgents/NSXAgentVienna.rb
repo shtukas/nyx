@@ -88,4 +88,9 @@ class NSXAgentVienna
     def self.processObjectAndCommand(object, command)
         ["nothing"]
     end
+
+    def self.interface()
+
+    end
+
 end

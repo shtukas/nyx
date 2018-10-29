@@ -69,4 +69,9 @@ class NSXAgentLightThread
         end
         ["nothing"]
     end
+
+    def self.interface()
+
+    end
+
 end
