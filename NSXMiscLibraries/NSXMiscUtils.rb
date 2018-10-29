@@ -139,12 +139,12 @@ class NSXMiscUtils
     end
     
     def self.getStandardListingPosition()
-        NSXSystemDataOperator::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", 1)
+        NSXSystemDataKeyValueStore::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", 1)
     end
 
     # NSXMiscUtils::setStandardListingPosition(position)
     def self.setStandardListingPosition(position)
-        NSXSystemDataOperator::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
+        NSXSystemDataKeyValueStore::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end
 
     def self.emailSync(verbose)
@@ -252,9 +252,9 @@ class NSXMiscUtils
 
     # NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
     def self.trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
-        unixtime = NSXSystemDataOperator::getOrDefaultValue("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", 0)
+        unixtime = NSXSystemDataKeyValueStore::getOrDefaultValue("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", 0)
         if ( Time.new.to_i - unixtime) > timespanInSeconds then
-            NSXSystemDataOperator::set("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", Time.new.to_i)
+            NSXSystemDataKeyValueStore::set("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", Time.new.to_i)
             true
         else
             false

@@ -12,8 +12,6 @@ require 'digest/sha1'
 
 # -------------------------------------------------------------------------------------
 
-# NSXAgentHouse::getObjects()
-
 class NSXAgentHouse
 
     # NSXAgentHouse::agentuuid()
@@ -23,13 +21,13 @@ class NSXAgentHouse
 
     def self.shouldDoTask(task)
         return false if Time.new.hour < 6
-        unixtime = NSXAgentsDataOperator::getOrDefaultValue(NSXAgentHouse::agentuuid(), "7aec05d2-0156-404b-883a-4024348c1907:#{task}", "0").to_i
+        unixtime = NSXAgentsDataKeyValueStore::getOrDefaultValue(NSXAgentHouse::agentuuid(), "7aec05d2-0156-404b-883a-4024348c1907:#{task}", "0").to_i
         periodInDays = task.split(";")[0].to_f 
         (Time.new.to_i-unixtime) > periodInDays*86400
     end
 
     def self.markTaskAsDone(task)
-        NSXAgentsDataOperator::set(NSXAgentHouse::agentuuid(), "7aec05d2-0156-404b-883a-4024348c1907:#{task}", Time.new.to_i)
+        NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "7aec05d2-0156-404b-883a-4024348c1907:#{task}", Time.new.to_i)
     end
 
     def self.taskToCatalystObject(task)
@@ -46,7 +44,13 @@ class NSXAgentHouse
         }
     end
 
+    # NSXAgentHouse::shouldDisplayObjects()
+    def self.shouldDisplayObjects()
+        NSXAgentsDataKeyValueStore::getOrDefaultValue(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true") == "true"
+    end
+
     def self.getObjects()
+        return [] if !NSXAgentHouse::shouldDisplayObjects()
         tasksFilepath = "/Galaxy/DataBank/Catalyst/Agents-Data/House/tasks.txt"
         tasks = IO.read(tasksFilepath)
             .lines
@@ -66,8 +70,16 @@ class NSXAgentHouse
         ["nothing"]
     end
 
+    # NSXAgentHouse::interface()
     def self.interface()
-
+        puts "Welcome to House Interface"
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show", "hide"])
+        if operation == "show" then
+            NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true")
+        end
+        if operation == "hide" then
+            NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "false")
+        end
     end
 
 end

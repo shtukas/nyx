@@ -25,12 +25,12 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 class NSXDoNotShowUntilDatetime
 	# NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     def self.setDatetime(objectuuid, datetime)
-        NSXSystemDataOperator::set("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}", datetime)
+        NSXSystemDataKeyValueStore::set("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}", datetime)
     end
 
 	# NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
     def self.getDatetimeOrNull(objectuuid)
-    	datetime = NSXSystemDataOperator::getOrNull("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}")
+    	datetime = NSXSystemDataKeyValueStore::getOrNull("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}")
 		return nil if datetime.nil?
     	DateTime.parse(datetime).to_time.utc.iso8601
     end

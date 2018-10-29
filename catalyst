@@ -52,7 +52,7 @@ require_relative "NSXAgents/NSXAgentWIS.rb"
 
 require_relative "NSXBob.rb"
 
-require_relative "NSXDataOperator.rb"
+require_relative "NSXDataOperators.rb"
 require_relative "NSXDisplayOperator.rb"
 require_relative "NSXGeneralCommandHandler.rb"
 
@@ -124,7 +124,7 @@ if NSXMiscUtils::isLucille18() then
     ]
 
     $THETASKSINDEX = 0
-    $THETASKSSHEDULING = NSXSystemDataOperator::getOrDefaultValue("b0e73fa2-f035-4833-8945-b55f9463d87d", {})
+    $THETASKSSHEDULING = NSXSystemDataKeyValueStore::getOrDefaultValue("b0e73fa2-f035-4833-8945-b55f9463d87d", {})
 
     Thread.new {
         sleep 60
@@ -135,7 +135,7 @@ if NSXMiscUtils::isLucille18() then
                 #puts "Task: #{task[3]}"
                 task[2].call()
                 $THETASKSSHEDULING[task[0]] = Time.new.to_i
-                NSXSystemDataOperator::set("b0e73fa2-f035-4833-8945-b55f9463d87d", $THETASKSSHEDULING)
+                NSXSystemDataKeyValueStore::set("b0e73fa2-f035-4833-8945-b55f9463d87d", $THETASKSSHEDULING)
             end
             sleep 60
         }
