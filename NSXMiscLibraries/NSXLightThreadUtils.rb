@@ -160,6 +160,7 @@ class NSXLightThreadUtils
             .sort{|lt1,lt2|
                 NSXLightThreadMetrics::lightThread2Metric(lt1) <=> NSXLightThreadMetrics::lightThread2Metric(lt2)
             }
+            .reverse
         lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })  
         lightThread
     end
@@ -187,7 +188,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        "lightThread: #{lightThread["description"]} (#{NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1).round(2)}% of #{lightThread["commitment"].round(2)} hours today) (#{NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).size} objects)"
+        "lightThread: #{lightThread["description"]} (metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread).round(3)}) (daily: #{lightThread["commitment"].round(2)} hours) (#{NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).size} objects)"
     end
 
     # -----------------------------------------------
