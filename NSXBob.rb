@@ -6,6 +6,7 @@ $BOB_AGENTS_IDENTITIES = []
 
 class NSXBob
 
+    # NSXBob::registerAgent(data)
     def self.registerAgent(data)
         $BOB_AGENTS_IDENTITIES << data
     end
@@ -15,12 +16,20 @@ class NSXBob
         $BOB_AGENTS_IDENTITIES
     end
 
-    # NSXBob::agentuuid2AgentDataOrNull(agentuuid)
-    def self.agentuuid2AgentDataOrNull(agentuuid)
+    # NSXBob::getAgentDataByAgentUUIDOrNull(agentuuid)
+    def self.getAgentDataByAgentUUIDOrNull(agentuuid)
         NSXBob::agents()
             .select{|agentinterface| agentinterface["agent-uid"]==agentuuid }
             .first
     end
+
+    # NSXBob::getAgentDataByAgentNameOrNull(agentname)
+    def self.getAgentDataByAgentNameOrNull(agentname)
+        NSXBob::agents()
+            .select{|agentinterface| agentinterface["agent-name"]==agentname }
+            .first
+    end
+
 end
 
 NSXBob::registerAgent(
@@ -45,7 +54,7 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "NSXAgentLightThread",
+        "agent-name"  => "LightThreads",
         "agent-uid"   => "201cac75-9ecc-4cac-8ca1-2643e962a6c6",
         "get-objects" => lambda { NSXAgentLightThread::getObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentLightThread::processObjectAndCommand(object, command) },

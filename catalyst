@@ -173,6 +173,9 @@ loop {
         next
     end
 
+
+    print "Agents: ".green
+    puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ").green
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString().green
 
     puts ""
@@ -188,6 +191,11 @@ loop {
     command = STDIN.gets().strip
 
     if command == "" then
+        next
+    end
+
+    if ( agentdata = NSXBob::getAgentDataByAgentNameOrNull(command) ) then
+        agentdata["interface"].call()
         next
     end
 

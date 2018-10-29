@@ -63,7 +63,7 @@ class NSXCatalystObjectsOperator
                 NSXCatalystObjectsOperator::deleteObjectFromInMemory(object["uuid"])
             }
             # Recalling agent objects
-            agentinterface = NSXBob::agentuuid2AgentDataOrNull(agentuuid)
+            agentinterface = NSXBob::getAgentDataByAgentUUIDOrNull(agentuuid)
             return if agentinterface.nil?
             objects = agentinterface["get-objects"].call()
             objects.each{|object| 

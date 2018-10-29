@@ -48,7 +48,7 @@ class NSXDisplayOperator
         return nil if object["metric"] < 0.2 
 
         # --------------------------------------------------------------------------------
-        if NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"]).nil? then
+        if NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"]).nil? then
             NSXCatalystObjectsOperator::processAgentProcessorSignal(["remove", object["uuid"]])
             return nil
         end

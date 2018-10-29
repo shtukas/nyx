@@ -143,7 +143,7 @@ class NSXGeneralCommandHandler
         
         command.split(";").map{|t| t.strip }
             .each{|command|
-                signal = NSXBob::agentuuid2AgentDataOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
+                signal = NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             }
     end
