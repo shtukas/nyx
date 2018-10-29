@@ -260,7 +260,6 @@ class NSXDisplayOperator
                 object
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXMetricWeight::updateObjectWithNewMetric(object) }
     end
 
 end

@@ -41,7 +41,6 @@ require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
-require_relative "NSXMiscLibraries/NSXMetricWeight.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
@@ -188,11 +187,6 @@ loop {
     command = STDIN.gets().strip
 
     if command == "" then
-        next
-    end
-
-    if command == ",," then
-        NSXMetricWeight::markObject(focusobject["uuid"])
         next
     end
 
