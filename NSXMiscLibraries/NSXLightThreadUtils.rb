@@ -149,7 +149,6 @@ class NSXLightThreadUtils
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInHours * 3600)
-        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
