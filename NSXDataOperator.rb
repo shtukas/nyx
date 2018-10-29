@@ -4,54 +4,6 @@
 
 # ----------------------------------------------------------------------------------
 
-CATALYST_IPHETRA_AGENT_DATA_SETUUID_PREFIX = "d0b1f843-324d-469e-80e6-b0f330491287"
-
-=begin
-{
-    "uuid"  => key,
-    "value" => value
-}
-=end
-
-class NSXAgentsDataOperator
-
-    # NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid)
-    def self.agentuuidToSetUUID(agentuuid)
-        "#{CATALYST_IPHETRA_AGENT_DATA_SETUUID_PREFIX}:#{agentuuid}"
-    end
-
-    # NSXAgentsDataOperator::set(agentuuid, key, value)
-    def self.set(agentuuid, key, value)
-        object = {
-            "uuid"  => key,
-            "value" => value
-        }
-        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), object)        
-    end
-
-    # NSXAgentsDataOperator::getOrNull(agentuuid, key)
-    def self.getOrNull(agentuuid, key)
-        object = Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), key)
-        return nil if object.nil?
-        object["value"]
-    end
-
-    # NSXAgentsDataOperator::getOrDefaultValue(agentuuid, key, defaultValue)
-    def self.getOrDefaultValue(agentuuid, key, defaultValue)
-        value = NSXAgentsDataOperator::getOrNull(agentuuid, key)
-        return value if value
-        defaultValue
-    end
-
-    # NSXAgentsDataOperator::destroy(agentuuid, key)
-    def self.destroy(agentuuid, key)
-        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), key)
-    end
-
-end
-
-# ----------------------------------------------------------------------------------
-
 $CATALYST_OBJECTS_996CA6AB = {}
 
 class NSXCatalystObjectsOperator
@@ -61,9 +13,24 @@ class NSXCatalystObjectsOperator
         $CATALYST_OBJECTS_996CA6AB[object["uuid"]] = object
     end
 
+    # NSXCatalystObjectsOperator::getObjects()
+    def self.getObjects()
+        $CATALYST_OBJECTS_996CA6AB.values.map{|object| object.clone }
+    end
+
+    # NSXCatalystObjectsOperator::getObjectByUUIDOrNull(objectuuid)
+    def self.getObjectByUUIDOrNull(objectuuid)
+        $CATALYST_OBJECTS_996CA6AB[objectuuid].clone
+    end
+
     # NSXCatalystObjectsOperator::deleteObjectFromInMemory(objectuuid)
     def self.deleteObjectFromInMemory(objectuuid)
         $CATALYST_OBJECTS_996CA6AB.delete(objectuuid)
+    end
+
+    # NSXCatalystObjectsOperator::flushInMemoryObjects()
+    def self.flushInMemoryObjects()
+        $CATALYST_OBJECTS_996CA6AB = {}
     end
 
     # NSXCatalystObjectsOperator::reloadObjectsFromAgents()
@@ -75,16 +42,6 @@ class NSXCatalystObjectsOperator
                         NSXCatalystObjectsOperator::putObject(object)
                     } 
             }
-    end
-
-    # NSXCatalystObjectsOperator::getObjects()
-    def self.getObjects()
-        $CATALYST_OBJECTS_996CA6AB.values
-    end
-
-    # NSXCatalystObjectsOperator::flushInMemoryObjects()
-    def self.flushInMemoryObjects()
-        $CATALYST_OBJECTS_996CA6AB = {}
     end
 
     # NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
@@ -160,3 +117,50 @@ class NSXSystemDataOperator
 
 end
 
+# ----------------------------------------------------------------------------------
+
+CATALYST_IPHETRA_AGENT_DATA_SETUUID_PREFIX = "d0b1f843-324d-469e-80e6-b0f330491287"
+
+=begin
+{
+    "uuid"  => key,
+    "value" => value
+}
+=end
+
+class NSXAgentsDataOperator
+
+    # NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid)
+    def self.agentuuidToSetUUID(agentuuid)
+        "#{CATALYST_IPHETRA_AGENT_DATA_SETUUID_PREFIX}:#{agentuuid}"
+    end
+
+    # NSXAgentsDataOperator::set(agentuuid, key, value)
+    def self.set(agentuuid, key, value)
+        object = {
+            "uuid"  => key,
+            "value" => value
+        }
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), object)        
+    end
+
+    # NSXAgentsDataOperator::getOrNull(agentuuid, key)
+    def self.getOrNull(agentuuid, key)
+        object = Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), key)
+        return nil if object.nil?
+        object["value"]
+    end
+
+    # NSXAgentsDataOperator::getOrDefaultValue(agentuuid, key, defaultValue)
+    def self.getOrDefaultValue(agentuuid, key, defaultValue)
+        value = NSXAgentsDataOperator::getOrNull(agentuuid, key)
+        return value if value
+        defaultValue
+    end
+
+    # NSXAgentsDataOperator::destroy(agentuuid, key)
+    def self.destroy(agentuuid, key)
+        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataOperator::agentuuidToSetUUID(agentuuid), key)
+    end
+
+end

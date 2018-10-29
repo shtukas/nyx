@@ -3,7 +3,7 @@
 # encoding: UTF-8
 
 LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
-LT1526_SETUUID  = "05183ee7-3e44-4363-a6c4-8cab4c0e46bd"
+LIGHT_THREADS_LT1526_CLAIMS_SETUUID  = "05183ee7-3e44-4363-a6c4-8cab4c0e46bd"
 
 class NSXMiscUtils
  
@@ -212,6 +212,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::InteractiveLightThreadChoiceAndMakeLT1526Claim(objectuuid)
     def self.InteractiveLightThreadChoiceAndMakeLT1526Claim(objectuuid)
+        # I need to make sure that I am not adding a LightThread to another lightThread.
         lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
         return nil if lightThread.nil?
         NSXMiscUtils::makeLT1526Claim(objectuuid, lightThread["uuid"])
@@ -317,22 +318,22 @@ class NSXMiscUtils
             "uuid" => secondaryObjectUUID,
             "light-thread-uuid" => lightThreadUUID
         }
-        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID, object)
+        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID, object)
     end
 
     # NSXMiscUtils::destroyLT1526Claim(secondaryObjectUUID)
     def self.destroyLT1526Claim(secondaryObjectUUID)
-        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID, secondaryObjectUUID)
+        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID, secondaryObjectUUID)
     end
 
     # NSXMiscUtils::getLT1526ClaimOrNull(secondaryObjectUUID)
     def self.getLT1526ClaimOrNull(secondaryObjectUUID)
-        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID, secondaryObjectUUID)
+        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID, secondaryObjectUUID)
     end
 
     # NSXMiscUtils::getLT1526Claims()
     def self.getLT1526Claims()
-        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LT1526_SETUUID)
+        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID)
     end
 
     # NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThreadUUID)
