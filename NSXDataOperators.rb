@@ -70,6 +70,14 @@ class NSXCatalystObjectsOperator
                 NSXCatalystObjectsOperator::putObject(object)
             }
         end
+        if signal[0] == "remove-agent-objects" then
+            agentuuid = signal[1]
+            # Removing the objects of that agent
+            NSXCatalystObjectsOperator::getObjects().each{|object|
+                next if object["agent-uid"] != agentuuid
+                NSXCatalystObjectsOperator::deleteObjectFromInMemory(object["uuid"])
+            }
+        end
     end
 
 end

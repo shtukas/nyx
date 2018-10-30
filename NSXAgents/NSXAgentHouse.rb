@@ -50,7 +50,11 @@ class NSXAgentHouse
     end
 
     def self.getObjects()
-        return [] if !NSXAgentHouse::shouldDisplayObjects()
+        if !NSXAgentHouse::shouldDisplayObjects() then
+            signal = ["remove-agent-objects", NSXAgentHouse::agentuuid()]
+            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
+            return []
+        end
         tasksFilepath = "/Galaxy/DataBank/Catalyst/Agents-Data/House/tasks.txt"
         tasks = IO.read(tasksFilepath)
             .lines
