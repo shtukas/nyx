@@ -203,61 +203,70 @@ class NSXDisplayOperator
         }
     end
 
-    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
-    def self.flockObjectsProcessedForCatalystDisplay()
-        
+    # NSXDisplayOperator::getLightThreadsMetricMap()
+    def self.getLightThreadsMetricMap()
         ltmap = {} # Map[LightThreadUUID, Metric]
-
         NSXCatalystObjectsOperator::getObjects()
             .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .each{|object|
                 ltmap[object["item-data"]["lightThread"]["uuid"]] = object["metric"]
             }
+        ltmap
+    end
 
-        lightThreadObjectUUIDs = []
-
+    # NSXDisplayOperator::lightThreadsEcosystemObjectUUIDs()
+    def self.lightThreadsEcosystemObjectUUIDs()
+        lightThreadsEcosystemObjectUUIDs = []
         NSXCatalystObjectsOperator::getObjects()
             .select{|object| object["agent-uid"]=="201cac75-9ecc-4cac-8ca1-2643e962a6c6" }
             .each{|lightThread|
-                lightThreadObjectUUIDs << lightThread["uuid"]
-                NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).each{|objectuuid| lightThreadObjectUUIDs << objectuuid }
+                lightThreadsEcosystemObjectUUIDs << lightThread["uuid"]
+                NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).each{|objectuuid| lightThreadsEcosystemObjectUUIDs << objectuuid }
             }
+        lightThreadsEcosystemObjectUUIDs
+    end
 
+    # NSXDisplayOperator::updateObjectIfLightThreadSecondary(object, lightThreadsEcosystemObjectUUIDs, ltmap)
+    def self.updateObjectIfLightThreadSecondary(object, lightThreadsEcosystemObjectUUIDs, ltmap)
+        return object if !lightThreadsEcosystemObjectUUIDs.include?(object["uuid"])
+        lightThreadDataForSecondaryObject = NSXDisplayOperator::lightThreadDataForSecondaryObjectOrNull(object["uuid"],ltmap)
+        return object if lightThreadDataForSecondaryObject.nil?
+        originalAnnounce = object["announce"] # might be used in the notification
+        runningStatement = 
+            if lightThreadDataForSecondaryObject["secondary-object-run-status"] then
+                lightThreadDataForSecondaryObject["metric"] = 2
+                runningForInSeconds = Time.new.to_i - lightThreadDataForSecondaryObject["secondary-object-run-status"]["start-unixtime"]
+                " [" + "running for #{ (runningForInSeconds.to_f/3600).round(2) } hours".yellow + "]"
+            else
+                ""
+            end
+        if lightThreadDataForSecondaryObject["secondary-object-run-status"] then
+            object["is-running"] = true
+        end
+        object[":light-thread-data:"] = lightThreadDataForSecondaryObject
+        object["announce"] = "#{lightThreadDataForSecondaryObject["description"].green}#{runningStatement}: #{object["announce"]}"
+        object["metric"] = lightThreadDataForSecondaryObject["metric"]
+
+        # Notification
+        percentage = NSXMiscUtils::lightThreadSecondaryObjectUUIDToLightThreadLivePercentageOrNull(object["uuid"])
+        if percentage and (percentage>100) then
+            NSXMiscUtils::issueScreenNotification("Catalyst Display Operator", "#{originalAnnounce} is done")
+        end
+        object
+    end
+
+    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
+    def self.flockObjectsProcessedForCatalystDisplay()
+        ltmap = NSXDisplayOperator::getLightThreadsMetricMap() # Map[LightThreadUUID, Metric]
+        lightThreadsEcosystemObjectUUIDs = NSXDisplayOperator::lightThreadsEcosystemObjectUUIDs()
         NSXCatalystObjectsOperator::getObjects()
-            .map{|object|
-                object.clone
-            }
             .map{|object| 
-                object[":metric-from-agent:"] = object["metric"]
+                object[":original-metric-from-agent:"] = object["metric"]
                 object
             }
             .map{|object|
-                if ( lightThreadDataForSecondaryObject = NSXDisplayOperator::lightThreadDataForSecondaryObjectOrNull(object["uuid"],ltmap) ) then
-                    originalAnnounce = object["announce"] # might be used in the notification
-
-                    runningStatement = 
-                        if lightThreadDataForSecondaryObject["secondary-object-run-status"] then
-                            lightThreadDataForSecondaryObject["metric"] = 2
-                            runningForInSeconds = Time.new.to_i - lightThreadDataForSecondaryObject["secondary-object-run-status"]["start-unixtime"]
-                            " [" + "running for #{ (runningForInSeconds.to_f/3600).round(2) } hours".yellow + "]"
-                        else
-                            ""
-                        end
-                    if lightThreadDataForSecondaryObject["secondary-object-run-status"] then
-                        object["is-running"] = true
-                    end
-                    object[":light-thread-data:"] = lightThreadDataForSecondaryObject
-                    object["announce"] = "#{lightThreadDataForSecondaryObject["description"].green}#{runningStatement}: #{object["announce"]}"
-                    object["metric"] = lightThreadDataForSecondaryObject["metric"]
-
-                    # Notification
-                    percentage = NSXMiscUtils::lightThreadSecondaryObjectUUIDToLightThreadLivePercentageOrNull(object["uuid"])
-                    if percentage and (percentage>100) then
-                        NSXMiscUtils::issueScreenNotification("Catalyst Display Operator", "#{originalAnnounce} is done")
-                    end
-                end
-                object
+                NSXDisplayOperator::updateObjectIfLightThreadSecondary(object, lightThreadsEcosystemObjectUUIDs, ltmap)
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
     end
