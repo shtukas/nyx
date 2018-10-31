@@ -260,7 +260,9 @@ class NSXDisplayOperator
     def self.flockObjectsProcessedForCatalystDisplay()
         ltmap = NSXDisplayOperator::getLightThreadsMetricMap() # Map[LightThreadUUID, Metric]
         lightThreadsEcosystemObjectUUIDs = NSXDisplayOperator::lightThreadsEcosystemObjectUUIDs()
-        NSXCatalystObjectsOperator::getObjects()
+        objects = NSXCatalystObjectsOperator::getObjects()
+        objects = NSXDefcon::defconSelection(objects)
+        objects
             .map{|object| 
                 object[":original-metric-from-agent:"] = object["metric"]
                 object
