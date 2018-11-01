@@ -269,7 +269,6 @@ class NSXDisplayOperator
         ltmap = NSXDisplayOperator::getLightThreadsMetricMap() # Map[LightThreadUUID, Metric]
         lightThreadsEcosystemObjectUUIDs = NSXDisplayOperator::lightThreadsEcosystemObjectUUIDs()
         objects = NSXCatalystObjectsOperator::getObjects()
-        objects = NSXDefcon::defconSelection(objects)
         objects
             .map{|object| 
                 object[":original-metric-from-agent:"] = object["metric"]
@@ -279,6 +278,9 @@ class NSXDisplayOperator
                 NSXDisplayOperator::updateObjectIfLightThreadSecondary(object, lightThreadsEcosystemObjectUUIDs, ltmap)
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+        objects = objects.select{|object| object["metric"] >= 0.2 }
+        objects = NSXDefcon::defconSelection(objects)
+        objects
     end
 
 end

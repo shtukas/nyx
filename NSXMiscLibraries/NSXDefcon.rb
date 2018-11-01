@@ -79,8 +79,8 @@ class NSXDefcon
             object[":defcon-origin:"] = defconOrigin
             object
         }
-    	defcon = NSXDefcon::computeSystemDefcon(objects)
-        objects.select{|object| object[":defcon:"] <= defcon } # The inequality allows for the display of objects with defcon 0, which need a code update. 
+    	systemDefcon = NSXDefcon::computeSystemDefcon(objects)
+        objects.select{|object| object[":defcon:"] <= systemDefcon } # The inequality allows for the display of objects with defcon 0, which need a code update. 
     end
 
 end
