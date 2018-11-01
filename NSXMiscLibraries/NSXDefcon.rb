@@ -32,7 +32,10 @@ class NSXDefcon
             # Wave, every-this-day-of-the-month
             return 2 # Today important
         end
-
+        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="every-this-day-of-the-week" ) then
+            # Wave, every-this-day-of-the-month
+            return 2 # Today important
+        end
         0
     end
 
