@@ -52,6 +52,10 @@ class NSXDefcon
             # Wave, new
             return [3, "26ea35fe"] # 3 : Today non important
         end
+        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="every-n-days" ) then
+            # Wave, new
+            return [3, "2a86372c"] # 3 : Today non important
+        end
         0
     end
 
