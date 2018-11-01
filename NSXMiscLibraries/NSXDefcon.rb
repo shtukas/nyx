@@ -23,6 +23,9 @@ class NSXDefcon
         if object["agent-uid"] == "83837e64-554b-4dd0-a478-04386d8010ea" then
             return 2
         end
+        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="sticky" ) then
+            return 1
+        end
         0
     end
 
