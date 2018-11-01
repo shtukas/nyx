@@ -70,16 +70,16 @@ class NSXDisplayOperator
 
         if displayState["nsx26:current-position-cursor"] == displayState["nsx26:standard-listing-position"] then
             displayState["nsx26:focus-object"] = object
-            if object[":defcon:"] == 0 then
-                displayState["nsx26:lines-to-display"] << (" "*15) + "--> Catalyst Object at DEFCON: 0 ; please update source code <--".green
-                displayState["nsx26:should-stop-display-process"] = true
-            end
             if object[":light-thread-data:"] then
                 displayState["nsx26:lines-to-display"] << (" "*15) + "(" + ( object[":light-thread-data:"]["secondary-object-run-status"] ? "/stop" : "/start" ).red + ")"
                 displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
             end
             displayState["nsx26:lines-to-display"] << (" "*15)+NSXDisplayOperator::objectInferfaceString(object)
             displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
+            if object[":defcon:"] == 0 then
+                displayState["nsx26:lines-to-display"] << (" "*15) + "--> Catalyst Object at DEFCON: 0 ; please update source code <--".green
+                displayState["nsx26:should-stop-display-process"] = true
+            end
         end
 
         if displayState["nsx26:screen-left-height"] <= 0 then

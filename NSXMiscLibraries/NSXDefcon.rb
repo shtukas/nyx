@@ -21,11 +21,18 @@ class NSXDefcon
     # NSXDefcon::computeObjectDefcon(object)
     def self.computeObjectDefcon(object) # integer
         if object["agent-uid"] == "83837e64-554b-4dd0-a478-04386d8010ea" then
-            return 2
+            # Baby Nights
+            return 2 # Today important
         end
         if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="sticky" ) then
-            return 1
+            # Wave, sticky
+            return 1 # Right now
         end
+        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="every-this-day-of-the-month" ) then
+            # Wave, every-this-day-of-the-month
+            return 2 # Today important
+        end
+
         0
     end
 
