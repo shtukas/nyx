@@ -71,7 +71,7 @@ class NSXDisplayOperator
         if displayState["nsx26:current-position-cursor"] == displayState["nsx26:standard-listing-position"] then
             displayState["nsx26:focus-object"] = object
             if object[":defcon:"] == 0 then
-                displayState["nsx26:lines-to-display"] << (" "*15) + "--> DEFCON: 0".red
+                displayState["nsx26:lines-to-display"] << (" "*15) + "--> Catalyst Object at DEFCON: 0 ; please update source code <--".green
                 displayState["nsx26:should-stop-display-process"] = true
             end
             if object[":light-thread-data:"] then
@@ -103,6 +103,10 @@ class NSXDisplayOperator
             displayState["nsx26:lines-to-display"].each{|line|
                 puts line
             }
+            if focusobject and focusobject[":defcon:"]==0 then
+                puts JSON.pretty_generate(focusobject)
+                exit
+            end
             break if displayState["nsx26:should-stop-display-process"]
             displayState = NSXDisplayOperator::displayStateTransition(displayState)
         }

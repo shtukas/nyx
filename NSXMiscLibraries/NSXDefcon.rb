@@ -20,6 +20,9 @@ class NSXDefcon
 
     # NSXDefcon::computeObjectDefcon(object)
     def self.computeObjectDefcon(object) # integer
+        if object["agent-uid"] == "83837e64-554b-4dd0-a478-04386d8010ea" then
+            return 2
+        end
         0
     end
 
