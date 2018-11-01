@@ -56,6 +56,10 @@ class NSXDefcon
             # Wave, new
             return [3, "2a86372c"] # 3 : Today non important
         end
+        if object["agent-uid"] == "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58" then
+            # Ninja
+            return [4, "bb3fc208"] # 4 : Best efforts
+        end
         0
     end
 
