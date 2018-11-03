@@ -32,8 +32,11 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # -----------------------------------------------------------------
 
-require_relative "NSXConstants.rb"
-
+require_relative "NSXMiscLibraries/NSXConstants.rb"
+require_relative "NSXMiscLibraries/NSXBob.rb"
+require_relative "NSXMiscLibraries/NSXDataOperators.rb"
+require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
+require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
@@ -50,12 +53,6 @@ require_relative "NSXAgents/NSXAgentNinja.rb"
 require_relative "NSXAgents/NSXAgentVienna.rb"
 require_relative "NSXAgents/NSXAgentWave.rb"
 require_relative "NSXAgents/NSXAgentWIS.rb"
-
-require_relative "NSXBob.rb"
-
-require_relative "NSXDataOperators.rb"
-require_relative "NSXDisplayOperator.rb"
-require_relative "NSXGeneralCommandHandler.rb"
 
 # -------------------------------------------------------------------------
 
