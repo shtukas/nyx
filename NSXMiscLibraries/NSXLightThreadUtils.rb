@@ -32,13 +32,24 @@ class NSXLightThreadMetrics
         doneTime
     end
 
+    # NSXLightThreadMetrics::makeLightThreadRecordItemFromSimulationTime(simulationTimeInSeconds)
+    def self.makeLightThreadRecordItemFromSimulationTime(simulationTimeInSeconds)
+        {
+            "uuid"     => SecureRandom.hex,
+            "unixtime" => Time.new.to_i-simulationTimeInSeconds,
+            "timespan" => simulationTimeInSeconds
+        }
+    end
+
     # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
         items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
+        if simulationTimeInSeconds > 0 then
+            items << NSXLightThreadMetrics::makeLightThreadRecordItemFromSimulationTime(simulationTimeInSeconds)
+        end
         return 0 if ( items.size==0 and lightThread["status"][0] == "paused" )
         timeDoneExpectationInHours = n * lightThread["commitment"] # The commitment is daily
         timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n).to_f/3600
-        timeDoneLiveInHours = timeDoneLiveInHours + simulationTimeInSeconds.to_f/3600
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 

@@ -65,19 +65,26 @@ class NSXDisplayOperator
             end
         end
 
+        emptyPrefix = " "*15
+
         displayState["nsx26:lines-to-display"] << NSXDisplayOperator::objectToColoredLineForMainListing(object, displayState["nsx26:current-position-cursor"], displayState["nsx26:standard-listing-position"])
         displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
 
         if displayState["nsx26:current-position-cursor"] == displayState["nsx26:standard-listing-position"] then
             displayState["nsx26:focus-object"] = object
             if object[":light-thread-data:"] then
-                displayState["nsx26:lines-to-display"] << (" "*15) + "(" + ( object[":light-thread-data:"]["secondary-object-run-status"] ? "/stop" : "/start" ).red + ")"
+                if object[":light-thread-data:"]["secondary-object-run-status"] then
+                    displayState["nsx26:lines-to-display"] << emptyPrefix + "(" + "/stop".green + ")"
+
+                else
+                    displayState["nsx26:lines-to-display"] << emptyPrefix + "(" + "/start".red + ")"
+                end
                 displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
             end
-            displayState["nsx26:lines-to-display"] << (" "*15)+NSXDisplayOperator::objectInferfaceString(object)
+            displayState["nsx26:lines-to-display"] << emptyPrefix + NSXDisplayOperator::objectInferfaceString(object)
             displayState["nsx26:screen-left-height"] = displayState["nsx26:screen-left-height"] - 1 
             if object[":defcon:"] == 0 then
-                displayState["nsx26:lines-to-display"] << (" "*15) + "--> Catalyst Object at DEFCON: 0 ; please update source code <--".green
+                displayState["nsx26:lines-to-display"] << emptyPrefix + "--> Catalyst Object at DEFCON: 0 ; please update source code <--".green
                 displayState["nsx26:should-stop-display-process"] = true
             end
         end
