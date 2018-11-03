@@ -210,12 +210,19 @@ class NSXLightThreadUtils
                     next if object.nil?
                     puts "    "+NSXMiscUtils::objectToString(object)
                 }
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "time:", "show items", "remove items", "time commitment:", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "show time log", "time:", "show items", "remove items", "time commitment:", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 NSXLightThreadUtils::startLightThread(lightThread["uuid"])
                 signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
+            end
+            if operation=="show time log" then
+                NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
+                    .each{|item|
+                        puts "    - #{Time.at(item["unixtime"]).to_s} : #{ (item["timespan"].to_f/3600).round(2) } hours"
+                    }
+                LucilleCore::pressEnterToContinue()
             end
             if operation=="stop" then
                 NSXLightThreadUtils::stopLightThread(lightThread["uuid"])
