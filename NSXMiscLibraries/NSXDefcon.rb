@@ -74,10 +74,15 @@ class NSXDefcon
         # We start by marking the objects with their defcon number,
         # We compute the system defcon, and
         # We display the objects of the right defcon.
-        objects = objects.map{|object| 
-            defcon, defconOrigin = NSXDefcon::computeObjectDefcon(object)
-            object[":defcon:"] = defcon
-            object[":defcon-origin:"] = defconOrigin
+        objects = objects.map{|object|
+            if object["metric"] < 1 then
+                defcon, defconOrigin = NSXDefcon::computeObjectDefcon(object)
+                object[":defcon:"] = defcon
+                object[":defcon-origin:"] = defconOrigin
+            else
+                object[":defcon:"] = 0
+                object[":defcon-origin:"] = "bc838ec5-2efc-40fd-8bdf-b40d5945ab28"
+            end
             object
         }
     	systemDefcon = NSXDefcon::computeSystemDefcon(objects)
@@ -86,11 +91,9 @@ class NSXDefcon
 
     # NSXDefcon::shouldDefconSelection()
     def self.shouldDefconSelection()
-        return false if Time.new.wday == 6
-        return false if Time.new.wday == 0
-        return false if Time.new.hour < 7
-        return false if Time.new.hour >= 16
-        true
+        isWeekDayDuringWorkingHours = ( ( Time.new.wday==6 or Time.new.wday==0 ) and ( Time.new.hour >= 9 and Time.new.hour < 16 ) )
+        return true if isWeekDayDuringWorkingHours
+        (Time.new.hour % 2) == 1
     end
 
 end
