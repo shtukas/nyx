@@ -34,6 +34,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
+require_relative "NSXMiscLibraries/NSXDayNotes.rb"
 require_relative "NSXMiscLibraries/NSXDataOperators.rb"
 require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
@@ -163,16 +164,22 @@ loop {
     system("clear")
 
     if NSXSystemDataKeyValueStore::getOrNull("cac941ad-7990-4de2-acc6-e3e956d7efc0:#{NSXMiscUtils::currentHour()}").nil? then
-        puts "WhatsApp Catalyst + DayNotes.txt + Emails".green
+        puts "WhatsApp Catalyst + Emails".green
         LucilleCore::pressEnterToContinue()
         NSXSystemDataKeyValueStore::set("cac941ad-7990-4de2-acc6-e3e956d7efc0:#{NSXMiscUtils::currentHour()}", "done")
         next
     end
 
+    print "Agents: "
+    puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
+    puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
 
-    print "Agents: ".green
-    puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ").green
-    puts NSXGeneralCommandHandler::specialObjectCommandsAsString().green
+    dayNotes = NSXDayNotes::displayOrNull()
+    if dayNotes then
+        puts ""
+        puts dayNotes.green
+        displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + dayNotes.lines.to_a.size + 1
+    end
 
     puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()

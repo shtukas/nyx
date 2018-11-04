@@ -80,7 +80,7 @@ class NSXDefcon
                 object[":defcon:"] = defcon
                 object[":defcon-origin:"] = defconOrigin
             else
-                object[":defcon:"] = 0
+                object[":defcon:"] = 1
                 object[":defcon-origin:"] = "bc838ec5-2efc-40fd-8bdf-b40d5945ab28"
             end
             object
