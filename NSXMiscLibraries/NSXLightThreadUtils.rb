@@ -23,49 +23,36 @@ class NSXLightThreadMetrics
             .map{|item| item["timespan"] }.inject(0, :+)
     end
 
-    # NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n)
-    def self.lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n)
+    # NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+    def self.lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
         doneTime = NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread["uuid"], n)
         if lightThread["status"][0] == "running-since" then
             doneTime = doneTime + (Time.new.to_i - lightThread["status"][1])
         end
+        doneTime = doneTime + simulationTimeInSeconds
         doneTime
-    end
-
-    # NSXLightThreadMetrics::makeLightThreadRecordItemFromSimulationTime(simulationTimeInSeconds)
-    def self.makeLightThreadRecordItemFromSimulationTime(simulationTimeInSeconds)
-        {
-            "uuid"     => SecureRandom.hex,
-            "unixtime" => Time.new.to_i-simulationTimeInSeconds,
-            "timespan" => simulationTimeInSeconds
-        }
     end
 
     # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
         items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
-        if simulationTimeInSeconds > 0 then
-            items << NSXLightThreadMetrics::makeLightThreadRecordItemFromSimulationTime(simulationTimeInSeconds)
-        end
-        return 0 if ( items.size==0 and lightThread["status"][0] == "paused" )
+        return 0 if ( (simulationTimeInSeconds==0) and (items.size==0) and (lightThread["status"][0]=="paused") )
         timeDoneExpectationInHours = n * lightThread["commitment"] # The commitment is daily
-        timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveDoneTimeSpanInSecondsOverThePastNDays(lightThread, n).to_f/3600
+        timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/3600
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-        return 2 if lightThread["status"][0] == "running-since"
-        metric = 0.8 - 0.4*NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/100 # at 100% we are still at 0.4
+        return 2 if ( simulationTimeInSeconds==0 and lightThread["status"][0] == "running-since" )
+        metric = 0.8 - 0.6*NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/100 # at 100% we are at 0.2
         metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
-        numerator = (1..7).map{|indx| (1.to_f/(2**indx))*NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx, simulationTimeInSeconds) }.inject(0, :+)
-        denominator = (1..7).map{|indx| (1.to_f/(2**indx)) }.inject(0, :+)
-        numerator.to_f/denominator
+        (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx, simulationTimeInSeconds) }.min
     end
 
 end
@@ -193,12 +180,30 @@ class NSXLightThreadUtils
             .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
+    # NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread)
+    def self.lightThreadTimeTo100PercentInSeconds(lightThread)
+        enumerator = NSXMiscUtils::integerEnumerator()
+        seconds = 0
+        loop {
+            seconds = enumerator.next() * 200
+            break if NSXLightThreadMetrics::lightThread2Metric(lightThread, seconds) <= 0.2
+        }
+        seconds
+    end
+
+    # NSXLightThreadUtils::globalTimeTo100PercentInSeconds()
+    def self.globalTimeTo100PercentInSeconds()
+        NSXLightThreadUtils::lightThreads()
+            .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread) }
+            .inject(0, :+)
+    end
+
     # -----------------------------------------------
     # .toString
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        "lightThread: #{lightThread["description"]} (metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread).round(3)}) (daily: #{lightThread["commitment"].round(2)} hours) (#{NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).size} objects)"
+        "lightThread: #{lightThread["description"]} (daily: #{lightThread["commitment"].round(2)} hours) (time to completion: #{(NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread).to_f/3600).round(2)} hours) (#{NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).size} objects)"
     end
 
     # -----------------------------------------------
@@ -213,6 +218,7 @@ class NSXLightThreadUtils
             puts "     daily commitment: #{lightThread["commitment"]}"
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
+            puts "     Time to 100%: #{(NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread).to_f/3600).round(2)} hours"
             puts "     NSXDoNotShowUntilDatetime: #{NSXDoNotShowUntilDatetime::getDatetimeOrNull(lightThread["uuid"])}"
             puts "Items:"
             NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])

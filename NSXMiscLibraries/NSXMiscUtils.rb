@@ -366,4 +366,15 @@ class NSXMiscUtils
         system(command)
     end
 
+    # NSXMiscUtils::integerEnumerator()
+    def self.integerEnumerator()
+        Enumerator.new do |integers|
+            cursor = -1
+            while true do
+                cursor = cursor + 1
+                integers << cursor
+            end
+        end
+    end
+
 end
