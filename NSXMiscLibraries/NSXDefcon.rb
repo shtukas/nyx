@@ -24,17 +24,33 @@ class NSXDefcon
             # Baby Nights
             return [2, "37b36b3c"] # Today important
         end
-        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="sticky" ) then
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="new") and object["announce"].include?("new") then
+            # Wave, new, email
+            return [1, "e7a13247"] # 1 : Right now
+        end
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="new") then
+            # Wave, new
+            return [4, "238f36ac"] # Best efforts
+        end
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="sticky") then
             # Wave, sticky
             return [1, "97f018a8"] # Right now
         end
-        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="every-this-day-of-the-month" ) then
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="every-this-day-of-the-month") then
             # Wave, every-this-day-of-the-month
             return [2, "93d81c5b"] # Today important
         end
-        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="every-this-day-of-the-week" ) then
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="every-this-day-of-the-week") then
             # Wave, every-this-day-of-the-month
             return [2, "0e7e5620"] # Today important
+        end
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="every-n-hours") then
+            # Wave, every-n-hours
+            return [3, "26ea35fe"] # 3 : Today non important
+        end
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="every-n-days") then
+            # Wave, every-n-days
+            return [3, "2a86372c"] # 3 : Today non important
         end
         if object["agent-uid"] == "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10" then
             # House
@@ -43,18 +59,6 @@ class NSXDefcon
         if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" then
             # LightThreads
             return [2, "a70b49e9"] # Today important
-        end
-        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="new" ) then
-            # Wave, new
-            return [4, "238f36ac"] # Best efforts
-        end
-        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="every-n-hours" ) then
-            # Wave, new
-            return [3, "26ea35fe"] # 3 : Today non important
-        end
-        if ( object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" ) and ( object["schedule"]["@"]=="every-n-days" ) then
-            # Wave, new
-            return [3, "2a86372c"] # 3 : Today non important
         end
         if object["agent-uid"] == "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58" then
             # Ninja
