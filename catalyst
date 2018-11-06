@@ -165,13 +165,6 @@ loop {
 
     system("clear")
 
-    if NSXSystemDataKeyValueStore::getOrNull("cac941ad-7990-4de2-acc6-e3e956d7efc0:#{NSXMiscUtils::currentHour()}").nil? then
-        puts "WhatsApp Catalyst + Emails".green
-        LucilleCore::pressEnterToContinue()
-        NSXSystemDataKeyValueStore::set("cac941ad-7990-4de2-acc6-e3e956d7efc0:#{NSXMiscUtils::currentHour()}", "done")
-        next
-    end
-
     print "Agents: "
     puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
