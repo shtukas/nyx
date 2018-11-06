@@ -97,7 +97,7 @@ class NSXDefcon
     def self.shouldDefconSelection()
         isWeekDayDuringWorkingHours = ( ( Time.new.wday==6 or Time.new.wday==0 ) and ( Time.new.hour >= 9 and Time.new.hour < 16 ) )
         return true if isWeekDayDuringWorkingHours
-        (Time.new.hour % 2) == 1
+        false
     end
 
 end
