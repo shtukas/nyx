@@ -45,7 +45,7 @@ class NSXLightThreadMetrics
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
         return 2 if ( simulationTimeInSeconds==0 and lightThread["status"][0] == "running-since" )
-        metric = 0.8 - 0.6*NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/100 # at 100% we are at 0.2
+        metric = 0.2 - 0.6*Math.exp(-1.5) + 0.6*Math.exp(-NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/100) # at 100% we are at 0.2 - 0.6*Math.exp(-1.5) + 0.6*Math.exp(-1) 
         metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
@@ -183,10 +183,11 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread)
     def self.lightThreadTimeTo100PercentInSeconds(lightThread)
         enumerator = NSXMiscUtils::integerEnumerator()
+        metric100 = 0.2 - 0.6*Math.exp(-1.5) + 0.6*Math.exp(-1)
         seconds = 0
         loop {
             seconds = enumerator.next() * 200
-            break if NSXLightThreadMetrics::lightThread2Metric(lightThread, seconds) <= 0.2
+            break if NSXLightThreadMetrics::lightThread2Metric(lightThread, seconds) <= metric100
         }
         seconds
     end
