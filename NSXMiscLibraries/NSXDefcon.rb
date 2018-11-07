@@ -74,7 +74,6 @@ class NSXDefcon
 
 	# NSXDefcon::defconSelection(objects)
     def self.defconSelection(objects)
-        return objects if !NSXDefcon::shouldDefconSelection()
         # We start by marking the objects with their defcon number,
         # We compute the system defcon, and
         # We display the objects of the right defcon.
@@ -91,13 +90,6 @@ class NSXDefcon
         }
     	systemDefcon = NSXDefcon::computeSystemDefcon(objects)
         objects.select{|object| object[":defcon:"] <= systemDefcon } # The inequality allows for the display of objects with defcon 0, which need a code update. 
-    end
-
-    # NSXDefcon::shouldDefconSelection()
-    def self.shouldDefconSelection()
-        isWeekDayDuringWorkingHours = ( ( Time.new.wday==6 or Time.new.wday==0 ) and ( Time.new.hour >= 9 and Time.new.hour < 16 ) )
-        return true if isWeekDayDuringWorkingHours
-        false
     end
 
 end
