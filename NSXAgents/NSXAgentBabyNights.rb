@@ -68,7 +68,17 @@ class NSXAgentBabyNights
     end
 
     def self.interface()
-
+        puts "Welcome to BabyNights interface"
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["Bonus: Pascal -> Tracy"])
+        if operation == "Bonus: Pascal -> Tracy" then
+            amount = LucilleCore::askQuestionAnswerAsString("Amount?: ").to_f
+            data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
+            data["pascal"] = data["pascal"] - amount
+            data["tracy"] = data["tracy"] + amount 
+            puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
+            LucilleCore::pressEnterToContinue()
+        end
     end
 
 end
