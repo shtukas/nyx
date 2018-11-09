@@ -174,9 +174,10 @@ loop {
 
     dayNotes = NSXDayNotes::displayOrNull()
     if dayNotes then
+        dayNotesSize = NSXMiscUtils::screenHeight()/4
         puts ""
-        puts dayNotes.green
-        displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + dayNotes.lines.to_a.size + 1
+        puts dayNotes.lines.first(dayNotesSize).join().green
+        displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + dayNotesSize + 1
     end
 
     puts ""
