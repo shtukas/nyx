@@ -37,8 +37,12 @@ class NSXDefcon
             # Baby Nights
             return [2, "37b36b3c"] # Today important
         end
+        if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="new") and object["announce"].include?("[new] http") then
+            # Wave, new, http # mostly former stream
+            return [3, "201b26f8"] # 3 : Today non important
+        end
         if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="new") and object["announce"].include?("new") then
-            # Wave, new, email
+            # Wave, new
             return [1, "e7a13247"] # 1 : Right now
         end
         if (object["agent-uid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d") and (object["schedule"]["@"]=="new") then
