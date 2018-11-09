@@ -18,6 +18,19 @@ Defcon Codes Objects:
 
 class NSXDefcon
 
+    # NSXDefcon::defconCodeToDescription(code)
+    def self.defconCodeToDescription(code)
+        mapping = {
+            "0" => "Warning: Catalyst Object without a computed defcon code",
+            "1" => "Right now",
+            "2" => "Today important",
+            "3" => "Today non important",
+            "4" => "Best efforts",
+            "5" => "Stream"
+        }
+        mapping[code.to_s]
+    end
+
     # NSXDefcon::computeObjectDefcon(object)
     def self.computeObjectDefcon(object) # [integer, string]
         if object["agent-uid"] == "83837e64-554b-4dd0-a478-04386d8010ea" then
@@ -89,7 +102,7 @@ class NSXDefcon
             object
         }
     	systemDefcon = NSXDefcon::computeSystemDefcon(objects)
-        objects.select{|object| object[":defcon:"] <= systemDefcon } # The inequality allows for the display of objects with defcon 0, which need a code update. 
+        [systemDefcon, objects.select{|object| object[":defcon:"] <= systemDefcon }] # The inequality allows for the display of objects with defcon 0, which need a code update. 
     end
 
 end

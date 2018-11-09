@@ -161,7 +161,7 @@ Thread.new {
 
 loop {
 
-    displayScreenSizeReductionIndex = 6
+    displayScreenSizeReductionIndex = 8
 
     system("clear")
 

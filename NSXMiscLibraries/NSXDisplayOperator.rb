@@ -19,9 +19,10 @@
 class NSXDisplayOperator
 
     # NSXDisplayOperator::makeGenesysDisplayState(screenLeftHeight, standardlp)
-    def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : DisplayState
-        objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
-        {
+    def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : [defconCode, DisplayState]
+        defconPayload = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
+        objects = defconPayload[1]
+        displayState = {
             "nsx26:object-still-to-go"               => objects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
             "nsx26:lines-to-display"                 => [],
             "nsx26:screen-left-height"               => screenLeftHeight,
@@ -30,6 +31,7 @@ class NSXDisplayOperator
             "nsx26:should-stop-display-process"      => false,
             "nsx26:focus-object"                     => nil
         }
+        [defconPayload[0], displayState]
     end
 
     # NSXDisplayOperator::displayStateTransition(displayState: DisplayState) : DisplayState
@@ -103,7 +105,9 @@ class NSXDisplayOperator
     # NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
     def self.printScreen(displayScreenSizeReductionIndex, standardlp)
         focusobject = nil
-        displayState = NSXDisplayOperator::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
+        defconCode, displayState = NSXDisplayOperator::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
+        puts "defcon code: #{defconCode}, #{NSXDefcon::defconCodeToDescription(defconCode)}"
+        puts ""
         loop {
             break if displayState.nil?
             focusobject = displayState["nsx26:focus-object"]
@@ -286,8 +290,8 @@ class NSXDisplayOperator
             }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
         objects = objects.select{|object| object["metric"] >= 0.2 }
-        objects = NSXDefcon::defconSelection(objects)
-        objects
+        defconPayload = NSXDefcon::defconSelection(objects)
+        defconPayload
     end
 
 end
