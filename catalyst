@@ -92,15 +92,22 @@ end
 
 The Task system
 
-A task is a lambda and a period in seconds
+A task is essentially a lambda and a period in seconds
+
+Task(taskUniqueId, period, lambda, name)
 
 We put the tasks into an array and loop over that array. 
-This ewnsure that only one task run at the same time, that there is enough pause between two task and
-that we run the tasks roughtly as often as they should run.
+
+This ensures that
+    - only one task run at any given time
+    - that there is enough pause between two tasks and
+    - that we run the tasks roughtly as often as they should run.
+
+Tasks are run only on Lucille18
 
 =end
 
-# Task(taskUniqueId, period, lambda, name, shouldCausePromptAndReload)
+# Task(taskUniqueId, period, lambda, name)
 
 if NSXMiscUtils::isLucille18() then
 
@@ -152,8 +159,16 @@ Thread.new {
     loop {
         sleep 120
         Iphetra::resetInMemoryData()
-        NSXCatalystObjectsOperator::flushInMemoryObjects()
-        NSXCatalystObjectsOperator::reloadObjectsFromAgents()
+        NSXBob::agents()
+        .each{|agentinterface|
+            objects = agentinterface["get-objects"].call()
+            NSXCatalystObjectsOperator::getObjects()
+            .each{|object|
+                next if object["agent-uid"] != agentinterface["agent-uid"]
+                NSXCatalystObjectsOperator::deleteObjectFromInMemory(object["uuid"])
+            }
+            objects.each{|object| NSXCatalystObjectsOperator::putObject(object) }
+        }
     }
 }
 
