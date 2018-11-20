@@ -176,16 +176,13 @@ Thread.new {
 
 loop {
 
-    displayScreenSizeReductionIndex = 8
+    displayScreenSizeReductionIndex = 7
 
     system("clear")
 
     print "Agents: "
     puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
-
-    timeToLightThreadsCompletion = NSXLightThreadUtils::globalTimeTo100PercentInSeconds()
-    puts "LightThreads completion in #{(timeToLightThreadsCompletion.to_f/3600).round(2)} hours; ETA: #{ (Time.new+timeToLightThreadsCompletion).to_s }"
 
     dayNotes = NSXDayNotes::displayOrNull()
     if dayNotes then
