@@ -227,7 +227,7 @@ class GeneralEmailClient
                 puts "email agent: This is a new email on the server. Downloading: #{emailuid}" if verbose
                 msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
                 File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("init") }
-                forbiddenAddresses = ['notifications@github.com', 'noreply@github.com']
+                forbiddenAddresses = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/forbiddenEmailAddresses.json"))
                 if forbiddenAddresses.any?{|address| EmailUtils::msgToFromAddresses(msg).include?(address) } then
                     imap.store(id, "+FLAGS", [:Deleted])
                     File.open("#{EMAIL_METADATA_FOLDERPATH}/#{emailuid}|status", 'w') {|f| f.write("deleted") }
