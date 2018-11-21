@@ -31,6 +31,7 @@ class NSXDisplayOperator
             "nsx26:should-stop-display-process"      => false,
             "nsx26:focus-object"                     => nil
         }
+        $defconMonitorData["last-display-defcon-37cc040b"] = defconPayload[0]
         [defconPayload[0], displayState]
     end
 
