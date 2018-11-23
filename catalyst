@@ -42,7 +42,6 @@ require_relative "NSXMiscLibraries/NSXGenericContents.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
-require_relative "NSXMiscLibraries/NSXDefcon.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
@@ -88,6 +87,8 @@ end
 
 # -------------------------------------------------------------------------
 # nslog
+
+
 
 # -------------------------------------------------------------------------
 =begin
@@ -171,21 +172,6 @@ Thread.new {
             }
             objects.each{|object| NSXCatalystObjectsOperator::putObject(object) }
         }
-    }
-}
-
-# -------------------------------------------------------------------------
-
-$defconMonitorData = {}
-$defconMonitorData["last-display-defcon-37cc040b"] = nil
-
-Thread.new {
-    loop {
-        sleep 70
-        next if $defconMonitorData["last-display-defcon-37cc040b"].nil?
-        if NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()[0] < $defconMonitorData["last-display-defcon-37cc040b"] then
-            NSXMiscUtils::issueScreenNotification("Catalyst", "Lowering DEFCON")
-        end
     }
 }
 
