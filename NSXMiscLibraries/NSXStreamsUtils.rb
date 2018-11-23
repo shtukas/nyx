@@ -53,8 +53,8 @@ class NSXStreamsUtils
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # NSXStreamsUtils::filenameToFilepath(filename)
-    def self.filenameToFilepath(filename)
+    # NSXStreamsUtils::newItemFilenameToFilepath(filename)
+    def self.newItemFilenameToFilepath(filename)
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
@@ -64,6 +64,16 @@ class NSXStreamsUtils
             FileUtils.mkpath(folderpath)
         end
         filepath
+    end
+
+    # NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+    def self.resolveFilenameToFilepathOrNull(filename)
+        Find.find("/Galaxy/DataBank/Catalyst/Streams") do |path|
+            next if !File.file?(path)
+            next if File.basename(path) != filename
+            return path
+        end
+        nil
     end
 
     # NSXStreamsUtils::makeItem(streamName, genericContentFilename, ordinal)
@@ -99,7 +109,10 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::sendItemToDisk(item)
     def self.sendItemToDisk(item)
-        filepath = NSXStreamsUtils::filenameToFilepath(item["filename"])
+        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(item["filename"])
+        if filepath.nil? then
+            filepath = NSXStreamsUtils::newItemFilenameToFilepath(item["filename"])
+        end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
@@ -160,20 +173,30 @@ class NSXStreamsUtils
         object["is-running"] = false
         object["data"] = {}
         object["data"]["stream-item"] = item
-        object["data"]["generic-contents-item"] = JSON.parse(IO.read(NSXGenericContents::filenameToFilepath(item["generic-content-filename"]))) 
+        object["data"]["generic-contents-item"] = JSON.parse(IO.read(NSXGenericContents::resolveFilenameToFilepathOrNull(item["generic-content-filename"]))) 
         object    
     end
 
     # NSXStreamsUtils::viewItem(filename)
     def self.viewItem(filename)
-        filepath = NSXStreamsUtils::filenameToFilepath(filename)
+        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+        if filepath.nil? then
+            puts "Error fbc5372e: unknown file" 
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         streamItem = JSON.parse(IO.read(filepath))
         NSXGenericContents::viewItem(streamItem["generic-content-filename"])
     end
 
     # NSXStreamsUtils::destroyItem(filename)
     def self.destroyItem(filename)
-        filepath = NSXStreamsUtils::filenameToFilepath(filename)
+        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+        if filepath.nil? then
+            puts "Error 316492ca: unknown file" 
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         FileUtils.rm(filepath)
     end
 
