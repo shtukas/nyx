@@ -26,8 +26,8 @@ require 'mail'
 {
     "uuid" : UUID
     "filename" : String
-    "type"     : "line"
-    "line"     : String, Line
+    "type"     : "text"
+    "text"     : String
 }
 
 {
@@ -68,11 +68,11 @@ class NSXGenericContents
         item
     end
 
-    # NSXGenericContents::issueItemLine(line)
-    def self.issueItemLine(line)
+    # NSXGenericContents::issueItemText(text)
+    def self.issueItemText(text)
         item = NSXGenericContents::makeBaseItem()
-        item["type"] = "line"
-        item["line"] = line
+        item["type"] = "text"
+        item["text"] = text
         NSXGenericContents::sendItemToDisk(item)
         item        
     end

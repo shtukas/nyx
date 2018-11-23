@@ -463,6 +463,7 @@ class NSXAgentWave
         object
     end
 
+    # NSXAgentWave::getObjects()
     def self.getObjects()
         WaveDevOps::collectWave()
         NSXAgentWave::catalystUUIDsEnumerator().map{|uuid|
@@ -485,10 +486,10 @@ class NSXAgentWave
         uuid = object['uuid']
         schedule = object['schedule']
         if ["new", 'ondate'].include?(schedule['@']) then
-            self.doneObjectWithOneOffTask(object)
+            NSXAgentWave::doneObjectWithOneOffTask(object)
         end
         if ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week'].include?(schedule['@']) then
-            self.doneObjectWithRepeatSchedule(object)
+            NSXAgentWave::doneObjectWithRepeatSchedule(object)
         end
     end
 

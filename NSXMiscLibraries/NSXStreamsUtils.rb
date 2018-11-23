@@ -53,11 +53,6 @@ class NSXStreamsUtils
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # NSXStreamsUtils::getTimeOrdinal()
-    def self.getTimeOrdinal()
-        Time.new.to_f/100000000
-    end
-
     # NSXStreamsUtils::filenameToFilepath(filename)
     def self.filenameToFilepath(filename)
         frg1 = filename[0,4]
@@ -92,7 +87,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::issueItemAtNextOrdinal(streamName, genericContentFilename)
     def self.issueItemAtNextOrdinal(streamName, genericContentFilename)
-        ordinal = NSXStreamsUtils::getTimeOrdinal()
+        ordinal = NSXStreamsUtils::getNextOrdinalForStream(streamName)
         NSXStreamsUtils::issueItem(streamName, genericContentFilename, ordinal)
     end
 
@@ -129,6 +124,13 @@ class NSXStreamsUtils
             .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
     end
 
+    # NSXStreamsUtils::getNextOrdinalForStream(streamName)
+    def self.getNextOrdinalForStream(streamName)
+        items = NSXStreamsUtils::getStreamItemsOrdered(streamName)
+        return 1 if items.size==0
+        items.map{|item| item["ordinal"] }.max + 1
+    end
+
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(streamName, item)
     def self.streamItemToStreamCatalystObjectAnnounce(streamName, item)
         genericContentFilename = item["generic-content-filename"]
@@ -139,9 +141,9 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(streamName, item)
     def self.streamItemToStreamCatalystObjectMetric(streamName, item)
         streamNameToMetricMap = {
-            "Right-Now"       => 0.75 + Math.exp(-item["ordinal"].to_f/10).to_f/10,
-            "Today-Important" => 0.55 + Math.exp(-item["ordinal"].to_f/10).to_f/10,
-            "XStream"         => 0.35 + Math.exp(-item["ordinal"].to_f/10).to_f/10
+            "Right-Now"       => 0.75 + Math.exp(-item["ordinal"].to_f/1000).to_f/10,
+            "Today-Important" => 0.55 + Math.exp(-item["ordinal"].to_f/1000).to_f/10,
+            "XStream"         => 0.35 + Math.exp(-item["ordinal"].to_f/1000).to_f/10
         }
         streamNameToMetricMap[streamName]
     end
