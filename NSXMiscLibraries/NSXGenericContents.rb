@@ -15,6 +15,8 @@ require 'mail'
 
 require 'find'
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+
 # ----------------------------------------------------------------------
 =begin
 
@@ -39,6 +41,13 @@ require 'find'
     "email-filename" : 
 }
 
+{
+    "uuid" : UUID
+    "filename"          : String
+    "type"              : "location" # file or folder
+    "parent-foldername" : 
+}
+
 =end
 
 class NSXGenericContents
@@ -53,12 +62,24 @@ class NSXGenericContents
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
-        folderpath = "/Galaxy/DataBank/Catalyst/GenericContentRepository/#{frg1}/#{frg2}/#{frg3}"
-        filepath = "#{folderpath}/#{filename}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
+        folder1 = "/Galaxy/DataBank/Catalyst/GenericContentRepository/#{frg1}/#{frg2}/#{frg3}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        filepath = "#{folder2}/#{filename}"
         filepath
+    end
+
+    # NSXGenericContents::newL22FoldernameToFolderpath(foldername)
+    def self.newL22FoldernameToFolderpath(foldername)
+        frg1 = foldername[0,4]
+        frg2 = foldername[0,6]
+        frg3 = foldername[0,8]
+        folder1 = "/Galaxy/DataBank/Catalyst/GenericContentRepository/#{frg1}/#{frg2}/#{frg3}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        folder3 = "#{folder2}/#{foldername}"
+        if !File.exists?(folder3) then
+            FileUtils.mkpath(folder3)
+        end
+        folder3
     end
 
     # NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
@@ -66,6 +87,16 @@ class NSXGenericContents
         Find.find("/Galaxy/DataBank/Catalyst/GenericContentRepository") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
+            return path
+        end
+        nil
+    end
+
+    # NSXGenericContents::resolveFoldernameToFolderpathOrNull(foldername)
+    def self.resolveFoldernameToFolderpathOrNull(foldername)
+        Find.find("/Galaxy/DataBank/Catalyst/GenericContentRepository") do |path|
+            next if File.file?(path)
+            next if File.basename(path) != foldername
             return path
         end
         nil
@@ -108,6 +139,20 @@ class NSXGenericContents
         item["email-filename"] = emailFilename
         NSXGenericContents::sendItemToDisk(item)
         item        
+    end
+
+    # NSXGenericContents::issueItemLocationMoveOriginal(location)
+    def self.issueItemLocationMoveOriginal(location)
+        targetLocationParentFoldername = NSXGenericContents::timeStringL22()
+        targetLocationParentFolderpath = NSXGenericContents::newL22FoldernameToFolderpath(targetLocationParentFoldername)
+        # Now we copy the old location inside the newly created folder.
+        LucilleCore::copyFileSystemLocation(location, targetLocationParentFolderpath)
+        item = NSXGenericContents::makeBaseItem()
+        item["type"] = "location"
+        item["parent-foldername"] = targetLocationParentFoldername
+        NSXGenericContents::sendItemToDisk(item)
+        LucilleCore::removeFileSystemLocation(location)
+        item 
     end
 
     # NSXGenericContents::makeItemEmailSideEffectEmailToDisk(rawemail)

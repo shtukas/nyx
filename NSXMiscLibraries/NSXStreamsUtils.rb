@@ -58,11 +58,9 @@ class NSXStreamsUtils
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
-        folderpath = "/Galaxy/DataBank/Catalyst/Streams/#{frg1}/#{frg2}/#{frg3}"
-        filepath = "#{folderpath}/#{filename}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
+        folder1 = "/Galaxy/DataBank/Catalyst/Streams/#{frg1}/#{frg2}/#{frg3}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        filepath = "#{folder2}/#{filename}"
         filepath
     end
 
@@ -198,6 +196,17 @@ class NSXStreamsUtils
             return
         end
         FileUtils.rm(filepath)
+    end
+
+    # NSXStreamsUtils::pickUpXStreamDropOff()
+    def self.pickUpXStreamDropOff()
+        Dir.entries("/Users/pascal/Desktop/XStream-DropOff")
+        .select{|filename| filename[0,1]!="." }
+        .map{|filename| "/Users/pascal/Desktop/XStream-DropOff/#{filename}" }
+        .map{|location|  
+            genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
+            NSXStreamsUtils::issueUsingGenericItem("XStream", genericItem)
+        }
     end
 
 end

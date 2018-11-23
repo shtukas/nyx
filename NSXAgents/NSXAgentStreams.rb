@@ -20,6 +20,7 @@ class NSXAgentStreams
     end
 
     def self.getObjects()
+        NSXStreamsUtils::pickUpXStreamDropOff()
         ["Right-Now", "Today-Important", "XStream"]
             .map{|streamName|
                 NSXStreamsUtils::getStreamItemsOrdered(streamName)
