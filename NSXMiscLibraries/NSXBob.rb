@@ -64,11 +64,21 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"      => "Ninja",
-        "agent-uid"       => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
+        "agent-name"  => "Ninja",
+        "agent-uid"   => "d3d1d26e-68b5-4a99-a372-db8eb6c5ba58",
         "get-objects" => lambda { NSXAgentNinja::getObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentNinja::processObjectAndCommand(object, command) },
         "interface"   => lambda { NSXAgentNinja::interface() }
+    }
+)
+
+NSXBob::registerAgent(
+    {
+        "agent-name"  => "Streams",
+        "agent-uid"   => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
+        "get-objects" => lambda { NSXAgentStreams::getObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentStreams::processObjectAndCommand(object, command) },
+        "interface"   => lambda { NSXAgentStreams::interface() }
     }
 )
 

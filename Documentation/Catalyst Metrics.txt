@@ -1,8 +1,7 @@
 
 The bulk of the metrics are between 0.2 and 0.8
 
-    -> 0.2 : Should not be worried about, not even displayed
-0.2 -> 0.8 : The fight zone
-0.8 -> 0.9 : Today
-0.9 -> 1.0 : Now
-       2.0 : Running items
+       2.0 : running
+0.6 -> 0.8 : right now
+0.4 -> 0.6 : today
+0.2 -> 0.4 : stream

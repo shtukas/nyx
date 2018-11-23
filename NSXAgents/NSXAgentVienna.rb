@@ -72,14 +72,7 @@ class NSXAgentVienna
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
-            # puts "NSXAgentVienna. Importing: #{link}"
-            uuid = SecureRandom.hex(4)
-            folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-            FileUtils.mkpath folderpath
-            File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-            File.open("#{folderpath}/description.txt", 'w') {|f| f.write(link) }
-            schedule = WaveSchedules::makeScheduleObjectTypeNew()
-            NSXAgentWave::writeScheduleToDisk(uuid, schedule)
+            NSXStreamsUtils::issueUsingGenericItem("XStream", NSXGenericContents::issueItemURL(link))
             $viennaLinkFeeder.done(link)
         }
         []

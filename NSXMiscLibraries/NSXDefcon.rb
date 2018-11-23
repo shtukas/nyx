@@ -77,6 +77,10 @@ class NSXDefcon
             # Ninja
             return [4, "bb3fc208"] # 4 : Best efforts
         end
+        if object["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
+            # Streams
+            return [1, "0eee0998"] # 1 : Right now
+        end
         0
     end
 

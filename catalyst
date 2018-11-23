@@ -38,6 +38,7 @@ require_relative "NSXMiscLibraries/NSXDayNotes.rb"
 require_relative "NSXMiscLibraries/NSXDataOperators.rb"
 require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
+require_relative "NSXMiscLibraries/NSXGenericContents.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
@@ -45,12 +46,14 @@ require_relative "NSXMiscLibraries/NSXDefcon.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
+require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
 require_relative "NSXAgents/NSXAgentLightThread.rb"
 require_relative "NSXAgents/NSXAgentNinja.rb"
+require_relative "NSXAgents/NSXAgentStreams.rb"
 require_relative "NSXAgents/NSXAgentVienna.rb"
 require_relative "NSXAgents/NSXAgentWave.rb"
 require_relative "NSXAgents/NSXAgentWIS.rb"
@@ -85,7 +88,6 @@ end
 
 # -------------------------------------------------------------------------
 # nslog
-
 
 # -------------------------------------------------------------------------
 =begin
