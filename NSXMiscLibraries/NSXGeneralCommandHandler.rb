@@ -13,16 +13,16 @@ class NSXGeneralCommandHandler
         puts "Special General Commands"
         puts "    help"
         puts "    search <pattern>"
-        puts "    :<p>                    # set the listing reference point"
-        puts "    +                       # add 1 to the standard listing position"
+        puts "    :<p>        # set the listing reference point"
+        puts "    +           # add 1 to the standard listing position"
         puts ""
-        puts "    wave: <description>     # create a new wave with that description (can use 'text')"
-        puts "    stream:                 # create a new stream with that description (can use 'text')"
-        puts "    thread:                 # create a new lightThread, details entered interactively"
+        puts "    wave:       # create a new wave with that description (can use 'text')"
+        puts "    stream:     # create a new stream with that description (can use 'text')"
+        puts "    thread:     # create a new lightThread, details entered interactively"
         puts ""
-        puts "    threads                 # lightThreads listing dive"
+        puts "    threads     # lightThreads listing dive"
         puts ""
-        puts "    email-sync              # run email sync"
+        puts "    email-sync  # run email sync"
         puts ""
     end
 
@@ -55,14 +55,14 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?('wave:') then
-            description = command[5, command.size].strip
+        if command == 'wave:' then
+            description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
             NSXMiscUtils::waveInsertNewItemInteractive(description)
             return
         end
 
         if command == 'stream:' then
-            description = LucilleCore::askQuestionAnswerAsString("text or url: ")
+            description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
             description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             genericContentsItem = 
                 if description.start_with?("http") then
