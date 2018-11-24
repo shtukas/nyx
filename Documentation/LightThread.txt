@@ -3,6 +3,10 @@ LightThread {
     :unixtime    : Integer
     :description : String
     :commitment  : Float  # In hours per day.
+    :priority    : Int # values: 1, 2, 3
+                        1: must be done
+                        2: ideally done
+                        3: luxury
     :status      : LightThreadStatus
     :done        : Array[LightThreadTimeRecordItem]
 }

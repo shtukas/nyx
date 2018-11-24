@@ -42,10 +42,19 @@ class NSXLightThreadMetrics
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
+    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
+    def self.lightThreadToMetricParameters(lightThread)
+        map = [ [0.6, 0,2] , [0.4, 0,2] , [0.2, 0.2] ] # baseMetric, expansion
+        map[lightThread["priority"]-1]
+    end
+
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
         return 2 if ( simulationTimeInSeconds==0 and lightThread["status"][0] == "running-since" )
-        metric = 0.2 - 0.6*Math.exp(-1.5) + 0.6*Math.exp(-NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/100) # at 100% we are at 0.2 - 0.6*Math.exp(-1.5) + 0.6*Math.exp(-1) 
+        livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds)
+        return 0 if livePercentage >= 100
+        baseMetric, expansion = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
+        metric = baseMetric + expansion*Math.exp(-livePercentage.to_f/100) # at 100% we are at baseMetric + expansion*Math.exp(-1)
         metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
@@ -69,16 +78,16 @@ class NSXLightThreadUtils
         Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThread)
     end
 
-    # NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
-    def self.makeNewLightThread(description, commitment, target)
+    # NSXLightThreadUtils::makeNewLightThread(description, commitment, priority)
+    def self.makeNewLightThread(description, commitment, priority)
         uuid = SecureRandom.hex(4)
-        lightThread = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "commitment"  => commitment,
-            "status"      => ["paused"]
-        }
+        lightThread = {}
+        lightThread["uuid"] = uuid
+        lightThread["unixtime"] = Time.new.to_i
+        lightThread["description"] = description
+        lightThread["commitment"] = commitment
+        lightThread["priority"] = priority
+        lightThread["status"] = ["paused"]
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, 0)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         lightThread
@@ -183,20 +192,12 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread)
     def self.lightThreadTimeTo100PercentInSeconds(lightThread)
         enumerator = NSXMiscUtils::integerEnumerator()
-        metric100 = 0.2 - 0.6*Math.exp(-1.5) + 0.6*Math.exp(-1)
         seconds = 0
         loop {
             seconds = enumerator.next() * 200
-            break if NSXLightThreadMetrics::lightThread2Metric(lightThread, seconds) <= metric100
+            break if NSXLightThreadMetrics::lightThread2Metric(lightThread, seconds) <= 0.2
         }
         seconds
-    end
-
-    # NSXLightThreadUtils::globalTimeTo100PercentInSeconds()
-    def self.globalTimeTo100PercentInSeconds()
-        NSXLightThreadUtils::lightThreads()
-            .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread) }
-            .inject(0, :+)
     end
 
     # -----------------------------------------------
@@ -204,11 +205,21 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        "lightThread: #{lightThread["description"]} (daily: #{lightThread["commitment"].round(2)} hours) (time to completion: #{(NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread).to_f/3600).round(2)} hours) (#{NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"]).size} objects)"
+        timeTo100Percent = NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread).to_f/3600
+        "lightThread: #{lightThread["description"]} (time to 100%: #{timeTo100Percent.round(2)} hours) (priority: #{lightThread["priority"]})"
     end
 
     # -----------------------------------------------
     # UI Utils
+
+    # NSXLightThreadUtils::interactivelySelectALightThreadPriority()
+    def self.interactivelySelectALightThreadPriority()
+        xlambda = lambda{|index|
+            mapping = ["Must be done", "Ideally done", "Luxury"]
+            mapping[index-1]
+        }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread Priority:", [1,2,3], xlambda)
+    end
 
     # NSXLightThreadUtils::lightThreadDive(lightThread)
     def self.lightThreadDive(lightThread)

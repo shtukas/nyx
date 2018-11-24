@@ -82,8 +82,8 @@ class NSXGeneralCommandHandler
         if command == 'thread:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day: ").to_f
-            target = nil
-            lightThread = NSXLightThreadUtils::makeNewLightThread(description, commitment, target)
+            priority = NSXLightThreadUtils::interactivelySelectALightThreadPriority()
+            lightThread = NSXLightThreadUtils::makeNewLightThread(description, commitment, priority)
             puts JSON.pretty_generate(lightThread)
             LucilleCore::pressEnterToContinue()
             return
