@@ -10,6 +10,8 @@ require 'securerandom'
 
 require 'json'
 
+require 'find'
+
 # ----------------------------------------------------------------------
 
 class NSXStreamsUtils
@@ -142,7 +144,12 @@ class NSXStreamsUtils
         if isRunning then
             ["open", "stop", "done"]
         else
-            ["start"]
+            if item["streamName"]!="XStream" then
+                ["start", ">xstream"]
+            else
+                ["start"]
+            end
+
         end
     end
 
@@ -249,5 +256,27 @@ class NSXStreamsUtils
         return ( items[3]["ordinal"] + items[4]["ordinal"] ).to_f/2 # Average of the 4th item and the 5th item ordinals
     end
 
-end
+    # NSXStreamsUtils::newLastPositionOrdinalForXStream()
+    def self.newLastPositionOrdinalForXStream()
+        items = NSXStreamsUtils::getStreamItemsOrdered("XStream")
+        return 1 if items.size == 0
+        items.map{|item| item["ordinal"] }.max + 1
+    end
 
+    # NSXStreamsUtils::newFrontPositionOrdinalForXStream()
+    def self.newFrontPositionOrdinalForXStream()
+        items = NSXStreamsUtils::getStreamItemsOrdered("XStream")
+        return 1 if items.size == 0
+        items.map{|item| item["ordinal"] }.min - 1
+    end
+
+    # NSXStreamsUtils::moveToXStreamAtOrdinal(streamItemUUID, ordinal)
+    def self.moveToXStreamAtOrdinal(streamItemUUID, ordinal)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        return if item.nil?
+        item["streamName"] = "XStream"
+        item["ordinal"] = ordinal
+        NSXStreamsUtils::sendItemToDisk(item)
+    end
+
+end

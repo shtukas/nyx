@@ -47,6 +47,13 @@ class NSXAgentStreams
             NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])           
             return ["reload-agent-objects", NSXAgentStreams::agentuuid()]
         end
+        if command==">xstream" then
+            itemuuid = object["data"]["stream-item"]["uuid"]
+            globalPosition = LucilleCore::selectEntityFromListOfEntitiesOrNull("position relatively to stream:", ["front", "back"])
+            newOrdinal = (globalPosition == "front") ? NSXStreamsUtils::newFrontPositionOrdinalForXStream() : NSXStreamsUtils::newLastPositionOrdinalForXStream()
+            NSXStreamsUtils::moveToXStreamAtOrdinal(itemuuid, newOrdinal)
+            return ["reload-agent-objects", NSXAgentStreams::agentuuid()]
+        end
         ["nothing"]
     end
 
