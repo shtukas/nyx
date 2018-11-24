@@ -169,6 +169,7 @@ class NSXMiscUtils
         ( object["do-not-show-until-datetime"] and ( Time.now.utc.iso8601 < DateTime.parse(object["do-not-show-until-datetime"]).to_time.utc.iso8601 ) ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
     end
 
+    # NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
     def self.processItemDescriptionPossiblyAsTextEditorInvitation(description)
         if description=='text' then
             editTextUsingTextmate("")

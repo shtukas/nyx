@@ -16,7 +16,8 @@ class NSXGeneralCommandHandler
         puts "    :<p>                    # set the listing reference point"
         puts "    +                       # add 1 to the standard listing position"
         puts ""
-        puts "    wave: <description>     # create a new wave with that description"
+        puts "    wave: <description>     # create a new wave with that description (can use 'text')"
+        puts "    stream:                 # create a new stream with that description (can use 'text')"
         puts "    thread:                 # create a new lightThread, details entered interactively"
         puts ""
         puts "    threads                 # lightThreads listing dive"
@@ -54,18 +55,15 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'email-sync' then
-            NSXMiscUtils::emailSync(true)
-            return
-        end
-
-        if command == 'threads' then
-            NSXLightThreadUtils::lightThreadsDive()
+        if command.start_with?('wave:') then
+            description = command[5, command.size].strip
+            NSXMiscUtils::waveInsertNewItemInteractive(description)
             return
         end
 
         if command == 'stream:' then
             description = LucilleCore::askQuestionAnswerAsString("text or url: ")
+            description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             genericContentsItem = 
                 if description.start_with?("http") then
                     NSXGenericContents::issueItemURL(description)
@@ -89,9 +87,13 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?('wave:') then
-            description = command[5, command.size].strip
-            NSXMiscUtils::waveInsertNewItemInteractive(description)
+        if command == 'threads' then
+            NSXLightThreadUtils::lightThreadsDive()
+            return
+        end
+
+        if command == 'email-sync' then
+            NSXMiscUtils::emailSync(true)
             return
         end
 
