@@ -15,13 +15,13 @@ class NSXGeneralCommandHandler
         puts "    search <pattern>"
         puts "    :<p>        # set the listing reference point"
         puts "    +           # add 1 to the standard listing position"
+        puts "    ++          # delete the first line of DayNotes.txt"
         puts ""
         puts "    wave:       # create a new wave with that description (can use 'text')"
         puts "    stream:     # create a new stream with that description (can use 'text')"
         puts "    thread:     # create a new lightThread, details entered interactively"
         puts ""
         puts "    threads     # lightThreads listing dive"
-        puts ""
         puts "    email-sync  # run email sync"
         puts ""
     end
@@ -52,6 +52,11 @@ class NSXGeneralCommandHandler
         if command == 'help' then
             NSXGeneralCommandHandler::putshelp()
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == '++' then
+            NSXDayNotes::deleteFirstLine()
             return
         end
 
