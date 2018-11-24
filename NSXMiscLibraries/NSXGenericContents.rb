@@ -156,8 +156,8 @@ class NSXGenericContents
     def self.filenameToCatalystObjectAnnounce(genericContentFilename)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
         genericContentItem = JSON.parse(IO.read(filepath))
-        if genericContentItem["type"]=="line" then
-            return genericContentItem["line"]
+        if genericContentItem["type"]=="text" then
+            return genericContentItem["text"]
         end
         if genericContentItem["type"]=="url" then
             return genericContentItem["url"]
@@ -184,6 +184,14 @@ class NSXGenericContents
         if item["type"]=="url" then
             url = item["url"]
             system("open '#{url}'")
+            return
+        end
+
+        if item["type"]=="text" then
+            filepath = "/Users/pascal/Desktop/#{NSXGenericContents::timeStringL22()}.txt"
+            File.open(filepath, "w"){|f| f.puts(item["text"]) }
+            LucilleCore::pressEnterToContinue()
+            FileUtils.rm(filepath)
             return
         end
 

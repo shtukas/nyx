@@ -165,7 +165,7 @@ class NSXMiscUtils
         folder3
     end
 
-    def self.object2DonotShowUntilAsString(object)
+    def self.object2DoNotShowUntilAsString(object)
         ( object["do-not-show-until-datetime"] and ( Time.now.utc.iso8601 < DateTime.parse(object["do-not-show-until-datetime"]).to_time.utc.iso8601 ) ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
     end
 
@@ -285,7 +285,7 @@ class NSXMiscUtils
             object[":is-lightThread-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
             object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
             " #{announce}",
-            NSXMiscUtils::object2DonotShowUntilAsString(object),
+            NSXMiscUtils::object2DoNotShowUntilAsString(object),
         ].join()
     end
 
