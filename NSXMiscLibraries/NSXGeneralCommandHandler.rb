@@ -64,6 +64,21 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == 'stream:' then
+            description = LucilleCore::askQuestionAnswerAsString("text or url: ")
+            genericContentsItem = 
+                if description.start_with?("http") then
+                    NSXGenericContents::issueItemURL(description)
+                else
+                    NSXGenericContents::issueItemText(description)
+                end
+            streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", ["Right-Now", "Today-Important", "XStream"])
+            streamItem = NSXStreamsUtils::issueUsingGenericItem(streamName, genericContentsItem)
+            puts JSON.pretty_generate(streamItem)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if command == 'thread:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day: ").to_f

@@ -152,7 +152,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(streamName, item)
     def self.streamItemToStreamCatalystObjectMetric(streamName, item)
         streamNameToMetricMap = {
-            "Right-Now"       => 0.75 + Math.exp(-item["ordinal"].to_f/1000).to_f/10,
+            "Right-Now"       => 0.85 + Math.exp(-item["ordinal"].to_f/1000).to_f/10,
             "Today-Important" => 0.55 + Math.exp(-item["ordinal"].to_f/1000).to_f/10,
             "XStream"         => 0.35 + Math.exp(-item["ordinal"].to_f/1000).to_f/10
         }
@@ -203,7 +203,7 @@ class NSXStreamsUtils
         Dir.entries("/Users/pascal/Desktop/XStream-DropOff")
         .select{|filename| filename[0,1]!="." }
         .map{|filename| "/Users/pascal/Desktop/XStream-DropOff/#{filename}" }
-        .map{|location|  
+        .map{|location|
             genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
             NSXStreamsUtils::issueUsingGenericItem("XStream", genericItem)
         }
