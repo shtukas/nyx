@@ -18,37 +18,6 @@ require 'find'
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # ----------------------------------------------------------------------
-=begin
-
-{
-    "uuid" : UUID
-    "filename" : String
-    "type"     : "url"
-    "url"      : URL
-}
-
-{
-    "uuid" : UUID
-    "filename" : String
-    "type"     : "text"
-    "text"     : String
-}
-
-{
-    "uuid" : UUID
-    "filename"       : String
-    "type"           : "email"
-    "email-filename" : 
-}
-
-{
-    "uuid" : UUID
-    "filename"          : String
-    "type"              : "location" # file or folder
-    "parent-foldername" : 
-}
-
-=end
 
 class NSXGenericContents
 
