@@ -11,42 +11,13 @@ require 'securerandom'
 require 'json'
 
 # ----------------------------------------------------------------------
-=begin
-
-We have the following streams
-    - Right Now
-    - Today Important
-    - XStream
-
-Streams are implemented as sequences of StreamItem
-
-StreamItem {
-    "uuid"                     : UUID
-    "streamName"               : "Right-Now", "Today-Important", "XStream"
-    "filename"                 : String
-    "generic-content-filename" : String
-    "ordinal"                  : Float
-    "ignore-until-datetime"    : nil | DateTime
-}
-
-The streams are processed as FIFO queues.
-
-All the items are `started` and either `stopped` or `completed`.
-
-The first three items are active.
-
-The others are ignored.
-
-When an item has been worked on more than few hours, it is pushed to position 5
-
-Any item can be postponed until to a given datetime.
-
-=end
 
 class NSXStreamsUtils
 
-    # -----------------------------------------------------------
-    # Writing
+    # NSXStreamsUtils::StreamNames()
+    def self.StreamNames()
+        ["Right-Now", "Today-Important", "XStream"]
+    end
 
     # NSXStreamsUtils::timeStringL22()
     def self.timeStringL22()
@@ -114,9 +85,6 @@ class NSXStreamsUtils
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # -----------------------------------------------------------
-    # Reading
-
     # NSXStreamsUtils::allStreamsItemsEnumerator()
     def self.allStreamsItemsEnumerator()
         Enumerator.new do |items|
@@ -126,6 +94,15 @@ class NSXStreamsUtils
                 items << JSON.parse(IO.read(path))
             end
         end
+    end
+
+    # NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+    def self.getStreamItemByUUIDOrNull(streamItemUUID)
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+        .select{|item|
+            item["uuid"] == streamItemUUID
+        }
+        .first
     end
 
     # NSXStreamsUtils::getStreamItemsOrdered(streamName)
@@ -159,20 +136,31 @@ class NSXStreamsUtils
         streamNameToMetricMap[streamName]
     end
 
+    # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+    def self.streamItemToStreamCatalystObjectCommands(item)
+        isRunning = !item["run-status"].nil?
+        if isRunning then
+            ["open", "stop", "done"]
+        else
+            ["start"]
+        end
+    end
+
     # NSXStreamsUtils::streamItemToStreamCatalystObject(streamName, item)
     def self.streamItemToStreamCatalystObject(streamName, item)
+        isRunning = !item["run-status"].nil?
         object = {}
         object["uuid"] = item["uuid"][0,8]      
         object["agent-uid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(streamName, item)
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(streamName, item)
-        object["commands"] = ["open", "done"]
+        object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
         object["default-expression"] = nil
-        object["is-running"] = false
+        object["is-running"] = isRunning
         object["data"] = {}
         object["data"]["stream-item"] = item
         object["data"]["generic-contents-item"] = JSON.parse(IO.read(NSXGenericContents::resolveFilenameToFilepathOrNull(item["generic-content-filename"]))) 
-        object    
+        object
     end
 
     # NSXStreamsUtils::viewItem(filename)
@@ -207,6 +195,58 @@ class NSXStreamsUtils
             genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
             NSXStreamsUtils::issueUsingGenericItem("XStream", genericItem)
         }
+    end
+
+    # NSXStreamsUtils::startStreamItem(streamItemUUID)
+    def self.startStreamItem(streamItemUUID)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        return if item.nil?
+        return if item["run-status"] # already running
+        item["run-status"] = Time.new.to_i
+        NSXStreamsUtils::sendItemToDisk(item)
+    end
+
+    # NSXStreamsUtils::stopStreamItem(streamItemUUID)
+    def self.stopStreamItem(streamItemUUID)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        return if item.nil?
+        return if !item["run-status"] # not running
+        timespan = Time.new.to_i - item["run-status"]
+        streamItemRunTimeData = [ Time.new.to_i, timespan ]
+        item["run-status"] = nil
+        if item["run-data"].nil? then
+            item["run-data"] = []
+        end
+        item["run-data"] << streamItemRunTimeData
+        NSXStreamsUtils::sendItemToDisk(item)
+        NSXStreamsUtils::stopPostProcessing(streamItemUUID)
+    end
+
+    # NSXStreamsUtils::stopPostProcessing(streamItemUUID)
+    def self.stopPostProcessing(streamItemUUID)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        return if item.nil?
+        return if item["streamName"]!="XStream"
+        totalProcessingTimeInSeconds = item["run-data"].map{|x| x[1] }.inject(0, :+)
+        if totalProcessingTimeInSeconds >= 3600 then
+            # Here we update the oridinal or the object to be the new object in position 5
+            item["ordinal"] = NSXStreamsUtils::newPosition5OrdinalForXStreamItem(streamItemUUID)
+            NSXStreamsUtils::sendItemToDisk(item)
+        end
+    end
+
+    # NSXStreamsUtils::newPosition5OrdinalForXStreamItem(streamItemUUID)
+    def self.newPosition5OrdinalForXStreamItem(streamItemUUID)
+        items = NSXStreamsUtils::getStreamItemsOrdered(streamName)
+        # first we remove the item from the stream
+        items = items.reject{|item| item["uuid"]==streamItemUUID }
+        if item.size == 0 then
+            return 1 # There was only one item (or zero) in the stream and we default to 1
+        end 
+        if items.size <= 4 then
+            return items.last["ordinal"] + 1
+        end
+        return ( items[3]["ordinal"] + items[4]["ordinal"] ).to_f/2 # Average of the 4th item and the 5th item ordinals
     end
 
 end

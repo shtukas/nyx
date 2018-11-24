@@ -31,8 +31,17 @@ class NSXAgentStreams
     end
 
     def self.processObjectAndCommand(object, command)
+        if command=="start" then
+            NSXStreamsUtils::startStreamItem(object["data"]["stream-item"]["uuid"])
+            return ["reload-agent-objects", NSXAgentStreams::agentuuid()]          
+        end
+        if command=="stop" then
+            NSXStreamsUtils::stopStreamItem(object["data"]["stream-item"]["uuid"])
+            return ["reload-agent-objects", NSXAgentStreams::agentuuid()]          
+        end
         if command=="open" then
-            NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])          
+            NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
+            return ["nothing"]          
         end
         if command=="done" then
             NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])           

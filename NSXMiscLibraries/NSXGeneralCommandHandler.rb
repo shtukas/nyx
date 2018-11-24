@@ -75,7 +75,7 @@ class NSXGeneralCommandHandler
                 else
                     NSXGenericContents::issueItemText(description)
                 end
-            streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", ["Right-Now", "Today-Important", "XStream"])
+            streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", NSXStreamsUtils::StreamNames())
             streamItem = NSXStreamsUtils::issueUsingGenericItem(streamName, genericContentsItem)
             puts JSON.pretty_generate(streamItem)
             LucilleCore::pressEnterToContinue()
