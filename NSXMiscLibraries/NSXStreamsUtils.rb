@@ -233,11 +233,12 @@ class NSXStreamsUtils
     def self.stopPostProcessing(streamItemUUID)
         item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
         return if item.nil?
-        return if item["streamName"]!="XStream"
+        return if item["streamName"] != "XStream"
         totalProcessingTimeInSeconds = item["run-data"].map{|x| x[1] }.inject(0, :+)
         if totalProcessingTimeInSeconds >= 3600 then
             # Here we update the oridinal or the object to be the new object in position 5
             item["ordinal"] = NSXStreamsUtils::newPosition5OrdinalForXStreamItem(streamItemUUID)
+            item["run-data"] = []
             NSXStreamsUtils::sendItemToDisk(item)
         end
     end
