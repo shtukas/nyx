@@ -31,7 +31,7 @@ class NSXGenericContents
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
-        folder1 = "/Galaxy/DataBank/Catalyst/GenericContentRepository/#{frg1}/#{frg2}/#{frg3}"
+        folder1 = "/Galaxy/DataBank/Catalyst/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         filepath = "#{folder2}/#{filename}"
         filepath
@@ -42,7 +42,7 @@ class NSXGenericContents
         frg1 = foldername[0,4]
         frg2 = foldername[0,6]
         frg3 = foldername[0,8]
-        folder1 = "/Galaxy/DataBank/Catalyst/GenericContentRepository/#{frg1}/#{frg2}/#{frg3}"
+        folder1 = "/Galaxy/DataBank/Catalyst/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{foldername}"
         if !File.exists?(folder3) then
@@ -51,9 +51,9 @@ class NSXGenericContents
         folder3
     end
 
-    # NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
-    def self.resolveFilenameToFilepathOrNull(filename)
-        Find.find("/Galaxy/DataBank/Catalyst/GenericContentRepository") do |path|
+    # NSXGenericContents::resolveFilenameToFilepathOrNullUseTheForce(filename)
+    def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
+        Find.find("/Galaxy/DataBank/Catalyst/Generic-Contents") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
@@ -61,14 +61,44 @@ class NSXGenericContents
         nil
     end
 
-    # NSXGenericContents::resolveFoldernameToFolderpathOrNull(foldername)
-    def self.resolveFoldernameToFolderpathOrNull(foldername)
-        Find.find("/Galaxy/DataBank/Catalyst/GenericContentRepository") do |path|
+    # NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
+    def self.resolveFilenameToFilepathOrNull(filename)
+        filepath = KeyValueStore::getOrNull(nil, "2fea73a3-469d-4eae-bbbd-aa73628f42cc:#{filename}")
+        if filepath then
+            if File.exists?(filepath) then
+                return filepath
+            end
+        end
+        filepath = NSXGenericContents::resolveFilenameToFilepathOrNullUseTheForce(filename)
+        if filepath then
+            KeyValueStore::set(nil, "2fea73a3-469d-4eae-bbbd-aa73628f42cc:#{filename}", filepath)
+        end
+        filepath
+    end
+
+    # NSXGenericContents::resolveFoldernameToFolderpathOrNullUseTheForce(foldername)
+    def self.resolveFoldernameToFolderpathOrNullUseTheForce(foldername)
+        Find.find("/Galaxy/DataBank/Catalyst/Generic-Contents") do |path|
             next if File.file?(path)
             next if File.basename(path) != foldername
             return path
         end
         nil
+    end
+
+    # NSXGenericContents::resolveFoldernameToFolderpathOrNull(foldername)
+    def self.resolveFoldernameToFolderpathOrNull(foldername)
+        filepath = KeyValueStore::getOrNull(nil, "57c11b5f-820f-4648-8d03-ba023390ee93:#{filename}")
+        if filepath then
+            if File.exists?(filepath) then
+                return filepath
+            end
+        end
+        filepath = NSXGenericContents::resolveFoldernameToFolderpathOrNullUseTheForce(filename)
+        if filepath then
+            KeyValueStore::set(nil, "57c11b5f-820f-4648-8d03-ba023390ee93:#{filename}", filepath)
+        end
+        filepath
     end
 
     # NSXGenericContents::makeBaseItem()
@@ -152,9 +182,24 @@ class NSXGenericContents
         mailObject.subject
     end
 
+    # NSXGenericContents::emailFilenameToFrom(filename)
+    def self.emailFilenameToFrom(filename)
+        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
+        return "Error cbfcecae: unknown file" if filepath.nil?
+        mailObject = Mail.read(filepath)
+        address = mailObject.from
+        if address.class.to_s == "Mail::AddressContainer" then
+            return address.first
+        end
+        "Error 42b5f47a: #{address.class.to_s}"
+    end
+
     # NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
     def self.filenameToCatalystObjectAnnounce(genericContentFilename)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
+        if filepath.nil? then
+            return "Error f849ab3a: #{genericContentFilename}"
+        end
         genericContentItem = JSON.parse(IO.read(filepath))
         if genericContentItem["type"]=="text" then
             return genericContentItem["text"]
@@ -164,9 +209,12 @@ class NSXGenericContents
         end
         if genericContentItem["type"]=="email" then
             emailFilename = genericContentItem["email-filename"]
-            return "email: #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
+            return "email (#{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
         end
-        "NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename): genericContentFilename=#{genericContentFilename}"
+        if genericContentItem["type"]=="location" then
+            return "location: #{genericContentItem["parent-foldername"]}"
+        end
+        "Error a561fefa: #{filepath}"
     end
 
     # NSXGenericContents::viewItem(filename)
@@ -195,7 +243,15 @@ class NSXGenericContents
             return
         end
 
-        puts "NSXGenericContents::viewItem(filename): To be implemented"
+        if item["type"]=="location" then
+            parentFoldername = item["parent-foldername"]
+            folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(parentFoldername)
+            return if folderpath.nil?
+            system("open '#{folderpath}'")
+            return
+        end
+
+        puts "954650e9-9087: To be implemented"
         puts JSON.pretty_generate(item)
         LucilleCore::pressEnterToContinue()
     end

@@ -24,6 +24,10 @@ class NSXAgentStreams
         ["Right-Now", "Today-Important", "XStream"]
             .map{|streamName|
                 NSXStreamsUtils::getStreamItemsOrdered(streamName)
+                    .select{|item|
+                        objectuuid = item["uuid"][0,8]
+                        NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?                      
+                    }
                     .first(3)
                     .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(streamName, item) }
             }

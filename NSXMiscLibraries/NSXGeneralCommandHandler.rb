@@ -21,7 +21,8 @@ class NSXGeneralCommandHandler
         puts "    stream:     # create a new stream with that description (can use 'text')"
         puts "    thread:     # create a new lightThread, details entered interactively"
         puts ""
-        puts "    threads     # lightThreads listing dive"
+        puts "    threads     # lightThreads dive"
+        puts "    streams     # Streams dive"
         puts "    email-sync  # run email sync"
         puts ""
     end
@@ -96,6 +97,19 @@ class NSXGeneralCommandHandler
             NSXLightThreadUtils::lightThreadsDive()
             return
         end
+
+        if command == 'streams' then
+            loop {
+                streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", NSXStreamsUtils::StreamNames())
+                break if streamName.nil?
+                items = NSXStreamsUtils::getStreamItemsOrdered(streamName)
+                items.each{|item|
+                    puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(streamName, item)
+                }
+                LucilleCore::pressEnterToContinue()
+            }
+            return
+        end        
 
         if command == 'email-sync' then
             NSXMiscUtils::emailSync(true)

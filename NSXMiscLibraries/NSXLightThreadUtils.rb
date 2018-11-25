@@ -231,7 +231,7 @@ class NSXLightThreadUtils
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     Time to 100%: #{(NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread).to_f/3600).round(2)} hours"
-            puts "     NSXDoNotShowUntilDatetime: #{NSXDoNotShowUntilDatetime::getDatetimeOrNull(lightThread["uuid"])}"
+            puts "     NSXDoNotShowUntilDatetime: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"])}"
             puts "Items:"
             NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
                 .each{|uuid|

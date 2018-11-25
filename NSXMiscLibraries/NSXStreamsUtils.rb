@@ -12,6 +12,14 @@ require 'json'
 
 require 'find'
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # ----------------------------------------------------------------------
 
 class NSXStreamsUtils
@@ -37,14 +45,29 @@ class NSXStreamsUtils
         filepath
     end
 
-    # NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
-    def self.resolveFilenameToFilepathOrNull(filename)
+    # NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
+    def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
         Find.find("/Galaxy/DataBank/Catalyst/Streams") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
         end
         nil
+    end
+
+    # NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+    def self.resolveFilenameToFilepathOrNull(filename)
+        filepath = KeyValueStore::getOrNull(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}")
+        if filepath then
+            if File.exists?(filepath) then
+                return filepath
+            end
+        end
+        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
+        if filepath then
+            KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
+        end
+        filepath
     end
 
     # NSXStreamsUtils::makeItem(streamName, genericContentFilename, ordinal)
@@ -125,7 +148,15 @@ class NSXStreamsUtils
     def self.streamItemToStreamCatalystObjectAnnounce(streamName, item)
         genericContentFilename = item["generic-content-filename"]
         genericContentsAnnounce = NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
-        "[Stream: #{streamName}] #{genericContentsAnnounce}"
+        objectuuid = item["uuid"][0,8]
+        datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
+        doNotShowString = 
+            if datetime then
+                "[DoNotShowUntil: #{datetime}] "
+            else
+                ""
+            end
+        "#{doNotShowString}[Stream: #{streamName}] #{genericContentsAnnounce}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(streamName, item)
@@ -141,20 +172,28 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
     def self.streamItemToStreamCatalystObjectCommands(item)
         isRunning = !item["run-status"].nil?
-        if isRunning then
-            ["open", "stop", "done"]
-        else
-            if item["streamName"]!="XStream" then
-                ["start", ">xstream"]
+        if item["streamName"]=="XStream" then
+            if isRunning then
+                ["open", "stop", "done"]
             else
-                ["start"]
+                ["start", "done"]
             end
-
+        else
+            if isRunning then
+                ["open", "stop", "done"]
+            else
+                ["open", "start", "done", ">xstream"]
+            end
         end
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObject(streamName, item)
     def self.streamItemToStreamCatalystObject(streamName, item)
+        genericContentsItemOrNull = lambda{|genericContentFilename|
+            filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
+            return nil if filepath.nil?
+            JSON.parse(IO.read(filepath)) 
+        }
         isRunning = !item["run-status"].nil?
         object = {}
         object["uuid"] = item["uuid"][0,8]      
@@ -166,7 +205,7 @@ class NSXStreamsUtils
         object["is-running"] = isRunning
         object["data"] = {}
         object["data"]["stream-item"] = item
-        object["data"]["generic-contents-item"] = JSON.parse(IO.read(NSXGenericContents::resolveFilenameToFilepathOrNull(item["generic-content-filename"]))) 
+        object["data"]["generic-contents-item"] = genericContentsItemOrNull.call(item["generic-content-filename"]) 
         object
     end
 
@@ -186,9 +225,8 @@ class NSXStreamsUtils
     def self.destroyItem(filename)
         filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
         if filepath.nil? then
-            puts "Error 316492ca: unknown file" 
+            puts "Error 316492ca: unknown file (#{filename})" 
             LucilleCore::pressEnterToContinue()
-            return
         end
         FileUtils.rm(filepath)
     end

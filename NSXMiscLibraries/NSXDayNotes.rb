@@ -18,7 +18,7 @@ class NSXDayNotes
 		filecontents = IO.read(DAYNOTES_FILEPATH)
 		filecontents = filecontents.lines.drop(1).join()
 		return if !filecontents.include?("@after-today") # looks like we went one line too many
-		File.open(DAYNOTES_FILEPATH, "w"){|f| f.puts(filecontents) }
+		File.open(DAYNOTES_FILEPATH, "w"){|f| f.puts(filecontents.strip) }
 	end
 
 end

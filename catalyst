@@ -206,6 +206,66 @@ loop {
         puts "Nothing to do for the moment (^_^)"
     end
 
+    # -----------------------------------------------------------------------------------
+    # Special Processing
+
+    if focusobject and focusobject["announce"].include?("noreply@md.getsentry.com") then
+        # This is a "[Stream: Right-Now] email"
+        NSXGeneralCommandHandler::processCommand(focusobject, "done")
+        next
+    end
+
+    if focusobject and focusobject["announce"].include?("notifications@github.com")
+        stringOrFirst = lambda{|stuff|
+            if stuff.class.to_s == "String" then
+                stuff
+            else
+                stuff.first
+            end
+        }
+        putsAndPauseOrNothing = lambda {|contents|
+            return false if contents.include?("Seen on [PROD]")
+            return false if contents.include?("PRbuilds results")
+            puts "-- begin -----------------------------------------------"
+            puts contents
+            puts "--- end ------------------------------------------------"
+            LucilleCore::pressEnterToContinue()
+            true
+        }
+        emailFilename = focusobject["data"]["generic-contents-item"]["email-filename"]
+        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
+        somethingWasDisplayed = false
+        mail = Mail.read(filepath)
+        if mail.multipart? then
+            mail.parts.each{|part|
+                if stringOrFirst.call(part.content_type).start_with?("text/plain") then
+                    somethingWasDisplayed = putsAndPauseOrNothing.call(part.decoded) or somethingWasDisplayed
+                end
+            }
+        else
+            somethingWasDisplayed = putsAndPauseOrNothing.call(mail.body.decoded) or somethingWasDisplayed
+        end
+        if somethingWasDisplayed then
+            print "Type 'open' to open the email or nothing to discard: "
+            answer = STDIN.gets().strip
+            if answer == "open" then
+                NSXGeneralCommandHandler::processCommand(focusobject, "open")
+            end
+            if answer == "" then
+                NSXGeneralCommandHandler::processCommand(focusobject, "done")
+            end
+        else
+            NSXGeneralCommandHandler::processCommand(focusobject, "done")
+        end
+        next
+    end
+
+    if focusobject and focusobject["announce"].include?("noreply@github.com")
+
+    end
+
+    # -----------------------------------------------------------------------------------
+
     puts ""
     print "--> "
     command = STDIN.gets().strip

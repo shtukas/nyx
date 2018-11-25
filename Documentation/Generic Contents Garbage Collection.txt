@@ -1,0 +1,2 @@
+
+For the moment Generic Contents items are only referred from Stream items.

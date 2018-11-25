@@ -266,7 +266,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(objectuuid)
     def self.shouldDisplayRelativelyToDoNotShowUntilDateTime(objectuuid)
-        (NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid) || NSXMiscUtils::currentDayTime()) <= NSXMiscUtils::currentDayTime()
+        (NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid) || NSXMiscUtils::currentDayTime()) <= NSXMiscUtils::currentDayTime()
     end
 
     # NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object)
