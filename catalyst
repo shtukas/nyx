@@ -283,6 +283,10 @@ loop {
         command = focusobject["default-expression"]
     end
 
+    if command == ',,' then
+        command = '+1 hour'
+    end
+
     if command == ';;' then
         command = 'open; done'
     end

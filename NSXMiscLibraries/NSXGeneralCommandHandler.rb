@@ -29,7 +29,7 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::specialObjectCommandsAsString()
     def self.specialObjectCommandsAsString()
-        "Special Object Commands : .. ;; +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
+        "Special Object Commands : .. ,, ;; +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
     end
 
     # NSXGeneralCommandHandler::processCommand(object, command)
