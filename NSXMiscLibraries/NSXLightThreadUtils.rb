@@ -13,108 +13,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREADS_SETUUID = "d85fe272-b37a-4afa-9815-afa2cf5041ff"
 
-class NSXLightThreadMetrics
-
-    # NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThreadUUID, n)
-    def self.lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThreadUUID, n)
-        NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
-            .select{|item| (Time.new.to_i-item["unixtime"])<=(86400*n) }
-            .map{|item| item["timespan"] }.inject(0, :+)
-    end
-
-    # NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-    def self.lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-        doneTime = NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread["uuid"], n)
-        if lightThread["status"][0] == "running-since" then
-            doneTime = doneTime + (Time.new.to_i - lightThread["status"][1])
-        end
-        doneTime = doneTime + simulationTimeInSeconds
-        doneTime
-    end
-
-    # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-    def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-        items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
-        return 0 if ( (simulationTimeInSeconds==0) and (items.size==0) and (lightThread["status"][0]=="paused") )
-        return 101 if NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
-        dailyCommitmentInHours = lightThread["priorityXp"][1]
-        timeDoneExpectationInHours = n * dailyCommitmentInHours
-        timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/3600
-        100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
-    end
-
-    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
-    def self.lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
-        if lightThread["priorityXp"][0]=="interruption-now" then
-            return [0.8, 0.1]
-        end
-        if lightThread["priorityXp"][0]=="must-be-all-done-today" then
-            return [0.6, 0.2]
-        end
-        if lightThread["priorityXp"][0]=="stream-important" then
-            return [0.5, 0.1]
-        end
-        if lightThread["priorityXp"][0]=="stream-luxury" then
-            return [0.4, 0.1]
-        end
-        [0.8, 0.1]
-    end
-
-    # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-    def self.lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-        return 2 if ( simulationTimeInSeconds==0 and lightThread["status"][0] == "running-since" )
-        livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds)
-        return 0 if livePercentage >= 100
-        baseMetric, expansion = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
-        metric = baseMetric + expansion*Math.exp(-livePercentage.to_f/100) # at 100% we are at baseMetric + expansion*Math.exp(-1)
-        metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
-    end
-
-    # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
-    def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
-        return 0 if lightThread["priorityXp"][0] == "interruption-now"
-        return 0 if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
-        0.9 * (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx, simulationTimeInSeconds) }.min
-    end
-
-    # NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
-    def self.lightThread2StreamItemBaseMetric(lightThread)
-        return 0.85 if lightThread["priorityXp"][0] == "interruption-now"
-        return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
-        (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx) }.min
-    end
-
-end
-
-class NSXLightThreadsStreamsInterface
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
-    def self.lightThreadToItsStreamCatalystObjects(lightThread)
-        baseMetric = NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
-        items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-        items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items
-            .first(3)
-            .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, baseMetric) }
-    end
-
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-    def self.lightThreadToItsStreamItemsOrdered(lightThread)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
-            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
-            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
-    end
-
-    # NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-    def self.filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items.select{|item|
-            objectuuid = item["uuid"][0,8]
-            NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
-        }
-    end
-end
-
 class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreads(): Array[LightThread]
@@ -303,8 +201,15 @@ class NSXLightThreadUtils
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "show time log", "time:", "time commitment:", "destroy"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:", "destroy"])
             break if operation.nil?
+            if operation=="show elements" then
+                NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+                    .each{|streamItem|
+                        puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, streamItem)
+                    }
+                LucilleCore::pressEnterToContinue()
+            end
             if operation=="start" then
                 NSXLightThreadUtils::startLightThread(lightThread["uuid"])
                 signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
@@ -322,7 +227,7 @@ class NSXLightThreadUtils
                 signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
-            if operation=="time:" then
+            if operation=="add time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
                 signal = ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
@@ -374,3 +279,107 @@ class NSXLightThreadUtils
 
 end
 
+
+class NSXLightThreadMetrics
+
+    # NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThreadUUID, n)
+    def self.lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThreadUUID, n)
+        NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
+            .select{|item| (Time.new.to_i-item["unixtime"])<=(86400*n) }
+            .map{|item| item["timespan"] }.inject(0, :+)
+    end
+
+    # NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+    def self.lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+        doneTime = NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThread["uuid"], n)
+        if lightThread["status"][0] == "running-since" then
+            doneTime = doneTime + (Time.new.to_i - lightThread["status"][1])
+        end
+        doneTime = doneTime + simulationTimeInSeconds
+        doneTime
+    end
+
+    # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+    def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+        items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
+        return 0 if ( (simulationTimeInSeconds==0) and (items.size==0) and (lightThread["status"][0]=="paused") )
+        return 101 if NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
+        dailyCommitmentInHours = lightThread["priorityXp"][1]
+        timeDoneExpectationInHours = n * dailyCommitmentInHours
+        timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/3600
+        100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
+    end
+
+    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
+    def self.lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
+        if lightThread["priorityXp"][0]=="interruption-now" then
+            return [0.8, 0.1]
+        end
+        if lightThread["priorityXp"][0]=="must-be-all-done-today" then
+            return [0.6, 0.2]
+        end
+        if lightThread["priorityXp"][0]=="stream-important" then
+            return [0.5, 0.1]
+        end
+        if lightThread["priorityXp"][0]=="stream-luxury" then
+            return [0.4, 0.1]
+        end
+        [0.8, 0.1]
+    end
+
+    # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+    def self.lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+        return 2 if ( simulationTimeInSeconds==0 and lightThread["status"][0] == "running-since" )
+        livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds)
+        return 0 if livePercentage >= 100
+        baseMetric, expansion = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
+        metric = baseMetric + expansion*Math.exp(-livePercentage.to_f/100) # at 100% we are at baseMetric + expansion*Math.exp(-1)
+        metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+    end
+
+    # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
+    def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
+        return 0 if lightThread["priorityXp"][0] == "interruption-now"
+        return 0 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
+        0.9 * (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx, simulationTimeInSeconds) }.min
+    end
+
+    # NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
+    def self.lightThread2StreamItemBaseMetric(lightThread)
+        return 0.85 if lightThread["priorityXp"][0] == "interruption-now"
+        return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
+        (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx) }.min
+    end
+
+end
+
+class NSXLightThreadsStreamsInterface
+
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
+    def self.lightThreadToItsStreamCatalystObjects(lightThread)
+        baseMetric = NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
+        items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+        items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+        items
+            .first(3)
+            .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, baseMetric) }
+    end
+
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+    def self.lightThreadToItsStreamItemsOrdered(lightThread)
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
+            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
+    end
+
+    # NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+    def self.filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+        items.select{|item|
+            objectuuid = item["uuid"][0,8]
+            NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
+        }
+    end
+
+end

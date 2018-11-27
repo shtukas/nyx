@@ -24,6 +24,9 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 class NSXStreamsUtils
 
+    # -----------------------------------------------------------------
+    # Utils
+
     # NSXStreamsUtils::timeStringL22()
     def self.timeStringL22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
@@ -39,6 +42,9 @@ class NSXStreamsUtils
         filepath = "#{folder2}/#{filename}"
         filepath
     end
+
+    # -----------------------------------------------------------------
+    # IO
 
     # NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
     def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
@@ -64,6 +70,18 @@ class NSXStreamsUtils
         end
         filepath
     end
+
+    # NSXStreamsUtils::sendItemToDisk(item)
+    def self.sendItemToDisk(item)
+        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(item["filename"])
+        if filepath.nil? then
+            filepath = NSXStreamsUtils::newItemFilenameToFilepath(item["filename"])
+        end
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # -----------------------------------------------------------------
+    # Data Processing
 
     # NSXStreamsUtils::makeItem(streamUUID, genericContentFilename, ordinal)
     def self.makeItem(streamUUID, genericContentFilename, ordinal)
@@ -94,15 +112,6 @@ class NSXStreamsUtils
     def self.issueUsingGenericContentsItem(streamUUID, genericItem)
         genericContentFilename = genericItem["filename"]
         NSXStreamsUtils::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
-    end
-
-    # NSXStreamsUtils::sendItemToDisk(item)
-    def self.sendItemToDisk(item)
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(item["filename"])
-        if filepath.nil? then
-            filepath = NSXStreamsUtils::newItemFilenameToFilepath(item["filename"])
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # NSXStreamsUtils::allStreamsItemsEnumerator()
@@ -139,6 +148,9 @@ class NSXStreamsUtils
         items.map{|item| item["ordinal"] }.max + 1
     end
 
+    # -----------------------------------------------------------------
+    # Catalyst Objects and Commands
+
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
     def self.streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         genericContentFilename = item["generic-content-filename"]
@@ -147,11 +159,11 @@ class NSXStreamsUtils
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
         doNotShowString = 
             if datetime then
-                "[DoNotShowUntil: #{datetime}] "
+                "[DoNotShowUntil: #{datetime}]"
             else
                 ""
             end
-        "#{doNotShowString}[LightThreadStreamItem: #{lightThread["description"]}] #{genericContentsAnnounce}"
+        "[LightThreadStreamItem: #{lightThread["description"]}] #{genericContentsAnnounce} #{doNotShowString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, baseMetric)
@@ -217,17 +229,6 @@ class NSXStreamsUtils
         NSXMiscUtils::moveLocationToCatalystBin(filepath)
     end
 
-    # NSXStreamsUtils::pickUpXStreamDropOff()
-    def self.pickUpXStreamDropOff()
-        Dir.entries("/Users/pascal/Desktop/XStream-DropOff")
-        .select{|filename| filename[0,1]!="." }
-        .map{|filename| "/Users/pascal/Desktop/XStream-DropOff/#{filename}" }
-        .map{|location|
-            genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
-            NSXStreamsUtils::issueUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"), genericItem)
-        }
-    end
-
     # NSXStreamsUtils::startStreamItem(streamItemUUID)
     def self.startStreamItem(streamItemUUID)
         item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
@@ -268,6 +269,23 @@ class NSXStreamsUtils
             NSXStreamsUtils::sendItemToDisk(item)
         end
     end
+
+    # -----------------------------------------------------------------
+    # User Interface    
+
+    # NSXStreamsUtils::pickUpXStreamDropOff()
+    def self.pickUpXStreamDropOff()
+        Dir.entries("/Users/pascal/Desktop/XStream-DropOff")
+        .select{|filename| filename[0,1]!="." }
+        .map{|filename| "/Users/pascal/Desktop/XStream-DropOff/#{filename}" }
+        .map{|location|
+            genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
+            NSXStreamsUtils::issueUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"), genericItem)
+        }
+    end
+
+    # -----------------------------------------------------------------
+    # Special Circumstances
 
     # NSXStreamsUtils::newPosition5OrdinalForXStreamItem(streamItemUUID)
     def self.newPosition5OrdinalForXStreamItem(streamItemUUID)
