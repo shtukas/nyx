@@ -88,17 +88,17 @@ class NSXGenericContents
 
     # NSXGenericContents::resolveFoldernameToFolderpathOrNull(foldername)
     def self.resolveFoldernameToFolderpathOrNull(foldername)
-        filepath = KeyValueStore::getOrNull(nil, "57c11b5f-820f-4648-8d03-ba023390ee93:#{filename}")
-        if filepath then
-            if File.exists?(filepath) then
-                return filepath
+        folderpath = KeyValueStore::getOrNull(nil, "57c11b5f-820f-4648-8d03-ba023390ee93:#{foldername}")
+        if folderpath then
+            if File.exists?(folderpath) then
+                return folderpath
             end
         end
-        filepath = NSXGenericContents::resolveFoldernameToFolderpathOrNullUseTheForce(filename)
-        if filepath then
-            KeyValueStore::set(nil, "57c11b5f-820f-4648-8d03-ba023390ee93:#{filename}", filepath)
+        folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNullUseTheForce(foldername)
+        if folderpath then
+            KeyValueStore::set(nil, "57c11b5f-820f-4648-8d03-ba023390ee93:#{foldername}", folderpath)
         end
-        filepath
+        folderpath
     end
 
     # NSXGenericContents::makeBaseItem()
