@@ -36,6 +36,12 @@ class NSXGeneralCommandHandler
 
         # no object needed
 
+        if command == 'help' then
+            NSXGeneralCommandHandler::putshelp()
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if command == "+" then
             NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
             return
@@ -49,9 +55,8 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'help' then
-            NSXGeneralCommandHandler::putshelp()
-            LucilleCore::pressEnterToContinue()
+        if command == 'reload' then
+            NSXCatalystObjectsOperator::reloadObjectsFromAgents()
             return
         end
 
