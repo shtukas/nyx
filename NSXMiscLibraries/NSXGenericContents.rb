@@ -238,6 +238,7 @@ class NSXGenericContents
         if item["type"]=="text" then
             filepath = "/Users/pascal/Desktop/#{NSXGenericContents::timeStringL22()}.txt"
             File.open(filepath, "w"){|f| f.puts(item["text"]) }
+            system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
             FileUtils.rm(filepath)
             return
