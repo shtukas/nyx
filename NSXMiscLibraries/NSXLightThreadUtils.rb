@@ -92,14 +92,26 @@ class NSXLightThreadsStreamsInterface
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
     def self.lightThreadToItsStreamCatalystObjects(lightThread)
         baseMetric = NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
-            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
-            .select{|item|
-                objectuuid = item["uuid"][0,8]
-                NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?                      
-            }
+        items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+        items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+        items
             .first(3)
             .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, baseMetric) }
+    end
+
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+    def self.lightThreadToItsStreamItemsOrdered(lightThread)
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
+            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
+    end
+
+    # NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+    def self.filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+        items.select{|item|
+            objectuuid = item["uuid"][0,8]
+            NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
+        }
     end
 end
 
@@ -287,7 +299,10 @@ class NSXLightThreadUtils
             puts "     streamuuid: #{lightThread["streamuuid"]}"
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
-            puts "     #{NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)}"
+            puts "     Time to 100%: #{NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)}"
+            puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
+            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)}"
+            puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "show time log", "time:", "time commitment:", "destroy"])
             break if operation.nil?
             if operation=="start" then
