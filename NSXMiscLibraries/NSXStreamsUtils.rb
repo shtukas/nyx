@@ -80,6 +80,33 @@ class NSXStreamsUtils
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
+    # NSXStreamsUtils::allStreamsItemsEnumerator()
+    def self.allStreamsItemsEnumerator()
+        Enumerator.new do |items|
+            Find.find("/Galaxy/DataBank/Catalyst/Streams") do |path|
+                next if !File.file?(path)
+                next if !File.basename(path).include?('.StreamItem.json')
+                items << JSON.parse(IO.read(path))
+            end
+        end
+    end
+
+    # NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+    def self.getStreamItemByUUIDOrNull(streamItemUUID)
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+        .select{|item|
+            item["uuid"] == streamItemUUID
+        }
+        .first
+    end
+
+    # NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
+    def self.getStreamItemsOrdered(streamUUID)
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+            .select{|item| item["streamuuid"]==streamUUID }
+            .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
+    end
+
     # -----------------------------------------------------------------
     # Data Processing
 
@@ -112,33 +139,6 @@ class NSXStreamsUtils
     def self.issueUsingGenericContentsItem(streamUUID, genericItem)
         genericContentFilename = genericItem["filename"]
         NSXStreamsUtils::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
-    end
-
-    # NSXStreamsUtils::allStreamsItemsEnumerator()
-    def self.allStreamsItemsEnumerator()
-        Enumerator.new do |items|
-            Find.find("/Galaxy/DataBank/Catalyst/Streams") do |path|
-                next if !File.file?(path)
-                next if !File.basename(path).include?('.StreamItem.json')
-                items << JSON.parse(IO.read(path))
-            end
-        end
-    end
-
-    # NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
-    def self.getStreamItemByUUIDOrNull(streamItemUUID)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
-        .select{|item|
-            item["uuid"] == streamItemUUID
-        }
-        .first
-    end
-
-    # NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
-    def self.getStreamItemsOrdered(streamUUID)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
-            .select{|item| item["streamuuid"]==streamUUID }
-            .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
     end
 
     # NSXStreamsUtils::getNextOrdinalForStream(streamUUID)

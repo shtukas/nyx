@@ -156,6 +156,7 @@ end
 
 # -------------------------------------------------------------------------
 
+NSXStreamsUtils::pickUpXStreamDropOff()
 NSXCatalystObjectsOperator::reloadObjectsFromAgents()
 
 # -------------------------------------------------------------------------
@@ -212,6 +213,15 @@ loop {
 
     # -----------------------------------------------------------------------------------
     # Special Processing
+
+    if focusobject and focusobject["announce"].include?("[LightThreadStreamItem: Interruption] location") then
+        streamItemUUID = focusobject["data"]["stream-item"]["uuid"]
+        streamItem = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        streamItem["streamuuid"] = "46be01f69bb3a10382ea547da04f8739"
+        NSXStreamsUtils::sendItemToDisk(streamItem)
+        NSXCatalystObjectsOperator::processAgentProcessorSignal(["remove", focusobject["uuid"]])
+        next
+    end
 
     if focusobject and focusobject["announce"].include?("noreply@md.getsentry.com") then
         # This is a "[Stream: Right-Now] email"
