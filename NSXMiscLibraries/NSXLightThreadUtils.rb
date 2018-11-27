@@ -13,7 +13,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREADS_SETUUID = "d85fe272-b37a-4afa-9815-afa2cf5041ff"
 
-
 class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThreadUUID, n)
@@ -37,15 +36,28 @@ class NSXLightThreadMetrics
     def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
         items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
         return 0 if ( (simulationTimeInSeconds==0) and (items.size==0) and (lightThread["status"][0]=="paused") )
-        timeDoneExpectationInHours = n * lightThread["commitment"] # The commitment is daily
+        return 101 if NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
+        dailyCommitmentInHours = lightThread["priorityXp"][1]
+        timeDoneExpectationInHours = n * dailyCommitmentInHours
         timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/3600
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
-    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
-    def self.lightThreadToMetricParameters(lightThread)
-        map = [ [0.6, 0,2] , [0.4, 0,2] , [0.2, 0.2] ] # baseMetric, expansion
-        map[lightThread["priority"]-1]
+    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
+    def self.lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
+        if lightThread["priorityXp"][0]=="interruption-now" then
+            return [0.8, 0.1]
+        end
+        if lightThread["priorityXp"][0]=="must-be-all-done-today" then
+            return [0.6, 0.2]
+        end
+        if lightThread["priorityXp"][0]=="stream-important" then
+            return [0.5, 0.1]
+        end
+        if lightThread["priorityXp"][0]=="stream-luxury" then
+            return [0.4, 0.1]
+        end
+        [0.8, 0.1]
     end
 
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
@@ -60,10 +72,35 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
+        return 0 if lightThread["priorityXp"][0] == "interruption-now"
+        return 0 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
-        (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx, simulationTimeInSeconds) }.min
+        0.9 * (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx, simulationTimeInSeconds) }.min
     end
 
+    # NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
+    def self.lightThread2StreamItemBaseMetric(lightThread)
+        return 0.85 if lightThread["priorityXp"][0] == "interruption-now"
+        return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
+        (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx) }.min
+    end
+
+end
+
+class NSXLightThreadsStreamsInterface
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
+    def self.lightThreadToItsStreamCatalystObjects(lightThread)
+        baseMetric = NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
+            .select{|item|
+                objectuuid = item["uuid"][0,8]
+                NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?                      
+            }
+            .first(3)
+            .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, baseMetric) }
+    end
 end
 
 class NSXLightThreadUtils
@@ -78,16 +115,16 @@ class NSXLightThreadUtils
         Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThread)
     end
 
-    # NSXLightThreadUtils::makeNewLightThread(description, commitment, priority)
-    def self.makeNewLightThread(description, commitment, priority)
+    # NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
+    def self.makeNewLightThread(description, priorityXp)
         uuid = SecureRandom.hex(4)
         lightThread = {}
         lightThread["uuid"] = uuid
         lightThread["unixtime"] = Time.new.to_i
         lightThread["description"] = description
-        lightThread["commitment"] = commitment
-        lightThread["priority"] = priority
+        lightThread["priorityXp"] = priorityXp
         lightThread["status"] = ["paused"]
+        lightThread["streamuuid"] = SecureRandom.hex
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, 0)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         lightThread
@@ -98,32 +135,16 @@ class NSXLightThreadUtils
         Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThreadUUID)
     end
 
+    # NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
+    def self.trueIfLightThreadIsMustBeGone(lightThread)
+        return true if lightThread["priorityXp"][0]=="interruption-now"
+        return true if lightThread["priorityXp"][0]=="must-be-all-done-today"
+        false
+    end
+
     # NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
     def self.trueIfLightThreadIsRunning(lightThread)
         lightThread["status"][0] == "running-since"
-    end
-
-    # NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
-    def self.lightThreadToCatalystObject(lightThread)
-        # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
-
-        if lightThread["status"][0] == "running-since" and NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) >= 100 then
-            NSXMiscUtils::issueScreenNotification("Catalyst TimeProton", "#{lightThread["description"].gsub("'","")} is done")
-        end
-
-        uuid = lightThread["uuid"]
-        description = lightThread["description"]
-        object              = {}
-        object["uuid"]      = uuid # the catalyst object has the same uuid as the lightThread
-        object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
-        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
-        object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
-        object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
-        object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
-        object["item-data"] = {}
-        object["item-data"]["lightThread"] = lightThread
-        object 
     end
 
     # NSXLightThreadUtils::startLightThread(lightThreadUUID)
@@ -163,15 +184,11 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
     def self.interactivelySelectLightThreadOrNull()
         lightThreads = NSXLightThreadUtils::lightThreads()
-            .sort{|lt1,lt2|
-                NSXLightThreadMetrics::lightThread2Metric(lt1) <=> NSXLightThreadMetrics::lightThread2Metric(lt2)
-            }
-            .reverse
         lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })  
         lightThread
     end
 
-    # NSXLightThreadUtils::issueLightThreadTimeRecordItem(unixtime, timespanInSeconds)
+    # NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThreadUUID, unixtime, timespanInSeconds)
     def self.issueLightThreadTimeRecordItem(lightThreadUUID, unixtime, timespanInSeconds)
         setuuid = "#{lightThreadUUID}:DFB99806"
         object = {
@@ -189,8 +206,10 @@ class NSXLightThreadUtils
             .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
-    # NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread)
-    def self.lightThreadTimeTo100PercentInSeconds(lightThread)
+    # NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
+    def self.lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
+        return nil if lightThread["priorityXp"][0] == "interruption-now"
+        return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
         enumerator = NSXMiscUtils::integerEnumerator()
         seconds = 0
         loop {
@@ -200,13 +219,50 @@ class NSXLightThreadUtils
         seconds
     end
 
+    # NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
+    def self.lightThreadToCatalystObject(lightThread)
+        # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
+
+        if lightThread["status"][0] == "running-since" and NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) >= 100 then
+            NSXMiscUtils::issueScreenNotification("Catalyst TimeProton", "#{lightThread["description"].gsub("'","")} is done")
+        end
+
+        uuid = lightThread["uuid"]
+        description = lightThread["description"]
+        object              = {}
+        object["uuid"]      = uuid # the catalyst object has the same uuid as the lightThread
+        object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+        object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
+        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
+        object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
+        object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
+        object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
+        object["item-data"] = {}
+        object["item-data"]["lightThread"] = lightThread
+        object 
+    end
+
     # -----------------------------------------------
     # .toString
 
+    # NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)
+    def self.lightThreadTimeTo100PercentString(lightThread)
+        return "" if ( lightThread["priorityXp"][0]=="interruption-now" or lightThread["priorityXp"][0]=="must-be-all-done-today" )
+        xtime = NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) 
+        if xtime then
+            "time to 100%: #{(xtime.to_f/3600).round(2)} hours"
+        else
+            ""
+        end 
+    end
+
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        timeTo100Percent = NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread).to_f/3600
-        "lightThread: #{lightThread["description"]} (time to 100%: #{timeTo100Percent.round(2)} hours) (priority: #{lightThread["priority"]})"
+        timeTo100PercentString = NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)
+        if timeTo100PercentString.size>0 then
+            timeTo100PercentString = "(#{timeTo100PercentString}) "
+        end
+        "lightThread: #{lightThread["description"]} (#{lightThread["priorityXp"].join(", ")}) #{timeTo100PercentString}"
     end
 
     # -----------------------------------------------
@@ -227,19 +283,12 @@ class NSXLightThreadUtils
             puts "LightThread"
             puts "     description: #{lightThread["description"]}"
             puts "     uuid: #{lightThread["uuid"]}"
-            puts "     daily commitment: #{lightThread["commitment"]}"
+            puts "     priorityXp: #{lightThread["priorityXp"].join(", ")}"
+            puts "     streamuuid: #{lightThread["streamuuid"]}"
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
-            puts "     Time to 100%: #{(NSXLightThreadUtils::lightThreadTimeTo100PercentInSeconds(lightThread).to_f/3600).round(2)} hours"
-            puts "     NSXDoNotShowUntilDatetime: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"])}"
-            puts "Items:"
-            NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
-                .each{|uuid|
-                    object = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"]==uuid }.first
-                    next if object.nil?
-                    puts "    "+NSXMiscUtils::objectToString(object)
-                }
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "show time log", "time:", "show items", "remove items", "time commitment:", "destroy"])
+            puts "     #{NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)}"
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["start", "stop", "show time log", "time:", "time commitment:", "destroy"])
             break if operation.nil?
             if operation=="start" then
                 NSXLightThreadUtils::startLightThread(lightThread["uuid"])
@@ -265,26 +314,17 @@ class NSXLightThreadUtils
                 NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             end
             if operation == "show items" then
-                loop {
-                    lightThreadCatalystObjectsUUIDs = NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
-                    objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
-                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
-                    break if selectedobject.nil?
-                    NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(selectedobject)
-                }
+                puts "To be implemented"
+                LucilleCore::pressEnterToContinue()                
             end
-            if operation == "remove items" then
-                loop {
-                    lightThreadCatalystObjectsUUIDs = NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThread["uuid"])
-                    objects = NSXCatalystObjectsOperator::getObjects().select{ |object| lightThreadCatalystObjectsUUIDs.include?(object["uuid"]) }
-                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{ |object| NSXMiscUtils::objectToString(object) })
-                    break if selectedobject.nil?
-                    NSXMiscUtils::destroyLT1526Claim(selectedobject["uuid"])
-                }
-            end
-            if operation=="time commitment:" then
-                commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day: ").to_f
-                lightThread["commitment"] = commitment
+            if operation=="issue new LightThreadPriorityXP:" then
+                priorityXp = NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
+                if priorityXp.nil? then
+                    puts "You have not provided a priority. Aborting."
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                lightThread["priorityXp"] = priorityXp
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
             if operation=="destroy" then
@@ -306,4 +346,16 @@ class NSXLightThreadUtils
         }
     end
 
+    # NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
+    def self.lightThreadPriorityXPPickerOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("thread type:", ["interruption-now", "must-be-all-done-today", "stream-important", "stream-luxury"])
+        return nil if type.nil?
+        if (type == "interruption-now") or (type == "must-be-all-done-today") then
+            return [type]
+        end
+        commitmentInHours = LucilleCore::askQuestionAnswerAsString("Daily commitment: ").to_f
+        [type, commitmentInHours]
+    end
+
 end
+

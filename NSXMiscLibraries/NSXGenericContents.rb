@@ -256,5 +256,43 @@ class NSXGenericContents
         LucilleCore::pressEnterToContinue()
     end
 
+    # NSXGenericContents::destroyItem(filename)
+    def self.destroyItem(filename)
+        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
+
+        if filepath.nil? then
+            puts "Error f818f708: unknown file (#{filename})" 
+            LucilleCore::pressEnterToContinue()
+        end
+
+        item = JSON.parse(IO.read(filepath))
+
+        if item["type"]=="url" then
+            # nothing
+        end
+
+        if item["type"]=="text" then
+            # nothing
+        end
+
+        if item["type"]=="email" then
+            emailfilename = item["email-filename"]
+            emailfilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailfilename)
+            if emailfilepath then
+                NSXMiscUtils::moveLocationToCatalystBin(emailfilepath)
+            end
+        end
+
+        if item["type"]=="location" then
+            locationfoldername = item["parent-foldername"]
+            locationfolderpath = NSXGenericContents::resolveFilenameToFilepathOrNull(locationfoldername)
+            if locationfolderpath then
+                NSXMiscUtils::moveLocationToCatalystBin(locationfolderpath)
+            end
+        end
+
+        NSXMiscUtils::moveLocationToCatalystBin(filepath)
+    end
+
 end
 

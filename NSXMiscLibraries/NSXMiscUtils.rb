@@ -3,7 +3,6 @@
 # encoding: UTF-8
 
 LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
-LIGHT_THREADS_LT1526_CLAIMS_SETUUID  = "05183ee7-3e44-4363-a6c4-8cab4c0e46bd"
 
 class NSXMiscUtils
  
@@ -213,21 +212,12 @@ class NSXMiscUtils
         [uuid, schedule]
     end
 
-    # NSXMiscUtils::InteractiveLightThreadChoiceAndMakeLT1526Claim(objectuuid)
-    def self.InteractiveLightThreadChoiceAndMakeLT1526Claim(objectuuid)
-        # I need to make sure that I am not adding a LightThread to another lightThread.
-        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-        return nil if lightThread.nil?
-        NSXMiscUtils::makeLT1526Claim(objectuuid, lightThread["uuid"])
-        lightThread
-    end
-
     def self.waveInsertNewItemInteractive(description)
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid, schedule = NSXMiscUtils::buildCatalystObjectFromDescription(description)
         NSXAgentWave::writeScheduleToDisk(uuid, schedule)    
         loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code", ">thread"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code"])
             break if option.nil?
             if option == "schedule" then
                 schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
@@ -240,12 +230,6 @@ class NSXMiscUtils
                         puts "Won't show until: #{datetime}"
                         NSXDoNotShowUntilDatetime::setDatetime(uuid, datetime)
                     end
-                end
-            end
-            if option == ">thread" then
-                lightThread = NSXMiscUtils::InteractiveLightThreadChoiceAndMakeLT1526Claim(uuid)
-                if lightThread then
-                    puts "Inserted in #{lightThread["description"]}"
                 end
             end
         }
@@ -315,50 +299,6 @@ class NSXMiscUtils
         Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, secondaryObjectUUID)
     end
 
-    # NSXMiscUtils::makeLT1526Claim(secondaryObjectUUID, lightThreadUUID)
-    def self.makeLT1526Claim(secondaryObjectUUID, lightThreadUUID)
-        object = {
-            "uuid" => secondaryObjectUUID,
-            "light-thread-uuid" => lightThreadUUID
-        }
-        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID, object)
-    end
-
-    # NSXMiscUtils::destroyLT1526Claim(secondaryObjectUUID)
-    def self.destroyLT1526Claim(secondaryObjectUUID)
-        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID, secondaryObjectUUID)
-    end
-
-    # NSXMiscUtils::getLT1526ClaimOrNull(secondaryObjectUUID)
-    def self.getLT1526ClaimOrNull(secondaryObjectUUID)
-        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID, secondaryObjectUUID)
-    end
-
-    # NSXMiscUtils::getLT1526Claims()
-    def self.getLT1526Claims()
-        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_LT1526_CLAIMS_SETUUID)
-    end
-
-    # NSXMiscUtils::getLT1526SecondaryObjectUUIDsForLightThread(lightThreadUUID)
-    def self.getLT1526SecondaryObjectUUIDsForLightThread(lightThreadUUID)
-        NSXMiscUtils::getLT1526Claims()
-            .select{|claim| claim["light-thread-uuid"]==lightThreadUUID }
-            .map{|claim| claim["uuid"] }
-    end
-
-    # NSXMiscUtils::lightThreadSecondaryObjectUUIDToLightThreadLivePercentageOrNull(secondaryObjectUUID)
-    def self.lightThreadSecondaryObjectUUIDToLightThreadLivePercentageOrNull(secondaryObjectUUID)
-        secondaryObjectRunStatus = NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
-        return nil if secondaryObjectRunStatus.nil?
-        claim = NSXMiscUtils::getLT1526ClaimOrNull(secondaryObjectUUID)
-        return nil if claim.nil?
-        lightThreadUUID = claim["light-thread-uuid"]
-        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
-        return nil if lightThread.nil?
-        timespanInSeconds = Time.new.to_i - secondaryObjectRunStatus["start-unixtime"]
-        NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1, timespanInSeconds)
-    end
-
     # NSXMiscUtils::issueScreenNotification(title, message)
     def self.issueScreenNotification(title, message)
         title = title.gsub("'","")
@@ -378,6 +318,14 @@ class NSXMiscUtils
                 integers << cursor
             end
         end
+    end
+
+    # NSXMiscUtils::moveLocationToCatalystBin(location)
+    def self.moveLocationToCatalystBin(location)
+        return if location.nil?
+        return if !File.exists?(location)
+        targetFolder = NSXMiscUtils::newBinArchivesFolderpath()
+        FileUtils.mv(location,targetFolder)
     end
 
 end

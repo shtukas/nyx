@@ -7,7 +7,7 @@ Streams are implemented as sequences of StreamItem
 
 StreamItem {
     "uuid"                     : UUID
-    "streamName"               : "Right-Now", "Today-Important", "XStream"
+    "streamuuid"               : UUID
     "filename"                 : String
     "generic-content-filename" : String
     "ordinal"                  : Float

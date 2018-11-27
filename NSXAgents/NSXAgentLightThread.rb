@@ -35,8 +35,13 @@ class NSXAgentLightThread
     end
 
     def self.getObjects()
-        NSXLightThreadUtils::lightThreads()
+        # This agent emits stream objects
+        objects1 = NSXLightThreadUtils::lightThreads()
             .map{|lightThread| NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) }
+        objects2 = NSXLightThreadUtils::lightThreads()
+            .map{|lightThread| NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) }
+            .flatten
+        objects1 + objects2
     end
 
     def self.processObjectAndCommand(object, command)

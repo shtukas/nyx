@@ -368,13 +368,12 @@ class NSXAgentWave
         WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
     end
 
+    # NSXAgentWave::archiveWaveItem(uuid)
     def self.archiveWaveItem(uuid)
         return if uuid.nil?
         folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
-        retrun if !File.exists?(folderpath)
-        targetFolder = NSXMiscUtils::newBinArchivesFolderpath()
-        FileUtils.mv("#{folderpath}",targetFolder)
+        NSXMiscUtils::moveLocationToCatalystBin(folderpath)
     end
 
     def self.commands(schedule)

@@ -18,18 +18,17 @@ class NSXGeneralCommandHandler
         puts "    ++          # delete the first line of DayNotes.txt"
         puts ""
         puts "    wave:       # create a new wave with that description (can use 'text')"
-        puts "    stream:     # create a new stream with that description (can use 'text')"
+        puts "    streaming:  # create a new stream with that description (can use 'text')"
         puts "    thread:     # create a new lightThread, details entered interactively"
         puts ""
         puts "    threads     # lightThreads dive"
-        puts "    streams     # Streams dive"
         puts "    email-sync  # run email sync"
         puts ""
     end
 
     # NSXGeneralCommandHandler::specialObjectCommandsAsString()
     def self.specialObjectCommandsAsString()
-        "Special Object Commands : .. ,, ;; +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose, >thread"
+        "Special Object Commands : .. ,, ;; +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose"
     end
 
     # NSXGeneralCommandHandler::processCommand(object, command)
@@ -67,7 +66,7 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'stream:' then
+        if command == 'streaming:' then
             description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
             description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             genericContentsItem = 
@@ -76,8 +75,9 @@ class NSXGeneralCommandHandler
                 else
                     NSXGenericContents::issueItemText(description)
                 end
-            streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", NSXStreamsUtils::StreamNames())
-            streamItem = NSXStreamsUtils::issueUsingGenericItem(streamName, genericContentsItem)
+            streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", ["Right-Now", "Today-Important", "XStream"])
+            streamUUID = NSXStreamsUtils::streamOldNameToStreamUUID(streamName)
+            streamItem = NSXStreamsUtils::issueUsingGenericContentsItem(streamUUID, genericContentsItem)
             puts JSON.pretty_generate(streamItem)
             LucilleCore::pressEnterToContinue()
             return
@@ -85,9 +85,13 @@ class NSXGeneralCommandHandler
 
         if command == 'thread:' then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            commitment = LucilleCore::askQuestionAnswerAsString("time commitment every day: ").to_f
-            priority = NSXLightThreadUtils::interactivelySelectALightThreadPriority()
-            lightThread = NSXLightThreadUtils::makeNewLightThread(description, commitment, priority)
+            priorityXp = NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
+            if priorityXp.nil? then
+                puts "You have not provided a priority. Aborting."
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
             puts JSON.pretty_generate(lightThread)
             LucilleCore::pressEnterToContinue()
             return
@@ -96,20 +100,7 @@ class NSXGeneralCommandHandler
         if command == 'threads' then
             NSXLightThreadUtils::lightThreadsDive()
             return
-        end
-
-        if command == 'streams' then
-            loop {
-                streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", NSXStreamsUtils::StreamNames())
-                break if streamName.nil?
-                items = NSXStreamsUtils::getStreamItemsOrdered(streamName)
-                items.each{|item|
-                    puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(streamName, item)
-                }
-                LucilleCore::pressEnterToContinue()
-            }
-            return
-        end        
+        end    
 
         if command == 'email-sync' then
             NSXMiscUtils::emailSync(true)
@@ -155,11 +146,6 @@ class NSXGeneralCommandHandler
                     NSXMiscUtils::unsetLightThreadSecondaryObjectRunningStatus(object["uuid"])
                 end
             end
-            return
-        end
-
-        if command == '>thread' then
-            NSXMiscUtils::InteractiveLightThreadChoiceAndMakeLT1526Claim(object["uuid"])
             return
         end
 

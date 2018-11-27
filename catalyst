@@ -216,6 +216,8 @@ loop {
     end
 
     if focusobject and focusobject["announce"].include?("notifications@github.com")
+        system("clear")
+        puts focusobject["announce"]
         stringOrFirst = lambda{|stuff|
             if stuff.class.to_s == "String" then
                 stuff
@@ -223,13 +225,15 @@ loop {
                 stuff.first
             end
         }
-        putsAndPauseOrNothing = lambda {|contents|
+        putsOrNot = lambda {|contents|
             return false if contents.include?("Seen on [PROD]")
             return false if contents.include?("PRbuilds results")
+            return false if (contents.include?("Merged") and contents.include?("into master."))
+            puts ""
             puts "-- begin -----------------------------------------------"
             puts contents
             puts "--- end ------------------------------------------------"
-            LucilleCore::pressEnterToContinue()
+            puts ""
             true
         }
         emailFilename = focusobject["data"]["generic-contents-item"]["email-filename"]
@@ -239,11 +243,11 @@ loop {
         if mail.multipart? then
             mail.parts.each{|part|
                 if stringOrFirst.call(part.content_type).start_with?("text/plain") then
-                    somethingWasDisplayed = putsAndPauseOrNothing.call(part.decoded) or somethingWasDisplayed
+                    somethingWasDisplayed = putsOrNot.call(part.decoded) or somethingWasDisplayed
                 end
             }
         else
-            somethingWasDisplayed = putsAndPauseOrNothing.call(mail.body.decoded) or somethingWasDisplayed
+            somethingWasDisplayed = putsOrNot.call(mail.body.decoded) or somethingWasDisplayed
         end
         if somethingWasDisplayed then
             print "Type 'open' to open the email or nothing to discard: "

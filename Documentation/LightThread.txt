@@ -2,14 +2,17 @@ LightThread {
     :uuid        : String
     :unixtime    : Integer
     :description : String
-    :commitment  : Float  # In hours per day.
-    :priority    : Int # values: 1, 2, 3
-                        1: must be done
-                        2: ideally done
-                        3: luxury
+    :priorityXp  : LightThreadPriorityXP
     :status      : LightThreadStatus
     :done        : Array[LightThreadTimeRecordItem]
+    :streamuuid  : String UUID
 }
+
+LightThreadPriorityXP
+    ["interruption-now"]
+    ["must-be-all-done-today"]
+    ["stream-important", <commitment in hours>]
+    ["stream-luxury", <commitment in hours>]
 
 LightThreadStatus
 	["paused"]
@@ -22,9 +25,3 @@ LightThreadTimeRecordItem: {
 }
 
 LightThreadTimeRecordItem(s) are stored in a Iphetra set of uuid "<LightThreadUUID>:DFB99806"
-
-LightThreadSecondaryObjectClaim, LT1526Claim = {
-    "uuid"              => secondaryObjectUUID,
-    "light-thread-uuid" => 
-}
-

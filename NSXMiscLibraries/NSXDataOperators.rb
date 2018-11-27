@@ -20,7 +20,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getObjectByUUIDOrNull(objectuuid)
     def self.getObjectByUUIDOrNull(objectuuid)
-        $CATALYST_OBJECTS_996CA6AB[objectuuid].clone
+        $CATALYST_OBJECTS_996CA6AB[objectuuid] ? $CATALYST_OBJECTS_996CA6AB[objectuuid].clone : nil
     end
 
     # NSXCatalystObjectsOperator::deleteObjectFromInMemory(objectuuid)
