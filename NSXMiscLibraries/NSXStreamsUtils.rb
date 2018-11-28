@@ -323,14 +323,18 @@ class NSXStreamsUtils
         NSXStreamsUtils::sendItemToDisk(item)
     end
 
-    # NSXStreamsUtils::streamOldNameToStreamUUID(streamName)
-    def self.streamOldNameToStreamUUID(streamName)
-        streamNameToStreamUUID = {
+    # NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping()
+    def self.oldStreamNamesToNewStreamUUIDMapping()
+        {
             "Right-Now"       => "29be9b439c40a9e8fcd34b7818ba4153",
             "Today-Important" => "03b79978bcf7a712953c5543a9df9047",
             "XStream"         => "354d0160d6151cb10015e6325ca5f26a"
         }
-        streamNameToStreamUUID[streamName]
+    end
+
+    # NSXStreamsUtils::streamOldNameToStreamUUID(streamName)
+    def self.streamOldNameToStreamUUID(streamName)
+        NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping()[streamName]
     end
 
 end

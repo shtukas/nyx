@@ -146,6 +146,13 @@ class NSXLightThreadUtils
         object 
     end
 
+    # NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread)
+    def self.lightThreadCanBeDestroyed(lightThread)
+        return false if NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count > 0
+        return false if NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping().values.include?(lightThread["streamuuid"])
+        true
+    end
+
     # -----------------------------------------------
     # .toString
 
@@ -195,7 +202,11 @@ class NSXLightThreadUtils
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:", "destroy"])
+            operations = ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:"]
+            if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
+                operations << "destroy"
+            end
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", operations)
             break if operation.nil?
             if operation=="show elements" then
                 NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
