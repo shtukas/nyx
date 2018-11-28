@@ -134,8 +134,8 @@ class NSXStreamsUtils
         NSXStreamsUtils::issueItem(streamUUID, genericContentFilename, ordinal)
     end
 
-    # NSXStreamsUtils::issueUsingGenericContentsItem(streamUUID, genericItem)
-    def self.issueUsingGenericContentsItem(streamUUID, genericItem)
+    # NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+    def self.issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
         genericContentFilename = genericItem["filename"]
         NSXStreamsUtils::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
     end
@@ -279,7 +279,7 @@ class NSXStreamsUtils
         .map{|filename| "/Users/pascal/Desktop/XStream-DropOff/#{filename}" }
         .map{|location|
             genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
-            NSXStreamsUtils::issueUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"), genericItem)
+            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"), genericItem)
         }
     end
 

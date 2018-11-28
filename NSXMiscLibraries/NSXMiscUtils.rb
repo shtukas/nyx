@@ -189,51 +189,16 @@ class NSXMiscUtils
         string
     end
 
-    def self.waveInsertNewItemDefaults(description) # uuid: String
-        description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        uuid = SecureRandom.hex(4)
-        folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        schedule = WaveSchedules::makeScheduleObjectTypeNew()
-        NSXAgentWave::writeScheduleToDisk(uuid, schedule)
-        uuid
-    end
-
-    def self.buildCatalystObjectFromDescription(description) # (uuid, schedule)
-        uuid = SecureRandom.hex(4)
-        folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        schedule = WaveSchedules::makeScheduleObjectTypeNew()
-        NSXAgentWave::writeScheduleToDisk(uuid, schedule) 
-        [uuid, schedule]
-    end
-
     # NSXMiscUtils::spawnNewWaveItem(description)
     def self.spawnNewWaveItem(description)
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        uuid, schedule = NSXMiscUtils::buildCatalystObjectFromDescription(description)
-        NSXAgentWave::writeScheduleToDisk(uuid, schedule)    
-        loop {
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", ["schedule", "datetime code"])
-            break if option.nil?
-            if option == "schedule" then
-                schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
-                puts JSON.pretty_generate(schedule)
-                NSXAgentWave::writeScheduleToDisk(uuid, schedule)  
-            end
-            if option == "datetime code" then
-                if (datetimecode = LucilleCore::askQuestionAnswerAsString("datetime code ? (empty for none) : ")).size>0 then
-                    if (datetime = NSXMiscUtils::codeToDatetimeOrNull(datetimecode)) then
-                        puts "Won't show until: #{datetime}"
-                        NSXDoNotShowUntilDatetime::setDatetime(uuid, datetime)
-                    end
-                end
-            end
-        }
+        uuid = SecureRandom.hex(4)
+        folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
+        FileUtils.mkpath folderpath
+        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
+        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
+        NSXAgentWave::writeScheduleToDisk(uuid, schedule)
     end
 
     # NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)

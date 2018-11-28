@@ -52,7 +52,7 @@ class GeneralEmailClient
 
         imap.search(['ALL']).each{|id|
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
-            NSXStreamsUtils::issueUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("Right-Now"), NSXGenericContents::issueItemEmail(msg))
+            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("Right-Now"), NSXGenericContents::issueItemEmail(msg))
             imap.store(id, "+FLAGS", [:Deleted])
         }
 

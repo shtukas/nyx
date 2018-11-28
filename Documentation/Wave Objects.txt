@@ -17,12 +17,6 @@
 
 {
     "uuid" => SecureRandom.hex,
-    "@": "new"
-    "unixtime": 1506925527
-}
-
-{
-    "uuid" => SecureRandom.hex,
     "@"    => "today",
     "unixtime" => Time.new.to_i
 }
@@ -31,12 +25,6 @@
     "uuid"      => SecureRandom.hex,
     "@"         => "sticky",
     "from-hour" => Integer
-}
-
-{
-    "uuid" => SecureRandom.hex,
-    "@"    => "ondate",
-    "date" => date
 }
 
 {

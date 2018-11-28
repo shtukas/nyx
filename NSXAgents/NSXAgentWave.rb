@@ -37,8 +37,6 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 # ----------------------------------------------------------------------
 
-# WaveSchedules::makeScheduleObjectTypeNew()
-# WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
 # WaveSchedules::scheduleToAnnounce(schedule)
 # WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
 # WaveSchedules::scheduleToDoNotShowDatetime(objectuuid, schedule)
@@ -46,49 +44,18 @@ WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Wave-DropOff"
 
 class WaveSchedules
 
-    def self.makeScheduleObjectTypeNew()
-        {
-            "uuid" => SecureRandom.hex,
-            "@"    => "new",
-            "unixtime" => Time.new.to_f
-        }
-    end
-
     def self.makeScheduleObjectInteractivelyEnsureChoice()
 
-        scheduleTypes = ['new', 'sticky', 'date', 'repeat']
+        scheduleTypes = ['sticky', 'date', 'repeat']
         scheduleType = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
-        if scheduleType=='new' then
-            schedule = {
-                "uuid" => SecureRandom.hex,
-                "@"    => "new",
-                "unixtime" => Time.new.to_i
-            }
-        end
         if scheduleType=='sticky' then
             fromHour = LucilleCore::askQuestionAnswerAsString("From hour (integer): ").to_i
             schedule = {
                 "uuid"      => SecureRandom.hex,
                 "@"         => "sticky",
                 "from-hour" => fromHour
-            }
-        end
-        if scheduleType=='date' then
-            puts "date:"
-            puts "    format: YYYY-MM-DD"
-            puts "    format: +<integer, nb of days>"
-            print "> "
-            date = STDIN.gets().strip
-            if date[0, 1] == '+' then
-                shift = date[1,99].to_i
-                date = (DateTime.now+shift).to_date.to_s
-            end
-            schedule = {
-                "uuid" => SecureRandom.hex,
-                "@"    => "ondate",
-                "date" => date
             }
         end
         if scheduleType=='repeat' then
@@ -122,19 +89,12 @@ class WaveSchedules
     end
 
     def self.scheduleToAnnounce(schedule)
-
-        if schedule['@'] == 'new' then
-            return "new"
-        end
         if schedule['@'] == 'sticky' then
             # Backward compatibility
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
             return "sticky, from: #{schedule['from-hour']}"
-        end
-        if schedule['@'] == 'ondate' then
-            return "ondate: #{schedule['date']}"
         end
         if schedule['@'] == 'every-n-hours' then
             return "every-n-hours: #{schedule['repeat-value']}"
@@ -148,7 +108,6 @@ class WaveSchedules
         if schedule['@'] == 'every-this-day-of-the-week' then
             return "every-this-day-of-the-week: #{schedule['repeat-value']}"
         end
-
         JSON.generate(schedule)
     end
 
@@ -193,22 +152,12 @@ class WaveSchedules
 
         # One Offs
 
-        if schedule['@'] == 'new' then
-            return WaveSchedules::metricForNewObjects(schedule['unixtime'])
-        end
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
             return Time.new.hour >= schedule['from-hour'] ? 0.95 : 0
-        end
-        if schedule['@'] == 'ondate' then
-            if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
-                return 0
-            else
-                return 0.80
-            end
         end
 
         # Repeats
@@ -273,18 +222,8 @@ class WaveDevOps
             .select{|filename| filename[0, 1] != '.' }
             .map{|filename| "#{WAVE_DROPOFF_FOLDERPATH}/#{filename}" }
             .each{|sourcelocation|
-                uuid = SecureRandom.hex(4)
-                schedule = WaveSchedules::makeScheduleObjectTypeNew()
-                folderpath = NSXAgentWave::timestring22ToFolderpath(LucilleCore::timeStringL22())
-                FileUtils.mkpath folderpath
-                File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-                NSXAgentWave::writeScheduleToDisk(uuid, schedule)
-                if File.file?(sourcelocation) then
-                    FileUtils.cp(sourcelocation,folderpath)
-                else
-                    FileUtils.cp_r(sourcelocation,folderpath)
-                end
-                LucilleCore::removeFileSystemLocation(sourcelocation)
+                genericItem = NSXGenericContents::issueItemLocationMoveOriginal(sourcelocation)
+                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem)
             }
     end
 end
@@ -442,8 +381,9 @@ class NSXAgentWave
         return nil if location.nil?
         schedule = NSXAgentWave::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
-            schedule = WaveSchedules::makeScheduleObjectTypeNew()
-            File.open("#{location}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
+            genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
+            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem)
+            return nil
         end
         folderProbeMetadata = NSXFolderProbe::folderpath2metadata(location)
         metric = WaveSchedules::scheduleToMetric(schedule)
@@ -469,26 +409,11 @@ class NSXAgentWave
         }
     end
 
-    def self.doneObjectWithRepeatSchedule(object)
+    def self.performDone(object)
         uuid = object['uuid']
         schedule = object['schedule']
         datetime = WaveSchedules::scheduleToDoNotShowDatetime(uuid, schedule)
         NSXDoNotShowUntilDatetime::setDatetime(uuid, datetime)
-    end
-
-    def self.doneObjectWithOneOffTask(object)
-        NSXAgentWave::archiveWaveItem(object['uuid'])
-    end
-
-    def self.performDone(object)
-        uuid = object['uuid']
-        schedule = object['schedule']
-        if ["new", 'ondate'].include?(schedule['@']) then
-            NSXAgentWave::doneObjectWithOneOffTask(object)
-        end
-        if ['sticky', 'every-n-hours', 'every-n-days', 'every-this-day-of-the-month', 'every-this-day-of-the-week'].include?(schedule['@']) then
-            NSXAgentWave::doneObjectWithRepeatSchedule(object)
-        end
     end
 
     def self.disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)

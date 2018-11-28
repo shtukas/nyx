@@ -36,6 +36,7 @@ class NSXAgentWIS
     end
 
     def self.processObjectAndCommand(object, command)
+        # This needs to be checked if reactivated.
         if command == "8ec2da5f-a46b-428b-9484-046232aa116d" then
             uri = URI.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/wis/board-url").strip)
             response = Net::HTTP.get_response(uri)
@@ -48,8 +49,8 @@ class NSXAgentWIS
                         url = line[26, 999]
                         url = url[0, url.index('"')]
                         puts url
-                        NSXMiscUtils::waveInsertNewItemDefaults(url)
-                        NSXAgentsDataKeyValueStore::set(NSXAgentWIS::agentuuid(), "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}", "done") 
+                        #NSXMiscUtils::waveInsertNewItemDefaults(url)
+                        #NSXAgentsDataKeyValueStore::set(NSXAgentWIS::agentuuid(), "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}", "done") 
                     end
                 }
             NSXAgentsDataKeyValueStore::set(NSXAgentWIS::agentuuid(), "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}", "done")

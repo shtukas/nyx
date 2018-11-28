@@ -89,10 +89,6 @@ end
 # -------------------------------------------------------------------------
 # nslog
 
-#lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull("e8ca3986")
-#puts NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
-#exit
-
 # -------------------------------------------------------------------------
 =begin
 
