@@ -110,7 +110,7 @@ class NSXGeneralCommandHandler
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference (leave empty for new folder in Desktop/AirPointsFolders): ")
             if atlasReference.size==0 then
-                atlasReference = "ar-#{SecureRandom.hex(8)}"
+                atlasReference = "atlas-#{SecureRandom.hex(8)}"
                 folderpath = "/Users/pascal/Desktop/AirPointsFolders/#{atlasReference}"
                 FileUtils.mkpath(folderpath)
                 system("open '#{folderpath}'")

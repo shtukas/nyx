@@ -66,7 +66,7 @@ class GeneralEmailClient
     # GeneralEmailClient::shouldImportEmail(msg)
     def self.shouldImportEmail(msg)
         from = GeneralEmailClient::msgToFrom(msg)
-        return false if from == "noreply@md.getsentry.com"
+        return false if ( from == "noreply@md.getsentry.com" )
         true
     end
 
