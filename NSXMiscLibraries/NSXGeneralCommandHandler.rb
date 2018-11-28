@@ -84,9 +84,8 @@ class NSXGeneralCommandHandler
                 else
                     NSXGenericContents::issueItemText(description)
                 end
-            streamName = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream name:", ["Right-Now", "Today-Important", "XStream"])
-            streamUUID = NSXStreamsUtils::streamOldNameToStreamUUID(streamName)
-            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericContentsItem)
+            lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
+            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
             puts JSON.pretty_generate(streamItem)
             LucilleCore::pressEnterToContinue()
             return
