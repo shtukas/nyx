@@ -267,12 +267,6 @@ loop {
         next
     end
 
-    if focusobject and focusobject["announce"].include?("noreply@md.getsentry.com") then
-        # This is a "[Stream: Right-Now] email"
-        NSXGeneralCommandHandler::processCommand(focusobject, "done")
-        next
-    end
-
     if focusobject and focusobject["announce"].include?("notifications@github.com")
         specialProcessing1(focusobject)
         next
