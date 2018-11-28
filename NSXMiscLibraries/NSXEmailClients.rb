@@ -40,6 +40,36 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 class GeneralEmailClient
 
+    # GeneralEmailClient::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # GeneralEmailClient::msgToFrom(msg)
+    def self.msgToFrom(msg)
+        filename = GeneralEmailClient::timeStringL22()
+        folderpath = "/tmp/catalyst-emails"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{filename}"
+        File.open(filepath, "w"){ |f| f.write(msg) }
+        mailObject = Mail.read(filepath)
+        address = mailObject.from
+        if address.class.to_s == "Mail::AddressContainer" then
+            address = address.first
+        end
+        FileUtils.rm(filepath)
+        address
+    end
+
+    # GeneralEmailClient::shouldImportEmail(msg)
+    def self.shouldImportEmail(msg)
+        from = GeneralEmailClient::msgToFrom(msg)
+        return false if from == "noreply@md.getsentry.com"
+        true
+    end
+
     # GeneralEmailClient::download(parameters, verbose)
     def self.download(parameters, verbose)
         emailImapServer = parameters['server']
@@ -52,7 +82,9 @@ class GeneralEmailClient
 
         imap.search(['ALL']).each{|id|
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
-            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("Right-Now"), NSXGenericContents::issueItemEmail(msg))
+            if GeneralEmailClient::shouldImportEmail(msg) then
+                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("Right-Now"), NSXGenericContents::issueItemEmail(msg))
+            end
             imap.store(id, "+FLAGS", [:Deleted])
         }
 
