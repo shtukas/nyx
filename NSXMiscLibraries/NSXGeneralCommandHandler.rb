@@ -24,8 +24,8 @@ class NSXGeneralCommandHandler
         puts "    +           # add 1 to the standard listing position"
         puts "    ++          # delete the first line of DayNotes.txt"
         puts ""
-        puts "    wave:       # create a new wave with that description (can use 'text')"
-        puts "    streaming:  # create a new stream with that description (can use 'text')"
+        puts "    wave:       # create a new wave (repeat item) with that description (can use 'text')"
+        puts "    streamitem: # create a new stream with that description (can use 'text')"
         puts "    thread:     # create a new LightThread, details entered interactively"
         puts "    airpoint:   # create a new Air Point"
         puts ""
@@ -76,11 +76,11 @@ class NSXGeneralCommandHandler
 
         if command == 'wave:' then
             description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
-            NSXMiscUtils::waveInsertNewItemInteractive(description)
+            NSXMiscUtils::spawnNewWaveItem(description)
             return
         end
 
-        if command == 'streaming:' then
+        if command == 'streamitem:' then
             description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
             description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
             genericContentsItem = 

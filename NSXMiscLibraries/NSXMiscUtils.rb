@@ -212,7 +212,8 @@ class NSXMiscUtils
         [uuid, schedule]
     end
 
-    def self.waveInsertNewItemInteractive(description)
+    # NSXMiscUtils::spawnNewWaveItem(description)
+    def self.spawnNewWaveItem(description)
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid, schedule = NSXMiscUtils::buildCatalystObjectFromDescription(description)
         NSXAgentWave::writeScheduleToDisk(uuid, schedule)    
