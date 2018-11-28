@@ -51,8 +51,6 @@ class NSXAgentHouse
 
     def self.getObjects()
         if !NSXAgentHouse::shouldDisplayObjects() then
-            signal = ["remove-agent-objects", NSXAgentHouse::agentuuid()]
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
             return []
         end
         tasksFilepath = "/Galaxy/DataBank/Catalyst/Agents-Data/House/tasks.txt"
@@ -80,13 +78,9 @@ class NSXAgentHouse
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show", "hide"])
         if operation == "show" then
             NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true")
-            signal = ["reload-agent-objects", NSXAgentHouse::agentuuid()]
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
         if operation == "hide" then
             NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "false")
-            signal = ["remove-agent-objects", NSXAgentHouse::agentuuid()]
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
         end
     end
 

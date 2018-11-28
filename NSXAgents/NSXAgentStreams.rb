@@ -71,8 +71,6 @@ class NSXAgentStreams
         if command=="done" then
             NSXAgentStreams::stopObject(object)
             NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(["remove", object["uuid"]])          
-            return ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         end
         if command==">xstream" then
             itemuuid = object["data"]["stream-item"]["uuid"]

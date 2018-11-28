@@ -64,11 +64,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'reload' then
-            NSXCatalystObjectsOperator::reloadObjectsFromAgents()
-            return
-        end
-
         if command == '++' then
             NSXDayNotes::deleteFirstLine()
             return
@@ -198,8 +193,7 @@ class NSXGeneralCommandHandler
         
         command.split(";").map{|t| t.strip }
             .each{|command|
-                signal = NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
-                NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
+                NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
             }
     end
 end

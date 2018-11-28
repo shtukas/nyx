@@ -234,8 +234,6 @@ class NSXMiscUtils
                 end
             end
         }
-        signal = ["reload-agent-objects", NSXAgentWave::agentuuid()]
-        NSXCatalystObjectsOperator::processAgentProcessorSignal(signal)
     end
 
     # NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)

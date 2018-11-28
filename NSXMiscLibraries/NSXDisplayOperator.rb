@@ -20,7 +20,7 @@ class NSXDisplayOperator
 
     # NSXDisplayOperator::makeGenesysDisplayState(screenLeftHeight, standardlp)
     def self.makeGenesysDisplayState(screenLeftHeight, standardlp) # : [defconCode, DisplayState]
-        objects = NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
+        objects = NSXDisplayOperator::catalystObjectsForDisplay()
         {
             "nsx26:object-still-to-go"               => objects.sort{|o1,o2| o1['metric']<=>o2['metric'] }.reverse,
             "nsx26:lines-to-display"                 => [],
@@ -49,7 +49,6 @@ class NSXDisplayOperator
 
         # --------------------------------------------------------------------------------
         if NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"]).nil? then
-            NSXCatalystObjectsOperator::processAgentProcessorSignal(["remove", object["uuid"]])
             return nil
         end
 
@@ -197,8 +196,8 @@ class NSXDisplayOperator
         end
     end
 
-    # NSXDisplayOperator::flockObjectsProcessedForCatalystDisplay()
-    def self.flockObjectsProcessedForCatalystDisplay() 
+    # NSXDisplayOperator::catalystObjectsForDisplay()
+    def self.catalystObjectsForDisplay() 
         NSXCatalystObjectsOperator::getObjects()
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .select{|object| object["metric"] >= 0.2 }

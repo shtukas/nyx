@@ -157,8 +157,8 @@ end
 
 # -------------------------------------------------------------------------
 
+WaveDevOps::collectWave()
 NSXStreamsUtils::pickUpXStreamDropOff()
-NSXCatalystObjectsOperator::reloadObjectsFromAgents()
 
 # -------------------------------------------------------------------------
 
@@ -166,16 +166,6 @@ Thread.new {
     loop {
         sleep 120
         Iphetra::resetInMemoryData()
-        NSXBob::agents()
-        .each{|agentinterface|
-            objects = agentinterface["get-objects"].call()
-            NSXCatalystObjectsOperator::getObjects()
-            .each{|object|
-                next if object["agent-uid"] != agentinterface["agent-uid"]
-                NSXCatalystObjectsOperator::deleteObjectFromInMemory(object["uuid"])
-            }
-            objects.each{|object| NSXCatalystObjectsOperator::putObject(object) }
-        }
     }
 }
 
@@ -227,8 +217,6 @@ def specialProcessing1(focusobject)
     else
         NSXGeneralCommandHandler::processCommand(focusobject, "done")
     end
-    NSXCatalystObjectsOperator::processAgentProcessorSignal(["reload-agent-objects", NSXAgentStreams::agentuuid()]) 
-    NSXCatalystObjectsOperator::processAgentProcessorSignal(["reload-agent-objects", NSXAgentLightThread::agentuuid()]) 
 end
 
 loop {
@@ -280,16 +268,12 @@ loop {
         streamItem = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
         streamItem["streamuuid"] = "46be01f69bb3a10382ea547da04f8739"
         NSXStreamsUtils::sendItemToDisk(streamItem)
-        NSXCatalystObjectsOperator::processAgentProcessorSignal(["reload-agent-objects", NSXAgentStreams::agentuuid()]) 
-        NSXCatalystObjectsOperator::processAgentProcessorSignal(["reload-agent-objects", NSXAgentLightThread::agentuuid()]) 
         next
     end
 
     if focusobject and focusobject["announce"].include?("noreply@md.getsentry.com") then
         # This is a "[Stream: Right-Now] email"
         NSXGeneralCommandHandler::processCommand(focusobject, "done")
-        NSXCatalystObjectsOperator::processAgentProcessorSignal(["reload-agent-objects", NSXAgentStreams::agentuuid()]) 
-        NSXCatalystObjectsOperator::processAgentProcessorSignal(["reload-agent-objects", NSXAgentLightThread::agentuuid()]) 
         next
     end
 

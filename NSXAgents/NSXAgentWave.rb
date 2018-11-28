@@ -464,7 +464,6 @@ class NSXAgentWave
 
     # NSXAgentWave::getObjects()
     def self.getObjects()
-        WaveDevOps::collectWave()
         NSXAgentWave::catalystUUIDsEnumerator().map{|uuid|
             NSXAgentWave::makeCatalystObjectOrNull(uuid)
         }
