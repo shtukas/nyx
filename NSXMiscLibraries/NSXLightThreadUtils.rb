@@ -313,16 +313,16 @@ class NSXLightThreadMetrics
     # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
     def self.lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
         if lightThread["priorityXp"][0]=="interruption-now" then
-            return [0.8, 0.1]
+            return [1.5, 1.5] # Irrelevant
         end
         if lightThread["priorityXp"][0]=="must-be-all-done-today" then
-            return [0.6, 0.2]
+            return [1.5, 1.5] # Irrelevant
         end
         if lightThread["priorityXp"][0]=="stream-important" then
-            return [0.5, 0.1]
+            return [0.4, 0.2]
         end
         if lightThread["priorityXp"][0]=="stream-luxury" then
-            return [0.4, 0.1]
+            return [0.2, 0.2]
         end
         [0.8, 0.1]
     end
@@ -347,7 +347,7 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
     def self.lightThread2StreamItemBaseMetric(lightThread)
-        return 0.85 if lightThread["priorityXp"][0] == "interruption-now"
+        return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
         return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
         (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx) }.min

@@ -201,24 +201,24 @@ class WaveSchedules
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? 0.92 : 0
+            return Time.new.hour >= schedule['from-hour'] ? 0.95 : 0
         end
         if schedule['@'] == 'ondate' then
             if WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule) then
                 return 0
             else
-                return 0.85
+                return 0.80
             end
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.91
+            return 0.85
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.91
+            return 0.85
         end
         if schedule['@'] == 'every-n-hours' then
             return 0.70

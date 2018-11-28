@@ -39,6 +39,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 # -------------------------------------------------------------------------------------
 
 class GeneralEmailClient
+
     # GeneralEmailClient::download(parameters, verbose)
     def self.download(parameters, verbose)
         emailImapServer = parameters['server']
@@ -60,6 +61,7 @@ class GeneralEmailClient
         imap.logout()
         imap.disconnect()
     end
+
 end
 
 # -------------------------------------------------------------------------------------
