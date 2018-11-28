@@ -40,6 +40,7 @@ class NSXAirPointsUtils
 	def self.getAirPoints()
 		NSXAirPointsUtils::getAirPointsFilepaths()
 			.map{|filepath| JSON.parse(IO.read(filepath)) }
+			.sort{|ap1, ap2| ap1["creation-unixtime"]<=>ap1["creation-unixtime"] }
 	end
 
 	# NSXAirPointsUtils::commitAirPointToDisk(airPoint)
