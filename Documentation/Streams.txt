@@ -11,7 +11,6 @@ StreamItem {
     "filename"                 : String
     "generic-content-filename" : String
     "ordinal"                  : Float
-    "ignore-until-datetime"    : nil | DateTime
     "run-status"               : nil | Unixtime # Unixtime is the time since it's running.
     "run-data"                 : nil | Array[StreamItemRunTimeData]
 }
@@ -20,13 +19,9 @@ StreamItemRunTimeData : (Unixtime, TimespanInSeconds)
 
 The streams are processed as FIFO queues.
 
-All the items are `started` and either `stopped` or `completed`.
-
 The first three items are active.
 
 The others are ignored.
 
 When an item has been worked on more than few hours, it is pushed to position 5
-
-Any item can be postponed until to a given datetime.
 

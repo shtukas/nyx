@@ -117,8 +117,7 @@ class NSXStreamsUtils
         item["streamuuid"]               = streamUUID
         item["filename"]                 = "#{NSXStreamsUtils::timeStringL22()}.StreamItem.json"
         item["generic-content-filename"] = genericContentFilename        
-        item["ordinal"]                  = ordinal 
-        item["ignore-until-datetime"]    = nil 
+        item["ordinal"]                  = ordinal
         item
     end
 
