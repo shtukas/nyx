@@ -84,6 +84,11 @@ class GeneralEmailClient
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
             if GeneralEmailClient::shouldImportEmail(msg) then
                 NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("Right-Now"), NSXGenericContents::issueItemEmail(msg))
+            else
+                filename = GeneralEmailClient::timeStringL22() + ".eml"
+                folderpath = "/Users/pascal/Desktop/NXSEmailClients-Discarded"
+                filepath = "#{folderpath}/#{filename}"
+                File.open(filepath, "w"){ |f| f.write(msg) }
             end
             imap.store(id, "+FLAGS", [:Deleted])
         }
