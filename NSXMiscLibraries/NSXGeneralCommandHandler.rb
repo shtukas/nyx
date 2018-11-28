@@ -19,9 +19,11 @@ class NSXGeneralCommandHandler
         puts ""
         puts "    wave:       # create a new wave with that description (can use 'text')"
         puts "    streaming:  # create a new stream with that description (can use 'text')"
-        puts "    thread:     # create a new lightThread, details entered interactively"
+        puts "    thread:     # create a new LightThread, details entered interactively"
+        puts "    airpoint:   # create a new Air Point"
         puts ""
-        puts "    threads     # lightThreads dive"
+        puts "    threads     # LightThreads dive"
+        puts "    airpoints   # AirPoints dive"
         puts "    email-sync  # run email sync"
         puts ""
     end
@@ -102,10 +104,23 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == "airpoint:" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference: ")
+            airPoint = NSXAirPointsUtils::makeAirPoint(atlasReference, description)
+            NSXAirPointsUtils::commitAirPointToDisk(airPoint)
+            return
+        end
+
         if command == 'threads' then
             NSXLightThreadUtils::lightThreadsDive()
             return
-        end    
+        end
+
+        if command == 'airpoints' then
+            NSXAirPointsUtils::airPointsDive()
+            return
+        end  
 
         if command == 'email-sync' then
             NSXMiscUtils::emailSync(true)

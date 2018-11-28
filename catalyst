@@ -33,6 +33,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 # -----------------------------------------------------------------
 
 require_relative "NSXMiscLibraries/NSXConstants.rb"
+require_relative "NSXMiscLibraries/NSXAirPointsUtils.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
 require_relative "NSXMiscLibraries/NSXDayNotes.rb"
 require_relative "NSXMiscLibraries/NSXDataOperators.rb"
@@ -244,10 +245,19 @@ loop {
     if dayNotes then
         dayNotesSize = NSXMiscUtils::screenHeight()/4
         puts ""
-        puts dayNotes.lines.first(dayNotesSize).join().green
+        puts dayNotes.lines.first(dayNotesSize).join().strip.green
         displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + dayNotesSize + 1
     end
 
+    airPoints = NSXAirPointsUtils::getAirPoints()
+    if airPoints.size > 0 then
+        puts ""
+        airPoints
+            .each{|airPoint| 
+                puts NSXAirPointsUtils::airPointToString(airPoint)
+            }
+    end
+    
     puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
     focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)

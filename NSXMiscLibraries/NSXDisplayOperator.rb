@@ -104,7 +104,6 @@ class NSXDisplayOperator
     def self.printScreen(displayScreenSizeReductionIndex, standardlp)
         focusobject = nil
         displayState = NSXDisplayOperator::makeGenesysDisplayState(NSXMiscUtils::screenHeight()-displayScreenSizeReductionIndex, standardlp)
-        puts ""
         loop {
             break if displayState.nil?
             focusobject = displayState["nsx26:focus-object"]
