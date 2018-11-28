@@ -48,7 +48,6 @@ class NSXAgentBabyNights
                 puts "👶 Nights Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
                 NSXAgentsDataKeyValueStore::set(NSXAgentBabyNights::agentuuid(), "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
-                return ["remove", object["uuid"]]
             end
             xname = operation.downcase
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json"))
@@ -62,9 +61,7 @@ class NSXAgentBabyNights
             File.open("/Galaxy/DataBank/Catalyst/Agents-Data/baby-nights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
             NSXAgentsDataKeyValueStore::set(NSXAgentBabyNights::agentuuid(), "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
-            return ["remove", object["uuid"]]
         end
-        ["nothing"]
     end
 
     def self.interface()

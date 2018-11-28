@@ -38,48 +38,39 @@ class NSXAgentStreams
     end
 
     def self.processObjectAndCommand(object, command)
-        if command=="open" then
+        if command == "open" then
             NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
-            return ["nothing"]          
         end
-        if command=="numbers" then
+        if command == "numbers" then
             puts "  stream item:"
-            streamItemUUID = object["data"]["stream-item"]["uuid"]
-            item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
-            if item and item["run-data"] then
-                timeInSeconds = item["run-data"].each{|datum|  
-                    puts "    - #{Time.at(datum[0]).to_s} : #{ (datum[1].to_f/3600).round(2) } hours"
-                }
-            end
+            item = object["data"]["stream-item"]
+            timeInSeconds = item["run-data"].each{|datum|
+                puts "    - #{Time.at(datum[0]).to_s} : #{ (datum[1].to_f/3600).round(2) } hours"
+            }
             puts "  light thread:"
-            lightThreadUUID = object["data"]["light-thread"]["uuid"]
-            NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
+            lightThread = object["data"]["light-thread"]
+            NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
                 .each{|item|
                     puts "    - #{Time.at(item["unixtime"]).to_s} : #{ (item["timespan"].to_f/3600).round(2) } hours"
                 }
             LucilleCore::pressEnterToContinue()
-            return ["nothing"]
         end
-        if command=="start" then
+        if command == "start" then
             NSXStreamsUtils::startStreamItem(object["data"]["stream-item"]["uuid"])
-            return ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         end
-        if command=="stop" then
+        if command == "stop" then
             NSXAgentStreams::stopObject(object)
-            return ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
         end
-        if command=="done" then
+        if command == "done" then
             NSXAgentStreams::stopObject(object)
             NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
         end
-        if command==">xstream" then
-            itemuuid = object["data"]["stream-item"]["uuid"]
-            globalPosition = LucilleCore::selectEntityFromListOfEntitiesOrNull("position relatively to stream:", ["front", "back"])
-            newOrdinal = (globalPosition == "front") ? NSXStreamsUtils::newFrontPositionOrdinalForXStream() : NSXStreamsUtils::newLastPositionOrdinalForXStream()
-            NSXStreamsUtils::moveToXStreamAtOrdinal(itemuuid, newOrdinal)
-            return ["reload-agent-objects", NSXAgentLightThread::agentuuid()]
+        if command == "recast" then
+            item = object["data"]["stream-item"]
+            lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
+            item["streamuuid"] = lightThread["streamuuid"]
+            NSXStreamsUtils::sendItemToDisk(item)
         end
-        ["nothing"]
     end
 
     def self.interface()

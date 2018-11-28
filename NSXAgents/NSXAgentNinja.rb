@@ -53,9 +53,7 @@ class NSXAgentNinja
             folderpath = object["item-data"]["ninja-folderpath"]
             system("ninja api:play-folderpath '#{folderpath}'")
             NinjaCLIProxy::reset()
-            return ["remove", object["uuid"]]
         end
-        ["nothing"]
     end
 
     def self.interface()

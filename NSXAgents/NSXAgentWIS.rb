@@ -55,9 +55,7 @@ class NSXAgentWIS
                 }
             NSXAgentsDataKeyValueStore::set(NSXAgentWIS::agentuuid(), "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}", "done")
             LucilleCore::pressEnterToContinue()
-            return ["reload-agent-objects", self::agentuuid()]
         end
-        ["nothing"]
     end
 
     def self.interface()

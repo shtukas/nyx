@@ -175,9 +175,9 @@ class NSXStreamsUtils
     def self.streamItemToStreamCatalystObjectCommands(item)
         isRunning = !item["run-status"].nil?
         if isRunning then
-            ["open", "stop", "done", "numbers"]
+            ["open", "stop", "done", "numbers", "recast"]
         else
-            ["start", "done", "numbers"]
+            ["start", "done", "numbers", "recast"]
         end
     end
 

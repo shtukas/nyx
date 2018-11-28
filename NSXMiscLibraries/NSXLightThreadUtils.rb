@@ -179,6 +179,12 @@ class NSXLightThreadUtils
     # -----------------------------------------------
     # UI Utils
 
+    # NSXLightThreadUtils::interactivelySelectALightThread()
+    def self.interactivelySelectALightThread()
+        xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", NSXLightThreadUtils::lightThreads(), xlambda)
+    end
+
     # NSXLightThreadUtils::interactivelySelectALightThreadPriority()
     def self.interactivelySelectALightThreadPriority()
         xlambda = lambda{|index|

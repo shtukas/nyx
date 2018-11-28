@@ -51,28 +51,22 @@ class NSXAgentLightThread
         if command=='start' then
             NSXLightThreadUtils::startLightThread(uuid)
             NSXMiscUtils::setStandardListingPosition(1)
-            return ["reload-agent-objects", self::agentuuid()]
         end
         if command=='stop' then
             NSXLightThreadUtils::stopLightThread(uuid)
-            return ["reload-agent-objects", self::agentuuid()]
         end
         if command.start_with?("time:") then
             _, timeInHours = NSXStringParser::decompose(command)
             if timeInHours.nil? then
                 puts "usage: time: <timeInHours>"
                 LucilleCore::pressEnterToContinue()
-                return ["nothing"]
             end
             timeInHours = timeInHours.to_f
             NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
-            return ["reload-agent-objects", self::agentuuid()]
         end
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
-            return ["reload-agent-objects", self::agentuuid()]
         end
-        ["nothing"]
     end
 
     def self.interface()
