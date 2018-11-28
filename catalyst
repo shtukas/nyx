@@ -256,6 +256,7 @@ loop {
             .each{|airPoint| 
                 puts NSXAirPointsUtils::airPointToString(airPoint)
             }
+        displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + airPoints.size + 1
     end
     
     puts ""

@@ -2,6 +2,13 @@
 
 # encoding: UTF-8
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 # This subsystem entire purpose is to receive commands from the user and either:
 	# The command is "special" and going to be captured and executed at some point along the code
 	# The command is handled by an agent and the signal forwarded to the NSXCatalystObjectsOperator
@@ -106,7 +113,13 @@ class NSXGeneralCommandHandler
 
         if command == "airpoint:" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference: ")
+            atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference (leave empty for new folder in Desktop/AirPointsFolders): ")
+            if atlasReference.size==0 then
+                atlasReference = "ar-#{SecureRandom.hex(8)}"
+                folderpath = "/Users/pascal/Desktop/AirPointsFolders/#{atlasReference}"
+                FileUtils.mkpath(folderpath)
+                system("open '#{folderpath}'")
+            end
             airPoint = NSXAirPointsUtils::makeAirPoint(atlasReference, description)
             NSXAirPointsUtils::commitAirPointToDisk(airPoint)
             return
