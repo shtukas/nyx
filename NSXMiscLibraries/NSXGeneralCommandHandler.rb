@@ -24,21 +24,28 @@ class NSXGeneralCommandHandler
         puts "    +           # add 1 to the standard listing position"
         puts "    ++          # delete the first line of DayNotes.txt"
         puts ""
-        puts "    wave:       # create a new wave (repeat item) with that description (can use 'text')"
-        puts "    streamitem: # create a new stream with that description (can use 'text')"
-        puts "    thread:     # create a new LightThread, details entered interactively"
-        puts "    airpoint:   # create a new Air Point"
-        puts ""
-        puts "    threads     # LightThreads dive"
-        puts "    airpoints   # AirPoints dive"
-        puts "    email-sync  # Run email sync"
-        puts "    speed       # Report of agents's speed"
+        puts "    /           # menu of commands"
         puts ""
     end
 
     # NSXGeneralCommandHandler::specialObjectCommandsAsString()
     def self.specialObjectCommandsAsString()
         "Special Object Commands : .. ,, ;; +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose"
+    end
+
+    # NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
+    def self.interactiveMakeNewStreamItem()
+        description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
+        description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        genericContentsItem = 
+            if description.start_with?("http") then
+                NSXGenericContents::issueItemURL(description)
+            else
+                NSXGenericContents::issueItemText(description)
+            end
+        lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
+        streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
+        puts JSON.pretty_generate(streamItem)
     end
 
     # NSXGeneralCommandHandler::processCommand(object, command)
@@ -57,100 +64,90 @@ class NSXGeneralCommandHandler
             return
         end
         
-        if command.start_with?(":") then
-            if NSXMiscUtils::isInteger(command[1, command.size]) then
-                position = command[1, command.size].strip.to_i
-                NSXMiscUtils::setStandardListingPosition([position, 0].max)
-            end
-            return
-        end
-
         if command == '++' then
             NSXDayNotes::deleteFirstLine()
             return
         end
 
-        if command == 'wave:' then
-            description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
-            NSXMiscUtils::spawnNewWaveItem(description)
-            return
-        end
-
-        if command == 'streamitem:' then
-            description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
-            description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-            genericContentsItem = 
-                if description.start_with?("http") then
-                    NSXGenericContents::issueItemURL(description)
-                else
-                    NSXGenericContents::issueItemText(description)
+        if command == "/" then
+            options = [
+                "new AirPoint", 
+                "new wave (repeat item)", 
+                "new Stream Item", 
+                "new LightThread",
+                "view AirPoints",
+                "view LightThreads",
+                "email-sync",
+                "speed"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option:", options)
+            return if option.nil?
+            if option == "new AirPoint" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference (leave empty for new folder in Desktop/AirPointsFolders): ")
+                if atlasReference.size==0 then
+                    atlasReference = "atlas-#{SecureRandom.hex(8)}"
+                    folderpath = "/Users/pascal/Desktop/AirPointsFolders/#{atlasReference}"
+                    FileUtils.mkpath(folderpath)
+                    system("open '#{folderpath}'")
                 end
-            lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
-            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
-            puts JSON.pretty_generate(streamItem)
-            return
-        end
-
-        if command == 'thread:' then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            priorityXp = NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
-            if priorityXp.nil? then
-                puts "You have not provided a priority. Aborting."
+                airPoint = NSXAirPointsUtils::makeAirPoint(atlasReference, description)
+                NSXAirPointsUtils::commitAirPointToDisk(airPoint)
+            end
+            if option == "new wave (repeat item)" then
+                description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
+                NSXMiscUtils::spawnNewWaveItem(description)
+            end
+            if option == "new Stream Item" then
+                NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
+            end
+            if option == "new LightThread" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                priorityXp = NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
+                if priorityXp.nil? then
+                    puts "You have not provided a priority. Aborting."
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+                lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
+                puts JSON.pretty_generate(lightThread)
+            end
+            if option == "view AirPoints" then
+                NSXAirPointsUtils::airPointsDive()
+            end
+            if option == "view LightThreads" then
+                NSXLightThreadUtils::lightThreadsDive()
+            end
+            if option == "email-sync" then
+                NSXMiscUtils::emailSync(true)
+            end
+            if option == "speed" then
+                puts "Agents Speed Report"
+                NSXBob::agents()
+                    .map{|agentinterface| 
+                        startTime = Time.new.to_f
+                        agentinterface["get-objects"].call()
+                        endTime = Time.new.to_f
+                        timeSpanInSeconds = endTime - startTime
+                        [ agentinterface["agent-name"], timeSpanInSeconds ]
+                    }
+                    .sort{|p1, p2| p1[1] <=> p2[1] }
+                    .reverse
+                    .each{|pair|
+                        agentName = pair[0]
+                        timeSpanInSeconds = pair[1]
+                        puts "  - #{agentName}: #{timeSpanInSeconds.round(2)}"
+                    }
                 LucilleCore::pressEnterToContinue()
-                return
             end
-            lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
-            puts JSON.pretty_generate(lightThread)
             return
         end
 
-        if command == "airpoint:" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference (leave empty for new folder in Desktop/AirPointsFolders): ")
-            if atlasReference.size==0 then
-                atlasReference = "atlas-#{SecureRandom.hex(8)}"
-                folderpath = "/Users/pascal/Desktop/AirPointsFolders/#{atlasReference}"
-                FileUtils.mkpath(folderpath)
-                system("open '#{folderpath}'")
+        if command.start_with?(":") then
+            if NSXMiscUtils::isInteger(command[1, command.size]) then
+                position = command[1, command.size].strip.to_i
+                NSXMiscUtils::setStandardListingPosition([position, 0].max)
             end
-            airPoint = NSXAirPointsUtils::makeAirPoint(atlasReference, description)
-            NSXAirPointsUtils::commitAirPointToDisk(airPoint)
-            return
-        end
-
-        if command == 'threads' then
-            NSXLightThreadUtils::lightThreadsDive()
-            return
-        end
-
-        if command == 'airpoints' then
-            NSXAirPointsUtils::airPointsDive()
-            return
-        end  
-
-        if command == 'email-sync' then
-            NSXMiscUtils::emailSync(true)
-            return
-        end
-
-        if command == "speed" then
-            puts "Agents Speed Report"
-            NSXBob::agents()
-                .map{|agentinterface| 
-                    startTime = Time.new.to_f
-                    agentinterface["get-objects"].call()
-                    endTime = Time.new.to_f
-                    timeSpanInSeconds = endTime - startTime
-                    [ agentinterface["agent-name"], timeSpanInSeconds ]
-                }
-                .sort{|p1, p2| p1[1] <=> p2[1] }
-                .reverse
-                .each{|pair|
-                    agentName = pair[0]
-                    timeSpanInSeconds = pair[1]
-                    puts "  - #{agentName}: #{timeSpanInSeconds.round(2)}"
-                }
-            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -171,30 +168,6 @@ class NSXGeneralCommandHandler
         return if object.nil?
 
         # object needed
-
-        if command == "/start" then
-            if object[":light-thread-data:"] then
-                if object[":light-thread-data:"]["secondary-object-run-status"].nil? then
-                    lightThreadUUID = object[":light-thread-data:"]["light-thread"]["uuid"]               
-                    NSXMiscUtils::startLightThreadSecondaryObject(object["uuid"], lightThreadUUID)
-                    NSXMiscUtils::setStandardListingPosition(1)
-                end
-            end
-            return
-        end
-
-        if command == "/stop" then
-            if object[":light-thread-data:"] then
-                if object[":light-thread-data:"]["secondary-object-run-status"] then
-                    lightThreadUUID = object[":light-thread-data:"]["light-thread"]["uuid"]
-                    runningStatus = NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(object["uuid"])
-                    timeSpanInSeconds = Time.new.to_i - runningStatus["start-unixtime"]
-                    NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timeSpanInSeconds.to_f/3600)
-                    NSXMiscUtils::unsetLightThreadSecondaryObjectRunningStatus(object["uuid"])
-                end
-            end
-            return
-        end
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
