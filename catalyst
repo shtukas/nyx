@@ -36,7 +36,7 @@ require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXAirPointsUtils.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
 require_relative "NSXMiscLibraries/NSXDayNotes.rb"
-require_relative "NSXMiscLibraries/NSXDataOperators.rb"
+require_relative "NSXMiscLibraries/NSXKeyValueStores.rb"
 require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
 require_relative "NSXMiscLibraries/NSXGenericContents.rb"
@@ -46,6 +46,7 @@ require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
+require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
 require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
@@ -217,7 +218,7 @@ end
 
 loop {
 
-    displayScreenSizeReductionIndex = 7
+    displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 6
 
     system("clear")
 
@@ -230,7 +231,7 @@ loop {
         dayNotesSize = NSXMiscUtils::screenHeight()/4
         puts ""
         puts dayNotes.lines.first(dayNotesSize).join().strip.green
-        displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + dayNotesSize + 1
+        displayScreenSizeLeft = displayScreenSizeLeft - dayNotesSize - 1
     end
 
     airPoints = NSXAirPointsUtils::getAirPoints()
@@ -240,12 +241,24 @@ loop {
             .each{|airPoint| 
                 puts NSXAirPointsUtils::airPointToString(airPoint).yellow
             }
-        displayScreenSizeReductionIndex = displayScreenSizeReductionIndex + airPoints.size + 1
+        displayScreenSizeLeft = displayScreenSizeLeft - airPoints.size - 1
     end
     
     puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
-    focusobject = NSXDisplayOperator::printScreen(displayScreenSizeReductionIndex, standardlp)
+
+    focusobject = nil
+
+    objects = NSXCatalystObjectsOperator::catalystObjectsForDisplay()
+    objects.each_with_index{|object, indx|
+        position = indx+1
+        next if displayScreenSizeLeft == 0 
+        if position == standardlp then
+            focusobject = object
+        end 
+        puts NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
+        displayScreenSizeLeft = displayScreenSizeLeft - 1
+    }
 
     if focusobject.nil? and (standardlp>1) then
         NSXMiscUtils::setStandardListingPosition(1)

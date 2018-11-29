@@ -4,17 +4,6 @@
 
 # ----------------------------------------------------------------------------------
 
-class NSXCatalystObjectsOperator
-    # NSXCatalystObjectsOperator::getObjects()
-    def self.getObjects()
-        NSXBob::agents()
-            .map{|agentinterface| 
-                agentinterface["get-objects"].call()
-            }
-            .flatten
-    end
-end
-
 # ----------------------------------------------------------------------------------
 
 CATALYST_IPHETRA_SYSTEM_DATA_SETUUID = "e13183f1-4615-49a9-8862-b23a38783f26"
