@@ -218,7 +218,7 @@ end
 
 loop {
 
-    displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 6
+    displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 7
 
     system("clear")
 

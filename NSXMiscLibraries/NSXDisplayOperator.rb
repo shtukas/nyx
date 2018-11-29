@@ -61,7 +61,10 @@ class NSXDisplayOperator
     # NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
     def self.objectToLineForMainListing(object, position, standardlp)
         if position == standardlp then
-            "#{NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)}"
+            [
+                "#{NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)}",
+                "               " + NSXDisplayOperator::objectInferfaceString(object)
+            ].join("\n")
         else
             "#{NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)[0,NSXMiscUtils::screenWidth()-9]}"
         end
