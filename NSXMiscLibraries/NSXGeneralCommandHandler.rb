@@ -31,7 +31,8 @@ class NSXGeneralCommandHandler
         puts ""
         puts "    threads     # LightThreads dive"
         puts "    airpoints   # AirPoints dive"
-        puts "    email-sync  # run email sync"
+        puts "    email-sync  # Run email sync"
+        puts "    speed       # Report of agents's speed"
         puts ""
     end
 
@@ -131,6 +132,27 @@ class NSXGeneralCommandHandler
 
         if command == 'email-sync' then
             NSXMiscUtils::emailSync(true)
+            return
+        end
+
+        if command == "speed" then
+            puts "Agents Speed Report"
+            NSXBob::agents()
+                .map{|agentinterface| 
+                    startTime = Time.new.to_f
+                    agentinterface["get-objects"].call()
+                    endTime = Time.new.to_f
+                    timeSpanInSeconds = endTime - startTime
+                    [ agentinterface["agent-name"], timeSpanInSeconds ]
+                }
+                .sort{|p1, p2| p1[1] <=> p2[1] }
+                .reverse
+                .each{|pair|
+                    agentName = pair[0]
+                    timeSpanInSeconds = pair[1]
+                    puts "  - #{agentName}: #{timeSpanInSeconds.round(2)}"
+                }
+            LucilleCore::pressEnterToContinue()
             return
         end
 
