@@ -88,7 +88,6 @@ class NSXGeneralCommandHandler
             lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
             streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
             puts JSON.pretty_generate(streamItem)
-            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -102,7 +101,6 @@ class NSXGeneralCommandHandler
             end
             lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
             puts JSON.pretty_generate(lightThread)
-            LucilleCore::pressEnterToContinue()
             return
         end
 

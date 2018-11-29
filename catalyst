@@ -30,6 +30,14 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -----------------------------------------------------------------
 
 require_relative "NSXMiscLibraries/NSXConstants.rb"
@@ -87,87 +95,6 @@ class Timer
     end
 end
 
-# -------------------------------------------------------------------------
-# nslog
-
-# -------------------------------------------------------------------------
-=begin
-
-The Task system
-
-A task is essentially a lambda and a period in seconds
-
-Task(taskUniqueId, period, lambda, name)
-
-We put the tasks into an array and loop over that array. 
-
-This ensures that
-    - only one task run at any given time
-    - that there is enough pause between two tasks and
-    - that we run the tasks roughtly as often as they should run.
-
-Tasks are run only on Lucille18
-
-=end
-
-# Task(taskUniqueId, period, lambda, name)
-
-if NSXMiscUtils::isLucille18() then
-
-    $THETASKS = []
-    $THETASKS << [
-        "49429DCB",
-        86400,
-        lambda {
-             NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
-        },
-        "NSXCatalystDevOps::archivesTimelineGarbageCollection(false)"
-    ]
-    $THETASKS << [
-        "69429DCB",
-        1200,
-        lambda {
-             NSXMiscUtils::emailSync(false)
-        },
-        "NSXMiscUtils::emailSync(false)"
-    ]
-
-    $THETASKSINDEX = 0
-    $THETASKSSHEDULING = NSXSystemDataKeyValueStore::getOrDefaultValue("b0e73fa2-f035-4833-8945-b55f9463d87d", {})
-
-    Thread.new {
-        sleep 60
-        loop {
-            $THETASKSINDEX = ($THETASKSINDEX+1) % $THETASKS.size
-            task = $THETASKS[$THETASKSINDEX]
-            if Time.new.to_i - ( $THETASKSSHEDULING[task[0]] || 0 ) > task[1] then
-                #puts "Task: #{task[3]}"
-                task[2].call()
-                $THETASKSSHEDULING[task[0]] = Time.new.to_i
-                NSXSystemDataKeyValueStore::set("b0e73fa2-f035-4833-8945-b55f9463d87d", $THETASKSSHEDULING)
-            end
-            sleep 60
-        }
-    }
-
-end
-
-# -------------------------------------------------------------------------
-
-WaveDevOps::collectWave()
-NSXStreamsUtils::pickUpXStreamDropOff()
-
-# -------------------------------------------------------------------------
-
-Thread.new {
-    loop {
-        sleep 120
-        Iphetra::resetInMemoryData()
-    }
-}
-
-# -------------------------------------------------------------------------
-
 def specialProcessing1(focusobject)
     system("clear")
     puts focusobject["announce"]
@@ -216,6 +143,57 @@ def specialProcessing1(focusobject)
     end
 end
 
+def objectIsInterruption(object)
+    object["announce"].include?("Interruption")
+end
+
+# -------------------------------------------------------------------------
+# nslog
+
+# -------------------------------------------------------------------------
+
+WaveDevOps::collectWave()
+NSXStreamsUtils::pickUpXStreamDropOff()
+
+# -------------------------------------------------------------------------
+
+Thread.new {
+    loop {
+        sleep 120
+        Iphetra::resetInMemoryData()
+    }
+}
+
+Thread.new {
+    loop {
+        sleep 130
+        if NSXCatalystObjectsOperator::catalystObjectsForDisplay().any?{|object| objectIsInterruption(object) } then
+            NSXMiscUtils::onScreenNotification("Catalyst", "Interruption")
+        end
+    }
+}
+
+Thread.new {
+    exit if !NSXMiscUtils::isLucille18()
+    loop {
+        sleep 140 
+        if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "17e6377e-0ee6-4e38-80cf-40f40ca9cae9", 86400) then
+            NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
+        end
+    }
+}
+
+Thread.new {
+    exit if !NSXMiscUtils::isLucille18()
+    sleep 30
+    loop {
+        NSXMiscUtils::emailSync(false)
+        sleep 1200
+    }
+}
+
+# -------------------------------------------------------------------------
+
 loop {
 
     displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 7
@@ -225,40 +203,60 @@ loop {
     print "Agents: "
     puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
-
-    dayNotes = NSXDayNotes::displayOrNull()
-    if dayNotes then
-        dayNotesSize = NSXMiscUtils::screenHeight()/4
-        puts ""
-        puts dayNotes.lines.first(dayNotesSize).join().strip.green
-        displayScreenSizeLeft = displayScreenSizeLeft - dayNotesSize - 1
-    end
-
-    airPoints = NSXAirPointsUtils::getAirPoints()
-    if airPoints.size > 0 then
-        puts ""
-        airPoints
-            .each{|airPoint| 
-                puts NSXAirPointsUtils::airPointToString(airPoint).yellow
-            }
-        displayScreenSizeLeft = displayScreenSizeLeft - airPoints.size - 1
-    end
     
-    puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
 
     focusobject = nil
 
     objects = NSXCatalystObjectsOperator::catalystObjectsForDisplay()
-    objects.each_with_index{|object, indx|
-        position = indx+1
-        next if displayScreenSizeLeft == 0 
-        if position == standardlp then
-            focusobject = object
-        end 
-        puts NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
-        displayScreenSizeLeft = displayScreenSizeLeft - 1
-    }
+
+    if objects.any?{|object| objectIsInterruption(object)  } then
+
+        puts ""
+        objects
+            .select{|object| objectIsInterruption(object)  }
+            .each_with_index{|object, indx|
+                position = indx+1
+                next if displayScreenSizeLeft == 0 
+                if position == standardlp then
+                    focusobject = object
+                end 
+                puts NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
+                displayScreenSizeLeft = displayScreenSizeLeft - 1
+            }
+
+    else
+
+        dayNotes = NSXDayNotes::displayOrNull()
+        if dayNotes then
+            dayNotesSize = NSXMiscUtils::screenHeight()/4
+            puts ""
+            puts dayNotes.lines.first(dayNotesSize).join().strip.green
+            displayScreenSizeLeft = displayScreenSizeLeft - dayNotesSize - 1
+        end
+
+        airPoints = NSXAirPointsUtils::getAirPoints()
+        if airPoints.size > 0 then
+            puts ""
+            airPoints
+                .each{|airPoint| 
+                    puts NSXAirPointsUtils::airPointToString(airPoint).yellow
+                }
+            displayScreenSizeLeft = displayScreenSizeLeft - airPoints.size - 1
+        end
+
+        puts "" 
+        objects.each_with_index{|object, indx|
+            position = indx+1
+            next if displayScreenSizeLeft == 0 
+            if position == standardlp then
+                focusobject = object
+            end 
+            puts NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
+            displayScreenSizeLeft = displayScreenSizeLeft - 1
+        }
+
+    end
 
     if focusobject.nil? and (standardlp>1) then
         NSXMiscUtils::setStandardListingPosition(1)

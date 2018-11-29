@@ -128,7 +128,7 @@ class NSXLightThreadUtils
         # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
 
         if lightThread["status"][0] == "running-since" and NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) >= 100 then
-            NSXMiscUtils::issueScreenNotification("Catalyst TimeProton", "#{lightThread["description"].gsub("'","")} is done")
+            NSXMiscUtils::onScreenNotification("Catalyst TimeProton", "#{lightThread["description"].gsub("'","")} is done")
         end
 
         uuid = lightThread["uuid"]

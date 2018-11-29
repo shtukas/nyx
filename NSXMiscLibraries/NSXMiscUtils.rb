@@ -2,6 +2,14 @@
 
 # encoding: UTF-8
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
 
 class NSXMiscUtils
@@ -203,9 +211,9 @@ class NSXMiscUtils
 
     # NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
     def self.trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
-        unixtime = NSXSystemDataKeyValueStore::getOrDefaultValue("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", 0)
+        unixtime = KeyValueStore::getOrDefaultValue("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", 0)
         if ( Time.new.to_i - unixtime) > timespanInSeconds then
-            NSXSystemDataKeyValueStore::set("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", Time.new.to_i)
+            KeyValueStore::set("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", Time.new.to_i)
             true
         else
             false
@@ -263,8 +271,8 @@ class NSXMiscUtils
         Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, secondaryObjectUUID)
     end
 
-    # NSXMiscUtils::issueScreenNotification(title, message)
-    def self.issueScreenNotification(title, message)
+    # NSXMiscUtils::onScreenNotification(title, message)
+    def self.onScreenNotification(title, message)
         title = title.gsub("'","")
         message = message.gsub("'","")
         message = message.gsub("[","|")
