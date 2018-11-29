@@ -300,4 +300,10 @@ class NSXMiscUtils
         FileUtils.mv(location,targetFolder)
     end
 
+    # NSXMiscUtils::valueOrDefaultValue(value, defaultValue)
+    def self.valueOrDefaultValue(value, defaultValue)
+        return defaultValue if value.nil?
+        value
+    end
+
 end

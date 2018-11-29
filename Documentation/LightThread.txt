@@ -24,4 +24,3 @@ LightThreadTimeRecordItem: {
 	"timespan" => Integer, in seconds
 }
 
-LightThreadTimeRecordItem(s) are stored in a Iphetra set of uuid "<LightThreadUUID>:DFB99806"

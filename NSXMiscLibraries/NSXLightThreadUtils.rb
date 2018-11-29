@@ -11,18 +11,26 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
 =end
 
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
-LIGHT_THREADS_SETUUID = "d85fe272-b37a-4afa-9815-afa2cf5041ff"
+LIGHT_THREADS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/LightThreads"
 
 class NSXLightThreadUtils
 
+    # NSXLightThreadUtils::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
     # NSXLightThreadUtils::lightThreads(): Array[LightThread]
     def self.lightThreads()
-        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID)
+        Dir.entries(LIGHT_THREADS_FOLDERPATH)
+            .select{|filename| filename[-5, 5]==".json" }
+            .map{|filename| "#{LIGHT_THREADS_FOLDERPATH}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
     # NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
     def self.commitLightThreadToDisk(lightThread)
-        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThread)
+        File.open("#{LIGHT_THREADS_FOLDERPATH}/#{lightThread["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(lightThread)) }
     end
 
     # NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
@@ -42,7 +50,9 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
     def self.getLightThreadByUUIDOrNull(lightThreadUUID)
-        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThreadUUID)
+        filepath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
@@ -92,21 +102,46 @@ class NSXLightThreadUtils
         lightThread
     end
 
+    # NSXLightThreadUtils::sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
+    def self.sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
+        folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{NSXLightThreadUtils::timeStringL22()}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
     # NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThreadUUID, unixtime, timespanInSeconds)
     def self.issueLightThreadTimeRecordItem(lightThreadUUID, unixtime, timespanInSeconds)
-        setuuid = "#{lightThreadUUID}:DFB99806"
-        object = {
+        item = {
             "uuid"     => SecureRandom.hex,
             "unixtime" => unixtime,
             "timespan" => timespanInSeconds
         }
-        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, setuuid, object)
+        NSXLightThreadUtils::sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
     end
 
     # NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
     def self.getLightThreadTimeRecordItems(lightThreadUUID)
-        setuuid = "#{lightThreadUUID}:DFB99806"
-        Iphetra::getObjects(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, setuuid)
+        folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
+        return [] if !File.exists?(folderpath)
+        Dir.entries(folderpath)
+            .select{|filename| filename[-5, 5]==".json" }
+            .map{|filename| "#{folderpath}/#{filename}" }
+            .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
+            .select{|pair| 
+                item = pair[1] 
+                (Time.new.to_i-item["unixtime"]) > 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS 
+            }
+            .each{|pair|
+                filepath = pair[0]
+                FileUtils.rm(filepath)
+            }
+        Dir.entries(folderpath)
+            .select{|filename| filename[-5, 5]==".json" }
+            .map{|filename| "#{folderpath}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
             .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
@@ -127,7 +162,7 @@ class NSXLightThreadUtils
     def self.lightThreadToCatalystObject(lightThread)
         # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
 
-        if lightThread["status"][0] == "running-since" and NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, 1) >= 100 then
+        if lightThread["status"][0] == "running-since" and NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1), 0) >= 100 then
             NSXMiscUtils::onScreenNotification("Catalyst TimeProton", "#{lightThread["description"].gsub("'","")} is done")
         end
 
@@ -151,6 +186,13 @@ class NSXLightThreadUtils
         return false if NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count > 0
         return false if NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping().values.include?(lightThread["streamuuid"])
         true
+    end
+
+    # NSXLightThreadUtils::destroyLightThread(lightThreadUUID)
+    def self.destroyLightThread(lightThreadUUID)
+        filepath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # -----------------------------------------------
@@ -202,7 +244,7 @@ class NSXLightThreadUtils
             puts "     uuid: #{lightThread["uuid"]}"
             puts "     priorityXp: #{lightThread["priorityXp"].join(", ")}"
             puts "     streamuuid: #{lightThread["streamuuid"]}"
-            livePercentages = (1..7).to_a.reverse.map{|indx| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, indx).round(2) }
+            livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     Time to 100%: #{NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
@@ -255,7 +297,7 @@ class NSXLightThreadUtils
             if operation=="destroy" then
                 answer = LucilleCore::askQuestionAnswerAsBoolean("You are about to destroy this LightThread, are you sure you want to do that ? ")
                 if answer then
-                    Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SETUUID, lightThread["uuid"])
+                    NSXLightThreadUtils::destroyLightThread(lightThread["uuid"])
                 end
                 break
             end
@@ -304,11 +346,11 @@ class NSXLightThreadMetrics
         doneTime
     end
 
-    # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-    def self.lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+    # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
+    def self.lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
+        return nil if NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
         items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
         return 0 if ( (simulationTimeInSeconds==0) and (items.size==0) and (lightThread["status"][0]=="paused") )
-        return 101 if NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
         dailyCommitmentInHours = lightThread["priorityXp"][1]
         timeDoneExpectationInHours = n * dailyCommitmentInHours
         timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/3600
@@ -332,10 +374,11 @@ class NSXLightThreadMetrics
         [0.8, 0.1]
     end
 
-    # NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
-    def self.lightThread2MetricOverThePastNDays(lightThread, n, simulationTimeInSeconds = 0)
+    # NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
+    def self.lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
         return 2 if ( simulationTimeInSeconds==0 and lightThread["status"][0] == "running-since" )
-        livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDays(lightThread, n, simulationTimeInSeconds)
+        livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds)
+        return nil if livePercentage.nil?
         return 0 if livePercentage >= 100
         baseMetric, expansion = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
         metric = baseMetric + expansion*Math.exp(-livePercentage.to_f/100) # at 100% we are at baseMetric + expansion*Math.exp(-1)
@@ -346,16 +389,14 @@ class NSXLightThreadMetrics
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 0 if lightThread["priorityXp"][0] == "interruption-now"
         return 0 if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
-        0.9 * (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx, simulationTimeInSeconds) }.min
+        0.9 * (1..7).map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
     end
 
     # NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
     def self.lightThread2StreamItemBaseMetric(lightThread)
         return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
         return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        # Here we take the min of NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, n) for n=1..7
-        (1..7).map{|indx| NSXLightThreadMetrics::lightThread2MetricOverThePastNDays(lightThread, indx) }.min
+        (1..7).map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx), 1) }.min
     end
 
 end
