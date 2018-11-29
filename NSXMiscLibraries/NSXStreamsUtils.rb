@@ -274,9 +274,9 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::pickUpXStreamDropOff()
     def self.pickUpXStreamDropOff()
-        Dir.entries("/Users/pascal/Desktop/XStream-DropOff")
+        Dir.entries("/Users/pascal/Desktop/LightThread-XStream-DropOff")
         .select{|filename| filename[0,1]!="." }
-        .map{|filename| "/Users/pascal/Desktop/XStream-DropOff/#{filename}" }
+        .map{|filename| "/Users/pascal/Desktop/LightThread-XStream-DropOff/#{filename}" }
         .map{|location|
             genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
             NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"), genericItem)
