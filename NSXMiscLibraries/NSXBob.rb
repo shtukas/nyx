@@ -102,15 +102,5 @@ NSXBob::registerAgent(
     }
 )
 
-NSXBob::registerAgent(
-    {
-        "agent-name"  => "WIS",
-        "agent-uid"   => "3397e320-6c09-423d-ac58-2aea5f85eacb",
-        "get-objects" => lambda { NSXAgentWIS::getObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentWIS::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentWIS::interface() }
-    }
-)
-
 
 

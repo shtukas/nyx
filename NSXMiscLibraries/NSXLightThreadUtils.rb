@@ -3,13 +3,6 @@
 
 require 'time'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
-=begin
-    Iphetra::commitObjectToDisk(repositoryRootFolderPath, setuuid, object)
-    Iphetra::getObjectByUUIDOrNull(repositoryRootFolderPath, setuuid, objectuuid)
-    Iphetra::getObjects(repositoryRootFolderPath, setuuid)
-=end
-
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREADS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/LightThreads"
 
@@ -325,7 +318,6 @@ class NSXLightThreadUtils
     end
 
 end
-
 
 class NSXLightThreadMetrics
 

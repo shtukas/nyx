@@ -43,6 +43,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXAirPointsUtils.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
+require_relative "NSXMiscLibraries/NSXData.rb"
 require_relative "NSXMiscLibraries/NSXDayNotes.rb"
 require_relative "NSXMiscLibraries/NSXKeyValueStores.rb"
 require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
@@ -65,7 +66,6 @@ require_relative "NSXAgents/NSXAgentNinja.rb"
 require_relative "NSXAgents/NSXAgentStreams.rb"
 require_relative "NSXAgents/NSXAgentVienna.rb"
 require_relative "NSXAgents/NSXAgentWave.rb"
-require_relative "NSXAgents/NSXAgentWIS.rb"
 
 # -------------------------------------------------------------------------
 

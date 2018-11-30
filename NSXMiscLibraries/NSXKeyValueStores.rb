@@ -88,9 +88,4 @@ class NSXAgentsDataKeyValueStore
         defaultValue
     end
 
-    # NSXAgentsDataKeyValueStore::destroy(agentuuid, key)
-    def self.destroy(agentuuid, key)
-        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, NSXAgentsDataKeyValueStore::agentuuidToSetUUID(agentuuid), key)
-    end
-
 end

@@ -245,32 +245,6 @@ class NSXMiscUtils
         ].join()
     end
 
-    # NSXMiscUtils::startLightThreadSecondaryObject(secondaryObjectUUID, lightThreadUUID)
-    def self.startLightThreadSecondaryObject(secondaryObjectUUID, lightThreadUUID)
-        # Here we only need to record the current unixtime
-        object = {
-            "uuid"              => secondaryObjectUUID,
-            "light-thread-uuid" => lightThreadUUID,
-            "start-unixtime"    => Time.new.to_i
-        }
-        Iphetra::commitObjectToDisk(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, object)
-    end
-
-    # NSXMiscUtils::getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
-    def self.getLightThreadSecondaryObjectRunningStatusOrNull(secondaryObjectUUID)
-        Iphetra::getObjectByUUIDOrNull(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, secondaryObjectUUID)
-        #    {
-        #       "uuid"              => secondaryObjectUUID,
-        #       "light-thread-uuid" => lightThreadUUID,
-        #       "start-unixtime"    => Time.new.to_i
-        #    }
-    end
-
-    # NSXMiscUtils::unsetLightThreadSecondaryObjectRunningStatus(secondaryObjectUUID)
-    def self.unsetLightThreadSecondaryObjectRunningStatus(secondaryObjectUUID)
-        Iphetra::destroyObject(CATALYST_IPHETRA_DATA_REPOSITORY_FOLDERPATH, LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID, secondaryObjectUUID)
-    end
-
     # NSXMiscUtils::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")

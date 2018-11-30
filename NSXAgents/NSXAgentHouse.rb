@@ -12,6 +12,8 @@ require 'digest/sha1'
 
 # -------------------------------------------------------------------------------------
 
+HOUSE_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Agents-Data/House/data"
+
 class NSXAgentHouse
 
     # NSXAgentHouse::agentuuid()
