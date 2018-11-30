@@ -298,13 +298,12 @@ loop {
         command = 'open; done'
     end
 
-    NSXGeneralCommandHandler::processCommand(focusobject, command)
-
-    if command=="open" and focusobject and focusobject["schedule"] and focusobject["schedule"][":wave-email:"] then
-        if (command = LucilleCore::askQuestionAnswerAsString("Additional command? : ")).size>0 then
-            NSXGeneralCommandHandler::processCommand(focusobject, command)
-        end
+    if focusobject["commands-lambdas"] and focusobject["commands-lambdas"][command] then
+        focusobject["commands-lambdas"][command].call(focusobject)
+        next
     end
+
+    NSXGeneralCommandHandler::processCommand(focusobject, command)
 
 }
 
