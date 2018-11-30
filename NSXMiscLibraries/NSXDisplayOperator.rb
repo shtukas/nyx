@@ -29,6 +29,19 @@ class NSXDisplayOperator
         NSXGeneralCommandHandler::processCommand(object, command)
     end
 
+    # NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)
+    def self.positionPrefixForMailListingDisplay(standardlp, position)
+        if standardlp and position and standardlp==position then
+            "[* #{"%2d" % position}]"
+        else
+            if position then
+                "[  #{"%2d" % position}]"
+            else
+                "[]"
+            end
+        end
+    end
+
     # NSXDisplayOperator::objectInferfaceString(object)
     def self.objectInferfaceString(object)
         announce = object['announce'].strip
@@ -67,19 +80,6 @@ class NSXDisplayOperator
             ].join("\n")
         else
             "#{NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)[0,NSXMiscUtils::screenWidth()-9]}"
-        end
-    end
-
-    # NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)
-    def self.positionPrefixForMailListingDisplay(standardlp, position)
-        if standardlp and position and standardlp==position then
-            "[* #{"%2d" % position}]"
-        else
-            if position then
-                "[  #{"%2d" % position}]"
-            else
-                "[]"
-            end
         end
     end
 
