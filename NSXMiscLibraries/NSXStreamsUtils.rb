@@ -165,10 +165,10 @@ class NSXStreamsUtils
         "[LightThreadStreamItem: #{lightThread["description"]}] #{genericContentsAnnounce} #{doNotShowString}"
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, baseMetric)
-    def self.streamItemToStreamCatalystObjectMetric(lightThread, item, baseMetric)
+    # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
+    def self.streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if item["run-status"]
-        baseMetric + Math.exp(-item["ordinal"].to_f/1000).to_f/1000
+        streamItemMetric + Math.exp(-item["ordinal"].to_f/1000).to_f/1000
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
@@ -181,8 +181,8 @@ class NSXStreamsUtils
         end
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, baseMetric)
-    def self.streamItemToStreamCatalystObject(lightThread, item, baseMetric)
+    # NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric)
+    def self.streamItemToStreamCatalystObject(lightThread, item, streamItemMetric)
         genericContentsItemOrNull = lambda{|genericContentFilename|
             filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
             return nil if filepath.nil?
@@ -192,7 +192,7 @@ class NSXStreamsUtils
         object = {}
         object["uuid"] = item["uuid"][0,8]      
         object["agent-uid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
-        object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, baseMetric)
+        object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
         object["default-expression"] = nil

@@ -208,7 +208,7 @@ class NSXLightThreadUtils
         if timeTo100PercentString.size>0 then
             timeTo100PercentString = "(#{timeTo100PercentString}) "
         end
-        "lightThread: #{lightThread["description"]} (#{lightThread["priorityXp"].join(", ")}) #{timeTo100PercentString}"
+        "[LightThread: #{lightThread["description"]}] (#{lightThread["priorityXp"].join(", ")}) #{timeTo100PercentString}"
     end
 
     # -----------------------------------------------
@@ -241,7 +241,7 @@ class NSXLightThreadUtils
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     Time to 100%: #{NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
-            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)}"
+            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
             puts "     Has a companion file: #{NSXLightThreadsStreamsInterface::thereIsACompanionFile(lightThread)}"
             operations = ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:"]
@@ -350,8 +350,8 @@ class NSXLightThreadMetrics
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
-    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
-    def self.lightThreadToMetricParameters(lightThread) # [baseMetric, expansion]
+    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [streamItemMetric, expansion]
+    def self.lightThreadToMetricParameters(lightThread) # [streamItemMetric, expansion]
         if lightThread["priorityXp"][0]=="interruption-now" then
             return [1.5, 1.5] # Irrelevant
         end
@@ -373,20 +373,21 @@ class NSXLightThreadMetrics
         livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds)
         return nil if livePercentage.nil?
         return 0 if livePercentage >= 100
-        baseMetric, expansion = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
-        metric = baseMetric + expansion*Math.exp(-livePercentage.to_f/100) # at 100% we are at baseMetric + expansion*Math.exp(-1)
+        streamItemMetric, expansion = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
+        metric = streamItemMetric + expansion*Math.exp(-livePercentage.to_f/100) # at 100% we are at streamItemMetric + expansion*Math.exp(-1)
         metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
+        return 2 if (lightThread["status"][0] == "running-since" and simulationTimeInSeconds==0)
         return 0 if lightThread["priorityXp"][0] == "interruption-now"
         return 0 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         0.9 * (1..7).map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
     end
 
-    # NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
-    def self.lightThread2StreamItemBaseMetric(lightThread)
+    # NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread)
+    def self.lightThread2StreamItemMetric(lightThread)
         return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
         return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         (1..7).map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx), 1) }.min
@@ -408,13 +409,27 @@ class NSXLightThreadsStreamsInterface
 
     # NSXLightThreadsStreamsInterface::catalystObjectForCompanionFile(lightThread)
     def self.catalystObjectForCompanionFile(lightThread)
+        companionFilepath = NSXLightThreadsStreamsInterface::lightThreadToCompanionFilepath(lightThread)
         {
             "uuid"      => "4b9bcf0a",
             "agent-uid" => "201cac75-9ecc-4cac-8ca1-2643e962a6c6", # LightThread agent
-            "metric"    => 1.1 * NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread),
-            "announce"  => "LightThread Companion File: #{NSXLightThreadsStreamsInterface::lightThreadToCompanionFilepath(lightThread)}",
-            "commands"  => ["start-the-thread-itself-and-open-the-file"],
-            "default-expression" => nil
+            "metric"    => ( NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0.9 : 1.1 ) * NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread),
+            "announce"  => "[LightThread: #{lightThread["description"]}] Companion File: #{companionFilepath}",
+            "commands"  => [],
+            "default-expression" => "start-the-thread-itself-and-open-the-file",
+            "data"      => {
+                "companion-filepath" => companionFilepath,
+                "lightThread" => lightThread
+            },
+            "commands-lambdas" => {
+                "start-the-thread-itself-and-open-the-file" => lambda{|object|
+                    companionFilepath = object["data"]["companion-filepath"]
+                    lightThreadUUID = object["data"]["lightThread"]["uuid"]
+                    NSXLightThreadUtils::startLightThread(lightThreadUUID)
+                    NSXMiscUtils::setStandardListingPosition(1)
+                    system("open '#{companionFilepath}'")
+                }
+            }
         }       
     end
 
@@ -423,12 +438,12 @@ class NSXLightThreadsStreamsInterface
         if NSXLightThreadsStreamsInterface::thereIsACompanionFile(lightThread) then
             return [ NSXLightThreadsStreamsInterface::catalystObjectForCompanionFile(lightThread) ]
         end
-        baseMetric = NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
+        streamItemMetric = NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
         items
             .first(3)
-            .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, baseMetric) }
+            .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric) }
     end
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
