@@ -271,11 +271,8 @@ loop {
     # -----------------------------------------------------------------------------------
     # Special Processing
 
-    if focusobject and focusobject["announce"].include?("[LightThreadStreamItem: Interruption] location") then
-        streamItemUUID = focusobject["data"]["stream-item"]["uuid"]
-        streamItem = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
-        streamItem["streamuuid"] = "46be01f69bb3a10382ea547da04f8739"
-        NSXStreamsUtils::sendItemToDisk(streamItem)
+    if focusobject and focusobject["announce"].include?("Delivery Status Notification (Failure)") then
+        NSXGeneralCommandHandler::processCommand(focusobject, "done")
         next
     end
 
