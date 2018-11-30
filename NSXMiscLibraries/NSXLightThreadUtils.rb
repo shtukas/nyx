@@ -243,6 +243,7 @@ class NSXLightThreadUtils
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
+            puts "     Has a companion file: #{NSXLightThreadsStreamsInterface::thereIsACompanionFile(lightThread)}"
             operations = ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:"]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
@@ -395,8 +396,33 @@ end
 
 class NSXLightThreadsStreamsInterface
 
+    # NSXLightThreadsStreamsInterface::lightThreadToCompanionFilepath(lightThread)
+    def self.lightThreadToCompanionFilepath(lightThread)
+        "/Users/pascal/desktop/LightThreadsCompanionFiles/#{lightThread["description"]}.txt"
+    end
+
+    # NSXLightThreadsStreamsInterface::thereIsACompanionFile(lightThread)
+    def self.thereIsACompanionFile(lightThread)
+        File.exists?(NSXLightThreadsStreamsInterface::lightThreadToCompanionFilepath(lightThread))
+    end
+
+    # NSXLightThreadsStreamsInterface::catalystObjectForCompanionFile(lightThread)
+    def self.catalystObjectForCompanionFile(lightThread)
+        {
+            "uuid"      => "4b9bcf0a",
+            "agent-uid" => "201cac75-9ecc-4cac-8ca1-2643e962a6c6", # LightThread agent
+            "metric"    => 1.1 * NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread),
+            "announce"  => "LightThread Companion File: #{NSXLightThreadsStreamsInterface::lightThreadToCompanionFilepath(lightThread)}",
+            "commands"  => ["start-the-thread-itself-and-open-the-file"],
+            "default-expression" => nil
+        }       
+    end
+
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
     def self.lightThreadToItsStreamCatalystObjects(lightThread)
+        if NSXLightThreadsStreamsInterface::thereIsACompanionFile(lightThread) then
+            return [ NSXLightThreadsStreamsInterface::catalystObjectForCompanionFile(lightThread) ]
+        end
         baseMetric = NSXLightThreadMetrics::lightThread2StreamItemBaseMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)

@@ -291,7 +291,7 @@ class NSXStreamsUtils
         items = NSXStreamsUtils::getStreamItemsOrdered(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"))
         # first we remove the item from the stream
         items = items.reject{|item| item["uuid"]==streamItemUUID }
-        if item.size == 0 then
+        if items.size == 0 then
             return 1 # There was only one item (or zero) in the stream and we default to 1
         end 
         if items.size <= 4 then
