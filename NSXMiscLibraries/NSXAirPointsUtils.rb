@@ -80,8 +80,8 @@ class NSXAirPointsUtils
 		"air point: #{airPoint["description"]} (atlas reference: #{airPoint["atlas-reference"]})"
 	end
 
-	# NSXAirPointsUtils::selectAirPoint()
-	def self.selectAirPoint()
+	# NSXAirPointsUtils::selectAirPointOrNull()
+	def self.selectAirPointOrNull()
 		airPoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("air point:", NSXAirPointsUtils::getAirPoints(), lambda{ |airPoint| airPoint["description"] })
 		airPoint
 	end
@@ -110,7 +110,8 @@ class NSXAirPointsUtils
 
 	# NSXAirPointsUtils::airPointsDive()
 	def self.airPointsDive()
-		airPoint = NSXAirPointsUtils::selectAirPoint()
+		airPoint = NSXAirPointsUtils::selectAirPointOrNull()
+		return if airPoint.nil?
 		NSXAirPointsUtils::airPointDive(airPoint)
 	end
 

@@ -50,6 +50,7 @@ class NSXAgentBabyNights
                 puts "👶 Nights Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
                 NSXData::setWritableValue(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
+                return
             end
             xname = operation.downcase
             data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data.json"))

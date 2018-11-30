@@ -144,9 +144,10 @@ class NSXMiscUtils
     def self.isLucille19()
         ENV["COMPUTERLUCILLENAME"] == "Lucille19"
     end
-    
+
+    # NSXMiscUtils::getStandardListingPosition()   
     def self.getStandardListingPosition()
-        KeyValueStore::getOrDefaultValue(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133", 1)
+        KeyValueStore::getOrDefaultValue(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
     end
 
     # NSXMiscUtils::setStandardListingPosition(position)
