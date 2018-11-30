@@ -54,23 +54,6 @@ class NSXDisplayOperator
         part2.strip
     end
 
-    # NSXDisplayOperator::objectToString(object)
-    def self.objectToString(object)
-        announce = object['announce'].strip
-        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
-        part1 = 
-            [
-                "(#{"%.3f" % object["metric"]})",
-                " [#{object["uuid"]}]",
-                " #{announce}",
-            ].join()
-        if object["is-running"] then
-            part1 = part1.green
-        end
-        part2 = NSXDisplayOperator::objectInferfaceString(object)
-        part1 + part2
-    end
-
     # NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
     def self.objectToLineForMainListing(object, position, standardlp)
         if position == standardlp then
