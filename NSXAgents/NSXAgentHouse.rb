@@ -23,13 +23,13 @@ class NSXAgentHouse
 
     def self.shouldDoTask(task)
         return false if Time.new.hour < 6
-        unixtime = NSXAgentsDataKeyValueStore::getOrDefaultValue(NSXAgentHouse::agentuuid(), "7aec05d2-0156-404b-883a-4024348c1907:#{task}", "0").to_i
+        unixtime = NSXData::getValueAsIntegerOrDefaultValue(HOUSE_DATA_FOLDER, "7aec05d2-0156-404b-883a-4024348c1907:#{task}", 0)
         periodInDays = task.split(";")[0].to_f 
         (Time.new.to_i-unixtime) > periodInDays*86400
     end
 
     def self.markTaskAsDone(task)
-        NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "7aec05d2-0156-404b-883a-4024348c1907:#{task}", Time.new.to_i)
+        NSXData::setWritableValue(HOUSE_DATA_FOLDER, "7aec05d2-0156-404b-883a-4024348c1907:#{task}", Time.new.to_i)
     end
 
     def self.taskToCatalystObject(task)
@@ -48,10 +48,11 @@ class NSXAgentHouse
 
     # NSXAgentHouse::shouldDisplayObjects()
     def self.shouldDisplayObjects()
-        NSXAgentsDataKeyValueStore::getOrDefaultValue(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true") == "true"
+        NSXData::getValueAsStringOrNull(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}") == "true"
     end
 
     def self.getObjects()
+        return [] if !NSXMiscUtils::isLucille18()
         if !NSXAgentHouse::shouldDisplayObjects() then
             return []
         end
@@ -77,10 +78,10 @@ class NSXAgentHouse
         puts "Welcome to House Interface"
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show", "hide"])
         if operation == "show" then
-            NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true")
+            NSXData::setWritableValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true")
         end
         if operation == "hide" then
-            NSXAgentsDataKeyValueStore::set(NSXAgentHouse::agentuuid(), "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "false")
+            NSXData::setWritableValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "false")
         end
     end
 

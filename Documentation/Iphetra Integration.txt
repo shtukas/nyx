@@ -1,7 +1,0 @@
-
-The Iphetra integration happened on October 19th, 2018.
-
-The set are 
-	CATALYST_IPHETRA_AGENT_DATA_SETUUID_PREFIX+":"+agentuuid
-
-	LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
