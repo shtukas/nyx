@@ -21,13 +21,6 @@ require 'find'
 require 'drb/drb'
 require 'thread'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Iphetra.rb"
-=begin
-    Iphetra::commitObjectToDisk(repositoryRootFolderPath, setuuid, object)
-    Iphetra::getObjectByUUIDOrNull(repositoryRootFolderPath, setuuid, objectuuid)
-    Iphetra::getObjects(repositoryRootFolderPath, setuuid)
-=end
-
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
@@ -157,13 +150,6 @@ WaveDevOps::collectWave()
 NSXStreamsUtils::pickUpXStreamDropOff()
 
 # -------------------------------------------------------------------------
-
-Thread.new {
-    loop {
-        sleep 120
-        Iphetra::resetInMemoryData()
-    }
-}
 
 Thread.new {
     loop {
