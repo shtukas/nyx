@@ -14,7 +14,7 @@ class NSXData
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
-        File.open(filepath, "w"){|f| f.puts(value) }
+        File.open(filepath, "w"){|f| f.write(value) }
     end
 
     # NSXData::addObjectToSet(datarootfolderpath, setid, object)

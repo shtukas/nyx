@@ -22,18 +22,23 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # ----------------------------------------------------------------------
 
+DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/DoNotShowUntilDateTime"
+
 class NSXDoNotShowUntilDatetime
+
 	# NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     def self.setDatetime(objectuuid, datetime)
-        NSXSystemDataKeyValueStore::set("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}", datetime)
+        NSXData::setWritableValue(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, objectuuid, datetime)
     end
 
 	# NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
     def self.getFutureDatetimeOrNull(objectuuid)
-    	datetime = NSXSystemDataKeyValueStore::getOrNull("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}")
+    	#datetime = NSXSystemDataKeyValueStore::getOrNull("85362cf4-0a44-4203-aedc-02197d1a243e:#{objectuuid}")
+        datetime = NSXData::getValueAsStringOrNull(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, objectuuid)
 		return nil if datetime.nil?
         datetime = DateTime.parse(datetime).to_time.utc.iso8601
         return nil if Time.new.utc.iso8601 > datetime
         datetime
     end
+
 end
