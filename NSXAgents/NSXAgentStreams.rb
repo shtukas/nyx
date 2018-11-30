@@ -58,6 +58,7 @@ class NSXAgentStreams
         end
         if command == "start" then
             NSXStreamsUtils::startStreamItem(object["data"]["stream-item"]["uuid"])
+            NSXMiscUtils::setStandardListingPosition(1)
         end
         if command == "stop" then
             NSXAgentStreams::stopObject(object)
