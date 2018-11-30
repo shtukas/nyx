@@ -146,12 +146,12 @@ class NSXMiscUtils
     end
     
     def self.getStandardListingPosition()
-        KeyValueStore::getOrDefaultValue("301bc639-db20-4eff-bc84-94b4b9e4c133", 1)
+        KeyValueStore::getOrDefaultValue(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133", 1)
     end
 
     # NSXMiscUtils::setStandardListingPosition(position)
     def self.setStandardListingPosition(position)
-        KeyValueStore::set("301bc639-db20-4eff-bc84-94b4b9e4c133", position)
+        KeyValueStore::set(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end
 
     def self.emailSync(verbose)
