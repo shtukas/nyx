@@ -150,6 +150,12 @@ class NSXStreamsUtils
         items.map{|item| item["ordinal"] }.max + 1
     end
 
+    # NSXStreamsUtils::streamItemsWithoutLightThreadOwner()
+    def self.streamItemsWithoutLightThreadOwner()
+        managed_streamuuids = NSXLightThreadUtils::lightThreads().map{|lt| lt["streamuuid"] }
+        NSXStreamsUtils::allStreamsItemsEnumerator().reject{|streamItem| managed_streamuuids.include?(streamItem["streamuuid"]) }
+    end
+
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
