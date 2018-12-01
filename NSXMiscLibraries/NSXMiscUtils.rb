@@ -243,7 +243,7 @@ class NSXMiscUtils
         end
         [
             "(#{"%.3f" % object["metric"]})",
-            object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
+            object['announce'].lines.count > 1 ? " MULTILINE:" : "",
             " #{announce}",
             NSXMiscUtils::object2DoNotShowUntilAsString(object),
         ].join()
