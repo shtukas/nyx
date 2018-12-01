@@ -37,7 +37,6 @@ require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXAirPointsUtils.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
 require_relative "NSXMiscLibraries/NSXData.rb"
-require_relative "NSXMiscLibraries/NSXDayNotes.rb"
 require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
 require_relative "NSXMiscLibraries/NSXGenericContents.rb"
@@ -52,6 +51,7 @@ require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
+require_relative "NSXAgents/NSXAgentTodayNotes.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
 require_relative "NSXAgents/NSXAgentLightThread.rb"
 require_relative "NSXAgents/NSXAgentNinja.rb"
@@ -208,19 +208,11 @@ loop {
                 if position == standardlp then
                     focusobject = object
                 end 
-                puts NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
+                puts NSXDisplayOperator::objectToStringForCatalystListing(object, position, standardlp)
                 displayScreenSizeLeft = displayScreenSizeLeft - 1
             }
 
     else
-
-        dayNotes = NSXDayNotes::displayOrNull()
-        if dayNotes then
-            dayNotesSize = NSXMiscUtils::screenHeight()/4
-            puts ""
-            puts dayNotes.lines.first(dayNotesSize).join().strip.green
-            displayScreenSizeLeft = displayScreenSizeLeft - dayNotesSize - 1
-        end
 
         airPoints = NSXAirPointsUtils::getAirPoints()
         if airPoints.size > 0 then
@@ -235,12 +227,13 @@ loop {
         puts "" 
         objects.each_with_index{|object, indx|
             position = indx+1
-            next if displayScreenSizeLeft == 0 
+            next if displayScreenSizeLeft <= 0 
             if position == standardlp then
                 focusobject = object
             end 
-            puts NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
-            displayScreenSizeLeft = displayScreenSizeLeft - 1
+            string =  NSXDisplayOperator::objectToStringForCatalystListing(object, position, standardlp)
+            displayScreenSizeLeft = displayScreenSizeLeft - string.lines.to_a.count
+            puts string
         }
 
     end

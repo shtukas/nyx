@@ -18,19 +18,8 @@
 
 class NSXDisplayOperator
 
-    # NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(object)
-    def self.doPresentObjectInviteAndExecuteCommand(object)
-        return if object.nil?
-        puts NSXMiscUtils::objectToString(object)
-        puts NSXDisplayOperator::objectInferfaceString(object)
-        print "--> "
-        command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
-        NSXGeneralCommandHandler::processCommand(object, command)
-    end
-
-    # NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)
-    def self.positionPrefixForMailListingDisplay(standardlp, position)
+    # NSXDisplayOperator::positionPrefix(standardlp, position)
+    def self.positionPrefix(standardlp, position)
         if standardlp and position and standardlp==position then
             "[* #{"%2d" % position}]"
         else
@@ -54,16 +43,51 @@ class NSXDisplayOperator
         part2.strip
     end
 
-    # NSXDisplayOperator::objectToLineForMainListing(object, position, standardlp)
-    def self.objectToLineForMainListing(object, position, standardlp)
+    # NSXDisplayOperator::objectToMultipleLinesForCatalystListings(object, position, standardlp)
+    def self.objectToMultipleLinesForCatalystListings(object, position, standardlp)
+        
+        addLeftPadding = lambda{|string, padding|
+            string
+                .lines
+                .map{|line| padding+line }
+                .join()
+        }
+
+        announce = object['announce']
+        if object["is-running"] then
+            announce = announce.green
+        end
+        [
+            "(#{"%.3f" % object["metric"]}) #{NSXMiscUtils::object2DoNotShowUntilAsString(object)}",
+            addLeftPadding.call(object['announce'], "               "),
+            "               " + NSXDisplayOperator::objectInferfaceString(object)
+        ].join("\n")
+    end
+
+    # NSXDisplayOperator::objectToStringForCatalystListing(object, position, standardlp)
+    def self.objectToStringForCatalystListing(object, position, standardlp)
         if position == standardlp then
             [
-                "#{NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)}",
-                "               " + NSXDisplayOperator::objectInferfaceString(object)
-            ].join("\n")
+                NSXDisplayOperator::positionPrefix(standardlp, position),
+                NSXDisplayOperator::objectToMultipleLinesForCatalystListings(object, position, standardlp)
+            ].join(" ")
         else
-            "#{NSXDisplayOperator::positionPrefixForMailListingDisplay(standardlp, position)} #{NSXMiscUtils::objectToString(object)[0,NSXMiscUtils::screenWidth()-9]}"
+            [
+               NSXDisplayOperator::positionPrefix(standardlp, position),
+               NSXMiscUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
+            ].join(" ")
         end
+    end
+
+    # NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(object)
+    def self.doPresentObjectInviteAndExecuteCommand(object)
+        return if object.nil?
+        puts NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
+        puts NSXDisplayOperator::objectInferfaceString(object)
+        print "--> "
+        command = STDIN.gets().strip
+        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        NSXGeneralCommandHandler::processCommand(object, command)
     end
 
 end

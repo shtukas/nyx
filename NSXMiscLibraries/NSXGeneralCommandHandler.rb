@@ -22,7 +22,6 @@ class NSXGeneralCommandHandler
         puts "    search <pattern>"
         puts "    :<p>        # set the listing reference point"
         puts "    +           # add 1 to the standard listing position"
-        puts "    ++          # delete the first line of DayNotes.txt"
         puts ""
         puts "    /           # menu of commands"
         puts ""
@@ -61,11 +60,6 @@ class NSXGeneralCommandHandler
 
         if command == "+" then
             NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            return
-        end
-        
-        if command == '++' then
-            NSXDayNotes::deleteFirstLine()
             return
         end
 
@@ -155,10 +149,10 @@ class NSXGeneralCommandHandler
             pattern = command[6,command.size].strip
             loop {
                 searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToString(object).downcase.include?(pattern.downcase) }                
+                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }                
                 searchobjects = searchobjects1 + searchobjects2
                 break if searchobjects.size==0
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToString(object) })
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object) })
                 break if selectedobject.nil?
                 NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }

@@ -235,14 +235,14 @@ class NSXMiscUtils
         object
     end
 
-    # NSXMiscUtils::objectToString(object)
-    def self.objectToString(object)
+    # NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
+    def self.objectToOneLineForCatalystDisplay(object)
         announce = object['announce'].lines.first.strip
         if object["is-running"] then
             announce = announce.green
         end
         [
-            object[":is-lightThread-listing-7fdfb1be:"] ? "       " : "(#{"%.3f" % object["metric"]})",
+            "(#{"%.3f" % object["metric"]})",
             object['announce'].lines.count > 1 ? " **MULTILINE !!** " : "",
             " #{announce}",
             NSXMiscUtils::object2DoNotShowUntilAsString(object),

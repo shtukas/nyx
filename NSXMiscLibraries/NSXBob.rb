@@ -84,6 +84,16 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
+        "agent-name"  => "TodayNotes",
+        "agent-uid"   => "f7b21eb4-c249-4f0a-a1b0-d5d584c03316",
+        "get-objects" => lambda { NSXAgentTodayNotes::getObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentTodayNotes::processObjectAndCommand(object, command) },
+        "interface"   => lambda { NSXAgentTodayNotes::interface() }
+    }
+)
+
+NSXBob::registerAgent(
+    {
         "agent-name"  => "Vienna",
         "agent-uid"   => "2ba71d5b-f674-4daf-8106-ce213be2fb0e",
         "get-objects" => lambda { NSXAgentVienna::getObjects() },
