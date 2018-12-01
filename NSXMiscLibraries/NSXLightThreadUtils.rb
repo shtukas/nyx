@@ -508,12 +508,13 @@ end
 $lightThreadTimeTo100PercentInSecondsPrecomputedValues = {}
 
 Thread.new {
+    sleep 10
     loop {
-        sleep (1+rand)*60
         NSXLightThreadUtils::lightThreads()
         .each{|lightThread|
             $lightThreadTimeTo100PercentInSecondsPrecomputedValues[lightThread["uuid"]] = NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNullOrigins(lightThread)
         }
+        sleep (1+rand)*60
     }
 }
 

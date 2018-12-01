@@ -183,7 +183,7 @@ Thread.new {
 
 loop {
 
-    displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 7
+    displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 8
 
     system("clear")
 
@@ -223,6 +223,13 @@ loop {
                 }
             displayScreenSizeLeft = displayScreenSizeLeft - airPoints.size - 1
         end
+
+        puts ""
+        timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
+                                         .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
+                                         .compact
+                                         .inject(0, :+)
+        puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
 
         puts "" 
         objects.each_with_index{|object, indx|
