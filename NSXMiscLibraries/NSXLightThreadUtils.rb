@@ -140,6 +140,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
     def self.lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
+        return 0
         return nil if lightThread["priorityXp"][0] == "interruption-now"
         return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
         enumerator = NSXMiscUtils::integerEnumerator()
@@ -208,7 +209,7 @@ class NSXLightThreadUtils
         if timeTo100PercentString.size>0 then
             timeTo100PercentString = "(#{timeTo100PercentString}) "
         end
-        "[LightThread: #{lightThread["description"]}] (#{lightThread["priorityXp"].join(", ")}) #{timeTo100PercentString}"
+        "LightThread: #{lightThread["description"]} (#{lightThread["priorityXp"].join(", ")}) #{timeTo100PercentString}"
     end
 
     # -----------------------------------------------
@@ -241,7 +242,7 @@ class NSXLightThreadUtils
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     Time to 100%: #{NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
-            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread)}"
+            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
             puts "     Has a companion file: #{NSXLightThreadsStreamsInterface::thereIsACompanionFile(lightThread)}"
             operations = ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:"]
@@ -386,13 +387,27 @@ class NSXLightThreadMetrics
         0.9 * (1..7).map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
     end
 
-    # NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread)
-    def self.lightThread2StreamItemMetric(lightThread)
+    # NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
+    def self.lightThread2GenericStreamItemMetric(lightThread)
         return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
         return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         (1..7).map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx), 1) }.min
     end
 
+end
+
+$lightThreadToItsStreamItemsOrderedCache = {}                             # marker: 73ca550c-9508
+$lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap = {} # marker: 73ca550c-9508
+
+def nsxLightThreadsStreamsItemsOrdered_getCacheKey(lightThreadUUID) # marker: 73ca550c-9508
+    if $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap[lightThreadUUID].nil? then
+        $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap[lightThreadUUID] = SecureRandom.hex
+    end
+    $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap[lightThreadUUID]
+end
+
+def nsxLightThreadsStreamsItemsOrdered_resetCacheKey(lightThreadUUID) # marker: 73ca550c-9508
+    $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap.delete(lightThreadUUID)
 end
 
 class NSXLightThreadsStreamsInterface
@@ -413,8 +428,8 @@ class NSXLightThreadsStreamsInterface
         {
             "uuid"      => "4b9bcf0a",
             "agent-uid" => "201cac75-9ecc-4cac-8ca1-2643e962a6c6", # LightThread agent
-            "metric"    => ( NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0.9 : 1.1 ) * NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread),
-            "announce"  => "[LightThread: #{lightThread["description"]}] Companion File: #{companionFilepath}",
+            "metric"    => ( NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0.9 : 1.1 ) * NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread),
+            "announce"  => "LightThread: #{lightThread["description"]}; Companion File: #{companionFilepath}",
             "commands"  => [],
             "default-expression" => "start-the-thread-itself-and-open-the-file",
             "data"      => {
@@ -438,7 +453,7 @@ class NSXLightThreadsStreamsInterface
         if NSXLightThreadsStreamsInterface::thereIsACompanionFile(lightThread) then
             return [ NSXLightThreadsStreamsInterface::catalystObjectForCompanionFile(lightThread) ]
         end
-        streamItemMetric = NSXLightThreadMetrics::lightThread2StreamItemMetric(lightThread)
+        streamItemMetric = NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
         items
@@ -448,9 +463,20 @@ class NSXLightThreadsStreamsInterface
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
     def self.lightThreadToItsStreamItemsOrdered(lightThread)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+
+        cacheKey = nsxLightThreadsStreamsItemsOrdered_getCacheKey(lightThread["uuid"]) # marker: 73ca550c-9508
+        if $lightThreadToItsStreamItemsOrderedCache[cacheKey] then                     # marker: 73ca550c-9508
+            return $lightThreadToItsStreamItemsOrderedCache[cacheKey]                  # marker: 73ca550c-9508
+        end                                                                            # marker: 73ca550c-9508
+
+        items = NSXStreamsUtils::allStreamsItemsEnumerator()
             .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
+
+        $lightThreadToItsStreamItemsOrderedCache[cacheKey] = items # marker: 73ca550c-9508
+
+        items
+
     end
 
     # NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)

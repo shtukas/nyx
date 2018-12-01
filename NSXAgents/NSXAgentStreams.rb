@@ -59,19 +59,24 @@ class NSXAgentStreams
         if command == "start" then
             NSXStreamsUtils::startStreamItem(object["data"]["stream-item"]["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
+            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
         end
         if command == "stop" then
             NSXAgentStreams::stopObject(object)
+            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
         end
         if command == "done" then
             NSXAgentStreams::stopObject(object)
             NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
+            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
         end
         if command == "recast" then
             item = object["data"]["stream-item"]
             lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
             item["streamuuid"] = lightThread["streamuuid"]
             NSXStreamsUtils::sendItemToDisk(item)
+            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
+            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(lightThread["uuid"])                    # marker: 73ca550c-9508
         end
     end
 

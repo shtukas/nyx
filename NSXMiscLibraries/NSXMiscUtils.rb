@@ -237,7 +237,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
     def self.objectToOneLineForCatalystDisplay(object)
-        announce = object['announce'].lines.first.strip
+        announce = (object['announce'].lines.first || "").strip
         if object["is-running"] then
             announce = announce.green
         end
