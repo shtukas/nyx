@@ -42,7 +42,7 @@ class NSXGeneralCommandHandler
             else
                 NSXGenericContents::issueItemText(description)
             end
-        lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
+        lightThread = NSXLightThreadUtils::interactivelySelectOneLightThread()
         streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
         puts JSON.pretty_generate(streamItem)
     end

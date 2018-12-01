@@ -17,6 +17,7 @@ class NSXLightThreadUtils
     def self.lightThreads()
         Dir.entries(LIGHT_THREADS_FOLDERPATH)
             .select{|filename| filename[-5, 5]==".json" }
+            .sort
             .map{|filename| "#{LIGHT_THREADS_FOLDERPATH}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
@@ -215,14 +216,14 @@ class NSXLightThreadUtils
     # -----------------------------------------------
     # UI Utils
 
-    # NSXLightThreadUtils::interactivelySelectALightThread()
-    def self.interactivelySelectALightThread()
+    # NSXLightThreadUtils::interactivelySelectOneLightThread()
+    def self.interactivelySelectOneLightThread()
         xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", NSXLightThreadUtils::lightThreads(), xlambda)
     end
 
-    # NSXLightThreadUtils::interactivelySelectALightThreadPriority()
-    def self.interactivelySelectALightThreadPriority()
+    # NSXLightThreadUtils::interactivelySelectOneLightThreadPriority()
+    def self.interactivelySelectOneLightThreadPriority()
         xlambda = lambda{|index|
             mapping = ["Must be done", "Ideally done", "Luxury"]
             mapping[index-1]

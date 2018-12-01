@@ -63,7 +63,7 @@ class NSXAgentTodayNotes
         if command == ">stream" then
             text = object["section"].join()
             genericContentsItem = NSXGenericContents::issueItemText(text)
-            lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
+            lightThread = NSXLightThreadUtils::interactivelySelectOneLightThread()
             streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
         end
