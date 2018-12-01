@@ -141,7 +141,6 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
     def self.lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
-        return 0
         return nil if lightThread["priorityXp"][0] == "interruption-now"
         return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
         enumerator = NSXMiscUtils::integerEnumerator()
@@ -500,6 +499,44 @@ class NSXLightThreadsStreamsInterface
     end
 
 end
+
+# -----------------------------------------------------------------------
+# Cache System
+# Speeding up NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull
+# -----------------------------------------------------------------------
+
+$lightThreadTimeTo100PercentInSecondsPrecomputedValues = {}
+
+Thread.new {
+    loop {
+        sleep (1+rand)*60
+        NSXLightThreadUtils::lightThreads()
+        .each{|lightThread|
+            $lightThreadTimeTo100PercentInSecondsPrecomputedValues[lightThread["uuid"]] = NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNullOrigins(lightThread)
+        }
+    }
+}
+
+class NSXLightThreadUtils
+    # NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNullOrigins(lightThread)
+    def self.lightThreadTimeTo100PercentInSecondsOrNullOrigins(lightThread)
+        return nil if lightThread["priorityXp"][0] == "interruption-now"
+        return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        enumerator = NSXMiscUtils::integerEnumerator()
+        seconds = 0
+        loop {
+            seconds = enumerator.next() * 200
+            break if NSXLightThreadMetrics::lightThread2Metric(lightThread, seconds) <= 0.2
+        }
+        seconds
+    end
+
+    # NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
+    def self.lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
+        $lightThreadTimeTo100PercentInSecondsPrecomputedValues[lightThread["uuid"]]
+    end
+end
+
 
 
 
