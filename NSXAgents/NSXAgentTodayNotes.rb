@@ -5,11 +5,29 @@ require 'json'
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/SectionsType2102.rb"
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -------------------------------------------------------------------------------------
 
 DAY_NOTES_DATA_FILE_PATH = "/Users/pascal/Desktop/Today.txt"
 
 class NSXAgentTodayNotes
+
+    # NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(uuid)
+    def self.reWriteTodayFileWithoutThisSectionUUID(uuid)
+        NSXMiscUtils::copyLocationToCatalystBin(DAY_NOTES_DATA_FILE_PATH)
+        filecontents1 = IO.read(DAY_NOTES_DATA_FILE_PATH)
+        sections1 = SectionsType2102::contents_to_sections(filecontents1.lines.to_a,[])
+        sections2 = sections1.reject{|section| SectionsType2102::section_to_uuid(section)==uuid }
+        filecontents2 = sections2.map{|section| section.join() }.join()
+        File.open(DAY_NOTES_DATA_FILE_PATH, "w") { |io| io.puts(filecontents2)  }
+    end
 
     # NSXAgentTodayNotes::agentuuid()
     def self.agentuuid()
@@ -21,22 +39,25 @@ class NSXAgentTodayNotes
         sections = SectionsType2102::contents_to_sections(IO.read(DAY_NOTES_DATA_FILE_PATH).lines.to_a,[])
         sections.map{|section|
             # section: Array[String]
+            uuid = SectionsType2102::section_to_uuid(section)
             {
-                "uuid"               => SectionsType2102::section_to_uuid(section),
+                "uuid"               => uuid,
                 "agent-uid"          => NSXAgentTodayNotes::agentuuid(),
                 "metric"             => 0.95 - integers.next().to_f/1000,
                 "announce"           => SectionsType2102::section_to_string(section),
-                "commands"           => [],
-                "default-expression" => nil,
+                "commands"           => ["done"],
+                "default-expression" => "done",
                 "is-running"         => false,
-                "commands-lambdas"   => nil
+                "commands-lambdas"   => nil,
+                "section-uuid"       => SectionsType2102::section_to_uuid(section)
             }
-        }
+
+        }.compact
     end
 
     def self.processObjectAndCommand(object, command)
-        if command == "" then
-
+        if command == "done" then
+            NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
         end
     end
 

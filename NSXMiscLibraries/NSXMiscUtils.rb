@@ -270,6 +270,14 @@ class NSXMiscUtils
         end
     end
 
+    # NSXMiscUtils::copyLocationToCatalystBin(location)
+    def self.copyLocationToCatalystBin(location)
+        return if location.nil?
+        return if !File.exists?(location)
+        targetFolder = NSXMiscUtils::newBinArchivesFolderpath()
+        FileUtils.cp(location,targetFolder)
+    end
+
     # NSXMiscUtils::moveLocationToCatalystBin(location)
     def self.moveLocationToCatalystBin(location)
         return if location.nil?
