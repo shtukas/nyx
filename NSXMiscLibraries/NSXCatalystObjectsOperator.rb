@@ -3,6 +3,17 @@
 
 class NSXCatalystObjectsOperator
 
+    # NSXCatalystObjectsOperator::getEndOfHardWorkEmoticon()
+    def self.getEndOfHardWorkEmoticon()
+        {
+            "uuid"               => "10bd6790", 
+            "agent-uid"          => nil,
+            "metric"             => 0.4,
+            "announce"           => "(╯°□°）╯︵ ┻━┻",
+            "commands"           => []
+        }
+    end
+
     # NSXCatalystObjectsOperator::getObjects()
     def self.getObjects()
         NSXBob::agents()
@@ -14,7 +25,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectsForDisplay()
     def self.catalystObjectsForDisplay() 
-        NSXCatalystObjectsOperator::getObjects()
+        (NSXCatalystObjectsOperator::getObjects() + [NSXCatalystObjectsOperator::getEndOfHardWorkEmoticon()])
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .select{|object| object["metric"] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }

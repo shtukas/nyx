@@ -60,22 +60,35 @@ class NSXDisplayOperator
         [
             "(#{"%.3f" % object["metric"]}) #{NSXMiscUtils::object2DoNotShowUntilAsString(object)}",
             addLeftPadding.call(object['announce'], "               "),
-            "               " + NSXDisplayOperator::objectInferfaceString(object)
         ].join("\n")
     end
 
     # NSXDisplayOperator::objectToStringForCatalystListing(object, position, standardlp)
     def self.objectToStringForCatalystListing(object, position, standardlp)
         if position == standardlp then
-            [
-                NSXDisplayOperator::positionPrefix(standardlp, position),
-                NSXDisplayOperator::objectToMultipleLinesForCatalystListings(object, position, standardlp)
-            ].join(" ")
+            if object['announce'].lines.to_a.size > 1 then
+                [
+                    NSXDisplayOperator::positionPrefix(standardlp, position),
+                    " ",
+                    NSXDisplayOperator::objectToMultipleLinesForCatalystListings(object, position, standardlp),
+                    "\n",
+                    "              " + NSXDisplayOperator::objectInferfaceString(object)
+                ].join("")
+            else
+                [
+                   NSXDisplayOperator::positionPrefix(standardlp, position),
+                   " ",
+                   NSXMiscUtils::objectToOneLineForCatalystDisplay(object),
+                   "\n",
+                   "               " + NSXDisplayOperator::objectInferfaceString(object)
+                ].join("")
+            end
         else
             [
                NSXDisplayOperator::positionPrefix(standardlp, position),
+               " ",
                NSXMiscUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
-            ].join(" ")
+            ].join("")
         end
     end
 

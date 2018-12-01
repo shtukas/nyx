@@ -177,9 +177,12 @@ class NSXGeneralCommandHandler
             return
         end
         
-        command.split(";").map{|t| t.strip }
-            .each{|command|
-                NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
-            }
+        if object["agent-uid"] then
+            command.split(";").map{|t| t.strip }
+                .each{|command|
+                    NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
+                }
+        end
+
     end
 end
