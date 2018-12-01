@@ -108,7 +108,7 @@ class NSXStreamsUtils
     end
 
     # -----------------------------------------------------------------
-    # Data Processing
+    # Issuers
 
     # NSXStreamsUtils::makeItem(streamUUID, genericContentFilename, ordinal)
     def self.makeItem(streamUUID, genericContentFilename, ordinal)
@@ -139,6 +139,9 @@ class NSXStreamsUtils
         genericContentFilename = genericItem["filename"]
         NSXStreamsUtils::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
     end
+
+    # -----------------------------------------------------------------
+    # Data Processing
 
     # NSXStreamsUtils::getNextOrdinalForStream(streamUUID)
     def self.getNextOrdinalForStream(streamUUID)

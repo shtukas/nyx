@@ -45,11 +45,12 @@ class NSXAgentTodayNotes
                 "agent-uid"          => NSXAgentTodayNotes::agentuuid(),
                 "metric"             => 0.95 - integers.next().to_f/1000,
                 "announce"           => SectionsType2102::section_to_string(section),
-                "commands"           => ["done"],
+                "commands"           => ["done", ">stream"],
                 "default-expression" => "done",
                 "is-running"         => false,
                 "commands-lambdas"   => nil,
-                "section-uuid"       => SectionsType2102::section_to_uuid(section)
+                "section-uuid"       => SectionsType2102::section_to_uuid(section),
+                "section"            => section
             }
 
         }.compact
@@ -57,6 +58,13 @@ class NSXAgentTodayNotes
 
     def self.processObjectAndCommand(object, command)
         if command == "done" then
+            NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
+        end
+        if command == ">stream" then
+            text = object["section"].join()
+            genericContentsItem = NSXGenericContents::issueItemText(text)
+            lightThread = NSXLightThreadUtils::interactivelySelectALightThread()
+            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
         end
     end
