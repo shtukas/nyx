@@ -194,6 +194,16 @@ class NSXGenericContents
         "Error 42b5f47a: #{address.class.to_s}"
     end
 
+    # NSXGenericContents::emailFilenameToDateTime(filename)
+    def self.emailFilenameToDateTime(filename)
+        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
+        return "Error cf238fc1: unknown file" if filepath.nil?
+        mailObject = Mail.read(filepath)
+        mailObject.date.to_s
+    end
+
+
+
     # NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
     def self.filenameToCatalystObjectAnnounce(genericContentFilename)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
@@ -209,7 +219,7 @@ class NSXGenericContents
         end
         if genericContentItem["type"]=="email" then
             emailFilename = genericContentItem["email-filename"]
-            return "email (#{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
+            return "email (#{NSXGenericContents::emailFilenameToDateTime(emailFilename)}, #{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
         end
         if genericContentItem["type"]=="location" then
             return "location: #{genericContentItem["parent-foldername"]}"
