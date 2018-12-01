@@ -64,6 +64,21 @@ class GeneralEmailClient
         address
     end
 
+    # GeneralEmailClient::msgToSubject(msg)
+    def self.msgToSubject(msg)
+        filename = GeneralEmailClient::timeStringL22()
+        folderpath = "/tmp/catalyst-emails"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{filename}"
+        File.open(filepath, "w"){ |f| f.write(msg) }
+        mailObject = Mail.read(filepath)
+        subject = mailObject.subject
+        FileUtils.rm(filepath)
+        subject
+    end
+
     # GeneralEmailClient::shouldImportEmail(msg)
     def self.shouldImportEmail(msg)
         from = GeneralEmailClient::msgToFrom(msg)
@@ -83,6 +98,9 @@ class GeneralEmailClient
 
         imap.search(['ALL']).each{|id|
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
+            if verbose then
+                puts "#{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
+            end
             if GeneralEmailClient::shouldImportEmail(msg) then
                 NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("Right-Now"), NSXGenericContents::issueItemEmail(msg))
             else
