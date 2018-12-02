@@ -111,6 +111,7 @@ class NSXAirPointsUtils
 			if command == "destroy" then
 				if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this air point? ") then
 					NSXAirPointsUtils::destroyAirPoint(airPoint)
+					return
 				end
 			end
 		}
