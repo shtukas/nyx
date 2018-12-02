@@ -235,6 +235,7 @@ loop {
 
         puts ""
         timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
+                                         .select{|lightThread| lightThread["priorityXp"][0] == "stream-important" }
                                          .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
                                          .compact
                                          .inject(0, :+)
