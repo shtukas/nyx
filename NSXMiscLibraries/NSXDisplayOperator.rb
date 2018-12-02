@@ -45,14 +45,12 @@ class NSXDisplayOperator
 
     # NSXDisplayOperator::objectToMultipleLinesForCatalystListings(object, position, standardlp)
     def self.objectToMultipleLinesForCatalystListings(object, position, standardlp)
-        
         addLeftPadding = lambda{|string, padding|
             string
                 .lines
                 .map{|line| padding+line }
                 .join()
         }
-
         announce = object['announce']
         if object["is-running"] then
             announce = announce.green

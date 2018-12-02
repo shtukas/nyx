@@ -6,6 +6,7 @@ LightThread {
     :status      : LightThreadStatus
     :done        : Array[LightThreadTimeRecordItem]
     :streamuuid  : String UUID
+    :targetFolderpath : String, Folderpath
 }
 
 LightThreadPriorityXP
