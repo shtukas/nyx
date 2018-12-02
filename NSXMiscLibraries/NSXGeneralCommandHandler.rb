@@ -65,12 +65,12 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
+                "view AirPoints",
+                "view LightThreads",
                 "new AirPoint", 
                 "new wave (repeat item)", 
                 "new Stream Item", 
                 "new LightThread",
-                "view AirPoints",
-                "view LightThreads",
                 "email-sync",
                 "speed"
             ]
