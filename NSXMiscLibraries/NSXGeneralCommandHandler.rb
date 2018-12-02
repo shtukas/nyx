@@ -78,12 +78,9 @@ class NSXGeneralCommandHandler
             return if option.nil?
             if option == "new AirPoint" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
-                atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference (leave empty for new folder in Desktop/AirPointsFolders): ")
+                atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference (leave empty if none): ")
                 if atlasReference.size==0 then
-                    atlasReference = "atlas-#{SecureRandom.hex(8)}"
-                    folderpath = "/Users/pascal/Desktop/AirPointsFolders/#{atlasReference}"
-                    FileUtils.mkpath(folderpath)
-                    system("open '#{folderpath}'")
+                    atlasReference = nil
                 end
                 airPoint = NSXAirPointsUtils::makeAirPoint(atlasReference, description)
                 NSXAirPointsUtils::commitAirPointToDisk(airPoint)

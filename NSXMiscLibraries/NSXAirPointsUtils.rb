@@ -52,6 +52,10 @@ class NSXAirPointsUtils
 
 	# NSXAirPointsUtils::destroyAirPoint(airPoint)
 	def self.destroyAirPoint(airPoint)
+		if airPoint["atlas-reference"] then
+			print "This AirPoint has an atlas reference. Process the folder and press [enter]: "
+			STDIN.gets()
+		end
 		filename = airPoint["filename"]
 		filepath = "#{AIR_POINTS_LISTING_FOLDERPATH}/#{filename}"
 		return if !File.exists?(filepath)
@@ -77,7 +81,8 @@ class NSXAirPointsUtils
 
 	# NSXAirPointsUtils::airPointToString(airPoint)
 	def self.airPointToString(airPoint)
-		"air point: #{airPoint["description"]} (atlas reference: #{airPoint["atlas-reference"]})"
+		atlasReferenceFragment = airPoint["atlas-reference"] ? " (atlas reference: #{airPoint["atlas-reference"]})" : ""
+		"air point: #{airPoint["description"]}#{atlasReferenceFragment}"
 	end
 
 	# NSXAirPointsUtils::selectAirPointOrNull()
@@ -88,24 +93,27 @@ class NSXAirPointsUtils
 
 	# NSXAirPointsUtils::airPointDive(airPoint)
 	def self.airPointDive(airPoint)
-		puts NSXAirPointsUtils::airPointToString(airPoint)
-		command = LucilleCore::selectEntityFromListOfEntitiesOrNull("command:", ["open folder", "destroy"])
-		return if command.nil?
-		if command == "open folder" then
-			atlasReference = airPoint["atlas-reference"]
-			folderpath = `atlas locate #{atlasReference}`.strip
-			if File.exists?(folderpath) then
-				system("open '#{folderpath}'")
-			else
-				puts "Could not find the folder path for atlas reference #{atlasReference}"
-				LucilleCore::pressEnterToContinue()
+		loop {
+			puts NSXAirPointsUtils::airPointToString(airPoint)
+			commands = airPoint["atlas-reference"] ? ["open folder", "destroy"] : ["destroy"]
+			command = LucilleCore::selectEntityFromListOfEntitiesOrNull("command:", commands)
+			return if command.nil?
+			if command == "open folder" then
+				atlasReference = airPoint["atlas-reference"]
+				folderpath = `atlas locate #{atlasReference}`.strip
+				if File.exists?(folderpath) then
+					system("open '#{folderpath}'")
+				else
+					puts "Could not find the folder path for atlas reference #{atlasReference}"
+					LucilleCore::pressEnterToContinue()
+				end
 			end
-		end
-		if command == "destroy" then
-			if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this air point? ") then
-				NSXAirPointsUtils::destroyAirPoint(airPoint)
+			if command == "destroy" then
+				if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this air point? ") then
+					NSXAirPointsUtils::destroyAirPoint(airPoint)
+				end
 			end
-		end
+		}
 	end
 
 	# NSXAirPointsUtils::airPointsDive()

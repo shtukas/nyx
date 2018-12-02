@@ -2,7 +2,7 @@ AirPoints represent ongoing threads that are open issues/tasks. That need to be 
 
 AirPoint {
 	"uuid"              : String, UUID
-	"atlas-reference"   : String, Atlas Reference
+	"atlas-reference"   : nil or String, Atlas Reference
 	"description"       : String
 	"creation-unixtime" : Integer
 	"filename"          : String, Filename
