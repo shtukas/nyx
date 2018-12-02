@@ -228,7 +228,7 @@ class NSXLightThreadUtils
         return "" if ( lightThread["priorityXp"][0]=="interruption-now" or lightThread["priorityXp"][0]=="must-be-all-done-today" )
         xtime = NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) 
         if xtime then
-            "time to 100%: #{(xtime.to_f/3600).round(2)} hours"
+            "time to 100%: #{(xtime.to_f/3600).round(3)} hours"
         else
             ""
         end 
@@ -535,6 +535,9 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
     def self.lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
+        if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) then
+            return NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNullOrigins(lightThread)
+        end
         $lightThreadTimeTo100PercentInSecondsPrecomputedValues[lightThread["uuid"]]
     end
 end
