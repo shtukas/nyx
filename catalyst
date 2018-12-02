@@ -225,15 +225,13 @@ loop {
 
     else
 
-        claims = NSXRequirements::getData()
-        if claims.size>0 then
-            puts ""
-            puts "Requirements: "
-            claims.each{|claim| 
-                puts "    " + claim["requirement-description"].green 
-            }
-            displayScreenSizeLeft = displayScreenSizeLeft - claims.size - 2
-        end
+        puts ""
+        timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
+                                         .select{|lightThread| lightThread["priorityXp"][0] == "stream-important" }
+                                         .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
+                                         .compact
+                                         .inject(0, :+)
+        puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
 
         airPoints = NSXAirPointsUtils::getAirPoints()
         if airPoints.size > 0 then
@@ -245,13 +243,16 @@ loop {
             displayScreenSizeLeft = displayScreenSizeLeft - airPoints.size - 1
         end
 
-        puts ""
-        timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
-                                         .select{|lightThread| lightThread["priorityXp"][0] == "stream-important" }
-                                         .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
-                                         .compact
-                                         .inject(0, :+)
-        puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
+        claims = NSXRequirements::getData()
+        requirements = claims.map{|claim| claim["requirement-description"] }.uniq
+        if requirements.size>0 then
+            puts ""
+            puts "Requirements: "
+            requirements.each{|requirement| 
+                puts "    " + requirement.green 
+            }
+            displayScreenSizeLeft = displayScreenSizeLeft - requirements.size - 2
+        end
 
         puts "" 
         objects.each_with_index{|object, indx|
