@@ -275,7 +275,7 @@ class NSXLightThreadUtils
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
-            operations = ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:"]
+            operations = ["start", "stop", "add time:", "show timelog", "show elements", "update description:", "update LightThreadPriorityXP:"]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
             end
@@ -291,7 +291,7 @@ class NSXLightThreadUtils
             if operation=="start" then
                 NSXLightThreadUtils::startLightThread(lightThread["uuid"])
             end
-            if operation=="show time log" then
+            if operation=="show timelog" then
                 NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
                     .each{|item|
                         puts "    - #{Time.at(item["unixtime"]).to_s} : #{ (item["timespan"].to_f/3600).round(2) } hours"
@@ -309,7 +309,12 @@ class NSXLightThreadUtils
                 puts "To be implemented"
                 LucilleCore::pressEnterToContinue()                
             end
-            if operation=="issue new LightThreadPriorityXP:" then
+            if operation=="update description:" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                lightThread["description"] = description
+                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+            end
+            if operation=="update LightThreadPriorityXP:" then
                 priorityXp = NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
                 if priorityXp.nil? then
                     puts "You have not provided a priority. Aborting."
