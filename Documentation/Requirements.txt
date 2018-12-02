@@ -1,0 +1,5 @@
+RequirementClaim {
+    "uuid"        : String, UUID
+    "object-uuid" : String, UUID
+    "requirement-description" : String
+}

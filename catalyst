@@ -36,6 +36,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXAirPointsUtils.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
+require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
 require_relative "NSXMiscLibraries/NSXData.rb"
 require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
@@ -46,7 +47,7 @@ require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
-require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
+require_relative "NSXMiscLibraries/NSXRequirements.rb"
 require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
@@ -223,6 +224,16 @@ loop {
             }
 
     else
+
+        claims = NSXRequirements::getData()
+        if claims.size>0 then
+            puts ""
+            puts "Requirements: "
+            claims.each{|claim| 
+                puts "    " + claim["requirement-description"].green 
+            }
+            displayScreenSizeLeft = displayScreenSizeLeft - claims.size - 2
+        end
 
         airPoints = NSXAirPointsUtils::getAirPoints()
         if airPoints.size > 0 then

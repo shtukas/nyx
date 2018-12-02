@@ -13,7 +13,7 @@ require 'json'
 
 # -------------------------------------------------------------------------------------
 
-DATA_FILEPATH = "/Galaxy/DataBank/Catalyst/Agents-Data/OneLiners/data.json"
+ONE_LINERS_DATA_FILEPATH = "/Galaxy/DataBank/Catalyst/Agents-Data/OneLiners/data.json"
 
 =begin
 OneLiner {
@@ -32,12 +32,12 @@ class NSXAgentOneLiners
 
     # NSXAgentOneLiners::getData()
     def self.getData() # Array[OneLiner]
-        JSON.parse(IO.read(DATA_FILEPATH))
+        JSON.parse(IO.read(ONE_LINERS_DATA_FILEPATH))
     end
 
     # NSXAgentOneLiners::putDataToDisk(dataset)
     def self.putDataToDisk(dataset)
-        File.open(DATA_FILEPATH, "w"){|f| f.puts(JSON.pretty_generate(dataset)) }
+        File.open(ONE_LINERS_DATA_FILEPATH, "w"){|f| f.puts(JSON.pretty_generate(dataset)) }
     end
 
     # NSXAgentOneLiners::removeItemFromData(dataset, liner)
