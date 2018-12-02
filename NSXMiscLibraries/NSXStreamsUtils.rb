@@ -271,9 +271,11 @@ class NSXStreamsUtils
         end
         totalProcessingTimeInSeconds = item["run-data"].map{|x| x[1] }.inject(0, :+)
         if totalProcessingTimeInSeconds >= 3600 then
+            puts JSON.pretty_generate(item)
             # Here we update the oridinal or the object to be the new object in position 5
-            item["ordinal"] = NSXStreamsUtils::newPosition5OrdinalForXStreamItem(streamItemUUID)
+            item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForXStreamItem(item["streamuuid"], 3, item["uuid"])
             item["run-data"] = []
+            puts JSON.pretty_generate(item)
             NSXStreamsUtils::sendItemToDisk(item)
         end
     end
@@ -295,41 +297,18 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Special Circumstances
 
-    # NSXStreamsUtils::newPosition5OrdinalForXStreamItem(streamItemUUID)
-    def self.newPosition5OrdinalForXStreamItem(streamItemUUID)
-        items = NSXStreamsUtils::getStreamItemsOrdered(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"))
-        # first we remove the item from the stream
+    # NSXStreamsUtils::newPositionNOrdinalForXStreamItem(streamUUID, n, streamItemUUID)
+    def self.newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
+        items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
+        # First we remove the item from the stream
         items = items.reject{|item| item["uuid"]==streamItemUUID }
         if items.size == 0 then
             return 1 # There was only one item (or zero) in the stream and we default to 1
         end 
-        if items.size <= 4 then
+        if items.size < n then
             return items.last["ordinal"] + 1
         end
-        return ( items[3]["ordinal"] + items[4]["ordinal"] ).to_f/2 # Average of the 4th item and the 5th item ordinals
-    end
-
-    # NSXStreamsUtils::newLastPositionOrdinalForXStream()
-    def self.newLastPositionOrdinalForXStream()
-        items = NSXStreamsUtils::getStreamItemsOrdered(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"))
-        return 1 if items.size == 0
-        items.map{|item| item["ordinal"] }.max + 1
-    end
-
-    # NSXStreamsUtils::newFrontPositionOrdinalForXStream()
-    def self.newFrontPositionOrdinalForXStream()
-        items = NSXStreamsUtils::getStreamItemsOrdered(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"))
-        return 1 if items.size == 0
-        items.map{|item| item["ordinal"] }.min - 1
-    end
-
-    # NSXStreamsUtils::moveToXStreamAtOrdinal(streamItemUUID, ordinal)
-    def self.moveToXStreamAtOrdinal(streamItemUUID, ordinal)
-        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
-        return if item.nil?
-        item["streamuuid"] = NSXStreamsUtils::streamOldNameToStreamUUID("XStream")
-        item["ordinal"] = ordinal
-        NSXStreamsUtils::sendItemToDisk(item)
+        return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end
 
     # NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping()

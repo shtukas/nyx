@@ -474,7 +474,7 @@ class NSXLightThreadsStreamsInterface
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
         items
-            .first(3)
+            .first(1)
             .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric) }
     end
 
