@@ -175,42 +175,6 @@ class NSXLightThreadUtils
         object 
     end
 
-    # NSXLightThreadUtils::lightThreadToCompanionFilepath(lightThread)
-    def self.lightThreadToCompanionFilepath(lightThread)
-        "/Users/pascal/desktop/LightThreadsCompanionFiles/#{lightThread["description"]}.txt"
-    end
-
-    # NSXLightThreadUtils::thereIsACompanionFile(lightThread)
-    def self.thereIsACompanionFile(lightThread)
-        File.exists?(NSXLightThreadUtils::lightThreadToCompanionFilepath(lightThread))
-    end
-
-    # NSXLightThreadUtils::catalystObjectForCompanionFile(lightThread)
-    def self.catalystObjectForCompanionFile(lightThread)
-        companionFilepath = NSXLightThreadUtils::lightThreadToCompanionFilepath(lightThread)
-        {
-            "uuid"      => "4b9bcf0a",
-            "agent-uid" => "201cac75-9ecc-4cac-8ca1-2643e962a6c6", # LightThread agent
-            "metric"    =>  NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread),
-            "announce"  => "LightThread: #{lightThread["description"]}; Companion File: #{companionFilepath}",
-            "commands"  => [],
-            "default-expression" => "start-the-thread-itself-and-open-the-file",
-            "data"      => {
-                "companion-filepath" => companionFilepath,
-                "lightThread" => lightThread
-            },
-            "commands-lambdas" => {
-                "start-the-thread-itself-and-open-the-file" => lambda{|object|
-                    companionFilepath = object["data"]["companion-filepath"]
-                    lightThreadUUID = object["data"]["lightThread"]["uuid"]
-                    NSXLightThreadUtils::startLightThread(lightThreadUUID)
-                    NSXMiscUtils::setStandardListingPosition(1)
-                    system("open '#{companionFilepath}'")
-                }
-            }
-        }
-    end
-
     # NSXLightThreadUtils::lightThreadToTargetFolderCatalystObjectOrNull(lightThread)
     def self.lightThreadToTargetFolderCatalystObjectOrNull(lightThread)
         targetFolderpath = lightThread["targetFolderpath"]
@@ -306,7 +270,6 @@ class NSXLightThreadUtils
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
-            puts "     Has a companion file: #{NSXLightThreadUtils::thereIsACompanionFile(lightThread)}"
             operations = ["show elements", "start", "stop", "show time log", "add time:", "issue new LightThreadPriorityXP:"]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
@@ -467,9 +430,6 @@ class NSXLightThreadsStreamsInterface
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
     def self.lightThreadToItsStreamCatalystObjects(lightThread)
-        if NSXLightThreadUtils::thereIsACompanionFile(lightThread) then
-            return [ NSXLightThreadUtils::catalystObjectForCompanionFile(lightThread) ]
-        end
         streamItemMetric = NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
