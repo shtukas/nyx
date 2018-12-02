@@ -68,6 +68,7 @@ class NSXGeneralCommandHandler
                 "view AirPoints",
                 "view LightThreads",
                 "new AirPoint", 
+                "new line",
                 "new wave (repeat item)", 
                 "new Stream Item", 
                 "new LightThread",
@@ -84,6 +85,9 @@ class NSXGeneralCommandHandler
                 end
                 airPoint = NSXAirPointsUtils::makeAirPoint(atlasReference, description)
                 NSXAirPointsUtils::commitAirPointToDisk(airPoint)
+            end
+            if option == "new line" then
+                NSXAgentOneLiners::issueLiner(LucilleCore::askQuestionAnswerAsString("line: "))
             end
             if option == "new wave (repeat item)" then
                 description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")

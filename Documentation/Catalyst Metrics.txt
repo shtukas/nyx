@@ -1,18 +1,19 @@
 
 The bulk of the metrics are between 0.2 and 0.8
 
-        2.00 : Running
-        0.97 : NSXAgentBabyNights
-        0.95 : Wave (sticky)
-        0.93 : NSXAgentHouse
-        0.90 : LightThread (Interruptions)
-        0.85 : Wave (every-this-day-of-the-month, every-this-day-of-the-week)
-        0.80 : Wave (on-date)
-        0.70 : Wave (every-n-hours, every-n-days)
-        0.65 : DayNotes
-        0.60 : LightThread (Must Be All Done Today)
-0.40 -> 0.60 : LightThread (Streams Important)
-        0.40 : (^_^)
-0.20 -> 0.40 : LightThread (Streams Luxury)
+        2.00  : Running
+        0.98+ : OneLiners
+        0.97  : NSXAgentBabyNights
+        0.95  : Wave (sticky)
+        0.93  : NSXAgentHouse
+        0.90  : LightThread (Interruptions)
+        0.85  : Wave (every-this-day-of-the-month, every-this-day-of-the-week)
+        0.80  : Wave (on-date)
+        0.70  : Wave (every-n-hours, every-n-days)
+        0.65  : DayNotes
+        0.60  : LightThread (Must Be All Done Today)
+0.40 -> 0.60  : LightThread (Streams Important)
+        0.40  : (^_^)
+0.20 -> 0.40  : LightThread (Streams Luxury)
 
-0.20 -> 0.80 : NSXAgentNinja
+0.20 -> 0.80  : NSXAgentNinja
