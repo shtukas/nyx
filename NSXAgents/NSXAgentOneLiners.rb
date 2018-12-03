@@ -45,9 +45,14 @@ class NSXAgentOneLiners
         dataset.reject{|l| l["uuid"]==liner["uuid"] }
     end
 
+    # NSXAgentOneLiners::linerUUIDToCatalystObjectUUID(uuid)
+    def self.linerUUIDToCatalystObjectUUID(uuid)
+        Digest::SHA1.hexdigest("d13674f7-ada4-4b57-b15b-de697cea63a3:#{uuid}")
+    end
+
     # NSXAgentOneLiners::linerToCatalystObject(liner)
     def self.linerToCatalystObject(liner)
-        uuid = Digest::SHA1.hexdigest("d13674f7-ada4-4b57-b15b-de697cea63a3:#{liner["uuid"]}")
+        uuid = NSXAgentOneLiners::linerUUIDToCatalystObjectUUID(uuid)
         {
             "uuid"               => uuid,
             "agent-uid"          => self.agentuuid(),
@@ -76,13 +81,14 @@ class NSXAgentOneLiners
 
     end
 
-    # NSXAgentOneLiners::issueLiner(line)
+    # NSXAgentOneLiners::issueLiner(line): OneLiner
     def self.issueLiner(line)
         liner = {}
         liner["uuid"] = SecureRandom.hex
         liner["unixtime"] = Time.new.to_i
         liner["line"] = line
         NSXAgentOneLiners::putDataToDisk( NSXAgentOneLiners::getData() + [liner] )
+        liner
     end
 
 end

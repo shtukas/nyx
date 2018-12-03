@@ -19,11 +19,14 @@ class NSXGeneralCommandHandler
     def self.putshelp()
         puts "Special General Commands"
         puts "    help"
-        puts "    search <pattern>"
         puts "    :<p>        # set the listing reference point"
         puts "    +           # add 1 to the standard listing position"
         puts ""
         puts "    /           # menu of commands"
+        puts "    search <pattern>"
+        puts "    require <name> # set the focus object against that requirement"
+        puts "    requirement <name> # release all the objects against that requirement"
+        puts "    lwr # liner with requirement"
         puts ""
     end
 
@@ -146,15 +149,23 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?("require: ") then
-            requirementDescription = command[8, command.size].strip
+        if !command.start_with?("requirement") and command.start_with?("require") then
+            requirementDescription = command[7, command.size].strip
             NSXRequirements::issueRequirementClaim(object["uuid"], requirementDescription)
             return
         end
 
-        if command.start_with?("requirement: ") then
-            requirementDescription = command[12, command.size].strip
+        if command.start_with?("requirement") then
+            requirementDescription = command[11, command.size].strip
             NSXRequirements::removeClaimsOnDiskIdentifiedByDescription(requirementDescription)
+            return
+        end
+
+        if command == "lwr" then
+            linerDescription = LucilleCore::askQuestionAnswerAsString("liner: ")
+            liner = NSXAgentOneLiners::issueLiner(linerDescription)
+            requirementDescription = LucilleCore::askQuestionAnswerAsString("requirement description: ")
+            NSXRequirements::issueRequirementClaim(NSXAgentOneLiners::linerUUIDToCatalystObjectUUID(liner["uuid"]), requirementDescription)          
             return
         end
 
