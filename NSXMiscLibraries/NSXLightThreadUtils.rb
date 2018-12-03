@@ -285,6 +285,7 @@ class NSXLightThreadUtils
             end
             if operation=="show timelog" then
                 NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
+                    .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"] }
                     .each{|item|
                         puts "    - #{Time.at(item["unixtime"]).to_s} : #{ (item["timespan"].to_f/3600).round(2) } hours"
                     }
