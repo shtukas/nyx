@@ -74,16 +74,6 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "OneLiners",
-        "agent-uid"   => "ef7253ae-f890-4342-a1da-81ac8dbdb344",
-        "get-objects" => lambda { NSXAgentOneLiners::getObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentOneLiners::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentOneLiners::interface() }
-    }
-)
-
-NSXBob::registerAgent(
-    {
         "agent-name"  => "Streams",
         "agent-uid"   => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
         "get-objects" => lambda { NSXAgentStreams::getObjects() },

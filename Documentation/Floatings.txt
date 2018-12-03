@@ -1,4 +1,4 @@
-OneLiner {
+Floating {
     "uuid"     : String, UUID
     "unixtime" : Integer
     "line"     : String

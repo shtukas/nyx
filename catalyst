@@ -34,7 +34,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 # -----------------------------------------------------------------
 
 require_relative "NSXMiscLibraries/NSXConstants.rb"
-require_relative "NSXMiscLibraries/NSXAirPointsUtils.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
 require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
 require_relative "NSXMiscLibraries/NSXData.rb"
@@ -45,6 +44,7 @@ require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
+require_relative "NSXMiscLibraries/NSXFloatings.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXRequirements.rb"
@@ -56,7 +56,6 @@ require_relative "NSXAgents/NSXAgentTodayNotes.rb"
 require_relative "NSXAgents/NSXAgentHouse.rb"
 require_relative "NSXAgents/NSXAgentLightThread.rb"
 require_relative "NSXAgents/NSXAgentNinja.rb"
-require_relative "NSXAgents/NSXAgentOneLiners.rb"
 require_relative "NSXAgents/NSXAgentStreams.rb"
 require_relative "NSXAgents/NSXAgentVienna.rb"
 require_relative "NSXAgents/NSXAgentWave.rb"
@@ -233,15 +232,15 @@ loop {
                                          .inject(0, :+)
         puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
 
-        airPoints = NSXAirPointsUtils::getAirPoints()
-        if airPoints.size > 0 then
+        floatings = NSXFloatings::getFloatings()
+        if floatings.size>0 then
             puts ""
-            airPoints
-                .each{|airPoint| 
-                    puts NSXAirPointsUtils::airPointToString(airPoint).yellow
-                }
-            displayScreenSizeLeft = displayScreenSizeLeft - airPoints.size - 1
+            floatings.each{|floating|
+                puts "- " + floating["line"].yellow
+            }
+            displayScreenSizeLeft = displayScreenSizeLeft - floatings.size - 1
         end
+
 
         claims = NSXRequirements::getData()
         requirements = claims.map{|claim| claim["requirement-description"] }.uniq

@@ -23,10 +23,10 @@ class NSXGeneralCommandHandler
         puts "    +           # add 1 to the standard listing position"
         puts ""
         puts "    /           # menu of commands"
-        puts "    search <pattern>"
-        puts "    require <name> # set the focus object against that requirement"
-        puts "    requirement <name> # release all the objects against that requirement"
-        puts "    lwr # liner with requirement"
+        puts "    search: <pattern>"
+        puts "    require: <name> # set the focus object against that requirement"
+        puts "    requirement: <name> # release all the objects against that requirement"
+        puts "    line: <line> # new Important Item"
         puts ""
     end
 
@@ -68,10 +68,9 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "view AirPoints",
                 "view LightThreads",
-                "new AirPoint", 
-                "new line",
+                "issue floating",
+                "remove floating",                
                 "new wave (repeat item)", 
                 "new Stream Item", 
                 "new LightThread",
@@ -80,17 +79,11 @@ class NSXGeneralCommandHandler
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option:", options)
             return if option.nil?
-            if option == "new AirPoint" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                atlasReference = LucilleCore::askQuestionAnswerAsString("atlas reference (leave empty if none): ")
-                if atlasReference.size==0 then
-                    atlasReference = nil
-                end
-                airPoint = NSXAirPointsUtils::makeAirPoint(atlasReference, description)
-                NSXAirPointsUtils::commitAirPointToDisk(airPoint)
+            if option == "issue floating" then
+                NSXFloatings::issueFloating(LucilleCore::askQuestionAnswerAsString("description: "))
             end
-            if option == "new line" then
-                NSXAgentOneLiners::issueLiner(LucilleCore::askQuestionAnswerAsString("line: "))
+            if option == "remove floating" then
+                NSXFloatings::interactivelySelectAndRemoveOneFloating()
             end
             if option == "new wave (repeat item)" then
                 description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
@@ -109,9 +102,6 @@ class NSXGeneralCommandHandler
                 end
                 lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
                 puts JSON.pretty_generate(lightThread)
-            end
-            if option == "view AirPoints" then
-                NSXAirPointsUtils::airPointsDive()
             end
             if option == "view LightThreads" then
                 NSXLightThreadUtils::lightThreadsDive()
@@ -149,28 +139,33 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if !command.start_with?("requirement") and command.start_with?("require") then
-            requirementDescription = command[7, command.size].strip
+        if command.start_with?("line:") then
+            description = command[5, command.size].strip
+            genericContentsItem = 
+                if description.start_with?("http") then
+                    NSXGenericContents::issueItemURL(description)
+                else
+                    NSXGenericContents::issueItemText(description)
+                end
+            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem) # Must All Be Done Today
+            puts JSON.pretty_generate(streamItem)
+            return
+        end
+
+        if command.start_with?("require:") then
+            requirementDescription = command[8, command.size].strip
             NSXRequirements::issueRequirementClaim(object["uuid"], requirementDescription)
             return
         end
 
-        if command.start_with?("requirement") then
-            requirementDescription = command[11, command.size].strip
+        if command.start_with?("requirement:") then
+            requirementDescription = command[12, command.size].strip
             NSXRequirements::removeClaimsOnDiskIdentifiedByDescription(requirementDescription)
             return
         end
 
-        if command == "lwr" then
-            linerDescription = LucilleCore::askQuestionAnswerAsString("liner: ")
-            liner = NSXAgentOneLiners::issueLiner(linerDescription)
-            requirementDescription = LucilleCore::askQuestionAnswerAsString("requirement description: ")
-            NSXRequirements::issueRequirementClaim(NSXAgentOneLiners::linerUUIDToCatalystObjectUUID(liner["uuid"]), requirementDescription)          
-            return
-        end
-
-        if command.start_with?("search") then
-            pattern = command[6,command.size].strip
+        if command.start_with?("search:") then
+            pattern = command[7,command.size].strip
             loop {
                 searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
                 searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }                
@@ -207,6 +202,6 @@ class NSXGeneralCommandHandler
                     NSXBob::getAgentDataByAgentUUIDOrNull(object["agent-uid"])["object-command-processor"].call(object, command)
                 }
         end
-
     end
+
 end

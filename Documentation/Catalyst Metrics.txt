@@ -2,7 +2,7 @@
 The bulk of the metrics are between 0.2 and 0.8
 
         2.00  : Running
-        0.98+ : OneLiners
+        0.98+ : Liners
         0.97  : NSXAgentBabyNights
         0.95  : Wave (sticky)
         0.93  : NSXAgentHouse
