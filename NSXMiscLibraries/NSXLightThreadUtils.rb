@@ -89,13 +89,6 @@ class NSXLightThreadUtils
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInHours * 3600)
     end
 
-    # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-    def self.interactivelySelectLightThreadOrNull()
-        lightThreads = NSXLightThreadUtils::lightThreads()
-        lightThread = LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })  
-        lightThread
-    end
-
     # NSXLightThreadUtils::sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
     def self.sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
         folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
@@ -246,10 +239,9 @@ class NSXLightThreadUtils
     # -----------------------------------------------
     # UI Utils
 
-    # NSXLightThreadUtils::interactivelySelectOneLightThread()
-    def self.interactivelySelectOneLightThread()
-        xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", NSXLightThreadUtils::lightThreads(), xlambda)
+    # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+    def self.interactivelySelectLightThreadOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", NSXLightThreadUtils::lightThreads().sort{|lt1, lt2| lt1["description"].downcase<=>lt2["description"].downcase }, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })
     end
 
     # NSXLightThreadUtils::interactivelySelectOneLightThreadPriority()

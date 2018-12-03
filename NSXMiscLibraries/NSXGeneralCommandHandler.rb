@@ -39,13 +39,14 @@ class NSXGeneralCommandHandler
     def self.interactiveMakeNewStreamItem()
         description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
+        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+        return if lightThread.nil?
         genericContentsItem = 
             if description.start_with?("http") then
                 NSXGenericContents::issueItemURL(description)
             else
                 NSXGenericContents::issueItemText(description)
             end
-        lightThread = NSXLightThreadUtils::interactivelySelectOneLightThread()
         streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
         puts JSON.pretty_generate(streamItem)
     end

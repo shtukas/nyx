@@ -73,7 +73,8 @@ class NSXAgentStreams
         end
         if command == "recast" then
             item = object["data"]["stream-item"]
-            lightThread = NSXLightThreadUtils::interactivelySelectOneLightThread()
+            lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+            return if lightThread.nil?
             item["streamuuid"] = lightThread["streamuuid"]
             NSXStreamsUtils::sendItemToDisk(item)
             nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
