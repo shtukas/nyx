@@ -227,6 +227,7 @@ loop {
         puts ""
         timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
                                          .select{|lightThread| lightThread["priorityXp"][0] == "stream-important" }
+                                         .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
                                          .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
                                          .compact
                                          .inject(0, :+)
