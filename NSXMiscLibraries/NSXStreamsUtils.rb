@@ -171,7 +171,7 @@ class NSXStreamsUtils
             else
                 ""
             end
-        "LightThreadStreamItem: #{lightThread["description"]}; #{genericContentsAnnounce} #{doNotShowString}"
+        "LightThreadStreamItem (#{item["ordinal"].round(3)}): #{lightThread["description"]}; #{genericContentsAnnounce} #{doNotShowString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
