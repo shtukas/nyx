@@ -46,7 +46,6 @@ class NSXAgentStreams
     def self.doneObject(object)
         NSXAgentStreams::stopObject(object)
         NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
-        nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
     end
 
     def self.processObjectAndCommand(object, command)
@@ -73,11 +72,9 @@ class NSXAgentStreams
         if command == "start" then
             NSXStreamsUtils::startStreamItem(object["data"]["stream-item"]["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
-            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
         end
         if command == "stop" then
             NSXAgentStreams::stopObject(object)
-            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
         end
         if command == "done" then
             NSXAgentStreams::doneObject(object)
@@ -88,8 +85,6 @@ class NSXAgentStreams
             return if lightThread.nil?
             item["streamuuid"] = lightThread["streamuuid"]
             NSXStreamsUtils::sendItemToDisk(item)
-            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
-            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(lightThread["uuid"])                    # marker: 73ca550c-9508
         end
 
         if command == "process-interruption" then
@@ -116,7 +111,6 @@ class NSXAgentStreams
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             NSXStreamsUtils::setItemDescription(item["uuid"], description)
             lightThread = object["data"]["light-thread"]
-            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(lightThread["uuid"])
         end
 
     end
