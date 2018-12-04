@@ -435,13 +435,20 @@ end
 
 class NSXLightThreadsStreamsInterface
 
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCount(lightThread)
+    def self.lightThreadToItsStreamCatalystObjectsCount(lightThread)
+        return 999 if lightThread["priorityXp"][0] == "interruption-now"
+        return 999 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        1
+    end
+
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
     def self.lightThreadToItsStreamCatalystObjects(lightThread)
         streamItemMetric = NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
         items
-            .first(1)
+            .first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCount(lightThread))
             .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric) }
     end
 

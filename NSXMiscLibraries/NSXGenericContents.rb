@@ -202,8 +202,6 @@ class NSXGenericContents
         mailObject.date.to_s
     end
 
-
-
     # NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
     def self.filenameToCatalystObjectAnnounce(genericContentFilename)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)

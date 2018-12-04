@@ -85,8 +85,10 @@ class NSXStreamsUtils
         Enumerator.new do |items|
             Find.find("/Galaxy/DataBank/Catalyst/Streams") do |path|
                 next if !File.file?(path)
-                next if !File.basename(path).include?('.StreamItem.json')
-                items << JSON.parse(IO.read(path))
+                next if File.basename(path)[-16, 16] != ".StreamItem.json"
+                item = JSON.parse(IO.read(path))
+                item["filepath-real"] = path
+                items << item
             end
         end
     end
@@ -172,13 +174,13 @@ class NSXStreamsUtils
             else
                 ""
             end
-        "LightThreadStreamItem (#{item["ordinal"].round(3)}): #{lightThread["description"]}; #{genericContentsAnnounce} #{doNotShowString}"
+        "[LightThread: #{lightThread["description"]}, StreamItem, #{item["ordinal"].round(3)}]: #{genericContentsAnnounce} #{doNotShowString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
     def self.streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if item["run-status"]
-        streamItemMetric
+        streamItemMetric + Math.exp(-item["ordinal"].to_f/10000).to_f/1000
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
@@ -242,6 +244,7 @@ class NSXStreamsUtils
         if filepath.nil? then
             puts "Error 316492ca: unknown file (#{filename})" 
             LucilleCore::pressEnterToContinue()
+            return
         end
         item = JSON.parse(IO.read(filepath))
         NSXGenericContents::destroyItem(item["generic-content-filename"])
