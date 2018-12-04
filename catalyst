@@ -44,7 +44,6 @@ require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
-require_relative "NSXMiscLibraries/NSXFloatings.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXRequirements.rb"
@@ -216,16 +215,6 @@ loop {
                                      .compact
                                      .inject(0, :+)
     puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
-
-    floatings = NSXFloatings::getFloatings()
-    if floatings.size>0 then
-        puts ""
-        floatings.each{|floating|
-            puts "- " + floating["line"].yellow
-        }
-        displayScreenSizeLeft = displayScreenSizeLeft - floatings.size - 1
-    end
-
 
     claims = NSXRequirements::getData()
     requirements = claims.map{|claim| claim["requirement-description"] }.uniq
