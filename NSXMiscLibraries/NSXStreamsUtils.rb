@@ -287,7 +287,7 @@ class NSXStreamsUtils
         if totalProcessingTimeInSeconds >= 3600 then
             puts JSON.pretty_generate(item)
             # Here we update the oridinal or the object to be the new object in position 5
-            item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForXStreamItem(item["streamuuid"], 3, item["uuid"])
+            item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 3, item["uuid"])
             item["run-data"] = []
             puts JSON.pretty_generate(item)
             NSXStreamsUtils::sendItemToDisk(item)
@@ -318,7 +318,7 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Special Circumstances
 
-    # NSXStreamsUtils::newPositionNOrdinalForXStreamItem(streamUUID, n, streamItemUUID)
+    # NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
     def self.newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
         items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
         # First we remove the item from the stream
