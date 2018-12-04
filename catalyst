@@ -141,10 +141,10 @@ def objectIsInterruption(object)
 end
 
 def shouldDisplayObject(object)
-    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"] == "LightThread: Interruption (interruption-now)" then
+    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: Interruption") then
         return false
     end
-    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"] == "LightThread: Must All Be Done Today (must-be-all-done-today)" then
+    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: Must All Be Done Today") then
         return false
     end
     true
