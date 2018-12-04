@@ -165,44 +165,13 @@ class NSXLightThreadUtils
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lightThread
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
-        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
+        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread) + ( lightThread["targetFolderpath"]!="/Galaxy/LightThreads/DevNull" ? " (#{lightThread["targetFolderpath"]})" : "" )
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
         object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
         object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
         object["item-data"]["lightThread"] = lightThread
         object 
-    end
-
-    # NSXLightThreadUtils::lightThreadToTargetFolderCatalystObjectOrNull(lightThread)
-    def self.lightThreadToTargetFolderCatalystObjectOrNull(lightThread)
-        targetFolderpath = lightThread["targetFolderpath"]
-        return nil if targetFolderpath == "/Galaxy/On-Going/DevNull"
-        uuid = Digest::SHA1.hexdigest("cc430ddf-c5dd-434d-b3b7-c2dca7477fcf:#{lightThread["uuid"]}")
-        return nil if KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreDataFolder", "6de5e81-dc334ac:#{uuid}")==NSXMiscUtils::currentDay()
-        object              = {}
-        object["uuid"]      = uuid
-        object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
-        object["announce"]  = "LightThread: #{lightThread["description"]} (target folder: #{lightThread["targetFolderpath"]})"
-        object["commands"]  = ["done"]
-        object["default-expression"] = "start-the-thread-itself-and-open-the-folder"
-        object["data"] = {}
-        object["data"]["lightThread"] = lightThread
-        object["commands-lambdas"] = {}
-        object["commands-lambdas"]["done"] = 
-            lambda{|object|
-                KeyValueStore::set("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreDataFolder", "6de5e81-dc334ac:#{object["uuid"]}", NSXMiscUtils::currentDay())
-            }
-        object["commands-lambdas"]["start-the-thread-itself-and-open-the-folder"] = 
-            lambda{|object|
-                targetFolderpath = object["data"]["lightThread"]["targetFolderpath"]
-                lightThreadUUID = object["data"]["lightThread"]["uuid"]
-                NSXLightThreadUtils::startLightThread(lightThreadUUID)
-                NSXMiscUtils::setStandardListingPosition(1)
-                system("open '#{targetFolderpath}'")
-            }
-        object
     end
 
     # NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread)

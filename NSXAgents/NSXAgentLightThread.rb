@@ -38,15 +38,11 @@ class NSXAgentLightThread
         # This agent emits stream objects
         objects1 = NSXLightThreadUtils::lightThreads()
             .map{|lightThread| NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) }
-        objects2 = NSXLightThreadUtils::lightThreads()
-            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
-            .map{|lightThread| NSXLightThreadUtils::lightThreadToTargetFolderCatalystObjectOrNull(lightThread) }
-            .compact
         objects3 = NSXLightThreadUtils::lightThreads()
             .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
             .map{|lightThread| NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) }
             .flatten
-        objects1 + objects2 + objects3
+        objects1 + objects3
     end
 
     def self.processObjectAndCommand(object, command)
@@ -63,12 +59,7 @@ class NSXAgentLightThread
             NSXLightThreadUtils::stopLightThread(uuid)
         end
         if command.start_with?("time:") then
-            _, timeInHours = NSXStringParser::decompose(command)
-            if timeInHours.nil? then
-                puts "usage: time: <timeInHours>"
-                LucilleCore::pressEnterToContinue()
-            end
-            timeInHours = timeInHours.to_f
+            timeInHours = command[5,99].to_f
             NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
         end
         if command=='dive' then
