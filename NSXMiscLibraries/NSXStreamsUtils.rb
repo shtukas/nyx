@@ -161,6 +161,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
     def self.streamItemToStreamCatalystObjectAnnounce(lightThread, item)
+        return item["description"] if item["description"]
         genericContentFilename = item["generic-content-filename"]
         genericContentsAnnounce = NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
         objectuuid = item["uuid"][0,8]
@@ -183,12 +184,12 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
     def self.streamItemToStreamCatalystObjectCommands(lightThread, item)
         if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
-            return ["process-interruption"]
+            return ["process-interruption", "description:"]
         end
         if item["run-status"] then
-            ["open", "stop", "done", "numbers", "recast"]
+            ["open", "stop", "done", "numbers", "recast", "description:"]
         else
-            ["start", "done", "numbers", "recast"]
+            ["start", "done", "numbers", "recast", "description:"]
         end
     end
 
@@ -288,6 +289,13 @@ class NSXStreamsUtils
             puts JSON.pretty_generate(item)
             NSXStreamsUtils::sendItemToDisk(item)
         end
+    end
+
+    # NSXStreamsUtils::setItemDescription(streamItemUUID, description)
+    def self.setItemDescription(streamItemUUID, description)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item["description"] = description
+        NSXStreamsUtils::sendItemToDisk(item)
     end
 
     # -----------------------------------------------------------------

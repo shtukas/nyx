@@ -110,6 +110,15 @@ class NSXAgentStreams
                 }
             end
         end
+
+        if command == "description:" then
+            item = object["data"]["stream-item"]
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            NSXStreamsUtils::setItemDescription(item["uuid"], description)
+            lightThread = object["data"]["light-thread"]
+            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(lightThread["uuid"])
+        end
+
     end
 
     def self.interface()

@@ -8,6 +8,7 @@ Streams are implemented as sequences of StreamItem
 StreamItem {
     "uuid"                     : UUID
     "streamuuid"               : UUID
+    "description"              : String # optional, when set overrides the computed description
     "filename"                 : String
     "generic-content-filename" : String
     "ordinal"                  : Float
