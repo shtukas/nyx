@@ -154,21 +154,6 @@ end
 # nslog
 
 
-
-# -------------------------------------------------------------------------
-
-WaveDevOps::collectWave()
-NSXStreamsUtils::pickUpXStreamDropOff()
-NSXLightThreadUtils::lightThreads()
-    .each{|lightThread| 
-        targetFolderpath = lightThread["targetFolderpath"]
-        if targetFolderpath.nil? or !File.exists?(targetFolderpath) then
-            targetFolderpath = LucilleCore::askQuestionAnswerAsString("I could not find a target folder for LightThread '#{lightThread["description"]}'. Target folderpath: ")
-            lightThread["targetFolderpath"] = targetFolderpath
-            NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-        end
-    }
-
 # -------------------------------------------------------------------------
 
 Thread.new {
@@ -202,6 +187,18 @@ Thread.new {
 # -------------------------------------------------------------------------
 
 loop {
+
+    WaveDevOps::collectWave()
+    NSXStreamsUtils::pickUpXStreamDropOff()
+    NSXLightThreadUtils::lightThreads()
+        .each{|lightThread| 
+            targetFolderpath = lightThread["targetFolderpath"]
+            if targetFolderpath.nil? or !File.exists?(targetFolderpath) then
+                targetFolderpath = LucilleCore::askQuestionAnswerAsString("I could not find a target folder for LightThread '#{lightThread["description"]}'. Target folderpath: ")
+                lightThread["targetFolderpath"] = targetFolderpath
+                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+            end
+        }
 
     displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 8
 
