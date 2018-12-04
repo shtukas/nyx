@@ -34,11 +34,10 @@ class NSXDisplayOperator
     # NSXDisplayOperator::objectInferfaceString(object)
     def self.objectInferfaceString(object)
         announce = object['announce'].strip
-        defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         part2 = 
             [
-                " (#{object["commands"].join(" ").green})",
-                " \"#{defaultExpressionAsString.green}\""
+                " #{object["commands"].join(" ")}",
+                object["default-expression"] ? " (#{object["default-expression"].green})" : ""
             ].join()
         part2.strip
     end
