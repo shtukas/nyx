@@ -469,42 +469,6 @@ class NSXLightThreadsStreamsInterface
 
 end
 
-# -----------------------------------------------------------------------
-# Cache System
-# Speeding up NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered
-# -----------------------------------------------------------------------
-
-$lightThreadToItsStreamItemsOrderedCache = {} # marker: 73ca550c-9508
-$lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap = {} # marker: 73ca550c-9508
-
-def nsxLightThreadsStreamsItemsOrdered_getCacheKey(lightThreadUUID) # marker: 73ca550c-9508
-    if $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap[lightThreadUUID].nil? then
-        $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap[lightThreadUUID] = SecureRandom.hex
-    end
-    $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap[lightThreadUUID]
-end
-
-def nsxLightThreadsStreamsItemsOrdered_resetCacheKey(lightThreadUUID) # marker: 73ca550c-9508
-    $lightThreadToItsStreamItemsOrderedCacheLightThreadUUIDToCacheKeyMap.delete(lightThreadUUID)
-end
-
-class NSXLightThreadsStreamsInterface
-
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-    def self.lightThreadToItsStreamItemsOrdered(lightThread) # marker: 73ca550c-9508
-        cacheKey = nsxLightThreadsStreamsItemsOrdered_getCacheKey(lightThread["uuid"]) 
-        if $lightThreadToItsStreamItemsOrderedCache[cacheKey] then
-            return $lightThreadToItsStreamItemsOrderedCache[cacheKey]
-        end
-        items = NSXStreamsUtils::allStreamsItemsEnumerator()
-            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
-            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
-        $lightThreadToItsStreamItemsOrderedCache[cacheKey] = items
-        items
-    end
-
-end
-
 
 
 
