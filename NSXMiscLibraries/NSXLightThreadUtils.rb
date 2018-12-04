@@ -184,7 +184,7 @@ class NSXLightThreadUtils
         object["uuid"]      = uuid
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
-        object["announce"]  = "LightThread: #{lightThread["description"]}; target folder: #{lightThread["targetFolderpath"]}"
+        object["announce"]  = "LightThread: #{lightThread["description"]} (target folder: #{lightThread["targetFolderpath"]})"
         object["commands"]  = ["done"]
         object["default-expression"] = "start-the-thread-itself-and-open-the-folder"
         object["data"] = {}
@@ -235,7 +235,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
-        "LightThread: #{lightThread["description"]} (#{lightThread["priorityXp"].join(", ")})"
+        "LightThread: #{lightThread["description"]}"
     end
 
     # -----------------------------------------------

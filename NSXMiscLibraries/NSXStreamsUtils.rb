@@ -163,18 +163,16 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
     def self.streamItemToStreamCatalystObjectAnnounce(lightThread, item)
-        return item["description"] if item["description"]
-        genericContentFilename = item["generic-content-filename"]
-        genericContentsAnnounce = NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
+        announce = item["description"] ? item["description"] : NSXGenericContents::filenameToCatalystObjectAnnounce(item["generic-content-filename"])
         objectuuid = item["uuid"][0,8]
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
         doNotShowString = 
             if datetime then
-                "[DoNotShowUntil: #{datetime}]"
+                " (DoNotShowUntil: #{datetime})"
             else
                 ""
             end
-        "[LightThread: #{lightThread["description"]}, StreamItem, #{item["ordinal"].round(3)}]: #{genericContentsAnnounce} #{doNotShowString}"
+        "LightThread: #{lightThread["description"]} (StreamItem, #{item["ordinal"].round(3)}): #{announce}#{doNotShowString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
