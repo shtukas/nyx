@@ -25,10 +25,8 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
     def self.catalystObjectsForMainListing() 
-        requirementClaims = NSXRequirements::getData()
         (NSXCatalystObjectsOperator::getObjects() + [NSXCatalystObjectsOperator::getEndOfHardWorkEmoticon()])
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .map{|object| NSXRequirements::updateObjectsMetricsToZeroIfPendingClaims(requirementClaims, object) }
             .select{|object| object["metric"] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse

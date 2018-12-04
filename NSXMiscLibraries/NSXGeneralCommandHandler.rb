@@ -145,18 +145,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?("require:") then
-            requirementDescription = command[8, command.size].strip
-            NSXRequirements::issueRequirementClaim(object["uuid"], requirementDescription)
-            return
-        end
-
-        if command.start_with?("requirement:") then
-            requirementDescription = command[12, command.size].strip
-            NSXRequirements::removeClaimsOnDiskIdentifiedByDescription(requirementDescription)
-            return
-        end
-
         if command.start_with?("search:") then
             pattern = command[7,command.size].strip
             loop {

@@ -46,7 +46,6 @@ require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
 require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
 require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
-require_relative "NSXMiscLibraries/NSXRequirements.rb"
 require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
 
@@ -215,17 +214,6 @@ loop {
                                      .compact
                                      .inject(0, :+)
     puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
-
-    claims = NSXRequirements::getData()
-    requirements = claims.map{|claim| claim["requirement-description"] }.uniq
-    if requirements.size>0 then
-        puts ""
-        puts "Requirements: "
-        requirements.each{|requirement| 
-            puts "    " + requirement.green 
-        }
-        displayScreenSizeLeft = displayScreenSizeLeft - requirements.size - 2
-    end
 
     puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
