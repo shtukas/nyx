@@ -137,7 +137,17 @@ def specialProcessing1(focusobject)
 end
 
 def objectIsInterruption(object)
-    object["announce"].include?("Interruption")
+    object["announce"].include?("LightThreadStreamItem") and object["announce"].include?("Interruption")
+end
+
+def shouldDisplayObject(object)
+    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"] == "LightThread: Interruption (interruption-now)" then
+        return false
+    end
+    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"] == "LightThread: Must All Be Done Today (must-be-all-done-today)" then
+        return false
+    end
+    true
 end
 
 # -------------------------------------------------------------------------
@@ -164,7 +174,7 @@ NSXLightThreadUtils::lightThreads()
 Thread.new {
     loop {
         sleep 130
-        if NSXCatalystObjectsOperator::catalystObjectsForDisplay().any?{|object| objectIsInterruption(object) } then
+        if NSXCatalystObjectsOperator::catalystObjectsForMainListing().any?{|object| objectIsInterruption(object) } then
             NSXMiscUtils::onScreenNotification("Catalyst", "Interruption")
         end
     }
@@ -201,61 +211,42 @@ loop {
     puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
     
+    puts ""
+    timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
+                                     .select{|lightThread| lightThread["priorityXp"][0] == "stream-important" }
+                                     .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
+                                     .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
+                                     .compact
+                                     .inject(0, :+)
+    puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
+
+    floatings = NSXFloatings::getFloatings()
+    if floatings.size>0 then
+        puts ""
+        floatings.each{|floating|
+            puts "- " + floating["line"].yellow
+        }
+        displayScreenSizeLeft = displayScreenSizeLeft - floatings.size - 1
+    end
+
+
+    claims = NSXRequirements::getData()
+    requirements = claims.map{|claim| claim["requirement-description"] }.uniq
+    if requirements.size>0 then
+        puts ""
+        puts "Requirements: "
+        requirements.each{|requirement| 
+            puts "    " + requirement.green 
+        }
+        displayScreenSizeLeft = displayScreenSizeLeft - requirements.size - 2
+    end
+
+    puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
-
     focusobject = nil
-
-    objects = NSXCatalystObjectsOperator::catalystObjectsForDisplay()
-
-    if objects.any?{|object| objectIsInterruption(object)  } then
-
-        puts ""
-        objects
-            .select{|object| objectIsInterruption(object)  }
-            .each_with_index{|object, indx|
-                position = indx+1
-                next if displayScreenSizeLeft == 0 
-                if position == standardlp then
-                    focusobject = object
-                end 
-                puts NSXDisplayOperator::objectToStringForCatalystListing(object, position, standardlp)
-                displayScreenSizeLeft = displayScreenSizeLeft - 1
-            }
-
-    else
-
-        puts ""
-        timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
-                                         .select{|lightThread| lightThread["priorityXp"][0] == "stream-important" }
-                                         .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
-                                         .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
-                                         .compact
-                                         .inject(0, :+)
-        puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
-
-        floatings = NSXFloatings::getFloatings()
-        if floatings.size>0 then
-            puts ""
-            floatings.each{|floating|
-                puts "- " + floating["line"].yellow
-            }
-            displayScreenSizeLeft = displayScreenSizeLeft - floatings.size - 1
-        end
-
-
-        claims = NSXRequirements::getData()
-        requirements = claims.map{|claim| claim["requirement-description"] }.uniq
-        if requirements.size>0 then
-            puts ""
-            puts "Requirements: "
-            requirements.each{|requirement| 
-                puts "    " + requirement.green 
-            }
-            displayScreenSizeLeft = displayScreenSizeLeft - requirements.size - 2
-        end
-
-        puts "" 
-        objects.each_with_index{|object, indx|
+    NSXCatalystObjectsOperator::catalystObjectsForMainListing()
+        .select{|object| shouldDisplayObject(object) }
+        .each_with_index{|object, indx|
             position = indx+1
             next if displayScreenSizeLeft <= 0 
             if position == standardlp then
@@ -265,8 +256,6 @@ loop {
             displayScreenSizeLeft = displayScreenSizeLeft - string.lines.to_a.count
             puts string
         }
-
-    end
 
     if focusobject.nil? and (standardlp>1) then
         NSXMiscUtils::setStandardListingPosition(1)

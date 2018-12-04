@@ -235,12 +235,24 @@ class NSXMiscUtils
         object
     end
 
+    # NSXMiscUtils::addMetricDrivenColoursToString(string, metric)
+    def self.addMetricDrivenColoursToString(string, metric)
+        if metric >= 1 then
+            return string.green
+        end
+        if metric >= 0.9 then
+            return string.red
+        end
+        if metric >= 0.4 then
+            return string.yellow
+        end
+        string
+    end
+
     # NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
     def self.objectToOneLineForCatalystDisplay(object)
         announce = (object['announce'].lines.first || "").strip
-        if object["is-running"] then
-            announce = announce.green
-        end
+        announce = NSXMiscUtils::addMetricDrivenColoursToString(announce, object["metric"])
         [
             "(#{"%.3f" % object["metric"]})",
             object['announce'].lines.count > 1 ? " MULTILINE:" : "",

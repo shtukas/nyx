@@ -177,17 +177,27 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
     def self.streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if item["run-status"]
-        streamItemMetric + Math.exp(-item["ordinal"].to_f/1000).to_f/1000
+        streamItemMetric
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-    def self.streamItemToStreamCatalystObjectCommands(item)
-        isRunning = !item["run-status"].nil?
-        if isRunning then
+    # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
+    def self.streamItemToStreamCatalystObjectCommands(lightThread, item)
+        if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
+            return ["process-interruption"]
+        end
+        if item["run-status"] then
             ["open", "stop", "done", "numbers", "recast"]
         else
             ["start", "done", "numbers", "recast"]
         end
+    end
+
+    # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
+    def self.streamItemToStreamCatalystDefaultCommand(lightThread, item)
+        if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
+            return "process-interruption"
+        end
+        nil
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric)
@@ -203,8 +213,8 @@ class NSXStreamsUtils
         object["agent-uid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
-        object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-        object["default-expression"] = nil
+        object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
+        object["default-expression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
         object["is-running"] = isRunning
         object["data"] = {}
         object["data"]["stream-item"] = item

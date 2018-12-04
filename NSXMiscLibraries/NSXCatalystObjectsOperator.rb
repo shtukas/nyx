@@ -23,8 +23,8 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
-    # NSXCatalystObjectsOperator::catalystObjectsForDisplay()
-    def self.catalystObjectsForDisplay() 
+    # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
+    def self.catalystObjectsForMainListing() 
         requirementClaims = NSXRequirements::getData()
         (NSXCatalystObjectsOperator::getObjects() + [NSXCatalystObjectsOperator::getEndOfHardWorkEmoticon()])
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }

@@ -42,6 +42,13 @@ class NSXAgentStreams
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThreadUUID, Time.new.to_i, timespanInSeconds)
     end
 
+    # NSXAgentStreams::doneObject(object)
+    def self.doneObject(object)
+        NSXAgentStreams::stopObject(object)
+        NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
+        nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
+    end
+
     def self.processObjectAndCommand(object, command)
         if command == "open" then
             NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
@@ -49,12 +56,15 @@ class NSXAgentStreams
         if command == "numbers" then
             puts "  stream item:"
             item = object["data"]["stream-item"]
-            timeInSeconds = item["run-data"].each{|datum|
-                puts "    - #{Time.at(datum[0]).to_s} : #{ (datum[1].to_f/3600).round(2) } hours"
-            }
+            (item["run-data"] || [])
+                .sort{|d1, d2| d1[0]<=>d2[0] }
+                .each{|datum|
+                    puts "    - #{Time.at(datum[0]).to_s} : #{ (datum[1].to_f/3600).round(2) } hours"
+                }
             puts "  light thread:"
             lightThread = object["data"]["light-thread"]
             NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
+                .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"] }
                 .each{|item|
                     puts "    - #{Time.at(item["unixtime"]).to_s} : #{ (item["timespan"].to_f/3600).round(2) } hours"
                 }
@@ -70,9 +80,7 @@ class NSXAgentStreams
             nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
         end
         if command == "done" then
-            NSXAgentStreams::stopObject(object)
-            NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
-            nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
+            NSXAgentStreams::doneObject(object)
         end
         if command == "recast" then
             item = object["data"]["stream-item"]
@@ -82,6 +90,25 @@ class NSXAgentStreams
             NSXStreamsUtils::sendItemToDisk(item)
             nsxLightThreadsStreamsItemsOrdered_resetCacheKey(object["data"]["light-thread"]["uuid"]) # marker: 73ca550c-9508
             nsxLightThreadsStreamsItemsOrdered_resetCacheKey(lightThread["uuid"])                    # marker: 73ca550c-9508
+        end
+
+        if command == "process-interruption" then
+            puts "Viewing..."
+            NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
+            subcommands = ["done", "datecode"]
+            subcommand = LucilleCore::selectEntityFromListOfEntitiesOrNull("sub-command:", subcommands)
+            if subcommand == "done" then
+                NSXAgentStreams::doneObject(object)
+            end
+            if subcommand == "datecode" then
+                loop {
+                    datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
+                    datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
+                    next if datetime.nil?
+                    NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
+                    break
+                }
+            end
         end
     end
 

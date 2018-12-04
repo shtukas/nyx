@@ -51,6 +51,8 @@ class NSXAgentLightThread
 
     def self.processObjectAndCommand(object, command)
         uuid = object["uuid"]
+        return if object["item-data"].nil?
+        return if object["item-data"]["lightThread"].nil?
         lightThread = object["item-data"]["lightThread"]
         filepath = object["item-data"]["filepath"]
         if command=='start' then

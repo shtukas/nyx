@@ -37,7 +37,7 @@ class NSXDisplayOperator
         defaultExpressionAsString = object["default-expression"] ? object["default-expression"] : ""
         part2 = 
             [
-                " (#{object["commands"].join(" ").red})",
+                " (#{object["commands"].join(" ").green})",
                 " \"#{defaultExpressionAsString.green}\""
             ].join()
         part2.strip
@@ -51,13 +51,9 @@ class NSXDisplayOperator
                 .map{|line| padding+line }
                 .join()
         }
-        announce = object['announce']
-        if object["is-running"] then
-            announce = announce.green
-        end
         [
             "(#{"%.3f" % object["metric"]}) #{NSXMiscUtils::object2DoNotShowUntilAsString(object)}",
-            addLeftPadding.call(object['announce'], "               "),
+            NSXMiscUtils::addMetricDrivenColoursToString(addLeftPadding.call(object['announce'], "               "),object["metric"]),
         ].join("\n")
     end
 
