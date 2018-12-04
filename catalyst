@@ -198,22 +198,13 @@ loop {
             end
         }
 
-    displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 8
+    displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 6
 
     system("clear")
 
     print "Agents: "
     puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
     puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
-    
-    puts ""
-    timespanToHappinessInSeconds = NSXLightThreadUtils::lightThreads()
-                                     .select{|lightThread| lightThread["priorityXp"][0] == "stream-important" }
-                                     .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
-                                     .map{|lightThread| NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) }
-                                     .compact
-                                     .inject(0, :+)
-    puts "Timespan to happiness (hours): #{(timespanToHappinessInSeconds.to_f/3600).round(2)}"
 
     puts ""
     standardlp = NSXMiscUtils::getStandardListingPosition()
