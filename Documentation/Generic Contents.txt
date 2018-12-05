@@ -16,7 +16,8 @@
     "uuid" : UUID
     "filename"       : String
     "type"           : "email"
-    "email-filename" : 
+    "email-subject"  : String
+    "email-filename" : String
 }
 
 {

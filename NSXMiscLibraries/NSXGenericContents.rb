@@ -135,6 +135,7 @@ class NSXGenericContents
         File.open(emailFilepath, "w"){|f| f.write(email) }
         item = NSXGenericContents::makeBaseItem()
         item["type"] = "email"
+        item["email-subject"] = NSXGenericContents::emailFilenameToSubjectLine(emailFilename)
         item["email-filename"] = emailFilename
         NSXGenericContents::sendItemToDisk(item)
         item        
@@ -178,8 +179,12 @@ class NSXGenericContents
     def self.emailFilenameToSubjectLine(filename)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
         return "Error 12wasas: unknown file" if filepath.nil?
-        mailObject = Mail.read(filepath)
-        mailObject.subject
+        begin
+            mailObject = Mail.read(filepath)
+            mailObject.subject
+        rescue
+            "Error: could not read subject line for: #{filepath}"
+        end
     end
 
     # NSXGenericContents::emailFilenameToFrom(filename)
