@@ -191,17 +191,6 @@ class NSXLightThreadUtils
     # -----------------------------------------------
     # .toString
 
-    # NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)
-    def self.lightThreadTimeTo100PercentString(lightThread)
-        return "" if ( lightThread["priorityXp"][0]=="interruption-now" or lightThread["priorityXp"][0]=="must-be-all-done-today" )
-        xtime = NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) 
-        if xtime then
-            "time to 100%: #{(xtime.to_f/3600).round(3)} hours"
-        else
-            ""
-        end 
-    end
-
     # NSXLightThreadUtils::lightThreadToString(lightThread)
     def self.lightThreadToString(lightThread)
         "LightThread: #{lightThread["description"]}"
@@ -234,7 +223,7 @@ class NSXLightThreadUtils
             puts "     streamuuid: #{lightThread["streamuuid"]}"
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
-            puts "     Time to 100%: #{NSXLightThreadUtils::lightThreadTimeTo100PercentString(lightThread)}"
+            puts "     Time to 100%: #{((NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) || 0).to_f/3600).round(2)} hours"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
