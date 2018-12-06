@@ -34,6 +34,15 @@ class NSXAgentTodayNotes
         "f7b21eb4-c249-4f0a-a1b0-d5d584c03316"
     end
 
+    # NSXAgentTodayNotes::removeStartingMarker(str)
+    def self.removeStartingMarker(str)
+        if str.start_with?("[]") then
+            str = str[2, str.size].strip
+        end
+        str
+    end
+
+    # NSXAgentTodayNotes::getObjects()
     def self.getObjects()
         integers = LucilleCore::integerEnumerator()
         sections = SectionsType2102::contents_to_sections(IO.read(DAY_NOTES_DATA_FILE_PATH).lines.to_a,[])
@@ -44,7 +53,7 @@ class NSXAgentTodayNotes
                 "uuid"               => uuid,
                 "agent-uid"          => NSXAgentTodayNotes::agentuuid(),
                 "metric"             => 0.95 - integers.next().to_f/1000,
-                "announce"           => SectionsType2102::section_to_string(section),
+                "announce"           => NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section)),
                 "commands"           => ["done", ">stream"],
                 "default-expression" => "done",
                 "is-running"         => false,
