@@ -238,6 +238,13 @@ loop {
         next
     end
 
+    if focusobject and
+        focusobject["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+        focusobject["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
+        NSXGeneralCommandHandler::processCommand(focusobject, "done")
+        next
+    end
+
     if focusobject and focusobject["announce"].include?("notifications@github.com")
         specialProcessing1(focusobject)
         next
