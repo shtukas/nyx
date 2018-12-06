@@ -222,7 +222,8 @@ class NSXLightThreadUtils
                 "update LightThreadPriorityXP:",
                 "show objects",
                 "process selected object",
-                "add object in front of the line" 
+                "add object in front of the line",
+                "rotate front"
             ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
@@ -232,7 +233,7 @@ class NSXLightThreadUtils
             if operation == "show objects" then
                 NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                     .each{|streamItem|
-                        puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, streamItem)
+                        puts "[ordinal: #{streamItem["ordinal"]}] #{NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, streamItem)}"
                     }
                 LucilleCore::pressEnterToContinue()
             end
@@ -241,6 +242,17 @@ class NSXLightThreadUtils
                             .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, streamItem, 1) }
                 object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
                 NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            end
+            if operation == "rotate front" then
+                items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+                if items.size == 0 then
+                    puts "Could not find any object to rotate"
+                    LucilleCore::pressEnterToContinue()
+                else
+                    item = items.first
+                    result = NSXStreamsUtils::resetRunDataAndRotateItem(lightThread["streamuuid"], 5, item["uuid"])
+                    puts JSON.pretty_generate(result)
+                end
             end
             if operation=="add object in front of the line" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -267,10 +279,6 @@ class NSXLightThreadUtils
             if operation=="add time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
-            end
-            if operation == "show items" then
-                puts "To be implemented"
-                LucilleCore::pressEnterToContinue()                
             end
             if operation=="update description:" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")

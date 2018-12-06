@@ -288,14 +288,9 @@ class NSXStreamsUtils
         if item["run-data"].nil? then
             item["run-data"] = []
         end
-        totalProcessingTimeInSeconds = item["run-data"].map{|x| x[1] }.inject(0, :+)
-        if totalProcessingTimeInSeconds >= 3600 then
-            puts JSON.pretty_generate(item)
-            # Here we update the oridinal or the object to be the new object in position 5
-            item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 3, item["uuid"])
-            item["run-data"] = []
-            puts JSON.pretty_generate(item)
-            NSXStreamsUtils::sendItemToDisk(item)
+        if item["run-data"].map{|x| x[1] }.inject(0, :+) >= 3600 then
+            output = NSXStreamsUtils::resetRunDataAndRotateItem(streamUUID, 3, streamItemUUID)
+            puts JSON.pretty_generate(output)
         end
     end
 
@@ -335,6 +330,17 @@ class NSXStreamsUtils
             return items.last["ordinal"] + 1
         end
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
+    end
+
+    # NSXStreamsUtils::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+    def self.resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+        item1 = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        return if item1.nil?
+        item2 = item1.clone
+        item2["run-data"] = []
+        item2["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
+        NSXStreamsUtils::sendItemToDisk(item2)
+        [item1, item2]
     end
 
     # NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping()
