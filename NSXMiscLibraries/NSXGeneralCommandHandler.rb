@@ -154,7 +154,7 @@ class NSXGeneralCommandHandler
                 break if searchobjects.size==0
                 selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object) })
                 break if selectedobject.nil?
-                NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
             return
         end

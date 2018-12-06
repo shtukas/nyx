@@ -37,7 +37,7 @@ require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
 require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
 require_relative "NSXMiscLibraries/NSXData.rb"
-require_relative "NSXMiscLibraries/NSXDisplayOperator.rb"
+require_relative "NSXMiscLibraries/NSXDisplayUtils.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
 require_relative "NSXMiscLibraries/NSXGenericContents.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
@@ -135,14 +135,14 @@ def specialProcessing1(focusobject)
 end
 
 def objectIsInterruption(object)
-    object["announce"].include?("LightThreadStreamItem") and object["announce"].include?("Interruption")
+    object["announce"].include?("LightThreadStreamItem") and object["announce"].include?("X-Interruption")
 end
 
 def shouldDisplayObject(object)
-    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: Interruption") then
+    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: X-Interruption") then
         return false
     end
-    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: Must All Be Done Today") then
+    if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: X-Must All Be Done Today") then
         return false
     end
     true
@@ -150,7 +150,6 @@ end
 
 # -------------------------------------------------------------------------
 # nslog
-
 
 # -------------------------------------------------------------------------
 
@@ -217,7 +216,7 @@ loop {
             if position == standardlp then
                 focusobject = object
             end 
-            string =  NSXDisplayOperator::objectToStringForCatalystListing(object, position, standardlp)
+            string =  NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
             displayScreenSizeLeft = displayScreenSizeLeft - string.lines.to_a.count
             puts string
         }

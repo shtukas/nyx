@@ -16,9 +16,9 @@
 
 =end
 
-class NSXDisplayOperator
+class NSXDisplayUtils
 
-    # NSXDisplayOperator::positionPrefix(standardlp, position)
+    # NSXDisplayUtils::positionPrefix(standardlp, position)
     def self.positionPrefix(standardlp, position)
         if standardlp and position and standardlp==position then
             "[* #{"%2d" % position}]"
@@ -31,7 +31,7 @@ class NSXDisplayOperator
         end
     end
 
-    # NSXDisplayOperator::objectInferfaceString(object)
+    # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
         announce = object['announce'].strip
         part2 = 
@@ -42,7 +42,7 @@ class NSXDisplayOperator
         part2.strip
     end
 
-    # NSXDisplayOperator::objectToMultipleLinesForCatalystListings(object, position, standardlp)
+    # NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object, position, standardlp)
     def self.objectToMultipleLinesForCatalystListings(object, position, standardlp)
         addLeftPadding = lambda{|string, padding|
             string
@@ -56,40 +56,40 @@ class NSXDisplayOperator
         ].join("\n")
     end
 
-    # NSXDisplayOperator::objectToStringForCatalystListing(object, position, standardlp)
+    # NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
     def self.objectToStringForCatalystListing(object, position, standardlp)
         if position == standardlp then
             if object['announce'].lines.to_a.size > 1 then
                 [
-                    NSXDisplayOperator::positionPrefix(standardlp, position),
+                    NSXDisplayUtils::positionPrefix(standardlp, position),
                     " ",
-                    NSXDisplayOperator::objectToMultipleLinesForCatalystListings(object, position, standardlp),
+                    NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object, position, standardlp),
                     "\n",
-                    "              " + NSXDisplayOperator::objectInferfaceString(object)
+                    "              " + NSXDisplayUtils::objectInferfaceString(object)
                 ].join("")
             else
                 [
-                   NSXDisplayOperator::positionPrefix(standardlp, position),
+                   NSXDisplayUtils::positionPrefix(standardlp, position),
                    " ",
                    NSXMiscUtils::objectToOneLineForCatalystDisplay(object),
                    "\n",
-                   "               " + NSXDisplayOperator::objectInferfaceString(object)
+                   "               " + NSXDisplayUtils::objectInferfaceString(object)
                 ].join("")
             end
         else
             [
-               NSXDisplayOperator::positionPrefix(standardlp, position),
+               NSXDisplayUtils::positionPrefix(standardlp, position),
                " ",
                NSXMiscUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
             ].join("")
         end
     end
 
-    # NSXDisplayOperator::doPresentObjectInviteAndExecuteCommand(object)
+    # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
         puts NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
-        puts NSXDisplayOperator::objectInferfaceString(object)
+        puts NSXDisplayUtils::objectInferfaceString(object)
         print "--> "
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )

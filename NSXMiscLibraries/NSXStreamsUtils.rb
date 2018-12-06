@@ -152,6 +152,13 @@ class NSXStreamsUtils
         items.map{|item| item["ordinal"] }.max + 1
     end
 
+    # NSXStreamsUtils::getFrontOfTheLineOrdinalForStream(streamUUID)
+    def self.getFrontOfTheLineOrdinalForStream(streamUUID)
+        items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
+        return 1 if items.size==0
+        items.map{|item| item["ordinal"] }.min - 1
+    end
+
     # NSXStreamsUtils::streamItemsWithoutLightThreadOwner()
     def self.streamItemsWithoutLightThreadOwner()
         managed_streamuuids = NSXLightThreadUtils::lightThreads().map{|lt| lt["streamuuid"] }

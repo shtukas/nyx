@@ -138,19 +138,6 @@ class NSXLightThreadUtils
             .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
-    # NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
-    def self.lightThreadTimeTo100PercentInSecondsOrNull(lightThread)
-        return nil if lightThread["priorityXp"][0] == "interruption-now"
-        return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        enumerator = NSXMiscUtils::integerEnumerator()
-        seconds = 0
-        loop {
-            seconds = enumerator.next() * 200
-            break if NSXLightThreadMetrics::lightThread2Metric(lightThread, seconds) <= 0.2
-        }
-        seconds
-    end
-
     # NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
     def self.lightThreadToCatalystObject(lightThread)
         # There is a check we need to do here: whether or not the lightThread should be taken out of sleeping
@@ -223,21 +210,44 @@ class NSXLightThreadUtils
             puts "     streamuuid: #{lightThread["streamuuid"]}"
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::valueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
-            puts "     Time to 100%: #{((NSXLightThreadUtils::lightThreadTimeTo100PercentInSecondsOrNull(lightThread) || 0).to_f/3600).round(2)} hours"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
-            operations = ["start", "stop", "add time:", "show timelog", "show elements", "update description:", "update LightThreadPriorityXP:"]
+            operations = [
+                "start", 
+                "stop", 
+                "add time:", 
+                "show timelog", 
+                "update description:", 
+                "update LightThreadPriorityXP:",
+                "show objects",
+                "process selected object",
+                "add object in front of the line" 
+            ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
             end
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", operations)
             break if operation.nil?
-            if operation=="show elements" then
+            if operation == "show objects" then
                 NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                     .each{|streamItem|
                         puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, streamItem)
                     }
+                LucilleCore::pressEnterToContinue()
+            end
+            if operation == "process selected object" then
+                objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+                            .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, streamItem, 1) }
+                object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
+                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            end
+            if operation=="add object in front of the line" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                item1 = NSXGenericContents::issueItemText(description)
+                puts JSON.pretty_generate(item1)
+                item2 = NSXStreamsUtils::issueItem(lightThread["streamuuid"], item1["filename"], NSXStreamsUtils::getFrontOfTheLineOrdinalForStream(lightThread["streamuuid"]))
+                puts JSON.pretty_generate(item2)
                 LucilleCore::pressEnterToContinue()
             end
             if operation=="start" then
@@ -353,7 +363,7 @@ class NSXLightThreadMetrics
         if lightThread["priorityXp"][0]=="stream-luxury" then
             return [0.2, 0.2]
         end
-        [0.8, 0.1]
+        raise "Error: 0a86f002"
     end
 
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
