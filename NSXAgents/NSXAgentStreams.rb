@@ -52,23 +52,6 @@ class NSXAgentStreams
         if command == "open" then
             NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
         end
-        if command == "numbers" then
-            puts "  stream item:"
-            item = object["data"]["stream-item"]
-            (item["run-data"] || [])
-                .sort{|d1, d2| d1[0]<=>d2[0] }
-                .each{|datum|
-                    puts "    - #{Time.at(datum[0]).to_s} : #{ (datum[1].to_f/3600).round(2) } hours"
-                }
-            puts "  light thread:"
-            lightThread = object["data"]["light-thread"]
-            NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
-                .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"] }
-                .each{|item|
-                    puts "    - #{Time.at(item["unixtime"]).to_s} : #{ (item["timespan"].to_f/3600).round(2) } hours"
-                }
-            LucilleCore::pressEnterToContinue()
-        end
         if command == "start" then
             NSXStreamsUtils::startStreamItem(object["data"]["stream-item"]["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
@@ -87,7 +70,7 @@ class NSXAgentStreams
             NSXStreamsUtils::sendItemToDisk(item)
         end
 
-        if command == "process-interruption" then
+        if command == "process" then
             puts "Viewing..."
             NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
             subcommands = ["done", "datecode"]

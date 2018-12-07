@@ -191,19 +191,19 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
     def self.streamItemToStreamCatalystObjectCommands(lightThread, item)
         if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
-            return ["process-interruption", "description:"]
+            return ["process", "recast", "description:"]
         end
         if item["run-status"] then
-            ["open", "stop", "done", "numbers", "recast", "description:"]
+            ["open", "stop", "done", "recast", "description:"]
         else
-            ["start", "done", "numbers", "recast", "description:"]
+            ["start", "done", "recast", "description:"]
         end
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
     def self.streamItemToStreamCatalystDefaultCommand(lightThread, item)
         if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
-            return "process-interruption"
+            return "process"
         end
         nil
     end
@@ -289,7 +289,7 @@ class NSXStreamsUtils
             item["run-data"] = []
         end
         if item["run-data"].map{|x| x[1] }.inject(0, :+) >= 3600 then
-            output = NSXStreamsUtils::resetRunDataAndRotateItem(streamUUID, 3, streamItemUUID)
+            output = NSXStreamsUtils::resetRunDataAndRotateItem(item["streamuuid"], 3, streamItemUUID)
             puts JSON.pretty_generate(output)
         end
     end
