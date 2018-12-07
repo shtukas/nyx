@@ -48,9 +48,10 @@ class NSXAgentHouse
 
     # NSXAgentHouse::shouldDisplayObjects()
     def self.shouldDisplayObjects()
-        NSXData::getValueAsStringOrNull(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}") == "true"
+        NSXData::getValueAsStringOrDefaultValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true") == "true"
     end
 
+    # NSXAgentHouse::getObjects()
     def self.getObjects()
         return [] if !NSXMiscUtils::isLucille18()
         if !NSXAgentHouse::shouldDisplayObjects() then
