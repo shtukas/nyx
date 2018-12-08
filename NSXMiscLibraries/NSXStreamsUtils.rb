@@ -184,7 +184,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
     def self.streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
-        return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if item["run-status"]
+        return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if NSXRunner::isRunning?(item["uuid"])
         streamItemMetric + Math.exp(-item["ordinal"].to_f/10000).to_f/1000
     end
 
@@ -193,7 +193,7 @@ class NSXStreamsUtils
         if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
             return ["process", "recast", "description:"]
         end
-        if item["run-status"] then
+        if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "description:"]
         else
             ["start", "done", "recast", "description:"]
@@ -215,7 +215,6 @@ class NSXStreamsUtils
             return nil if filepath.nil?
             JSON.parse(IO.read(filepath)) 
         }
-        isRunning = !item["run-status"].nil?
         object = {}
         object["uuid"] = item["uuid"][0,8]      
         object["agent-uid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
@@ -223,7 +222,7 @@ class NSXStreamsUtils
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
         object["default-expression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
-        object["is-running"] = isRunning
+        object["is-running"] = NSXRunner::isRunning?(item["uuid"])
         object["data"] = {}
         object["data"]["stream-item"] = item
         object["data"]["generic-contents-item"] = genericContentsItemOrNull.call(item["generic-content-filename"]) 
@@ -256,23 +255,13 @@ class NSXStreamsUtils
         NSXMiscUtils::moveLocationToCatalystBin(filepath)
     end
 
-    # NSXStreamsUtils::startStreamItem(streamItemUUID)
-    def self.startStreamItem(streamItemUUID)
-        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
-        return if item.nil?
-        return if item["run-status"] # already running
-        item["run-status"] = Time.new.to_i
-        NSXStreamsUtils::sendItemToDisk(item)
-    end
-
     # NSXStreamsUtils::stopStreamItem(streamItemUUID): # timespan
     def self.stopStreamItem(streamItemUUID) # timespan
         item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
         return 0 if item.nil?
-        return 0 if !item["run-status"] # not running
-        timespan = Time.new.to_i - item["run-status"]
+        return 0 if !NSXRunner::isRunning?(streamItemUUID)
+        timespan = NSXRunner::stop(streamItemUUID)
         streamItemRunTimeData = [ Time.new.to_i, timespan ]
-        item["run-status"] = nil
         if item["run-data"].nil? then
             item["run-data"] = []
         end

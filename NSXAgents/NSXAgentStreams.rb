@@ -53,7 +53,7 @@ class NSXAgentStreams
             NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
         end
         if command == "start" then
-            NSXStreamsUtils::startStreamItem(object["data"]["stream-item"]["uuid"])
+            NSXRunner::start(object["data"]["stream-item"]["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
         end
         if command == "stop" then

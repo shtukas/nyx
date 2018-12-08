@@ -12,7 +12,6 @@ StreamItem {
     "filename"                 : String
     "generic-content-filename" : String
     "ordinal"                  : Float
-    "run-status"               : nil | Unixtime # Unixtime is the time since it's running.
     "run-data"                 : nil | Array[StreamItemRunTimeData]
 }
 
