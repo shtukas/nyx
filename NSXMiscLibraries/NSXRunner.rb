@@ -30,11 +30,21 @@ class NSXRunner
         true
     end
 
-    # NSXRunner::stop(id): Float or Null
+    # NSXRunner::stop(id): Null or Float
     def self.stop(id)
         unixtime = KeyValueStore::getOrNull(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
         if unixtime then
             KeyValueStore::destroy(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
+            unixtime.to_f
+        else
+            nil
+        end
+    end
+
+    # NSXRunner::runningTimeOrNull(id) Null or Float
+    def self.runningTimeOrNull(id)
+        unixtime = KeyValueStore::getOrNull(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
+        if unixtime then
             unixtime.to_f
         else
             nil
