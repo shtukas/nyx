@@ -52,7 +52,7 @@ class NSXAgentTodayNotes
             {
                 "uuid"               => uuid,
                 "agent-uid"          => NSXAgentTodayNotes::agentuuid(),
-                "metric"             => 0.95 - integers.next().to_f/1000,
+                "metric"             => 0.65 - integers.next().to_f/1000,
                 "announce"           => NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section)),
                 "commands"           => ["done", ">stream"],
                 "default-expression" => "done",
