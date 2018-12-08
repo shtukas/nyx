@@ -56,14 +56,8 @@ class NSXGeneralCommandHandler
 
         # no object needed
 
-        if command == 'help' then
-            NSXGeneralCommandHandler::putshelp()
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if command == "+" then
-            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
+        if ( agentdata = NSXBob::getAgentDataByAgentNameOrNull(command) ) then
+            agentdata["interface"].call()
             return
         end
 
@@ -124,14 +118,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?(":") then
-            if NSXMiscUtils::isInteger(command[1, command.size]) then
-                position = command[1, command.size].strip.to_i
-                NSXMiscUtils::setStandardListingPosition([position, 0].max)
-            end
-            return
-        end
-
         if command.start_with?("line:") then
             description = command[5, command.size].strip
             genericContentsItem = 
@@ -163,17 +149,14 @@ class NSXGeneralCommandHandler
 
         # object needed
 
-        if command == 'expose' then
-            puts JSON.pretty_generate(object)
-            LucilleCore::pressEnterToContinue()
+        if object["commands-lambdas"] and object["commands-lambdas"][command] then
+            object["commands-lambdas"][command].call(object)
             return
         end
 
-        if command.start_with?('+') then
-            code = command
-            if (datetime = NSXMiscUtils::codeToDatetimeOrNull(code)) then
-                NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
-            end
+        if command == 'expose' then
+            puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
             return
         end
         
