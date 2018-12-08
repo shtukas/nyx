@@ -52,11 +52,11 @@ class NSXAgentLightThread
         lightThread = object["item-data"]["lightThread"]
         filepath = object["item-data"]["filepath"]
         if command=='start' then
-            NSXLightThreadUtils::startLightThread(uuid)
+            NSXRunner::start(uuid)
             NSXMiscUtils::setStandardListingPosition(1)
         end
         if command=='stop' then
-            NSXLightThreadUtils::stopLightThread(uuid)
+            NSXRunner::stop(uuid)
         end
         if command.start_with?("time:") then
             timeInHours = command[5,99].to_f

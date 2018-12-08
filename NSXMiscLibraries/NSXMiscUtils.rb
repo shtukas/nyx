@@ -298,8 +298,8 @@ class NSXMiscUtils
         FileUtils.mv(location,targetFolder)
     end
 
-    # NSXMiscUtils::valueOrDefaultValue(value, defaultValue)
-    def self.valueOrDefaultValue(value, defaultValue)
+    # NSXMiscUtils::nonNullValueOrDefaultValue(value, defaultValue)
+    def self.nonNullValueOrDefaultValue(value, defaultValue)
         return defaultValue if value.nil?
         value
     end

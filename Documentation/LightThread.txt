@@ -3,7 +3,6 @@ LightThread {
     :unixtime    : Integer
     :description : String
     :priorityXp  : LightThreadPriorityXP
-    :status      : LightThreadStatus
     :done        : Array[LightThreadTimeRecordItem]
     :streamuuid  : String UUID
     :targetFolderpath : String, Folderpath
@@ -14,10 +13,6 @@ LightThreadPriorityXP
     ["must-be-all-done-today"]
     ["stream-important", <commitment in hours>]
     ["stream-luxury", <commitment in hours>]
-
-LightThreadStatus
-	["paused"]
-	["running-since", Unixtime]
 
 LightThreadTimeRecordItem: {
 	"uuid"     => not particularly relevant, random

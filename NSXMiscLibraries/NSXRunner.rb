@@ -35,7 +35,7 @@ class NSXRunner
         unixtime = KeyValueStore::getOrNull(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
         if unixtime then
             KeyValueStore::destroy(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
-            unixtime.to_f
+            Time.new.to_f - unixtime.to_f
         else
             nil
         end
@@ -45,7 +45,7 @@ class NSXRunner
     def self.runningTimeOrNull(id)
         unixtime = KeyValueStore::getOrNull(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
         if unixtime then
-            unixtime.to_f
+            Time.new.to_f - unixtime.to_f
         else
             nil
         end
