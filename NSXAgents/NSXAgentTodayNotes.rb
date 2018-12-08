@@ -52,11 +52,11 @@ class NSXAgentTodayNotes
             {
                 "uuid"               => uuid,
                 "agent-uid"          => NSXAgentTodayNotes::agentuuid(),
-                "metric"             => 0.65 - integers.next().to_f/1000,
+                "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.65 - integers.next().to_f/1000),
                 "announce"           => NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section)),
-                "commands"           => ["done", ">stream"],
+                "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
                 "default-expression" => "done",
-                "is-running"         => false,
+                "is-running"         => NSXRunner::isRunning?(uuid),
                 "commands-lambdas"   => nil,
                 "section-uuid"       => SectionsType2102::section_to_uuid(section),
                 "section"            => section
@@ -65,11 +65,28 @@ class NSXAgentTodayNotes
         }.compact
     end
 
+    # NSXAgentTodayNotes::stopObject(object)
+    def self.stopObject(object)
+        timespanInSeconds = NSXRunner::stop(object["uuid"])
+        return if timespanInSeconds.nil?
+        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+        return if lightThread.nil?
+        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timespanInSeconds)
+    end
+
     def self.processObjectAndCommand(object, command)
+        if command == "start" then
+            NSXRunner::start(object["uuid"])
+        end
+        if command == "stop" then
+            NSXAgentTodayNotes::stopObject(object)
+        end
         if command == "done" then
+            NSXAgentTodayNotes::stopObject(object)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
         end
         if command == ">stream" then
+            NSXAgentTodayNotes::stopObject(object)
             text = object["section"].join()
             genericContentsItem = NSXGenericContents::issueItemText(text)
             lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
