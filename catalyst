@@ -127,10 +127,18 @@ class CatalystUI
         true
     end
 
+    # CatalystUI::removeObjectFromCollection(displayObjects, objectuuid)
+    def self.removeObjectFromCollection(displayObjects, objectuuid)
+        displayObjects.reject{|object| object["uuid"]==objectuuid }
+    end
+
     # CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
     def self.displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime = nil)
 
+        return if displayObjects.size==0
+
         # Unixtime represents the time at which the top iteration started
+    
         if unixtime and (Time.new.to_i-unixtime)>1200 then
             puts "Condition bdd8f90d: Escaping rendering loop"
             return
@@ -228,11 +236,7 @@ class CatalystUI
             Thread.new {
                 NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+1 hour"))
             }
-            displayObjects = displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] }
-            if displayObjects.size==0 then
-                return
-            end
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
@@ -240,11 +244,7 @@ class CatalystUI
             Thread.new {
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
             }
-            displayObjects = displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] }
-            if displayObjects.size==0 then
-                return
-            end
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
@@ -253,11 +253,7 @@ class CatalystUI
             Thread.new {
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
             }
-            displayObjects = displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] }
-            if displayObjects.size==0 then
-                return
-            end
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
@@ -271,11 +267,7 @@ class CatalystUI
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], datetime)
-            displayObjects = displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] }
-            if displayObjects.size==0 then
-                return
-            end
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
@@ -332,6 +324,11 @@ loop {
             end
         }
     displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
+    if displayObjects.size==0 then
+        puts "Could not find any object with display. Sleeping for a minute and then will try again"
+        sleep 60
+        next
+    end
     CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, Time.new.to_i)
 }
 
