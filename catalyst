@@ -127,8 +127,14 @@ class CatalystUI
         true
     end
 
-    # CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
-    def self.rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+    # CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+    def self.displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime = nil)
+
+        # Unixtime represents the time at which the top iteration started
+        if unixtime and (Time.new.to_i-unixtime)>1200 then
+            puts "Condition bdd8f90d: Escaping rendering loop"
+            return
+        end
 
         displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 6
 
@@ -201,32 +207,32 @@ class CatalystUI
         end
 
         if command == "" then
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
         if command == 'help' then
             NSXGeneralCommandHandler::putshelp()
             LucilleCore::pressEnterToContinue()
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
         if command == "+" then
             NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
         if command == ',,' then
             Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, '+1 hour')
+                NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+1 hour"))
             }
             displayObjects = displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] }
             if displayObjects.size==0 then
                 return
             end
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
@@ -238,7 +244,7 @@ class CatalystUI
             if displayObjects.size==0 then
                 return
             end
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
@@ -251,14 +257,14 @@ class CatalystUI
             if displayObjects.size==0 then
                 return
             end
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
         if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
             position = command[1, command.size].strip.to_i
             NSXMiscUtils::setStandardListingPosition([position, 0].max)
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
@@ -269,12 +275,11 @@ class CatalystUI
             if displayObjects.size==0 then
                 return
             end
-            CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
             return
         end
 
         NSXGeneralCommandHandler::processCommand(focusobject, command)
-   
     end
 
 end
@@ -327,6 +332,6 @@ loop {
             end
         }
     displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-    CatalystUI::rederingInviteAndExcecutionWithThoseCatalystObjects(displayObjects)
+    CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, Time.new.to_i)
 }
 

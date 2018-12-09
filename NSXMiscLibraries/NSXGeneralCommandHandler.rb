@@ -159,6 +159,14 @@ class NSXGeneralCommandHandler
             LucilleCore::pressEnterToContinue()
             return
         end
+
+        if command.start_with?('+') then
+            code = command
+            if (datetime = NSXMiscUtils::codeToDatetimeOrNull(code)) then
+                NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
+            end
+            return
+        end
         
         if object["agent-uid"] then
             command.split(";").map{|t| t.strip }

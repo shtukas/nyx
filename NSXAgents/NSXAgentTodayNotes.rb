@@ -49,11 +49,18 @@ class NSXAgentTodayNotes
         sections.map{|section|
             # section: Array[String]
             uuid = SectionsType2102::section_to_uuid(section)
+            if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
+                NSXMiscUtils::onScreenNotification("Catalyst", "Today item running by more than 20 minutes")
+            end
+            runningMarker = ""
+            if NSXRunner::isRunning?(uuid) then
+                runningMarker = " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/60).round(2)} minutes)"
+            end
             {
                 "uuid"               => uuid,
                 "agent-uid"          => NSXAgentTodayNotes::agentuuid(),
                 "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.65 - integers.next().to_f/1000),
-                "announce"           => NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section)),
+                "announce"           => "#{NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section))}#{runningMarker}",
                 "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
                 "default-expression" => "done",
                 "is-running"         => NSXRunner::isRunning?(uuid),
