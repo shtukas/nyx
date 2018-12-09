@@ -62,8 +62,8 @@ require_relative "NSXAgents/NSXAgentWave.rb"
 # -------------------------------------------------------------------------
 class CatalystUI
 
-    # CatalystUI::specialProcessing1(focusobject)
-    def self.specialProcessing1(focusobject)
+    # CatalystUI::specialNS0928EmailDisplay(focusobject)
+    def self.specialNS0928EmailDisplay(focusobject)
         system("clear")
         puts focusobject["announce"]
         stringOrFirst = lambda{|stuff|
@@ -132,13 +132,34 @@ class CatalystUI
         displayObjects.reject{|object| object["uuid"]==objectuuid }
     end
 
+    # CatalystUI::objectIsNS0928Email(object)
+    def self.objectIsNS0928Email(object)
+        return false if object.nil?
+        return true if object["announce"].include?("notifications@github.com")
+        return true if object["announce"].include?("noreply@github.com")
+        false
+    end
+
+    # CatalystUI::objectIsAutoDone(object)
+    def self.objectIsAutoDone(object)
+        return false if object.nil?
+        return true if object["announce"].include?("Delivery Status Notification (Failure)")
+        if object and
+            object["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["data"]["generic-contents-item"]["email-subject"] and
+            object["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
+            return true
+        end
+        false
+    end
+
     # CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
     def self.displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime = nil)
 
         return if displayObjects.size==0
 
         # Unixtime represents the time at which the top iteration started
-    
+
         if unixtime and (Time.new.to_i-unixtime)>1200 then
             puts "Condition bdd8f90d: Escaping rendering loop"
             return
@@ -181,26 +202,13 @@ class CatalystUI
         # -----------------------------------------------------------------------------------
         # Special Processing
 
-        if focusobject and focusobject["announce"].include?("Delivery Status Notification (Failure)") then
+        if CatalystUI::objectIsAutoDone(focusobject) then
             NSXGeneralCommandHandler::processCommand(focusobject, "done")
             return
         end
 
-        if focusobject and
-            focusobject["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            focusobject["data"]["generic-contents-item"]["email-subject"] and
-            focusobject["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
-            NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            return
-        end
-
-        if focusobject and focusobject["announce"].include?("notifications@github.com")
-            CatalystUI::specialProcessing1(focusobject)
-            return
-        end
-
-        if focusobject and focusobject["announce"].include?("noreply@github.com")
-            CatalystUI::specialProcessing1(focusobject)
+        if CatalystUI::objectIsNS0928Email(focusobject) then
+            CatalystUI::specialNS0928EmailDisplay(focusobject)
             return
         end
 
