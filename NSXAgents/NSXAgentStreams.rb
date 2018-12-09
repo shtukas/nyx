@@ -63,17 +63,13 @@ class NSXAgentStreams
             NSXAgentStreams::doneObject(object)
         end
         if command == "recast" then
-            item = object["data"]["stream-item"]
-            lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-            return if lightThread.nil?
-            item["streamuuid"] = lightThread["streamuuid"]
-            NSXStreamsUtils::sendItemToDisk(item)
+            NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
         end
 
-        if command == "process" then
-            puts "Viewing..."
+        if command == "ack" then
+            puts "NSXStreamsUtils::viewItem..."
             NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
-            subcommands = ["done", "datecode"]
+            subcommands = ["done", "datecode", "recast"]
             subcommand = LucilleCore::selectEntityFromListOfEntitiesOrNull("sub-command:", subcommands)
             if subcommand == "done" then
                 NSXAgentStreams::doneObject(object)
@@ -86,6 +82,9 @@ class NSXAgentStreams
                     NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
                     break
                 }
+            end
+            if subcommand == "recast" then
+                NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
             end
         end
 

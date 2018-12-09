@@ -165,6 +165,16 @@ class NSXStreamsUtils
         NSXStreamsUtils::allStreamsItemsEnumerator().reject{|streamItem| managed_streamuuids.include?(streamItem["streamuuid"]) }
     end
 
+    # NSXStreamsUtils::recastStreamItem(streamItemUUID)
+    def self.recastStreamItem(streamItemUUID)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        return if item.nil?
+        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+        return if lightThread.nil?
+        item["streamuuid"] = lightThread["streamuuid"]
+        NSXStreamsUtils::sendItemToDisk(item)
+    end
+
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
@@ -191,7 +201,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
     def self.streamItemToStreamCatalystObjectCommands(lightThread, item)
         if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
-            return ["process", "recast", "description:"]
+            return ["recast", "description:"]
         end
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "description:"]
@@ -203,7 +213,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
     def self.streamItemToStreamCatalystDefaultCommand(lightThread, item)
         if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
-            return "process"
+            return "ack"
         end
         nil
     end

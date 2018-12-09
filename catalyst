@@ -62,53 +62,53 @@ require_relative "NSXAgents/NSXAgentWave.rb"
 # -------------------------------------------------------------------------
 class CatalystUI
 
-    # CatalystUI::specialNS0928EmailDisplay(focusobject)
-    def self.specialNS0928EmailDisplay(focusobject)
+    # CatalystUI::FromEmailPartDecodedToShouldDisplay(contents)
+    def self.FromEmailPartDecodedToShouldDisplay(contents)
+        return false if contents.include?("Seen on [PROD]")
+        return false if contents.include?("PRbuilds results")
+        return false if (contents.include?("Merged") and contents.include?("into master."))
+        true
+    end
+
+    # CatalystUI::stringOrFirstString(content_type)
+    def self.stringOrFirstString(content_type)
+        if content_type.class.to_s == "String" then
+            content_type
+        else
+            content_type.first
+        end
+    end
+
+    # CatalystUI::displayableEmailParts(mail)
+    def self.displayableEmailParts(mail)
+        if mail.multipart? then
+            mail.parts.to_a.select{|part| CatalystUI::stringOrFirstString(part.content_type).start_with?("text/plain") }
+        else
+            [ mail.body ]
+        end
+    end
+
+    # CatalystUI::specialNS0928EmailDisplay(object)
+    def self.specialNS0928EmailDisplay(object)
         system("clear")
-        puts focusobject["announce"]
-        stringOrFirst = lambda{|stuff|
-            if stuff.class.to_s == "String" then
-                stuff
-            else
-                stuff.first
-            end
-        }
-        putsOrNot = lambda {|contents|
-            return false if contents.include?("Seen on [PROD]")
-            return false if contents.include?("PRbuilds results")
-            return false if (contents.include?("Merged") and contents.include?("into master."))
+        puts object["announce"]
+        emailFilename = object["data"]["generic-contents-item"]["email-filename"]
+        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
+        mail = Mail.read(filepath)
+        CatalystUI::displayableEmailParts(mail).each{|part|
+            contents = part.decoded
+            next if !CatalystUI::FromEmailPartDecodedToShouldDisplay(contents)
             puts ""
             puts "-- begin -----------------------------------------------"
             puts contents
             puts "--- end ------------------------------------------------"
             puts ""
-            true
-        }
-        emailFilename = focusobject["data"]["generic-contents-item"]["email-filename"]
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
-        somethingWasDisplayed = false
-        mail = Mail.read(filepath)
-        if mail.multipart? then
-            mail.parts.each{|part|
-                if stringOrFirst.call(part.content_type).start_with?("text/plain") then
-                    somethingWasDisplayed = putsOrNot.call(part.decoded) or somethingWasDisplayed
-                end
-            }
-        else
-            somethingWasDisplayed = putsOrNot.call(mail.body.decoded) or somethingWasDisplayed
-        end
-        if somethingWasDisplayed then
             print "Type 'open' to open the email or nothing to discard: "
             answer = STDIN.gets().strip
             if answer == "open" then
-                NSXGeneralCommandHandler::processCommand(focusobject, "open")
+                NSXGeneralCommandHandler::processCommand(object, "open")
             end
-            if answer == "" then
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            end
-        else
-            NSXGeneralCommandHandler::processCommand(focusobject, "done")
-        end
+        }
     end
 
     # CatalystUI::objectIsInterruption(object)
@@ -209,6 +209,7 @@ class CatalystUI
 
         if CatalystUI::objectIsNS0928Email(focusobject) then
             CatalystUI::specialNS0928EmailDisplay(focusobject)
+            NSXGeneralCommandHandler::processCommand(focusobject, "done")
             return
         end
 
