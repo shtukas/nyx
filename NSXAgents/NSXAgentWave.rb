@@ -320,6 +320,7 @@ class NSXAgentWave
         commands
     end
 
+    # NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
     def self.defaultExpression(objectuuid, folderProbeMetadata, schedule)
         if folderProbeMetadata["target-type"] == "openable-file" then
             return "open"
@@ -343,6 +344,12 @@ class NSXAgentWave
             return "open"
         end
         if folderProbeMetadata["target-type"] == "line" and schedule["@"] == "sticky" then
+            return "done"
+        end
+        if folderProbeMetadata["target-type"] == "line" and schedule["@"] == "every-n-hours" then
+            return "done"
+        end
+        if folderProbeMetadata["target-type"] == "line" and schedule["@"] == "every-n-days" then
             return "done"
         end
         if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "sticky" then
