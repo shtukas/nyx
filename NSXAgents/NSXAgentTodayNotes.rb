@@ -68,8 +68,7 @@ class NSXAgentTodayNotes
                 "section-uuid"       => SectionsType2102::section_to_uuid(section),
                 "section"            => section
             }
-
-        }.compact
+        }
     end
 
     # NSXAgentTodayNotes::stopObject(object)

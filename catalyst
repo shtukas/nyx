@@ -153,6 +153,12 @@ class CatalystUI
         false
     end
 
+    # CatalystUI::objectCanBeDoneAsynchronously(object)
+    def self.objectCanBeDoneAsynchronously(object)
+        return false if object["agent-uid"] == "f7b21eb4-c249-4f0a-a1b0-d5d584c03316"
+        true
+    end
+
     # CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
     def self.displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime = nil)
 
@@ -250,9 +256,14 @@ class CatalystUI
         end
 
         if command == "done" then
-            Thread.new {
+            if CatalystUI::objectCanBeDoneAsynchronously(focusobject) then
+                Thread.new {
+                    NSXGeneralCommandHandler::processCommand(focusobject, "done")
+                }
+            else
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            }
+                return
+            end
             CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
