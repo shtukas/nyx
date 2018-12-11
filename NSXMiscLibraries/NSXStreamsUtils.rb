@@ -310,7 +310,7 @@ class NSXStreamsUtils
         .map{|filename| "/Users/pascal/Desktop/LightThread-XStream-DropOff/#{filename}" }
         .map{|location|
             genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
-            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(NSXStreamsUtils::streamOldNameToStreamUUID("XStream"), genericItem)
+            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("354d0160d6151cb10015e6325ca5f26a", genericItem)
         }
     end
 
@@ -340,20 +340,6 @@ class NSXStreamsUtils
         item2["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
         NSXStreamsUtils::sendItemToDisk(item2)
         [item1, item2]
-    end
-
-    # NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping()
-    def self.oldStreamNamesToNewStreamUUIDMapping()
-        {
-            "Right-Now"       => "29be9b439c40a9e8fcd34b7818ba4153",
-            "Today-Important" => "03b79978bcf7a712953c5543a9df9047",
-            "XStream"         => "354d0160d6151cb10015e6325ca5f26a"
-        }
-    end
-
-    # NSXStreamsUtils::streamOldNameToStreamUUID(streamName)
-    def self.streamOldNameToStreamUUID(streamName)
-        NSXStreamsUtils::oldStreamNamesToNewStreamUUIDMapping()[streamName]
     end
 
 end
