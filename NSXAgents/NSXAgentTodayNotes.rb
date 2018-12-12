@@ -80,9 +80,11 @@ class NSXAgentTodayNotes
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timespanInSeconds)
     end
 
+    # NSXAgentTodayNotes::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         if command == "start" then
             NSXRunner::start(object["uuid"])
+            NSXMiscUtils::setStandardListingPosition(1)
         end
         if command == "stop" then
             NSXAgentTodayNotes::stopObject(object)
