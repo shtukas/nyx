@@ -204,7 +204,7 @@ class NSXGenericContents
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
         return "Error cf238fc1: unknown file" if filepath.nil?
         mailObject = Mail.read(filepath)
-        mailObject.date.to_s
+        DateTime.parse(mailObject.date.to_s).to_time.utc.iso8601
     end
 
     # NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
