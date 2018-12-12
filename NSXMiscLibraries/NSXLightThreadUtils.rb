@@ -54,8 +54,8 @@ class NSXLightThreadUtils
         false
     end
 
-    # NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
-    def self.trueIfLightThreadIsMustBeGone(lightThread)
+    # NSXLightThreadUtils::trueIfLightThreadIsTypeMustBeGone(lightThread)
+    def self.trueIfLightThreadIsTypeMustBeGone(lightThread)
         return true if lightThread["priorityXp"][0]=="interruption-now"
         return true if lightThread["priorityXp"][0]=="must-be-all-done-today"
         false
@@ -330,9 +330,8 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
-        return nil if NSXLightThreadUtils::trueIfLightThreadIsMustBeGone(lightThread)
+        return nil if NSXLightThreadUtils::trueIfLightThreadIsTypeMustBeGone(lightThread)
         items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
-        return 0 if ( (simulationTimeInSeconds==0) and (items.size==0) and !NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) )
         dailyCommitmentInHours = lightThread["priorityXp"][1]
         timeDoneExpectationInHours = n * dailyCommitmentInHours
         timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/3600

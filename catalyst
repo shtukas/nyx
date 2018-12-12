@@ -159,8 +159,8 @@ class CatalystUI
         true
     end
 
-    # CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
-    def self.displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime = nil)
+    # CatalystUI::listingDisplay(displayObjects, unixtime)
+    def self.listingDisplay(displayObjects, unixtime = nil)
 
         return if displayObjects.size==0
 
@@ -178,6 +178,13 @@ class CatalystUI
         print "Agents: "
         puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
         puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
+
+        lines = lightThreadsETALines()
+        if lines.size>0 then
+            puts ""
+            puts lines.map{|line| "    -> #{line}".blue }.join("\n")
+            displayScreenSizeLeft = displayScreenSizeLeft - (lines.size+1)
+        end
 
         puts ""
         standardlp = NSXMiscUtils::getStandardListingPosition()
@@ -230,20 +237,20 @@ class CatalystUI
         end
 
         if command == "" then
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::listingDisplay(displayObjects, unixtime)
             return
         end
 
         if command == 'help' then
             NSXGeneralCommandHandler::putshelp()
             LucilleCore::pressEnterToContinue()
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::listingDisplay(displayObjects, unixtime)
             return
         end
 
         if command == "+" then
             NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::listingDisplay(displayObjects, unixtime)
             return
         end
 
@@ -251,7 +258,7 @@ class CatalystUI
             Thread.new {
                 NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+1 hour"))
             }
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
+            CatalystUI::listingDisplay(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
@@ -264,7 +271,7 @@ class CatalystUI
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
                 return
             end
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
+            CatalystUI::listingDisplay(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
@@ -273,27 +280,54 @@ class CatalystUI
             Thread.new {
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
             }
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
+            CatalystUI::listingDisplay(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
         if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
             position = command[1, command.size].strip.to_i
             NSXMiscUtils::setStandardListingPosition([position, 0].max)
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, unixtime)
+            CatalystUI::listingDisplay(displayObjects, unixtime)
             return
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], datetime)
-            CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
+            CatalystUI::listingDisplay(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
         NSXGeneralCommandHandler::processCommand(focusobject, command)
     end
 
+end
+
+def timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
+    return nil if NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, 0).nil?
+    timespan = 0
+    while NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, timespan) < 100 do
+        timespan = timespan + 600
+    end
+    timespan
+end
+
+def timeInSecondsTo100PercentOrNull(lightThread)
+    numbers = (1..7).map{|n| timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n) }.compact
+    return nil if numbers.size==0
+    numbers.min
+end
+
+def lightThreadsETALines()
+    dimensions = NSXLightThreadUtils::lightThreads().map{|lightThread| lightThread["description"].size }.max 
+    NSXLightThreadUtils::lightThreads().map{|lightThread|
+        (lambda {|lightThread|
+            timespanInSeconds = timeInSecondsTo100PercentOrNull(lightThread)
+            return nil if timespanInSeconds.nil?
+            return nil if timespanInSeconds == 0
+            "#{lightThread["description"].ljust(dimensions)}: #{"%4.2f" % (timespanInSeconds.to_f/3600)} hours"            
+        }).call(lightThread)
+    }.compact
 end
 
 # -------------------------------------------------------------------------
@@ -349,6 +383,7 @@ loop {
         sleep 60
         next
     end
-    CatalystUI::displayListingDisplayInviteAndExecuteWithThoseCatalystObjects(displayObjects, Time.new.to_i)
+
+    CatalystUI::listingDisplay(displayObjects, Time.new.to_i)
 }
 
