@@ -321,6 +321,11 @@ end
 
 # -------------------------------------------------------------------------
 
+if !NSXMiscUtils::isLucille18() then
+    puts "Right now, it's better if we do not run Catalyst on Lucille19"
+    exit
+end
+
 Thread.new {
     loop {
         sleep 130
