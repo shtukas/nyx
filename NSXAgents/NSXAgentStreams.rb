@@ -62,7 +62,9 @@ class NSXAgentStreams
         if command == "recast" then
             NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
         end
-
+        if command == "rotate" then
+            NSXStreamsUtils::resetRunDataAndRotateItem(object["data"]["light-thread"]["streamuuid"], 5, object["data"]["stream-item"]["uuid"])
+        end
         if command == "ack" then
             puts "NSXStreamsUtils::viewItem..."
             NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
