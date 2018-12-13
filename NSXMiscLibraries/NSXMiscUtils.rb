@@ -212,9 +212,9 @@ class NSXMiscUtils
 
     # NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
     def self.trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
-        unixtime = KeyValueStore::getOrDefaultValue("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", 0)
+        unixtime = KeyValueStore::getOrDefaultValue(repositorylocation, "9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", "0").to_i
         if ( Time.new.to_i - unixtime) > timespanInSeconds then
-            KeyValueStore::set("9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", Time.new.to_i)
+            KeyValueStore::set(repositorylocation, "9B46F2C2-8952-4387-BEE9-D365C512858E:#{uuid}", Time.new.to_i)
             true
         else
             false
