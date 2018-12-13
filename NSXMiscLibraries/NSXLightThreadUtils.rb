@@ -388,6 +388,23 @@ class NSXLightThreadMetrics
         ( NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? -0.001 : 0.001 ) + NSXLightThreadMetrics::lightThread2Metric(lightThread)
     end
 
+    # NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
+    def self.timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
+        return nil if NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, 0).nil?
+        timespan = 0
+        while NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, timespan) < 100 do
+            timespan = timespan + 600
+        end
+        timespan
+    end
+
+    # NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
+    def self.timeInSecondsTo100PercentOrNull(lightThread)
+        numbers = (1..7).map{|n| NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n) }.compact
+        return nil if numbers.size==0
+        numbers.min
+    end
+
 end
 
 class NSXLightThreadsStreamsInterface

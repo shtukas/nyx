@@ -179,7 +179,7 @@ class CatalystUI
         puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
         puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
 
-        lines = lightThreadsETALines()
+        lines = JSON.parse(KeyValueStore::getOrNull(nil, "440cc2da-be91-4ccd-8a2e-cb4e9d947119") || "[]")
         if lines.size>0 then
             puts ""
             puts lines.map{|line| "    -> #{line}".blue }.join("\n")
@@ -301,33 +301,19 @@ class CatalystUI
         NSXGeneralCommandHandler::processCommand(focusobject, command)
     end
 
-end
-
-def timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
-    return nil if NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, 0).nil?
-    timespan = 0
-    while NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, timespan) < 100 do
-        timespan = timespan + 600
+    # CatalystUI::lightThreadsETALines()
+    def self.lightThreadsETALines()
+        dimensions = NSXLightThreadUtils::lightThreads().map{|lightThread| lightThread["description"].size }.max 
+        NSXLightThreadUtils::lightThreads().map{|lightThread|
+            (lambda {|lightThread|
+                timespanInSeconds = NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
+                return nil if timespanInSeconds.nil?
+                return nil if timespanInSeconds == 0
+                "#{lightThread["description"].ljust(dimensions)}: #{"%4.2f" % (timespanInSeconds.to_f/3600)} hours"            
+            }).call(lightThread)
+        }.compact
     end
-    timespan
-end
 
-def timeInSecondsTo100PercentOrNull(lightThread)
-    numbers = (1..7).map{|n| timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n) }.compact
-    return nil if numbers.size==0
-    numbers.min
-end
-
-def lightThreadsETALines()
-    dimensions = NSXLightThreadUtils::lightThreads().map{|lightThread| lightThread["description"].size }.max 
-    NSXLightThreadUtils::lightThreads().map{|lightThread|
-        (lambda {|lightThread|
-            timespanInSeconds = timeInSecondsTo100PercentOrNull(lightThread)
-            return nil if timespanInSeconds.nil?
-            return nil if timespanInSeconds == 0
-            "#{lightThread["description"].ljust(dimensions)}: #{"%4.2f" % (timespanInSeconds.to_f/3600)} hours"            
-        }).call(lightThread)
-    }.compact
 end
 
 # -------------------------------------------------------------------------
@@ -360,6 +346,14 @@ Thread.new {
     loop {
         NSXMiscUtils::emailSync(false)
         sleep 1200
+    }
+}
+
+Thread.new {
+    loop {
+        sleep 10
+        lines = CatalystUI::lightThreadsETALines()
+        KeyValueStore::set(nil, "440cc2da-be91-4ccd-8a2e-cb4e9d947119", JSON.generate(lines))
     }
 }
 
