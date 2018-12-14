@@ -113,7 +113,7 @@ class CatalystUI
 
     # CatalystUI::objectIsInterruption(object)
     def self.objectIsInterruption(object)
-        object["announce"].include?("LightThreadStreamItem") and object["announce"].include?("X-Interruption")
+        object["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "29be9b439c40a9e8fcd34b7818ba4153"
     end
 
     # CatalystUI::shouldDisplayObject(object)
