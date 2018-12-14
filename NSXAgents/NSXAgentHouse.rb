@@ -12,7 +12,7 @@ require 'digest/sha1'
 
 # -------------------------------------------------------------------------------------
 
-HOUSE_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Agents-Data/House/data"
+HOUSE_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/House/data"
 
 class NSXAgentHouse
 
@@ -57,7 +57,7 @@ class NSXAgentHouse
         if !NSXAgentHouse::shouldDisplayObjects() then
             return []
         end
-        tasksFilepath = "/Galaxy/DataBank/Catalyst/Agents-Data/House/tasks.txt"
+        tasksFilepath = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/House/tasks.txt"
         tasks = IO.read(tasksFilepath)
             .lines
             .map{|line| line.strip }

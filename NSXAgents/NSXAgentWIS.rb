@@ -38,11 +38,11 @@ class NSXAgentWIS
     def self.processObjectAndCommand(object, command)
         # This needs to be checked if reactivated.
         if command == "8ec2da5f-a46b-428b-9484-046232aa116d" then
-            uri = URI.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/wis/board-url").strip)
+            uri = URI.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/wis/board-url").strip)
             response = Net::HTTP.get_response(uri)
             response.body
                 .lines
-                .select{|line| line.strip.start_with?(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/wis/line-test").strip) }
+                .select{|line| line.strip.start_with?(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/wis/line-test").strip) }
                 .map{|line| line.strip.encode('utf-8', :invalid => :replace, :undef => :replace, :replace => '_') }
                 .each{|line|
                     #if NSXAgentsDataKeyValueStore::getOrNull(NSXAgentWIS::agentuuid(), "fb243cf9-04df-43c5-a8f5-dbec9e58da28:#{line}").nil? then

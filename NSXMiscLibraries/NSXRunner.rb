@@ -13,7 +13,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # We store the starting unixtime
 
-RUNNER_KV_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Runner"
+RUNNER_KV_REPOSITORY_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Runner"
 
 class NSXRunner
 

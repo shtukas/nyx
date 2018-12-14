@@ -12,7 +12,7 @@ require "time"
 
 # NSXAgentBabyNights::getObjects()
 
-BABY_NIGHTS_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data"
+BABY_NIGHTS_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data"
 
 class NSXAgentBabyNights
 
@@ -53,7 +53,7 @@ class NSXAgentBabyNights
                 return
             end
             xname = operation.downcase
-            data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data.json"))
+            data = JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json"))
             data[xname] = data[xname]+1
             puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             if data["pascal"] >= 10 and data["tracy"] >= 10 then
@@ -61,7 +61,7 @@ class NSXAgentBabyNights
                 data["tracy"] = data["tracy"] - 10 
                 puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             end
-            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
+            File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
             NSXData::setWritableValue(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
         end
@@ -72,11 +72,11 @@ class NSXAgentBabyNights
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["Bonus: Pascal -> Tracy"])
         if operation == "Bonus: Pascal -> Tracy" then
             amount = LucilleCore::askQuestionAnswerAsString("Amount?: ").to_f
-            data = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data.json"))
+            data = JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json"))
             data["pascal"] = data["pascal"] - amount
             data["tracy"] = data["tracy"] + amount 
             puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
-            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
+            File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
         end
     end

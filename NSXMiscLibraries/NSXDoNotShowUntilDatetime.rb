@@ -22,7 +22,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # ----------------------------------------------------------------------
 
-DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "/Galaxy/DataBank/Catalyst/DoNotShowUntilDateTime"
+DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/DoNotShowUntilDateTime"
 
 class NSXDoNotShowUntilDatetime
 

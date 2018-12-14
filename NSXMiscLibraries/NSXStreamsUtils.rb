@@ -37,7 +37,7 @@ class NSXStreamsUtils
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
-        folder1 = "/Galaxy/DataBank/Catalyst/Streams/#{frg1}/#{frg2}/#{frg3}"
+        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams/#{frg1}/#{frg2}/#{frg3}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         filepath = "#{folder2}/#{filename}"
         filepath
@@ -48,7 +48,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
     def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
-        Find.find("/Galaxy/DataBank/Catalyst/Streams") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
@@ -83,7 +83,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::allStreamsItemsEnumerator()
     def self.allStreamsItemsEnumerator()
         Enumerator.new do |items|
-            Find.find("/Galaxy/DataBank/Catalyst/Streams") do |path|
+            Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
                 next if !File.file?(path)
                 next if File.basename(path)[-16, 16] != ".StreamItem.json"
                 item = JSON.parse(IO.read(path))

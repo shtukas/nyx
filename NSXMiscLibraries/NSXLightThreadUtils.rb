@@ -4,7 +4,7 @@
 require 'time'
 
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
-LIGHT_THREADS_FOLDERPATH = "/Galaxy/DataBank/Catalyst/LightThreads"
+LIGHT_THREADS_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/LightThreads"
 
 class NSXLightThreadUtils
 

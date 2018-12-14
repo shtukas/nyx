@@ -31,7 +31,7 @@ class NSXGenericContents
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
-        folder1 = "/Galaxy/DataBank/Catalyst/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
+        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         filepath = "#{folder2}/#{filename}"
         filepath
@@ -42,7 +42,7 @@ class NSXGenericContents
         frg1 = foldername[0,4]
         frg2 = foldername[0,6]
         frg3 = foldername[0,8]
-        folder1 = "/Galaxy/DataBank/Catalyst/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
+        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{foldername}"
         if !File.exists?(folder3) then
@@ -53,7 +53,7 @@ class NSXGenericContents
 
     # NSXGenericContents::resolveFilenameToFilepathOrNullUseTheForce(filename)
     def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
-        Find.find("/Galaxy/DataBank/Catalyst/Generic-Contents") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Generic-Contents") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
@@ -78,7 +78,7 @@ class NSXGenericContents
 
     # NSXGenericContents::resolveFoldernameToFolderpathOrNullUseTheForce(foldername)
     def self.resolveFoldernameToFolderpathOrNullUseTheForce(foldername)
-        Find.find("/Galaxy/DataBank/Catalyst/Generic-Contents") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Generic-Contents") do |path|
             next if File.file?(path)
             next if File.basename(path) != foldername
             return path
