@@ -161,8 +161,6 @@ class CatalystUI
             return
         end
 
-        displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 7
-
         system("clear")
 
         print "Agents: "
@@ -174,14 +172,12 @@ class CatalystUI
         if lines.size>0 then
             puts ""
             puts lines.map{|line| "    -> #{line}".blue }.join("\n")
-            displayScreenSizeLeft = displayScreenSizeLeft - (lines.size+1)
         end
 
         spotnames = NSXSpots::getNames()
         if spotnames.size>0 then
             puts ""
             puts "    -> @ #{spotnames.join(", ")}"
-            displayScreenSizeLeft = displayScreenSizeLeft - 2
         end
 
         puts ""
@@ -189,15 +185,13 @@ class CatalystUI
         focusobject = nil
 
         displayObjects
+            .first([standardlp, 5].max)
             .each_with_index{|object, indx|
                 position = indx+1
-                next if displayScreenSizeLeft <= 0 
                 if position == standardlp then
                     focusobject = object
                 end 
-                string =  NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
-                displayScreenSizeLeft = displayScreenSizeLeft - string.lines.to_a.count
-                puts string
+                puts NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
             }
 
         if focusobject.nil? and (standardlp>1) then
