@@ -126,6 +126,7 @@ class NSXMiscUtils
         nil
     end
 
+    # NSXMiscUtils::editTextUsingTextmate(text)
     def self.editTextUsingTextmate(text)
       filename = SecureRandom.hex
       filepath = "/tmp/#{filename}"

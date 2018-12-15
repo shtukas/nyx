@@ -17,7 +17,7 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::generalObjectCommands()
     def self.generalObjectCommands()
-        "Special General Commands: help :<p> + / line: <line>"
+        "Special General Commands: help :<p> + / line: <line> | 'text'"
     end
 
     # NSXGeneralCommandHandler::specialObjectCommands()
@@ -129,6 +129,9 @@ class NSXGeneralCommandHandler
 
         if command.start_with?("line:") then
             text = command[5, command.size].strip
+            if text == "text" then
+                text = NSXMiscUtils::editTextUsingTextmate("")
+            end
             genericContentsItem = NSXGenericContents::issueItemText(text)
             pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
             return if pair.nil?
