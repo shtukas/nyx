@@ -142,6 +142,12 @@ class NSXStreamsUtils
         NSXStreamsUtils::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
     end
 
+    # NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal)
+    def self.issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal)
+        genericContentFilename = genericItem["filename"]
+        NSXStreamsUtils::issueItem(streamUUID, genericContentFilename, ordinal)
+    end
+
     # -----------------------------------------------------------------
     # Data Processing
 
@@ -169,16 +175,18 @@ class NSXStreamsUtils
     def self.recastStreamItem(streamItemUUID)
         item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
         return if item.nil?
-        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-        return if lightThread.nil?
-        item["streamuuid"] = lightThread["streamuuid"]
+        pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+        return if pair.nil?
+        streamuuid, ordinal = pair
+        item["streamuuid"] = streamuuid
+        item["ordinal"] = ordinal
         NSXStreamsUtils::sendItemToDisk(item)
     end
 
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
+    # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil or lightThread, item)
     def self.streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         announce = item["description"] ? item["description"] : NSXGenericContents::filenameToCatalystObjectAnnounce(item["generic-content-filename"])
         objectuuid = item["uuid"][0,8]
@@ -189,7 +197,7 @@ class NSXStreamsUtils
             else
                 ""
             end
-        "[StreamItem, #{item["ordinal"].round(3)}, LightThread: #{lightThread["description"]}] #{announce}#{doNotShowString}"
+        "[StreamItem, #{item["ordinal"].round(3)}, LightThread: #{(lightThread ? lightThread["description"] : "")}] #{announce}#{doNotShowString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
@@ -312,6 +320,32 @@ class NSXStreamsUtils
             genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
             NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("354d0160d6151cb10015e6325ca5f26a", genericItem)
         }
+    end
+
+    # NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid)
+    def self.interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid)
+        puts "steam items:"
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+            .select{|item| item["streamuuid"]==streamuuid }
+            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
+            .first(10)
+            .each{|streamItem|
+                puts "[ordinal: #{streamItem["ordinal"]}] #{NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil, streamItem)}"
+            }
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for end of queue): ")
+        return nil if ordinal == ""
+        ordinal.to_f
+    end
+
+    # NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull(): [streamuuid, ordinal]
+    def self.interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+        return if lightThread.nil?
+        streamuuid = lightThread["streamuuid"]
+        ordinal = NSXMiscUtils::nonNullValueOrDefaultValue(
+            NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
+            NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
+        [streamuuid, ordinal]
     end
 
     # -----------------------------------------------------------------
