@@ -253,6 +253,11 @@ class NSXGenericContents
             File.open(filepath, "w"){|f| f.puts(item["text"]) }
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
+            updatedText = IO.read(filepath)
+            if item["text"] != updatedText then
+                item["text"] = updatedText
+                NSXGenericContents::sendItemToDisk(item)
+            end
             FileUtils.rm(filepath)
             return
         end
