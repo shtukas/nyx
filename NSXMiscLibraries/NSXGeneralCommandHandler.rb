@@ -128,14 +128,12 @@ class NSXGeneralCommandHandler
         end
 
         if command.start_with?("line:") then
-            description = command[5, command.size].strip
-            genericContentsItem = 
-                if description.start_with?("http") then
-                    NSXGenericContents::issueItemURL(description)
-                else
-                    NSXGenericContents::issueItemText(description)
-                end
-            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem) # Must All Be Done Today
+            text = command[5, command.size].strip
+            genericContentsItem = NSXGenericContents::issueItemText(text)
+            pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+            return if pair.nil?
+            streamuuid, ordinal = pair
+            streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
             puts JSON.pretty_generate(streamItem)
             return
         end
