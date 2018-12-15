@@ -15,24 +15,14 @@ require 'fileutils'
 
 class NSXGeneralCommandHandler
 
-    # NSXGeneralCommandHandler::putshelp()
-    def self.putshelp()
-        puts "Special General Commands"
-        puts "    help"
-        puts "    :<p>        # set the listing reference point"
-        puts "    +           # add 1 to the standard listing position"
-        puts ""
-        puts "    /           # menu of commands"
-        puts "    search: <pattern>"
-        puts "    require: <name> # set the focus object against that requirement"
-        puts "    requirement: <name> # release all the objects against that requirement"
-        puts "    line: <line> # new Important Item"
-        puts ""
+    # NSXGeneralCommandHandler::generalObjectCommands()
+    def self.generalObjectCommands()
+        "Special General Commands: help :<p> + / line: <line>"
     end
 
-    # NSXGeneralCommandHandler::specialObjectCommandsAsString()
-    def self.specialObjectCommandsAsString()
-        "Special Object Commands : ,, .. ;; +datetimecode, +<weekdayname>, +<integer>day(s), +<integer>hour(s), +YYYY-MM-DD, expose"
+    # NSXGeneralCommandHandler::specialObjectCommands()
+    def self.specialObjectCommands()
+        "Special Object Commands: ,, .. ;; @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
     end
 
     # NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
@@ -63,10 +53,12 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "view LightThreads",               
+                "view LightThreads",
                 "new wave (repeat item)", 
                 "new Stream Item", 
                 "new LightThread",
+                "@spot",
+                "search",
                 "email-sync",
                 "speed"
             ]
@@ -95,6 +87,23 @@ class NSXGeneralCommandHandler
             end
             if option == "email-sync" then
                 NSXMiscUtils::emailSync(true)
+            end
+            if option == "@spot" then
+                spotnames = NSXSpots::getNames()
+                spotname = LucilleCore::selectEntityFromListOfEntitiesOrNull("spotnames: ", spotnames)
+                NSXSpots::removeNameForData(spotname)
+            end
+            if option == "search" then
+                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
+                loop {
+                    searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
+                    searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
+                    searchobjects = searchobjects1 + searchobjects2
+                    break if searchobjects.size==0
+                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object) })
+                    break if selectedobject.nil?
+                    NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                }
             end
             if option == "speed" then
                 puts "Agents Speed Report"
@@ -131,20 +140,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?("search:") then
-            pattern = command[7,command.size].strip
-            loop {
-                searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }                
-                searchobjects = searchobjects1 + searchobjects2
-                break if searchobjects.size==0
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object) })
-                break if selectedobject.nil?
-                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
-            }
-            return
-        end
-
         return if object.nil?
 
         # object needed
@@ -157,6 +152,12 @@ class NSXGeneralCommandHandler
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command.start_with?('@') then
+            spotname = command[1,999]
+            NSXSpots::issueSpotClaim(spotname, object["uuid"])
             return
         end
 

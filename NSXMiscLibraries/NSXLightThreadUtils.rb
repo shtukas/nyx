@@ -370,10 +370,10 @@ class NSXLightThreadMetrics
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
         if lightThread["priorityXp"][0] == "interruption-now" then
-            return 0.9 
+            return 0
         end
         if lightThread["priorityXp"][0] == "must-be-all-done-today" then
-            return 0.6
+            return 0
         end
         (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
     end

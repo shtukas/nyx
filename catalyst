@@ -49,6 +49,7 @@ require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXRunner.rb"
 require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
+require_relative "NSXMiscLibraries/NSXSpots.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentTodayNotes.rb"
@@ -116,17 +117,6 @@ class CatalystUI
         object["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "29be9b439c40a9e8fcd34b7818ba4153"
     end
 
-    # CatalystUI::shouldDisplayObject(object)
-    def self.shouldDisplayObject(object)
-        if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: X-Interruption") then
-            return false
-        end
-        if object["agent-uid"] == "201cac75-9ecc-4cac-8ca1-2643e962a6c6" and object["announce"].start_with?("LightThread: X-Must All Be Done Today") then
-            return false
-        end
-        true
-    end
-
     # CatalystUI::removeObjectFromCollection(displayObjects, objectuuid)
     def self.removeObjectFromCollection(displayObjects, objectuuid)
         displayObjects.reject{|object| object["uuid"]==objectuuid }
@@ -171,13 +161,14 @@ class CatalystUI
             return
         end
 
-        displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 6
+        displayScreenSizeLeft = NSXMiscUtils::screenHeight() - 7
 
         system("clear")
 
         print "Agents: "
         puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
-        puts NSXGeneralCommandHandler::specialObjectCommandsAsString()
+        puts NSXGeneralCommandHandler::generalObjectCommands()
+        puts NSXGeneralCommandHandler::specialObjectCommands()
 
         lines = JSON.parse(KeyValueStore::getOrNull(nil, "440cc2da-be91-4ccd-8a2e-cb4e9d947119") || "[]")
         if lines.size>0 then
@@ -186,12 +177,18 @@ class CatalystUI
             displayScreenSizeLeft = displayScreenSizeLeft - (lines.size+1)
         end
 
+        spotnames = NSXSpots::getNames()
+        if spotnames.size>0 then
+            puts ""
+            puts "    -> @ #{spotnames.join(", ")}"
+            displayScreenSizeLeft = displayScreenSizeLeft - 2
+        end
+
         puts ""
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
-        displayObjects    
-            .select{|object| CatalystUI::shouldDisplayObject(object) }
+        displayObjects
             .each_with_index{|object, indx|
                 position = indx+1
                 next if displayScreenSizeLeft <= 0 
@@ -242,7 +239,7 @@ class CatalystUI
         end
 
         if command == 'help' then
-            NSXGeneralCommandHandler::putshelp()
+            NSXGeneralCommandHandler::generalObjectCommands()
             LucilleCore::pressEnterToContinue()
             CatalystUI::listingDisplay(displayObjects, unixtime)
             return
@@ -256,7 +253,7 @@ class CatalystUI
 
         if command == ',,' then
             Thread.new {
-                NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+1 hour"))
+                NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+0.2 hour"))
             }
             CatalystUI::listingDisplay(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return

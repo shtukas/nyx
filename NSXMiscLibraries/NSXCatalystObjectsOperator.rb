@@ -24,8 +24,10 @@ class NSXCatalystObjectsOperator
     end
 
     # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-    def self.catalystObjectsForMainListing() 
+    def self.catalystObjectsForMainListing()
+        spotObjectUUIDs = NSXSpots::getObjectUUIDs()
         (NSXCatalystObjectsOperator::getObjects() + [NSXCatalystObjectsOperator::getEndOfHardWorkEmoticon()])
+            .select{|object| !spotObjectUUIDs.include?(object["uuid"]) }
             .map{|object| NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .select{|object| object["metric"] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
