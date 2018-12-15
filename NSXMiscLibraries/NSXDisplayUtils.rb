@@ -52,7 +52,7 @@ class NSXDisplayUtils
         }
         [
             "(#{"%.3f" % object["metric"]}) #{NSXMiscUtils::object2DoNotShowUntilAsString(object)}",
-            NSXMiscUtils::addMetricDrivenColoursToString(addLeftPadding.call(object['announce'], "               "),object["metric"]),
+            NSXMiscUtils::makeGreenIfObjectRunning(addLeftPadding.call(object['announce'], "               "),object["is-running"]),
         ].join("\n")
     end
 
