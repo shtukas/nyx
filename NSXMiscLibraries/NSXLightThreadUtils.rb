@@ -340,41 +340,30 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [streamItemMetric, expansion]
     def self.lightThreadToMetricParameters(lightThread) # [streamItemMetric, expansion]
-        if lightThread["priorityXp"][0]=="interruption-now" then
-            return [1.5, 1.5] # Irrelevant
-        end
-        if lightThread["priorityXp"][0]=="must-be-all-done-today" then
-            return [1.5, 1.5] # Irrelevant
-        end
-        if lightThread["priorityXp"][0]=="stream-important" then
-            return [0.4, 0.2]
-        end
-        if lightThread["priorityXp"][0]=="stream-luxury" then
-            return [0.2, 0.2]
-        end
+        return nil if lightThread["priorityXp"][0]=="interruption-now"
+        return nil if lightThread["priorityXp"][0]=="must-be-all-done-today"
+        return [0.4, 0.2] if lightThread["priorityXp"][0]=="stream-important"
+        return [0.2, 0.2] if lightThread["priorityXp"][0]=="stream-luxury"
         raise "Error: 0a86f002"
     end
 
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
         return 2 if ( simulationTimeInSeconds==0 and NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) )
+        metricParameters = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
+        return nil if metricParameters.nil?
         livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds)
         return nil if livePercentage.nil?
         return 0 if livePercentage >= 100
-        streamItemMetric, expansion = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
-        metric = streamItemMetric + expansion*Math.exp(-livePercentage.to_f/100) # at 100% we are at streamItemMetric + expansion*Math.exp(-1)
-        metric - NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+        baseMetric, expansion = metricParameters
+        baseMetric + expansion*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
-        if lightThread["priorityXp"][0] == "interruption-now" then
-            return 0
-        end
-        if lightThread["priorityXp"][0] == "must-be-all-done-today" then
-            return 0
-        end
+        return 0 if lightThread["priorityXp"][0] == "interruption-now"
+        return 0 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
     end
 
