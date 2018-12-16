@@ -205,8 +205,7 @@ class NSXLightThreadUtils
                 "show timelog", 
                 "update description:", 
                 "update LightThreadPriorityXP:",
-                "stream items dive",
-                "rotate front"
+                "stream items dive"
             ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
@@ -229,17 +228,6 @@ class NSXLightThreadUtils
                     break if object.nil?
                     NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
                 }
-            end
-            if operation == "rotate front" then
-                items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-                if items.size == 0 then
-                    puts "Could not find any object to rotate"
-                    LucilleCore::pressEnterToContinue()
-                else
-                    item = items.first
-                    result = NSXStreamsUtils::resetRunDataAndRotateItem(lightThread["streamuuid"], 5, item["uuid"])
-                    puts JSON.pretty_generate(result)
-                end
             end
             if operation=="start" then
                 NSXRunner::start(lightThread["uuid"])

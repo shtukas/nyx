@@ -295,14 +295,20 @@ class CatalystUI
     # CatalystUI::lightThreadsETALines()
     def self.lightThreadsETALines()
         dimensions = NSXLightThreadUtils::lightThreads().map{|lightThread| lightThread["description"].size }.max 
-        NSXLightThreadUtils::lightThreads().map{|lightThread|
-            (lambda {|lightThread|
-                timespanInSeconds = NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
-                return nil if timespanInSeconds.nil?
-                return nil if timespanInSeconds == 0
-                "#{lightThread["description"].ljust(dimensions)}: #{"%4.2f" % (timespanInSeconds.to_f/3600)} hours"            
-            }).call(lightThread)
-        }.compact
+        NSXLightThreadUtils::lightThreads()
+            .select{|lightThread|
+                objectuuid = lightThread["uuid"]
+                NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
+            }
+            .map{|lightThread|
+                (lambda {|lightThread|
+                    timespanInSeconds = NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
+                    return nil if timespanInSeconds.nil?
+                    return nil if timespanInSeconds == 0
+                    "#{lightThread["description"].ljust(dimensions)}: #{"%4.2f" % (timespanInSeconds.to_f/3600)} hours"
+                }).call(lightThread)
+            }
+            .compact
     end
 
 end
