@@ -421,24 +421,22 @@ class NSXLightThreadMetrics
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
-    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [lightThreadMetricForStreamItems, expansion]
-    def self.lightThreadToMetricParameters(lightThread) # [lightThreadMetricForStreamItems, expansion]
-        return nil if lightThread["priorityXp"][0]=="interruption-now"
-        return nil if lightThread["priorityXp"][0]=="must-be-all-done-today"
-        return [0.19, 0.4] if lightThread["priorityXp"][0]=="stream-important"
-        return [0.19, 0.2] if lightThread["priorityXp"][0]=="stream-luxury"
-        raise "Error: 0a86f002"
-    end
-
     # NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
         return 2 if ( simulationTimeInSeconds==0 and NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) )
-        metricParameters = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
-        return nil if metricParameters.nil?
-        baseMetric, expansion = metricParameters
         livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds)
-        return nil if livePercentage.nil?
-        baseMetric + expansion*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+        return nil if livePercentage.nil? # nil if NSXLightThreadUtils::trueIfLightThreadIsTypeMustBeGone(lightThread)
+        if lightThread["priorityXp"][0]=="stream-luxury" then
+            return 0.2 + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+        end
+        if lightThread["priorityXp"][0]=="stream-important" then
+            if livePercentage < 100 then
+                return 0.4 + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+            else
+                return 0.1 + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+            end
+        end
+        raise "Error: 0a86f002"        
     end
 
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)

@@ -8,7 +8,7 @@ class NSXCatalystObjectsOperator
         {
             "uuid"               => "10bd6790", 
             "agent-uid"          => nil,
-            "metric"             => 0.4,
+            "metric"             => 0.2 + 0.2*Math.exp(-2),
             "announce"           => "(╯°□°）╯︵ ┻━┻",
             "commands"           => []
         }
