@@ -205,8 +205,7 @@ class NSXLightThreadUtils
                 "show timelog", 
                 "update description:", 
                 "update LightThreadPriorityXP:",
-                "show objects",
-                "select and display object",
+                "objects dive",
                 "rotate front"
             ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
@@ -214,18 +213,14 @@ class NSXLightThreadUtils
             end
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", operations)
             break if operation.nil?
-            if operation == "show objects" then
-                NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-                    .each{|streamItem|
-                        puts "[ordinal: #{streamItem["ordinal"]}] #{NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, streamItem)}"
-                    }
-                LucilleCore::pressEnterToContinue()
-            end
-            if operation == "select and display object" then
-                objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-                            .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, streamItem, 1) }
-                object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
-                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            if operation == "objects dive" then
+                loop {
+                    objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+                                .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, streamItem, 1) }
+                    object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
+                    break if object.nil?
+                    NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+                }
             end
             if operation == "rotate front" then
                 items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
