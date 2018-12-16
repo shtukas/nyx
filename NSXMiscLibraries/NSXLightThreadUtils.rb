@@ -187,17 +187,22 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadDive(lightThread)
     def self.lightThreadDive(lightThread)
+        lightThreadCatalystObjectUUID = lightThread["uuid"]
         loop {
+            doNotShowUntilDateTime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)
+            livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "LightThread"
             puts "     description: #{lightThread["description"]}"
             puts "     uuid: #{lightThread["uuid"]}"
             puts "     priorityXp: #{lightThread["priorityXp"].join(", ")}"
             puts "     streamuuid: #{lightThread["streamuuid"]}"
-            livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
+            if doNotShowUntilDateTime then
+                puts "     Do not display until: #{doNotShowUntilDateTime}"
+            end
             operations = [
                 "start", 
                 "stop", 
