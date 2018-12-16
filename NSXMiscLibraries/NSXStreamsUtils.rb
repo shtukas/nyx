@@ -212,9 +212,9 @@ class NSXStreamsUtils
             return ["recast", "description:"]
         end
         if NSXRunner::isRunning?(item["uuid"]) then
-            ["open", "stop", "done", "recast", "description:"]
+            ["open", "stop", "done", "recast", "description:", "ordinal:"]
         else
-            ["open" ,"start", "done", "rotate", "recast", "description:"]
+            ["open" ,"start", "done", "rotate", "recast", "description:", "ordinal:"]
         end
     end
 
@@ -305,6 +305,13 @@ class NSXStreamsUtils
     def self.setItemDescription(streamItemUUID, description)
         item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
         item["description"] = description
+        NSXStreamsUtils::sendItemToDisk(item)
+    end
+
+    # NSXStreamsUtils::setItemOrdinal(streamItemUUID, ordinal)
+    def self.setItemOrdinal(streamItemUUID, ordinal)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item["ordinal"] = ordinal
         NSXStreamsUtils::sendItemToDisk(item)
     end
 

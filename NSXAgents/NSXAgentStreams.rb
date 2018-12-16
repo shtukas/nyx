@@ -87,10 +87,14 @@ class NSXAgentStreams
             end
         end
         if command == "description:" then
-            item = object["data"]["stream-item"]
+            itemuuid = object["data"]["stream-item"]["uuid"]
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            NSXStreamsUtils::setItemDescription(item["uuid"], description)
-            lightThread = object["data"]["light-thread"]
+            NSXStreamsUtils::setItemDescription(itemuuid, description)
+        end
+        if command == "ordinal:" then
+            itemuuid = object["data"]["stream-item"]["uuid"]
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            NSXStreamsUtils::setItemOrdinal(itemuuid, ordinal)
         end
     end
 
