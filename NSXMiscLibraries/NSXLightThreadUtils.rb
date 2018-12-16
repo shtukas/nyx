@@ -205,7 +205,7 @@ class NSXLightThreadUtils
                 "show timelog", 
                 "update description:", 
                 "update LightThreadPriorityXP:",
-                "objects dive",
+                "stream items dive",
                 "rotate front"
             ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
@@ -213,7 +213,15 @@ class NSXLightThreadUtils
             end
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", operations)
             break if operation.nil?
-            if operation == "objects dive" then
+            if operation == "stream items dive" then
+                items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+                next if items.size == 0
+                if items.first["ordinal"] > 10 then
+                    items.each{|item| 
+                        item["ordinal"] = item["ordinal"] - 10
+                        NSXStreamsUtils::sendItemToDisk(item)
+                    }
+                end
                 loop {
                     objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                                 .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, streamItem, 1) }
