@@ -333,8 +333,8 @@ class NSXLightThreadMetrics
     def self.lightThreadToMetricParameters(lightThread) # [streamItemMetric, expansion]
         return nil if lightThread["priorityXp"][0]=="interruption-now"
         return nil if lightThread["priorityXp"][0]=="must-be-all-done-today"
-        return [0.4, 0.2] if lightThread["priorityXp"][0]=="stream-important"
-        return [0.2, 0.2] if lightThread["priorityXp"][0]=="stream-luxury"
+        return [0.19, 0.4] if lightThread["priorityXp"][0]=="stream-important"
+        return [0.19, 0.2] if lightThread["priorityXp"][0]=="stream-luxury"
         raise "Error: 0a86f002"
     end
 
@@ -343,10 +343,9 @@ class NSXLightThreadMetrics
         return 2 if ( simulationTimeInSeconds==0 and NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) )
         metricParameters = NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread)
         return nil if metricParameters.nil?
+        baseMetric, expansion = metricParameters
         livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds)
         return nil if livePercentage.nil?
-        return 0 if livePercentage >= 100
-        baseMetric, expansion = metricParameters
         baseMetric + expansion*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
     end
 
