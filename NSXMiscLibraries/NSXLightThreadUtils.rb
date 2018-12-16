@@ -3,6 +3,14 @@
 
 require 'time'
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
 LIGHT_THREADS_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/LightThreads"
 
@@ -66,6 +74,47 @@ class NSXLightThreadUtils
         NSXRunner::isRunning?(lightThread["uuid"])
     end
 
+    # NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread)
+    def self.lightThreadCanBeDestroyed(lightThread)
+        return false if ["29be9b439c40a9e8fcd34b7818ba4153", "03b79978bcf7a712953c5543a9df9047", "354d0160d6151cb10015e6325ca5f26a"].include?(lightThread["streamuuid"])
+        return false if NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count > 0
+        true
+    end
+
+    # NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
+    def self.getLightThreadTimeRecordItems(lightThreadUUID)
+        folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
+        return [] if !File.exists?(folderpath)
+        Dir.entries(folderpath)
+            .select{|filename| filename[-5, 5]==".json" }
+            .map{|filename| "#{folderpath}/#{filename}" }
+            .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
+            .select{|pair| 
+                item = pair[1] 
+                (Time.new.to_i-item["unixtime"]) > 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS 
+            }
+            .each{|pair|
+                filepath = pair[0]
+                FileUtils.rm(filepath)
+            }
+        Dir.entries(folderpath)
+            .select{|filename| filename[-5, 5]==".json" }
+            .map{|filename| "#{folderpath}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
+    end
+
+    # -----------------------------------------------
+    # .toString
+
+    # NSXLightThreadUtils::lightThreadToString(lightThread)
+    def self.lightThreadToString(lightThread)
+        "LightThread: #{lightThread["description"]}"
+    end
+
+    # -----------------------------------------------
+    # Agent and Dive Support
+
     # NSXLightThreadUtils::stopLightThread(lightThreadUUID)
     def self.stopLightThread(lightThreadUUID)
         timespanInSeconds = NSXRunner::stop(lightThreadUUID)
@@ -100,27 +149,11 @@ class NSXLightThreadUtils
         NSXLightThreadUtils::sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
     end
 
-    # NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
-    def self.getLightThreadTimeRecordItems(lightThreadUUID)
-        folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
-        return [] if !File.exists?(folderpath)
-        Dir.entries(folderpath)
-            .select{|filename| filename[-5, 5]==".json" }
-            .map{|filename| "#{folderpath}/#{filename}" }
-            .map{|filepath| [filepath, JSON.parse(IO.read(filepath))] }
-            .select{|pair| 
-                item = pair[1] 
-                (Time.new.to_i-item["unixtime"]) > 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS 
-            }
-            .each{|pair|
-                filepath = pair[0]
-                FileUtils.rm(filepath)
-            }
-        Dir.entries(folderpath)
-            .select{|filename| filename[-5, 5]==".json" }
-            .map{|filename| "#{folderpath}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
+    # NSXLightThreadUtils::destroyLightThread(lightThreadUUID)
+    def self.destroyLightThread(lightThreadUUID)
+        filepath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
@@ -137,35 +170,13 @@ class NSXLightThreadUtils
         object["uuid"]      = uuid # the catalyst object has the same uuid as the lightThread
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
-        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread) + ( lightThread["targetFolderpath"]!="/Galaxy/LightThreads/DevNull" ? " (#{lightThread["targetFolderpath"]})" : "" )
+        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
         object["default-expression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
         object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
         object["item-data"]["lightThread"] = lightThread
         object 
-    end
-
-    # NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread)
-    def self.lightThreadCanBeDestroyed(lightThread)
-        return false if ["29be9b439c40a9e8fcd34b7818ba4153", "03b79978bcf7a712953c5543a9df9047", "354d0160d6151cb10015e6325ca5f26a"].include?(lightThread["streamuuid"])
-        return false if NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count > 0
-        true
-    end
-
-    # NSXLightThreadUtils::destroyLightThread(lightThreadUUID)
-    def self.destroyLightThread(lightThreadUUID)
-        filepath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # -----------------------------------------------
-    # .toString
-
-    # NSXLightThreadUtils::lightThreadToString(lightThread)
-    def self.lightThreadToString(lightThread)
-        "LightThread: #{lightThread["description"]}"
     end
 
     # -----------------------------------------------
@@ -228,7 +239,7 @@ class NSXLightThreadUtils
                 end
                 loop {
                     objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-                                .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, streamItem, 1) }
+                                .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, 1, streamItem) }
                     object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
                     break if object.nil?
                     NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
@@ -299,6 +310,91 @@ class NSXLightThreadUtils
 
 end
 
+class NSXLightThreadsTargetFolderInterface
+
+    # NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread)
+    def self.lightThreadToItsFolderCatalystObjectOrNull(lightThread)
+        return nil if lightThread["targetFolderpath"] == "/Galaxy/LightThreads/DevNull"
+        return nil if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
+        return nil if NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1), 0) >= 100
+        uuid = "#{lightThread["uuid"]}-folder-66aeb2e8-f161-4931-8c55-03d11468fc55"
+        return nil if !KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}").nil?
+        object              = {}
+        object["uuid"]      = uuid
+        object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+        object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.002
+        object["announce"]  = "LightThread folder: #{lightThread["targetFolderpath"]}"
+        object["commands"]  = ["stop", "start", "dayoff"]
+        object["default-expression"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
+        object["is-running"] = NSXRunner::isRunning?(uuid)
+        object["item-data"] = {}
+        object["item-data"]["lightThread"] = lightThread
+        object["commands-lambdas"] = {
+            "dayoff" => lambda{|object|
+                objectuuid = object["uuid"]
+                lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
+                if NSXRunner::isRunning?(objectuuid) then
+                    puts "You cannot dayoff a running folder. You must stop first."
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+                KeyValueStore::set("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}", "off")
+            },
+            "stop" => lambda{|object|
+                objectuuid = object["uuid"]
+                lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
+                return if !NSXRunner::isRunning?(objectuuid)
+                timespanInSeconds = NSXRunner::stop(objectuuid)
+                NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timespanInSeconds.to_f/3600)
+            },
+            "start" => lambda{|object|
+                objectuuid = object["uuid"]
+                lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
+                return if NSXRunner::isRunning?(objectuuid)
+                NSXRunner::start(objectuuid)
+            }
+        }
+        object
+    end
+
+end
+
+class NSXLightThreadsStreamsInterface
+
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
+    def self.lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
+        return nil if lightThread["priorityXp"][0] == "interruption-now"
+        return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        1
+    end
+
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
+    def self.lightThreadToItsStreamCatalystObjects(lightThread)
+        lightThreadMetricForStreamItems = NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
+        items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+        items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
+        items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
+        (items1+items2).map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item) }
+    end
+
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+    def self.lightThreadToItsStreamItemsOrdered(lightThread)
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
+            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
+    end
+
+    # NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+    def self.filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+        items.select{|item|
+            objectuuid = item["uuid"][0,8]
+            NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
+        }
+    end
+
+end
+
 class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToRealisedTimeSpanInSecondsOverThePastNDays(lightThreadUUID, n)
@@ -325,8 +421,8 @@ class NSXLightThreadMetrics
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
-    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [streamItemMetric, expansion]
-    def self.lightThreadToMetricParameters(lightThread) # [streamItemMetric, expansion]
+    # NSXLightThreadMetrics::lightThreadToMetricParameters(lightThread) # [lightThreadMetricForStreamItems, expansion]
+    def self.lightThreadToMetricParameters(lightThread) # [lightThreadMetricForStreamItems, expansion]
         return nil if lightThread["priorityXp"][0]=="interruption-now"
         return nil if lightThread["priorityXp"][0]=="must-be-all-done-today"
         return [0.19, 0.4] if lightThread["priorityXp"][0]=="stream-important"
@@ -355,7 +451,7 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
     def self.lightThread2GenericStreamItemMetric(lightThread)
-        ( NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? -0.02 : 0.02 ) + NSXLightThreadMetrics::lightThread2Metric(lightThread)
+        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) # We do not display the stream items if the LightThread itself is running
     end
 
     # NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
@@ -381,43 +477,5 @@ class NSXLightThreadMetrics
     end
 
 end
-
-class NSXLightThreadsStreamsInterface
-
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
-    def self.lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
-        return nil if lightThread["priorityXp"][0] == "interruption-now"
-        return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        1
-    end
-
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
-    def self.lightThreadToItsStreamCatalystObjects(lightThread)
-        streamItemMetric = NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
-        items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-        items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
-        items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
-        (items1+items2).map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric) }
-    end
-
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-    def self.lightThreadToItsStreamItemsOrdered(lightThread)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
-            .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
-            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
-    end
-
-    # NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-    def self.filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items.select{|item|
-            objectuuid = item["uuid"][0,8]
-            NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
-        }
-    end
-
-end
-
-
 
 

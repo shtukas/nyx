@@ -200,10 +200,10 @@ class NSXStreamsUtils
         "[StreamItem: #{item["ordinal"]}, LightThread: #{(lightThread ? lightThread["description"] : "")}] #{announce}#{doNotShowString}"
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
-    def self.streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
+    # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
+    def self.streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if NSXRunner::isRunning?(item["uuid"])
-        streamItemMetric + Math.exp(-item["ordinal"].to_f/10000).to_f/1000
+        lightThreadMetricForStreamItems + 0.001 + Math.exp(-item["ordinal"].to_f/1000).to_f/1000 # the last term is less than 0.001, so they come below the foler item
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
@@ -226,8 +226,8 @@ class NSXStreamsUtils
         nil
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric)
-    def self.streamItemToStreamCatalystObject(lightThread, item, streamItemMetric)
+    # NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
+    def self.streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
         genericContentsItemOrNull = lambda{|genericContentFilename|
             filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
             return nil if filepath.nil?
@@ -236,7 +236,7 @@ class NSXStreamsUtils
         object = {}
         object["uuid"] = item["uuid"][0,8]      
         object["agent-uid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
-        object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThread, item, streamItemMetric)
+        object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
         object["default-expression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)

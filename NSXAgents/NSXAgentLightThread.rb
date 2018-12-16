@@ -38,11 +38,15 @@ class NSXAgentLightThread
         # This agent emits stream objects
         objects1 = NSXLightThreadUtils::lightThreads()
             .map{|lightThread| NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) }
-        objects3 = NSXLightThreadUtils::lightThreads()
+        objects2 = NSXLightThreadUtils::lightThreads()
             .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
             .map{|lightThread| NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) }
             .flatten
-        objects1 + objects3
+        objects3 = NSXLightThreadUtils::lightThreads()
+            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
+            .map{|lightThread| NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) }
+            .compact
+        objects1 + objects2 + objects3
     end
 
     def self.processObjectAndCommand(object, command)
