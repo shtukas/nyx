@@ -206,8 +206,7 @@ class NSXLightThreadUtils
                 "update description:", 
                 "update LightThreadPriorityXP:",
                 "show objects",
-                "process selected object",
-                "add object in front of the line",
+                "select and display object",
                 "rotate front"
             ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
@@ -222,7 +221,7 @@ class NSXLightThreadUtils
                     }
                 LucilleCore::pressEnterToContinue()
             end
-            if operation == "process selected object" then
+            if operation == "select and display object" then
                 objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                             .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, streamItem, 1) }
                 object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
@@ -238,14 +237,6 @@ class NSXLightThreadUtils
                     result = NSXStreamsUtils::resetRunDataAndRotateItem(lightThread["streamuuid"], 5, item["uuid"])
                     puts JSON.pretty_generate(result)
                 end
-            end
-            if operation=="add object in front of the line" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                item1 = NSXGenericContents::issueItemText(description)
-                puts JSON.pretty_generate(item1)
-                item2 = NSXStreamsUtils::issueItem(lightThread["streamuuid"], item1["filename"], NSXStreamsUtils::getFrontOfTheLineOrdinalForStream(lightThread["streamuuid"]))
-                puts JSON.pretty_generate(item2)
-                LucilleCore::pressEnterToContinue()
             end
             if operation=="start" then
                 NSXRunner::start(lightThread["uuid"])
@@ -398,10 +389,10 @@ end
 
 class NSXLightThreadsStreamsInterface
 
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCount(lightThread)
-    def self.lightThreadToItsStreamCatalystObjectsCount(lightThread)
-        return 999 if lightThread["priorityXp"][0] == "interruption-now"
-        return 999 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
+    def self.lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
+        return nil if lightThread["priorityXp"][0] == "interruption-now"
+        return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
         1
     end
 
@@ -410,9 +401,9 @@ class NSXLightThreadsStreamsInterface
         streamItemMetric = NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items
-            .first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCount(lightThread))
-            .map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric) }
+        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
+        items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
+        (items1+items2).map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, item, streamItemMetric) }
     end
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
