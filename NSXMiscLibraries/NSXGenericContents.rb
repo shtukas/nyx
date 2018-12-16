@@ -215,7 +215,7 @@ class NSXGenericContents
         end
         genericContentItem = JSON.parse(IO.read(filepath))
         if genericContentItem["type"]=="text" then
-            return genericContentItem["text"]
+            return ( genericContentItem["text"].lines.first || "(empty file text)" )
         end
         if genericContentItem["type"]=="url" then
             return genericContentItem["url"]
