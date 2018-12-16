@@ -33,7 +33,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 # ----------------------------------------------------------------------
 
 WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/Wave"
-WAVE_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/LightThreads-Today-Important-DropOff"
 
 # ----------------------------------------------------------------------
 
@@ -211,20 +210,6 @@ class WaveEmailSupport
                 end
             }
             .compact
-    end
-end
-
-# WaveDevOps::collectWave()
-
-class WaveDevOps
-    def self.collectWave()
-        Dir.entries(WAVE_DROPOFF_FOLDERPATH)
-            .select{|filename| filename[0, 1] != '.' }
-            .map{|filename| "#{WAVE_DROPOFF_FOLDERPATH}/#{filename}" }
-            .each{|sourcelocation|
-                genericItem = NSXGenericContents::issueItemLocationMoveOriginal(sourcelocation)
-                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem) # Today-Important
-            }
     end
 end
 

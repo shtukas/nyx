@@ -316,18 +316,7 @@ class NSXStreamsUtils
     end
 
     # -----------------------------------------------------------------
-    # User Interface    
-
-    # NSXStreamsUtils::pickUpXStreamDropOff()
-    def self.pickUpXStreamDropOff()
-        Dir.entries("/Users/pascal/Desktop/LightThread-XStream-DropOff")
-        .select{|filename| filename[0,1]!="." }
-        .map{|filename| "/Users/pascal/Desktop/LightThread-XStream-DropOff/#{filename}" }
-        .map{|location|
-            genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
-            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("354d0160d6151cb10015e6325ca5f26a", genericItem)
-        }
-    end
+    # User Interface
 
     # NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid)
     def self.interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid)

@@ -313,6 +313,23 @@ class CatalystUI
 
 end
 
+CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
+
+class CatalystDevOps
+
+    # CatalystDevOps::collectInboxPackage()
+    def self.collectInboxPackage()
+        Dir.entries(CATALYST_INBOX_DROPOFF_FOLDERPATH)
+            .select{|filename| filename[0, 1] != '.' }
+            .map{|filename| "#{CATALYST_INBOX_DROPOFF_FOLDERPATH}/#{filename}" }
+            .each{|sourcelocation|
+                genericItem = NSXGenericContents::issueItemLocationMoveOriginal(sourcelocation)
+                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem) # Inbox
+            }
+    end
+    
+end
+
 # -------------------------------------------------------------------------
 # nslog
 
@@ -357,8 +374,7 @@ Thread.new {
 # -------------------------------------------------------------------------
 
 loop {
-    WaveDevOps::collectWave()
-    NSXStreamsUtils::pickUpXStreamDropOff()
+    CatalystDevOps::collectInboxPackage()
     NSXLightThreadUtils::lightThreads()
         .each{|lightThread| 
             targetFolderpath = lightThread["targetFolderpath"]
