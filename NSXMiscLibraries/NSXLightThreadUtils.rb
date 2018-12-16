@@ -323,7 +323,7 @@ class NSXLightThreadsTargetFolderInterface
         object["uuid"]      = uuid
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.002
-        object["announce"]  = "LightThread folder: #{lightThread["targetFolderpath"]}"
+        object["announce"]  = "LightThread: #{lightThread["description"]} / Folder: #{lightThread["targetFolderpath"]}"
         object["commands"]  = ["stop", "start", "dayoff"]
         object["default-expression"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
         object["is-running"] = NSXRunner::isRunning?(uuid)
@@ -375,7 +375,12 @@ class NSXLightThreadsStreamsInterface
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
         items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
         items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
-        (items1+items2).map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item) }
+        itemsWithoutDuplicate = []
+        (items1+items2).each{|item|
+            next if itemsWithoutDuplicate.map{|item| item["uuid"] }.include?(item["uuid"])
+            itemsWithoutDuplicate << item
+        }
+        itemsWithoutDuplicate.map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item) }
     end
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
