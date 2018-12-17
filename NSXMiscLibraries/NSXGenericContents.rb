@@ -249,7 +249,7 @@ class NSXGenericContents
         end
 
         if item["type"]=="text" then
-            filepath = "/Users/pascal/Desktop/#{NSXGenericContents::timeStringL22()}.txt"
+            filepath = "#{NSXMiscUtils::newBinArchivesFolderpath()}/#{NSXGenericContents::timeStringL22()}.txt"
             File.open(filepath, "w"){|f| f.puts(item["text"]) }
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
@@ -258,7 +258,6 @@ class NSXGenericContents
                 item["text"] = updatedText
                 NSXGenericContents::sendItemToDisk(item)
             end
-            FileUtils.rm(filepath)
             return
         end
 
