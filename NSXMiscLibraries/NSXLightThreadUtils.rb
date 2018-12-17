@@ -221,30 +221,14 @@ class NSXLightThreadUtils
                 "show timelog", 
                 "update description:", 
                 "update LightThreadPriorityXP:",
-                "stream items dive"
+                "stream items dive",
+                "destroy"
             ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
             end
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", operations)
             break if operation.nil?
-            if operation == "stream items dive" then
-                items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-                next if items.size == 0
-                if items.first["ordinal"] > 10 then
-                    items.each{|item| 
-                        item["ordinal"] = item["ordinal"] - 10
-                        NSXStreamsUtils::sendItemToDisk(item)
-                    }
-                end
-                loop {
-                    objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-                                .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, 1, streamItem) }
-                    object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
-                    break if object.nil?
-                    NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
-                }
-            end
             if operation=="start" then
                 NSXRunner::start(lightThread["uuid"])
             end
@@ -284,6 +268,22 @@ class NSXLightThreadUtils
                     NSXLightThreadUtils::destroyLightThread(lightThread["uuid"])
                 end
                 break
+            end
+            if operation == "stream items dive" then
+                items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+                next if items.size == 0
+                items = NSXStreamsUtils::identityOrItemsToOrdinalShiftedItemsIfRequired(items)
+                if items.size > 20 then
+                    cardinal = LucilleCore::selectEntityFromListOfEntitiesOrNull("cardinal:", [20.to_s, items.size.to_s]).to_i
+                end
+                loop {
+                    objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+                        .first(cardinal)
+                        .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, 1, streamItem) }
+                    object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
+                    break if object.nil?
+                    NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+                }
             end
         }
     end

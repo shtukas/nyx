@@ -183,6 +183,42 @@ class NSXStreamsUtils
         NSXStreamsUtils::sendItemToDisk(item)
     end
 
+    # NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
+    def self.newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
+        items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
+        # First we remove the item from the stream
+        items = items.reject{|item| item["uuid"]==streamItemUUID }
+        if items.size == 0 then
+            return 1 # There was only one item (or zero) in the stream and we default to 1
+        end 
+        if items.size < n then
+            return items.last["ordinal"] + 1
+        end
+        return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
+    end
+
+    # NSXStreamsUtils::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+    def self.resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+        item1 = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        return if item1.nil?
+        item2 = item1.clone
+        item2["run-data"] = []
+        item2["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
+        NSXStreamsUtils::sendItemToDisk(item2)
+        [item1, item2]
+    end
+
+    # NSXStreamsUtils::identityOrItemsToOrdinalShiftedItemsIfRequired(items)
+    def self.identityOrItemsToOrdinalShiftedItemsIfRequired(items)
+        return [] if items.size == 0
+        return items if items.first["ordinal"] <= 10
+        items.map{|item| 
+            item["ordinal"] = item["ordinal"] - 10
+            NSXStreamsUtils::sendItemToDisk(item)
+            item
+        }       
+    end
+
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
@@ -342,34 +378,6 @@ class NSXStreamsUtils
             NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
             NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
         [streamuuid, ordinal]
-    end
-
-    # -----------------------------------------------------------------
-    # Special Circumstances
-
-    # NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
-    def self.newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
-        items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
-        # First we remove the item from the stream
-        items = items.reject{|item| item["uuid"]==streamItemUUID }
-        if items.size == 0 then
-            return 1 # There was only one item (or zero) in the stream and we default to 1
-        end 
-        if items.size < n then
-            return items.last["ordinal"] + 1
-        end
-        return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
-    end
-
-    # NSXStreamsUtils::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
-    def self.resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
-        item1 = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
-        return if item1.nil?
-        item2 = item1.clone
-        item2["run-data"] = []
-        item2["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
-        NSXStreamsUtils::sendItemToDisk(item2)
-        [item1, item2]
     end
 
 end
