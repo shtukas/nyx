@@ -51,11 +51,39 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command.start_with?("line:") then
+            text = command[5, command.size].strip
+            if text == "text" then
+                text = NSXMiscUtils::editTextUsingTextmate("")
+            end
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["LightThread", "Wave"])
+            catalystobjectuuid = nil
+            if type == "LightThread" then
+                genericContentsItem = NSXGenericContents::issueItemText(text)
+                pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+                return if pair.nil?
+                streamuuid, ordinal = pair
+                streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
+                puts JSON.pretty_generate(streamItem)
+                catalystobjectuuid = streamItem["uuid"][0,8]
+            end
+            if type == "Wave" then
+                catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)
+            end
+            if catalystobjectuuid then
+                datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")
+                datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
+                return if datetime.nil?
+                NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
+            end
+            return
+        end
+
         if command == "/" then
             options = [
                 "view LightThreads",
-                "new wave (repeat item)", 
                 "new Stream Item", 
+                "new wave (repeat item)", 
                 "new LightThread",
                 "@spot",
                 "search",
@@ -124,20 +152,6 @@ class NSXGeneralCommandHandler
                     }
                 LucilleCore::pressEnterToContinue()
             end
-            return
-        end
-
-        if command.start_with?("line:") then
-            text = command[5, command.size].strip
-            if text == "text" then
-                text = NSXMiscUtils::editTextUsingTextmate("")
-            end
-            genericContentsItem = NSXGenericContents::issueItemText(text)
-            pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
-            return if pair.nil?
-            streamuuid, ordinal = pair
-            streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
-            puts JSON.pretty_generate(streamItem)
             return
         end
 

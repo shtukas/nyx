@@ -87,6 +87,9 @@ class NSXMiscUtils
 
     def self.codeToDatetimeOrNull(code)
 
+        return nil if code.nil?
+        return nil if code == ""
+
         # +<weekdayname>
         # +<integer>day(s)
         # +<integer>hour(s)
@@ -199,7 +202,7 @@ class NSXMiscUtils
         string
     end
 
-    # NSXMiscUtils::spawnNewWaveItem(description)
+    # NSXMiscUtils::spawnNewWaveItem(description): String (uuid)
     def self.spawnNewWaveItem(description)
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         uuid = SecureRandom.hex(4)
@@ -209,6 +212,7 @@ class NSXMiscUtils
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
         schedule = WaveSchedules::makeScheduleObjectInteractivelyEnsureChoice()
         NSXAgentWave::writeScheduleToDisk(uuid, schedule)
+        uuid
     end
 
     # NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(repositorylocation, uuid, timespanInSeconds)
