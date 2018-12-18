@@ -233,7 +233,7 @@ class NSXStreamsUtils
             else
                 ""
             end
-        "LightThread: #{(lightThread ? lightThread["description"] : "")} / StreamItem: #{announce}#{doNotShowString}"
+        "StreamItem (#{item["ordinal"]}) [LightThread: #{(lightThread ? lightThread["description"] : "")}]: #{announce}#{doNotShowString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
