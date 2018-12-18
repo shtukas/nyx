@@ -362,7 +362,7 @@ class NSXStreamsUtils
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
             .first(10)
             .each{|streamItem|
-                puts "[ordinal: #{streamItem["ordinal"]}] #{NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil, streamItem)}"
+                puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil, streamItem)
             }
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for end of queue): ")
         return nil if ordinal == ""
