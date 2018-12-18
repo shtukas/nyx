@@ -81,7 +81,7 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "view LightThreads",
+                "LightThreads dive",
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "new LightThread",
@@ -110,7 +110,7 @@ class NSXGeneralCommandHandler
                 lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
                 puts JSON.pretty_generate(lightThread)
             end
-            if option == "view LightThreads" then
+            if option == "LightThreads dive" then
                 NSXLightThreadUtils::lightThreadsDive()
             end
             if option == "email-sync" then
