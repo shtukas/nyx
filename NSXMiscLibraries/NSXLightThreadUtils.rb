@@ -209,7 +209,7 @@ class NSXLightThreadUtils
             puts "     streamuuid: #{lightThread["streamuuid"]}"
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
-            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)}"
+            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
             if doNotShowUntilDateTime then
                 puts "     Do not display until: #{doNotShowUntilDateTime}"
@@ -370,7 +370,7 @@ class NSXLightThreadsStreamsInterface
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
     def self.lightThreadToItsStreamCatalystObjects(lightThread)
-        lightThreadMetricForStreamItems = NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
+        lightThreadMetricForStreamItems = NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
         items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
@@ -452,8 +452,10 @@ class NSXLightThreadMetrics
         (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
     end
 
-    # NSXLightThreadMetrics::lightThread2GenericStreamItemMetric(lightThread)
-    def self.lightThread2GenericStreamItemMetric(lightThread)
+    # NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
+    def self.lightThread2BaseStreamItemMetric(lightThread)
+        return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
+        return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) # We do not display the stream items if the LightThread itself is running
     end
 
