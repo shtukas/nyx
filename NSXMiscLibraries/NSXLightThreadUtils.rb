@@ -272,6 +272,7 @@ class NSXLightThreadUtils
                 items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                 next if items.size == 0
                 items = NSXStreamsUtils::identityOrItemsToOrdinalShiftedItemsIfRequired(items)
+                cardinal = items.size
                 if items.size > 20 then
                     cardinal = LucilleCore::selectEntityFromListOfEntitiesOrNull("cardinal:", [20.to_s, items.size.to_s]).to_i
                 end
