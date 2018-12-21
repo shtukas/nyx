@@ -171,7 +171,7 @@ class NSXGeneralCommandHandler
         end
 
         if command.start_with?('@') then
-            spotname = command[1,999]
+            spotname = command[1,999].strip
             NSXSpots::issueSpotClaim(spotname, object["uuid"])
             return
         end
