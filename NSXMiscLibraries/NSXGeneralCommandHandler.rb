@@ -17,7 +17,7 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::generalObjectCommands()
     def self.generalObjectCommands()
-        "Special General Commands: help :<p> + / line: <line> | 'text'"
+        "Special General Commands: help , :<p> , + , / , line: <line> | 'text' , search: <pattern>"
     end
 
     # NSXGeneralCommandHandler::specialObjectCommands()
@@ -79,6 +79,19 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command.start_with?("search:") then
+            pattern = command[7, command.size].strip
+            loop {
+                searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
+                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
+                searchobjects = searchobjects1 + searchobjects2
+                break if searchobjects.size==0
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object) })
+                break if selectedobject.nil?
+                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+            }
+        end
+
         if command == "/" then
             options = [
                 "LightThreads dive",
@@ -86,7 +99,6 @@ class NSXGeneralCommandHandler
                 "new wave (repeat item)", 
                 "new LightThread",
                 "@spot",
-                "search",
                 "email-sync",
                 "speed"
             ]
@@ -120,18 +132,6 @@ class NSXGeneralCommandHandler
                 spotnames = NSXSpots::getNames()
                 spotname = LucilleCore::selectEntityFromListOfEntitiesOrNull("spotnames: ", spotnames)
                 NSXSpots::removeNameForData(spotname)
-            end
-            if option == "search" then
-                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-                loop {
-                    searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                    searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
-                    searchobjects = searchobjects1 + searchobjects2
-                    break if searchobjects.size==0
-                    selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object) })
-                    break if selectedobject.nil?
-                    NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
-                }
             end
             if option == "speed" then
                 puts "Agents Speed Report"
