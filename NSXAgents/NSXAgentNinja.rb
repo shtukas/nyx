@@ -10,18 +10,7 @@ NINJA_ITEMS_REPOSITORY_FOLDERPATH = "/Galaxy/DataBank/Ninja/Items"
 
 # NSXAgentNinja::getObjects()
 
-class NinjaCLIProxy
-    @@packet = nil
-    def self.packet()
-        if @@packet.nil? then
-            @@packet = JSON.parse(`ninja api:next-folderpath-or-null`)[0]
-        end
-        @@packet
-    end
-    def self.reset()
-        @@packet = nil
-    end
-end
+$ninja_packet = nil
 
 # NSXAgentNinja::agentuuid()
 
@@ -32,17 +21,19 @@ class NSXAgentNinja
     end
 
     def self.getObjects()
-        packet = NinjaCLIProxy::packet()
-        return [] if packet.nil?
+        if $ninja_packet.nil? then
+            $ninja_packet = JSON.parse(`ninja api:next-folderpath-or-null`)[0]
+        end
+        return [] if $ninja_packet.nil?
         object = {
             "uuid"      => "96287511",
             "agent-uid" => self.agentuuid(),
-            "metric"    => 0.2 + 0.6*packet["metric"], # The metric given by ninja is between 0 and 1
-            "announce"  => "ninja: folderpath: #{packet["folderpath"]}",
+            "metric"    => 0.2 + 0.6*$ninja_packet["metric"], # The metric given by ninja is between 0 and 1
+            "announce"  => "ninja: folderpath: #{$ninja_packet["folderpath"]}",
             "commands"  => [],
             "default-expression" => "play",
             "item-data" => {
-                "ninja-folderpath" => packet["folderpath"]
+                "ninja-folderpath" => $ninja_packet["folderpath"]
             }
         }
         [object]
@@ -52,7 +43,7 @@ class NSXAgentNinja
         if command == "play" then
             folderpath = object["item-data"]["ninja-folderpath"]
             system("ninja api:play-folderpath '#{folderpath}'")
-            NinjaCLIProxy::reset()
+            $ninja_packet = nil
         end
     end
 
