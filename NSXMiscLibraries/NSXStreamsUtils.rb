@@ -208,14 +208,13 @@ class NSXStreamsUtils
         [item1, item2]
     end
 
-    # NSXStreamsUtils::identityOrItemsToOrdinalShiftedItemsIfRequired(items)
-    def self.identityOrItemsToOrdinalShiftedItemsIfRequired(items)
-        return [] if items.size == 0
-        return items if items.first["ordinal"] <= 10
-        items.map{|item| 
-            item["ordinal"] = item["ordinal"] - 10
+    # NSXStreamsUtils::shiftItemsOrdinalDownIfRequired(items)
+    def self.shiftItemsOrdinalDownIfRequired(items)
+        return if items.size == 0
+        return if items.first["ordinal"] <= 100
+        items.each{|item|
+            item["ordinal"] = item["ordinal"] - 100
             NSXStreamsUtils::sendItemToDisk(item)
-            item
         }       
     end
 
