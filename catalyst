@@ -176,7 +176,7 @@ class CatalystUI
 
         return if displayObjects.size==0
 
-        # system("clear")
+        system("clear")
 
         spotnames = NSXSpots::getNames()
         if spotnames.size>0 then

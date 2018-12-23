@@ -324,7 +324,7 @@ class NSXLightThreadsTargetFolderInterface
         object["uuid"]      = uuid
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.002
-        object["announce"]  = "Folder [LightThread: #{lightThread["targetFolderpath"]}]"
+        object["announce"]  = "Folder [LightThread: #{lightThread["targetFolderpath"]}]#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
         object["commands"]  = ["stop", "start", "dayoff"]
         object["default-expression"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
         object["is-running"] = NSXRunner::isRunning?(uuid)
