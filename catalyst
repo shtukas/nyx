@@ -161,23 +161,10 @@ class CatalystUI
         false
     end
 
-    # CatalystUI::objectCanBeDoneAsynchronously(object)
-    def self.objectCanBeDoneAsynchronously(object)
-        return false if object["agent-uid"] == "f7b21eb4-c249-4f0a-a1b0-d5d584c03316"
-        true
-    end
-
-    # CatalystUI::displayListing(displayObjects, unixtime)
-    def self.displayListing(displayObjects, unixtime = nil)
+    # CatalystUI::displayListing(displayObjects)
+    def self.displayListing(displayObjects)
 
         return if displayObjects.size==0
-
-        # Unixtime represents the time at which the top iteration started
-
-        if unixtime and (Time.new.to_i-unixtime)>1200 then
-            puts "Condition bdd8f90d: Escaping rendering loop"
-            return
-        end
 
         # system("clear")
 
@@ -232,66 +219,6 @@ class CatalystUI
         end
 
         if command == "" then
-            CatalystUI::displayListing(displayObjects, unixtime)
-            return
-        end
-
-        if command == 'help' then
-            puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
-            puts NSXGeneralCommandHandler::generalObjectCommands()
-            puts NSXGeneralCommandHandler::specialObjectCommands()
-            LucilleCore::pressEnterToContinue()
-            CatalystUI::displayListing(displayObjects, unixtime)
-            return
-        end
-
-        if command == "+" then
-            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            CatalystUI::displayListing(displayObjects, unixtime)
-            return
-        end
-
-        if command == ',,' then
-            Thread.new {
-                NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+0.2 hour"))
-            }
-            CatalystUI::displayListing(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
-            return
-        end
-
-        if command == "done" then
-            if CatalystUI::objectCanBeDoneAsynchronously(focusobject) then
-                Thread.new {
-                    NSXGeneralCommandHandler::processCommand(focusobject, "done")
-                }
-            else
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-                return
-            end
-            CatalystUI::displayListing(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
-            return
-        end
-
-        if command == ";;" then
-            NSXGeneralCommandHandler::processCommand(focusobject, "open")
-            Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            }
-            CatalystUI::displayListing(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
-            return
-        end
-
-        if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
-            position = command[1, command.size].strip.to_i
-            NSXMiscUtils::setStandardListingPosition([position, 0].max)
-            CatalystUI::displayListing(displayObjects, unixtime)
-            return
-        end
-
-        if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
-            puts "Pushing to #{datetime}"
-            NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], datetime)
-            CatalystUI::displayListing(CatalystUI::removeObjectFromCollection(displayObjects, focusobject["uuid"]), unixtime)
             return
         end
 
@@ -302,23 +229,13 @@ class CatalystUI
     def self.standardUILoop()
         loop {
             CatalystDevOps::collectInboxPackage()
-            NSXLightThreadUtils::lightThreads()
-                .each{|lightThread| 
-                    targetFolderpath = lightThread["targetFolderpath"]
-                    if targetFolderpath.nil? or !File.exists?(targetFolderpath) then
-                        targetFolderpath = LucilleCore::askQuestionAnswerAsString("I could not find a target folder for LightThread '#{lightThread["description"]}'. Target folderpath: ")
-                        lightThread["targetFolderpath"] = targetFolderpath
-                        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-                    end
-                }
             displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
             if displayObjects.size==0 then
                 puts "Could not find any object with display. Sleeping for a minute and then will try again"
                 sleep 60
                 next
             end
-
-            CatalystUI::displayListing(displayObjects, Time.new.to_i)
+            CatalystUI::displayListing(displayObjects)
         }
     end
 
@@ -328,6 +245,16 @@ end
 # nslog
 
 # -------------------------------------------------------------------------
+
+NSXLightThreadUtils::lightThreads()
+    .each{|lightThread| 
+        targetFolderpath = lightThread["targetFolderpath"]
+        if targetFolderpath.nil? or !File.exists?(targetFolderpath) then
+            targetFolderpath = LucilleCore::askQuestionAnswerAsString("I could not find a target folder for LightThread '#{lightThread["description"]}'. Target folderpath: ")
+            lightThread["targetFolderpath"] = targetFolderpath
+            NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+        end
+    }
 
 NSXStreamsUtils::sendOrphanStreamItemsToInbox()
 

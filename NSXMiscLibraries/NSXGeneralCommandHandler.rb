@@ -51,6 +51,25 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == 'help' then
+            puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
+            puts NSXGeneralCommandHandler::generalObjectCommands()
+            puts NSXGeneralCommandHandler::specialObjectCommands()
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == "+" then
+            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
+            return
+        end
+
+        if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
+            position = command[1, command.size].strip.to_i
+            NSXMiscUtils::setStandardListingPosition([position, 0].max)
+            return
+        end
+
         if command.start_with?("new:") then
             text = command[4, command.size].strip
             if text == "text" then
@@ -164,23 +183,37 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == ',,' then
+            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+0.2 hour"))
+            return
+        end
+
+        if command == "done" then
+            NSXGeneralCommandHandler::processCommand(object, "done")
+            return
+        end
+
+        if command == ";;" then
+            NSXGeneralCommandHandler::processCommand(object, "open")
+            NSXGeneralCommandHandler::processCommand(object, "done")
+            return
+        end
+
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
             return
         end
 
-        if command.start_with?('@') then
-            spotname = command[1,999].strip
-            NSXSpots::issueSpotClaim(spotname, object["uuid"])
+        if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
+            puts "Pushing to #{datetime}"
+            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             return
         end
 
-        if command.start_with?('+') then
-            code = command
-            if (datetime = NSXMiscUtils::codeToDatetimeOrNull(code)) then
-                NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
-            end
+        if command.start_with?('@') then
+            spotname = command[1,999].strip
+            NSXSpots::issueSpotClaim(spotname, object["uuid"])
             return
         end
         
