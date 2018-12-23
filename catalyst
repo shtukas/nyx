@@ -161,6 +161,16 @@ class CatalystUI
         false
     end
 
+    # CatalystUI::cardinalForTakingAllTheRunnings(objects, cardinal = 0)
+    def self.cardinalForTakingAllTheRunnings(objects, cardinal = 0)
+        objects = objects.clone
+        if objects.any?{|object| object["is-running"] } then
+            CatalystUI::cardinalForTakingAllTheRunnings(objects[1, objects.size], cardinal+1)
+        else
+            cardinal
+        end
+    end
+
     # CatalystUI::displayListing(displayObjects)
     def self.displayListing(displayObjects)
 
@@ -176,8 +186,11 @@ class CatalystUI
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
+        # displayCardinal decides how many objects we are going to display. Set to the max beteen standardlp and as many to display any runnning one
+        displayCardinal = [standardlp, CatalystUI::cardinalForTakingAllTheRunnings(displayObjects)].max
+
         displayObjects
-            .first(standardlp)
+            .first(displayCardinal)
             .each_with_index{|object, indx|
                 position = indx+1
                 if position == standardlp then
