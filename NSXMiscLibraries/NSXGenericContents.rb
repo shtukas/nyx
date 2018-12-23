@@ -303,7 +303,7 @@ class NSXGenericContents
 
         if item["type"]=="location" then
             locationfoldername = item["parent-foldername"]
-            locationfolderpath = NSXGenericContents::resolveFilenameToFilepathOrNull(locationfoldername)
+            locationfolderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(locationfoldername)
             if locationfolderpath then
                 NSXMiscUtils::moveLocationToCatalystBin(locationfolderpath)
             end
