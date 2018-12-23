@@ -179,31 +179,18 @@ class CatalystUI
             return
         end
 
-        system("clear")
-
-        print "Agents: "
-        puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
-        puts NSXGeneralCommandHandler::generalObjectCommands()
-        puts NSXGeneralCommandHandler::specialObjectCommands()
-
-        lines = JSON.parse(KeyValueStore::getOrNull(nil, "440cc2da-be91-4ccd-8a2e-cb4e9d947119") || "[]")
-        if lines.size>0 then
-            puts ""
-            puts lines.map{|line| "    -> #{line}".blue }.join("\n")
-        end
+        # system("clear")
 
         spotnames = NSXSpots::getNames()
         if spotnames.size>0 then
-            puts ""
-            puts "    -> @ #{spotnames.join(", ")}"
+            puts "awaiting: #{spotnames.join(", ")}".yellow
         end
 
-        puts ""
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
         displayObjects
-            .first([standardlp, 5].max)
+            .first(standardlp)
             .each_with_index{|object, indx|
                 position = indx+1
                 if position == standardlp then
@@ -237,7 +224,6 @@ class CatalystUI
 
         # -----------------------------------------------------------------------------------
 
-        puts ""
         print "--> "
         command = STDIN.gets().strip
 
@@ -251,6 +237,7 @@ class CatalystUI
         end
 
         if command == 'help' then
+            puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
             puts NSXGeneralCommandHandler::generalObjectCommands()
             puts NSXGeneralCommandHandler::specialObjectCommands()
             LucilleCore::pressEnterToContinue()
@@ -311,25 +298,6 @@ class CatalystUI
         NSXGeneralCommandHandler::processCommand(focusobject, command)
     end
 
-    # CatalystUI::lightThreadsETALines()
-    def self.lightThreadsETALines()
-        dimensions = NSXLightThreadUtils::lightThreads().map{|lightThread| lightThread["description"].size }.max 
-        NSXLightThreadUtils::lightThreads()
-            .select{|lightThread|
-                objectuuid = lightThread["uuid"]
-                NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
-            }
-            .map{|lightThread|
-                (lambda {|lightThread|
-                    timespanInSeconds = NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
-                    return nil if timespanInSeconds.nil?
-                    return nil if timespanInSeconds == 0
-                    "#{lightThread["description"].ljust(dimensions)}: #{"%4.2f" % (timespanInSeconds.to_f/3600)} hours"
-                }).call(lightThread)
-            }
-            .compact
-    end
-
     # CatalystUI::standardUILoop()
     def self.standardUILoop()
         loop {
@@ -351,73 +319,6 @@ class CatalystUI
             end
 
             CatalystUI::displayListing(displayObjects, Time.new.to_i)
-        }
-    end
-
-    # CatalystUI::simpleUILoop()
-    def self.simpleUILoop()
-        loop {
-            CatalystDevOps::collectInboxPackage()
-            NSXLightThreadUtils::lightThreads()
-                .each{|lightThread| 
-                    targetFolderpath = lightThread["targetFolderpath"]
-                    if targetFolderpath.nil? or !File.exists?(targetFolderpath) then
-                        targetFolderpath = LucilleCore::askQuestionAnswerAsString("I could not find a target folder for LightThread '#{lightThread["description"]}'. Target folderpath: ")
-                        lightThread["targetFolderpath"] = targetFolderpath
-                        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-                    end
-                }
-            displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-            if displayObjects.size==0 then
-                puts "Could not find any object with display. Sleeping for a minute and then will try again"
-                sleep 60
-                next
-            end
-            focusobject = displayObjects.first
-            if CatalystUI::objectIsAutoDone(focusobject) then
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-                next
-            end
-            if CatalystUI::objectIsNS0928Email(focusobject) then
-                CatalystUI::specialNS0928EmailDisplay(focusobject)
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-                next
-            end
-            puts NSXDisplayUtils::objectToStringForCatalystListing(focusobject, 1, 1)
-            print "--> "
-            command = STDIN.gets().strip
-            if command == ".." and focusobject["default-expression"] then
-                command = focusobject["default-expression"]
-            end
-            if command == "" then
-                CatalystUI::displayListing(displayObjects, unixtime)
-                next
-            end
-            if command == 'help' then
-                puts NSXGeneralCommandHandler::generalObjectCommands()
-                puts NSXGeneralCommandHandler::specialObjectCommands()
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            if command == ',,' then
-                NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+0.2 hour"))
-                next
-            end
-            if command == "done" then
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-                next
-            end
-            if command == ";;" then
-                NSXGeneralCommandHandler::processCommand(focusobject, "open")
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-                next
-            end
-            if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
-                puts "Pushing to #{datetime}"
-                NSXDoNotShowUntilDatetime::setDatetime(focusobject["uuid"], datetime)
-                next
-            end
-            NSXGeneralCommandHandler::processCommand(focusobject, command)
         }
     end
 
@@ -460,20 +361,7 @@ Thread.new {
     }
 }
 
-Thread.new {
-    loop {
-        sleep 10
-        lines = CatalystUI::lightThreadsETALines()
-        KeyValueStore::set(nil, "440cc2da-be91-4ccd-8a2e-cb4e9d947119", JSON.generate(lines))
-    }
-}
-
 # -------------------------------------------------------------------------
-
-if ARGV[0] == "simple" then
-    CatalystUI::simpleUILoop()
-    exit
-end
 
 CatalystUI::standardUILoop()
 
