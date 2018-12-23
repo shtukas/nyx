@@ -188,11 +188,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "done" then
-            NSXGeneralCommandHandler::processCommand(object, "done")
-            return
-        end
-
         if command == ";;" then
             NSXGeneralCommandHandler::processCommand(object, "open")
             NSXGeneralCommandHandler::processCommand(object, "done")
