@@ -19,6 +19,11 @@ class NSXMiscUtils
         Time.now.utc.iso8601[0,13]
     end
 
+    # NSXMiscUtils::yesterdayDay()
+    def self.yesterdayDay()
+        (Time.now-86400).utc.iso8601[0,10]
+    end
+
     # NSXMiscUtils::currentDay()
     def self.currentDay()
         Time.now.utc.iso8601[0,10]

@@ -219,6 +219,17 @@ class NSXStreamsUtils
         }       
     end
 
+    # NSXStreamsUtils::sendOrphanStreamItemsToInbox()
+    def self.sendOrphanStreamItemsToInbox()
+        NSXStreamsUtils::streamItemsWithoutLightThreadOwner()
+        .each{|item|
+            catalystInboxStreamUUID = "03b79978bcf7a712953c5543a9df9047" # Catalyst Inbox
+            item["streamuuid"] = catalystInboxStreamUUID
+            item["ordinal"] = NSXStreamsUtils::getNextOrdinalForStream(catalystInboxStreamUUID)
+            NSXStreamsUtils::sendItemToDisk(item)
+        }
+    end
+
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
