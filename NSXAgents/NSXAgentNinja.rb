@@ -28,12 +28,14 @@ class NSXAgentNinja
 
     # NSXAgentNinja::impactMetricCoefficient()
     def self.impactMetricCoefficient()
-        Math.exp(-0.1 * NSXAgentNinja::getImpactsForDisk().reject{|impact| (Time.new.to_i - impact) > 3600 }.size)
+        impacts = NSXAgentNinja::getImpactsForDisk().reject{|impact| (Time.new.to_i - impact) > 86400 }
+        return 1 if impacts.size==0
+        1 - impacts.map{|unixtime| 0.1*Math.exp(-(Time.new.to_i - unixtime).to_f/3600) }.inject(0, :+)
     end
 
     # NSXAgentNinja::impactsGarbageCollection()
     def self.impactsGarbageCollection()
-        impacts = NSXAgentNinja::getImpactsForDisk().reject{|impact| (Time.new.to_i - impact) > 3600 }
+        impacts = NSXAgentNinja::getImpactsForDisk().reject{|impact| (Time.new.to_i - impact) > 86400 }
         File.open("/Galaxy/DataBank/Catalyst/Agents-Data/Ninja/impacts.json", "w"){|f| f.puts(JSON.generate(impacts)) }
     end
 
@@ -45,7 +47,7 @@ class NSXAgentNinja
         object = {
             "uuid"      => "96287511",
             "agent-uid" => self.agentuuid(),
-            "metric"    => 0.2 + NSXAgentNinja::impactMetricCoefficient()*0.6*$ninja_packet["metric"], # The metric given by ninja is between 0 and 1
+            "metric"    => 0.19 + NSXAgentNinja::impactMetricCoefficient()*0.6*$ninja_packet["metric"], # The metric given by ninja is between 0 and 1
             "announce"  => "ninja: folderpath: #{$ninja_packet["folderpath"]}",
             "commands"  => [],
             "default-expression" => "play",
