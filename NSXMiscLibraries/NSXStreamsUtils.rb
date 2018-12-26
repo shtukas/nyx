@@ -269,7 +269,7 @@ class NSXStreamsUtils
         if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
             return "ack"
         end
-        nil
+        NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
