@@ -178,10 +178,8 @@ class WaveSchedules
     end
 end
 
-# WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid)
-# WaveEmailSupport::allEmailUIDs()
-
 class WaveEmailSupport
+    # WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid)
     def self.emailUIDToCatalystUUIDOrNull(emailuid)
         NSXAgentWave::catalystUUIDsEnumerator()
             .each{|uuid|
@@ -194,6 +192,7 @@ class WaveEmailSupport
             }
         nil
     end
+    # WaveEmailSupport::allEmailUIDs()
     def self.allEmailUIDs()
         NSXAgentWave::catalystUUIDsEnumerator()
             .map{|uuid|
@@ -335,6 +334,12 @@ class NSXAgentWave
             return "done"
         end
         if folderProbeMetadata["target-type"] == "line" and schedule["@"] == "every-n-days" then
+            return "done"
+        end
+        if folderProbeMetadata["target-type"] == "line" and schedule["@"] == "every-this-day-of-the-month" then
+            return "done"
+        end
+        if folderProbeMetadata["target-type"] == "line" and schedule["@"] == "every-this-day-of-the-week" then
             return "done"
         end
         if folderProbeMetadata["target-type"] == "virtually-empty-wave-folder" and schedule["@"] == "sticky" then
