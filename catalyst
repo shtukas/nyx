@@ -180,7 +180,7 @@ class CatalystUI
 
         spotnames = NSXSpots::getNames()
         if spotnames.size>0 then
-            puts "awaiting: #{spotnames.join(", ")}".yellow
+            puts "awaiting: #{spotnames.join(", ")}".green
         end
 
         standardlp = NSXMiscUtils::getStandardListingPosition()
