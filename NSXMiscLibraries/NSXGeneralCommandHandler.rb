@@ -22,7 +22,7 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::specialObjectCommands()
     def self.specialObjectCommands()
-        "Special Object Commands: ,, .. ;; @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
+        "Special Object Commands: ,, .. @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
     end
 
     # NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
@@ -185,12 +185,6 @@ class NSXGeneralCommandHandler
 
         if command == ',,' then
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+0.2 hour"))
-            return
-        end
-
-        if command == ";;" then
-            NSXGeneralCommandHandler::processCommand(object, "open")
-            NSXGeneralCommandHandler::processCommand(object, "done")
             return
         end
 
