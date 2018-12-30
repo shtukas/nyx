@@ -218,7 +218,6 @@ class NSXLightThreadUtils
             puts "     uuid: #{lightThread["uuid"]}"
             puts "     priorityXp: #{lightThread["priorityXp"].join(", ")}"
             puts "     streamuuid: #{lightThread["streamuuid"]}"
-            puts "     Has target folder: #{lightThread["hasTargetFolder"]}"
             puts "     Target folder: #{lightThread["targetFolderpath"]}"
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
@@ -234,7 +233,7 @@ class NSXLightThreadUtils
                 "show timelog", 
                 "update description:", 
                 "update LightThreadPriorityXP:",
-                "set hasTargetFolder and targetFolderpath ",
+                "set targetFolderpath",
                 "stream items dive",
                 "destroy"
             ]
@@ -276,11 +275,11 @@ class NSXLightThreadUtils
                 lightThread["priorityXp"] = priorityXp
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
-            if operation == "set hasTargetFolder and targetFolderpath " then
-                lightThread["hasTargetFolder"] = LucilleCore::askQuestionAnswerAsBoolean("Has target folder? : ")
-                if lightThread["hasTargetFolder"] then
-                    targetFolderpath = LucilleCore::askQuestionAnswerAsString("Target folderpath: ")
-                    lightThread["targetFolderpath"] = targetFolderpath
+            if operation == "set targetFolderpath" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Has target folder ? :") then
+                    lightThread["targetFolderpath"] = LucilleCore::askQuestionAnswerAsString("Target folderpath: ")
+                else
+                    lightThread["targetFolderpath"] = false
                 end
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
@@ -338,7 +337,7 @@ class NSXLightThreadsTargetFolderInterface
 
     # NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread)
     def self.lightThreadToItsFolderCatalystObjectOrNull(lightThread)
-        return nil if !lightThread["hasTargetFolder"]
+        return nil if !lightThread["targetFolderpath"]
         return nil if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         return nil if NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1), 0) >= 100
         uuid = "#{lightThread["uuid"]}-folder-66aeb2e8-f161-4931-8c55-03d11468fc55"
