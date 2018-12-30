@@ -305,7 +305,7 @@ class NSXLightThreadUtils
         if (type == "interruption-now") or (type == "must-be-all-done-today") then
             return [type]
         end
-        commitmentInHours = LucilleCore::askQuestionAnswerAsString("Daily commitment: ").to_f
+        commitmentInHours = LucilleCore::askQuestionAnswerAsString("Daily commitment (in hours): ").to_f
         [type, commitmentInHours]
     end
 
