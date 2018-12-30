@@ -186,11 +186,8 @@ class CatalystUI
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
-        # displayCardinal decides how many objects we are going to display. Set to the max beteen standardlp and as many to display any runnning one
-        displayCardinal = [10, standardlp, CatalystUI::cardinalForTakingAllTheRunnings(displayObjects)].max
-
         displayObjects
-            .first(displayCardinal)
+            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), NSXMiscUtils::screenHeight()-3].max)
             .each_with_index{|object, indx|
                 position = indx+1
                 if position == standardlp then

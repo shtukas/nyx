@@ -75,6 +75,7 @@ class NSXMiscUtils
         alpha.to_f/2
     end
 
+    # NSXMiscUtils::screenHeight()
     def self.screenHeight()
         `/usr/bin/env tput lines`.to_i
     end
