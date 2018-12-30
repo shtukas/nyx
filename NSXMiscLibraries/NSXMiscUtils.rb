@@ -38,9 +38,14 @@ class NSXMiscUtils
         [1,2,3,4,5].include?(Time.new.wday)
     end
 
+    # NSXMiscUtils::weekDays()
+    def self.weekDays()
+        ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+    end
+
+    # NSXMiscUtils::currentWeekDay()
     def self.currentWeekDay()
-        weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
-        weekdays[Time.new.wday]
+        NSXMiscUtils::weekDays()[Time.new.wday]
     end
 
     def self.isInteger(str)

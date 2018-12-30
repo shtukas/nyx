@@ -9,6 +9,7 @@ LightThread {
         nil                # When un-initialized
         false              # When no folder
         String, Folderpath
+    :activationWeekDays : nil | Array[Weekday] # monday, tuesday, wednesday, thursday, friday, saturday, sunday
 }
 
 LightThreadPriorityXP

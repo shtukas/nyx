@@ -103,14 +103,16 @@ class NSXLightThreadUtils
             .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
-    # NSXLightThreadUtils::trueIfLightThreadIsActive(lightThreadUUID)
-    def self.trueIfLightThreadIsActive(lightThreadUUID)
+    # NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread)
+    def self.trueIfLightThreadIsActive(lightThread)
         # This function is to help the folder and stream items to decide whether to display or not
         # The follow the availability of the main LightThread
         # There are teo reasons why a LightThread would not be available
         # 1. It is DoNotShownUntilDatetime'd
-        # 2. It is not it's day (will be implemented later)
-        return false if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadUUID).nil? # The catalyst object has the same uuid as the LightThread
+        # 2. It is not it's day
+        return true if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
+        return false if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? # The catalyst object has the same uuid as the LightThread
+        return false if ( lightThread["activationWeekDays"] and !lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay()) )
         true
     end
 
@@ -217,6 +219,7 @@ class NSXLightThreadUtils
             puts "     description: #{lightThread["description"]}"
             puts "     uuid: #{lightThread["uuid"]}"
             puts "     priorityXp: #{lightThread["priorityXp"].join(", ")}"
+            puts "     activation week days: " + (lightThread["activationWeekDays"] ? lightThread["activationWeekDays"].join(", ") : "")
             puts "     streamuuid: #{lightThread["streamuuid"]}"
             puts "     Target folder: #{lightThread["targetFolderpath"]}"
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
@@ -234,6 +237,7 @@ class NSXLightThreadUtils
                 "update description:", 
                 "update LightThreadPriorityXP:",
                 "set targetFolderpath",
+                "set activationWeekDays",
                 "stream items dive",
                 "destroy"
             ]
@@ -281,6 +285,11 @@ class NSXLightThreadUtils
                 else
                     lightThread["targetFolderpath"] = false
                 end
+                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+            end
+            if operation == "set activationWeekDays" then
+                selectedWeekDays, _ = LucilleCore::selectZeroOrMore("activation week days", NSXMiscUtils::weekDays(), [])
+                lightThread["activationWeekDays"] = selectedWeekDays
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
             if operation=="destroy" then
