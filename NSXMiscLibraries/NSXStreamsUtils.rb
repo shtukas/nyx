@@ -211,11 +211,19 @@ class NSXStreamsUtils
     # NSXStreamsUtils::shiftItemsOrdinalDownIfRequired(items)
     def self.shiftItemsOrdinalDownIfRequired(items)
         return if items.size == 0
-        return if items.first["ordinal"] <= 100
-        items.each{|item|
-            item["ordinal"] = item["ordinal"] - 100
-            NSXStreamsUtils::sendItemToDisk(item)
-        }       
+        if ( shift = items.first["ordinal"] ) < 0 then
+            items.each{|item|
+                item["ordinal"] = item["ordinal"] - shift
+                NSXStreamsUtils::sendItemToDisk(item)
+            }
+        end
+        if items.first["ordinal"] > 100 then
+            items.each{|item|
+                item["ordinal"] = item["ordinal"] - 100
+                NSXStreamsUtils::sendItemToDisk(item)
+            }
+        end
+     
     end
 
     # NSXStreamsUtils::sendOrphanStreamItemsToInbox()
@@ -243,13 +251,13 @@ class NSXStreamsUtils
             else
                 ""
             end
-        "StreamItem (#{item["ordinal"]}) [LightThread: #{(lightThread ? lightThread["description"] : "")}]: #{announce}#{doNotShowString}"
+        "LightThread: #{(lightThread ? lightThread["description"] : "")} ; StreamItem (#{item["ordinal"]}) ; #{announce}#{doNotShowString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
     def self.streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if NSXRunner::isRunning?(item["uuid"])
-        lightThreadMetricForStreamItems + 0.001 + Math.exp(-item["ordinal"].to_f/1000).to_f/1000 # the last term is less than 0.001, so they come below the foler item
+        lightThreadMetricForStreamItems + Math.exp(-item["ordinal"].to_f/1000).to_f/1000000
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)

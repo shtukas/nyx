@@ -111,7 +111,7 @@ class NSXLightThreadUtils
         # 1. It is DoNotShownUntilDatetime'd
         # 2. It is not it's day
         return true if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
-        return false if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? # The catalyst object has the same uuid as the LightThread
+        return false if !NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? # The catalyst object has the same uuid as the LightThread
         return false if ( lightThread["activationWeekDays"] and !lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay()) )
         true
     end
@@ -213,7 +213,6 @@ class NSXLightThreadUtils
         loop {
             lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThread["uuid"])
             lightThreadCatalystObjectUUID = lightThread["uuid"]
-            doNotShowUntilDateTime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "LightThread"
             puts "     description: #{lightThread["description"]}"
@@ -225,10 +224,9 @@ class NSXLightThreadUtils
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
+            puts "     LightThread is active: #{NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread)}"
+            puts "     Do not display until: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
-            if doNotShowUntilDateTime then
-                puts "     Do not display until: #{doNotShowUntilDateTime}"
-            end
             operations = [
                 "start", 
                 "stop", 
@@ -300,10 +298,9 @@ class NSXLightThreadUtils
                 break
             end
             if operation == "stream items dive" then
+                NSXStreamsUtils::shiftItemsOrdinalDownIfRequired(NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread))
                 items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                 next if items.size == 0
-                NSXStreamsUtils::shiftItemsOrdinalDownIfRequired(items)
-                items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                 cardinal = items.size
                 if items.size > 20 then
                     cardinal = LucilleCore::selectEntityFromListOfEntitiesOrNull("cardinal:", [20.to_s, items.size.to_s]).to_i
@@ -354,8 +351,8 @@ class NSXLightThreadsTargetFolderInterface
         object              = {}
         object["uuid"]      = uuid
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = NSXRunner::isRunning?(uuid) ? 2 : (NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.002)
-        object["announce"]  = "Folder [LightThread: #{lightThread["targetFolderpath"]}]#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
+        object["metric"]    = NSXRunner::isRunning?(uuid) ? 2 : NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
+        object["announce"]  = "LightThread: #{lightThread["description"]} ; Folder: #{lightThread["targetFolderpath"]}#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
         object["commands"]  = ["stop", "start", "dayoff"]
         object["default-expression"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
         object["is-running"] = NSXRunner::isRunning?(uuid)
@@ -467,11 +464,7 @@ class NSXLightThreadMetrics
             return 0.2 + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
         end
         if lightThread["priorityXp"][0]=="stream-important" then
-            if livePercentage < 100 then
-                return 0.4 + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
-            else
-                return 0.1 + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
-            end
+            return ( ( livePercentage < 100 ) ? 0.4 : 0.2 ) + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
         end
         raise "Error: 0a86f002"        
     end
@@ -488,12 +481,12 @@ class NSXLightThreadMetrics
     def self.lightThread2BaseStreamItemMetric(lightThread)
         return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
         return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) # We do not display the stream items if the LightThread itself is running
+        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.001 # We do not display the stream items if the LightThread itself is running
     end
 
     # NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
     def self.lightThread2TargetFolderpathObjectMetric(lightThread)
-        ( NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? -0.001 : 0.001 ) + NSXLightThreadMetrics::lightThread2Metric(lightThread)
+        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.002 # We do not display the folder item if the LightThread itself is running
     end
 
     # NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
