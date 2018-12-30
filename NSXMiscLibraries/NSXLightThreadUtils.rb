@@ -208,8 +208,9 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadDive(lightThread)
     def self.lightThreadDive(lightThread)
-        lightThreadCatalystObjectUUID = lightThread["uuid"]
         loop {
+            lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThread["uuid"])
+            lightThreadCatalystObjectUUID = lightThread["uuid"]
             doNotShowUntilDateTime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "LightThread"
@@ -217,6 +218,8 @@ class NSXLightThreadUtils
             puts "     uuid: #{lightThread["uuid"]}"
             puts "     priorityXp: #{lightThread["priorityXp"].join(", ")}"
             puts "     streamuuid: #{lightThread["streamuuid"]}"
+            puts "     Has target folder: #{lightThread["hasTargetFolder"]}"
+            puts "     Target folder: #{lightThread["targetFolderpath"]}"
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
@@ -231,6 +234,7 @@ class NSXLightThreadUtils
                 "show timelog", 
                 "update description:", 
                 "update LightThreadPriorityXP:",
+                "set hasTargetFolder and targetFolderpath ",
                 "stream items dive",
                 "destroy"
             ]
@@ -270,6 +274,14 @@ class NSXLightThreadUtils
                     next
                 end
                 lightThread["priorityXp"] = priorityXp
+                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+            end
+            if operation == "set hasTargetFolder and targetFolderpath " then
+                lightThread["hasTargetFolder"] = LucilleCore::askQuestionAnswerAsBoolean("Has target folder? : ")
+                if lightThread["hasTargetFolder"] then
+                    targetFolderpath = LucilleCore::askQuestionAnswerAsString("Target folderpath: ")
+                    lightThread["targetFolderpath"] = targetFolderpath
+                end
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
             if operation=="destroy" then
@@ -326,7 +338,7 @@ class NSXLightThreadsTargetFolderInterface
 
     # NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread)
     def self.lightThreadToItsFolderCatalystObjectOrNull(lightThread)
-        return nil if lightThread["targetFolderpath"] == "/Galaxy/LightThreads/DevNull"
+        return nil if !lightThread["hasTargetFolder"]
         return nil if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         return nil if NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1), 0) >= 100
         uuid = "#{lightThread["uuid"]}-folder-66aeb2e8-f161-4931-8c55-03d11468fc55"

@@ -260,7 +260,11 @@ end
 # -------------------------------------------------------------------------
 
 NSXLightThreadUtils::lightThreads()
-    .each{|lightThread| 
+    .each{|lightThread|
+        if lightThread["hasTargetFolder"].nil? then
+            lightThread["hasTargetFolder"] = LucilleCore::askQuestionAnswerAsBoolean("Has target folder ? :")
+            NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+        end
         targetFolderpath = lightThread["targetFolderpath"]
         if targetFolderpath.nil? or !File.exists?(targetFolderpath) then
             targetFolderpath = LucilleCore::askQuestionAnswerAsString("I could not find a target folder for LightThread '#{lightThread["description"]}'. Target folderpath: ")
