@@ -39,11 +39,11 @@ class NSXAgentLightThread
         objects1 = NSXLightThreadUtils::lightThreads()
             .map{|lightThread| NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) }
         objects2 = NSXLightThreadUtils::lightThreads()
-            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
+            .select{|lightThread| NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread["uuid"]) }
             .map{|lightThread| NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) }
             .flatten
         objects3 = NSXLightThreadUtils::lightThreads()
-            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
+            .select{|lightThread| NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread["uuid"]) }
             .map{|lightThread| NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) }
             .compact
         objects1 + objects2 + objects3

@@ -103,6 +103,17 @@ class NSXLightThreadUtils
             .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
+    # NSXLightThreadUtils::trueIfLightThreadIsActive(lightThreadUUID)
+    def self.trueIfLightThreadIsActive(lightThreadUUID)
+        # This function is to help the folder and stream items to decide whether to display or not
+        # The follow the availability of the main LightThread
+        # There are teo reasons why a LightThread would not be available
+        # 1. It is DoNotShownUntilDatetime'd
+        # 2. It is not it's day (will be implemented later)
+        return false if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadUUID).nil? # The catalyst object has the same uuid as the LightThread
+        true
+    end
+
     # -----------------------------------------------
     # .toString
 
@@ -166,7 +177,7 @@ class NSXLightThreadUtils
         uuid = lightThread["uuid"]
         description = lightThread["description"]
         object              = {}
-        object["uuid"]      = uuid # the catalyst object has the same uuid as the lightThread
+        object["uuid"]      = uuid # The catalyst object has the same uuid as the LightThread
         object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
         object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
