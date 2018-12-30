@@ -51,19 +51,23 @@ class NSXAgentHouse
         NSXData::getValueAsStringOrDefaultValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true") == "true"
     end
 
+    # NSXAgentHouse::getTasks()
+    def self.getTasks()
+        tasksFilepath = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/House/tasks.txt"
+        IO.read(tasksFilepath)
+            .lines
+            .map{|line| line.strip }
+            .select{|line| line.size>0 }
+            .select{|line| !line.start_with?("#") }
+    end
+
     # NSXAgentHouse::getObjects()
     def self.getObjects()
         return [] if !NSXMiscUtils::isLucille18()
         if !NSXAgentHouse::shouldDisplayObjects() then
             return []
         end
-        tasksFilepath = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/House/tasks.txt"
-        tasks = IO.read(tasksFilepath)
-            .lines
-            .map{|line| line.strip }
-            .select{|line| line.size>0 }
-            .select{|line| !line.start_with?("#") }
-        tasks
+        NSXAgentHouse::getTasks()
             .select{|task| NSXAgentHouse::shouldDoTask(task) }
             .map{|task| NSXAgentHouse::taskToCatalystObject(task) }
     end
@@ -77,12 +81,17 @@ class NSXAgentHouse
     # NSXAgentHouse::interface()
     def self.interface()
         puts "Welcome to House Interface"
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show", "hide"])
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show", "hide", "select for done"])
         if operation == "show" then
             NSXData::setWritableValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true")
         end
         if operation == "hide" then
             NSXData::setWritableValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "false")
+        end
+        if operation == "select for done" then
+            task = LucilleCore::selectEntityFromListOfEntitiesOrNull("task:", NSXAgentHouse::getTasks())
+            return if task.nil?
+            NSXAgentHouse::markTaskAsDone(task)
         end
     end
 
