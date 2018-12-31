@@ -187,7 +187,7 @@ class CatalystUI
         focusobject = nil
 
         displayObjects
-            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), NSXMiscUtils::screenHeight()-3].max)
+            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), NSXMiscUtils::screenHeight()-5].max)
             .each_with_index{|object, indx|
                 position = indx+1
                 if position == standardlp then
