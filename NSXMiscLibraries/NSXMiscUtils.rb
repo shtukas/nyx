@@ -13,6 +13,11 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
 
 class NSXMiscUtils
+
+    # NSXMiscUtils::currentMonth()
+    def self.currentMonth()
+        Time.now.utc.iso8601[0,7]
+    end
  
     # NSXMiscUtils::currentHour()
     def self.currentHour()

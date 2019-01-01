@@ -256,6 +256,8 @@ end
 
 # -------------------------------------------------------------------------
 
+# Making sure that the targetFolderpath status of each LightThread is known
+
 NSXLightThreadUtils::lightThreads()
     .each{|lightThread|
         if lightThread["targetFolderpath"].nil? or (lightThread["targetFolderpath"] and !File.exists?(lightThread["targetFolderpath"])) then
@@ -269,9 +271,37 @@ NSXLightThreadUtils::lightThreads()
         end
     }
 
+# Collect parcels.
+
 NSXStreamsUtils::sendOrphanStreamItemsToInbox()
 
+# Make sure that each folder in /Galaxy/LightThreads has a catalyst item for it.
+
+foldernames = Dir.entries("/Galaxy/LightThreads")
+    .reject{|filename| filename[0, 1] == "." }
+    .reject{|filename| filename.start_with?("Icon") }
+
+catalystObjects = NSXCatalystObjectsOperator::getObjects()
+
+foldernames.each{|foldername|
+    if catalystObjects.none?{|object| object["announce"].include?(foldername) } then
+        next if KeyValueStore::getOrNull(nil, "0515a5a1-7110-4dd4-bf3e-bbbff8329b38:#{NSXMiscUtils::currentMonth()}:#{foldername}")
+        if LucilleCore::askQuestionAnswerAsBoolean("I can't find a Catalyst object for '/Galaxy/LightThreads/#{foldername}', should I create one ? ") then
+            description = "Automatically generated: Folder /Galaxy/LightThreads/#{foldername}"
+            puts description
+            lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+            next if lightThread.nil?
+            genericContentsItem = NSXGenericContents::issueItemText(description)
+            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
+            puts JSON.pretty_generate(streamItem)
+        end
+        KeyValueStore::set(nil, "0515a5a1-7110-4dd4-bf3e-bbbff8329b38:#{NSXMiscUtils::currentMonth()}:#{foldername}", "done")
+    end
+}
+
 # -------------------------------------------------------------------------
+
+# Catalyst Interruption Screen Notification.
 
 Thread.new {
     loop {
@@ -282,6 +312,8 @@ Thread.new {
     }
 }
 
+# Archives Timeline Garbage Connection
+
 Thread.new {
     return if !NSXMiscUtils::isLucille18()
     loop {
@@ -291,6 +323,8 @@ Thread.new {
         end
     }
 }
+
+# Email Sync
 
 Thread.new {
     return if !NSXMiscUtils::isLucille18()
@@ -304,7 +338,4 @@ Thread.new {
 # -------------------------------------------------------------------------
 
 CatalystUI::standardUILoop()
-
-
-
 
