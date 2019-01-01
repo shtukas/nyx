@@ -16,7 +16,6 @@ The bulk of the metrics are between 0.2 and 0.8
 0.40 -> 0.60  : LightThread (Streams Important)
 
         0.22  : (╯°□°）╯︵ ┻━┻
-                # 0.2 + 0.2*Math.exp(-2) ( 0.22706705664732255 ), 200% of a LightThread Streams Luxury
 
 0.20 -> 0.40  : LightThread (Streams Luxury)
 
