@@ -391,7 +391,7 @@ class NSXAgentWave
         object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
         object['announce'] = announce
         object['commands'] = NSXAgentWave::commands(schedule)
-        object["default-expression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
+        object["defaultExpression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location

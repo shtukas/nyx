@@ -50,7 +50,7 @@ class NSXAgentNinja
             "metric"    => 0.19 + NSXAgentNinja::impactMetricCoefficient()*0.6*$ninja_packet["metric"], # The metric given by ninja is between 0 and 1
             "announce"  => "ninja: folderpath: #{$ninja_packet["folderpath"]}",
             "commands"  => [],
-            "default-expression" => "play",
+            "defaultExpression" => "play",
             "item-data" => {
                 "ninja-folderpath" => $ninja_packet["folderpath"]
             }

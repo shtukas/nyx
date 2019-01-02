@@ -37,7 +37,7 @@ class NSXDisplayUtils
         part2 = 
             [
                 " #{object["commands"].join(" ")}",
-                object["default-expression"] ? " (#{object["default-expression"].green})" : ""
+                object["defaultExpression"] ? " (#{object["defaultExpression"].green})" : ""
             ].join()
         part2.strip
     end
@@ -92,7 +92,7 @@ class NSXDisplayUtils
         puts NSXDisplayUtils::objectInferfaceString(object)
         print "--> "
         command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["default-expression"] ? object["default-expression"] : "" )
+        command = command.size>0 ? command : ( object["defaultExpression"] ? object["defaultExpression"] : "" )
         NSXGeneralCommandHandler::processCommand(object, command)
     end
 

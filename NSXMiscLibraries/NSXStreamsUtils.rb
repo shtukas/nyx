@@ -293,7 +293,7 @@ class NSXStreamsUtils
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
-        object["default-expression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
+        object["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
         object["is-running"] = NSXRunner::isRunning?(item["uuid"])
         object["data"] = {}
         object["data"]["stream-item"] = item

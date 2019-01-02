@@ -224,8 +224,8 @@ class CatalystUI
         print "--> "
         command = STDIN.gets().strip
 
-        if command == ".." and focusobject["default-expression"] then
-            command = focusobject["default-expression"]
+        if command == ".." and focusobject["defaultExpression"] then
+            command = focusobject["defaultExpression"]
         end
 
         if command == "" then

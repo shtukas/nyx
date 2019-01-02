@@ -40,7 +40,7 @@ class NSXAgentHouse
             "metric"             => 0.93 + NSXMiscUtils::traceToMetricShift(uuid),
             "announce"           => "House: #{task}",
             "commands"           => ["done"],
-            "default-expression" => "done",
+            "defaultExpression"  => "done",
             "is-running"         => false,
             ":task:"             => task
         }

@@ -35,7 +35,7 @@ class NSXAgentBabyNights
                     "metric"    => 0.97,
                     "announce"  => "Baby Nights",
                     "commands"  => [],
-                    "default-expression" => "print"
+                    "defaultExpression" => "print"
                 }
             objects << object
         end

@@ -6,7 +6,7 @@ CatalystObject
     "metric"             : Float
     "announce"           : String
     "commands"           : Array[String]
-    "default-expression" : Null or String               # optional
+    "defaultExpression"  : Null or String               # optional
     "is-running"         : Boolean                      # optional
     "commands-lambdas"   : Null or Map[String, Lambda]  # optional
 }
