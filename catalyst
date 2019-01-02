@@ -291,27 +291,25 @@ NSXStreamsUtils::sendOrphanStreamItemsToInbox()
 
 # Make sure that each folder in /Galaxy/LightThreads has a catalyst item for it.
 
-foldernames = Dir.entries("/Galaxy/LightThreads")
-    .reject{|filename| filename[0, 1] == "." }
-    .reject{|filename| filename.start_with?("Icon") }
-
-catalystObjects = NSXCatalystObjectsOperator::getObjects()
-
-foldernames.each{|foldername|
-    if catalystObjects.none?{|object| object["announce"].include?(foldername) } then
-        next if KeyValueStore::getOrNull(nil, "0515a5a1-7110-4dd4-bf3e-bbbff8329b38:#{NSXMiscUtils::currentMonth()}:#{foldername}")
-        if LucilleCore::askQuestionAnswerAsBoolean("I can't find a Catalyst object for '/Galaxy/LightThreads/#{foldername}', should I create one ? ") then
-            description = "Automatically generated: Folder /Galaxy/LightThreads/#{foldername}"
-            puts description
-            lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-            next if lightThread.nil?
-            genericContentsItem = NSXGenericContents::issueItemText(description)
-            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
-            puts JSON.pretty_generate(streamItem)
+if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "25fe93d6-11b4-4493-b9f3-deb3cbec9b99", 86400) then
+    foldernames = Dir.entries("/Galaxy/LightThreads")
+        .reject{|filename| filename[0, 1] == "." }
+        .reject{|filename| filename.start_with?("Icon") }
+    announces = NSXStreamsUtils::allStreamsItemsEnumerator().map{|item| NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil, item) }
+    foldernames.each{|foldername|
+        if announces.none?{|announce| announce.include?(foldername) } then
+            if LucilleCore::askQuestionAnswerAsBoolean("I can't find a Catalyst object for '/Galaxy/LightThreads/#{foldername}', should I create one ? ") then
+                description = "Automatically generated: Folder /Galaxy/LightThreads/#{foldername}"
+                puts description
+                lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+                next if lightThread.nil?
+                genericContentsItem = NSXGenericContents::issueItemText(description)
+                streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
+                puts JSON.pretty_generate(streamItem)
+            end
         end
-        KeyValueStore::set(nil, "0515a5a1-7110-4dd4-bf3e-bbbff8329b38:#{NSXMiscUtils::currentMonth()}:#{foldername}", "done")
-    end
-}
+    }
+end
 
 # -------------------------------------------------------------------------
 
