@@ -15,16 +15,15 @@ require 'fileutils'
 
 class NSXGeneralCommandHandler
 
-    # NSXGeneralCommandHandler::generalObjectCommands()
-    def self.generalObjectCommands()
-        "Special General Commands: help , :<p> , + , / , new: <line> | 'text' , search: <pattern>"
+    # NSXGeneralCommandHandler::helpLines()
+    def self.helpLines()
+        [
+            "catalyst --allowEmailQueriesOnLucille19",
+            "Special General Commands: help , :<p> , + , / , new: <line> | 'text' , search: <pattern>",
+            "Special Object Commands: ,, .. @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
+        ]
     end
-
-    # NSXGeneralCommandHandler::specialObjectCommands()
-    def self.specialObjectCommands()
-        "Special Object Commands: ,, .. @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
-    end
-
+    
     # NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
     def self.interactiveMakeNewStreamItem()
         description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
@@ -53,8 +52,7 @@ class NSXGeneralCommandHandler
 
         if command == 'help' then
             puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
-            puts NSXGeneralCommandHandler::generalObjectCommands()
-            puts NSXGeneralCommandHandler::specialObjectCommands()
+            puts NSXGeneralCommandHandler::helpLines().join("\n")
             LucilleCore::pressEnterToContinue()
             return
         end

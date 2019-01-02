@@ -255,7 +255,21 @@ end
 # nslog
 
 # -------------------------------------------------------------------------
+# Default Config
 
+$CatalystConfig = {
+    allowEmailQueriesOnLucille19: false
+}
+
+
+# -------------------------------------------------------------------------
+# ARGV parsing
+
+if ARGV.include?("--allowEmailQueriesOnLucille19") then
+    $CatalystConfig[:allowEmailQueriesOnLucille19] = true
+end
+
+# -------------------------------------------------------------------------
 # Making sure that the targetFolderpath status of each LightThread is known
 
 NSXLightThreadUtils::lightThreads()
@@ -327,7 +341,7 @@ Thread.new {
 # Email Sync
 
 Thread.new {
-    return if !NSXMiscUtils::isLucille18()
+    return if !(NSXMiscUtils::isLucille18() or $CatalystConfig[:allowEmailQueriesOnLucille19])
     sleep 30
     loop {
         NSXMiscUtils::emailSync(false)
