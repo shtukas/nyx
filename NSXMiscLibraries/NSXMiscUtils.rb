@@ -249,7 +249,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object)
     def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
-        return object if object["is-running"]
+        return object if object["isRunning"]
         return object if NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(object["uuid"])
         object["metric"] = 0
         object[":metric-set-to-zero-by:NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay:"]
@@ -264,7 +264,7 @@ class NSXMiscUtils
     # NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
     def self.objectToOneLineForCatalystDisplay(object)
         announce = (object['announce'].lines.first || "").strip
-        announce = NSXMiscUtils::makeGreenIfObjectRunning(announce, object["is-running"])
+        announce = NSXMiscUtils::makeGreenIfObjectRunning(announce, object["isRunning"])
         [
             "(#{"%.3f" % object["metric"]})",
             object['announce'].lines.count > 1 ? " MULTILINE:" : "",

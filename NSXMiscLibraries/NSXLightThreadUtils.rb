@@ -185,7 +185,7 @@ class NSXLightThreadUtils
         object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
         object["defaultExpression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
-        object["is-running"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
+        object["isRunning"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
         object["item-data"]["lightThread"] = lightThread
         object 
@@ -355,7 +355,7 @@ class NSXLightThreadsTargetFolderInterface
         object["announce"]  = "LightThread: #{lightThread["description"]} ; Folder: #{lightThread["targetFolderpath"]}#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
         object["commands"]  = ["stop", "start", "dayoff"]
         object["defaultExpression"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
-        object["is-running"] = NSXRunner::isRunning?(uuid)
+        object["isRunning"] = NSXRunner::isRunning?(uuid)
         object["item-data"] = {}
         object["item-data"]["lightThread"] = lightThread
         object["commands-lambdas"] = {

@@ -28,7 +28,7 @@ class NSXCatalystObjectsOperator
         spotObjectUUIDs = NSXSpots::getObjectUUIDs()
         (NSXCatalystObjectsOperator::getObjects() + [NSXCatalystObjectsOperator::getEndOfHardWorkEmoticon()])
             .select{|object| !spotObjectUUIDs.include?(object["uuid"]) }
-            .map{|object| object["is-running"] ? object : NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
+            .map{|object| object["isRunning"] ? object : NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .select{|object| object["metric"] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse

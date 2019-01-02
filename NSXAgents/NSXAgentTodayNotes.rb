@@ -64,7 +64,7 @@ class NSXAgentTodayNotes
                 "announce"           => "#{NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section))}#{runningMarker}",
                 "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
                 "defaultExpression"  => "done",
-                "is-running"         => NSXRunner::isRunning?(uuid),
+                "isRunning"          => NSXRunner::isRunning?(uuid),
                 "commands-lambdas"   => nil,
                 "section-uuid"       => SectionsType2102::section_to_uuid(section),
                 "section"            => section

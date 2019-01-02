@@ -7,7 +7,7 @@ CatalystObject
     "announce"           : String
     "commands"           : Array[String]
     "defaultExpression"  : Null or String               # optional
-    "is-running"         : Boolean                      # optional
+    "isRunning"          : Boolean                      # optional
     "commands-lambdas"   : Null or Map[String, Lambda]  # optional
 }
 

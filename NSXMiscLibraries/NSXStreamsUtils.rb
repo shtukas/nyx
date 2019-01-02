@@ -294,7 +294,7 @@ class NSXStreamsUtils
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
         object["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
-        object["is-running"] = NSXRunner::isRunning?(item["uuid"])
+        object["isRunning"] = NSXRunner::isRunning?(item["uuid"])
         object["data"] = {}
         object["data"]["stream-item"] = item
         object["data"]["generic-contents-item"] = genericContentsItemOrNull.call(item["generic-content-filename"]) 

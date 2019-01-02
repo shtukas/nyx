@@ -42,7 +42,7 @@ class NSXAgentLightThread
             if NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread) then
                 objects
             else
-                objects.select{|object| object["is-running"] }
+                objects.select{|object| object["isRunning"] }
             end
         }
     end
