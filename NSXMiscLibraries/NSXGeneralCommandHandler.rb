@@ -19,7 +19,7 @@ class NSXGeneralCommandHandler
     def self.helpLines()
         [
             "catalyst --allowEmailQueriesOnLucille19",
-            "Special General Commands: help , :<p> , + , / , new: <line> | 'text' , search: <pattern>",
+            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , search: <pattern>",
             "Special Object Commands: ,, .. @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
         ]
     end
@@ -44,6 +44,10 @@ class NSXGeneralCommandHandler
     def self.processCommand(object, command)
 
         # no object needed
+
+        if command == "" then
+            return
+        end
 
         if ( agentdata = NSXBob::getAgentDataByAgentNameOrNull(command) ) then
             agentdata["interface"].call()
@@ -179,6 +183,11 @@ class NSXGeneralCommandHandler
         if object["commandsLambdas"] and object["commandsLambdas"][command] then
             object["commandsLambdas"][command].call(object)
             return
+        end
+
+        if command == ".." and object["defaultExpression"] and object["defaultExpression"]!=".." then
+            command = object["defaultExpression"]
+            return NSXGeneralCommandHandler::processCommand(object, command)
         end
 
         if command == ',,' then

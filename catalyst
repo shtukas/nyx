@@ -174,9 +174,15 @@ class CatalystUI
     # CatalystUI::displayListing(displayObjects)
     def self.displayListing(displayObjects)
 
-        return if displayObjects.size==0
-
         system("clear")
+
+        if displayObjects.size==0 then
+            puts "No objects found"
+            print "--> "
+            command = STDIN.gets().strip
+            NSXGeneralCommandHandler::processCommand(nil, command)
+            return
+        end
 
         spotnames = NSXSpots::getNames()
         if spotnames.size>0 then
@@ -224,11 +230,14 @@ class CatalystUI
         print "--> "
         command = STDIN.gets().strip
 
-        if command == ".." and focusobject["defaultExpression"] then
-            command = focusobject["defaultExpression"]
-        end
+        displayObjects
 
-        if command == "" then
+        if command.start_with?("'") then
+            position = command[1,9].strip.to_i
+            return if position==0
+            return if position > displayObjects.size-1
+            object = displayObjects[position-1]
+            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end
 
@@ -240,11 +249,6 @@ class CatalystUI
         loop {
             CatalystDevOps::collectInboxPackage()
             displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-            if displayObjects.size==0 then
-                puts "Could not find any object with display. Sleeping for a minute and then will try again"
-                sleep 60
-                next
-            end
             CatalystUI::displayListing(displayObjects)
         }
     end
