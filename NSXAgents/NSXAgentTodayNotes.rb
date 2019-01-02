@@ -65,7 +65,7 @@ class NSXAgentTodayNotes
                 "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
                 "defaultExpression"  => "done",
                 "isRunning"          => NSXRunner::isRunning?(uuid),
-                "commands-lambdas"   => nil,
+                "commandsLambdas"    => nil,
                 "section-uuid"       => SectionsType2102::section_to_uuid(section),
                 "section"            => section
             }

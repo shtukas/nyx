@@ -358,7 +358,7 @@ class NSXLightThreadsTargetFolderInterface
         object["isRunning"] = NSXRunner::isRunning?(uuid)
         object["item-data"] = {}
         object["item-data"]["lightThread"] = lightThread
-        object["commands-lambdas"] = {
+        object["commandsLambdas"] = {
             "dayoff" => lambda{|object|
                 objectuuid = object["uuid"]
                 lightThreadUUID = object["item-data"]["lightThread"]["uuid"]

@@ -178,8 +178,8 @@ class NSXGeneralCommandHandler
 
         # object needed
 
-        if object["commands-lambdas"] and object["commands-lambdas"][command] then
-            object["commands-lambdas"][command].call(object)
+        if object["commandsLambdas"] and object["commandsLambdas"][command] then
+            object["commandsLambdas"][command].call(object)
             return
         end
 
