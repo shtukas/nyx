@@ -2,7 +2,7 @@
 CatalystObject
 {
     "uuid"               : UUID
-    "agent-uid"          : nil or String
+    "agentUID"           : nil or String
     "metric"             : Float
     "announce"           : String
     "commands"           : Array[String]

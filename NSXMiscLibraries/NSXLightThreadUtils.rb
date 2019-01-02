@@ -180,7 +180,7 @@ class NSXLightThreadUtils
         description = lightThread["description"]
         object              = {}
         object["uuid"]      = uuid # The catalyst object has the same uuid as the LightThread
-        object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+        object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
         object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
@@ -350,7 +350,7 @@ class NSXLightThreadsTargetFolderInterface
         return nil if !KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}").nil?
         object              = {}
         object["uuid"]      = uuid
-        object["agent-uid"] = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+        object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXRunner::isRunning?(uuid) ? 2 : NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
         object["announce"]  = "LightThread: #{lightThread["description"]} ; Folder: #{lightThread["targetFolderpath"]}#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
         object["commands"]  = ["stop", "start", "dayoff"]

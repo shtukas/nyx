@@ -132,7 +132,7 @@ class CatalystUI
 
     # CatalystUI::objectIsInterruption(object)
     def self.objectIsInterruption(object)
-        object["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "29be9b439c40a9e8fcd34b7818ba4153"
+        object["agentUID"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "29be9b439c40a9e8fcd34b7818ba4153"
     end
 
     # CatalystUI::removeObjectFromCollection(displayObjects, objectuuid)
@@ -153,7 +153,7 @@ class CatalystUI
         return false if object.nil?
         return true if object["announce"].include?("Delivery Status Notification (Failure)")
         if object and
-            object["agent-uid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["agentUID"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
             object["data"]["generic-contents-item"]["email-subject"] and
             object["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
             return true

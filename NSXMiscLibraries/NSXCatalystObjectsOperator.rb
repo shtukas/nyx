@@ -6,11 +6,11 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getEndOfHardWorkEmoticon()
     def self.getEndOfHardWorkEmoticon()
         {
-            "uuid"               => "10bd6790", 
-            "agent-uid"          => nil,
-            "metric"             => 0.2 + 0.2*Math.exp(-2),
-            "announce"           => "(╯°□°）╯︵ ┻━┻",
-            "commands"           => []
+            "uuid"      => "10bd6790", 
+            "agentUID"  => nil,
+            "metric"    => 0.2 + 0.2*Math.exp(-2),
+            "announce"  => "(╯°□°）╯︵ ┻━┻",
+            "commands"  => []
         }
     end
 

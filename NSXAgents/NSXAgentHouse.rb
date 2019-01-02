@@ -36,7 +36,7 @@ class NSXAgentHouse
         uuid = Digest::SHA1.hexdigest(task)[0,8]
         {
             "uuid"               => uuid,
-            "agent-uid"          => self.agentuuid(),
+            "agentUID"           => self.agentuuid(),
             "metric"             => 0.93 + NSXMiscUtils::traceToMetricShift(uuid),
             "announce"           => "House: #{task}",
             "commands"           => ["done"],

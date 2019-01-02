@@ -26,7 +26,7 @@ class NSXAgentWIS
         object =
             {
                 "uuid"      => "ad127a50",
-                "agent-uid" => self.agentuuid(),
+                "agentUID"  => self.agentuuid(),
                 "metric"    => 1, # NSXAgentsDataKeyValueStore::getOrNull(NSXAgentWIS::agentuuid(), "60b1fea5-4c62-46e8-8567-8884383e9e69:#{Time.now.utc.iso8601[0,10]}").nil? ? 0.82 : 0,
                 "announce"  => "wis",
                 "commands"  => [],

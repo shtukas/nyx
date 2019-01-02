@@ -289,7 +289,7 @@ class NSXStreamsUtils
         }
         object = {}
         object["uuid"] = item["uuid"][0,8]      
-        object["agent-uid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
+        object["agentUID"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)

@@ -1,14 +1,8 @@
 
 # --------------------------------------------------------------------
 
-{
-    "uuid"     : (uuid)
-    "metric"   : (real)
-    "announce" : ""
-    "commands" : Array[String]
-    "default-expression" : Null or String
-    "agent-uid"          : String (uuid)
-    "schedule" : (schedule)
+(CatalystObject) + {
+    :schedule (schedule)
 }
 
 # --------------------------------------------------------------------
