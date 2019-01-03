@@ -34,9 +34,37 @@ class NSXAgentLightThread
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
     end
 
+    # NSXAgentLightThread::thetaTrafficControl()
+    def self.thetaTrafficControl()
+        lightThreads = NSXLightThreadUtils::lightThreads()
+        # We do nothing if anything is running
+        return if lightThreads.any?{|lightThread| NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) }
+        lightThreadThetas = lightThreads.select{|lightThread| lightThread["theta00e769"] }
+        if lightThreadThetas.size==0 then
+            return if Time.new.hour >= 22
+            return if Time.new.hour < 7
+            # We elect the one with the highest metric
+            elected = lightThreads.sort{|l1, l2| NSXLightThreadMetrics::lightThread2Metric(l1)<=>NSXLightThreadMetrics::lightThread2Metric(l2) }.last
+            elected["theta00e769"] = true
+            NSXLightThreadUtils::commitLightThreadToDisk(elected)
+        else
+            # We send any thread with more than 100% to sleep
+            lightThreadThetas
+                .select{|lightThread| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1) >= 100 }
+                .each{|lightThread|
+                    lightThread["theta00e769"] = false
+                    NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+                }
+        end
+    end
+
+    # NSXAgentLightThread::getObjects()
     def self.getObjects()
+        NSXAgentLightThread::thetaTrafficControl()
         # This agent emits stream objects
-        NSXLightThreadUtils::lightThreads().map{|lightThread|
+        NSXLightThreadUtils::lightThreads()
+        .select{|lightThread| lightThread["theta00e769"] }
+        .map{|lightThread|
             objects = [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) + [ NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) ]
             objects = objects.compact
             if NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread) then
