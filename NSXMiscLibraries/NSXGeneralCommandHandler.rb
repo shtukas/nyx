@@ -156,9 +156,8 @@ class NSXGeneralCommandHandler
                 NSXMiscUtils::emailSync(true)
             end
             if option == "@spot" then
-                spotnames = NSXSpots::getNames()
-                spotname = LucilleCore::selectEntityFromListOfEntitiesOrNull("spotnames: ", spotnames)
-                NSXSpots::removeNameForData(spotname)
+                selected, _ = LucilleCore::selectZeroOrMore("spotname:", [], NSXSpots::getNames())
+                selected.each{|spotname| NSXSpots::removeName(spotname) }
             end
             if option == "speed" then
                 puts "Agents Speed Report"

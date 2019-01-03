@@ -24,7 +24,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 class NSXStreamsUtils
 
-    # -----------------------------------------------------------------
+    # ----------------------------------------------------------------
     # Utils
 
     # NSXStreamsUtils::timeStringL22()
@@ -397,4 +397,5 @@ class NSXStreamsUtils
             NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
         [streamuuid, ordinal]
     end
+
 end

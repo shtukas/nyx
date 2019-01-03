@@ -481,12 +481,16 @@ class NSXLightThreadMetrics
     def self.lightThread2BaseStreamItemMetric(lightThread)
         return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
         return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
-        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.001 # We do not display the stream items if the LightThread itself is running
+        # We do not display the stream items if the LightThread itself is running
+        shiftUp = [0.001, 0.002][Time.new.day % 2] # The shift array is the opposite of what it is for the Folder
+        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + shiftUp
     end
 
     # NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
     def self.lightThread2TargetFolderpathObjectMetric(lightThread)
-        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + 0.002 # We do not display the folder item if the LightThread itself is running
+        # We do not display the folder item if the LightThread itself is running
+        shiftUp = [0.002, 0.001][Time.new.day % 2] # The shift array is the opposite of what it is for the stream items
+        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + shiftUp
     end
 
     # NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
