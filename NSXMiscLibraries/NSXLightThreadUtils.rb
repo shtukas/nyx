@@ -392,8 +392,8 @@ class NSXLightThreadsStreamsInterface
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
     def self.lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
-        return nil if lightThread["priorityXp"][0] == "interruption-now"
-        return nil if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        return 99 if lightThread["priorityXp"][0] == "interruption-now"
+        return 99 if lightThread["priorityXp"][0] == "must-be-all-done-today"
         1
     end
 
@@ -402,7 +402,7 @@ class NSXLightThreadsStreamsInterface
         lightThreadMetricForStreamItems = NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
+        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread))
         items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
         itemsWithoutDuplicate = []
         (items1+items2).each{|item|

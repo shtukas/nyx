@@ -19,7 +19,7 @@ class NSXGeneralCommandHandler
     def self.helpLines()
         [
             "catalyst --allowEmailQueriesOnLucille19",
-            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , search: <pattern>",
+            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , search: <pattern>, config",
             "Special Object Commands: ,, .. @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
         ]
     end
@@ -57,6 +57,12 @@ class NSXGeneralCommandHandler
         if command == 'help' then
             puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
             puts NSXGeneralCommandHandler::helpLines().join("\n")
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == 'config' then
+            puts JSON.pretty_generate($CatalystConfig)
             LucilleCore::pressEnterToContinue()
             return
         end
