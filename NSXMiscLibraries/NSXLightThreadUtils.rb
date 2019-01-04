@@ -223,11 +223,12 @@ class NSXLightThreadUtils
             puts "     streamuuid: #{lightThread["streamuuid"]}"
             puts "     Target folder: #{lightThread["targetFolderpath"]}"
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
+            puts "     Live running time: #{NSXRunner::runningTimeOrNull(lightThread["uuid"])}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
-            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
             puts "     Time to 100%: #{(NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread).to_f/3600).round(2)} hours"
             puts "     LightThread is active: #{NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread)}"
             puts "     Do not display until: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)}"
+            puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
             operations = [
                 "start", 
