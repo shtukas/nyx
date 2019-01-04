@@ -184,7 +184,7 @@ class NSXLightThreadUtils
         object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
         object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
-        object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop"] : ["start", "time: <timeInHours>", "dive"]
+        object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop", "dive"] : ["start", "time: <timeInHours>", "dive"]
         object["defaultExpression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
         object["isRunning"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
@@ -225,7 +225,7 @@ class NSXLightThreadUtils
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
-            puts "     Time to 100%: #{NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)}"
+            puts "     Time to 100%: #{(NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread).to_f/3600).round(2)} hours"
             puts "     LightThread is active: #{NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread)}"
             puts "     Do not display until: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
