@@ -397,5 +397,4 @@ class NSXStreamsUtils
             NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
         [streamuuid, ordinal]
     end
-
 end

@@ -225,6 +225,7 @@ class NSXLightThreadUtils
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
+            puts "     Time to 100%: #{NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)}"
             puts "     LightThread is active: #{NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread)}"
             puts "     Do not display until: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
