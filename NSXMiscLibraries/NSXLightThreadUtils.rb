@@ -374,18 +374,12 @@ end
 
 class NSXLightThreadsStreamsInterface
 
-    # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
-    def self.lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
-        return nil if lightThread["dailyTimeCommitment"].nil?
-        1
-    end
-
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
     def self.lightThreadToItsStreamCatalystObjects(lightThread)
         lightThreadMetricForStreamItems = NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
+        items1 = items.first(20)
         items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
         itemsWithoutDuplicate = []
         (items1+items2).each{|item|
