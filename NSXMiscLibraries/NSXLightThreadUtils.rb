@@ -230,8 +230,7 @@ class NSXLightThreadUtils
                 "update daily time commitment:",
                 "set targetFolderpath",
                 "set activationWeekDays",
-                "stream items dive",
-                "destroy"
+                "stream items dive"
             ]
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
