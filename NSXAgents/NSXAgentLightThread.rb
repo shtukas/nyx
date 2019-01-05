@@ -36,24 +36,29 @@ class NSXAgentLightThread
 
     # NSXAgentLightThread::thetaTrafficControl()
     def self.thetaTrafficControl()
-        lightThreads = NSXLightThreadUtils::lightThreads()
-        # We do nothing if anything is running
-        return if lightThreads.any?{|lightThread| NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) }
-        lightThreadThetas = lightThreads.select{|lightThread| lightThread["theta00e769"] }
-        if lightThreadThetas.size==0 then
-            # We elect the one with the highest metric
-            elected = lightThreads.sort{|l1, l2| NSXLightThreadMetrics::lightThread2Metric(l1)<=>NSXLightThreadMetrics::lightThread2Metric(l2) }.last
-            elected["theta00e769"] = true
-            NSXLightThreadUtils::commitLightThreadToDisk(elected)
-        else
-            # We send any thread with more than 100% to sleep
-            lightThreadThetas
-                .select{|lightThread| NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1) >= 100 }
-                .each{|lightThread|
-                    lightThread["theta00e769"] = false
-                    NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-                }
-        end
+        return if NSXLightThreadUtils::lightThreads().any?{|lightThread| NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) }
+        NSXLightThreadUtils::lightThreads()
+            .select{|lightThread| lightThread["theta00e769"] } 
+            .select{|lightThread| (NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1) || 0) >= 100 }
+            .each{|lightThread|
+                lightThread["theta00e769"] = false
+                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+                puts lightThread
+            }
+        return if NSXLightThreadUtils::lightThreads()
+            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
+            .select{|lightThread| lightThread["activationWeekDays"].nil? or lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay())  }
+            .any?{|lightThread| lightThread["theta00e769"] }            
+        NSXLightThreadUtils::lightThreads()
+            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
+            .select{|lightThread| lightThread["activationWeekDays"].nil? or lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay())  }
+            .sort{|l1, l2| NSXLightThreadMetrics::lightThread2Metric(l1)<=>NSXLightThreadMetrics::lightThread2Metric(l2) }
+            .reverse
+            .first(1)
+            .each{|lightThread|
+                lightThread["theta00e769"] = true
+                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+            }
     end
 
     # NSXAgentLightThread::getObjects()
@@ -65,7 +70,7 @@ class NSXAgentLightThread
         .map{|lightThread|
             objects = [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) + [ NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) ]
             objects = objects.compact
-            if NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread) then
+            if NSXLightThreadUtils::trueIfLightThreadIsRunningOrActive(lightThread) then
                 objects
             else
                 objects.select{|object| object["isRunning"] }
@@ -94,6 +99,7 @@ class NSXAgentLightThread
         end
     end
 
+    # NSXAgentLightThread::interface()
     def self.interface()
     end
 

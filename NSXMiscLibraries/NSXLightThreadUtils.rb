@@ -103,8 +103,8 @@ class NSXLightThreadUtils
             .select{|item| (Time.new.to_i-item["unixtime"]) < 86400*LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS }
     end
 
-    # NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread)
-    def self.trueIfLightThreadIsActive(lightThread)
+    # NSXLightThreadUtils::trueIfLightThreadIsRunningOrActive(lightThread)
+    def self.trueIfLightThreadIsRunningOrActive(lightThread)
         # This function is to help the folder and stream items to decide whether to display or not
         # The follow the availability of the main LightThread
         # There are teo reasons why a LightThread would not be available
@@ -197,7 +197,11 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
     def self.interactivelySelectLightThreadOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", NSXLightThreadUtils::lightThreads().sort{|lt1, lt2| lt1["description"].downcase<=>lt2["description"].downcase }, lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) })
+        lightThreads = NSXLightThreadUtils::lightThreads()
+            .sort{|l1, l2| NSXLightThreadMetrics::lightThread2Metric(l1)<=>NSXLightThreadMetrics::lightThread2Metric(l2) }
+            .reverse
+        xlambda = lambda{|lightThread| "#{"%0.3f" % NSXLightThreadMetrics::lightThread2Metric(lightThread)} : #{NSXLightThreadUtils::lightThreadToString(lightThread)}" }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, xlambda)
     end
 
     # NSXLightThreadUtils::interactivelySelectOneLightThreadPriority()
@@ -226,7 +230,7 @@ class NSXLightThreadUtils
             puts "     Live running time: #{NSXRunner::runningTimeOrNull(lightThread["uuid"])}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
             puts "     Time to 100%: #{(NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread).to_f/3600).round(2)} hours"
-            puts "     LightThread is active: #{NSXLightThreadUtils::trueIfLightThreadIsActive(lightThread)}"
+            puts "     LightThread is active: #{NSXLightThreadUtils::trueIfLightThreadIsRunningOrActive(lightThread)}"
             puts "     Do not display until: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"

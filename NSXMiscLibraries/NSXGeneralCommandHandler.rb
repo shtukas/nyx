@@ -115,7 +115,7 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "LightThreads dive",
+                "LightThreads",
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "new LightThread",
@@ -125,6 +125,9 @@ class NSXGeneralCommandHandler
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option:", options)
             return if option.nil?
+            if option == "LightThreads" then
+                NSXLightThreadUtils::lightThreadsDive()
+            end
             if option == "new wave (repeat item)" then
                 description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
                 NSXMiscUtils::spawnNewWaveItem(description)
@@ -142,9 +145,6 @@ class NSXGeneralCommandHandler
                 end
                 lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
                 puts JSON.pretty_generate(lightThread)
-            end
-            if option == "LightThreads dive" then
-                NSXLightThreadUtils::lightThreadsDive()
             end
             if option == "email-sync" then
                 NSXMiscUtils::emailSync(true)
