@@ -102,7 +102,7 @@ class GeneralEmailClient
                 puts "#{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
             end
             if GeneralEmailClient::shouldImportEmail(msg) then
-                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("29be9b439c40a9e8fcd34b7818ba4153", NSXGenericContents::issueItemEmail(msg))
+                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", NSXGenericContents::issueItemEmail(msg))
             else
                 #filename = GeneralEmailClient::timeStringL22() + ".eml"
                 #folderpath = "/Users/pascal/Desktop/NXSEmailClients-Discarded"

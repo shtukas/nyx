@@ -137,13 +137,8 @@ class NSXGeneralCommandHandler
             end
             if option == "new LightThread" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
-                priorityXp = NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
-                if priorityXp.nil? then
-                    puts "You have not provided a priority. Aborting."
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                lightThread = NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
+                dailyTimeCommitment = NSXLightThreadUtils::dailyTimeCommitmentPickerOrNull()
+                lightThread = NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment)
                 puts JSON.pretty_generate(lightThread)
             end
             if option == "email-sync" then

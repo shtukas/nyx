@@ -34,14 +34,14 @@ class NSXLightThreadUtils
         File.open("#{LIGHT_THREADS_FOLDERPATH}/#{lightThread["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(lightThread)) }
     end
 
-    # NSXLightThreadUtils::makeNewLightThread(description, priorityXp)
-    def self.makeNewLightThread(description, priorityXp)
+    # NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment)
+    def self.makeNewLightThread(description, dailyTimeCommitment)
         uuid = SecureRandom.hex(4)
         lightThread = {}
         lightThread["uuid"] = uuid
         lightThread["unixtime"] = Time.new.to_i
         lightThread["description"] = description
-        lightThread["priorityXp"] = priorityXp
+        lightThread["dailyTimeCommitment"] = dailyTimeCommitment
         lightThread["streamuuid"] = SecureRandom.hex
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, 0)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
@@ -55,19 +55,6 @@ class NSXLightThreadUtils
         JSON.parse(IO.read(filepath))
     end
 
-    # NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread)
-    def self.trueIfLightThreadIsInterruption(lightThread)
-        return true if lightThread["priorityXp"][0]=="interruption-now"
-        false
-    end
-
-    # NSXLightThreadUtils::trueIfLightThreadIsTypeMustBeGone(lightThread)
-    def self.trueIfLightThreadIsTypeMustBeGone(lightThread)
-        return true if lightThread["priorityXp"][0]=="interruption-now"
-        return true if lightThread["priorityXp"][0]=="must-be-all-done-today"
-        false
-    end
-
     # NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
     def self.trueIfLightThreadIsRunning(lightThread)
         NSXRunner::isRunning?(lightThread["uuid"])
@@ -75,7 +62,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread)
     def self.lightThreadCanBeDestroyed(lightThread)
-        return false if ["29be9b439c40a9e8fcd34b7818ba4153", "03b79978bcf7a712953c5543a9df9047", "354d0160d6151cb10015e6325ca5f26a"].include?(lightThread["streamuuid"])
+        return false if lightThread["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
         return false if NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count > 0
         true
     end
@@ -220,10 +207,10 @@ class NSXLightThreadUtils
             lightThreadCatalystObjectUUID = lightThread["uuid"]
             livePercentages = (1..7).to_a.reverse.map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0).round(2) }
             puts "LightThread"
-            puts "     description: #{lightThread["description"]}"
+            puts "     Description: #{lightThread["description"]}"
             puts "     uuid: #{lightThread["uuid"]}"
-            puts "     priorityXp: #{lightThread["priorityXp"].join(", ")}"
-            puts "     activation week days: " + (lightThread["activationWeekDays"] ? lightThread["activationWeekDays"].join(", ") : "")
+            puts "     Daily time commitment: #{lightThread["dailyTimeCommitment"]}"
+            puts "     Activation week days: " + (lightThread["activationWeekDays"] ? lightThread["activationWeekDays"].join(", ") : "")
             puts "     streamuuid: #{lightThread["streamuuid"]}"
             puts "     Target folder: #{lightThread["targetFolderpath"]}"
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
@@ -240,7 +227,7 @@ class NSXLightThreadUtils
                 "add time:", 
                 "show timelog", 
                 "update description:", 
-                "update LightThreadPriorityXP:",
+                "update daily time commitment:",
                 "set targetFolderpath",
                 "set activationWeekDays",
                 "stream items dive",
@@ -274,14 +261,8 @@ class NSXLightThreadUtils
                 lightThread["description"] = description
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
-            if operation=="update LightThreadPriorityXP:" then
-                priorityXp = NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
-                if priorityXp.nil? then
-                    puts "You have not provided a priority. Aborting."
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                lightThread["priorityXp"] = priorityXp
+            if operation=="update daily time commitment:" then
+                lightThread["dailyTimeCommitment"] = NSXLightThreadUtils::dailyTimeCommitmentPickerOrNull()
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
             if operation == "set targetFolderpath" then
@@ -333,15 +314,11 @@ class NSXLightThreadUtils
         }
     end
 
-    # NSXLightThreadUtils::lightThreadPriorityXPPickerOrNull()
-    def self.lightThreadPriorityXPPickerOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("thread type:", ["interruption-now", "must-be-all-done-today", "stream-important", "stream-luxury"])
-        return nil if type.nil?
-        if (type == "interruption-now") or (type == "must-be-all-done-today") then
-            return [type]
-        end
-        commitmentInHours = LucilleCore::askQuestionAnswerAsString("Daily commitment (in hours): ").to_f
-        [type, commitmentInHours]
+    # NSXLightThreadUtils::dailyTimeCommitmentPickerOrNull()
+    def self.dailyTimeCommitmentPickerOrNull()
+        commitmentInHours = LucilleCore::askQuestionAnswerAsString("Daily commitment (in hours) [empty for none]: ")
+        return nil if commitmentInHours.size==0
+        commitmentInHours.to_f
     end
 
 end
@@ -399,8 +376,7 @@ class NSXLightThreadsStreamsInterface
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
     def self.lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread)
-        return 99 if lightThread["priorityXp"][0] == "interruption-now"
-        return 99 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        return nil if lightThread["dailyTimeCommitment"].nil?
         1
     end
 
@@ -409,7 +385,7 @@ class NSXLightThreadsStreamsInterface
         lightThreadMetricForStreamItems = NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread))
+        items1 = items.first(NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjectsCountOrNull(lightThread) || 6)
         items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
         itemsWithoutDuplicate = []
         (items1+items2).each{|item|
@@ -454,10 +430,9 @@ class NSXLightThreadMetrics
 
     # NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
     def self.lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
-        return nil if NSXLightThreadUtils::trueIfLightThreadIsTypeMustBeGone(lightThread)
+        return nil if lightThread["dailyTimeCommitment"].nil?
         items = NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
-        dailyCommitmentInHours = lightThread["priorityXp"][1]
-        timeDoneExpectationInHours = n * dailyCommitmentInHours
+        timeDoneExpectationInHours = n * lightThread["dailyTimeCommitment"]
         timeDoneLiveInHours = NSXLightThreadMetrics::lightThreadToLiveAndOrSimulatedDoneTimeSpanInSecondsOverThePastNDays(lightThread, n, simulationTimeInSeconds).to_f/3600
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
@@ -466,28 +441,20 @@ class NSXLightThreadMetrics
     def self.lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
         return 2 if ( simulationTimeInSeconds==0 and NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) )
         livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds)
-        return nil if livePercentage.nil? # nil if NSXLightThreadUtils::trueIfLightThreadIsTypeMustBeGone(lightThread)
-        if lightThread["priorityXp"][0]=="stream-luxury" then
-            return 0.2 + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
-        end
-        if lightThread["priorityXp"][0]=="stream-important" then
-            return ( ( livePercentage < 100 ) ? 0.4 : 0.2 ) + 0.2*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
-        end
-        raise "Error: 0a86f002"        
+        return nil if livePercentage.nil?
+        0.2 + 0.4*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])        
     end
 
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
-        return 0 if lightThread["priorityXp"][0] == "interruption-now"
-        return 0 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        return 0 if lightThread["dailyTimeCommitment"].nil?
         (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
     end
 
     # NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
     def self.lightThread2BaseStreamItemMetric(lightThread)
-        return 0.90 if lightThread["priorityXp"][0] == "interruption-now"
-        return 0.60 if lightThread["priorityXp"][0] == "must-be-all-done-today"
+        return 0.90 if lightThread["dailyTimeCommitment"].nil?
         # We do not display the stream items if the LightThread itself is running
         shiftUp = [0.001, 0.002][Time.new.day % 2] # The shift array is the opposite of what it is for the Folder
         NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + shiftUp
@@ -516,7 +483,6 @@ class NSXLightThreadMetrics
         return nil if numbers.size==0
         numbers.min
     end
-
 end
 
 

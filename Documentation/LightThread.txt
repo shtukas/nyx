@@ -2,7 +2,7 @@ LightThread {
     :uuid        : String
     :unixtime    : Integer
     :description : String
-    :priorityXp  : LightThreadPriorityXP
+    :dailyTimeCommitment : nil or Float # value in hours
     :done        : Array[LightThreadTimeRecordItem]
     :streamuuid  : String UUID
     :targetFolderpath :
@@ -12,12 +12,6 @@ LightThread {
     :activationWeekDays : nil | Array[Weekday] # monday, tuesday, wednesday, thursday, friday, saturday, sunday
     :theta00e769 : Boolean
 }
-
-LightThreadPriorityXP
-    ["interruption-now"]
-    ["must-be-all-done-today"]
-    ["stream-important", <commitment in hours>]
-    ["stream-luxury", <commitment in hours>]
 
 LightThreadTimeRecordItem: {
 	"uuid"     => not particularly relevant, random

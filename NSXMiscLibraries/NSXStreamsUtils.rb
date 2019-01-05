@@ -262,9 +262,6 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
     def self.streamItemToStreamCatalystObjectCommands(lightThread, item)
-        if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
-            return ["recast", "description:"]
-        end
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "description:", "ordinal:"]
         else
@@ -274,9 +271,6 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
     def self.streamItemToStreamCatalystDefaultCommand(lightThread, item)
-        if NSXLightThreadUtils::trueIfLightThreadIsInterruption(lightThread) then
-            return "ack"
-        end
         NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start ; open"
     end
 

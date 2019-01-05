@@ -38,6 +38,8 @@ class NSXAgentLightThread
     def self.thetaTrafficControl()
         return if NSXLightThreadUtils::lightThreads().any?{|lightThread| NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) }
         NSXLightThreadUtils::lightThreads()
+            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
+            .select{|lightThread| lightThread["activationWeekDays"].nil? or lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay())  }
             .select{|lightThread| lightThread["theta00e769"] } 
             .select{|lightThread| (NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1) || 0) >= 100 }
             .each{|lightThread|
