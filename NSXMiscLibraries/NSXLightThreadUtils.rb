@@ -98,7 +98,6 @@ class NSXLightThreadUtils
         # 1. It is DoNotShownUntilDatetime'd
         # 2. It is not it's day
         return true if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
-        return false if !lightThread["theta00e769"]
         return false if !NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? # The catalyst object has the same uuid as the LightThread
         return false if ( lightThread["activationWeekDays"] and !lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay()) )
         true

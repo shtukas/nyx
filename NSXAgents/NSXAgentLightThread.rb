@@ -34,41 +34,10 @@ class NSXAgentLightThread
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
     end
 
-    # NSXAgentLightThread::thetaTrafficControl()
-    def self.thetaTrafficControl()
-        return if NSXLightThreadUtils::lightThreads().any?{|lightThread| NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) }
-        NSXLightThreadUtils::lightThreads()
-            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
-            .select{|lightThread| lightThread["activationWeekDays"].nil? or lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay())  }
-            .select{|lightThread| lightThread["theta00e769"] } 
-            .select{|lightThread| (NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1) || 0) >= 100 }
-            .each{|lightThread|
-                lightThread["theta00e769"] = false
-                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-                puts lightThread
-            }
-        return if NSXLightThreadUtils::lightThreads()
-            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
-            .select{|lightThread| lightThread["activationWeekDays"].nil? or lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay())  }
-            .any?{|lightThread| lightThread["theta00e769"] }            
-        NSXLightThreadUtils::lightThreads()
-            .select{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]).nil? }
-            .select{|lightThread| lightThread["activationWeekDays"].nil? or lightThread["activationWeekDays"].include?(NSXMiscUtils::currentWeekDay())  }
-            .sort{|l1, l2| NSXLightThreadMetrics::lightThread2Metric(l1)<=>NSXLightThreadMetrics::lightThread2Metric(l2) }
-            .reverse
-            .first(1)
-            .each{|lightThread|
-                lightThread["theta00e769"] = true
-                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-            }
-    end
-
     # NSXAgentLightThread::getObjects()
     def self.getObjects()
-        NSXAgentLightThread::thetaTrafficControl()
         # This agent emits stream objects
         NSXLightThreadUtils::lightThreads()
-        .select{|lightThread| lightThread["theta00e769"] or NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) }
         .map{|lightThread|
             objects = [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) + [ NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) ]
             objects = objects.compact
@@ -77,7 +46,7 @@ class NSXAgentLightThread
             else
                 objects.select{|object| object["isRunning"] }
             end
-        }
+        }.flatten
     end
 
     def self.processObjectAndCommand(object, command)

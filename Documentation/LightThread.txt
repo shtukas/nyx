@@ -10,7 +10,6 @@ LightThread {
         false              # When no folder
         String, Folderpath
     :activationWeekDays : nil | Array[Weekday] # monday, tuesday, wednesday, thursday, friday, saturday, sunday
-    :theta00e769 : Boolean
 }
 
 LightThreadTimeRecordItem: {
