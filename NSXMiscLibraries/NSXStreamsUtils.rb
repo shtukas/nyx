@@ -265,7 +265,7 @@ class NSXStreamsUtils
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "description:", "ordinal:"]
         else
-            ["open" ,"start", "done", "rotate", "recast", "description:", "ordinal:"]
+            ["open" ,"start", "done", "time:", "rotate", "recast", "description:", "ordinal:"]
         end
     end
 

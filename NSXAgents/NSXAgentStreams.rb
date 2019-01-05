@@ -59,6 +59,14 @@ class NSXAgentStreams
         if command == "done" then
             NSXAgentStreams::doneObject(object)
         end
+        if command == "time:" then
+            timespanInMinutes = LucilleCore::askQuestionAnswerAsString("Time in minutes: ").to_f
+            timespanInSeconds = timespanInMinutes*60
+            lightThreadUUID = object["data"]["light-thread"]["uuid"]
+            lightThreadDescription = object["data"]["light-thread"]["description"]
+            puts "Notification: NSXAgentStreams, adding #{timespanInSeconds} seconds to LightThread '#{lightThreadDescription}'"
+            NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThreadUUID, Time.new.to_i, timespanInSeconds)
+        end
         if command == "recast" then
             NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
         end

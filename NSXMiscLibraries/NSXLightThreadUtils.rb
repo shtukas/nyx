@@ -245,7 +245,7 @@ class NSXLightThreadUtils
                 NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThread["uuid"])
                     .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"] }
                     .each{|item|
-                        puts "    - #{Time.at(item["unixtime"]).to_s} : #{ item["timespan"].round(2) } seconds, #{ (item["timespan"].to_f/3600).round(2) } hours"
+                        puts "    - #{Time.at(item["unixtime"]).to_s} : #{ "%9.2f" % item["timespan"] } seconds, #{ "%6.2f" %  (item["timespan"].to_f/3600) } hours"
                     }
                 LucilleCore::pressEnterToContinue()
             end
