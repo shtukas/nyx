@@ -437,19 +437,28 @@ class NSXLightThreadMetrics
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
-    # NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
-    def self.lightThread2MetricOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds = 0)
-        return 2 if ( simulationTimeInSeconds==0 and NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) )
-        livePercentage = NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, simulationTimeInSeconds)
-        return nil if livePercentage.nil?
-        0.2 + 0.4*Math.exp(-livePercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])        
+    # NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
+    def self.timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
+        return nil if NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, 0).nil?
+        timespan = 0
+        while NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, timespan) < 100 do
+            timespan = timespan + 600
+        end
+        timespan
     end
 
+    # NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
+    def self.timeInSecondsTo100PercentOrNull(lightThread)
+        numbers = (1..7).map{|n| NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n) }.compact
+        return nil if numbers.size==0
+        numbers.min
+    end
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
         return 0 if lightThread["dailyTimeCommitment"].nil?
-        (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThread2MetricOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.min
+        bestPercentage = (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.max
+        0.2 + 0.4*Math.exp(-bestPercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"]) 
     end
 
     # NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
@@ -467,22 +476,6 @@ class NSXLightThreadMetrics
         NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + shiftUp
     end
 
-    # NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
-    def self.timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
-        return nil if NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, 0).nil?
-        timespan = 0
-        while NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, timespan) < 100 do
-            timespan = timespan + 600
-        end
-        timespan
-    end
-
-    # NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
-    def self.timeInSecondsTo100PercentOrNull(lightThread)
-        numbers = (1..7).map{|n| NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n) }.compact
-        return nil if numbers.size==0
-        numbers.min
-    end
 end
 
 
