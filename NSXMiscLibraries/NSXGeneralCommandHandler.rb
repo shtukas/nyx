@@ -19,7 +19,8 @@ class NSXGeneralCommandHandler
     def self.helpLines()
         [
             "catalyst --allowEmailQueriesOnLucille19",
-            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , search: <pattern>",
+            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text'",
+            "Special General Commands: search: <pattern>",
             "Special Object Commands: ,, .. @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
         ]
     end
@@ -115,25 +116,22 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "LightThreads",
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "new LightThread",
-                "@spot",
+                "LightThreads",
+                "spots:activate",
                 "email-sync",
                 "speed"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option:", options)
             return if option.nil?
-            if option == "LightThreads" then
-                NSXLightThreadUtils::lightThreadsDive()
+            if option == "new Stream Item" then
+                NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
             end
             if option == "new wave (repeat item)" then
                 description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
                 NSXMiscUtils::spawnNewWaveItem(description)
-            end
-            if option == "new Stream Item" then
-                NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
             end
             if option == "new LightThread" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -141,12 +139,15 @@ class NSXGeneralCommandHandler
                 lightThread = NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment)
                 puts JSON.pretty_generate(lightThread)
             end
+            if option == "LightThreads" then
+                NSXLightThreadUtils::lightThreadsDive()
+            end
+            if option == "spots:activate" then
+                selected, _ = LucilleCore::selectZeroOrMore("spotname:", [], NSXSpots::getNames())
+                selected.each{|spotname| NSXSpots::unblockSpotName(spotname) }
+            end
             if option == "email-sync" then
                 NSXMiscUtils::emailSync(true)
-            end
-            if option == "@spot" then
-                selected, _ = LucilleCore::selectZeroOrMore("spotname:", [], NSXSpots::getNames())
-                selected.each{|spotname| NSXSpots::removeName(spotname) }
             end
             if option == "speed" then
                 puts "Agents Speed Report"

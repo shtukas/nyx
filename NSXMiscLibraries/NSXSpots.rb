@@ -44,8 +44,8 @@ class NSXSpots
         NSXSpots::getData().map{|spotname, objectuuid| spotname }.uniq
     end
 
-    # NSXSpots::removeName(spotname)
-    def self.removeName(spotname)
+    # NSXSpots::unblockSpotName(spotname)
+    def self.unblockSpotName(spotname)
         data = NSXSpots::getData()
         data = data.reject{|pair| pair[0]==spotname }
         NSXSpots::commitDataToDisk(data)
