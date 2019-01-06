@@ -70,7 +70,7 @@ class NSXAgentStreams
         if command == "recast" then
             NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
         end
-        if command == "move to position 5" then
+        if command == "push" then
             NSXStreamsUtils::resetRunDataAndRotateItem(object["data"]["light-thread"]["streamuuid"], 5, object["data"]["stream-item"]["uuid"])
         end
         if command == "ack" then
