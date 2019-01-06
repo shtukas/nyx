@@ -34,4 +34,9 @@ class NSXCatalystObjectsOperator
             .reverse
     end
 
+    # NSXCatalystObjectsOperator::objectUUIDsToCatalystObjects(objectuuids)
+    def self.objectUUIDsToCatalystObjects(objectuuids)
+        NSXCatalystObjectsOperator::getObjects().select{|object| objectuuids.include?(object["uuid"]) }
+    end
+
 end

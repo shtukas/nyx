@@ -31,6 +31,18 @@ class NSXDisplayUtils
         end
     end
 
+    # NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)
+    def self.objectToOneLineForCatalystDisplay(object)
+        announce = (object['announce'].lines.first || "").strip
+        announce = NSXMiscUtils::makeGreenIfObjectRunning(announce, object["isRunning"])
+        [
+            "(#{"%.3f" % object["metric"]})",
+            object['announce'].lines.count > 1 ? " MULTILINE:" : "",
+            " #{announce}",
+            NSXMiscUtils::object2DoNotShowUntilAsString(object),
+        ].join()
+    end
+
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
         announce = object['announce'].strip
@@ -71,7 +83,7 @@ class NSXDisplayUtils
                 [
                    NSXDisplayUtils::positionPrefix(standardlp, position),
                    " ",
-                   NSXMiscUtils::objectToOneLineForCatalystDisplay(object),
+                   NSXDisplayUtils::objectToOneLineForCatalystDisplay(object),
                    "\n",
                    "               " + NSXDisplayUtils::objectInferfaceString(object)
                 ].join("")
@@ -80,7 +92,7 @@ class NSXDisplayUtils
             [
                NSXDisplayUtils::positionPrefix(standardlp, position),
                " ",
-               NSXMiscUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
+               NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
             ].join("")
         end
     end
@@ -88,7 +100,19 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
-        puts NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
+        puts NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)
+        puts NSXDisplayUtils::objectInferfaceString(object)
+        print "--> "
+        command = STDIN.gets().strip
+        command = command.size>0 ? command : ( object["defaultExpression"] ? object["defaultExpression"] : "" )
+        NSXGeneralCommandHandler::processCommand(object, command)
+    end
+
+    # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
+    def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
+        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
+        return if object.nil?
+        puts NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)
         puts NSXDisplayUtils::objectInferfaceString(object)
         print "--> "
         command = STDIN.gets().strip

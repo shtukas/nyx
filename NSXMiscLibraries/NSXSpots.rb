@@ -11,7 +11,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # ----------------------------------------------------------------------
 
-# We store the starting unixtime
+# NSXSpotsData: Array[SpotClaim]
+# SpotClaim: [spotname, objectuuid]
 
 NSXSPOTS_DATAFILEPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Spots/data.json"
 
@@ -34,14 +35,21 @@ class NSXSpots
         NSXSpots::commitDataToDisk(data)
     end
 
+    # NSXSpots::getSpotNames()
+    def self.getSpotNames()
+        NSXSpots::getData().map{|spotname, objectuuid| spotname }.uniq
+    end
+
     # NSXSpots::getObjectUUIDs()
     def self.getObjectUUIDs()
         NSXSpots::getData().map{|spotname, objectuuid| objectuuid }
     end
 
-    # NSXSpots::getNames()
-    def self.getNames()
-        NSXSpots::getData().map{|spotname, objectuuid| spotname }.uniq
+    # NSXSpots::getObjectUUIDsForSpotName(spotname)
+    def self.getObjectUUIDsForSpotName(spotname)
+        NSXSpots::getData()
+            .select{|pair| pair[0]==spotname }
+            .map{|spotname, objectuuid| objectuuid }
     end
 
     # NSXSpots::unblockSpotName(spotname)

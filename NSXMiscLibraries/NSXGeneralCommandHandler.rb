@@ -105,10 +105,10 @@ class NSXGeneralCommandHandler
             pattern = command[7, command.size].strip
             loop {
                 searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
+                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
                 break if searchobjects.size==0
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXMiscUtils::objectToOneLineForCatalystDisplay(object) })
+                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
                 break if selectedobject.nil?
                 NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
             }
@@ -121,6 +121,7 @@ class NSXGeneralCommandHandler
                 "new LightThread",
                 "LightThreads",
                 "spots:activate",
+                "spots:dive",
                 "email-sync",
                 "speed"
             ]
@@ -143,8 +144,16 @@ class NSXGeneralCommandHandler
                 NSXLightThreadUtils::lightThreadsDive()
             end
             if option == "spots:activate" then
-                selected, _ = LucilleCore::selectZeroOrMore("spotname:", [], NSXSpots::getNames())
+                selected, _ = LucilleCore::selectZeroOrMore("spotname:", [], NSXSpots::getSpotNames())
                 selected.each{|spotname| NSXSpots::unblockSpotName(spotname) }
+            end
+            if option == "spots:dive" then
+                spotnames = NSXSpots::getSpotNames()
+                spotname = LucilleCore::selectEntityFromListOfEntitiesOrNull("spotname:", spotnames)
+                return if spotname.nil?
+                objectuuids = NSXSpots::getObjectUUIDsForSpotName(spotname)
+                catalystObjects = NSXCatalystObjectsOperator::objectUUIDsToCatalystObjects(objectuuids)
+                NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(catalystObjects)
             end
             if option == "email-sync" then
                 NSXMiscUtils::emailSync(true)

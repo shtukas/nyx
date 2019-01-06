@@ -261,18 +261,6 @@ class NSXMiscUtils
         isRunning ? string.green : string
     end
 
-    # NSXMiscUtils::objectToOneLineForCatalystDisplay(object)
-    def self.objectToOneLineForCatalystDisplay(object)
-        announce = (object['announce'].lines.first || "").strip
-        announce = NSXMiscUtils::makeGreenIfObjectRunning(announce, object["isRunning"])
-        [
-            "(#{"%.3f" % object["metric"]})",
-            object['announce'].lines.count > 1 ? " MULTILINE:" : "",
-            " #{announce}",
-            NSXMiscUtils::object2DoNotShowUntilAsString(object),
-        ].join()
-    end
-
     # NSXMiscUtils::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")

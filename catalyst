@@ -171,8 +171,8 @@ class CatalystUI
         end
     end
 
-    # CatalystUI::displayListing(displayObjects)
-    def self.displayListing(displayObjects)
+    # CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
+    def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
         system("clear")
 
@@ -184,7 +184,7 @@ class CatalystUI
             return
         end
 
-        spotnames = NSXSpots::getNames()
+        spotnames = NSXSpots::getSpotNames()
         if spotnames.size>0 then
             puts "awaiting: #{spotnames.join(", ")}".green
         end
@@ -247,7 +247,7 @@ class CatalystUI
         loop {
             CatalystDevOps::collectInboxPackage()
             displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-            CatalystUI::displayListing(displayObjects)
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
         }
     end
 
