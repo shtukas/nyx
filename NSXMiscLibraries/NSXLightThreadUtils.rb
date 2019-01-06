@@ -378,7 +378,12 @@ class NSXLightThreadsStreamsInterface
         lightThreadMetricForStreamItems = NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
         items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
         items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-        items1 = items.first(3)
+        items1 = 
+        if lightThread["uuid"]=="cf78ae41" then
+            items
+        else
+            items.first(1)
+        end
         items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
         itemsWithoutDuplicate = []
         (items1+items2).each{|item|
