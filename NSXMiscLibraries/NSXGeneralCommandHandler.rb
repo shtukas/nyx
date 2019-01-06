@@ -107,10 +107,7 @@ class NSXGeneralCommandHandler
                 searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
                 searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
-                break if searchobjects.size==0
-                selectedobject = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", searchobjects, lambda{ |object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
-                break if selectedobject.nil?
-                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(selectedobject)
+                NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
             }
         end
 

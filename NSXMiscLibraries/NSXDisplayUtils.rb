@@ -100,7 +100,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
-        puts NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)
+        puts NSXDisplayUtils::objectToStringForCatalystListing(object, nil, nil)
         puts NSXDisplayUtils::objectInferfaceString(object)
         print "--> "
         command = STDIN.gets().strip
@@ -112,12 +112,7 @@ class NSXDisplayUtils
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
         object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
         return if object.nil?
-        puts NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)
-        puts NSXDisplayUtils::objectInferfaceString(object)
-        print "--> "
-        command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["defaultExpression"] ? object["defaultExpression"] : "" )
-        NSXGeneralCommandHandler::processCommand(object, command)
+        NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     end
 
 end
