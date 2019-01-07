@@ -36,7 +36,7 @@ class NSXAgentStreams
         return if timespanInSeconds == 0
         lightThreadUUID = object["data"]["light-thread"]["uuid"]
         puts "Notification: NSXAgentStreams, adding #{timespanInSeconds} seconds to LightThread '#{object["data"]["light-thread"]["description"]}'"
-        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThreadUUID, Time.new.to_i, timespanInSeconds)
+        NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
     end
 
     # NSXAgentStreams::doneObject(object)
@@ -65,7 +65,7 @@ class NSXAgentStreams
             lightThreadUUID = object["data"]["light-thread"]["uuid"]
             lightThreadDescription = object["data"]["light-thread"]["description"]
             puts "Notification: NSXAgentStreams, adding #{timespanInSeconds} seconds to LightThread '#{lightThreadDescription}'"
-            NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThreadUUID, Time.new.to_i, timespanInSeconds)
+            NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
         end
         if command == "recast" then
             NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])

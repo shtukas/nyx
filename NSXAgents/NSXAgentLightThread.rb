@@ -63,7 +63,7 @@ class NSXAgentLightThread
         end
         if command.start_with?("time:") then
             timeInHours = command[5,99].to_f
-            NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
+            NSXLightThreadUtils::addTimeToLightThread(lightThread["uuid"], timeInHours*3600)
         end
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)

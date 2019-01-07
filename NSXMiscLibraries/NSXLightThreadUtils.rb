@@ -43,8 +43,8 @@ class NSXLightThreadUtils
         lightThread["description"] = description
         lightThread["dailyTimeCommitment"] = dailyTimeCommitment
         lightThread["streamuuid"] = SecureRandom.hex
-        NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, 0)
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+        NSXLightThreadUtils::addTimeToLightThread(uuid, 0)
         lightThread
     end
 
@@ -103,31 +103,6 @@ class NSXLightThreadUtils
         true
     end
 
-    # -----------------------------------------------
-    # .toString
-
-    # NSXLightThreadUtils::lightThreadToString(lightThread)
-    def self.lightThreadToString(lightThread)
-        "LightThread: #{lightThread["description"]}"
-    end
-
-    # -----------------------------------------------
-    # Agent and Dive Support
-
-    # NSXLightThreadUtils::stopLightThread(lightThreadUUID)
-    def self.stopLightThread(lightThreadUUID)
-        timespanInSeconds = NSXRunner::stop(lightThreadUUID)
-        return if timespanInSeconds.nil?
-        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThreadUUID, Time.new.to_i, timespanInSeconds)
-    end
-
-    # NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timeInHours)
-    def self.lightThreadAddTime(lightThreadUUID, timeInHours)
-        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
-        return if lightThread.nil?
-        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInHours * 3600)
-    end
-
     # NSXLightThreadUtils::sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
     def self.sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
         folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
@@ -146,6 +121,46 @@ class NSXLightThreadUtils
             "timespan" => timespanInSeconds
         }
         NSXLightThreadUtils::sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
+    end
+
+    # NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timeInSeconds)
+    def self.addTimeToLightThread(lightThreadUUID, timeInSeconds)
+        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
+        return if lightThread.nil?
+        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInSeconds)
+        if lightThread["description"].include?('{automatic}') then
+            secondaryLightThreadUUIDs = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "f24fffaa-872a-4c7d-9a75-84489ddc1cee:#{lightThread["uuid"]}")
+            secondaryLightThreadUUIDs = 
+                if secondaryLightThreadUUIDs then
+                    JSON.parse(secondaryLightThreadUUIDs)
+                else
+                    lightThreads = NSXLightThreadUtils::interactivelySelectOneOrMoreNonAutomaticLightThreads()
+                    secondaryLightThreadUUIDs = lightThreads.map{|lightThread| lightThread["uuid"] }
+                    KeyValueStore::set("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "f24fffaa-872a-4c7d-9a75-84489ddc1cee:#{lightThread["uuid"]}", JSON.generate(secondaryLightThreadUUIDs))
+                    secondaryLightThreadUUIDs
+                end
+            secondaryLightThreadUUIDs.each{|uuid|
+                NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, timeInSeconds)
+            }
+        end
+    end
+
+    # -----------------------------------------------
+    # .toString
+
+    # NSXLightThreadUtils::lightThreadToString(lightThread)
+    def self.lightThreadToString(lightThread)
+        "LightThread: #{lightThread["description"]}"
+    end
+
+    # -----------------------------------------------
+    # Agent and Dive Support
+
+    # NSXLightThreadUtils::stopLightThread(lightThreadUUID)
+    def self.stopLightThread(lightThreadUUID)
+        timespanInSeconds = NSXRunner::stop(lightThreadUUID)
+        return if timespanInSeconds.nil?
+        NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
     end
 
     # NSXLightThreadUtils::destroyLightThread(lightThreadUUID)
@@ -184,10 +199,25 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
     def self.interactivelySelectLightThreadOrNull()
         lightThreads = NSXLightThreadUtils::lightThreads()
-            .sort{|l1, l2| NSXLightThreadMetrics::lightThread2Metric(l1)<=>NSXLightThreadMetrics::lightThread2Metric(l2) }
-            .reverse
-        xlambda = lambda{|lightThread| "#{"%0.3f" % NSXLightThreadMetrics::lightThread2Metric(lightThread)} : #{NSXLightThreadUtils::lightThreadToString(lightThread)}" }
+                            .reject{|lightThread| lightThread["description"].include?('{automatic}') } 
+        xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, xlambda)
+    end
+
+    # NSXLightThreadUtils::interactivelySelectZeroOrMoreNonAutomaticLightThreads()
+    def self.interactivelySelectZeroOrMoreNonAutomaticLightThreads()
+        lightThreads = NSXLightThreadUtils::lightThreads()
+                            .reject{|lightThread| lightThread["description"].include?('{automatic}') }
+        xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
+        lightThreads, _ = LucilleCore::selectZeroOrMore("lightThread:", [], lightThreads, xlambda)
+        lightThreads
+    end
+
+    # NSXLightThreadUtils::interactivelySelectOneOrMoreNonAutomaticLightThreads()
+    def self.interactivelySelectOneOrMoreNonAutomaticLightThreads()
+        lightThreads = NSXLightThreadUtils::interactivelySelectZeroOrMoreNonAutomaticLightThreads()
+        return lightThreads if lightThreads.size>0
+        NSXLightThreadUtils::interactivelySelectOneOrMoreNonAutomaticLightThreads()
     end
 
     # NSXLightThreadUtils::interactivelySelectOneLightThreadPriority()
@@ -253,7 +283,7 @@ class NSXLightThreadUtils
             end
             if operation=="add time:" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
-                NSXLightThreadUtils::lightThreadAddTime(lightThread["uuid"], timeInHours)
+                NSXLightThreadUtils::addTimeToLightThread(lightThread["uuid"], timeInHours*3600)
             end
             if operation=="update description:" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -307,7 +337,7 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::lightThreadsDive()
     def self.lightThreadsDive()
         loop {
-            lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+            lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()           
             return if lightThread.nil?
             NSXLightThreadUtils::lightThreadDive(lightThread)
         }
@@ -357,7 +387,7 @@ class NSXLightThreadsTargetFolderInterface
                 lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
                 return if !NSXRunner::isRunning?(objectuuid)
                 timespanInSeconds = NSXRunner::stop(objectuuid)
-                NSXLightThreadUtils::lightThreadAddTime(lightThreadUUID, timespanInSeconds.to_f/3600)
+                NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
             },
             "start" => lambda{|object|
                 objectuuid = object["uuid"]

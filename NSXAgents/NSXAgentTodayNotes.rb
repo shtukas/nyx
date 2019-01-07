@@ -78,7 +78,7 @@ class NSXAgentTodayNotes
         return if timespanInSeconds.nil?
         lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
         return if lightThread.nil?
-        NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timespanInSeconds)
+        NSXLightThreadUtils::addTimeToLightThread(lightThread["uuid"], timespanInSeconds)
     end
 
     # NSXAgentTodayNotes::processObjectAndCommand(object, command)
