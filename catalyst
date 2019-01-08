@@ -342,6 +342,10 @@ Thread.new {
     }
 }
 
+$LightThreadTheBigUglyMemoryCache = {} # Map[LightThread, State]
+# State: { "ObjectsUUID", "ProcessObjectAndCommandUUID", "CachedObjects" }
+
+
 # -------------------------------------------------------------------------
 
 CatalystUI::standardUILoop()

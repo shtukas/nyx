@@ -34,19 +34,41 @@ class NSXAgentLightThread
         "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
     end
 
-    # NSXAgentLightThread::getObjects()
-    def self.getObjects()
-        # This agent emits stream objects
-        NSXLightThreadUtils::lightThreads()
-        .map{|lightThread|
-            objects = [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) + [ NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) ]
-            objects = objects.compact
+    # NSXAgentLightThread::getLightThreadObjects(lightThread)
+    def self.getLightThreadObjects(lightThread)
+        if $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]].nil? then
+            $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]] = {
+                "ObjectsUUID"                 => nil,
+                "ProcessObjectAndCommandUUID" => nil,
+                "CachedObjects"               => nil
+            }
+        end
+        if ( $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ObjectsUUID"] == $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ProcessObjectAndCommandUUID"] ) and ( !$LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"].nil? ) then
+            return $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"].clone
+        end
+        objects = 
+            (
+                [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] +
+                  NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) +
+                [ NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) ]
+            ).compact
+        objects = 
             if NSXLightThreadUtils::trueIfLightThreadIsRunningOrActive(lightThread) then
                 objects
             else
                 objects.select{|object| object["isRunning"] }
             end
-        }.flatten
+        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"] = objects
+        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ObjectsUUID"] = $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ProcessObjectAndCommandUUID"]
+        objects
+    end
+
+    # NSXAgentLightThread::getObjects()
+    def self.getObjects()
+        NSXLightThreadUtils::lightThreads()
+            .map{|lightThread|
+                NSXAgentLightThread::getLightThreadObjects(lightThread)
+            }.flatten
     end
 
     def self.processObjectAndCommand(object, command)
@@ -68,6 +90,7 @@ class NSXAgentLightThread
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
         end
+        $LightThreadTheBigUglyMemoryCache[object["item-data"]["lightThread"]["uuid"]]["ProcessObjectAndCommandUUID"] = SecureRandom.hex
     end
 
     # NSXAgentLightThread::interface()

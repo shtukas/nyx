@@ -104,6 +104,7 @@ class NSXAgentStreams
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             NSXStreamsUtils::setItemOrdinal(itemuuid, ordinal)
         end
+        $LightThreadTheBigUglyMemoryCache[object["data"]["light-thread"]["uuid"]]["ProcessObjectAndCommandUUID"] = SecureRandom.hex
     end
 
     def self.interface()
