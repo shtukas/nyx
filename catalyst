@@ -62,6 +62,7 @@ require_relative "NSXAgents/NSXAgentWave.rb"
 
 # -------------------------------------------------------------------------
 
+CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__) 
 CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
 
 class CatalystDevOps
@@ -76,7 +77,21 @@ class CatalystDevOps
                 NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem) # Inbox
             }
     end
-    
+
+    # CatalystDevOps::locationHashRecursively(location)
+    def self.locationHashRecursively(location)
+        if File.file?(location) then
+            Digest::SHA1.hexdigest("#{location}:#{Digest::SHA1.file(location).hexdigest}")
+        else
+            trace = Dir.entries(location)
+                .reject{|filename| filename.start_with?(".") }
+                .map{|filename| "#{location}/#{filename}" }
+                .map{|location| CatalystDevOps::locationHashRecursively(location) }
+                .join("::")
+            Digest::SHA1.hexdigest(trace)
+        end
+    end
+
 end
 
 class CatalystUI
@@ -245,6 +260,10 @@ class CatalystUI
     # CatalystUI::standardUILoop()
     def self.standardUILoop()
         loop {
+            if STARTING_CODE_HASH != CatalystDevOps::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
+                puts "Code change detected. Exiting."
+                return
+            end
             CatalystDevOps::collectInboxPackage()
             displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
             CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
@@ -257,9 +276,11 @@ end
 # nslog
 
 # -------------------------------------------------------------------------
+
+STARTING_CODE_HASH = CatalystDevOps::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
+
 NSXStreamsUtils::sendOrphanStreamItemsToInbox()
 
-# -------------------------------------------------------------------------
 # Make sure that each folder in /Galaxy/LightThreads has a LightThread for it
 
 Dir.entries("/Galaxy/LightThreads")
@@ -272,7 +293,6 @@ Dir.entries("/Galaxy/LightThreads")
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
     }
 
-# -------------------------------------------------------------------------
 # Making sure that the targetFolderpath status of each LightThread is known
 
 NSXLightThreadUtils::lightThreads()
@@ -287,8 +307,6 @@ NSXLightThreadUtils::lightThreads()
             NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         end
     }
-
-# -------------------------------------------------------------------------
 
 # Catalyst Interruption Screen Notification.
 
