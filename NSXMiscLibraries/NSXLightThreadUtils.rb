@@ -153,6 +153,12 @@ class NSXLightThreadUtils
         "LightThread: #{lightThread["description"]}"
     end
 
+    # NSXLightThreadUtils::lightThreadToStringForCatlystObject(lightThread)
+    def self.lightThreadToStringForCatlystObject(lightThread)
+        "LightThread: #{lightThread["description"]} (#{NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread).round(2)} %)"
+    end
+
+
     # -----------------------------------------------
     # Agent and Dive Support
 
@@ -184,7 +190,7 @@ class NSXLightThreadUtils
         object["uuid"]      = uuid # The catalyst object has the same uuid as the LightThread
         object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
-        object["announce"]  = NSXLightThreadUtils::lightThreadToString(lightThread)
+        object["announce"]  = NSXLightThreadUtils::lightThreadToStringForCatlystObject(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop", "dive"] : ["start", "time: <timeInHours>", "dive"]
         object["defaultExpression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
         object["isRunning"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
@@ -465,6 +471,12 @@ class NSXLightThreadMetrics
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
+    # NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
+    def self.lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
+        bestPercentage = (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.max
+        bestPercentage
+    end
+
     # NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
     def self.timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
         return nil if NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, 0).nil?
@@ -485,7 +497,7 @@ class NSXLightThreadMetrics
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
         return 0 if lightThread["dailyTimeCommitment"].nil?
-        bestPercentage = (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.max
+        bestPercentage = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
         metric = 0.2 + 0.4*Math.exp(-bestPercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
         if lightThread["description"].start_with?('{automatic}') then
             metric = 0.5*(metric-0.2)+0.2
