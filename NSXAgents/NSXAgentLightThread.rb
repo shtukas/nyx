@@ -69,6 +69,7 @@ class NSXAgentLightThread
     # NSXAgentLightThread::getObjects()
     def self.getObjects()
         NSXLightThreadUtils::lightThreads()
+            .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]) }
             .map{|lightThread|
                 NSXAgentLightThread::getLightThreadObjects(lightThread)
             }.flatten
