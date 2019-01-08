@@ -304,4 +304,9 @@ class NSXMiscUtils
         value
     end
 
+    # NSXMiscUtils::emitNewValueEveryNSeconds(n)
+    def self.emitNewValueEveryNSeconds(n)
+        Digest::SHA1.hexdigest("66b44d63-0168-4217-9712-2b84ad3e41cb:#{(Time.new.to_f/n).to_i.to_s}")
+    end
+
 end

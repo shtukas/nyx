@@ -36,6 +36,9 @@ class NSXAgentLightThread
 
     # NSXAgentLightThread::getLightThreadObjects(lightThread)
     def self.getLightThreadObjects(lightThread)
+        if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "0142daee-356a-4f62-b87d-df69397d3738", 600) then
+            $LightThreadTheBigUglyMemoryCache = {}
+        end
         if $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]].nil? then
             $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]] = {
                 "ObjectsUUID"                 => nil,
