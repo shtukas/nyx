@@ -486,7 +486,11 @@ class NSXLightThreadMetrics
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
         return 0 if lightThread["dailyTimeCommitment"].nil?
         bestPercentage = (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.max
-        0.2 + 0.4*Math.exp(-bestPercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"]) 
+        metric = 0.2 + 0.4*Math.exp(-bestPercentage.to_f/100) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+        if lightThread["description"].start_with?('{automatic}') then
+            metric = 0.5*(metric-0.2)+0.2
+        end
+        metric
     end
 
     # NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)
