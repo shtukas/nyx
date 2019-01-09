@@ -245,6 +245,14 @@ class CatalystUI
         print "--> "
         command = STDIN.gets().strip
 
+        if command == "done" then
+            Thread.new {
+                NSXGeneralCommandHandler::processCommand(focusobject, "done")
+            }
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
+            return
+        end
+
         if command.start_with?("'") then
             position = command[1,9].strip.to_i
             return if position==0
