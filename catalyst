@@ -343,7 +343,7 @@ Thread.new {
 }
 
 $LightThreadTheBigUglyMemoryCache = {} # Map[LightThread, State]
-# State: { "ObjectsUUID", "ProcessObjectAndCommandUUID", "CachedObjects" }
+# State: { "TheReferenceOne", "TheMovingOne", "CachedObjects" }
 
 
 # -------------------------------------------------------------------------

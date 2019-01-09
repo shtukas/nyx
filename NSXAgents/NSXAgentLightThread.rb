@@ -38,12 +38,12 @@ class NSXAgentLightThread
     def self.getLightThreadObjects(lightThread)
         if $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]].nil? then
             $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]] = {
-                "ObjectsUUID"                 => nil,
-                "ProcessObjectAndCommandUUID" => nil,
-                "CachedObjects"               => nil
+                "CachedObjects"    => nil,
+                "TheReferenceOne"  => nil,
+                "TheMovingOne"     => nil,
             }
         end
-        if ( $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ObjectsUUID"] == $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ProcessObjectAndCommandUUID"] ) and ( !$LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"].nil? ) then
+        if ( $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheReferenceOne"] == $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheMovingOne"] ) and ( !$LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"].nil? ) then
             return $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"].clone
         end
         objects = 
@@ -59,7 +59,7 @@ class NSXAgentLightThread
                 objects.select{|object| object["isRunning"] }
             end
         $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"] = objects
-        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ObjectsUUID"] = $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["ProcessObjectAndCommandUUID"]
+        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheReferenceOne"] = $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheMovingOne"]
         objects
     end
 
@@ -94,7 +94,7 @@ class NSXAgentLightThread
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
         end
-        $LightThreadTheBigUglyMemoryCache[object["item-data"]["lightThread"]["uuid"]]["ProcessObjectAndCommandUUID"] = SecureRandom.hex
+        $LightThreadTheBigUglyMemoryCache[object["item-data"]["lightThread"]["uuid"]]["TheMovingOne"] = SecureRandom.hex
     end
 
     # NSXAgentLightThread::interface()

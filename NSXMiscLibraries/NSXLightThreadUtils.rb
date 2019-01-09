@@ -338,6 +338,7 @@ class NSXLightThreadUtils
                 }
             end
         }
+        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheMovingOne"] = SecureRandom.hex
     end
 
     # NSXLightThreadUtils::lightThreadsDive()
@@ -493,6 +494,7 @@ class NSXLightThreadMetrics
         return nil if numbers.size==0
         numbers.min
     end
+
     # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
