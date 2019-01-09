@@ -230,13 +230,19 @@ class CatalystUI
         # Special Processing
 
         if CatalystUI::objectIsAutoDone(focusobject) then
-            NSXGeneralCommandHandler::processCommand(focusobject, "done")
+            Thread.new {
+                NSXGeneralCommandHandler::processCommand(focusobject, "done")
+            }
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
             return
         end
 
         if CatalystUI::objectIsNS0928Email(focusobject) then
             CatalystUI::specialNS0928EmailDisplay(focusobject)
-            NSXGeneralCommandHandler::processCommand(focusobject, "done")
+            Thread.new {
+                NSXGeneralCommandHandler::processCommand(focusobject, "done")
+            }
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
             return
         end
 
