@@ -103,12 +103,10 @@ class NSXGeneralCommandHandler
 
         if command.start_with?("search:") then
             pattern = command[7, command.size].strip
-            loop {
-                searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
-                searchobjects = searchobjects1 + searchobjects2
-                NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
-            }
+            searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
+            searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
+            searchobjects = searchobjects1 + searchobjects2
+            NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
         end
 
         if command == "/" then
