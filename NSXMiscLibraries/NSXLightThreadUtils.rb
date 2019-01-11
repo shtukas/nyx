@@ -338,7 +338,7 @@ class NSXLightThreadUtils
                 }
             end
         }
-        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheMovingOne"] = SecureRandom.hex
+        resetLightThreadCache(lightThread["uuid"])
     end
 
     # NSXLightThreadUtils::lightThreadsDive()
@@ -388,6 +388,7 @@ class NSXLightThreadsTargetFolderInterface
                     return
                 end
                 KeyValueStore::set("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}", "off")
+                resetLightThreadCache(lightThreadUUID)
             },
             "stop" => lambda{|object|
                 objectuuid = object["uuid"]
@@ -395,12 +396,14 @@ class NSXLightThreadsTargetFolderInterface
                 return if !NSXRunner::isRunning?(objectuuid)
                 timespanInSeconds = NSXRunner::stop(objectuuid)
                 NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
+                resetLightThreadCache(lightThreadUUID)
             },
             "start" => lambda{|object|
                 objectuuid = object["uuid"]
                 lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
                 return if NSXRunner::isRunning?(objectuuid)
                 NSXRunner::start(objectuuid)
+                resetLightThreadCache(lightThreadUUID)
             }
         }
         object

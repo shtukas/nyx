@@ -94,7 +94,7 @@ class NSXAgentLightThread
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
         end
-        $LightThreadTheBigUglyMemoryCache[object["item-data"]["lightThread"]["uuid"]]["TheMovingOne"] = SecureRandom.hex
+        resetLightThreadCache(object["item-data"]["lightThread"]["uuid"])
     end
 
     # NSXAgentLightThread::interface()

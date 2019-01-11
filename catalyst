@@ -359,6 +359,9 @@ Thread.new {
 $LightThreadTheBigUglyMemoryCache = {} # Map[LightThread, State]
 # State: { "TheReferenceOne", "TheMovingOne", "CachedObjects" }
 
+def resetLightThreadCache(lightThreadUUID)
+    $LightThreadTheBigUglyMemoryCache[lightThreadUUID]["TheMovingOne"] = SecureRandom.hex
+end
 
 # -------------------------------------------------------------------------
 
