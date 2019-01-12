@@ -5,10 +5,7 @@ LightThread {
     :dailyTimeCommitment : nil or Float # value in hours
     :done        : Array[LightThreadTimeRecordItem]
     :streamuuid  : String UUID
-    :targetFolderpath :
-        nil                # When un-initialized
-        false              # When no folder
-        String, Folderpath
+    :folderpaths : Array[String]
     :activationWeekDays : nil | Array[Weekday] # monday, tuesday, wednesday, thursday, friday, saturday, sunday
 }
 

@@ -300,27 +300,17 @@ NSXStreamsUtils::sendOrphanStreamItemsToInbox()
 Dir.entries("/Galaxy/LightThreads")
     .reject{|filename| filename[0, 1] == "." }
     .reject{|filename| filename.start_with?("Icon") }
-    .select{|filename| NSXLightThreadUtils::lightThreads().none?{|lightThread| lightThread["description"].include?(filename) } }
-    .each{|filename|
-        lightThread = NSXLightThreadUtils::makeNewLightThread("{automatic} #{filename}", 0.1)
-        lightThread["targetFolderpath"] = false
+    .map{|filename| "/Galaxy/LightThreads/#{filename}" }
+    .select{|filepath| NSXLightThreadUtils::lightThreads().none?{|lightThread| lightThread["folderpaths"].include?(filepath) } }
+    .each{|filepath|
+        puts "I could not find a LightThread for #{filepath}"
+        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
+        next if lightThread.nil?
+        lightThread["folderpaths"] << filepath
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
     }
 
-# Making sure that the targetFolderpath status of each LightThread is known
 
-NSXLightThreadUtils::lightThreads()
-    .each{|lightThread|
-        if lightThread["targetFolderpath"].nil? or (lightThread["targetFolderpath"] and !File.exists?(lightThread["targetFolderpath"])) then
-            puts lightThread["description"]
-            if LucilleCore::askQuestionAnswerAsBoolean("Has target folder ? :") then
-                lightThread["targetFolderpath"] = LucilleCore::askQuestionAnswerAsString("Target folderpath: ")
-            else
-                lightThread["targetFolderpath"] = false
-            end
-            NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-        end
-    }
 
 # Catalyst Interruption Screen Notification.
 

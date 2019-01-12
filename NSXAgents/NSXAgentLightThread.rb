@@ -50,7 +50,7 @@ class NSXAgentLightThread
             (
                 [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] +
                   NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread) +
-                [ NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread) ]
+                  NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjects(lightThread)
             ).compact
         objects = 
             if NSXLightThreadUtils::trueIfLightThreadIsRunningOrActive(lightThread) then

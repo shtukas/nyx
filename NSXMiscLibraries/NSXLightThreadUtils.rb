@@ -43,6 +43,7 @@ class NSXLightThreadUtils
         lightThread["description"] = description
         lightThread["dailyTimeCommitment"] = dailyTimeCommitment
         lightThread["streamuuid"] = SecureRandom.hex
+        lightThread["folderpaths"] = []
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
         NSXLightThreadUtils::addTimeToLightThread(uuid, 0)
         lightThread
@@ -128,21 +129,6 @@ class NSXLightThreadUtils
         lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
         return if lightThread.nil?
         NSXLightThreadUtils::issueLightThreadTimeRecordItem(lightThread["uuid"], Time.new.to_i, timeInSeconds)
-        if lightThread["description"].include?('{automatic}') then
-            secondaryLightThreadUUIDs = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "f24fffaa-872a-4c7d-9a75-84489ddc1cee:#{lightThread["uuid"]}")
-            secondaryLightThreadUUIDs = 
-                if secondaryLightThreadUUIDs then
-                    JSON.parse(secondaryLightThreadUUIDs)
-                else
-                    lightThreads = NSXLightThreadUtils::interactivelySelectOneOrMoreNonAutomaticLightThreads()
-                    secondaryLightThreadUUIDs = lightThreads.map{|lightThread| lightThread["uuid"] }
-                    KeyValueStore::set("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "f24fffaa-872a-4c7d-9a75-84489ddc1cee:#{lightThread["uuid"]}", JSON.generate(secondaryLightThreadUUIDs))
-                    secondaryLightThreadUUIDs
-                end
-            secondaryLightThreadUUIDs.each{|uuid|
-                NSXLightThreadUtils::issueLightThreadTimeRecordItem(uuid, Time.new.to_i, timeInSeconds)
-            }
-        end
     end
 
     # -----------------------------------------------
@@ -205,7 +191,6 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
     def self.interactivelySelectLightThreadOrNull()
         lightThreads = NSXLightThreadUtils::lightThreads()
-                            .reject{|lightThread| lightThread["description"].include?('{automatic}') } 
         xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, xlambda)
     end
@@ -213,7 +198,6 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::interactivelySelectZeroOrMoreNonAutomaticLightThreads()
     def self.interactivelySelectZeroOrMoreNonAutomaticLightThreads()
         lightThreads = NSXLightThreadUtils::lightThreads()
-                            .reject{|lightThread| lightThread["description"].include?('{automatic}') }
         xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
         lightThreads, _ = LucilleCore::selectZeroOrMore("lightThread:", [], lightThreads, xlambda)
         lightThreads
@@ -246,7 +230,7 @@ class NSXLightThreadUtils
             puts "     uuid: #{lightThread["uuid"]}"
             puts "     Daily time commitment: #{lightThread["dailyTimeCommitment"]}"
             puts "     streamuuid: #{lightThread["streamuuid"]}"
-            puts "     Target folder: #{lightThread["targetFolderpath"]}"
+            puts "     Target folderpaths: #{lightThread["folderpaths"].join(", ")}"
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     Live running time: #{NSXRunner::runningTimeOrNull(lightThread["uuid"])}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
@@ -264,7 +248,7 @@ class NSXLightThreadUtils
                 "show timelog", 
                 "update description:", 
                 "update daily time commitment:",
-                "set targetFolderpath",
+                "set folderpaths",
                 "set activationWeekDays",
                 "stream items dive"
             ]
@@ -300,13 +284,10 @@ class NSXLightThreadUtils
                 lightThread["dailyTimeCommitment"] = NSXLightThreadUtils::dailyTimeCommitmentPickerOrNull()
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
-            if operation == "set targetFolderpath" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Has target folder ? :") then
-                    lightThread["targetFolderpath"] = LucilleCore::askQuestionAnswerAsString("Target folderpath: ")
-                else
-                    lightThread["targetFolderpath"] = false
-                end
-                NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
+            if operation == "set folderpaths" then
+                puts "Not implemented yet"
+                LucilleCore::pressEnterToContinue()
+                # NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
             if operation == "set activationWeekDays" then
                 selectedWeekDays, _ = LucilleCore::selectZeroOrMore("activation week days", NSXMiscUtils::weekDays(), [])
@@ -361,52 +342,60 @@ end
 
 class NSXLightThreadsTargetFolderInterface
 
-    # NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjectOrNull(lightThread)
-    def self.lightThreadToItsFolderCatalystObjectOrNull(lightThread)
-        return nil if !lightThread["targetFolderpath"]
-        return nil if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
-        return nil if NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1), 0) >= 100
-        uuid = "#{lightThread["uuid"]}-folder-66aeb2e8-f161-4931-8c55-03d11468fc55"
-        return nil if !KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}").nil?
-        object              = {}
-        object["uuid"]      = uuid
-        object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
-        object["metric"]    = NSXRunner::isRunning?(uuid) ? 2 : NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
-        object["announce"]  = "LightThread: #{lightThread["description"]} ; Folder: #{lightThread["targetFolderpath"]}#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
-        object["commands"]  = ["stop", "start", "dayoff"]
-        object["defaultExpression"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
-        object["isRunning"] = NSXRunner::isRunning?(uuid)
-        object["item-data"] = {}
-        object["item-data"]["lightThread"] = lightThread
-        object["commandsLambdas"] = {
-            "dayoff" => lambda{|object|
-                objectuuid = object["uuid"]
-                lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
-                if NSXRunner::isRunning?(objectuuid) then
-                    puts "You cannot dayoff a running folder. You must stop first."
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                KeyValueStore::set("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}", "off")
-                resetLightThreadCache(lightThreadUUID)
-            },
-            "stop" => lambda{|object|
-                objectuuid = object["uuid"]
-                lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
-                return if !NSXRunner::isRunning?(objectuuid)
-                timespanInSeconds = NSXRunner::stop(objectuuid)
-                NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
-                resetLightThreadCache(lightThreadUUID)
-            },
-            "start" => lambda{|object|
-                objectuuid = object["uuid"]
-                lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
-                return if NSXRunner::isRunning?(objectuuid)
-                NSXRunner::start(objectuuid)
-                resetLightThreadCache(lightThreadUUID)
+    # NSXLightThreadsTargetFolderInterface::lightThreadToItsFolderCatalystObjects(lightThread)
+    def self.lightThreadToItsFolderCatalystObjects(lightThread)
+        return [] if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
+        return [] if NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, 1), 0) >= 100
+        lightThread["folderpaths"]
+            .select{|folderpath|
+                File.exist?(folderpath)
             }
-        }
-        object
+            .select{|folderpath|
+                uuid = Digest::SHA1.hexdigest("#{lightThread["uuid"]}:#{folderpath}:66aeb2e8-f161-4931-8c55-03d11468fc55")
+                KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}").nil?
+            }
+            .map{|folderpath|
+                uuid = Digest::SHA1.hexdigest("#{lightThread["uuid"]}:#{folderpath}:66aeb2e8-f161-4931-8c55-03d11468fc55")
+                object              = {}
+                object["uuid"]      = uuid
+                object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+                object["metric"]    = NSXRunner::isRunning?(uuid) ? 2 : (NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread) + NSXMiscUtils::traceToMetricShift(uuid))
+                object["announce"]  = "LightThread: #{lightThread["description"]} ; Folder: #{folderpath}#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
+                object["commands"]  = ["stop", "start", "dayoff"]
+                object["defaultExpression"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
+                object["isRunning"] = NSXRunner::isRunning?(uuid)
+                object["item-data"] = {}
+                object["item-data"]["lightThread"] = lightThread
+                object["commandsLambdas"] = {
+                    "dayoff" => lambda{|object|
+                        objectuuid = object["uuid"]
+                        lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
+                        if NSXRunner::isRunning?(objectuuid) then
+                            puts "You cannot dayoff a running folder. You must stop first."
+                            LucilleCore::pressEnterToContinue()
+                            return
+                        end
+                        KeyValueStore::set("/Galaxy/DataBank/Catalyst/LightThreads-KVStoreRepository", "A8ED6E22-3427-479B-AC50-012F36BBBC4D:#{uuid}:#{NSXMiscUtils::currentDay()}", "off")
+                        resetLightThreadCache(lightThreadUUID)
+                    },
+                    "stop" => lambda{|object|
+                        objectuuid = object["uuid"]
+                        lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
+                        return if !NSXRunner::isRunning?(objectuuid)
+                        timespanInSeconds = NSXRunner::stop(objectuuid)
+                        NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
+                        resetLightThreadCache(lightThreadUUID)
+                    },
+                    "start" => lambda{|object|
+                        objectuuid = object["uuid"]
+                        lightThreadUUID = object["item-data"]["lightThread"]["uuid"]
+                        return if NSXRunner::isRunning?(objectuuid)
+                        NSXRunner::start(objectuuid)
+                        resetLightThreadCache(lightThreadUUID)
+                    }
+                }
+                object
+            }
     end
 
 end
@@ -503,14 +492,8 @@ class NSXLightThreadMetrics
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
         return 0 if lightThread["dailyTimeCommitment"].nil?
         bestPercentage = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
-        # -----------------------------------------------------
-        magicNumber = 100*1.to_f/(-Math.log((CATALYST_COMMON_TABLE_THROW_METRIC - 0.2).to_f/0.4))
-        # The value magicNumber is chosen so that at 100% we have CATALYST_COMMON_TABLE_THROW_METRIC, the value of (╯°□°）╯︵ ┻━┻
+        magicNumber = 100*1.to_f/(-Math.log((CATALYST_COMMON_TABLE_THROW_METRIC - 0.2).to_f/0.4)) # The value magicNumber is chosen so that at 100% we have CATALYST_COMMON_TABLE_THROW_METRIC, the value of (╯°□°）╯︵ ┻━┻
         metric = 0.2 + 0.4*Math.exp(-bestPercentage.to_f/magicNumber) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
-        # -----------------------------------------------------
-        if lightThread["description"].start_with?('{automatic}') then
-            metric = 0.5*(metric-0.2)+0.2
-        end
         metric
     end
 
