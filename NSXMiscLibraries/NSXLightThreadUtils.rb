@@ -503,16 +503,11 @@ class NSXLightThreadMetrics
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
         return 0 if lightThread["dailyTimeCommitment"].nil?
         bestPercentage = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
-
         # -----------------------------------------------------
-        # 2.5.1 :009 > 0.2 + 0.4*Math.exp(-150.to_f/62) < 0.236
-        # => true 
-        # 2.5.1 :010 > 0.2 + 0.4*Math.exp(-150.to_f/63) < 0.236
-        # => false 
-        # The value 62.5 is chosen so that at 100% we have the value of (╯°□°）╯︵ ┻━┻
-        metric = 0.2 + 0.4*Math.exp(-bestPercentage.to_f/62.5) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+        magicNumber = 100*1.to_f/(-Math.log((CATALYST_COMMON_TABLE_THROW_METRIC - 0.2).to_f/0.4))
+        # The value magicNumber is chosen so that at 100% we have CATALYST_COMMON_TABLE_THROW_METRIC, the value of (╯°□°）╯︵ ┻━┻
+        metric = 0.2 + 0.4*Math.exp(-bestPercentage.to_f/magicNumber) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
         # -----------------------------------------------------
-
         if lightThread["description"].start_with?('{automatic}') then
             metric = 0.5*(metric-0.2)+0.2
         end

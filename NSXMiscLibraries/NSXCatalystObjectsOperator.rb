@@ -8,7 +8,7 @@ class NSXCatalystObjectsOperator
         {
             "uuid"      => "10bd6790", 
             "agentUID"  => nil,
-            "metric"    => 0.2357111317, # https://en.wikipedia.org/wiki/Copeland–Erdős_constant
+            "metric"    => CATALYST_COMMON_TABLE_THROW_METRIC,
             "announce"  => "(╯°□°）╯︵ ┻━┻",
             "commands"  => []
         }
