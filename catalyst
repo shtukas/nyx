@@ -206,8 +206,7 @@ class CatalystUI
 
         differential = ( NSXStreamsUtils::getDifferentialOrNull() || -1 )
         if differential >= 0 then
-            puts "Stream Special Circumstances: differential [ -7: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))} , -1: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))} ] 0: #{NSXStreamsUtils::cardinal()} -> #{NSXStreamsUtils::getDifferentialOrNull()}".red
-            displayObjects = displayObjects.select{|object| object["isRunning"] or (object["agentuid"]=="d2de3f8e-6cf2-46f6-b122-58b60b2a96f1") }
+            puts "Stream Differential [ -7: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))} , -1: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))} ] 0: #{NSXStreamsUtils::cardinal()} -> #{NSXStreamsUtils::getDifferentialOrNull()}".red
         end
 
         standardlp = NSXMiscUtils::getStandardListingPosition()
