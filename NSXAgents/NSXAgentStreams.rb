@@ -35,7 +35,7 @@ class NSXAgentStreams
         NSXStreamsUtils::stopPostProcessing(streamItemUUID)
         return if timespanInSeconds == 0
         lightThreadUUID = object["data"]["light-thread"]["uuid"]
-        puts "Notification: NSXAgentStreams, adding #{timespanInSeconds} seconds to LightThread '#{object["data"]["light-thread"]["description"]}'"
+        #puts "Notification: NSXAgentStreams, adding #{timespanInSeconds} seconds to LightThread '#{object["data"]["light-thread"]["description"]}'"
         NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
     end
 
