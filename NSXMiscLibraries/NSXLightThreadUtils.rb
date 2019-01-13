@@ -34,14 +34,15 @@ class NSXLightThreadUtils
         File.open("#{LIGHT_THREADS_FOLDERPATH}/#{lightThread["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(lightThread)) }
     end
 
-    # NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment)
-    def self.makeNewLightThread(description, dailyTimeCommitment)
+    # NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment, isPriorityThread)
+    def self.makeNewLightThread(description, dailyTimeCommitment, isPriorityThread)
         uuid = SecureRandom.hex(4)
         lightThread = {}
         lightThread["uuid"] = uuid
         lightThread["unixtime"] = Time.new.to_i
         lightThread["description"] = description
         lightThread["dailyTimeCommitment"] = dailyTimeCommitment
+        lightThread["isPriorityThread"] = isPriorityThread
         lightThread["streamuuid"] = SecureRandom.hex
         lightThread["folderpaths"] = []
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
@@ -174,7 +175,7 @@ class NSXLightThreadUtils
         description = lightThread["description"]
         object              = {}
         object["uuid"]      = uuid # The catalyst object has the same uuid as the LightThread
-        object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+        object["agentuid"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
         object["announce"]  = NSXLightThreadUtils::lightThreadToStringForCatlystObject(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop", "dive"] : ["start", "time: <timeInHours>", "dive"]
@@ -182,6 +183,7 @@ class NSXLightThreadUtils
         object["isRunning"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
         object["item-data"]["lightThread"] = lightThread
+        object["item-data"]["percentage"] = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread)
         object 
     end
 
@@ -358,7 +360,7 @@ class NSXLightThreadsTargetFolderInterface
                 uuid = Digest::SHA1.hexdigest("#{lightThread["uuid"]}:#{folderpath}:66aeb2e8-f161-4931-8c55-03d11468fc55")
                 object              = {}
                 object["uuid"]      = uuid
-                object["agentUID"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+                object["agentuid"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
                 object["metric"]    = NSXRunner::isRunning?(uuid) ? 2 : (NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread) + NSXMiscUtils::traceToMetricShift(uuid))
                 object["announce"]  = "LightThread: #{lightThread["description"]} ; Folder: #{folderpath}#{( NSXRunner::isRunning?(uuid) ? " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/3600).round(2)} hours)" : "" )}"
                 object["commands"]  = ["stop", "start", "dayoff"]
@@ -411,7 +413,8 @@ class NSXLightThreadsStreamsInterface
         if lightThread["uuid"]=="cf78ae41" then
             items
         else
-            items.first(1)
+            differential = NSXStreamsUtils::getDifferentialOrNull() || 0
+            items.first([1, differential+1].max)
         end
         items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
         itemsWithoutDuplicate = []
@@ -491,9 +494,8 @@ class NSXLightThreadMetrics
     def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
         return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
         return 0 if lightThread["dailyTimeCommitment"].nil?
-        bestPercentage = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
-        magicNumber = 100*1.to_f/(-Math.log((CATALYST_COMMON_TABLE_THROW_METRIC - 0.2).to_f/0.4)) # The value magicNumber is chosen so that at 100% we have CATALYST_COMMON_TABLE_THROW_METRIC, the value of (╯°□°）╯︵ ┻━┻
-        metric = 0.2 + 0.4*Math.exp(-bestPercentage.to_f/magicNumber) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+        bestPercentage = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread)
+        metric = 0.2 + (lightThread["isPriorityThread"] ? 0.4 : 0.1)*Math.exp(-bestPercentage.to_f/50) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
         metric
     end
 

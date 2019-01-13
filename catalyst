@@ -147,7 +147,7 @@ class CatalystUI
 
     # CatalystUI::objectShouldTriggerOnScreenNotification(object)
     def self.objectShouldTriggerOnScreenNotification(object)
-        object["agentUID"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
+        object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
     # CatalystUI::removeObjectFromCollection(displayObjects, objectuuid)
@@ -168,7 +168,7 @@ class CatalystUI
         return false if object.nil?
         return true if object["announce"].include?("Delivery Status Notification (Failure)")
         if object and
-            object["agentUID"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
             object["data"]["generic-contents-item"]["email-subject"] and
             object["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
             return true
@@ -191,6 +191,8 @@ class CatalystUI
 
         system("clear")
 
+        puts "Stream differential: #{NSXStreamsUtils::getDifferentialOrNull()}".yellow
+
         if displayObjects.size==0 then
             puts "No objects found"
             print "--> "
@@ -201,7 +203,7 @@ class CatalystUI
 
         spotnames = NSXSpots::getSpotNames()
         if spotnames.size>0 then
-            puts "awaiting: #{spotnames.join(", ")}".green
+            puts "Awaiting: #{spotnames.join(", ")}".yellow
         end
 
         standardlp = NSXMiscUtils::getStandardListingPosition()
@@ -309,8 +311,6 @@ Dir.entries("/Galaxy/LightThreads")
         lightThread["folderpaths"] << filepath
         NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
     }
-
-
 
 # Catalyst Interruption Screen Notification.
 

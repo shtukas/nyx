@@ -14,10 +14,10 @@ require 'find'
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
+KeyValueStore::set(repositorylocation or nil, key, value)
+KeyValueStore::getOrNull(repositorylocation or nil, key)
+KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
 # ----------------------------------------------------------------------
@@ -189,10 +189,10 @@ class NSXStreamsUtils
         # First we remove the item from the stream
         items = items.reject{|item| item["uuid"]==streamItemUUID }
         if items.size == 0 then
-            return 1 # There was only one item (or zero) in the stream and we default to 1
+        return 1 # There was only one item (or zero) in the stream and we default to 1
         end 
         if items.size < n then
-            return items.last["ordinal"] + 1
+        return items.last["ordinal"] + 1
         end
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end
@@ -219,11 +219,10 @@ class NSXStreamsUtils
         end
         if items.first["ordinal"] > 100 then
             items.each{|item|
-                item["ordinal"] = item["ordinal"] - 100
-                NSXStreamsUtils::sendItemToDisk(item)
+            item["ordinal"] = item["ordinal"] - 100
+            NSXStreamsUtils::sendItemToDisk(item)
             }
         end
-     
     end
 
     # NSXStreamsUtils::sendOrphanStreamItemsToInbox()
@@ -235,6 +234,42 @@ class NSXStreamsUtils
             item["ordinal"] = NSXStreamsUtils::getNextOrdinalForStream(catalystInboxStreamUUID)
             NSXStreamsUtils::sendItemToDisk(item)
         }
+    end
+
+    # -----------------------------------------------------------------
+    # Cardinal Managament
+
+    # NSXStreamsUtils::cardinal()
+    def self.cardinal()
+        NSXStreamsUtils::allStreamsItemsEnumerator().to_a.size
+    end
+
+    # NSXStreamsUtils::recordCardinalForToday()
+    def self.recordCardinalForToday()
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "c1b957f8-a8d0-4611-8a9b-bb08a9f4ce75:#{NSXMiscUtils::currentDay()}", NSXStreamsUtils::cardinal())
+    end
+
+    # NSXStreamsUtils::getCardinalForDateOrNull(date)
+    def self.getCardinalForDateOrNull(date)
+        value = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "c1b957f8-a8d0-4611-8a9b-bb08a9f4ce75:#{date}")
+        return nil if value.nil?
+        value.to_i
+    end
+
+    # NSXStreamsUtils::getLowestOfTwoReferenceValuesOrNull()
+    def self.getLowestOfTwoReferenceValuesOrNull()
+        maybeValue1 = NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))
+        maybeValue2 = NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))
+        return nil if (maybeValue1.nil? and maybeValue2.nil?)
+        [maybeValue1, maybeValue2].compact.min
+    end
+
+    # NSXStreamsUtils::getDifferentialOrNull()
+    def self.getDifferentialOrNull()
+        NSXStreamsUtils::recordCardinalForToday()
+        refvalue = NSXStreamsUtils::getLowestOfTwoReferenceValuesOrNull()
+        return nil if refvalue.nil?
+        NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::currentDay()) - refvalue
     end
 
     # -----------------------------------------------------------------
@@ -283,7 +318,7 @@ class NSXStreamsUtils
         }
         object = {}
         object["uuid"] = item["uuid"][0,8]      
-        object["agentUID"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
+        object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
@@ -387,8 +422,8 @@ class NSXStreamsUtils
         return if lightThread.nil?
         streamuuid = lightThread["streamuuid"]
         ordinal = NSXMiscUtils::nonNullValueOrDefaultValue(
-            NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
-            NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
+        NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
+        NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
         [streamuuid, ordinal]
     end
 end

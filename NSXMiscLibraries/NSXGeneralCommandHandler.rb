@@ -120,7 +120,7 @@ class NSXGeneralCommandHandler
                 "email-sync",
                 "speed"
             ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option:", options)
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
             if option == "new Stream Item" then
                 NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
@@ -132,19 +132,20 @@ class NSXGeneralCommandHandler
             if option == "new LightThread" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 dailyTimeCommitment = NSXLightThreadUtils::dailyTimeCommitmentPickerOrNull()
-                lightThread = NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment)
+                isPriorityThread = LucilleCore::askQuestionAnswerAsBoolean("Is priority ?")
+                lightThread = NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment, isPriorityThread)
                 puts JSON.pretty_generate(lightThread)
             end
             if option == "LightThreads" then
                 NSXLightThreadUtils::lightThreadsDive()
             end
             if option == "spots:activate" then
-                selected, _ = LucilleCore::selectZeroOrMore("spotname:", [], NSXSpots::getSpotNames())
+                selected, _ = LucilleCore::selectZeroOrMore("spotname", [], NSXSpots::getSpotNames())
                 selected.each{|spotname| NSXSpots::unblockSpotName(spotname) }
             end
             if option == "spots:dive" then
                 spotnames = NSXSpots::getSpotNames()
-                spotname = LucilleCore::selectEntityFromListOfEntitiesOrNull("spotname:", spotnames)
+                spotname = LucilleCore::selectEntityFromListOfEntitiesOrNull("spotname", spotnames)
                 return if spotname.nil?
                 objectuuids = NSXSpots::getObjectUUIDsForSpotName(spotname)
                 catalystObjects = NSXCatalystObjectsOperator::objectUUIDsToCatalystObjects(objectuuids)
@@ -212,10 +213,10 @@ class NSXGeneralCommandHandler
             return
         end
         
-        if object["agentUID"] then
+        if object["agentuid"] then
             command.split(";").map{|t| t.strip }
                 .each{|command|
-                    NSXBob::getAgentDataByAgentUUIDOrNull(object["agentUID"])["object-command-processor"].call(object, command)
+                    NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])["object-command-processor"].call(object, command)
                 }
         end
     end

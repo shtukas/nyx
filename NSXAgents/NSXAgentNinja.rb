@@ -46,7 +46,7 @@ class NSXAgentNinja
         return [] if $ninja_packet.nil?
         object = {
             "uuid"      => "96287511",
-            "agentUID"  => self.agentuuid(),
+            "agentuid"  => self.agentuuid(),
             "metric"    => 0.19 + NSXAgentNinja::impactMetricCoefficient()*0.6*$ninja_packet["metric"], # The metric given by ninja is between 0 and 1
             "announce"  => "ninja: folderpath: #{$ninja_packet["folderpath"]}",
             "commands"  => [],

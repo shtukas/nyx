@@ -31,7 +31,7 @@ class NSXAgentBabyNights
             object =
                 {
                     "uuid"      => "4b9bcf0a",
-                    "agentUID"  => self.agentuuid(),
+                    "agentuid"  => self.agentuuid(),
                     "metric"    => 0.97,
                     "announce"  => "Baby Nights",
                     "commands"  => [],

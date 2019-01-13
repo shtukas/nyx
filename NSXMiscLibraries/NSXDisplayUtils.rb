@@ -110,7 +110,7 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
-        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
+        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
         return if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     end
