@@ -269,6 +269,24 @@ class NSXStreamsUtils
     end
 
     # -----------------------------------------------------------------
+    # Tail management
+
+    # NSXStreamsUtils::get20StreamItemsCatalystObjects(metric)
+    def self.get20StreamItemsCatalystObjects(metric)
+        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull("be9243ed")
+        items = KeyValueStore::getOrNull(nil, "8a0790c9-4501-4132-84c5-c772898e5183")
+        if items then
+            items = JSON.parse(items)
+        else
+            items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
+            items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
+            items = items.sample(20)    
+            KeyValueStore::set(nil, "8a0790c9-4501-4132-84c5-c772898e5183", JSON.generate(items))        
+        end
+        items.map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, (metric+0.2).to_f/2, item) }
+    end
+
+    # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil or lightThread, item)

@@ -49,18 +49,18 @@ class NSXCatalystObjectsOperator
         else
             if orderedObjectsRequired.size>0 and orderedObjectsTail.size>0 then
                 metric = (orderedObjectsRequired.last["metric"] + orderedObjectsTail.first["metric"]).to_f/2
-                return orderedObjectsRequired + [ NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(metric) ] + orderedObjectsTail
+                return orderedObjectsRequired + [ NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(metric) ] + NSXStreamsUtils::get20StreamItemsCatalystObjects( (metric+0.2).to_f/2 )
             end
             if orderedObjectsRequired.size>0 and orderedObjectsTail.size==0 then
                 metric = orderedObjectsRequired.last["metric"] - 0.001
-                return orderedObjectsRequired + [NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(metric)]
+                return orderedObjectsRequired + [NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(metric)] + NSXStreamsUtils::get20StreamItemsCatalystObjects( (metric+0.2).to_f/2 )
             end
             if orderedObjectsRequired.size==0 and orderedObjectsTail.size>0 then
                 metric = orderedObjectsTail.first["metric"] + 0.001
-                return [NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(metric)] + orderedObjectsTail
+                return [NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(metric)] + NSXStreamsUtils::get20StreamItemsCatalystObjects( (metric+0.2).to_f/2 )
             end
             if orderedObjectsRequired.size==0 and orderedObjectsTail.size==0 then
-                return [NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(0.5)]
+                return [NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(0.5)] + NSXStreamsUtils::get20StreamItemsCatalystObjects(0.4)
             end
         end
     end

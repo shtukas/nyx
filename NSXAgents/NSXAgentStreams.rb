@@ -58,6 +58,7 @@ class NSXAgentStreams
         end
         if command == "done" then
             NSXAgentStreams::doneObject(object)
+            KeyValueStore::destroy(nil, "8a0790c9-4501-4132-84c5-c772898e5183")
         end
         if command == "time:" then
             timespanInMinutes = LucilleCore::askQuestionAnswerAsString("Time in minutes: ").to_f
