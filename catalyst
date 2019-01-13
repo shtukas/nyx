@@ -191,7 +191,10 @@ class CatalystUI
 
         system("clear")
 
-        puts "Stream differential: #{NSXStreamsUtils::getDifferentialOrNull()}".yellow
+        spotnames = NSXSpots::getSpotNames()
+        if spotnames.size>0 then
+            puts "Awaiting: #{spotnames.join(", ")}".yellow
+        end
 
         if displayObjects.size==0 then
             puts "No objects found"
@@ -201,16 +204,17 @@ class CatalystUI
             return
         end
 
-        spotnames = NSXSpots::getSpotNames()
-        if spotnames.size>0 then
-            puts "Awaiting: #{spotnames.join(", ")}".yellow
+        differential = ( NSXStreamsUtils::getDifferentialOrNull() || -1 )
+        if differential >= 0 then
+            puts "Stream Special Circumstances: differential [ -7: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))} , -1: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))} ] 0: #{NSXStreamsUtils::cardinal()} -> #{NSXStreamsUtils::getDifferentialOrNull()}".red
+            displayObjects = displayObjects.select{|object| object["isRunning"] or (object["agentuid"]=="d2de3f8e-6cf2-46f6-b122-58b60b2a96f1") }
         end
 
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
         displayObjects
-            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), NSXMiscUtils::screenHeight()-5].max)
+            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), NSXMiscUtils::screenHeight()-7].max)
             .each_with_index{|object, indx|
                 position = indx+1
                 if position == standardlp then

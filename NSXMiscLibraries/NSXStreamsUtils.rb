@@ -241,12 +241,9 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::cardinal()
     def self.cardinal()
-        NSXStreamsUtils::allStreamsItemsEnumerator().to_a.size
-    end
-
-    # NSXStreamsUtils::recordCardinalForToday()
-    def self.recordCardinalForToday()
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "c1b957f8-a8d0-4611-8a9b-bb08a9f4ce75:#{NSXMiscUtils::currentDay()}", NSXStreamsUtils::cardinal())
+        cardinal = NSXStreamsUtils::allStreamsItemsEnumerator().to_a.size
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "c1b957f8-a8d0-4611-8a9b-bb08a9f4ce75:#{NSXMiscUtils::currentDay()}", cardinal)
+        cardinal
     end
 
     # NSXStreamsUtils::getCardinalForDateOrNull(date)
@@ -266,10 +263,9 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::getDifferentialOrNull()
     def self.getDifferentialOrNull()
-        NSXStreamsUtils::recordCardinalForToday()
         refvalue = NSXStreamsUtils::getLowestOfTwoReferenceValuesOrNull()
         return nil if refvalue.nil?
-        NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::currentDay()) - refvalue
+        NSXStreamsUtils::cardinal() - refvalue
     end
 
     # -----------------------------------------------------------------

@@ -413,8 +413,8 @@ class NSXLightThreadsStreamsInterface
         if lightThread["uuid"]=="cf78ae41" then
             items
         else
-            differential = NSXStreamsUtils::getDifferentialOrNull() || 0
-            items.first([1, (differential*2)+1].max)
+            differential = NSXStreamsUtils::getDifferentialOrNull()
+            items.first([1, ( differential and differential > -1 ) ? 6 : 0 ].max)
         end
         items2 = items.select{|item| NSXRunner::isRunning?(item["uuid"]) }
         itemsWithoutDuplicate = []
