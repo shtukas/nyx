@@ -273,15 +273,27 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::get20StreamItemsCatalystObjects(metric)
     def self.get20StreamItemsCatalystObjects(metric)
-        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull("be9243ed")
-        items = KeyValueStore::getOrNull(nil, "8a0790c9-4501-4132-84c5-c772898e5183")
-        if items then
-            items = JSON.parse(items)
-        else
+        get20ItemsLambda = lambda{|lightThread|
             items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
             items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
             items = items.sample(20)    
-            KeyValueStore::set(nil, "8a0790c9-4501-4132-84c5-c772898e5183", JSON.generate(items))        
+            KeyValueStore::set(nil, "8a0790c9-4501-4132-84c5-c772898e5183:#{NSXMiscUtils::currentHour()}", JSON.generate(items))
+            items  
+        }
+        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull("be9243ed")
+        items = KeyValueStore::getOrNull(nil, "8a0790c9-4501-4132-84c5-c772898e5183:#{NSXMiscUtils::currentHour()}")
+        if items then
+            begin
+                items = JSON.parse(items)
+            rescue
+                puts "error: 741f5491-c9a6-40aa-a0db-6c49458a3efc"
+                puts items
+                LucilleCore::pressEnterToContinue()
+                KeyValueStore::destroy(nil, "8a0790c9-4501-4132-84c5-c772898e5183:#{NSXMiscUtils::currentHour()}") 
+                items = []
+            end
+        else
+            items = get20ItemsLambda.call(lightThread)        
         end
         items.map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, (metric+0.2).to_f/2, item) }
     end
