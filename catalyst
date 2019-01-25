@@ -272,6 +272,17 @@ class CatalystUI
             return
         end
 
+        if command.start_with?("::") then
+            i = command[2,99].strip.to_i
+            Thread.new {
+                displayObjects.first(i).each{|object|
+                    NSXGeneralCommandHandler::processCommand(object, "done")
+                }
+            }
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.drop(i))
+            return
+        end 
+
         if command.start_with?("'") then
             position = command[1,9].strip.to_i
             return if position==0
