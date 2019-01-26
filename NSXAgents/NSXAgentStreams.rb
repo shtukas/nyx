@@ -69,6 +69,7 @@ class NSXAgentStreams
             NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
         end
         if command == "recast" then
+            NSXAgentStreams::stopObject(object)
             NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
         end
         if command == "push" then
