@@ -111,10 +111,10 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
+                "LightThreads",
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "new LightThread",
-                "LightThreads",
                 "spots:activate",
                 "spots:dive",
                 "email-sync",
