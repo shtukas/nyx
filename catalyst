@@ -155,8 +155,8 @@ class CatalystUI
         displayObjects.reject{|object| object["uuid"]==objectuuid }
     end
 
-    # CatalystUI::objectIsNS0928Email(object)
-    def self.objectIsNS0928Email(object)
+    # CatalystUI::objectIsEmailSpecialCircumstances1(object)
+    def self.objectIsEmailSpecialCircumstances1(object)
         return false if object.nil?
         return true if object["announce"].include?("notifications@github.com")
         return true if object["announce"].include?("noreply@github.com")
@@ -250,7 +250,7 @@ class CatalystUI
             return
         end
 
-        if CatalystUI::objectIsNS0928Email(focusobject) then
+        if CatalystUI::objectIsEmailSpecialCircumstances1(focusobject) then
             CatalystUI::specialNS0928EmailDisplay(focusobject)
             Thread.new {
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
@@ -265,19 +265,15 @@ class CatalystUI
         command = STDIN.gets().strip
 
         if command == "done" then
-            Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            }
+            NSXGeneralCommandHandler::processCommand(focusobject, "done")
             CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
             return
         end
 
         if command.start_with?("::") then
             i = command[2,99].strip.to_i
-            Thread.new {
-                displayObjects.first(i).each{|object|
-                    NSXGeneralCommandHandler::processCommand(object, "done")
-                }
+            displayObjects.first(i).each{|object|
+                NSXGeneralCommandHandler::processCommand(object, "done")
             }
             CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.drop(i))
             return
