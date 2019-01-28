@@ -490,9 +490,9 @@ class NSXLightThreadMetrics
         numbers.min
     end
 
-    # NSXLightThreadMetrics::lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
-    def self.lightThread2Metric(lightThread, simulationTimeInSeconds = 0)
-        return 2 if (NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) and simulationTimeInSeconds==0)
+    # NSXLightThreadMetrics::lightThread2Metric(lightThread)
+    def self.lightThread2Metric(lightThread)
+        return 2 if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         return 0 if lightThread["dailyTimeCommitment"].nil?
         bestPercentage = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread)
         metric = 0.2 + (lightThread["isPriorityThread"] ? 0.4 : 0.1)*Math.exp(-bestPercentage.to_f/50) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
