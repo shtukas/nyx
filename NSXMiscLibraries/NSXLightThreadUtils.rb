@@ -467,9 +467,9 @@ class NSXLightThreadMetrics
         100 * (timeDoneLiveInHours.to_f / timeDoneExpectationInHours)
     end
 
-    # NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
-    def self.lightThreadBestPercentageOrNull(lightThread, simulationTimeInSeconds = 0)
-        bestPercentage = (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx, simulationTimeInSeconds), 0) }.max
+    # NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread)
+    def self.lightThreadBestPercentageOrNull(lightThread)
+        bestPercentage = (1..7).map{|indx| NSXMiscUtils::nonNullValueOrDefaultValue(NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, indx), 0) }.max
         bestPercentage
     end
 
