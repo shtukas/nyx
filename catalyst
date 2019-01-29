@@ -163,10 +163,9 @@ class CatalystUI
         false
     end
 
-    # CatalystUI::objectIsAutoDone(object)
-    def self.objectIsAutoDone(object)
+    # CatalystUI::objectIsDoneOnEmptyCommand(object)
+    def self.objectIsDoneOnEmptyCommand(object)
         return false if object.nil?
-        return true if object["announce"].include?("Delivery Status Notification (Failure)")
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
             object["data"]["generic-contents-item"] and
@@ -179,6 +178,11 @@ class CatalystUI
             object["data"]["generic-contents-item"] and
             object["data"]["generic-contents-item"]["email-subject"] and
             object["data"]["generic-contents-item"]["email-subject"].start_with?("Cancelled event: Editorial Tools Demo") then
+            return true
+        end
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["announce"].include?('notifications@github.com') then
             return true
         end
         false
@@ -242,14 +246,6 @@ class CatalystUI
         # -----------------------------------------------------------------------------------
         # Special Processing
 
-        if CatalystUI::objectIsAutoDone(focusobject) then
-            Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            }
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
-            return
-        end
-
         if CatalystUI::objectIsEmailSpecialCircumstances1(focusobject) then
             CatalystUI::specialNS0928EmailDisplay(focusobject)
             Thread.new {
@@ -264,20 +260,15 @@ class CatalystUI
         print "--> "
         command = STDIN.gets().strip
 
+        if command == "" and CatalystUI::objectIsDoneOnEmptyCommand(focusobject) then
+            NSXGeneralCommandHandler::processCommand(focusobject, "done")            
+        end
+
         if command == "done" then
             NSXGeneralCommandHandler::processCommand(focusobject, "done")
             CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
             return
         end
-
-        if command.start_with?("::") then
-            i = command[2,99].strip.to_i
-            displayObjects.first(i).each{|object|
-                NSXGeneralCommandHandler::processCommand(object, "done")
-            }
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.drop(i))
-            return
-        end 
 
         if command.start_with?("'") then
             position = command[1,9].strip.to_i
