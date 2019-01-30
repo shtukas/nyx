@@ -193,6 +193,8 @@ class NSXLightThreadUtils
     # NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
     def self.interactivelySelectLightThreadOrNull()
         lightThreads = NSXLightThreadUtils::lightThreads()
+                        .sort{|lt1, lt2| NSXLightThreadMetrics::lightThread2Metric(lt1)<=>NSXLightThreadMetrics::lightThread2Metric(lt2) }
+                        .reverse
         xlambda = lambda{|lightThread| NSXLightThreadUtils::lightThreadToString(lightThread) }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("lightThread:", lightThreads, xlambda)
     end
