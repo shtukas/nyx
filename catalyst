@@ -129,6 +129,7 @@ class CatalystUI
             puts "-> processing auto done".green
             NSXGeneralCommandHandler::processCommand(displayObjects.first, "done")
             displayObjects = displayObjects.drop(1)
+            return
         end
         
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
