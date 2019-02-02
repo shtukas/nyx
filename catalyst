@@ -96,14 +96,6 @@ end
 
 class CatalystUI
 
-    # CatalystUI::FromEmailPartDecodedToShouldDisplay(contents)
-    def self.FromEmailPartDecodedToShouldDisplay(contents)
-        return false if contents.include?("Seen on [PROD]")
-        return false if contents.include?("PRbuilds results")
-        return false if (contents.include?("Merged") and contents.include?("into master."))
-        true
-    end
-
     # CatalystUI::stringOrFirstString(content_type)
     def self.stringOrFirstString(content_type)
         if content_type.class.to_s == "String" then
@@ -176,12 +168,14 @@ class CatalystUI
             .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), verticalSpaceLeft].max)
             .each_with_index{|object, indx|
                 position = indx+1
-                next if verticalSpaceLeft < NSXDisplayUtils::verticalSize(object, position == standardlp)
                 if position == standardlp then
                     focusobject = object
                 end 
-                puts NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
-                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(object, position == standardlp)
+                displayStr = NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
+                verticalSize = NSXDisplayUtils::verticalSize(displayStr)
+                next if (position>1 and verticalSize>verticalSpaceLeft)
+                puts displayStr
+                verticalSpaceLeft = verticalSpaceLeft - verticalSize
             }
 
         if focusobject.nil? and (standardlp>1) then

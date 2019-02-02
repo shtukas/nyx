@@ -54,8 +54,8 @@ class NSXDisplayUtils
         part2.strip
     end
 
-    # NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object, position, standardlp)
-    def self.objectToMultipleLinesForCatalystListings(object, position, standardlp)
+    # NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object)
+    def self.objectToMultipleLinesForCatalystListings(object)
         addLeftPadding = lambda{|string, padding|
             string
                 .lines
@@ -73,28 +73,17 @@ class NSXDisplayUtils
         if position == standardlp then
             if object['announce'].lines.to_a.size > 1 then
                 [
-                    NSXDisplayUtils::positionPrefix(standardlp, position),
-                    " ",
-                    NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object, position, standardlp),
-                    "\n",
+                    NSXDisplayUtils::positionPrefix(standardlp, position) + " " + NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object) + "\n",
                     "               " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" )
-                ].join("")
+                ].join()
             else
                 [
-                   NSXDisplayUtils::positionPrefix(standardlp, position),
-                   " ",
-                   NSXDisplayUtils::objectToOneLineForCatalystDisplay(object),
-                   "\n",
-                   (NSXMiscUtils::objectIsEmailSpecialCircumstances1(object) ? NSXMiscUtils::emailSpecialCircumstances1ToString(object)+"\n" : ""),
+                   NSXDisplayUtils::positionPrefix(standardlp, position) + " " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) + "\n",
                    "                " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" )
-                ].join("")
+                ].join()
             end
         else
-            [
-               NSXDisplayUtils::positionPrefix(standardlp, position),
-               " ",
-               NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
-            ].join("")
+            NSXDisplayUtils::positionPrefix(standardlp, position) + " " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
         end
     end
 
@@ -116,9 +105,9 @@ class NSXDisplayUtils
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     end
 
-    # NSXDisplayUtils::verticalSize(object, isFirstObject)
-    def self.verticalSize(object, isFocusObject)
-        isFocusObject ? object["announce"].lines.map{|line| ((15+line.size).to_f/NSXMiscUtils::screenWidth()).ceil }.inject(0, :+) + 1 : 1
+    # NSXDisplayUtils::verticalSize(displayStr)
+    def self.verticalSize(displayStr)
+        displayStr.lines.map{|line| (line.size.to_f/NSXMiscUtils::screenWidth()).ceil }.inject(0, :+)
     end
 
 end

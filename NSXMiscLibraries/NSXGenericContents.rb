@@ -207,6 +207,30 @@ class NSXGenericContents
         DateTime.parse(mailObject.date.to_s).to_time.utc.iso8601
     end
 
+    # NSXGenericContents::transformEmailContents(contents)
+    def self.transformEmailContents(contents)
+        contents = contents.lines.select{|line| line.strip.size>0 }.take_while{|line| !line.start_with?('This e-mail and all attachments are confidential') }.join("").strip
+        return "[ delete on sight; condition 58f3eb60 ]" if contents.lines.to_a.size==0
+        return "[ delete on sight; condition 58f3eb60 ]" if contents.lines.first.include?("PRbuilds results:")
+        return "[ delete on sight; condition 58f3eb60 ]" if contents.lines.first.include?("Seen on [PROD]")
+        contents
+    end
+
+    # NSXGenericContents::emailToString(emailFilepath)
+    def self.emailToString(emailFilepath)
+        outputAsArray = []
+        filepath = emailFilepath
+        outputAsArray << "#{filepath}"
+        mail = Mail.read(filepath)
+        CatalystUI::displayableEmailParts(mail).each{|part|
+            contents = part.decoded
+            outputAsArray <<  "-- begin -----------------------------------------------"
+            outputAsArray <<  NSXGenericContents::transformEmailContents(contents).lines.select{|line| line.strip.size>0 }.take_while{|line| !line.start_with?('This e-mail and all attachments are confidential') }.join("").strip
+            outputAsArray <<  "--- end ------------------------------------------------"
+        }
+        outputAsArray.join("\n")
+    end
+
     # NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
     def self.filenameToCatalystObjectAnnounce(genericContentFilename)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
@@ -222,7 +246,11 @@ class NSXGenericContents
         end
         if genericContentItem["type"]=="email" then
             emailFilename = genericContentItem["email-filename"]
-            return "email (#{NSXGenericContents::emailFilenameToDateTime(emailFilename)}, #{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
+            emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
+            output = []
+            output << "email (#{NSXGenericContents::emailFilenameToDateTime(emailFilename)}, #{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
+            output << NSXGenericContents::emailToString(emailFilepath)
+            return output.join("\n")
         end
         if genericContentItem["type"]=="location" then
             return "location: #{genericContentItem["parent-foldername"]}"

@@ -315,32 +315,6 @@ class NSXMiscUtils
         Digest::SHA1.hexdigest("66b44d63-0168-4217-9712-2b84ad3e41cb:#{(Time.new.to_f/n).to_i.to_s}")
     end
 
-    # NSXMiscUtils::objectIsEmailSpecialCircumstances1(object)
-    def self.objectIsEmailSpecialCircumstances1(object)
-        return false if object.nil?
-        return true if object["announce"].include?("notifications@github.com")
-        return true if object["announce"].include?("noreply@github.com")
-        false
-    end
-
-    # NSXMiscUtils::emailSpecialCircumstances1ToString(object)
-    def self.emailSpecialCircumstances1ToString(object)
-        outputAsArray = []
-        emailFilename = object["data"]["generic-contents-item"]["email-filename"]
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
-        mail = Mail.read(filepath)
-        CatalystUI::displayableEmailParts(mail).each{|part|
-            contents = part.decoded
-            next if !CatalystUI::FromEmailPartDecodedToShouldDisplay(contents)
-            outputAsArray << ""
-            outputAsArray <<  "-- begin -----------------------------------------------"
-            outputAsArray <<  contents
-            outputAsArray <<  "--- end ------------------------------------------------"
-            outputAsArray <<  ""
-        }
-        outputAsArray.join("\n")
-    end
-
     # NSXMiscUtils::objectIsDoneOnEmptyCommand(object)
     def self.objectIsDoneOnEmptyCommand(object)
         return false if object.nil?
