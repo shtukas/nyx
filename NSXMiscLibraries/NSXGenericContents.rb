@@ -191,11 +191,7 @@ class NSXGenericContents
     def self.emailFilenameToFrom(filename)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
         return "Error cbfcecae: unknown file" if filepath.nil?
-        mailObject = Mail.read(filepath)
-        address = mailObject.from
-        if address.class.to_s == "Mail::AddressContainer" then
-            return address.first
-        end
+        IO.read(filepath).lines.select{|line| line.start_with?("From:") }.each{|line| return line.strip }
         "Error 42b5f47a: #{address.class.to_s}"
     end
 
