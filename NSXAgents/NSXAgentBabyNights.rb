@@ -27,15 +27,15 @@ class NSXAgentBabyNights
 
     def self.getObjects()
         objects = []
-        if NSXData::getValueAsStringOrNull(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}").nil? and Time.new.hour>=6 then
+        if NSXData::getValueAsStringOrNull(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc478:#{Time.now.utc.iso8601[0,10]}").nil? then
             object =
                 {
                     "uuid"      => "4b9bcf0a",
                     "agentuid"  => self.agentuuid(),
                     "metric"    => 0.97,
-                    "announce"  => "Baby Nights",
+                    "announce"  => "👶 Mining",
                     "commands"  => [],
-                    "defaultExpression" => "print"
+                    "defaultExpression" => "update"
                 }
             objects << object
         end
@@ -43,39 +43,50 @@ class NSXAgentBabyNights
     end
 
     def self.processObjectAndCommand(object, command)
-        if command == "print" then
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Pascal", "Tracy", "Exception:"])
+        if command == "update" then
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["Update Records", "Exception:"])
             if operation == "Exception:" then
                 exception = LucilleCore::askQuestionAnswerAsString("Exception: ")
-                puts "👶 Nights Exception: #{exception}"
+                puts "👶 Mining Exception: #{exception}"
                 LucilleCore::pressEnterToContinue()
-                NSXData::setWritableValue(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
+                NSXData::setWritableValue(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc478:#{Time.now.utc.iso8601[0,10]}", "done")
                 return
             end
-            xname = operation.downcase
-            data = JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json"))
-            data[xname] = data[xname]+1
-            puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
-            if data["pascal"] >= 10 and data["tracy"] >= 10 then
-                data["pascal"] = data["pascal"] - 10 
-                data["tracy"] = data["tracy"] - 10 
-                puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+            if operation == "Update Records" then
+                data = JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json"))
+                xname = LucilleCore::selectEntityFromListOfEntitiesOrNull("Dropping (yesterday morning)", ["pascal", "tracy", "not applicable"])
+                if xname!="not applicable" then
+                    data[xname] = data[xname]+0.3
+                end
+                xname = LucilleCore::selectEntityFromListOfEntitiesOrNull("Picking up (yesterday afternoon)", ["pascal", "tracy", "not applicable"])
+                if xname!="not applicable" then
+                    data[xname] = data[xname]+0.55
+                end
+                xname = LucilleCore::selectEntityFromListOfEntitiesOrNull("Night", ["pascal", "tracy"])
+                data[xname] = data[xname]+1
+                puts "👶 Mining [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+                if data["pascal"] >= 10 and data["tracy"] >= 10 then
+                    data["pascal"] = data["pascal"] - 10 
+                    data["tracy"] = data["tracy"] - 10 
+                    puts "👶 Mining [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+                end
+                File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
+                LucilleCore::pressEnterToContinue()
+                NSXData::setWritableValue(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc478:#{Time.now.utc.iso8601[0,10]}", "done")
             end
-            File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
-            LucilleCore::pressEnterToContinue()
-            NSXData::setWritableValue(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc479:#{Time.now.utc.iso8601[0,10]}", "done")
+
         end
     end
 
     def self.interface()
         puts "Welcome to BabyNights interface"
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["Bonus: Pascal -> Tracy"])
-        if operation == "Bonus: Pascal -> Tracy" then
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["Bonus"])
+        if operation == "Bonus" then
+            xname = LucilleCore::selectEntityFromListOfEntitiesOrNull("name", ["pascal", "tracy"])
             amount = LucilleCore::askQuestionAnswerAsString("Amount?: ").to_f
             data = JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json"))
-            data["pascal"] = data["pascal"] - amount
-            data["tracy"] = data["tracy"] + amount 
-            puts "👶 Nights [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+            data[xname] = data[xname] + amount
+            puts "👶 Mining [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
             File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
         end
