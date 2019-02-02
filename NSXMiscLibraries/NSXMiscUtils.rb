@@ -90,6 +90,7 @@ class NSXMiscUtils
         `/usr/bin/env tput lines`.to_i
     end
 
+    # NSXMiscUtils::screenWidth()
     def self.screenWidth()
         `/usr/bin/env tput cols`.to_i
     end
@@ -312,6 +313,72 @@ class NSXMiscUtils
     # NSXMiscUtils::emitNewValueEveryNSeconds(n)
     def self.emitNewValueEveryNSeconds(n)
         Digest::SHA1.hexdigest("66b44d63-0168-4217-9712-2b84ad3e41cb:#{(Time.new.to_f/n).to_i.to_s}")
+    end
+
+    # NSXMiscUtils::objectIsEmailSpecialCircumstances1(object)
+    def self.objectIsEmailSpecialCircumstances1(object)
+        return false if object.nil?
+        return true if object["announce"].include?("notifications@github.com")
+        return true if object["announce"].include?("noreply@github.com")
+        false
+    end
+
+    # NSXMiscUtils::emailSpecialCircumstances1ToString(object)
+    def self.emailSpecialCircumstances1ToString(object)
+        outputAsArray = []
+        emailFilename = object["data"]["generic-contents-item"]["email-filename"]
+        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
+        mail = Mail.read(filepath)
+        CatalystUI::displayableEmailParts(mail).each{|part|
+            contents = part.decoded
+            next if !CatalystUI::FromEmailPartDecodedToShouldDisplay(contents)
+            outputAsArray << ""
+            outputAsArray <<  "-- begin -----------------------------------------------"
+            outputAsArray <<  contents
+            outputAsArray <<  "--- end ------------------------------------------------"
+            outputAsArray <<  ""
+        }
+        outputAsArray.join("\n")
+    end
+
+    # NSXMiscUtils::objectIsDoneOnEmptyCommand(object)
+    def self.objectIsDoneOnEmptyCommand(object)
+        return false if object.nil?
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["data"]["generic-contents-item"] and
+            object["data"]["generic-contents-item"]["email-subject"] and
+            object["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
+            return true
+        end
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["data"]["generic-contents-item"] and
+            object["data"]["generic-contents-item"]["email-subject"] and
+            object["data"]["generic-contents-item"]["email-subject"].start_with?("Tentatively Accepted:") then
+            return true
+        end
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["announce"].include?('notifications@github.com') then
+            return true
+        end
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["announce"].include?('no-reply@sns.amazonaws.com') and object["announce"].include?('frontend-PROD-security-groups-update') then
+            return true
+        end
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["announce"].include?('Fastly Maintenance - Capacity Expansion') then
+            return true
+        end
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["announce"].include?('Fastly Incident - Traffic rerouted') then
+            return true
+        end
+        false
     end
 
 end

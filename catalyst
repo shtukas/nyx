@@ -122,29 +122,6 @@ class CatalystUI
         end
     end
 
-    # CatalystUI::specialNS0928EmailDisplay(object)
-    def self.specialNS0928EmailDisplay(object)
-        system("clear")
-        puts object["announce"]
-        emailFilename = object["data"]["generic-contents-item"]["email-filename"]
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
-        mail = Mail.read(filepath)
-        CatalystUI::displayableEmailParts(mail).each{|part|
-            contents = part.decoded
-            next if !CatalystUI::FromEmailPartDecodedToShouldDisplay(contents)
-            puts ""
-            puts "-- begin -----------------------------------------------"
-            puts contents
-            puts "--- end ------------------------------------------------"
-            puts ""
-            print "Type 'open' to open the email or nothing to discard: "
-            answer = STDIN.gets().strip
-            if answer == "open" then
-                NSXGeneralCommandHandler::processCommand(object, "open")
-            end
-        }
-    end
-
     # CatalystUI::objectShouldTriggerOnScreenNotification(object)
     def self.objectShouldTriggerOnScreenNotification(object)
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
@@ -153,49 +130,6 @@ class CatalystUI
     # CatalystUI::removeObjectFromCollection(displayObjects, objectuuid)
     def self.removeObjectFromCollection(displayObjects, objectuuid)
         displayObjects.reject{|object| object["uuid"]==objectuuid }
-    end
-
-    # CatalystUI::objectIsEmailSpecialCircumstances1(object)
-    def self.objectIsEmailSpecialCircumstances1(object)
-        return false if object.nil?
-        return true if object["announce"].include?("notifications@github.com")
-        return true if object["announce"].include?("noreply@github.com")
-        false
-    end
-
-    # CatalystUI::objectIsDoneOnEmptyCommand(object)
-    def self.objectIsDoneOnEmptyCommand(object)
-        return false if object.nil?
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
-            return true
-        end
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].start_with?("Cancelled event: Editorial Tools Demo") then
-            return true
-        end
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["announce"].include?('notifications@github.com') then
-            return true
-        end
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["announce"].include?('no-reply@sns.amazonaws.com') and object["announce"].include?('frontend-PROD-security-groups-update') then
-            return true
-        end
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["announce"].include?('Fastly Maintenance - Capacity Expansion') then
-            return true
-        end
-        false
     end
 
     # CatalystUI::cardinalForTakingAllTheRunnings(objects, cardinal = 0)
@@ -213,9 +147,12 @@ class CatalystUI
 
         system("clear")
 
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
+
         spotnames = NSXSpots::getSpotNames()
         if spotnames.size>0 then
             puts "Awaiting: #{spotnames.join(", ")}".yellow
+            verticalSpaceLeft = verticalSpaceLeft - 1
         end
 
         if displayObjects.size==0 then
@@ -229,19 +166,22 @@ class CatalystUI
         differential = ( NSXStreamsUtils::getDifferentialOrNull() || -1 )
         if differential >= 0 then
             puts "Stream Differential [ -7: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))} , -1: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))} ] 0: #{NSXStreamsUtils::cardinal()} -> #{NSXStreamsUtils::getDifferentialOrNull()}".red
+            verticalSpaceLeft = verticalSpaceLeft - 1
         end
 
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
         displayObjects
-            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), NSXMiscUtils::screenHeight()-7].max)
+            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), verticalSpaceLeft].max)
             .each_with_index{|object, indx|
                 position = indx+1
+                next if verticalSpaceLeft < NSXDisplayUtils::verticalSize(object, position == standardlp)
                 if position == standardlp then
                     focusobject = object
                 end 
                 puts NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
+                verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(object, position == standardlp)
             }
 
         if focusobject.nil? and (standardlp>1) then
@@ -254,23 +194,11 @@ class CatalystUI
         end
 
         # -----------------------------------------------------------------------------------
-        # Special Processing
-
-        if CatalystUI::objectIsEmailSpecialCircumstances1(focusobject) then
-            CatalystUI::specialNS0928EmailDisplay(focusobject)
-            Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            }
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
-            return
-        end
-
-        # -----------------------------------------------------------------------------------
 
         print "--> "
         command = STDIN.gets().strip
 
-        if command == "" and CatalystUI::objectIsDoneOnEmptyCommand(focusobject) then
+        if command == "" and NSXMiscUtils::objectIsDoneOnEmptyCommand(focusobject) then
             Thread.new {
                 NSXGeneralCommandHandler::processCommand(focusobject, "done") 
             }           
@@ -304,8 +232,7 @@ class CatalystUI
                 return
             end
             CatalystDevOps::collectInboxPackage()
-            displayObjects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(NSXCatalystObjectsOperator::catalystObjectsForMainListing())
         }
     end
 

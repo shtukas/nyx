@@ -64,8 +64,8 @@ class NSXDisplayUtils
         }
         [
             "(#{"%.3f" % object["metric"]}) #{NSXMiscUtils::object2DoNotShowUntilAsString(object)}",
-            NSXMiscUtils::makeGreenIfObjectRunning(addLeftPadding.call(object['announce'], "               "),object["isRunning"]),
-        ].join("\n")
+            NSXMiscUtils::makeGreenIfObjectRunning(addLeftPadding.call(object['announce'], "               "),object["isRunning"])
+        ].compact.join("\n")
     end
 
     # NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
@@ -77,7 +77,7 @@ class NSXDisplayUtils
                     " ",
                     NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object, position, standardlp),
                     "\n",
-                    "              " + NSXDisplayUtils::objectInferfaceString(object)
+                    "               " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" )
                 ].join("")
             else
                 [
@@ -85,7 +85,8 @@ class NSXDisplayUtils
                    " ",
                    NSXDisplayUtils::objectToOneLineForCatalystDisplay(object),
                    "\n",
-                   "               " + NSXDisplayUtils::objectInferfaceString(object)
+                   (NSXMiscUtils::objectIsEmailSpecialCircumstances1(object) ? NSXMiscUtils::emailSpecialCircumstances1ToString(object)+"\n" : ""),
+                   "                " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" )
                 ].join("")
             end
         else
@@ -113,6 +114,11 @@ class NSXDisplayUtils
         object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
         return if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+    end
+
+    # NSXDisplayUtils::verticalSize(object, isFirstObject)
+    def self.verticalSize(object, isFocusObject)
+        isFocusObject ? object["announce"].lines.map{|line| ((15+line.size).to_f/NSXMiscUtils::screenWidth()).ceil }.inject(0, :+) + 1 : 1
     end
 
 end
