@@ -212,13 +212,22 @@ class NSXGenericContents
         contents
     end
 
+    # NSXGenericContents::displayableEmailParts(mail)
+    def self.displayableEmailParts(mail)
+        if mail.multipart? then
+            mail.parts.to_a.select{|part| CatalystUI::stringOrFirstString(part.content_type).start_with?("text/plain") }
+        else
+            [ mail.body ]
+        end
+    end
+
     # NSXGenericContents::emailToString(emailFilepath)
     def self.emailToString(emailFilepath)
         outputAsArray = []
         filepath = emailFilepath
         outputAsArray << "#{filepath}"
         mail = Mail.read(filepath)
-        CatalystUI::displayableEmailParts(mail).each{|part|
+        NSXGenericContents::displayableEmailParts(mail).each{|part|
             contents = part.decoded
             outputAsArray <<  "-- begin -----------------------------------------------"
             outputAsArray <<  NSXGenericContents::transformEmailContents(contents).lines.select{|line| line.strip.size>0 }.take_while{|line| !line.start_with?('This e-mail and all attachments are confidential') }.join("").strip

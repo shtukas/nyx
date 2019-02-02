@@ -355,4 +355,10 @@ class NSXMiscUtils
         false
     end
 
+    # NSXMiscUtils::objectIsAutoDone(object)
+    def self.objectIsAutoDone(object)
+        return true if object["announce"].include?("condition 58f3eb60")
+        false
+    end
+
 end

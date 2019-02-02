@@ -105,26 +105,12 @@ class CatalystUI
         end
     end
 
-    # CatalystUI::displayableEmailParts(mail)
-    def self.displayableEmailParts(mail)
-        if mail.multipart? then
-            mail.parts.to_a.select{|part| CatalystUI::stringOrFirstString(part.content_type).start_with?("text/plain") }
-        else
-            [ mail.body ]
-        end
-    end
-
     # CatalystUI::objectShouldTriggerOnScreenNotification(object)
     def self.objectShouldTriggerOnScreenNotification(object)
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
-    # CatalystUI::removeObjectFromCollection(displayObjects, objectuuid)
-    def self.removeObjectFromCollection(displayObjects, objectuuid)
-        displayObjects.reject{|object| object["uuid"]==objectuuid }
-    end
-
-    # CatalystUI::cardinalForTakingAllTheRunnings(objects, cardinal = 0)
+    # CatalystUI::cardinalForTakingAllTheRunnings(objects)
     def self.cardinalForTakingAllTheRunnings(objects, cardinal = 0)
         objects = objects.clone
         if objects.any?{|object| object["isRunning"] } then
@@ -139,6 +125,12 @@ class CatalystUI
 
         system("clear")
 
+        while displayObjects.size>0 and NSXMiscUtils::objectIsAutoDone(displayObjects.first) do
+            puts "-> processing auto done".green
+            NSXGeneralCommandHandler::processCommand(displayObjects.first, "done")
+            displayObjects = displayObjects.drop(1)
+        end
+        
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
 
         spotnames = NSXSpots::getSpotNames()
