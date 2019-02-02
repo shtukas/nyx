@@ -196,7 +196,14 @@ class CatalystUI
         # -----------------------------------------------------------------------------------
 
         print "--> "
+        endOfPrintTime = Time.new.to_f
         command = STDIN.gets().strip
+        commandTime = Time.new.to_f
+        if (commandTime - endOfPrintTime) < 2 then
+            return
+        end
+
+        # -----------------------------------------------------------------------------------
 
         if command == "" and NSXMiscUtils::objectIsDoneOnEmptyCommand(focusobject) then
             Thread.new {
