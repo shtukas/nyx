@@ -56,15 +56,17 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object)
     def self.objectToMultipleLinesForCatalystListings(object)
-        addLeftPadding = lambda{|string, padding|
-            string
-                .lines
-                .map{|line| padding+line }
-                .join()
+        controlAnnounceHeight = lambda{|text, object, screenHeight|
+            if object["agentuid"]=="d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["generic-contents-item"]["type"]=="email" then
+                targetHeight = [10, (0.7*screenHeight).to_i].max
+                text.lines.first(targetHeight).join()
+            else
+                text
+            end
         }
         [
             "(#{"%.3f" % object["metric"]}) #{NSXMiscUtils::object2DoNotShowUntilAsString(object)}",
-            NSXMiscUtils::makeGreenIfObjectRunning(object['announce'],object["isRunning"])
+            NSXMiscUtils::makeGreenIfObjectRunning(controlAnnounceHeight.call(object['announce'], object, NSXMiscUtils::screenHeight()) ,object["isRunning"])
         ].compact.join("\n")
     end
 
