@@ -186,7 +186,7 @@ class CatalystUI
         endOfPrintTime = Time.new.to_f
         command = STDIN.gets().strip
         commandTime = Time.new.to_f
-        if command=='' and (commandTime - endOfPrintTime) < 2 then
+        if command=='' and (commandTime - endOfPrintTime) < 0.5 then
             return
         end
 
