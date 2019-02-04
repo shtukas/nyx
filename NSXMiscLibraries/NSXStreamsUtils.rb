@@ -435,7 +435,7 @@ class NSXStreamsUtils
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
             .first(10)
             .each{|streamItem|
-                puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil, streamItem)
+                puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil, streamItem).lines.first
             }
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for end of queue): ")
         return nil if ordinal == ""
@@ -448,8 +448,8 @@ class NSXStreamsUtils
         return if lightThread.nil?
         streamuuid = lightThread["streamuuid"]
         ordinal = NSXMiscUtils::nonNullValueOrDefaultValue(
-        NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
-        NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
+            NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
+            NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
         [streamuuid, ordinal]
     end
 end
