@@ -68,7 +68,7 @@ class NSXAgentBabyNights
                 if data["pascal"] >= 10 and data["tracy"] >= 10 then
                     data["pascal"] = data["pascal"] - 10 
                     data["tracy"] = data["tracy"] - 10 
-                    puts "👶 Mining [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+                    puts "👶 Mining [Pascal: #{data["pascal"].round(2)}, Tracy: #{data["tracy"].round(2)}]"
                 end
                 File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
                 LucilleCore::pressEnterToContinue()
@@ -86,7 +86,7 @@ class NSXAgentBabyNights
             amount = LucilleCore::askQuestionAnswerAsString("Amount?: ").to_f
             data = JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json"))
             data[xname] = data[xname] + amount
-            puts "👶 Mining [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+            puts "👶 Mining [Pascal: #{data["pascal"].round(2)}, Tracy: #{data["tracy"].round(2)}]"
             File.open("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data.json", "w"){|f| f.puts(JSON.pretty_generate(data)) }
             LucilleCore::pressEnterToContinue()
         end
