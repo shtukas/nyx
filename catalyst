@@ -154,6 +154,21 @@ class CatalystUI
             verticalSpaceLeft = verticalSpaceLeft - 1
         end
 
+        performanceReportExecutableFilepath = "/Galaxy/LightThreads/Giki/01-Invoices/this-month"
+        if !File.exists?(performanceReportExecutableFilepath) then
+            puts "I can see the performance report executable filepath"
+            LucilleCore::pressEnterToContinue()
+            return
+        else
+            report = `#{performanceReportExecutableFilepath}`
+            report = JSON.parse(report)
+            if report["rent-percentage"] < 110 then
+                puts "Month performance: #{report["rent-percentage"]} %".red
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            end
+            exit
+        end
+
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
