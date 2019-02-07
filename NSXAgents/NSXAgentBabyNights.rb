@@ -64,7 +64,7 @@ class NSXAgentBabyNights
                 end
                 xname = LucilleCore::selectEntityFromListOfEntitiesOrNull("Night", ["pascal", "tracy"])
                 data[xname] = data[xname]+1
-                puts "👶 Mining [Pascal: #{data["pascal"]}, Tracy: #{data["tracy"]}]"
+                puts "👶 Mining [Pascal: #{data["pascal"].round(2)}, Tracy: #{data["tracy"].round(2)}]"
                 if data["pascal"] >= 10 and data["tracy"] >= 10 then
                     data["pascal"] = data["pascal"] - 10 
                     data["tracy"] = data["tracy"] - 10 
