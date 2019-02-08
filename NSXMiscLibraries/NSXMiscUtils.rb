@@ -409,6 +409,13 @@ class NSXMiscUtils
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
             object["data"]["generic-contents-item"] and
             object["data"]["generic-contents-item"]["email-subject"] and
+            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("Declined: Learning Groups:".downcase) then
+            return true
+        end
+        if object and
+            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
+            object["data"]["generic-contents-item"] and
+            object["data"]["generic-contents-item"]["email-subject"] and
             object["data"]["generic-contents-item"]["email-subject"].start_with?("I'm back in the office on") then
             return true
         end
