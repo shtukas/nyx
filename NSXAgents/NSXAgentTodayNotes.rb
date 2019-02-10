@@ -61,7 +61,7 @@ class NSXAgentTodayNotes
                 "uuid"               => uuid,
                 "agentuid"           => NSXAgentTodayNotes::agentuuid(),
                 "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.65 - integers.next().to_f/1000),
-                "announce"           => "#{NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section))}#{runningMarker}",
+                "announce"           => "Today: #{NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section))}#{runningMarker}",
                 "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
                 "defaultExpression"  => "done",
                 "isRunning"          => NSXRunner::isRunning?(uuid),
