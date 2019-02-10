@@ -72,13 +72,14 @@ class NSXAgentTodayNotes
         }
     end
 
-    # NSXAgentTodayNotes::stopObject(object)
+    # NSXAgentTodayNotes::stopObject(object): null | timespanInSeconds
     def self.stopObject(object)
         timespanInSeconds = NSXRunner::stop(object["uuid"])
-        return if timespanInSeconds.nil?
+        return nil if timespanInSeconds.nil?
         lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-        return if lightThread.nil?
+        return nil if lightThread.nil?
         NSXLightThreadUtils::addTimeToLightThread(lightThread["uuid"], timespanInSeconds)
+        [timespanInSeconds, lightThread["description"]]
     end
 
     # NSXAgentTodayNotes::processObjectAndCommand(object, command)
@@ -88,11 +89,19 @@ class NSXAgentTodayNotes
             NSXMiscUtils::setStandardListingPosition(1)
         end
         if command == "stop" then
-            NSXAgentTodayNotes::stopObject(object)
+            answer = NSXAgentTodayNotes::stopObject(object)
+            if !answer.nil? then
+                puts "Added #{(answer[0].to_f/3600).round(2)} hours to #{answer[1]}"
+                LucilleCore::pressEnterToContinue()
+            end
         end
         if command == "done" then
-            NSXAgentTodayNotes::stopObject(object)
+            answer = NSXAgentTodayNotes::stopObject(object)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
+            if !answer.nil? then
+                puts "Added #{(answer[0].to_f/3600).round(2)} hours to #{answer[1]}"
+                LucilleCore::pressEnterToContinue()
+            end
         end
         if command == ">stream" then
             NSXAgentTodayNotes::stopObject(object)
