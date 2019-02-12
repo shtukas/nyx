@@ -255,7 +255,7 @@ class NSXGenericContents
             output = []
             output << "email (#{NSXGenericContents::emailFilenameToDateTime(emailFilename)}, #{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
             output << NSXGenericContents::emailToString(emailFilepath)
-            return output.join("\n")
+            return output.map{|str| str.force_encoding("utf-8") }.join("\n")
         end
         if genericContentItem["type"]=="location" then
             return "location: #{genericContentItem["parent-foldername"]}"
