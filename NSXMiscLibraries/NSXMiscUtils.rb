@@ -388,7 +388,7 @@ class NSXMiscUtils
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
             object["data"]["generic-contents-item"] and
             object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("out of office re:") then
+            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("out of office") then
             return true
         end
         if object and
