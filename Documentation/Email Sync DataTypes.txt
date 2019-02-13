@@ -6,7 +6,7 @@ EmailTrackingClaim
     "genericContentsItemUUID"  : String
     "streamItemUUID"           : String
     "creationUnixtime"         : Integer
-    "status"                   : "init" | "detached" | "deleted-on-server" | "deleted-on-local"
+    "status"                   : "init" | "detached" | "deleted-on-server" | "deleted-on-local" | "dead"
     "lastStatusUpdateUnixtime" : Integer
 }
 

@@ -96,8 +96,16 @@ class GeneralEmailClient
         imap.login(emailUsername,emailPassword)
         imap.select('INBOX')
 
+        # ------------------------------------------------------------------------
+        # Download new emails
+
         imap.search(['ALL']).each{|id|
-            uid = imap.fetch(id,"ENVELOPE")[0].attr["ENVELOPE"]['message_id']
+            emailuid = imap.fetch(id,"ENVELOPE")[0].attr["ENVELOPE"]['message_id']
+
+            # We skip if there is a tracking claim for this emailuid
+            # Claim means we have already downloaded the email
+            next if NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(emailuid)
+
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
             if verbose then
                 puts "#{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
@@ -106,11 +114,18 @@ class GeneralEmailClient
                 imap.store(id, "+FLAGS", [:Deleted])
                 next
             end
+
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
             streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem)
-            emailTrackingClaim = NSXEmailTrackingClaims::makeclaim(uid, genericContentsItem["uuid"], streamItem["uuid"])
+            emailTrackingClaim = NSXEmailTrackingClaims::makeclaim(emailuid, genericContentsItem["uuid"], streamItem["uuid"])
             NSXEmailTrackingClaims::commitClaimToDisk(emailTrackingClaim)
         }
+
+        # ------------------------------------------------------------------------
+        # 
+
+        
+
 
         imap.expunge # delete all messages marked for deletion
 
