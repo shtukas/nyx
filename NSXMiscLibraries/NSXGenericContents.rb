@@ -155,17 +155,6 @@ class NSXGenericContents
         item 
     end
 
-    # NSXGenericContents::makeItemEmailSideEffectEmailToDisk(rawemail)
-    def self.makeItemEmailSideEffectEmailToDisk(rawemail)
-        filename = "#{NSXGenericContents::timeStringL22()}.eml"
-        filepath = NSXGenericContents::newItemFilenameToFilepath(filename)
-        File.open(filepath, "w"){|f| f.write(rawemail) }
-        item = NSXGenericContents::makeBaseItem()
-        item["type"] = "email"
-        item["email-filename"] = filename
-        item
-    end
-
     # NSXGenericContents::sendItemToDisk(item)
     def self.sendItemToDisk(item)
         filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(item["filename"])

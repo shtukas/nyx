@@ -87,7 +87,8 @@ class NSXStreamsUtils
                 next if !File.file?(path)
                 next if File.basename(path)[-16, 16] != ".StreamItem.json"
                 item = JSON.parse(IO.read(path))
-                item["filepath-real"] = path
+                item["filepath"] = path
+                item["emailTrackingClaim"] = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
                 items << item
             end
         end
@@ -96,9 +97,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
     def self.getStreamItemByUUIDOrNull(streamItemUUID)
         NSXStreamsUtils::allStreamsItemsEnumerator()
-        .select{|item|
-            item["uuid"] == streamItemUUID
-        }
+        .select{|item| item["uuid"] == streamItemUUID }
         .first
     end
 

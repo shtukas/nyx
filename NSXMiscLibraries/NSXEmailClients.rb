@@ -79,11 +79,11 @@ class GeneralEmailClient
         subject
     end
 
-    # GeneralEmailClient::shouldImportEmail(msg)
-    def self.shouldImportEmail(msg)
+    # GeneralEmailClient::shouldDevNullThatEmail(msg)
+    def self.shouldDevNullThatEmail(msg)
         from = GeneralEmailClient::msgToFrom(msg)
-        return false if ( from == "noreply@md.getsentry.com" )
-        true
+        return true if from.include?("noreply@md.getsentry.com")
+        false
     end
 
     # GeneralEmailClient::download(parameters, verbose)
@@ -97,19 +97,19 @@ class GeneralEmailClient
         imap.select('INBOX')
 
         imap.search(['ALL']).each{|id|
+            uid = imap.fetch(id,"ENVELOPE")[0].attr["ENVELOPE"]['message_id']
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
             if verbose then
                 puts "#{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
             end
-            if GeneralEmailClient::shouldImportEmail(msg) then
-                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", NSXGenericContents::issueItemEmail(msg))
-            else
-                #filename = GeneralEmailClient::timeStringL22() + ".eml"
-                #folderpath = "/Users/pascal/Desktop/NXSEmailClients-Discarded"
-                #filepath = "#{folderpath}/#{filename}"
-                #File.open(filepath, "w"){ |f| f.write(msg) }
+            if GeneralEmailClient::shouldDevNullThatEmail(msg) then
+                imap.store(id, "+FLAGS", [:Deleted])
+                next
             end
-            imap.store(id, "+FLAGS", [:Deleted])
+            genericContentsItem = NSXGenericContents::issueItemEmail(msg)
+            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem)
+            emailTrackingClaim = NSXEmailTrackingClaims::makeclaim(uid, genericContentsItem["uuid"], streamItem["uuid"])
+            NSXEmailTrackingClaims::commitClaimToDisk(emailTrackingClaim)
         }
 
         imap.expunge # delete all messages marked for deletion
