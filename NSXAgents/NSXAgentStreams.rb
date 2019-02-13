@@ -41,6 +41,29 @@ class NSXAgentStreams
 
     # NSXAgentStreams::doneObject(object)
     def self.doneObject(object)
+        # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
+        if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
+            if object["data"]["stream-item"]["emailTrackingClaim"] then
+                claim = object["data"]["stream-item"]["emailTrackingClaim"]
+                claim = NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(claim["emailuid"])
+                if claim["status"]=="init" then
+                    claim["status"] = "deleted-on-local"
+                    NSXEmailTrackingClaims::commitClaimToDisk(claim)
+                end
+                if claim["status"]=="detached" then
+                    claim["status"] = "deleted-on-local"
+                    NSXEmailTrackingClaims::commitClaimToDisk(claim)
+                end
+                if claim["status"]=="deleted-on-server" then
+                    claim["status"] = "dead"
+                    NSXEmailTrackingClaims::commitClaimToDisk(claim)
+                end
+                if claim["status"]=="deleted-on-local" then
+                end
+                if claim["status"]=="dead" then
+                end
+            end
+        end
         NSXAgentStreams::stopObject(object)
         NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
     end
@@ -69,6 +92,25 @@ class NSXAgentStreams
             NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
         end
         if command == "recast" then
+            # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
+            if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
+                if object["data"]["stream-item"]["emailTrackingClaim"] then
+                    claim = object["data"]["stream-item"]["emailTrackingClaim"]
+                    claim = NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(claim["emailuid"])
+                    if claim["status"]=="init" then
+                        claim["status"] = "detached"
+                        NSXEmailTrackingClaims::commitClaimToDisk(claim)
+                    end
+                    if claim["status"]=="detached" then
+                    end
+                    if claim["status"]=="deleted-on-server" then
+                    end
+                    if claim["status"]=="deleted-on-local" then
+                    end
+                    if claim["status"]=="dead" then
+                    end
+                end
+            end
             NSXAgentStreams::stopObject(object)
             NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
         end
