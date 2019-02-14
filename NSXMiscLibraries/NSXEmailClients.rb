@@ -86,8 +86,9 @@ class GeneralEmailClient
         false
     end
 
-    # GeneralEmailClient::download(parameters, verbose)
-    def self.download(parameters, verbose)
+    # GeneralEmailClient::downloadWithoutSync(parameters, verbose)
+    def self.downloadWithoutSync(parameters, verbose)
+
         emailImapServer = parameters['server']
         emailUsername   = parameters['username']
         emailPassword   = parameters['password']
@@ -100,7 +101,47 @@ class GeneralEmailClient
         # Download new emails
 
         imap.search(['ALL']).each{|id|
+            msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
+            if verbose then
+                puts "#{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
+            end
+            if GeneralEmailClient::shouldDevNullThatEmail(msg) then
+                imap.store(id, "+FLAGS", [:Deleted])
+                next
+            end
+            genericContentsItem = NSXGenericContents::issueItemEmail(msg)
+            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem)
+            imap.store(id, "+FLAGS", [:Deleted])
+        }
+
+        imap.expunge # delete all messages marked for deletion
+
+        imap.logout()
+        imap.disconnect()
+    end
+
+    # GeneralEmailClient::downloadWithSync(parameters, verbose)
+    def self.downloadWithSync(parameters, verbose)
+
+        emailImapServer = parameters['server']
+        emailUsername   = parameters['username']
+        emailPassword   = parameters['password']
+
+        imap = Net::IMAP.new(emailImapServer)
+        imap.login(emailUsername,emailPassword)
+        imap.select('INBOX')
+
+        emailUIDsOnTheServer = []
+        emailUIDToServerIDMap = {} # The server id is what we use for the deletion
+
+        # ------------------------------------------------------------------------
+        # Download new emails
+
+        imap.search(['ALL']).each{|id|
             emailuid = imap.fetch(id,"ENVELOPE")[0].attr["ENVELOPE"]['message_id']
+
+            emailUIDsOnTheServer << emailuid
+            emailUIDToServerIDMap[emailuid] = id
 
             # We skip if there is a tracking claim for this emailuid
             # Claim means we have already downloaded the email
@@ -122,10 +163,50 @@ class GeneralEmailClient
         }
 
         # ------------------------------------------------------------------------
-        # 
+        # Updating the status of the existing StreamItem based on the contents of emailUIDsOnTheServer
+        # Essentially if we have a stream item that is not on the server, we mark it appropriately.
 
-        
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+        .each{|item|
+            claim = item["emailTrackingClaim"]
+            next if claim.nil?
+            claim = NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(claim["emailuid"])
+            next if claim["status"] == "detached"
+            next if claim["status"] == "dead"
+            next if claim["status"] == "deleted-on-server"
+            next if emailUIDsOnTheServer.include?(claim["emailuid"])
+            # We have a element on local that is not detached and not dead and not on the server
+            if claim["status"]=="init" then
+                NSXStreamsUtils::destroyItem(item["filename"])
+                claim["status"] = "deleted-on-server"
+                NSXEmailTrackingClaims::commitClaimToDisk(claim)
+            end
+            if claim["status"]=="deleted-on-local" then
+                claim["status"] = "dead"
+                puts JSON.pretty_generate(claim)
+                LucilleCore::pressEnterToContinue()
+                NSXEmailTrackingClaims::commitClaimToDisk(claim)
+            end
+        }
 
+        # ------------------------------------------------------------------------
+        # We now delete on the server the items that are marked as deleted-on-local
+
+        NSXStreamsUtils::allStreamsItemsEnumerator()
+        .each{|item|
+            claim = item["emailTrackingClaim"]
+            next if claim.nil?
+            next if claim["status"] == "detached"
+            next if claim["status"] == "dead"
+            next if claim["status"] == "deleted-on-server"
+            if claim["status"]=="deleted-on-local" then
+                id = emailUIDToServerIDMap[claim["emailuid"]]
+                next if id.nil?
+                imap.store(id, "+FLAGS", [:Deleted])
+                claim["status"] = "dead"
+                NSXEmailTrackingClaims::commitClaimToDisk(claim)
+            end
+        }        
 
         imap.expunge # delete all messages marked for deletion
 

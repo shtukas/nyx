@@ -211,16 +211,12 @@ class CatalystUI
         # -----------------------------------------------------------------------------------
 
         if command == "" and NSXMiscUtils::objectIsDoneOnEmptyCommand(focusobject) then
-            Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, "done") 
-            }           
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
+            NSXGeneralCommandHandler::processCommand(focusobject, "done")
             return
         end
 
         if command == "done" then
             NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|object| object["uuid"]==focusobject["uuid"] })
             return
         end
 
@@ -303,7 +299,7 @@ Thread.new {
     return if !NSXMiscUtils::isLucille18()
     sleep 30
     loop {
-        NSXMiscUtils::emailSync(false)
+        #NSXMiscUtils::emailSync(false)
         sleep 1200
     }
 }

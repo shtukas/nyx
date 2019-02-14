@@ -41,6 +41,7 @@ class NSXAgentStreams
 
     # NSXAgentStreams::doneObject(object)
     def self.doneObject(object)
+        NSXAgentStreams::stopObject(object)
         # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
         if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
             if object["data"]["stream-item"]["emailTrackingClaim"] then
@@ -62,9 +63,9 @@ class NSXAgentStreams
                 end
                 if claim["status"]=="dead" then
                 end
+                return # we return because we do not destroy the object, it needs to live.
             end
         end
-        NSXAgentStreams::stopObject(object)
         NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
     end
 

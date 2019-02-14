@@ -181,12 +181,10 @@ class NSXMiscUtils
         KeyValueStore::set(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133", position)
     end
 
+    # NSXMiscUtils::emailSync(verbose)
     def self.emailSync(verbose)
-        begin
-            GeneralEmailClient::download(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/guardian-relay.json")), verbose)
-            GeneralEmailClient::download(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/operator.json")), verbose)
-        rescue
-        end
+        GeneralEmailClient::downloadWithSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/guardian-relay.json")), verbose)
+        GeneralEmailClient::downloadWithoutSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/operator.json")), verbose)
     end
 
     # NSXMiscUtils::newBinArchivesFolderpath()
