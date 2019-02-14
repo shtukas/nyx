@@ -299,7 +299,7 @@ Thread.new {
     return if !NSXMiscUtils::isLucille18()
     sleep 30
     loop {
-        #NSXMiscUtils::emailSync(false)
+        NSXMiscUtils::emailSync(false)
         sleep 1200
     }
 }
