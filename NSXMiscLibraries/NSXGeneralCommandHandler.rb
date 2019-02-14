@@ -185,6 +185,11 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if object["commandsShells"] and object["commandsShells"][command] then
+            system(object["commandsShells"][command])
+            return
+        end
+
         if command == ".." and object["defaultExpression"] and object["defaultExpression"]!=".." then
             command = object["defaultExpression"]
             return NSXGeneralCommandHandler::processCommand(object, command)
