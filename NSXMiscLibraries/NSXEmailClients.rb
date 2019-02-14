@@ -183,8 +183,6 @@ class GeneralEmailClient
             end
             if claim["status"]=="deleted-on-local" then
                 claim["status"] = "dead"
-                puts JSON.pretty_generate(claim)
-                LucilleCore::pressEnterToContinue()
                 NSXEmailTrackingClaims::commitClaimToDisk(claim)
             end
         }
