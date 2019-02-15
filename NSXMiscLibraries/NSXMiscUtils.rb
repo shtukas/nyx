@@ -427,4 +427,16 @@ class NSXMiscUtils
         false
     end
 
+    # NSXMiscUtils::setMinusEmailsUnixtime()
+    def self.setMinusEmailsUnixtime()
+        KeyValueStore::set(nil, "2ceaa52e-1889-4fcd-b3c7-ee1f331ab690", Time.new.to_i)
+    end
+
+    # NSXMiscUtils::getMinusEmailsUnixtimeOrNull()
+    def self.getMinusEmailsUnixtimeOrNull()
+        value = KeyValueStore::getOrNull(nil, "2ceaa52e-1889-4fcd-b3c7-ee1f331ab690")
+        return nil if value.nil?
+        value.to_i
+    end
+
 end

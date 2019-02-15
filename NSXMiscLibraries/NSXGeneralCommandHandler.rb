@@ -21,7 +21,7 @@ class NSXGeneralCommandHandler
             "catalyst --allowEmailQueriesOnLucille19",
             "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text'",
             "Special General Commands: search: <pattern>",
-            "Special Object Commands: ,, .. @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
+            "Special Object Commands: ,, .. -- @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
         ]
     end
     
@@ -47,6 +47,11 @@ class NSXGeneralCommandHandler
         # no object needed
 
         if command == "" then
+            return
+        end
+
+        if command == "--" then
+            NSXMiscUtils::setMinusEmailsUnixtime()
             return
         end
 
