@@ -84,6 +84,16 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
+        "agent-name"  => "TheBridge",
+        "agentuid"    => "d2422ba0-88e9-4abb-9ab9-6d609015268f",
+        "get-objects" => lambda { NSXAgentTheBridge::getObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentTheBridge::processObjectAndCommand(object, command) },
+        "interface"   => lambda { NSXAgentTheBridge::interface() }
+    }
+)
+
+NSXBob::registerAgent(
+    {
         "agent-name"  => "TodayNotes",
         "agentuid"    => "f7b21eb4-c249-4f0a-a1b0-d5d584c03316",
         "get-objects" => lambda { NSXAgentTodayNotes::getObjects() },

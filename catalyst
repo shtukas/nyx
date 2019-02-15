@@ -58,6 +58,7 @@ require_relative "NSXAgents/NSXAgentHouse.rb"
 require_relative "NSXAgents/NSXAgentLightThread.rb"
 require_relative "NSXAgents/NSXAgentNinja.rb"
 require_relative "NSXAgents/NSXAgentStreams.rb"
+require_relative "NSXAgents/NSXAgentTheBridge.rb"
 require_relative "NSXAgents/NSXAgentVienna.rb"
 require_relative "NSXAgents/NSXAgentWave.rb"
 
