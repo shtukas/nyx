@@ -21,7 +21,7 @@ class NSXAgentTheBridge
 
     # NSXAgentTheBridge::getObjects()
     def self.getObjects()
-        NSXAgentTheBridge::getAgentsFilepaths().each{|filepath| JSON.parse(`#{filepath}`) }.flatten
+        NSXAgentTheBridge::getAgentsFilepaths().map{|filepath| JSON.parse(`#{filepath}`) }.flatten
     end
 
     def self.processObjectAndCommand(object, command)
