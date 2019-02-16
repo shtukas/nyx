@@ -122,8 +122,8 @@ class CatalystUI
         end
     end
 
-    # CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
-    def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
+    # CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects, weight)
+    def self.performPrimaryDisplayWithCatalystObjects(displayObjects, weight)
 
         system("clear")
 
@@ -135,6 +135,9 @@ class CatalystUI
         end
         
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
+
+        puts "Objects weight: #{weight.round(2)}".yellow
+        verticalSpaceLeft = verticalSpaceLeft - 1
 
         spotnames = NSXSpots::getSpotNames()
         if spotnames.size>0 then
@@ -152,7 +155,7 @@ class CatalystUI
 
         differential = ( NSXStreamsUtils::getDifferentialOrNull() || -1 )
         if differential >= 0 then
-            puts "Stream Differential [ -7: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))} , -1: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))} ] 0: #{NSXStreamsUtils::cardinal()} -> #{NSXStreamsUtils::getDifferentialOrNull()}".red
+            puts "Stream Differential [ -7: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))} , -1: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))} ] 0: #{NSXStreamsUtils::cardinal()} -> #{NSXStreamsUtils::getDifferentialOrNull()}".yellow
             verticalSpaceLeft = verticalSpaceLeft - 1
         end
 
@@ -165,7 +168,7 @@ class CatalystUI
             report = `#{performanceReportExecutableFilepath}`
             report = JSON.parse(report)
             if report["rent-percentage"] < 110 then
-                puts "Month performance: #{report["rent-percentage"]} %".red
+                puts "Month performance: #{report["rent-percentage"]} %".yellow
                 verticalSpaceLeft = verticalSpaceLeft - 1
             end
         end
@@ -241,7 +244,8 @@ class CatalystUI
                 return
             end
             CatalystDevOps::collectInboxPackage()
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(NSXCatalystObjectsOperator::catalystObjectsForMainListing())
+            objects, weight = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(objects, weight)
         }
     end
 
@@ -276,7 +280,7 @@ Dir.entries("/Galaxy/LightThreads")
 Thread.new {
     loop {
         sleep 130
-        if NSXCatalystObjectsOperator::catalystObjectsForMainListing().any?{|object| CatalystUI::objectShouldTriggerOnScreenNotification(object) } then
+        if NSXCatalystObjectsOperator::catalystObjectsForMainListing()[0].any?{|object| CatalystUI::objectShouldTriggerOnScreenNotification(object) } then
             NSXMiscUtils::onScreenNotification("Catalyst", "Interruption")
         end
     }
