@@ -313,6 +313,9 @@ $LightThreadTheBigUglyMemoryCache = {} # Map[LightThread, State]
 # State: { "TheReferenceOne", "TheMovingOne", "CachedObjects" }
 
 def resetLightThreadCache(lightThreadUUID)
+    if $LightThreadTheBigUglyMemoryCache[lightThreadUUID].nil? then
+        $LightThreadTheBigUglyMemoryCache[lightThreadUUID] = {}
+    end
     $LightThreadTheBigUglyMemoryCache[lightThreadUUID]["TheMovingOne"] = SecureRandom.hex
 end
 

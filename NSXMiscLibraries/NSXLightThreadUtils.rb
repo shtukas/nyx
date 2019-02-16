@@ -145,7 +145,6 @@ class NSXLightThreadUtils
         "LightThread: #{lightThread["description"]} (#{NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread).round(2)} %)"
     end
 
-
     # -----------------------------------------------
     # Agent and Dive Support
 
@@ -259,7 +258,7 @@ class NSXLightThreadUtils
             if NSXLightThreadUtils::lightThreadCanBeDestroyed(lightThread) then
                 operations << "destroy"
             end
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", operations)
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation=="start" then
                 NSXRunner::start(lightThread["uuid"])
@@ -341,7 +340,6 @@ class NSXLightThreadUtils
         return nil if commitmentInHours.size==0
         commitmentInHours.to_f
     end
-
 end
 
 class NSXLightThreadsTargetFolderInterface
@@ -401,7 +399,6 @@ class NSXLightThreadsTargetFolderInterface
                 object
             }
     end
-
 end
 
 class NSXLightThreadsStreamsInterface
@@ -441,7 +438,6 @@ class NSXLightThreadsStreamsInterface
             NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid).nil?
         }
     end
-
 end
 
 class NSXLightThreadMetrics
@@ -515,7 +511,6 @@ class NSXLightThreadMetrics
         shiftUp = [0.002, 0.001][Time.new.day % 2] # The shift array is the opposite of what it is for the stream items
         NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + shiftUp
     end
-
 end
 
 
