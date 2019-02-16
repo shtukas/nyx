@@ -43,6 +43,9 @@ class NSXCatalystObjectsOperator
                 (object["agentuid"]=="d2de3f8e-6cf2-46f6-b122-58b60b2a96f1") and object["data"]["generic-contents-item"]["type"] == "email"
             }
         end
+        if (Time.new.hour>18) or Time.new.wday==6 or Time.new.wday==0 then
+            objects = objects.first(1)
+        end 
         objects
     end
 
