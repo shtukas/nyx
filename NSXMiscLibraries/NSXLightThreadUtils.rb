@@ -249,8 +249,8 @@ class NSXLightThreadUtils
                 "stop", 
                 "add time:", 
                 "show timelog", 
-                "update description:", 
-                "update daily time commitment:",
+                "set description", 
+                "set daily time commitment",
                 "set folderpaths",
                 "set activationWeekDays",
                 "stream items dive"
@@ -278,12 +278,12 @@ class NSXLightThreadUtils
                 timeInHours = LucilleCore::askQuestionAnswerAsString("Time in hours: ").to_f
                 NSXLightThreadUtils::addTimeToLightThread(lightThread["uuid"], timeInHours*3600)
             end
-            if operation=="update description:" then
+            if operation=="set description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 lightThread["description"] = description
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
-            if operation=="update daily time commitment:" then
+            if operation=="set daily time commitment" then
                 lightThread["dailyTimeCommitment"] = NSXLightThreadUtils::dailyTimeCommitmentPickerOrNull()
                 NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
             end
