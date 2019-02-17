@@ -218,8 +218,8 @@ class NSXStreamsUtils
         end
         if items.first["ordinal"] > 100 then
             items.each{|item|
-            item["ordinal"] = item["ordinal"] - 100
-            NSXStreamsUtils::sendItemToDisk(item)
+                item["ordinal"] = item["ordinal"] - 100
+                NSXStreamsUtils::sendItemToDisk(item)
             }
         end
     end
