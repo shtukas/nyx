@@ -201,7 +201,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == ',,' then
-            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+0.2 hour"))
+            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+#{1+rand} hour"))
             return
         end
 
