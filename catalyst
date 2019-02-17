@@ -122,8 +122,8 @@ class CatalystUI
         end
     end
 
-    # CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects, weight)
-    def self.performPrimaryDisplayWithCatalystObjects(displayObjects, weight)
+    # CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
+    def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
         system("clear")
 
@@ -135,9 +135,6 @@ class CatalystUI
         end
         
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
-
-        puts "Objects weight: #{weight.round(2)}".yellow
-        verticalSpaceLeft = verticalSpaceLeft - 1
 
         spotnames = NSXSpots::getSpotNames()
         if spotnames.size>0 then
@@ -151,12 +148,6 @@ class CatalystUI
             command = STDIN.gets().strip
             NSXGeneralCommandHandler::processCommand(nil, command)
             return
-        end
-
-        differential = ( NSXStreamsUtils::getDifferentialOrNull() || -1 )
-        if differential >= 0 then
-            puts "Stream Differential [ -7: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))} , -1: #{NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))} ] 0: #{NSXStreamsUtils::cardinal()} -> #{NSXStreamsUtils::getDifferentialOrNull()}".yellow
-            verticalSpaceLeft = verticalSpaceLeft - 1
         end
 
         performanceReportExecutableFilepath = "/Galaxy/LucilleOS/Binaries/month-performance"
@@ -244,8 +235,8 @@ class CatalystUI
                 return
             end
             CatalystDevOps::collectInboxPackage()
-            objects, weight = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(objects, weight)
+            objects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
+            CatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end
 
@@ -280,7 +271,7 @@ Dir.entries("/Galaxy/LightThreads")
 Thread.new {
     loop {
         sleep 130
-        if NSXCatalystObjectsOperator::catalystObjectsForMainListing()[0].any?{|object| CatalystUI::objectShouldTriggerOnScreenNotification(object) } then
+        if NSXCatalystObjectsOperator::catalystObjectsForMainListing().any?{|object| CatalystUI::objectShouldTriggerOnScreenNotification(object) } then
             NSXMiscUtils::onScreenNotification("Catalyst", "Interruption")
         end
     }

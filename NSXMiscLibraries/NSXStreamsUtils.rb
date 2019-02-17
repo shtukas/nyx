@@ -236,38 +236,6 @@ class NSXStreamsUtils
     end
 
     # -----------------------------------------------------------------
-    # Cardinal Managament
-
-    # NSXStreamsUtils::cardinal()
-    def self.cardinal()
-        cardinal = NSXStreamsUtils::allStreamsItemsEnumerator().to_a.size
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "c1b957f8-a8d0-4611-8a9b-bb08a9f4ce75:#{NSXMiscUtils::currentDay()}", cardinal)
-        cardinal
-    end
-
-    # NSXStreamsUtils::getCardinalForDateOrNull(date)
-    def self.getCardinalForDateOrNull(date)
-        value = KeyValueStore::getOrNull("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "c1b957f8-a8d0-4611-8a9b-bb08a9f4ce75:#{date}")
-        return nil if value.nil?
-        value.to_i
-    end
-
-    # NSXStreamsUtils::getLowestOfTwoReferenceValuesOrNull()
-    def self.getLowestOfTwoReferenceValuesOrNull()
-        maybeValue1 = NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(7))
-        maybeValue2 = NSXStreamsUtils::getCardinalForDateOrNull(NSXMiscUtils::nDaysAgo(1))
-        return nil if (maybeValue1.nil? and maybeValue2.nil?)
-        [maybeValue1, maybeValue2].compact.min
-    end
-
-    # NSXStreamsUtils::getDifferentialOrNull()
-    def self.getDifferentialOrNull()
-        refvalue = NSXStreamsUtils::getLowestOfTwoReferenceValuesOrNull()
-        return nil if refvalue.nil?
-        NSXStreamsUtils::cardinal() - refvalue
-    end
-
-    # -----------------------------------------------------------------
     # Tail management
 
     # NSXStreamsUtils::get20StreamItemsCatalystObjects(metric)

@@ -28,14 +28,13 @@ class NSXCatalystObjectsOperator
         NSXCatalystObjectsOperator::getObjects().select{|object| objectuuids.include?(object["uuid"]) }
     end
 
-    # NSXCatalystObjectsOperator::catalystObjectsForMainListing(): [objects, objectsTotalWeight]
+    # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
     def self.catalystObjectsForMainListing()
         spotObjectUUIDs = NSXSpots::getObjectUUIDs()
         objects = NSXCatalystObjectsOperator::getObjects()
             .select{|object| !spotObjectUUIDs.include?(object["uuid"]) }
             .map{|object| object["isRunning"] ? object : NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .select{|object| object["metric"] >= 0.2 }
-        objectsTotalWeight = NSXCatalystObjectsOperator::objectsTotalWeight(objects)
         objects = objects    
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
@@ -45,15 +44,7 @@ class NSXCatalystObjectsOperator
                 (object["agentuid"]=="d2de3f8e-6cf2-46f6-b122-58b60b2a96f1") and object["data"]["generic-contents-item"]["type"] == "email"
             }
         end
-        if (Time.new.hour>18) or Time.new.wday==6 or Time.new.wday==0 then
-            objects = objects.first(1)
-        end 
-        [objects, objectsTotalWeight]
-    end
-
-    # NSXCatalystObjectsOperator::objectsTotalWeight(objects)
-    def self.objectsTotalWeight(objects)
-        objects.map{|object| Math.exp(object["metric"]) }.inject(0, :+)        
+        objects
     end
 
 end
