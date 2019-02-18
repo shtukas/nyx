@@ -6,7 +6,6 @@ LightThread {
     :isPriorityThread    : Boolean
     :done                : Array[LightThreadTimeRecordItem]
     :streamuuid          : String UUID
-    :folderpaths         : Array[String]
     :activationWeekDays  : nil | Array[Weekday] # monday, tuesday, wednesday, thursday, friday, saturday, sunday
 }
 

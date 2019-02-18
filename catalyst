@@ -251,21 +251,6 @@ STARTING_CODE_HASH = CatalystDevOps::locationHashRecursively(CATALYST_CODE_FOLDE
 
 NSXStreamsUtils::sendOrphanStreamItemsToInbox()
 
-# Make sure that each folder in /Galaxy/LightThreads has a LightThread for it
-
-Dir.entries("/Galaxy/LightThreads")
-    .reject{|filename| filename[0, 1] == "." }
-    .reject{|filename| filename.start_with?("Icon") }
-    .map{|filename| "/Galaxy/LightThreads/#{filename}" }
-    .select{|filepath| NSXLightThreadUtils::lightThreads().none?{|lightThread| lightThread["folderpaths"].include?(filepath) } }
-    .each{|filepath|
-        puts "I could not find a LightThread for #{filepath}"
-        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-        next if lightThread.nil?
-        lightThread["folderpaths"] << filepath
-        NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
-    }
-
 # Catalyst Interruption Screen Notification.
 
 Thread.new {
