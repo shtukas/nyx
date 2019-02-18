@@ -79,6 +79,19 @@ class GeneralEmailClient
         subject
     end
 
+    # GeneralEmailClient::msgToDateTime(msg)
+    def self.msgToDateTime(msg)
+        filename = GeneralEmailClient::timeStringL22()
+        folderpath = "/tmp/catalyst-emails"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{filename}"
+        File.open(filepath, "w"){ |f| f.write(msg) }
+        mailObject = Mail.read(filepath)
+        DateTime.parse(mailObject.date.to_s).to_time.utc.iso8601
+    end
+
     # GeneralEmailClient::shouldDevNullThatEmail(msg)
     def self.shouldDevNullThatEmail(msg)
         from = GeneralEmailClient::msgToFrom(msg)
@@ -103,7 +116,7 @@ class GeneralEmailClient
         imap.search(['ALL']).each{|id|
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
             if verbose then
-                puts "#{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
+                puts "#{GeneralEmailClient::msgToDateTime(msg)} : #{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
             end
             if GeneralEmailClient::shouldDevNullThatEmail(msg) then
                 imap.store(id, "+FLAGS", [:Deleted])
@@ -149,7 +162,7 @@ class GeneralEmailClient
 
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
             if verbose then
-                puts "#{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
+                puts "#{GeneralEmailClient::msgToDateTime(msg)} : #{GeneralEmailClient::msgToFrom(msg)} : #{GeneralEmailClient::msgToSubject(msg)}"
             end
             if GeneralEmailClient::shouldDevNullThatEmail(msg) then
                 imap.store(id, "+FLAGS", [:Deleted])
