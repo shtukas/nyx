@@ -89,7 +89,11 @@ class GeneralEmailClient
         filepath = "#{folderpath}/#{filename}"
         File.open(filepath, "w"){ |f| f.write(msg) }
         mailObject = Mail.read(filepath)
-        DateTime.parse(mailObject.date.to_s).to_time.utc.iso8601
+        begin
+            DateTime.parse(mailObject.date.to_s).to_time.utc.iso8601
+        rescue
+            Time.new.utc.iso8601
+        end
     end
 
     # GeneralEmailClient::shouldDevNullThatEmail(msg)
