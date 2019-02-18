@@ -195,7 +195,7 @@ class NSXGenericContents
     # NSXGenericContents::transformEmailContents(contents)
     def self.transformEmailContents(contents)
         contents = contents.lines.select{|line| line.strip.size>0 }.take_while{|line| !line.start_with?('This e-mail and all attachments are confidential') }.join("").strip
-        return "[ delete on sight; condition 58f3eb60 ]" if contents.lines.to_a.size==0
+        return "[ empty email; condition b5b62206 ]" if contents.lines.to_a.size==0
         return "[ delete on sight; condition 58f3eb60 ]" if contents.lines.first.include?("PRbuilds results:")
         return "[ delete on sight; condition 58f3eb60 ]" if contents.lines.first.include?("Seen on [PROD]")
         contents
