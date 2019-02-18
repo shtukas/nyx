@@ -425,7 +425,7 @@ class NSXLightThreadMetrics
         return 2 if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         return 0 if lightThread["dailyTimeCommitment"].nil?
         bestPercentage = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread)
-        metric = 0.2 + (lightThread["isPriorityThread"] ? 0.4 : 0.1)*Math.exp(-bestPercentage.to_f/50) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
+        metric = 0.19 + (lightThread["isPriorityThread"] ? 0.4 : 0.1)*Math.exp(-bestPercentage.to_f/50) + NSXMiscUtils::traceToMetricShift(lightThread["uuid"])
         metric
     end
 
