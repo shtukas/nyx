@@ -273,6 +273,8 @@ class NSXGenericContents
         if item["type"]=="text" then
             filepath = "#{NSXMiscUtils::newBinArchivesFolderpath()}/#{NSXGenericContents::timeStringL22()}.txt"
             File.open(filepath, "w"){|f| f.puts(item["text"]) }
+            puts "Opening the file and then you can edit it..."
+            sleep 2
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
             updatedText = IO.read(filepath)
