@@ -21,7 +21,7 @@ class NSXGeneralCommandHandler
             "catalyst --allowEmailQueriesOnLucille19",
             "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text'",
             "Special General Commands: search: <pattern>",
-            "Special Object Commands: ,, .. -- @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
+            "Special Object Commands: ,, .. -- +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
         ]
     end
     
@@ -139,8 +139,6 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "new LightThread",
-                "spots:activate",
-                "spots:dive",
                 "email-sync",
                 "speed"
             ]
@@ -162,18 +160,6 @@ class NSXGeneralCommandHandler
             end
             if option == "LightThreads" then
                 NSXLightThreadUtils::lightThreadsDive()
-            end
-            if option == "spots:activate" then
-                selected, _ = LucilleCore::selectZeroOrMore("spotname", [], NSXSpots::getSpotNames())
-                selected.each{|spotname| NSXSpots::unblockSpotName(spotname) }
-            end
-            if option == "spots:dive" then
-                spotnames = NSXSpots::getSpotNames()
-                spotname = LucilleCore::selectEntityFromListOfEntitiesOrNull("spotname", spotnames)
-                return if spotname.nil?
-                objectuuids = NSXSpots::getObjectUUIDsForSpotName(spotname)
-                catalystObjects = NSXCatalystObjectsOperator::objectUUIDsToCatalystObjects(objectuuids)
-                NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(catalystObjects)
             end
             if option == "email-sync" then
                 NSXMiscUtils::emailSync(true)
@@ -241,12 +227,6 @@ class NSXGeneralCommandHandler
                     NSXEmailTrackingClaims::commitClaimToDisk(claim)
                 end
             end
-            return
-        end
-
-        if command.start_with?('@') then
-            spotname = command[1,999].strip
-            NSXSpots::issueSpotClaim(spotname, object["uuid"])
             return
         end
         

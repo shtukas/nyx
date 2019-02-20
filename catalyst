@@ -50,7 +50,6 @@ require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
 require_relative "NSXMiscLibraries/NSXRunner.rb"
 require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
 require_relative "NSXMiscLibraries/NSXStringParser.rb"
-require_relative "NSXMiscLibraries/NSXSpots.rb"
 
 require_relative "NSXAgents/NSXAgentBabyNights.rb"
 require_relative "NSXAgents/NSXAgentTodayNotes.rb"
@@ -135,12 +134,6 @@ class CatalystUI
         end
         
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
-
-        spotnames = NSXSpots::getSpotNames()
-        if spotnames.size>0 then
-            puts "Awaiting: #{spotnames.join(", ")}".yellow
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        end
 
         if displayObjects.size==0 then
             puts "No objects found"

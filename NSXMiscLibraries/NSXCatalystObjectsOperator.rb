@@ -30,9 +30,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
     def self.catalystObjectsForMainListing()
-        spotObjectUUIDs = NSXSpots::getObjectUUIDs()
         objects = NSXCatalystObjectsOperator::getObjects()
-            .select{|object| !spotObjectUUIDs.include?(object["uuid"]) }
             .map{|object| object["isRunning"] ? object : NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
             .select{|object| object["metric"] >= 0.2 }
         objects = objects    
