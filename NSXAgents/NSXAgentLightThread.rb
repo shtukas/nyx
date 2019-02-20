@@ -36,16 +36,6 @@ class NSXAgentLightThread
 
     # NSXAgentLightThread::getLightThreadObjects(lightThread)
     def self.getLightThreadObjects(lightThread)
-        if $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]].nil? then
-            $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]] = {
-                "CachedObjects"    => nil,
-                "TheReferenceOne"  => nil,
-                "TheMovingOne"     => nil,
-            }
-        end
-        if ( $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheReferenceOne"] == $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheMovingOne"] ) and ( !$LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"].nil? ) then
-            return $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"].clone
-        end
         objects = 
             (
                 [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] +
@@ -57,16 +47,11 @@ class NSXAgentLightThread
             else
                 objects.select{|object| object["isRunning"] }
             end
-        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["CachedObjects"] = objects
-        $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheReferenceOne"] = $LightThreadTheBigUglyMemoryCache[lightThread["uuid"]]["TheMovingOne"]
         objects
     end
 
     # NSXAgentLightThread::getObjects()
     def self.getObjects()
-        if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "0142daee-356a-4f62-b87d-df69397d3738", 600) then
-            $LightThreadTheBigUglyMemoryCache = {}
-        end
         NSXLightThreadUtils::lightThreads()
             .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]) }
             .map{|lightThread|
@@ -93,7 +78,6 @@ class NSXAgentLightThread
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
         end
-        resetLightThreadCache(object["item-data"]["lightThread"]["uuid"])
     end
 
     # NSXAgentLightThread::interface()

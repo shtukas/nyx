@@ -314,7 +314,6 @@ class NSXLightThreadUtils
                 }
             end
         }
-        resetLightThreadCache(lightThread["uuid"])
     end
 
     # NSXLightThreadUtils::lightThreadsDive()
