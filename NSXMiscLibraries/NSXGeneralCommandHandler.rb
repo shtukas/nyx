@@ -19,7 +19,7 @@ class NSXGeneralCommandHandler
     def self.helpLines()
         [
             "catalyst --allowEmailQueriesOnLucille19",
-            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text'",
+            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text'",
             "Special General Commands: search: <pattern>",
             "Special Object Commands: ,, .. -- @<spotname> +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
         ]
@@ -103,6 +103,25 @@ class NSXGeneralCommandHandler
                 return if datetime.nil?
                 NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
             end
+            return
+        end
+
+        if command.start_with?("inbox:") then
+            text = command[6, command.size].strip
+            if text == "text" then
+                text = NSXMiscUtils::editTextUsingTextmate("")
+            end
+            genericContentsItem = NSXGenericContents::issueItemText(text)
+            streamuuid = "03b79978bcf7a712953c5543a9df9047" # StreamUUID of LightThread Catalyst Inbox
+            ordinal = NSXStreamsUtils::getNextOrdinalForStream("03b79978bcf7a712953c5543a9df9047")
+            streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
+            puts JSON.pretty_generate(streamItem)
+            catalystobjectuuid = streamItem["uuid"][0,8]
+
+            datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")
+            datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
+            return if datetime.nil?
+            NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
             return
         end
 
