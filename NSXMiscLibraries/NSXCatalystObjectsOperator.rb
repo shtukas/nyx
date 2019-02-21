@@ -38,7 +38,7 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getStoredFrozenObjectsOrNull()
     def self.getStoredFrozenObjectsOrNull()
         return nil if Time.new.hour<18
-        objects = KeyValueStore::getOrNull(nil, "d685c96f-250f-4529-ba85-eb7f38a18b39")
+        objects = KeyValueStore::getOrNull(nil, "#{CATALYST_RUN_HASH}:d685c96f-250f-4529-ba85-eb7f38a18b39")
         return nil if objects.nil?
         JSON.parse(objects)
     end
@@ -48,16 +48,19 @@ class NSXCatalystObjectsOperator
         aliveObjects = NSXCatalystObjectsOperator::getAliveObjects()
         frozenObjects = NSXCatalystObjectsOperator::getStoredFrozenObjectsOrNull()
         if frozenObjects.nil? then
-            aliveObjectsSample = aliveObjects.sample(10).shuffle
+            aliveObjectsSample = aliveObjects
+                .reject{|object| object["agentuid"]=="d3d1d26e-68b5-4a99-a372-db8eb6c5ba58" }
+                .sample(10)
+                .shuffle
             if aliveObjectsSample.size<5 then
                 return nil
             end
-            KeyValueStore::set(nil, "d685c96f-250f-4529-ba85-eb7f38a18b39", JSON.generate(aliveObjectsSample))
+            KeyValueStore::set(nil, "#{CATALYST_RUN_HASH}:d685c96f-250f-4529-ba85-eb7f38a18b39", JSON.generate(aliveObjectsSample))
             return aliveObjectsSample
         else
             frozenObjectsStillCurrent = frozenObjects.select{|fobject| aliveObjects.map{|o| o["uuid"] }.include?(fobject["uuid"]) }
             if frozenObjectsStillCurrent.size<5 then
-                KeyValueStore::destroy(nil, "d685c96f-250f-4529-ba85-eb7f38a18b39")
+                KeyValueStore::destroy(nil, "#{CATALYST_RUN_HASH}:d685c96f-250f-4529-ba85-eb7f38a18b39")
                 return NSXCatalystObjectsOperator::getManagedFrozenObjectsOrNull()
             end
             return frozenObjectsStillCurrent

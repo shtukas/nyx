@@ -63,6 +63,7 @@ require_relative "NSXAgents/NSXAgentWave.rb"
 
 # -------------------------------------------------------------------------
 
+CATALYST_RUN_HASH = SecureRandom.hex
 CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__) 
 CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
 
@@ -211,7 +212,7 @@ class CatalystUI
         if command.start_with?("'") then
             position = command[1,9].strip.to_i
             return if position==0
-            return if position > displayObjects.size-1
+            return if position > displayObjects.size
             object = displayObjects[position-1]
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
