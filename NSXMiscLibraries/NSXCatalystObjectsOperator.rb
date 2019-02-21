@@ -80,9 +80,7 @@ class NSXCatalystObjectsOperator
         objects = NSXCatalystObjectsOperator::getAliveObjects()   
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
-        if Time.new.hour > 12 then
-            objects = NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(objects)
-        end
+        objects = NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(objects)
         NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
     end
 
