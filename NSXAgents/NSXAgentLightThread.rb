@@ -36,27 +36,16 @@ class NSXAgentLightThread
 
     # NSXAgentLightThread::getLightThreadObjects(lightThread)
     def self.getLightThreadObjects(lightThread)
-        objects = 
-            (
-                [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ] +
-                  NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
-            ).compact
-        objects = 
-            if NSXLightThreadUtils::trueIfLightThreadIsRunningOrActive(lightThread) then
-                objects
-            else
-                objects.select{|object| object["isRunning"] }
-            end
-        objects
+        objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
+        return objects if !objects.empty?
+        [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ]
     end
 
     # NSXAgentLightThread::getObjects()
     def self.getObjects()
         NSXLightThreadUtils::lightThreads()
             .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]) }
-            .map{|lightThread|
-                NSXAgentLightThread::getLightThreadObjects(lightThread)
-            }.flatten
+            .map{|lightThread| NSXAgentLightThread::getLightThreadObjects(lightThread) }.flatten
     end
 
     def self.processObjectAndCommand(object, command)
