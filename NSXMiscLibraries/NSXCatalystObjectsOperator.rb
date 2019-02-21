@@ -19,19 +19,6 @@ class NSXCatalystObjectsOperator
             .select{|object| object["metric"] >= 0.2 }
     end
 
-    # NSXCatalystObjectsOperator::arrangeObjectsOnDoubleDirection(objects)
-    def self.arrangeObjectsOnDoubleDirection(objects)
-        output = []
-        while objects.size>2 do
-            output << objects.shift     
-            output << objects.pop 
-        end
-        while objects.size>0 do     
-            output << objects.pop 
-        end
-        output
-    end
-
     # NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
     def self.aliveObjectsSpecialCircumstancesProcessing(objects)
         minusEmailsUnixtime = NSXMiscUtils::getMinusEmailsUnixtimeOrNull()
@@ -45,12 +32,11 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
     def self.catalystObjectsForMainListing()
-        objects = NSXCatalystObjectsOperator::getAliveObjects()   
+        objects = NSXCatalystObjectsOperator::getAliveObjects()
+        objects = NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
+        objects
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
-        objects = NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
-        objects = NSXCatalystObjectsOperator::arrangeObjectsOnDoubleDirection(objects)
-        objects
     end
 
 end
