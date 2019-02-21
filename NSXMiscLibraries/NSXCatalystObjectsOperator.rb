@@ -12,11 +12,6 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
-    # NSXCatalystObjectsOperator::objectUUIDsToCatalystObjects(objectuuids)
-    def self.objectUUIDsToCatalystObjects(objectuuids)
-        NSXCatalystObjectsOperator::getObjects().select{|object| objectuuids.include?(object["uuid"]) }
-    end
-
     # NSXCatalystObjectsOperator::getAliveObjects()
     def self.getAliveObjects()
         objects = NSXCatalystObjectsOperator::getObjects()
@@ -37,33 +32,6 @@ class NSXCatalystObjectsOperator
         output
     end
 
-    # NSXCatalystObjectsOperator::getStoredFrozenObjectsOrNull()
-    def self.getStoredFrozenObjectsOrNull()
-        objects = KeyValueStore::getOrNull(nil, "d685c96f-250f-4529-ba85-eb7f38a18b40")
-        return nil if objects.nil?
-        JSON.parse(objects)
-    end
-
-    # NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(aliveObjects)
-    def self.getDoubleDirectionFrozenObjects(aliveObjects)
-        frozenObjects = NSXCatalystObjectsOperator::getStoredFrozenObjectsOrNull()
-        if frozenObjects.nil? then
-            if aliveObjects.size<2 then
-                return aliveObjects
-            end
-            objects = NSXCatalystObjectsOperator::arrangeObjectsOnDoubleDirection(aliveObjects)
-            KeyValueStore::set(nil, "d685c96f-250f-4529-ba85-eb7f38a18b40", JSON.generate(objects))
-            return objects
-        else
-            frozenObjectsStillCurrent = frozenObjects.select{|fobject| aliveObjects.map{|o| o["uuid"] }.include?(fobject["uuid"]) }
-            if frozenObjectsStillCurrent.empty? then
-                KeyValueStore::destroy(nil, "d685c96f-250f-4529-ba85-eb7f38a18b40")
-                return NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(aliveObjects)
-            end
-            return frozenObjectsStillCurrent
-        end     
-    end
-
     # NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
     def self.aliveObjectsSpecialCircumstancesProcessing(objects)
         minusEmailsUnixtime = NSXMiscUtils::getMinusEmailsUnixtimeOrNull()
@@ -80,8 +48,9 @@ class NSXCatalystObjectsOperator
         objects = NSXCatalystObjectsOperator::getAliveObjects()   
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
-        objects = NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(objects)
-        NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
+        objects = NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
+        objects = NSXCatalystObjectsOperator::arrangeObjectsOnDoubleDirection(objects)
+        objects
     end
 
 end
