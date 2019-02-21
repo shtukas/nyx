@@ -3,17 +3,6 @@
 
 class NSXCatalystObjectsOperator
 
-    # NSXCatalystObjectsOperator::getEndOfCompulsoryTasks(metric)
-    def self.getEndOfCompulsoryTasks(metric)
-        {
-            "uuid"      => "10bd6790", 
-            "agentuid"  => nil,
-            "metric"    => metric,
-            "announce"  => "(╯°□°）╯︵ ┻━┻".yellow,
-            "commands"  => []
-        }
-    end
-
     # NSXCatalystObjectsOperator::getObjects()
     def self.getObjects()
         NSXBob::agents()
@@ -35,33 +24,41 @@ class NSXCatalystObjectsOperator
             .select{|object| object["metric"] >= 0.2 }
     end
 
+    # NSXCatalystObjectsOperator::arrangeObjectsOnDoubleDirection(objects)
+    def self.arrangeObjectsOnDoubleDirection(objects)
+        output = []
+        while objects.size>2 do
+            output << objects.shift     
+            output << objects.pop 
+        end
+        while objects.size>0 do     
+            output << objects.pop 
+        end
+        output
+    end
+
     # NSXCatalystObjectsOperator::getStoredFrozenObjectsOrNull()
     def self.getStoredFrozenObjectsOrNull()
-        return nil if Time.new.hour<18
-        objects = KeyValueStore::getOrNull(nil, "#{CATALYST_RUN_HASH}:d685c96f-250f-4529-ba85-eb7f38a18b39")
+        objects = KeyValueStore::getOrNull(nil, "d685c96f-250f-4529-ba85-eb7f38a18b40")
         return nil if objects.nil?
         JSON.parse(objects)
     end
 
-    # NSXCatalystObjectsOperator::getManagedFrozenObjectsOrNull()
-    def self.getManagedFrozenObjectsOrNull()
-        aliveObjects = NSXCatalystObjectsOperator::getAliveObjects()
+    # NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(aliveObjects)
+    def self.getDoubleDirectionFrozenObjects(aliveObjects)
         frozenObjects = NSXCatalystObjectsOperator::getStoredFrozenObjectsOrNull()
         if frozenObjects.nil? then
-            aliveObjectsSample = aliveObjects
-                .reject{|object| object["agentuid"]=="d3d1d26e-68b5-4a99-a372-db8eb6c5ba58" }
-                .sample(10)
-                .shuffle
-            if aliveObjectsSample.size<5 then
-                return nil
+            if aliveObjects.size<2 then
+                return aliveObjects
             end
-            KeyValueStore::set(nil, "#{CATALYST_RUN_HASH}:d685c96f-250f-4529-ba85-eb7f38a18b39", JSON.generate(aliveObjectsSample))
-            return aliveObjectsSample
+            objects = NSXCatalystObjectsOperator::arrangeObjectsOnDoubleDirection(aliveObjects)
+            KeyValueStore::set(nil, "d685c96f-250f-4529-ba85-eb7f38a18b40", JSON.generate(objects))
+            return objects
         else
             frozenObjectsStillCurrent = frozenObjects.select{|fobject| aliveObjects.map{|o| o["uuid"] }.include?(fobject["uuid"]) }
-            if frozenObjectsStillCurrent.size<5 then
-                KeyValueStore::destroy(nil, "#{CATALYST_RUN_HASH}:d685c96f-250f-4529-ba85-eb7f38a18b39")
-                return NSXCatalystObjectsOperator::getManagedFrozenObjectsOrNull()
+            if frozenObjectsStillCurrent.empty? then
+                KeyValueStore::destroy(nil, "d685c96f-250f-4529-ba85-eb7f38a18b40")
+                return NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(aliveObjects)
             end
             return frozenObjectsStillCurrent
         end     
@@ -80,13 +77,12 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
     def self.catalystObjectsForMainListing()
-        if Time.new.hour>=18 then
-            objects = NSXCatalystObjectsOperator::getManagedFrozenObjectsOrNull()
-            return objects if objects
-        end
         objects = NSXCatalystObjectsOperator::getAliveObjects()   
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
+        if Time.new.hour > 12 then
+            objects = NSXCatalystObjectsOperator::getDoubleDirectionFrozenObjects(objects)
+        end
         NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
     end
 
