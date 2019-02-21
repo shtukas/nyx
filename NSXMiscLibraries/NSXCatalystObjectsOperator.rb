@@ -67,8 +67,8 @@ class NSXCatalystObjectsOperator
         end     
     end
 
-    # NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(object)
-    def self.aliveObjectsSpecialCircumstancesProcessing(object)
+    # NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
+    def self.aliveObjectsSpecialCircumstancesProcessing(objects)
         minusEmailsUnixtime = NSXMiscUtils::getMinusEmailsUnixtimeOrNull()
         if minusEmailsUnixtime and (Time.new.to_i - minusEmailsUnixtime) < 3600 then
             objects = objects.reject{|object|
@@ -87,7 +87,7 @@ class NSXCatalystObjectsOperator
         objects = NSXCatalystObjectsOperator::getAliveObjects()   
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
-        NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(object)
+        NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
     end
 
 end
