@@ -48,8 +48,8 @@ class NSXCatalystObjectsOperator
             uuids
         }
         metricRecomputation = lambda {|metric|
-            # [0.2, 0.6] -> [0.6, 0.9]
-            ((metric-0.2).to_f/4)*3 + 0.6
+            # [0.2, 0.6] -> [0.9, 0.6]
+            0.9 - ((metric-0.2).to_f/4)*3
         }
         uuidsx = getTodayUUIDsOfLowElements.call(objects)
         objects = objects.map{|object|
