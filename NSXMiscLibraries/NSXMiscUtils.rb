@@ -439,4 +439,14 @@ class NSXMiscUtils
         value.to_i
     end
 
+    # NSXMiscUtils::getPlanningText(objectuuid)
+    def self.getPlanningText(objectuuid)
+        KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/planning-strings", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "")
+    end
+
+    # NSXMiscUtils::setPlanningText(objectuuid, text)
+    def self.setPlanningText(objectuuid, text)
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/planning-strings", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
+    end
+
 end

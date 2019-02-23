@@ -19,9 +19,8 @@ class NSXGeneralCommandHandler
     def self.helpLines()
         [
             "catalyst --allowEmailQueriesOnLucille19",
-            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text'",
-            "Special General Commands: search: <pattern>",
-            "Special Object Commands: ,, .. -- +datetimecode +<weekdayname> +<integer>day(s) +<integer>hour(s) +YYYY-MM-DD expose"
+            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text' , search: <pattern> , --",
+            "Special Object Commands: ,, , .. , -- , +datetimecode , +<weekdayname> , +<integer>day(s) , +<integer>hour(s) , +YYYY-MM-DD expose , planning"
         ]
     end
     
@@ -213,6 +212,12 @@ class NSXGeneralCommandHandler
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == 'planning' then
+            text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getPlanningText(object["uuid"]))
+            NSXMiscUtils::setPlanningText(object["uuid"], text)
             return
         end
 
