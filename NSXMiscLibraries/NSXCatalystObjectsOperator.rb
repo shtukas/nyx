@@ -54,6 +54,7 @@ class NSXCatalystObjectsOperator
         uuidsx = getTodayUUIDsOfLowElements.call(objects)
         objects = objects.map{|object|
             if !object["isRunning"] and uuidsx.include?(object["uuid"]) then
+                object["announce"] = "[bumped] #{object["announce"]}"
                 object["metric-pre-bump:61a9ee39"] = object["metric"]
                 object["metric"] = metricRecomputation.call(object["metric"])
             end
