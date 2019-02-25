@@ -297,7 +297,6 @@ class NSXLightThreadUtils
                 break
             end
             if operation == "stream items dive" then
-                NSXStreamsUtils::shiftItemsOrdinalDownIfRequired(NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread))
                 items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                 next if items.size == 0
                 cardinal = items.size

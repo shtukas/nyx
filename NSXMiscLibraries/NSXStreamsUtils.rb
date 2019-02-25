@@ -207,23 +207,6 @@ class NSXStreamsUtils
         [item1, item2]
     end
 
-    # NSXStreamsUtils::shiftItemsOrdinalDownIfRequired(items)
-    def self.shiftItemsOrdinalDownIfRequired(items)
-        return if items.size == 0
-        if ( shift = items.first["ordinal"] ) < 0 then
-            items.each{|item|
-                item["ordinal"] = item["ordinal"] - shift
-                NSXStreamsUtils::sendItemToDisk(item)
-            }
-        end
-        if items.first["ordinal"] > 100 then
-            items.each{|item|
-                item["ordinal"] = item["ordinal"] - 100
-                NSXStreamsUtils::sendItemToDisk(item)
-            }
-        end
-    end
-
     # NSXStreamsUtils::sendOrphanStreamItemsToInbox()
     def self.sendOrphanStreamItemsToInbox()
         NSXStreamsUtils::streamItemsWithoutLightThreadOwner()
