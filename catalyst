@@ -33,6 +33,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # -----------------------------------------------------------------
 
+require_relative "NSXMiscLibraries/NSXCatalystUI.rb"
 require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
 require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
@@ -41,7 +42,7 @@ require_relative "NSXMiscLibraries/NSXDisplayUtils.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
 require_relative "NSXMiscLibraries/NSXGenericContents.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
-require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
+require_relative "NSXMiscLibraries/NSXEstateServices.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 require_relative "NSXMiscLibraries/NSXEmailTrackingClaims.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
@@ -66,181 +67,12 @@ CATALYST_RUN_HASH = SecureRandom.hex
 CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__) 
 CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
 
-class CatalystDevOps
-
-    # CatalystDevOps::collectInboxPackage()
-    def self.collectInboxPackage()
-        Dir.entries(CATALYST_INBOX_DROPOFF_FOLDERPATH)
-            .select{|filename| filename[0, 1] != '.' }
-            .map{|filename| "#{CATALYST_INBOX_DROPOFF_FOLDERPATH}/#{filename}" }
-            .each{|sourcelocation|
-                genericItem = NSXGenericContents::issueItemLocationMoveOriginal(sourcelocation)
-                NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem) # Inbox
-            }
-    end
-
-    # CatalystDevOps::locationHashRecursively(location)
-    def self.locationHashRecursively(location)
-        if File.file?(location) then
-            Digest::SHA1.hexdigest("#{location}:#{Digest::SHA1.file(location).hexdigest}")
-        else
-            trace = Dir.entries(location)
-                .reject{|filename| filename.start_with?(".") }
-                .map{|filename| "#{location}/#{filename}" }
-                .map{|location| CatalystDevOps::locationHashRecursively(location) }
-                .join("::")
-            Digest::SHA1.hexdigest(trace)
-        end
-    end
-
-end
-
-class CatalystUI
-
-    # CatalystUI::stringOrFirstString(content_type)
-    def self.stringOrFirstString(content_type)
-        if content_type.class.to_s == "String" then
-            content_type
-        else
-            content_type.first
-        end
-    end
-
-    # CatalystUI::objectShouldTriggerOnScreenNotification(object)
-    def self.objectShouldTriggerOnScreenNotification(object)
-        object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
-    end
-
-    # CatalystUI::cardinalForTakingAllTheRunnings(objects)
-    def self.cardinalForTakingAllTheRunnings(objects, cardinal = 0)
-        objects = objects.clone
-        if objects.any?{|object| object["isRunning"] } then
-            CatalystUI::cardinalForTakingAllTheRunnings(objects[1, objects.size], cardinal+1)
-        else
-            cardinal
-        end
-    end
-
-    # CatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
-    def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
-
-        system("clear")
-
-        while displayObjects.size>0 and NSXMiscUtils::objectIsAutoDone(displayObjects.first) do
-            puts "-> processing auto done".green
-            NSXGeneralCommandHandler::processCommand(displayObjects.first, "done")
-            displayObjects = displayObjects.drop(1)
-            return
-        end
-        
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
-
-        if displayObjects.size==0 then
-            puts "No objects found"
-            print "--> "
-            command = STDIN.gets().strip
-            NSXGeneralCommandHandler::processCommand(nil, command)
-            return
-        end
-
-        performanceReportExecutableFilepath = "/Galaxy/LucilleOS/Binaries/month-performance"
-        if !File.exists?(performanceReportExecutableFilepath) then
-            puts "I can see the performance report executable filepath"
-            LucilleCore::pressEnterToContinue()
-            return
-        else
-            report = `#{performanceReportExecutableFilepath}`
-            report = JSON.parse(report)
-            if report["rent-percentage"] < 110 then
-                puts "Month performance: #{report["rent-percentage"]} %".yellow
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
-        end
-
-        standardlp = NSXMiscUtils::getStandardListingPosition()
-        focusobject = nil
-
-        displayObjects
-            .first([CatalystUI::cardinalForTakingAllTheRunnings(displayObjects), verticalSpaceLeft].max)
-            .each_with_index{|object, indx|
-                position = indx+1
-                if (position>1 and verticalSpaceLeft<=0) then
-                    next
-                end
-                if position == standardlp then
-                    focusobject = object
-                end 
-                displayStr = NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
-                verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-                puts displayStr
-                verticalSpaceLeft = verticalSpaceLeft - verticalSize
-
-            }
-
-        if focusobject.nil? and (standardlp>1) then
-            NSXMiscUtils::setStandardListingPosition(1)
-            return
-        end
-
-        if focusobject.nil? then
-            puts "Nothing to do for the moment (^_^)"
-        end
-
-        # -----------------------------------------------------------------------------------
-
-        print "--> "
-        endOfPrintTime = Time.new.to_f
-        command = STDIN.gets().strip
-        commandTime = Time.new.to_f
-        if command=='' and (commandTime - endOfPrintTime) < 0.5 then
-            return
-        end
-
-        # -----------------------------------------------------------------------------------
-
-        if command == "" and NSXMiscUtils::objectIsDoneOnEmptyCommand(focusobject) then
-            NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            return
-        end
-
-        if command == "done" then
-            NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            return
-        end
-
-        if command.start_with?("'") then
-            position = command[1,9].strip.to_i
-            return if position==0
-            return if position > displayObjects.size
-            object = displayObjects[position-1]
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
-            return
-        end
-
-        NSXGeneralCommandHandler::processCommand(focusobject, command)
-    end
-
-    # CatalystUI::standardUILoop()
-    def self.standardUILoop()
-        loop {
-            if STARTING_CODE_HASH != CatalystDevOps::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
-                puts "Code change detected. Exiting."
-                return
-            end
-            CatalystDevOps::collectInboxPackage()
-            objects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-            CatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
-        }
-    end
-
-end
-
 # -------------------------------------------------------------------------
 # nslog
 
 # -------------------------------------------------------------------------
 
-STARTING_CODE_HASH = CatalystDevOps::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
+STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
 # -------------------------------------------------------------------------
 
@@ -264,7 +96,7 @@ NSXStreamsUtils::allStreamsItemsEnumerator()
 # Archives Timeline Garbage Collection
 
 if NSXMiscUtils::isLucille18() then
-    NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
+    NSXEstateServices::archivesTimelineGarbageCollection(true)
 end
 
 # -------------------------------------------------------------------------
@@ -274,7 +106,7 @@ end
 Thread.new {
     loop {
         sleep 130
-        if NSXCatalystObjectsOperator::catalystObjectsForMainListing().any?{|object| CatalystUI::objectShouldTriggerOnScreenNotification(object) } then
+        if NSXCatalystObjectsOperator::catalystObjectsForMainListing().any?{|object| NSXCatalystUI::objectShouldTriggerOnScreenNotification(object) } then
             NSXMiscUtils::onScreenNotification("Catalyst", "Interruption")
         end
     }
@@ -295,5 +127,5 @@ Thread.new {
 
 # -------------------------------------------------------------------------
 
-CatalystUI::standardUILoop()
+NSXCatalystUI::standardUILoop()
 

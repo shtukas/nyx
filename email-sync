@@ -33,6 +33,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # -----------------------------------------------------------------
 
+require_relative "NSXMiscLibraries/NSXCatalystUI.rb"
 require_relative "NSXMiscLibraries/NSXConstants.rb"
 require_relative "NSXMiscLibraries/NSXBob.rb"
 require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
@@ -41,7 +42,7 @@ require_relative "NSXMiscLibraries/NSXDisplayUtils.rb"
 require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
 require_relative "NSXMiscLibraries/NSXGenericContents.rb"
 require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
-require_relative "NSXMiscLibraries/NSXCatalystDevOps.rb"
+require_relative "NSXMiscLibraries/NSXEstateServices.rb"
 require_relative "NSXMiscLibraries/NSXEmailClients.rb"
 require_relative "NSXMiscLibraries/NSXEmailTrackingClaims.rb"
 require_relative "NSXMiscLibraries/NSXFolderProbe.rb"

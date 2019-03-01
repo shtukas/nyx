@@ -204,7 +204,7 @@ class NSXGenericContents
     # NSXGenericContents::displayableEmailParts(mail)
     def self.displayableEmailParts(mail)
         if mail.multipart? then
-            mail.parts.to_a.select{|part| CatalystUI::stringOrFirstString(part.content_type).start_with?("text/plain") }
+            mail.parts.to_a.select{|part| NSXCatalystUI::stringOrFirstString(part.content_type).start_with?("text/plain") }
         else
             [ mail.body ]
         end
