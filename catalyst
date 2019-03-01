@@ -242,7 +242,32 @@ end
 
 STARTING_CODE_HASH = CatalystDevOps::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
+# -------------------------------------------------------------------------
+
 NSXStreamsUtils::sendOrphanStreamItemsToInbox()
+
+# -------------------------------------------------------------------------
+
+# Removing old dead emails
+
+NSXStreamsUtils::allStreamsItemsEnumerator()
+.each{|item|
+    next if item["emailTrackingClaim"].nil?
+    next if item["emailTrackingClaim"]["status"] != "dead"
+    next if item["emailTrackingClaim"]["lastStatusUpdateUnixtime"] < (Time.new.to_i - 86400*30) # We keep the dead ones for 30 days
+    puts JSON.pretty_generate(item)
+    NSXStreamsUtils::destroyItem(item["filename"])
+}
+
+# -------------------------------------------------------------------------
+
+# Archives Timeline Garbage Collection
+
+if NSXMiscUtils::isLucille18() then
+    NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
+end
+
+# -------------------------------------------------------------------------
 
 # Catalyst Interruption Screen Notification.
 
@@ -255,17 +280,7 @@ Thread.new {
     }
 }
 
-# Archives Timeline Garbage Connection
-
-Thread.new {
-    return if !NSXMiscUtils::isLucille18()
-    loop {
-        sleep 140 
-        if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "17e6377e-0ee6-4e38-80cf-40f40ca9cae9", 86400) then
-            NSXCatalystDevOps::archivesTimelineGarbageCollection(false)
-        end
-    }
-}
+# -------------------------------------------------------------------------
 
 # Email Sync
 

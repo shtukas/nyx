@@ -179,6 +179,8 @@ class GeneralEmailClient
             NSXEmailTrackingClaims::commitClaimToDisk(emailTrackingClaim)
         }
 
+        imap.expunge
+
         # ------------------------------------------------------------------------
         # Updating the status of the existing StreamItem based on the contents of emailUIDsOnTheServer
         # Essentially if we have a stream item that is not on the server, we mark it appropriately.
@@ -188,6 +190,7 @@ class GeneralEmailClient
             claim = item["emailTrackingClaim"]
             next if claim.nil?
             claim = NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(claim["emailuid"])
+            next if claim.nil?
             next if claim["status"] == "detached"
             next if claim["status"] == "dead"
             next if claim["status"] == "deleted-on-server"
