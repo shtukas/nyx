@@ -36,9 +36,9 @@ class NSXAgentLightThread
 
     # NSXAgentLightThread::getLightThreadObjects(lightThread)
     def self.getLightThreadObjects(lightThread)
-        objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
-        return objects if !objects.empty?
-        [ NSXLightThreadUtils::lightThreadToCatalystObject(lightThread) ]
+        lightThreadCatalystObject = NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
+        objects = (lightThreadCatalystObject["isRunning"] ? [ lightThreadCatalystObject ] : [] ) + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
+        objects
     end
 
     # NSXAgentLightThread::getObjects()
