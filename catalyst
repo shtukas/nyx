@@ -66,38 +66,10 @@ require_relative "NSXAgents/NSXAgentWave.rb"
 CATALYST_RUN_HASH = SecureRandom.hex
 CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__) 
 CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
-
-# -------------------------------------------------------------------------
-# nslog
-
-# -------------------------------------------------------------------------
-
 STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
 # -------------------------------------------------------------------------
-
-NSXStreamsUtils::sendOrphanStreamItemsToInbox()
-
-# -------------------------------------------------------------------------
-
-# Removing old dead emails
-
-NSXStreamsUtils::allStreamsItemsEnumerator()
-.each{|item|
-    next if item["emailTrackingClaim"].nil?
-    next if item["emailTrackingClaim"]["status"] != "dead"
-    next if item["emailTrackingClaim"]["lastStatusUpdateUnixtime"] < (Time.new.to_i - 86400*30) # We keep the dead ones for 30 days
-    puts JSON.pretty_generate(item)
-    NSXStreamsUtils::destroyItem(item["filename"])
-}
-
-# -------------------------------------------------------------------------
-
-# Archives Timeline Garbage Collection
-
-if NSXMiscUtils::isLucille18() then
-    NSXEstateServices::archivesTimelineGarbageCollection(true)
-end
+# nslog
 
 # -------------------------------------------------------------------------
 
@@ -109,19 +81,6 @@ Thread.new {
         if NSXCatalystObjectsOperator::catalystObjectsForMainListing().any?{|object| NSXCatalystUI::objectShouldTriggerOnScreenNotification(object) } then
             NSXMiscUtils::onScreenNotification("Catalyst", "Interruption")
         end
-    }
-}
-
-# -------------------------------------------------------------------------
-
-# Email Sync
-
-Thread.new {
-    return if !NSXMiscUtils::isLucille18()
-    sleep 30
-    loop {
-        NSXMiscUtils::emailSync(false)
-        sleep 1200
     }
 }
 

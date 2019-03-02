@@ -28,9 +28,9 @@ class NSXEmailTrackingClaims
 
     # NSXEmailTrackingClaims::commitClaimToDisk(claim)
     def self.commitClaimToDisk(claim)
-        KeyValueStore::set(nil, "9bba7e64-2322-4e90-835f-5c4fa5929c87:#{claim["emailuid"]}", JSON.generate(claim))
-        KeyValueStore::set(nil, "9bba7e64-06e2-4999-a005-bbed7e9c1af3:#{claim["genericContentsItemUUID"]}", JSON.generate(claim))
-        KeyValueStore::set(nil, "9bba7e64-e0eb-4dee-9340-be439f7891ff:#{claim["streamItemUUID"]}", JSON.generate(claim))
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Email-Metadata-KVStoreRepository", "9bba7e64-2322-4e90-835f-5c4fa5929c87:#{claim["emailuid"]}", JSON.generate(claim))
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Email-Metadata-KVStoreRepository", "9bba7e64-06e2-4999-a005-bbed7e9c1af3:#{claim["genericContentsItemUUID"]}", JSON.generate(claim))
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Email-Metadata-KVStoreRepository", "9bba7e64-e0eb-4dee-9340-be439f7891ff:#{claim["streamItemUUID"]}", JSON.generate(claim))
     end
 
     # NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(emailuid)

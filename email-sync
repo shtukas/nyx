@@ -63,5 +63,4 @@ require_relative "NSXAgents/NSXAgentWave.rb"
 
 # -------------------------------------------------------------------------
 
-#NSXMiscUtils::emailSync(true)
-GeneralEmailClient::downloadWithSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/guardian-relay.json")), true)
+NSXMiscUtils::emailSync(true)

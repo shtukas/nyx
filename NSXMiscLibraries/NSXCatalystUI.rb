@@ -134,6 +134,25 @@ class NSXCatalystUI
                 puts "Code change detected. Exiting."
                 return
             end
+            if NSXMiscUtils::isLucille18() and NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "532fdc97-d847-4769-b7b1-ade655cda231", 1200) then
+                NSXMiscUtils::emailSync(true)
+            end
+            if NSXMiscUtils::isLucille18() and NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "cb3b93db-797f-43f6-a94d-4fbe96e490f", 3600) then
+                NSXStreamsUtils::sendOrphanStreamItemsToInbox()
+            end
+            if NSXMiscUtils::isLucille18() and NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "4021fd4d-8276-4523-b52f-491dd504e949", 86400) then
+                NSXEstateServices::archivesTimelineGarbageCollection(true)
+            end
+            if NSXMiscUtils::isLucille18() and NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "3651fd6f-1144-4dd0-85bf-1509ec71acf6", 86400) then
+                NSXStreamsUtils::allStreamsItemsEnumerator()
+                .each{|item|
+                    next if item["emailTrackingClaim"].nil?
+                    next if item["emailTrackingClaim"]["status"] != "dead"
+                    next if item["emailTrackingClaim"]["lastStatusUpdateUnixtime"] < (Time.new.to_i - 86400*30) # We keep the dead ones for 30 days
+                    puts JSON.pretty_generate(item)
+                    NSXStreamsUtils::destroyItem(item["filename"])
+                }
+            end
             NSXEstateServices::collectInboxPackage()
             objects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
