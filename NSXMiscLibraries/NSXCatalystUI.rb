@@ -134,8 +134,12 @@ class NSXCatalystUI
                 puts "Code change detected. Exiting."
                 return
             end
-            if NSXMiscUtils::isLucille18() and NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "532fdc97-d847-4769-b7b1-ade655cda231", 1200) then
-                NSXMiscUtils::emailSync(true)
+            if NSXMiscUtils::isLucille18() and NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "632fdc97-d847-4769-b7b1-ade655cda231", 1200) then
+                begin
+                    NSXMiscUtils::emailSync(true)
+                rescue SocketError
+                    puts "-> Could not retrieve emails"
+                end
             end
             if NSXMiscUtils::isLucille18() and NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "cb3b93db-797f-43f6-a94d-4fbe96e490f", 3600) then
                 NSXStreamsUtils::sendOrphanStreamItemsToInbox()
