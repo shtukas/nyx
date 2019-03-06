@@ -162,6 +162,7 @@ class GeneralEmailClient
 
             # We skip if there is a tracking claim for this emailuid
             # Claim means we have already downloaded the email
+            #puts "Downloading emails: emailuid: #{emailuid}" if verbose
             next if NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(emailuid)
 
             msg  = imap.fetch(id,'RFC822')[0].attr['RFC822']
@@ -187,9 +188,8 @@ class GeneralEmailClient
 
         NSXStreamsUtils::allStreamsItemsEnumerator()
         .each{|item|
+            #puts "Updating stream item claims: item uuid: #{item["uuid"]}" if verbose
             claim = item["emailTrackingClaim"]
-            next if claim.nil?
-            claim = NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(claim["emailuid"])
             next if claim.nil?
             next if claim["status"] == "detached"
             next if claim["status"] == "dead"
@@ -212,6 +212,7 @@ class GeneralEmailClient
 
         NSXStreamsUtils::allStreamsItemsEnumerator()
         .each{|item|
+            #puts "Deleting emails on server: item uuid: #{item["uuid"]}" if verbose
             claim = item["emailTrackingClaim"]
             next if claim.nil?
             next if claim["status"] == "detached"
