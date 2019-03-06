@@ -116,7 +116,6 @@ class NSXGeneralCommandHandler
             streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
             puts JSON.pretty_generate(streamItem)
             catalystobjectuuid = streamItem["uuid"][0,8]
-
             datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")
             datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
             return if datetime.nil?
