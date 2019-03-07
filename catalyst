@@ -33,33 +33,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # -----------------------------------------------------------------
 
-require_relative "NSXMiscLibraries/NSXCatalystUI.rb"
-require_relative "NSXMiscLibraries/NSXConstants.rb"
-require_relative "NSXMiscLibraries/NSXBob.rb"
-require_relative "NSXMiscLibraries/NSXCatalystObjectsOperator.rb"
-require_relative "NSXMiscLibraries/NSXData.rb"
-require_relative "NSXMiscLibraries/NSXDisplayUtils.rb"
-require_relative "NSXMiscLibraries/NSXGeneralCommandHandler.rb"
-require_relative "NSXMiscLibraries/NSXGenericContents.rb"
-require_relative "NSXMiscLibraries/NSXDoNotShowUntilDatetime.rb"
-require_relative "NSXMiscLibraries/NSXEstateServices.rb"
-require_relative "NSXMiscLibraries/NSXEmailClients.rb"
-require_relative "NSXMiscLibraries/NSXEmailTrackingClaims.rb"
-require_relative "NSXMiscLibraries/NSXFolderProbe.rb"
-require_relative "NSXMiscLibraries/NSXLightThreadUtils.rb"
-require_relative "NSXMiscLibraries/NSXMiscUtils.rb"
-require_relative "NSXMiscLibraries/NSXRunner.rb"
-require_relative "NSXMiscLibraries/NSXStreamsUtils.rb"
-require_relative "NSXMiscLibraries/NSXStringParser.rb"
-
-require_relative "NSXAgents/NSXAgentBabyNights.rb"
-require_relative "NSXAgents/NSXAgentTodayNotes.rb"
-require_relative "NSXAgents/NSXAgentHouse.rb"
-require_relative "NSXAgents/NSXAgentLightThread.rb"
-require_relative "NSXAgents/NSXAgentStreams.rb"
-require_relative "NSXAgents/NSXAgentTheBridge.rb"
-require_relative "NSXAgents/NSXAgentVienna.rb"
-require_relative "NSXAgents/NSXAgentWave.rb"
+require_relative "NSXMiscLibraries/load-library.rb"
+require_relative "NSXAgents/load-library.rb"
 
 # -------------------------------------------------------------------------
 
