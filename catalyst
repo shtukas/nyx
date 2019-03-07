@@ -54,7 +54,7 @@ NSXEstateServices::archivesTimelineGarbageCollection(true)
 
 NSXStreamsUtils::allStreamsItemsEnumerator()
 .each{|item|
-    claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["data"]["stream-item"]["uuid"])
+    claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
     next if claim.nil?
     next if claim["status"] != "dead"
     puts JSON.pretty_generate(item)

@@ -332,7 +332,6 @@ class NSXStreamsUtils
         if filepath.nil? then
             puts "Error 316492ca: unknown file (#{filename})" 
             LucilleCore::pressEnterToContinue()
-            return
         end
         item = JSON.parse(IO.read(filepath))
         NSXGenericContents::destroyItem(item["generic-content-filename"])
