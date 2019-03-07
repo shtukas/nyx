@@ -14,7 +14,6 @@ StreamItem {
     "ordinal"                  : Float
     "run-data"                 : nil | Array[StreamItemRunTimeData]
     "filepath"                 : String # last known filepath
-    "emailTrackingClaim"       : null | EmailTrackingClaim
 }
 
 StreamItemRunTimeData : (Unixtime, TimespanInSeconds)

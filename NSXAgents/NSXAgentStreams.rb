@@ -39,31 +39,35 @@ class NSXAgentStreams
         NSXLightThreadUtils::addTimeToLightThread(lightThreadUUID, timespanInSeconds)
     end
 
+    # NSXAgentStreams::doneObjectEmailCarrier(object)
+    def self.doneObjectEmailCarrier(object)
+        claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["data"]["stream-item"]["uuid"])
+        if claim["status"]=="init" then
+            claim["status"] = "deleted-on-local"
+            NSXEmailTrackingClaims::commitClaimToDisk(claim)
+        end
+        if claim["status"]=="detached" then
+            claim["status"] = "deleted-on-local"
+            NSXEmailTrackingClaims::commitClaimToDisk(claim)
+        end
+        if claim["status"]=="deleted-on-server" then
+            claim["status"] = "dead"
+            NSXEmailTrackingClaims::commitClaimToDisk(claim)
+        end
+        if claim["status"]=="deleted-on-local" then
+        end
+        if claim["status"]=="dead" then
+        end
+    end
+
     # NSXAgentStreams::doneObject(object)
     def self.doneObject(object)
         NSXAgentStreams::stopObject(object)
         # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
         if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-            if object["data"]["stream-item"]["emailTrackingClaim"] then
-                claim = object["data"]["stream-item"]["emailTrackingClaim"]
-                claim = NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(claim["emailuid"])
-                if claim["status"]=="init" then
-                    claim["status"] = "deleted-on-local"
-                    NSXEmailTrackingClaims::commitClaimToDisk(claim)
-                end
-                if claim["status"]=="detached" then
-                    claim["status"] = "deleted-on-local"
-                    NSXEmailTrackingClaims::commitClaimToDisk(claim)
-                end
-                if claim["status"]=="deleted-on-server" then
-                    claim["status"] = "dead"
-                    NSXEmailTrackingClaims::commitClaimToDisk(claim)
-                end
-                if claim["status"]=="deleted-on-local" then
-                end
-                if claim["status"]=="dead" then
-                end
-                return # we return because we do not destroy the object, it needs to live.
+            if NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["data"]["stream-item"]["uuid"]) then
+                NSXAgentStreams::doneObjectEmailCarrier(object)
+                return
             end
         end
         NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
@@ -95,9 +99,8 @@ class NSXAgentStreams
         if command == "recast" then
             # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
             if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                if object["data"]["stream-item"]["emailTrackingClaim"] then
-                    claim = object["data"]["stream-item"]["emailTrackingClaim"]
-                    claim = NSXEmailTrackingClaims::getClaimByEmailUIDOrNull(claim["emailuid"])
+                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["data"]["stream-item"]["uuid"])
+                if claim then
                     if claim["status"]=="init" then
                         claim["status"] = "detached"
                         NSXEmailTrackingClaims::commitClaimToDisk(claim)
@@ -117,27 +120,6 @@ class NSXAgentStreams
         end
         if command == "push" then
             NSXStreamsUtils::resetRunDataAndRotateItem(object["data"]["light-thread"]["streamuuid"], 5, object["data"]["stream-item"]["uuid"])
-        end
-        if command == "ack" then
-            puts "NSXStreamsUtils::viewItem..."
-            NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
-            subcommands = ["done", "datecode", "recast"]
-            subcommand = LucilleCore::selectEntityFromListOfEntitiesOrNull("sub-command:", subcommands)
-            if subcommand == "done" then
-                NSXAgentStreams::doneObject(object)
-            end
-            if subcommand == "datecode" then
-                loop {
-                    datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
-                    datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
-                    next if datetime.nil?
-                    NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
-                    break
-                }
-            end
-            if subcommand == "recast" then
-                NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
-            end
         end
         if command == "description:" then
             itemuuid = object["data"]["stream-item"]["uuid"]

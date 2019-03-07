@@ -224,8 +224,8 @@ class NSXGeneralCommandHandler
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                if object["data"]["stream-item"]["emailTrackingClaim"] then
-                    claim = object["data"]["stream-item"]["emailTrackingClaim"]
+                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["data"]["stream-item"]["uuid"])
+                if claim then
                     claim["status"] = "detached"
                     NSXEmailTrackingClaims::commitClaimToDisk(claim)
                 end

@@ -176,8 +176,8 @@ class GeneralEmailClient
 
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
             streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem)
-            emailTrackingClaim = NSXEmailTrackingClaims::makeclaim(emailuid, genericContentsItem["uuid"], streamItem["uuid"])
-            NSXEmailTrackingClaims::commitClaimToDisk(emailTrackingClaim)
+            claim = NSXEmailTrackingClaims::makeclaim(emailuid, genericContentsItem["uuid"], streamItem["uuid"])
+            NSXEmailTrackingClaims::commitClaimToDisk(claim)
         }
 
         imap.expunge
@@ -189,7 +189,7 @@ class GeneralEmailClient
         NSXStreamsUtils::allStreamsItemsEnumerator()
         .each{|item|
             #puts "Updating stream item claims: item uuid: #{item["uuid"]}" if verbose
-            claim = item["emailTrackingClaim"]
+            claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
             next if claim.nil?
             next if claim["status"] == "detached"
             next if claim["status"] == "dead"
@@ -213,8 +213,9 @@ class GeneralEmailClient
         NSXStreamsUtils::allStreamsItemsEnumerator()
         .each{|item|
             #puts "Deleting emails on server: item uuid: #{item["uuid"]}" if verbose
-            claim = item["emailTrackingClaim"]
+            claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
             next if claim.nil?
+            next if claim["status"] == "init"
             next if claim["status"] == "detached"
             next if claim["status"] == "dead"
             next if claim["status"] == "deleted-on-server"
@@ -225,7 +226,7 @@ class GeneralEmailClient
                 claim["status"] = "dead"
                 NSXEmailTrackingClaims::commitClaimToDisk(claim)
             end
-        }        
+        }
 
         imap.expunge # delete all messages marked for deletion
 

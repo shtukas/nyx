@@ -88,7 +88,6 @@ class NSXStreamsUtils
                 next if File.basename(path)[-16, 16] != ".StreamItem.json"
                 item = JSON.parse(IO.read(path))
                 item["filepath"] = path
-                item["emailTrackingClaim"] = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
                 items << item
             end
         end
@@ -272,9 +271,10 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
     def self.streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if NSXRunner::isRunning?(item["uuid"])
-        return 0 if ( item["emailTrackingClaim"] and item["emailTrackingClaim"]["status"] == "deleted-on-server" )
-        return 0 if ( item["emailTrackingClaim"] and item["emailTrackingClaim"]["status"] == "deleted-on-local" )
-        return 0 if ( item["emailTrackingClaim"] and item["emailTrackingClaim"]["status"] == "dead" )
+        claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
+        return 0 if (claim and claim["status"] == "deleted-on-server")
+        return 0 if (claim and claim["status"] == "deleted-on-local")
+        return 0 if (claim and claim["status"] == "dead")
         lightThreadMetricForStreamItems + Math.exp(-item["ordinal"].to_f/1000).to_f/1000000
     end
 

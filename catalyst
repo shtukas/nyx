@@ -48,6 +48,21 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 
+NSXStreamsUtils::sendOrphanStreamItemsToInbox()
+
+NSXEstateServices::archivesTimelineGarbageCollection(true)
+
+NSXStreamsUtils::allStreamsItemsEnumerator()
+.each{|item|
+    claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["data"]["stream-item"]["uuid"])
+    next if claim.nil?
+    next if claim["status"] != "dead"
+    puts JSON.pretty_generate(item)
+    NSXStreamsUtils::destroyItem(item["filename"])
+}
+
+# -------------------------------------------------------------------------
+
 # Catalyst Interruption Screen Notification.
 
 Thread.new {
