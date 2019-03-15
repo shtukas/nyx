@@ -158,6 +158,7 @@ class NSXGeneralCommandHandler
             end
             if option == "LightThreads" then
                 NSXLightThreadUtils::lightThreadsDive()
+                NSXInMemoryCache::invalidate("f090f8ab-54ad-4f48-b6cb-c9b906480ffb")
             end
             if option == "email-sync" then
                 NSXMiscUtils::emailSync(true)
