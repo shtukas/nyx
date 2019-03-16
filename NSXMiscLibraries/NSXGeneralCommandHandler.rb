@@ -161,7 +161,11 @@ class NSXGeneralCommandHandler
                 NSXInMemoryCache::invalidate("f090f8ab-54ad-4f48-b6cb-c9b906480ffb")
             end
             if option == "email-sync" then
-                NSXMiscUtils::emailSync(true)
+                begin
+                    NSXMiscUtils::emailSync(true)
+                rescue SocketError
+                    puts "-> Could not retrieve emails"
+                end
             end
             if option == "speed" then
                 puts "Agents Speed Report"
