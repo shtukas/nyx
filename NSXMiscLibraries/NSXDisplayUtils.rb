@@ -105,11 +105,13 @@ class NSXDisplayUtils
         NSXGeneralCommandHandler::processCommand(object, command)
     end
 
-    # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
+    # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean
+    # Return value specifies if an oject was chosen and processed
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
         object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object) })
-        return if object.nil?
+        return false if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+        true
     end
 
     # NSXDisplayUtils::verticalSize(displayStr)
