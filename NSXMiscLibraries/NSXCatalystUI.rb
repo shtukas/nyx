@@ -139,7 +139,6 @@ class NSXCatalystUI
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end
-
 end
 
 
