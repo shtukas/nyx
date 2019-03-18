@@ -48,6 +48,22 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 
+class Timer
+    def initialize()
+        @startingTime = Time.new.to_f
+        @lastInstant = Time.new.to_f
+    end
+    def event(str)
+        instant = Time.new.to_f
+        puts "[Timer] #{str} (#{instant-@startingTime}, #{instant-@lastInstant})"
+        @lastInstant = instant
+    end
+end
+
+$TIMER81EF0221 = Timer.new
+
+# -------------------------------------------------------------------------
+
 NSXStreamsUtils::sendOrphanStreamItemsToInbox()
 
 NSXEstateServices::archivesTimelineGarbageCollection(true)

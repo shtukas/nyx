@@ -43,13 +43,9 @@ class NSXAgentLightThread
 
     # NSXAgentLightThread::getObjects()
     def self.getObjects()
-        objects = NSXInMemoryCache::getOrNull("f090f8ab-54ad-4f48-b6cb-c9b906480ffb")
-        return objects if objects
-        objects = NSXLightThreadUtils::lightThreads()
+        NSXLightThreadUtils::lightThreads()
             .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]) }
             .map{|lightThread| NSXAgentLightThread::getLightThreadObjects(lightThread) }.flatten
-        NSXInMemoryCache::set("f090f8ab-54ad-4f48-b6cb-c9b906480ffb", objects, 3600)
-        objects
     end
 
     def self.processObjectAndCommand(object, command)
@@ -67,7 +63,6 @@ class NSXAgentLightThread
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
         end
-        NSXInMemoryCache::invalidate("f090f8ab-54ad-4f48-b6cb-c9b906480ffb")
     end
 
     # NSXAgentLightThread::interface()

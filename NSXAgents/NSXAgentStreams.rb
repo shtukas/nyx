@@ -131,7 +131,6 @@ class NSXAgentStreams
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             NSXStreamsUtils::setItemOrdinal(itemuuid, ordinal)
         end
-        NSXInMemoryCache::invalidate("f090f8ab-54ad-4f48-b6cb-c9b906480ffb")
     end
 
     def self.interface()
