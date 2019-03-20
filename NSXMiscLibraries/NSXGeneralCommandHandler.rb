@@ -36,7 +36,7 @@ class NSXGeneralCommandHandler
             else
                 NSXGenericContents::issueItemText(description)
             end
-        streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
+        streamItem = NSXStreamsUtilsPublic::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
         puts JSON.pretty_generate(streamItem)
     end
 
@@ -86,10 +86,10 @@ class NSXGeneralCommandHandler
             catalystobjectuuid = nil
             if type == "LightThread" then
                 genericContentsItem = NSXGenericContents::issueItemText(text)
-                pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+                pair = NSXStreamsUtilsPublic::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
                 return if pair.nil?
                 streamuuid, ordinal = pair
-                streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
+                streamItem = NSXStreamsUtilsPrivate::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"][0,8]
             end
@@ -112,8 +112,8 @@ class NSXGeneralCommandHandler
             end
             genericContentsItem = NSXGenericContents::issueItemText(text)
             streamuuid = "03b79978bcf7a712953c5543a9df9047" # StreamUUID of LightThread Catalyst Inbox
-            ordinal = NSXStreamsUtils::getNextOrdinalForStream("03b79978bcf7a712953c5543a9df9047")
-            streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
+            ordinal = NSXStreamsUtilsPublic::getNextOrdinalForStream("03b79978bcf7a712953c5543a9df9047")
+            streamItem = NSXStreamsUtilsPrivate::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
             puts JSON.pretty_generate(streamItem)
             catalystobjectuuid = streamItem["uuid"][0,8]
             datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")

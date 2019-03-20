@@ -31,8 +31,8 @@ class NSXAgentStreams
     # NSXAgentStreams::stopObject(object)
     def self.stopObject(object)
         streamItemUUID = object["data"]["stream-item"]["uuid"]
-        timespanInSeconds = NSXStreamsUtils::stopStreamItem(streamItemUUID)
-        NSXStreamsUtils::stopPostProcessing(streamItemUUID)
+        timespanInSeconds = NSXStreamsUtilsPublic::stopStreamItem(streamItemUUID)
+        NSXStreamsUtilsPublic::stopPostProcessing(streamItemUUID)
         return if timespanInSeconds == 0
         lightThreadUUID = object["data"]["light-thread"]["uuid"]
         #puts "Notification: NSXAgentStreams, adding #{timespanInSeconds} seconds to LightThread '#{object["data"]["light-thread"]["description"]}'"
@@ -70,12 +70,12 @@ class NSXAgentStreams
                 return
             end
         end
-        NSXStreamsUtils::destroyItem(object["data"]["stream-item"]["filename"])
+        NSXStreamsUtilsPublic::destroyItem(object["data"]["stream-item"]["filename"])
     end
 
     def self.processObjectAndCommand(object, command)
         if command == "open" then
-            NSXStreamsUtils::viewItem(object["data"]["stream-item"]["filename"])
+            NSXStreamsUtilsPublic::viewItem(object["data"]["stream-item"]["filename"])
         end
         if command == "start" then
             NSXRunner::start(object["data"]["stream-item"]["uuid"])
@@ -116,20 +116,20 @@ class NSXAgentStreams
                 end
             end
             NSXAgentStreams::stopObject(object)
-            NSXStreamsUtils::recastStreamItem(object["data"]["stream-item"]["uuid"])
+            NSXStreamsUtilsPublic::recastStreamItem(object["data"]["stream-item"]["uuid"])
         end
         if command == "push" then
-            NSXStreamsUtils::resetRunDataAndRotateItem(object["data"]["light-thread"]["streamuuid"], 5, object["data"]["stream-item"]["uuid"])
+            NSXStreamsUtilsPublic::resetRunDataAndRotateItem(object["data"]["light-thread"]["streamuuid"], 5, object["data"]["stream-item"]["uuid"])
         end
         if command == "description:" then
             itemuuid = object["data"]["stream-item"]["uuid"]
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            NSXStreamsUtils::setItemDescription(itemuuid, description)
+            NSXStreamsUtilsPublic::setItemDescription(itemuuid, description)
         end
         if command == "ordinal:" then
             itemuuid = object["data"]["stream-item"]["uuid"]
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            NSXStreamsUtils::setItemOrdinal(itemuuid, ordinal)
+            NSXStreamsUtilsPublic::setItemOrdinal(itemuuid, ordinal)
         end
     end
 

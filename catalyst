@@ -64,17 +64,17 @@ $TIMER81EF0221 = Timer.new
 
 # -------------------------------------------------------------------------
 
-NSXStreamsUtils::sendOrphanStreamItemsToInbox()
+NSXStreamsUtilsPublic::sendOrphanStreamItemsToInbox()
 
 NSXEstateServices::archivesTimelineGarbageCollection(true)
 
-NSXStreamsUtils::allStreamsItemsEnumerator()
+NSXStreamsUtilsPublic::allStreamsItemsEnumerator()
 .each{|item|
     claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
     next if claim.nil?
     next if claim["status"] != "dead"
     puts JSON.pretty_generate(item)
-    NSXStreamsUtils::destroyItem(item["filename"])
+    NSXStreamsUtilsPublic::destroyItem(item["filename"])
 }
 
 # -------------------------------------------------------------------------

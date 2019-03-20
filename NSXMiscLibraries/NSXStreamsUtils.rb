@@ -22,17 +22,17 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 
 # ----------------------------------------------------------------------
 
-class NSXStreamsUtils
+class NSXStreamsUtilsPrivate
 
     # ----------------------------------------------------------------
     # Utils
 
-    # NSXStreamsUtils::timeStringL22()
+    # NSXStreamsUtilsPrivate::timeStringL22()
     def self.timeStringL22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # NSXStreamsUtils::newItemFilenameToFilepath(filename)
+    # NSXStreamsUtilsPrivate::newItemFilenameToFilepath(filename)
     def self.newItemFilenameToFilepath(filename)
         frg1 = filename[0,4]
         frg2 = filename[0,6]
@@ -46,7 +46,7 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # IO
 
-    # NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
+    # NSXStreamsUtilsPrivate::resolveFilenameToFilepathOrNullUseTheForce(filename)
     def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
         Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
@@ -56,7 +56,7 @@ class NSXStreamsUtils
         nil
     end
 
-    # NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+    # NSXStreamsUtilsPrivate::resolveFilenameToFilepathOrNull(filename)
     def self.resolveFilenameToFilepathOrNull(filename)
         filepath = KeyValueStore::getOrNull(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}")
         if filepath then
@@ -64,23 +64,23 @@ class NSXStreamsUtils
                 return filepath
             end
         end
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
+        filepath = NSXStreamsUtilsPrivate::resolveFilenameToFilepathOrNullUseTheForce(filename)
         if filepath then
             KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
         end
         filepath
     end
 
-    # NSXStreamsUtils::sendItemToDisk(item)
+    # NSXStreamsUtilsPrivate::sendItemToDisk(item)
     def self.sendItemToDisk(item)
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(item["filename"])
+        filepath = NSXStreamsUtilsPrivate::resolveFilenameToFilepathOrNull(item["filename"])
         if filepath.nil? then
-            filepath = NSXStreamsUtils::newItemFilenameToFilepath(item["filename"])
+            filepath = NSXStreamsUtilsPrivate::newItemFilenameToFilepath(item["filename"])
         end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NSXStreamsUtils::allStreamsItemsEnumerator()
+    # NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
     def self.allStreamsItemsEnumerator()
         Enumerator.new do |items|
             Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
@@ -93,16 +93,16 @@ class NSXStreamsUtils
         end
     end
 
-    # NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+    # NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
     def self.getStreamItemByUUIDOrNull(streamItemUUID)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+        NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
         .select{|item| item["uuid"] == streamItemUUID }
         .first
     end
 
-    # NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
+    # NSXStreamsUtilsPrivate::getStreamItemsOrdered(streamUUID)
     def self.getStreamItemsOrdered(streamUUID)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+        NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
             .select{|item| item["streamuuid"]==streamUUID }
             .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
     end
@@ -110,80 +110,73 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Issuers
 
-    # NSXStreamsUtils::makeItem(streamUUID, genericContentFilename, ordinal)
+    # NSXStreamsUtilsPrivate::makeItem(streamUUID, genericContentFilename, ordinal)
     def self.makeItem(streamUUID, genericContentFilename, ordinal)
         item = {}
         item["uuid"]                     = SecureRandom.hex
         item["streamuuid"]               = streamUUID
-        item["filename"]                 = "#{NSXStreamsUtils::timeStringL22()}.StreamItem.json"
+        item["filename"]                 = "#{NSXStreamsUtilsPrivate::timeStringL22()}.StreamItem.json"
         item["generic-content-filename"] = genericContentFilename        
         item["ordinal"]                  = ordinal
         item
     end
 
-    # NSXStreamsUtils::issueItem(streamUUID, genericContentFilename, ordinal)
+    # NSXStreamsUtilsPrivate::issueItem(streamUUID, genericContentFilename, ordinal)
     def self.issueItem(streamUUID, genericContentFilename, ordinal)
-        item = NSXStreamsUtils::makeItem(streamUUID, genericContentFilename, ordinal)
-        NSXStreamsUtils::sendItemToDisk(item)
+        item = NSXStreamsUtilsPrivate::makeItem(streamUUID, genericContentFilename, ordinal)
+        NSXStreamsUtilsPrivate::sendItemToDisk(item)
         item
     end
 
-    # NSXStreamsUtils::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
+    # NSXStreamsUtilsPrivate::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
     def self.issueItemAtNextOrdinal(streamUUID, genericContentFilename)
-        ordinal = NSXStreamsUtils::getNextOrdinalForStream(streamUUID)
-        NSXStreamsUtils::issueItem(streamUUID, genericContentFilename, ordinal)
+        ordinal = NSXStreamsUtilsPrivate::getNextOrdinalForStream(streamUUID)
+        NSXStreamsUtilsPrivate::issueItem(streamUUID, genericContentFilename, ordinal)
     end
 
-    # NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+    # NSXStreamsUtilsPrivate::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
     def self.issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
         genericContentFilename = genericItem["filename"]
-        NSXStreamsUtils::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
+        NSXStreamsUtilsPrivate::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
     end
 
-    # NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal)
+    # NSXStreamsUtilsPrivate::issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal)
     def self.issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal)
         genericContentFilename = genericItem["filename"]
-        NSXStreamsUtils::issueItem(streamUUID, genericContentFilename, ordinal)
+        NSXStreamsUtilsPrivate::issueItem(streamUUID, genericContentFilename, ordinal)
     end
 
     # -----------------------------------------------------------------
     # Data Processing
 
-    # NSXStreamsUtils::getNextOrdinalForStream(streamUUID)
+    # NSXStreamsUtilsPrivate::getNextOrdinalForStream(streamUUID)
     def self.getNextOrdinalForStream(streamUUID)
-        items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
+        items = NSXStreamsUtilsPrivate::getStreamItemsOrdered(streamUUID)
         return 1 if items.size==0
         items.map{|item| item["ordinal"] }.max + 1
     end
 
-    # NSXStreamsUtils::getFrontOfTheLineOrdinalForStream(streamUUID)
-    def self.getFrontOfTheLineOrdinalForStream(streamUUID)
-        items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
-        return 1 if items.size==0
-        items.map{|item| item["ordinal"] }.min - 1
-    end
-
-    # NSXStreamsUtils::streamItemsWithoutLightThreadOwner()
+    # NSXStreamsUtilsPrivate::streamItemsWithoutLightThreadOwner()
     def self.streamItemsWithoutLightThreadOwner()
         managed_streamuuids = NSXLightThreadUtils::lightThreads().map{|lt| lt["streamuuid"] }
-        NSXStreamsUtils::allStreamsItemsEnumerator().reject{|streamItem| managed_streamuuids.include?(streamItem["streamuuid"]) }
+        NSXStreamsUtilsPrivate::allStreamsItemsEnumerator().reject{|streamItem| managed_streamuuids.include?(streamItem["streamuuid"]) }
     end
 
-    # NSXStreamsUtils::recastStreamItem(streamItemUUID)
+    # NSXStreamsUtilsPrivate::recastStreamItem(streamItemUUID)
     def self.recastStreamItem(streamItemUUID)
-        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         return if item.nil?
-        pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+        pair = NSXStreamsUtilsPublic::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
         return if pair.nil?
         streamuuid, ordinal = pair
         item["streamuuid"] = streamuuid
         item["ordinal"] = ordinal
-        NSXStreamsUtils::sendItemToDisk(item)
+        NSXStreamsUtilsPrivate::sendItemToDisk(item)
     end
 
-    # NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
+    # NSXStreamsUtilsPrivate::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
     def self.newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
-        items = NSXStreamsUtils::getStreamItemsOrdered(streamUUID)
+        items = NSXStreamsUtilsPrivate::getStreamItemsOrdered(streamUUID)
         # First we remove the item from the stream
         items = items.reject{|item| item["uuid"]==streamItemUUID }
         if items.size == 0 then
@@ -195,62 +188,32 @@ class NSXStreamsUtils
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end
 
-    # NSXStreamsUtils::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+    # NSXStreamsUtilsPrivate::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
     def self.resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
-        item1 = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item1 = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         return if item1.nil?
         item2 = item1.clone
         item2["run-data"] = []
-        item2["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
-        NSXStreamsUtils::sendItemToDisk(item2)
+        item2["ordinal"] = NSXStreamsUtilsPrivate::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
+        NSXStreamsUtilsPrivate::sendItemToDisk(item2)
         [item1, item2]
     end
 
-    # NSXStreamsUtils::sendOrphanStreamItemsToInbox()
+    # NSXStreamsUtilsPrivate::sendOrphanStreamItemsToInbox()
     def self.sendOrphanStreamItemsToInbox()
-        NSXStreamsUtils::streamItemsWithoutLightThreadOwner()
+        NSXStreamsUtilsPrivate::streamItemsWithoutLightThreadOwner()
         .each{|item|
             catalystInboxStreamUUID = "03b79978bcf7a712953c5543a9df9047" # Catalyst Inbox
             item["streamuuid"] = catalystInboxStreamUUID
-            item["ordinal"] = NSXStreamsUtils::getNextOrdinalForStream(catalystInboxStreamUUID)
-            NSXStreamsUtils::sendItemToDisk(item)
+            item["ordinal"] = NSXStreamsUtilsPrivate::getNextOrdinalForStream(catalystInboxStreamUUID)
+            NSXStreamsUtilsPrivate::sendItemToDisk(item)
         }
-    end
-
-    # -----------------------------------------------------------------
-    # Tail management
-
-    # NSXStreamsUtils::get20StreamItemsCatalystObjects(metric)
-    def self.get20StreamItemsCatalystObjects(metric)
-        get20ItemsLambda = lambda{|lightThread|
-            items = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
-            items = NSXLightThreadsStreamsInterface::filterAwayStreamItemsThatAreDoNotShowUntilHidden(items)
-            items = items.sample(20)    
-            KeyValueStore::set(nil, "8a0790c9-4501-4132-84c5-c772898e5183:#{NSXMiscUtils::currentHour()}", JSON.generate(items))
-            items  
-        }
-        lightThread = NSXLightThreadUtils::getLightThreadByUUIDOrNull("be9243ed")
-        items = KeyValueStore::getOrNull(nil, "8a0790c9-4501-4132-84c5-c772898e5183:#{NSXMiscUtils::currentHour()}")
-        if items then
-            begin
-                items = JSON.parse(items)
-            rescue
-                puts "error: 741f5491-c9a6-40aa-a0db-6c49458a3efc"
-                puts items
-                LucilleCore::pressEnterToContinue()
-                KeyValueStore::destroy(nil, "8a0790c9-4501-4132-84c5-c772898e5183:#{NSXMiscUtils::currentHour()}") 
-                items = []
-            end
-        else
-            items = get20ItemsLambda.call(lightThread)        
-        end
-        items.map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, (metric+0.2).to_f/2, item) }
     end
 
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil or lightThread, item)
+    # NSXStreamsUtilsPrivate::streamItemToStreamCatalystObjectAnnounce(nil or lightThread, item)
     def self.streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         announce = item["description"] ? item["description"] : NSXGenericContents::filenameToCatalystObjectAnnounce(item["generic-content-filename"]).strip
         objectuuid = item["uuid"][0,8]
@@ -268,7 +231,7 @@ class NSXStreamsUtils
         "LightThread: #{(lightThread ? lightThread["description"] : "")} ; StreamItem (#{item["ordinal"]}) ; #{announce}#{doNotShowString}#{runtimestring}"
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
+    # NSXStreamsUtilsPrivate::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
     def self.streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"]) ) if NSXRunner::isRunning?(item["uuid"])
         claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
@@ -278,7 +241,7 @@ class NSXStreamsUtils
         lightThreadMetricForStreamItems + Math.exp(-item["ordinal"].to_f/1000).to_f/1000000
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
+    # NSXStreamsUtilsPrivate::streamItemToStreamCatalystObjectCommands(lightThread, item)
     def self.streamItemToStreamCatalystObjectCommands(lightThread, item)
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "description:", "ordinal:"]
@@ -287,12 +250,12 @@ class NSXStreamsUtils
         end
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
+    # NSXStreamsUtilsPrivate::streamItemToStreamCatalystDefaultCommand(lightThread, item)
     def self.streamItemToStreamCatalystDefaultCommand(lightThread, item)
         NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start ; open"
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
+    # NSXStreamsUtilsPrivate::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
     def self.streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
         genericContentsItemOrNull = lambda{|genericContentFilename|
             filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
@@ -302,10 +265,10 @@ class NSXStreamsUtils
         object = {}
         object["uuid"] = item["uuid"][0,8]      
         object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
-        object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
-        object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
-        object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
-        object["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
+        object["metric"] = NSXStreamsUtilsPrivate::streamItemToStreamCatalystObjectMetric(lightThreadMetricForStreamItems, item)
+        object["announce"] = NSXStreamsUtilsPrivate::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
+        object["commands"] = NSXStreamsUtilsPrivate::streamItemToStreamCatalystObjectCommands(lightThread, item)
+        object["defaultExpression"] = NSXStreamsUtilsPrivate::streamItemToStreamCatalystDefaultCommand(lightThread, item)
         object["isRunning"] = NSXRunner::isRunning?(item["uuid"])
         object["data"] = {}
         object["data"]["stream-item"] = item
@@ -314,9 +277,9 @@ class NSXStreamsUtils
         object
     end
 
-    # NSXStreamsUtils::viewItem(filename)
+    # NSXStreamsUtilsPrivate::viewItem(filename)
     def self.viewItem(filename)
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+        filepath = NSXStreamsUtilsPrivate::resolveFilenameToFilepathOrNull(filename)
         if filepath.nil? then
             puts "Error fbc5372e: unknown file" 
             LucilleCore::pressEnterToContinue()
@@ -326,9 +289,9 @@ class NSXStreamsUtils
         NSXGenericContents::viewItem(streamItem["generic-content-filename"])
     end
 
-    # NSXStreamsUtils::destroyItem(filename)
+    # NSXStreamsUtilsPrivate::destroyItem(filename)
     def self.destroyItem(filename)
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+        filepath = NSXStreamsUtilsPrivate::resolveFilenameToFilepathOrNull(filename)
         if filepath.nil? then
             puts "Error 316492ca: unknown file (#{filename})" 
             LucilleCore::pressEnterToContinue()
@@ -338,9 +301,9 @@ class NSXStreamsUtils
         NSXMiscUtils::moveLocationToCatalystBin(filepath)
     end
 
-    # NSXStreamsUtils::stopStreamItem(streamItemUUID): # timespan
+    # NSXStreamsUtilsPrivate::stopStreamItem(streamItemUUID): # timespan
     def self.stopStreamItem(streamItemUUID) # timespan
-        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         return 0 if item.nil?
         return 0 if !NSXRunner::isRunning?(streamItemUUID)
         timespan = NSXRunner::stop(streamItemUUID)
@@ -349,63 +312,148 @@ class NSXStreamsUtils
             item["run-data"] = []
         end
         item["run-data"] << streamItemRunTimeData
-        NSXStreamsUtils::sendItemToDisk(item)
+        NSXStreamsUtilsPrivate::sendItemToDisk(item)
         timespan
     end
 
-    # NSXStreamsUtils::stopPostProcessing(streamItemUUID)
+    # NSXStreamsUtilsPrivate::stopPostProcessing(streamItemUUID)
     def self.stopPostProcessing(streamItemUUID)
-        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         return if item.nil?
         if item["run-data"].nil? then
             item["run-data"] = []
         end
         if item["run-data"].map{|x| x[1] }.inject(0, :+) >= 3600 then
-            output = NSXStreamsUtils::resetRunDataAndRotateItem(item["streamuuid"], 3, streamItemUUID)
+            output = NSXStreamsUtilsPrivate::resetRunDataAndRotateItem(item["streamuuid"], 3, streamItemUUID)
             puts JSON.pretty_generate(output)
         end
     end
 
-    # NSXStreamsUtils::setItemDescription(streamItemUUID, description)
+    # NSXStreamsUtilsPrivate::setItemDescription(streamItemUUID, description)
     def self.setItemDescription(streamItemUUID, description)
-        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         item["description"] = description
-        NSXStreamsUtils::sendItemToDisk(item)
+        NSXStreamsUtilsPrivate::sendItemToDisk(item)
     end
 
-    # NSXStreamsUtils::setItemOrdinal(streamItemUUID, ordinal)
+    # NSXStreamsUtilsPrivate::setItemOrdinal(streamItemUUID, ordinal)
     def self.setItemOrdinal(streamItemUUID, ordinal)
-        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(streamItemUUID)
+        item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         item["ordinal"] = ordinal
-        NSXStreamsUtils::sendItemToDisk(item)
+        NSXStreamsUtilsPrivate::sendItemToDisk(item)
     end
 
     # -----------------------------------------------------------------
     # User Interface
 
-    # NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid)
+    # NSXStreamsUtilsPrivate::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid)
     def self.interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid)
         puts "steam items:"
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+        NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
             .select{|item| item["streamuuid"]==streamuuid }
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
             .first(10)
             .each{|streamItem|
-                puts NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(nil, streamItem).lines.first
+                puts NSXStreamsUtilsPrivate::streamItemToStreamCatalystObjectAnnounce(nil, streamItem).lines.first
             }
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for end of queue): ")
         return nil if ordinal == ""
         ordinal.to_f
     end
 
-    # NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull(): [streamuuid, ordinal]
+    # NSXStreamsUtilsPrivate::interactivelySelectStreamUUIDAndOrdinalPairOrNull(): [streamuuid, ordinal]
     def self.interactivelySelectStreamUUIDAndOrdinalPairOrNull()
         lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
         return if lightThread.nil?
         streamuuid = lightThread["streamuuid"]
         ordinal = NSXMiscUtils::nonNullValueOrDefaultValue(
-            NSXStreamsUtils::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
-            NSXStreamsUtils::getNextOrdinalForStream(streamuuid))
+            NSXStreamsUtilsPrivate::interactivelySelectOrdinalUsing10ElementsDisplayOrNull(streamuuid), 
+            NSXStreamsUtilsPrivate::getNextOrdinalForStream(streamuuid))
         [streamuuid, ordinal]
+    end
+end
+
+# -------------------------------------------------------------------
+# Internal data
+
+$STREAM_ITEMS_MAP = {} 
+
+NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
+.each{|item|
+    $STREAM_ITEMS_MAP[item["uuid"]] = item
+}
+
+# -------------------------------------------------------------------
+# Public Interface
+
+class NSXStreamsUtilsPublic
+    # NSXStreamsUtilsPublic::allStreamsItemsEnumerator()
+    def self.allStreamsItemsEnumerator()
+        NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
+    end
+
+    # NSXStreamsUtilsPublic::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+    def self.issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+        NSXStreamsUtilsPrivate::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+    end
+
+    # NSXStreamsUtilsPublic::getNextOrdinalForStream(streamUUID)
+    def self.getNextOrdinalForStream(streamUUID)
+        NSXStreamsUtilsPrivate::getNextOrdinalForStream(streamUUID)
+    end
+
+    # NSXStreamsUtilsPublic::recastStreamItem(streamItemUUID)
+    def self.recastStreamItem(streamItemUUID)
+        NSXStreamsUtilsPrivate::recastStreamItem(streamItemUUID)
+    end
+
+    # NSXStreamsUtilsPublic::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+    def self.resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+        NSXStreamsUtilsPrivate::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+    end
+
+    # NSXStreamsUtilsPublic::sendOrphanStreamItemsToInbox()
+    def self.sendOrphanStreamItemsToInbox()
+        NSXStreamsUtilsPrivate::sendOrphanStreamItemsToInbox()
+    end
+
+    # NSXStreamsUtilsPublic::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
+    def self.streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
+        NSXStreamsUtilsPrivate::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
+    end
+
+    # NSXStreamsUtilsPublic::viewItem(filename)
+    def self.viewItem(filename)
+        NSXStreamsUtilsPrivate::viewItem(filename)
+    end
+
+    # NSXStreamsUtilsPublic::destroyItem(filename)
+    def self.destroyItem(filename)
+        NSXStreamsUtilsPrivate::destroyItem(filename)
+    end
+
+    # NSXStreamsUtilsPublic::stopStreamItem(streamItemUUID): # timespan
+    def self.stopStreamItem(streamItemUUID) # timespan
+        NSXStreamsUtilsPrivate::stopStreamItem(streamItemUUID)
+    end
+
+    # NSXStreamsUtilsPublic::stopPostProcessing(streamItemUUID)
+    def self.stopPostProcessing(streamItemUUID)
+        NSXStreamsUtilsPrivate::stopPostProcessing(streamItemUUID)
+    end
+
+    # NSXStreamsUtilsPublic::setItemDescription(streamItemUUID, description)
+    def self.setItemDescription(streamItemUUID, description)
+        NSXStreamsUtilsPrivate::setItemDescription(streamItemUUID, description)
+    end
+
+    # NSXStreamsUtilsPublic::setItemOrdinal(streamItemUUID, ordinal)
+    def self.setItemOrdinal(streamItemUUID, ordinal)
+        NSXStreamsUtilsPrivate::setItemOrdinal(streamItemUUID, ordinal)
+    end
+
+    # NSXStreamsUtilsPublic::interactivelySelectStreamUUIDAndOrdinalPairOrNull(): [streamuuid, ordinal]
+    def self.interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+        NSXStreamsUtilsPrivate::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
     end
 end

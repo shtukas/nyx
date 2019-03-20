@@ -107,10 +107,10 @@ class NSXAgentTodayNotes
             NSXAgentTodayNotes::stopObject(object)
             text = object["section"].join()
             genericContentsItem = NSXGenericContents::issueItemText(text)
-            pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+            pair = NSXStreamsUtilsPublic::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
             return if pair.nil?
             streamuuid, ordinal = pair
-            streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
+            streamItem = NSXStreamsUtilsPrivate::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
         end
     end

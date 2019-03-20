@@ -306,7 +306,7 @@ class NSXLightThreadUtils
                 loop {
                     objects = NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
                         .first(cardinal)
-                        .map{|streamItem| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, 1, streamItem) }
+                        .map{|streamItem| NSXStreamsUtilsPublic::streamItemToStreamCatalystObject(lightThread, 1, streamItem) }
                     object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object:", objects, lambda{|object| object["announce"] })
                     break if object.nil?
                     NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
@@ -351,12 +351,12 @@ class NSXLightThreadsStreamsInterface
             next if itemsWithoutDuplicate.map{|item| item["uuid"] }.include?(item["uuid"])
             itemsWithoutDuplicate << item
         }
-        itemsWithoutDuplicate.map{|item| NSXStreamsUtils::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item) }
+        itemsWithoutDuplicate.map{|item| NSXStreamsUtilsPublic::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item) }
     end
 
     # NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread)
     def self.lightThreadToItsStreamItemsOrdered(lightThread)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+        NSXStreamsUtilsPublic::allStreamsItemsEnumerator()
             .select{|item| item["streamuuid"]==lightThread["streamuuid"] }
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
     end
