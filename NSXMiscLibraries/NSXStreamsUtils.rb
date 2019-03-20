@@ -87,6 +87,7 @@ class NSXStreamsUtilsPrivate
                 next if !File.file?(path)
                 next if File.basename(path)[-16, 16] != ".StreamItem.json"
                 item = JSON.parse(IO.read(path))
+                item["filename"] = File.basename(path)
                 item["filepath"] = path
                 items << item
             end
@@ -121,26 +122,26 @@ class NSXStreamsUtilsPrivate
         item
     end
 
-    # NSXStreamsUtilsPrivate::issueItem(streamUUID, genericContentFilename, ordinal)
+    # NSXStreamsUtilsPrivate::issueItem(streamUUID, genericContentFilename, ordinal): item
     def self.issueItem(streamUUID, genericContentFilename, ordinal)
         item = NSXStreamsUtilsPrivate::makeItem(streamUUID, genericContentFilename, ordinal)
         NSXStreamsUtilsPrivate::sendItemToDisk(item)
         item
     end
 
-    # NSXStreamsUtilsPrivate::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
+    # NSXStreamsUtilsPrivate::issueItemAtNextOrdinal(streamUUID, genericContentFilename): item
     def self.issueItemAtNextOrdinal(streamUUID, genericContentFilename)
         ordinal = NSXStreamsUtilsPrivate::getNextOrdinalForStream(streamUUID)
         NSXStreamsUtilsPrivate::issueItem(streamUUID, genericContentFilename, ordinal)
     end
 
-    # NSXStreamsUtilsPrivate::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+    # NSXStreamsUtilsPrivate::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem): item
     def self.issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
         genericContentFilename = genericItem["filename"]
         NSXStreamsUtilsPrivate::issueItemAtNextOrdinal(streamUUID, genericContentFilename)
     end
 
-    # NSXStreamsUtilsPrivate::issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal)
+    # NSXStreamsUtilsPrivate::issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal): item
     def self.issueItemAtOrdinalUsingGenericContentsItem(streamUUID, genericItem, ordinal)
         genericContentFilename = genericItem["filename"]
         NSXStreamsUtilsPrivate::issueItem(streamUUID, genericContentFilename, ordinal)
@@ -162,16 +163,17 @@ class NSXStreamsUtilsPrivate
         NSXStreamsUtilsPrivate::allStreamsItemsEnumerator().reject{|streamItem| managed_streamuuids.include?(streamItem["streamuuid"]) }
     end
 
-    # NSXStreamsUtilsPrivate::recastStreamItem(streamItemUUID)
+    # NSXStreamsUtilsPrivate::recastStreamItem(streamItemUUID): item
     def self.recastStreamItem(streamItemUUID)
         item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         return if item.nil?
-        pair = NSXStreamsUtilsPublic::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
+        pair = NSXStreamsUtilsPrivate::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
         return if pair.nil?
         streamuuid, ordinal = pair
         item["streamuuid"] = streamuuid
         item["ordinal"] = ordinal
         NSXStreamsUtilsPrivate::sendItemToDisk(item)
+        item
     end
 
     # NSXStreamsUtilsPrivate::newPositionNOrdinalForStreamItem(streamUUID, n, streamItemUUID)
@@ -188,7 +190,7 @@ class NSXStreamsUtilsPrivate
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end
 
-    # NSXStreamsUtilsPrivate::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+    # NSXStreamsUtilsPrivate::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID): [oldItem, newItem]
     def self.resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
         item1 = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         return if item1.nil?
@@ -329,18 +331,20 @@ class NSXStreamsUtilsPrivate
         end
     end
 
-    # NSXStreamsUtilsPrivate::setItemDescription(streamItemUUID, description)
+    # NSXStreamsUtilsPrivate::setItemDescription(streamItemUUID, description): item
     def self.setItemDescription(streamItemUUID, description)
         item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         item["description"] = description
         NSXStreamsUtilsPrivate::sendItemToDisk(item)
+        item
     end
 
-    # NSXStreamsUtilsPrivate::setItemOrdinal(streamItemUUID, ordinal)
+    # NSXStreamsUtilsPrivate::setItemOrdinal(streamItemUUID, ordinal): item
     def self.setItemOrdinal(streamItemUUID, ordinal)
         item = NSXStreamsUtilsPrivate::getStreamItemByUUIDOrNull(streamItemUUID)
         item["ordinal"] = ordinal
         NSXStreamsUtilsPrivate::sendItemToDisk(item)
+        item
     end
 
     # -----------------------------------------------------------------
@@ -376,11 +380,14 @@ end
 # -------------------------------------------------------------------
 # Internal data
 
-$STREAM_ITEMS_MAP = {} 
+$STREAM_ITEMS_MAP_ITEMUUID_ITEM = {} 
+$STREAM_ITEMS_MAP_ITEMFILENAME_ITEM = {}
+$STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT = {}
 
 NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
 .each{|item|
-    $STREAM_ITEMS_MAP[item["uuid"]] = item
+    $STREAM_ITEMS_MAP_ITEMUUID_ITEM[item["uuid"]] = item
+    $STREAM_ITEMS_MAP_ITEMFILENAME_ITEM[item["filename"]] = item
 }
 
 # -------------------------------------------------------------------
@@ -389,27 +396,34 @@ NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
 class NSXStreamsUtilsPublic
     # NSXStreamsUtilsPublic::allStreamsItemsEnumerator()
     def self.allStreamsItemsEnumerator()
-        NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM.values.each
     end
 
-    # NSXStreamsUtilsPublic::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+    # NSXStreamsUtilsPublic::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem): item
     def self.issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
-        NSXStreamsUtilsPrivate::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+        item = NSXStreamsUtilsPrivate::issueItemAtNextOrdinalUsingGenericContentsItem(streamUUID, genericItem)
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM[item["uuid"]] = item
     end
 
     # NSXStreamsUtilsPublic::getNextOrdinalForStream(streamUUID)
     def self.getNextOrdinalForStream(streamUUID)
-        NSXStreamsUtilsPrivate::getNextOrdinalForStream(streamUUID)
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM
+            .values
+            .inject(0) { |acc, item|
+                [acc, item["ordinal"]].max
+            }
     end
 
     # NSXStreamsUtilsPublic::recastStreamItem(streamItemUUID)
     def self.recastStreamItem(streamItemUUID)
-        NSXStreamsUtilsPrivate::recastStreamItem(streamItemUUID)
+        item = NSXStreamsUtilsPrivate::recastStreamItem(streamItemUUID)
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM[item["uuid"]] = item
     end
 
     # NSXStreamsUtilsPublic::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
     def self.resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
-        NSXStreamsUtilsPrivate::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+        oldItem, newItem = NSXStreamsUtilsPrivate::resetRunDataAndRotateItem(streamUUID, n, streamItemUUID)
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM[newItem["uuid"]] = newItem
     end
 
     # NSXStreamsUtilsPublic::sendOrphanStreamItemsToInbox()
@@ -419,7 +433,10 @@ class NSXStreamsUtilsPublic
 
     # NSXStreamsUtilsPublic::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
     def self.streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
-        NSXStreamsUtilsPrivate::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
+        return $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT[item["uuid"]] if $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT[item["uuid"]]
+        catalystObject = NSXStreamsUtilsPrivate::streamItemToStreamCatalystObject(lightThread, lightThreadMetricForStreamItems, item)
+        $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT[item["uuid"]] = catalystObject
+        catalystObject
     end
 
     # NSXStreamsUtilsPublic::viewItem(filename)
@@ -430,11 +447,17 @@ class NSXStreamsUtilsPublic
     # NSXStreamsUtilsPublic::destroyItem(filename)
     def self.destroyItem(filename)
         NSXStreamsUtilsPrivate::destroyItem(filename)
+        item = $STREAM_ITEMS_MAP_ITEMFILENAME_ITEM[filename]
+        return if item.nil?
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM.delete(item["uuid"])
+        $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT.delete(item["uuid"])
     end
 
     # NSXStreamsUtilsPublic::stopStreamItem(streamItemUUID): # timespan
     def self.stopStreamItem(streamItemUUID) # timespan
         NSXStreamsUtilsPrivate::stopStreamItem(streamItemUUID)
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM.delete(streamItemUUID)
+        $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT.delete(streamItemUUID)
     end
 
     # NSXStreamsUtilsPublic::stopPostProcessing(streamItemUUID)
@@ -444,12 +467,16 @@ class NSXStreamsUtilsPublic
 
     # NSXStreamsUtilsPublic::setItemDescription(streamItemUUID, description)
     def self.setItemDescription(streamItemUUID, description)
-        NSXStreamsUtilsPrivate::setItemDescription(streamItemUUID, description)
+        item = NSXStreamsUtilsPrivate::setItemDescription(streamItemUUID, description)
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM[item["uuid"]] = item
+        $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT.delete(item["uuid"])
     end
 
     # NSXStreamsUtilsPublic::setItemOrdinal(streamItemUUID, ordinal)
     def self.setItemOrdinal(streamItemUUID, ordinal)
-        NSXStreamsUtilsPrivate::setItemOrdinal(streamItemUUID, ordinal)
+        item = NSXStreamsUtilsPrivate::setItemOrdinal(streamItemUUID, ordinal)
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM[item["uuid"]] = item
+        $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT.delete(item["uuid"])
     end
 
     # NSXStreamsUtilsPublic::interactivelySelectStreamUUIDAndOrdinalPairOrNull(): [streamuuid, ordinal]

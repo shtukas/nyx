@@ -13,6 +13,7 @@ StreamItem {
     "generic-content-filename" : String
     "ordinal"                  : Float
     "run-data"                 : nil | Array[StreamItemRunTimeData]
+    "filename"                 : String
     "filepath"                 : String # last known filepath
 }
 
