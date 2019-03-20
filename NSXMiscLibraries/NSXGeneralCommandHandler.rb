@@ -243,7 +243,9 @@ class NSXGeneralCommandHandler
         if object["agentuid"] then
             command.split(";").map{|t| t.strip }
                 .each{|command|
-                    NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])["object-command-processor"].call(object, command)
+                    agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+                    next if agentdata.nil?
+                    agentdata["object-command-processor"].call(object, command)
                 }
         end
     end
