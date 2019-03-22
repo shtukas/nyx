@@ -384,10 +384,24 @@ $STREAM_ITEMS_MAP_ITEMUUID_ITEM = {}
 $STREAM_ITEMS_MAP_ITEMFILENAME_ITEM = {}
 $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT = {}
 
-NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
-.each{|item|
-    $STREAM_ITEMS_MAP_ITEMUUID_ITEM[item["uuid"]] = item
-    $STREAM_ITEMS_MAP_ITEMFILENAME_ITEM[item["filename"]] = item
+def initializeStreamUtilsGlobalCachingVariables()
+    $STREAM_ITEMS_MAP_ITEMUUID_ITEM = {} 
+    $STREAM_ITEMS_MAP_ITEMFILENAME_ITEM = {}
+    $STREAM_ITEMS_CATALYST_OBJECTS_MAP_ITEMUUID_OBJECT = {}
+    NSXStreamsUtilsPrivate::allStreamsItemsEnumerator()
+    .each{|item|
+        $STREAM_ITEMS_MAP_ITEMUUID_ITEM[item["uuid"]] = item
+        $STREAM_ITEMS_MAP_ITEMFILENAME_ITEM[item["filename"]] = item
+    }
+end
+
+initializeStreamUtilsGlobalCachingVariables()
+
+Thread.new {
+    sleep 3600
+    loop {
+        initializeStreamUtilsGlobalCachingVariables()
+    }
 }
 
 # -------------------------------------------------------------------
