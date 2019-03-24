@@ -388,6 +388,7 @@ class NSXAgentWave
         object = {}
         object['uuid'] = objectuuid
         object["agentuid"] = self.agentuuid()
+        object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
         object['announce'] = announce
         object['commands'] = NSXAgentWave::commands(schedule)
         object["defaultExpression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
@@ -412,30 +413,7 @@ class NSXAgentWave
 
     # NSXAgentWave::getObjects()
     def self.getObjects()
-        objects = NSXAgentWave::getCachedObjects()
-        return objects if objects.size>0
-
-        objects = NSXAgentWave::catalystUUIDsEnumerator()
-                    .map{|uuid|
-                        NSXAgentWave::makeCatalystObjectOrNull(uuid)
-                    }
-                    .map{|object|
-                        if NSXRunner::isRunning?(object["uuid"]) then 
-                            object["prioritization"] = "running"
-                            object 
-                        else
-                            if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil? then
-                                object
-                            else
-                                nil
-                            end
-                        end
-                    }
-                    .compact
-                    .first(3)
-
-        NSXAgentWave::setCachedOjects(objects)
-        objects
+        NSXAgentWave::getCachedObjects()
     end
 
     def self.performDone(object)
@@ -499,10 +477,39 @@ class NSXAgentWave
                 NSXAgentWave::archiveWaveItem(uuid)
             end
         end
-        NSXAgentWave::setCachedOjects([])
+
+        # Cache Management after operating on a single object
+        updatedObject = NSXAgentWave::catalystUUIDsEnumerator()
+                            .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
+                            .select{|o| o["uuid"] == object["uuid"]}
+                            .first
+        otherCachedObjects = NSXAgentWave::getCachedObjects()
+                            .reject{|o| o["uuid"] == object["uuid"] }
+        NSXAgentWave::setCachedOjects([updatedObject]+otherCachedObjects)
+
     end
 
     def self.interface()
     end
-
 end
+
+Thread.new {
+    loop {
+        sleep 60 + 60*rand
+        objects = NSXAgentWave::catalystUUIDsEnumerator()
+                    .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
+        objects = NSXMiscUtils::upgradePriotarizationIfRunningAndFilterAwayDoNotShowUntilObjects(objects)
+        objects = objects
+                    .map{|object|
+                        if object["prioritization"] == "running" then
+                            object["metric"] = 2
+                        end
+                        object
+                    }
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
+                    .first(3)
+        NSXAgentWave::setCachedOjects(objects)
+        objects
+    }
+}

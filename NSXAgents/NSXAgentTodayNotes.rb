@@ -47,27 +47,34 @@ class NSXAgentTodayNotes
         integers = LucilleCore::integerEnumerator()
         sections = SectionsType2102::contents_to_sections(IO.read(DAY_NOTES_DATA_FILE_PATH).lines.to_a,[])
         sections = sections.take_while{|section| !section[0].include?("ee25043d-c12a-4e80-9d0a-fa70aff4dd00") }
-        sections.map{|section|
-            uuid = "#{SectionsType2102::section_to_uuid(section)}-#{NSXMiscUtils::currentDay()}"
-            if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
-                NSXMiscUtils::onScreenNotification("Catalyst", "Today item running by more than 20 minutes")
-            end
-            runningMarker = ""
-            if NSXRunner::isRunning?(uuid) then
-                runningMarker = " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/60).round(2)} minutes)"
-            end
-            {
-                "uuid"               => uuid,
-                "agentuid"           => NSXAgentTodayNotes::agentuuid(),
-                "prioritization"     => NSXRunner::isRunning?(uuid) ? "running" : "standard",
-                "announce"           => "Today: #{NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section))}#{runningMarker}",
-                "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
-                "defaultExpression"  => "done",
-                "commandsLambdas"    => nil,
-                "section-uuid"       => SectionsType2102::section_to_uuid(section),
-                "section"            => section
+        sections
+            .map{|section|
+                uuid = "#{SectionsType2102::section_to_uuid(section)}-#{NSXMiscUtils::currentDay()}"
+                if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
+                    NSXMiscUtils::onScreenNotification("Catalyst", "Today item running by more than 20 minutes")
+                end
+                runningMarker = ""
+                if NSXRunner::isRunning?(uuid) then
+                    runningMarker = " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/60).round(2)} minutes)"
+                end
+                {
+                    "uuid"               => uuid,
+                    "agentuid"           => NSXAgentTodayNotes::agentuuid(),
+                    "prioritization"     => NSXRunner::isRunning?(uuid) ? "running" : "standard",
+                    "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.65 - integers.next().to_f/1000),
+                    "announce"           => "Today: #{NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section))}#{runningMarker}",
+                    "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
+                    "defaultExpression"  => "done",
+                    "commandsLambdas"    => nil,
+                    "section-uuid"       => SectionsType2102::section_to_uuid(section),
+                    "section"            => section
+                }
             }
-        }
+            .map{|object| NSXMiscUtils::catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object) }
+            .compact
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+            .first(3)
     end
 
     # NSXAgentTodayNotes::stopObject(object): null | timespanInSeconds
@@ -114,7 +121,5 @@ class NSXAgentTodayNotes
     end
 
     def self.interface()
-
     end
-
 end

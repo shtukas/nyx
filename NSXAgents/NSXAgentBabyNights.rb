@@ -31,7 +31,6 @@ class NSXAgentBabyNights
                 {
                     "uuid"      => "4b9bcf0a",
                     "agentuid"  => self.agentuuid(),
-                    "prioritization" => "high",
                     "announce"  => "👶 Mining",
                     "commands"  => [],
                     "defaultExpression" => "update"
@@ -91,5 +90,4 @@ class NSXAgentBabyNights
             LucilleCore::pressEnterToContinue()
         end
     end
-
 end

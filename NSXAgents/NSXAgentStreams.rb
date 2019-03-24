@@ -134,7 +134,5 @@ class NSXAgentStreams
     end
 
     def self.interface()
-
     end
-
 end

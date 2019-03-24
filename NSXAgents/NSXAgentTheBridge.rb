@@ -29,8 +29,6 @@ class NSXAgentTheBridge
     end
 
     def self.interface()
-
     end
-
 end
 

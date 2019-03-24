@@ -83,7 +83,5 @@ class NSXAgentVienna
     end
 
     def self.interface()
-
     end
-
 end

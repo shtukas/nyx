@@ -175,6 +175,7 @@ class NSXLightThreadUtils
         object["uuid"]      = uuid # The catalyst object has the same uuid as the LightThread
         object["agentuid"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
         object["prioritization"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "running" : "standard"
+        object["metric"]    = NSXLightThreadMetrics::lightThread2Metric(lightThread)
         object["announce"]  = NSXLightThreadUtils::lightThreadToStringForCatlystObject(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop", "dive"] : ["start", "dive"]
         object["defaultExpression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
@@ -234,11 +235,9 @@ class NSXLightThreadUtils
             puts "     Live Percentages (7..1): %: #{livePercentages.join(" ")}"
             puts "     Live running time: #{NSXRunner::runningTimeOrNull(lightThread["uuid"])}"
             puts "     LightThread metric: #{NSXLightThreadMetrics::lightThread2Metric(lightThread)}"
-            puts "     Time to 100%: #{(NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread).to_f/3600).round(2)} hours"
             puts "     Activation week days: " + (lightThread["activationWeekDays"] ? lightThread["activationWeekDays"].join(", ") : "")
             puts "     Do not display until: #{NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThreadCatalystObjectUUID)}"
             puts "     LightThread is active: #{NSXLightThreadUtils::trueIfLightThreadIsRunningOrActive(lightThread)}"
-            puts "     Folder Base Metric: #{NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)}"
             puts "     Stream Items Base Metric: #{NSXLightThreadMetrics::lightThread2BaseStreamItemMetric(lightThread)}"
             puts "     Object count: #{NSXLightThreadsStreamsInterface::lightThreadToItsStreamItemsOrdered(lightThread).count}"
             operations = [
@@ -400,23 +399,6 @@ class NSXLightThreadMetrics
         bestPercentage
     end
 
-    # NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
-    def self.timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n)
-        return nil if NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, 0).nil?
-        timespan = 0
-        while NSXLightThreadMetrics::lightThreadToLivePercentageOverThePastNDaysOrNull(lightThread, n, timespan) < 100 do
-            timespan = timespan + 600
-        end
-        timespan
-    end
-
-    # NSXLightThreadMetrics::timeInSecondsTo100PercentOrNull(lightThread)
-    def self.timeInSecondsTo100PercentOrNull(lightThread)
-        numbers = (1..7).map{|n| NSXLightThreadMetrics::timespanInSecondsTo100PercentRelativelyToNDaysOrNull(lightThread, n) }.compact
-        return nil if numbers.size==0
-        numbers.min
-    end
-
     # NSXLightThreadMetrics::lightThread2Metric(lightThread)
     def self.lightThread2Metric(lightThread)
         return 2 if NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
@@ -431,13 +413,6 @@ class NSXLightThreadMetrics
         return 0.90 if lightThread["dailyTimeCommitment"].nil?
         # We do not display the stream items if the LightThread itself is running
         shiftUp = [0.001, 0.002][Time.new.day % 2] # The shift array is the opposite of what it is for the Folder
-        NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + shiftUp
-    end
-
-    # NSXLightThreadMetrics::lightThread2TargetFolderpathObjectMetric(lightThread)
-    def self.lightThread2TargetFolderpathObjectMetric(lightThread)
-        # We do not display the folder item if the LightThread itself is running
-        shiftUp = [0.002, 0.001][Time.new.day % 2] # The shift array is the opposite of what it is for the stream items
         NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? 0 : NSXLightThreadMetrics::lightThread2Metric(lightThread) + shiftUp
     end
 end

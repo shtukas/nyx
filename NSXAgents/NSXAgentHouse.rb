@@ -37,7 +37,6 @@ class NSXAgentHouse
         {
             "uuid"               => uuid,
             "agentuid"           => self.agentuuid(),
-            "prioritization"     => "high",
             "announce"           => "House: #{task}",
             "commands"           => ["done"],
             "defaultExpression"  => "done",
@@ -93,5 +92,4 @@ class NSXAgentHouse
             NSXAgentHouse::markTaskAsDone(task)
         end
     end
-
 end
