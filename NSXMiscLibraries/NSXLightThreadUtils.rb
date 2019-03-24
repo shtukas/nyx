@@ -174,10 +174,10 @@ class NSXLightThreadUtils
         object              = {}
         object["uuid"]      = uuid # The catalyst object has the same uuid as the LightThread
         object["agentuid"]  = "201cac75-9ecc-4cac-8ca1-2643e962a6c6"
+        object["prioritization"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "running" : "standard"
         object["announce"]  = NSXLightThreadUtils::lightThreadToStringForCatlystObject(lightThread)
         object["commands"]  = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? ["stop", "dive"] : ["start", "dive"]
         object["defaultExpression"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread) ? "stop" : "start"
-        object["isRunning"] = NSXLightThreadUtils::trueIfLightThreadIsRunning(lightThread)
         object["item-data"] = {}
         object["item-data"]["lightThread"] = lightThread
         object["item-data"]["percentage"] = NSXLightThreadMetrics::lightThreadBestPercentageOrNull(lightThread)

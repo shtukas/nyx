@@ -21,7 +21,7 @@ class NSXCatalystUI
     # NSXCatalystUI::cardinalForTakingAllTheRunnings(objects)
     def self.cardinalForTakingAllTheRunnings(objects, cardinal = 0)
         objects = objects.clone
-        if objects.any?{|object| object["isRunning"] } then
+        if objects.any?{|object| object["prioritization"]=="running" } then
             NSXCatalystUI::cardinalForTakingAllTheRunnings(objects[1, objects.size], cardinal+1)
         else
             cardinal

@@ -2,20 +2,6 @@
 
 # encoding: UTF-8
 
-=begin
-
-(DisplayState) {
-    "nsx26:object-still-to-go"          => Array[CatalystObject],
-    "nsx26:lines-to-display"            => Array[String],
-    "nsx26:screen-left-height"          => 10,
-    "nsx26:standard-listing-position"   => Int
-    "nsx26:current-position-cursor"     => Int,
-    "nsx26:should-stop-display-process" => Boolean
-    "nsx26:focus-object"                => nil or object
-}
-
-=end
-
 class NSXDisplayUtils
 
     # NSXDisplayUtils::positionPrefix(standardlp, position)
@@ -34,11 +20,10 @@ class NSXDisplayUtils
     # NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)
     def self.objectToOneLineForCatalystDisplay(object)
         announce = (object['announce'].lines.first || "").strip
-        announce = NSXMiscUtils::makeGreenIfObjectRunning(announce, object["isRunning"])
+        announce = NSXMiscUtils::makeGreenIfObjectRunning(announce, object["prioritization"]=="running")
         [
-            "(#{"%.3f" % object["metric"]})",
-            object['announce'].lines.count > 1 ? " MULTILINE:" : "",
-            " #{announce}",
+            object['announce'].lines.count > 1 ? "MULTILINE: " : "",
+            "#{announce}",
             NSXMiscUtils::object2DoNotShowUntilAsString(object),
         ].join()
     end
@@ -65,8 +50,8 @@ class NSXDisplayUtils
             end
         }
         [
-            "(#{"%.3f" % object["metric"]}) #{NSXMiscUtils::object2DoNotShowUntilAsString(object)}",
-            NSXMiscUtils::makeGreenIfObjectRunning(controlAnnounceHeight.call(object['announce'], object, NSXMiscUtils::screenHeight()) ,object["isRunning"])
+            NSXMiscUtils::object2DoNotShowUntilAsString(object),
+            NSXMiscUtils::makeGreenIfObjectRunning(controlAnnounceHeight.call(object['announce'], object, NSXMiscUtils::screenHeight()) ,object["prioritization"]=="running")
         ].compact.join("\n")
     end
 

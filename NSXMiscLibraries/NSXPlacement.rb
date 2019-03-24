@@ -9,31 +9,38 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-$NSXPlacementX11 = {}
-$NSXPlacementX11[""] = 0
+$NSXPlacementX11 = JSON.parse(
+    KeyValueStore::getOrDefaultValue(nil, "6d232da2-4bc3-485b-8b78-d9b4d372d589:#{Time.now.utc.iso8601[0,10]}", "{}")
+)
 
 class NSXPlacement
 
     # NSXPlacement::getValue(objectuuid)
     def self.getValue(objectuuid)
-        key = "6d232da2-4bc3-485b-8b78-d9a4d372d589:#{NSXMiscUtils::currentDay()}:#{objectuuid}"
-        value = KeyValueStore::getOrNull(nil, key)
+        value = $NSXPlacementX11[objectuuid]
         if value then
-            value.to_i
+            value
         else
-            value = $NSXPlacementX11.values.max + 1
+            value = ($NSXPlacementX11.values + [0]).max + 1
             puts "placement: #{objectuuid} @ #{value}"
             $NSXPlacementX11[objectuuid] = value
-            KeyValueStore::set(nil, key, value)
+            KeyValueStore::set(nil, "6d232da2-4bc3-485b-8b78-d9b4d372d589:#{Time.now.utc.iso8601[0,10]}", JSON.generate($NSXPlacementX11))
             value
         end
     end
 
     # NSXPlacement::rotate(objectuuid)
     def self.rotate(objectuuid)
-        key = "6d232da2-4bc3-485b-8b78-d9a4d372d589:#{NSXMiscUtils::currentDay()}:#{objectuuid}"
-        value = $NSXPlacementX11.values.max + 1
+        value = ($NSXPlacementX11.values + [0]).max + 1
         $NSXPlacementX11[objectuuid] = value
-        KeyValueStore::set(nil, key, value)
+        KeyValueStore::set(nil, "6d232da2-4bc3-485b-8b78-d9b4d372d589:#{Time.now.utc.iso8601[0,10]}", JSON.generate($NSXPlacementX11))
     end
+
+    # NSXPlacement::clean(objectuuids)
+    def self.clean(objectuuids)
+        ($NSXPlacementX11.keys - objectuuids).each{|objectuuid|
+            $NSXPlacementX11.delete(objectuuid)
+        }
+    end
+
 end

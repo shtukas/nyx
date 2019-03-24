@@ -32,6 +32,3 @@
     - every-n-days                -> value: Float
     - every-this-day-of-the-month -> value: String Length:2
     - every-this-day-of-the-week  -> value: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
-
-Optional attributes 
-    "metric" which when present overrides the schedule metric.

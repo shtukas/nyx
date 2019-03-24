@@ -251,15 +251,6 @@ class NSXMiscUtils
         (NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid) || NSXMiscUtils::currentDayTime()) <= NSXMiscUtils::currentDayTime()
     end
 
-    # NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object)
-    def self.fDoNotShowUntilDateTimeUpdateForDisplay(object)
-        return object if object["isRunning"]
-        return object if NSXMiscUtils::shouldDisplayRelativelyToDoNotShowUntilDateTime(object["uuid"])
-        object["metric"] = 0
-        object[":metric-set-to-zero-by:NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay:"]
-        object
-    end
-
     # NSXMiscUtils::makeGreenIfObjectRunning(string, isRunning)
     def self.makeGreenIfObjectRunning(string, isRunning)
         isRunning ? string.green : string

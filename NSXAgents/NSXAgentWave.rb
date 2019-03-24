@@ -398,11 +398,44 @@ class NSXAgentWave
         object
     end
 
+    # NSXAgentWave::getCachedObjects()
+    def self.getCachedObjects()
+        JSON.parse(
+            KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/Wave-KVStoreRepository", "d9bc5ac4-1412-4aab-b182-579439285c6d:#{NSXMiscUtils::currentDay()}", "[]")
+        )
+    end
+
+    # NSXAgentWave::setCachedOjects(objects)
+    def self.setCachedOjects(objects)
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Wave-KVStoreRepository", "d9bc5ac4-1412-4aab-b182-579439285c6d:#{NSXMiscUtils::currentDay()}", JSON.generate(objects))
+    end
+
     # NSXAgentWave::getObjects()
     def self.getObjects()
-        NSXAgentWave::catalystUUIDsEnumerator().map{|uuid|
-            NSXAgentWave::makeCatalystObjectOrNull(uuid)
-        }
+        objects = NSXAgentWave::getCachedObjects()
+        return objects if objects.size>0
+
+        objects = NSXAgentWave::catalystUUIDsEnumerator()
+                    .map{|uuid|
+                        NSXAgentWave::makeCatalystObjectOrNull(uuid)
+                    }
+                    .map{|object|
+                        if NSXRunner::isRunning?(object["uuid"]) then 
+                            object["prioritization"] = "running"
+                            object 
+                        else
+                            if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil? then
+                                object
+                            else
+                                nil
+                            end
+                        end
+                    }
+                    .compact
+                    .first(3)
+
+        NSXAgentWave::setCachedOjects(objects)
+        objects
     end
 
     def self.performDone(object)
@@ -466,10 +499,10 @@ class NSXAgentWave
                 NSXAgentWave::archiveWaveItem(uuid)
             end
         end
+        NSXAgentWave::setCachedOjects([])
     end
 
     def self.interface()
-
     end
 
 end

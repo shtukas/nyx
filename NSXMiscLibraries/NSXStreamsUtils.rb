@@ -266,11 +266,11 @@ class NSXStreamsUtils
         }
         object = {}
         object["uuid"] = item["uuid"][0,8]      
-        object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"  
+        object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
+        object["prioritization"] = NSXRunner::isRunning?(item["uuid"]) ? "running" : "standard"
         object["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(lightThread, item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(lightThread, item)
         object["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(lightThread, item)
-        object["isRunning"] = NSXRunner::isRunning?(item["uuid"])
         object["data"] = {}
         object["data"]["stream-item"] = item
         object["data"]["generic-contents-item"] = genericContentsItemOrNull.call(item["generic-content-filename"]) 

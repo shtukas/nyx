@@ -25,6 +25,14 @@ require 'digest/sha1'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -------------------------------------------------------------------------------------
 
 class NSXAgentLightThread
@@ -37,16 +45,36 @@ class NSXAgentLightThread
     # NSXAgentLightThread::getLightThreadObjects(lightThread)
     def self.getLightThreadObjects(lightThread)
         lightThreadCatalystObject = NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
-        (lightThreadCatalystObject["isRunning"] ? [ lightThreadCatalystObject ] : []) + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
+        ( (lightThreadCatalystObject["prioritization"] == "running") ? [ lightThreadCatalystObject ] : []) + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
+    end
+
+    # NSXAgentLightThread::getCachedObjects()
+    def self.getCachedObjects()
+        JSON.parse(
+            KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/Wave-KVStoreRepository", "764f1774-7fd3-411e-b507-f968ec770c0f:#{NSXMiscUtils::currentDay()}", "[]")
+        )
+    end
+
+    # NSXAgentLightThread::setCachedOjects(objects)
+    def self.setCachedOjects(objects)
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Wave-KVStoreRepository", "764f1774-7fd3-411e-b507-f968ec770c0f:#{NSXMiscUtils::currentDay()}", JSON.generate(objects))
     end
 
     # NSXAgentLightThread::getObjects()
     def self.getObjects()
-        NSXLightThreadUtils::lightThreads()
+        objects = NSXAgentLightThread::getCachedObjects()
+        return objects if objects.size>0
+
+        objects = NSXLightThreadUtils::lightThreads()
             .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]) }
             .map{|lightThread| NSXAgentLightThread::getLightThreadObjects(lightThread) }.flatten
+            .first(3)
+
+        NSXAgentLightThread::setCachedOjects(objects)
+        objects
     end
 
+    # NSXAgentLightThread::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         return if object["item-data"].nil?
         return if object["item-data"]["lightThread"].nil?
@@ -62,10 +90,10 @@ class NSXAgentLightThread
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
         end
+        KeyValueStore::destroy("/Galaxy/DataBank/Catalyst/Wave-KVStoreRepository", "764f1774-7fd3-411e-b507-f968ec770c0f:#{NSXMiscUtils::currentDay()}")
     end
 
     # NSXAgentLightThread::interface()
     def self.interface()
     end
-
 end

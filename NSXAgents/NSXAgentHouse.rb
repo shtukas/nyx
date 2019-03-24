@@ -41,7 +41,6 @@ class NSXAgentHouse
             "announce"           => "House: #{task}",
             "commands"           => ["done"],
             "defaultExpression"  => "done",
-            "isRunning"          => false,
             ":task:"             => task
         }
     end

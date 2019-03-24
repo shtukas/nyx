@@ -26,9 +26,8 @@ class NSXAgentBabyNights
     end
 
     def self.getObjects()
-        objects = []
         if NSXData::getValueAsStringOrNull(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc478:#{Time.now.utc.iso8601[0,10]}").nil? then
-            object =
+            [
                 {
                     "uuid"      => "4b9bcf0a",
                     "agentuid"  => self.agentuuid(),
@@ -37,9 +36,10 @@ class NSXAgentBabyNights
                     "commands"  => [],
                     "defaultExpression" => "update"
                 }
-            objects << object
+            ]
+        else
+            []
         end
-        objects
     end
 
     def self.processObjectAndCommand(object, command)
