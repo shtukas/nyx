@@ -79,18 +79,5 @@ NSXStreamsUtilsPublic::allStreamsItemsEnumerator()
 
 # -------------------------------------------------------------------------
 
-# Catalyst Interruption Screen Notification.
-
-Thread.new {
-    loop {
-        sleep 130
-        if NSXCatalystObjectsOperator::catalystObjectsForMainListing().any?{|object| NSXCatalystUI::objectShouldTriggerOnScreenNotification(object) } then
-            NSXMiscUtils::onScreenNotification("Catalyst", "Interruption")
-        end
-    }
-}
-
-# -------------------------------------------------------------------------
-
 NSXCatalystUI::standardUILoop()
 
