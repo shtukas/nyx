@@ -39,9 +39,14 @@ class NSXCatalystObjectsOperator
     def self.catalystObjectsForMainListing()
         objects = NSXCatalystObjectsOperator::getAliveObjects()
         objects = NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
-        objects
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
+        objects = objects
+                    .map{|object| 
+                        object["catalyst:placement"] = NSXPlacement::getValue(object["uuid"]) 
+                        object
+                    }
+        objects = objects
+                    .sort{|o1, o2| o1["catalyst:placement"] <=> o2["catalyst:placement"] }
+                    .reverse
     end
 
 end
