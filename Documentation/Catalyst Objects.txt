@@ -3,7 +3,7 @@ CatalystObject
 {
     "uuid"               : UUID
     "agentuid"           : nil or String
-    "prioritization"     : nil | standard | priority | running # optional
+    "prioritization"     : nil | standard | high | running # optional
     "announce"           : String
     "commands"           : Array[String]
     "defaultExpression"  : Null or String                      # optional
