@@ -379,7 +379,7 @@ class NSXAgentWave
         schedule = NSXAgentWave::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
             genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
-            NSXStreamsUtilsPublic::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem)
+            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericItem)
             return nil
         end
         folderProbeMetadata = NSXFolderProbe::folderpath2metadata(location)
