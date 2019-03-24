@@ -32,7 +32,7 @@ class NSXAgentBabyNights
                 {
                     "uuid"      => "4b9bcf0a",
                     "agentuid"  => self.agentuuid(),
-                    "metric"    => 0.97,
+                    "prioritization" => "high",
                     "announce"  => "👶 Mining",
                     "commands"  => [],
                     "defaultExpression" => "update"

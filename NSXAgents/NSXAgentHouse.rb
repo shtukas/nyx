@@ -37,7 +37,7 @@ class NSXAgentHouse
         {
             "uuid"               => uuid,
             "agentuid"           => self.agentuuid(),
-            "metric"             => 0.93 + NSXMiscUtils::traceToMetricShift(uuid),
+            "prioritization"     => "high",
             "announce"           => "House: #{task}",
             "commands"           => ["done"],
             "defaultExpression"  => "done",

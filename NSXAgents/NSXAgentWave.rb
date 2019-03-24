@@ -388,7 +388,6 @@ class NSXAgentWave
         object = {}
         object['uuid'] = objectuuid
         object["agentuid"] = self.agentuuid()
-        object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
         object['announce'] = announce
         object['commands'] = NSXAgentWave::commands(schedule)
         object["defaultExpression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)

@@ -16,7 +16,6 @@ class NSXCatalystObjectsOperator
     def self.getAliveObjects()
         objects = NSXCatalystObjectsOperator::getObjects()
             .map{|object| object["isRunning"] ? object : NSXMiscUtils::fDoNotShowUntilDateTimeUpdateForDisplay(object) }
-            .select{|object| object["metric"] >= 0.2 }
     end
 
     # NSXCatalystObjectsOperator::aliveObjectsSpecialCircumstancesProcessing(objects)
