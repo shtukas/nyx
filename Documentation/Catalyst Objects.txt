@@ -3,13 +3,12 @@ CatalystObject
 {
     "uuid"               : UUID
     "agentuid"           : nil or String
-    "metric"             : Float
+    "prioritization"     : nil | standard | priority | running # optional
     "announce"           : String
     "commands"           : Array[String]
-    "defaultExpression"  : Null or String               # optional
-    "isRunning"          : Boolean                      # optional
-    "commandsLambdas"    : Null or Map[String, Lambda]  # optional
-    "commandsShells"     : Null or Map[String, String]  # optional
+    "defaultExpression"  : Null or String                      # optional
+    "commandsLambdas"    : Null or Map[String, Lambda]         # optional
+    "commandsShells"     : Null or Map[String, String]         # optional
 }
 
 When a command is issued by the user the following happens:
