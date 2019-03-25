@@ -11,7 +11,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =end
 
 LIGHT_THREAD_DONE_TIMESPAN_IN_DAYS = 7
-LIGHT_THREADS_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/LightThreads"
+LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/LightThreads"
 
 class NSXLightThreadUtils
 
@@ -22,16 +22,16 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::lightThreads(): Array[LightThread]
     def self.lightThreads()
-        Dir.entries(LIGHT_THREADS_FOLDERPATH)
+        Dir.entries(LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH)
             .select{|filename| filename[-5, 5]==".json" }
             .sort
-            .map{|filename| "#{LIGHT_THREADS_FOLDERPATH}/#{filename}" }
+            .map{|filename| "#{LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
     # NSXLightThreadUtils::commitLightThreadToDisk(lightThread)
     def self.commitLightThreadToDisk(lightThread)
-        File.open("#{LIGHT_THREADS_FOLDERPATH}/#{lightThread["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(lightThread)) }
+        File.open("#{LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH}/#{lightThread["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(lightThread)) }
     end
 
     # NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment, isPriorityThread)
@@ -51,7 +51,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::getLightThreadByUUIDOrNull(lightThreadUUID)
     def self.getLightThreadByUUIDOrNull(lightThreadUUID)
-        filepath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}.json"
+        filepath = "#{LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH}/#{lightThreadUUID}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
@@ -70,7 +70,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::getLightThreadTimeRecordItems(lightThreadUUID)
     def self.getLightThreadTimeRecordItems(lightThreadUUID)
-        folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
+        folderpath = "#{LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH}/#{lightThreadUUID}"
         return [] if !File.exists?(folderpath)
         Dir.entries(folderpath)
             .select{|filename| filename[-5, 5]==".json" }
@@ -106,7 +106,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
     def self.sendLightThreadTimeRecordItemToDisk(lightThreadUUID, item)
-        folderpath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}"
+        folderpath = "#{LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH}/#{lightThreadUUID}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
@@ -156,7 +156,7 @@ class NSXLightThreadUtils
 
     # NSXLightThreadUtils::destroyLightThread(lightThreadUUID)
     def self.destroyLightThread(lightThreadUUID)
-        filepath = "#{LIGHT_THREADS_FOLDERPATH}/#{lightThreadUUID}.json"
+        filepath = "#{LIGHT_THREADS_DATABANK_CATALYST_FOLDERPATH}/#{lightThreadUUID}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
