@@ -22,8 +22,16 @@ class NSXCatalystObjectsOperator
                         object
                     }
         NSXPlacement::clean(objects.map{|object| object["uuid"] })
-        objects = objects
+        objects1 = objects
+                    .select{|object| object["prioritization"] == "running" }
                     .sort{|o1, o2| o1["catalyst:placement"] <=> o2["catalyst:placement"] }
+        objects2 = objects
+                    .select{|object| object["prioritization"] == "high" }
+                    .sort{|o1, o2| o1["catalyst:placement"] <=> o2["catalyst:placement"] }
+        objects3 = objects
+                    .select{|object| object["prioritization"] == "standard" or object["prioritization"].nil? }
+                    .sort{|o1, o2| o1["catalyst:placement"] <=> o2["catalyst:placement"] }
+        objects = objects1 + objects2 + objects3
         objects
     end
 
