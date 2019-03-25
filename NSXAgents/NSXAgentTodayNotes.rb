@@ -57,12 +57,18 @@ class NSXAgentTodayNotes
                 if NSXRunner::isRunning?(uuid) then
                     runningMarker = " (running for #{(NSXRunner::runningTimeOrNull(uuid).to_f/60).round(2)} minutes)"
                 end
+                sectionAsString = SectionsType2102::section_to_string(section)
+                if sectionAsString.lines.size == 1 then
+                    sectionAsString = NSXAgentTodayNotes::removeStartingMarker(sectionAsString)
+                else
+                    sectionAsString = "\n" + sectionAsString
+                end
                 {
                     "uuid"               => uuid,
                     "agentuid"           => NSXAgentTodayNotes::agentuuid(),
                     "prioritization"     => NSXRunner::isRunning?(uuid) ? "running" : "standard",
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.65 - integers.next().to_f/1000),
-                    "announce"           => "Today: #{NSXAgentTodayNotes::removeStartingMarker(SectionsType2102::section_to_string(section))}#{runningMarker}",
+                    "announce"           => "Today: #{sectionAsString}#{runningMarker}",
                     "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
                     "defaultExpression"  => "done",
                     "commandsLambdas"    => nil,
