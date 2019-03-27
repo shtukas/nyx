@@ -115,7 +115,7 @@ Thread.new {
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
                     .first(3)
-        NSXAgentWave::setCachedOjects(objects)
+        NSXAgentLightThread::setCachedOjects(objects)
         objects
     }
 }
