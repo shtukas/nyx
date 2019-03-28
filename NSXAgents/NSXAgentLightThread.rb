@@ -47,22 +47,22 @@ class NSXAgentLightThread
         lightThreadCatalystObject = NSXLightThreadUtils::lightThreadToCatalystObject(lightThread)
         ( (lightThreadCatalystObject["prioritization"] == "running") ? [ lightThreadCatalystObject ] : []) + NSXLightThreadsStreamsInterface::lightThreadToItsStreamCatalystObjects(lightThread)
     end
-
-    # NSXAgentLightThread::getCachedObjects()
-    def self.getCachedObjects()
-        JSON.parse(
-            KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/Wave-KVStoreRepository", "764f1774-7fd3-411e-b507-f968ec770c0f:#{NSXMiscUtils::currentDay()}", "[]")
-        )
-    end
-
-    # NSXAgentLightThread::setCachedOjects(objects)
-    def self.setCachedOjects(objects)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/Wave-KVStoreRepository", "764f1774-7fd3-411e-b507-f968ec770c0f:#{NSXMiscUtils::currentDay()}", JSON.generate(objects))
-    end
-
+    
     # NSXAgentLightThread::getObjects()
     def self.getObjects()
-        NSXAgentLightThread::getCachedObjects()
+        objects = NSXLightThreadUtils::lightThreads()
+            .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]) }
+            .map{|lightThread| NSXAgentLightThread::getLightThreadCatalystObjects(lightThread) }.flatten
+        objects = NSXMiscUtils::upgradePriotarizationIfRunningAndFilterAwayDoNotShowUntilObjects(objects)
+        objects = objects
+                    .map{|object|
+                        if object["prioritization"] == "running" then
+                            object["metric"] = 2
+                        end
+                        object
+                    }
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
     end
 
     # NSXAgentLightThread::processObjectAndCommand(object, command)
@@ -81,41 +81,9 @@ class NSXAgentLightThread
         if command=='dive' then
             NSXLightThreadUtils::lightThreadDive(lightThread)
         end
-
-        # Cache Management after operating on a single object
-        updatedObject = NSXLightThreadUtils::lightThreads()
-                            .map{|lightThread| NSXAgentLightThread::getLightThreadCatalystObjects(lightThread) }
-                            .flatten
-                            .select{|o| o["uuid"] == object["uuid"]}
-                            .first
-        otherCachedObjects = NSXAgentLightThread::getCachedObjects()
-                            .reject{|o| o["uuid"] == object["uuid"] }
-        NSXAgentLightThread::setCachedOjects([updatedObject]+otherCachedObjects)
     end
 
     # NSXAgentLightThread::interface()
     def self.interface()
     end
 end
-
-Thread.new {
-    loop {
-        sleep 60 + 60*rand
-        objects = NSXLightThreadUtils::lightThreads()
-            .reject{|lightThread| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(lightThread["uuid"]) }
-            .map{|lightThread| NSXAgentLightThread::getLightThreadCatalystObjects(lightThread) }.flatten
-        objects = NSXMiscUtils::upgradePriotarizationIfRunningAndFilterAwayDoNotShowUntilObjects(objects)
-        objects = objects
-                    .map{|object|
-                        if object["prioritization"] == "running" then
-                            object["metric"] = 2
-                        end
-                        object
-                    }
-                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                    .reverse
-                    .first(3)
-        NSXAgentLightThread::setCachedOjects(objects)
-        objects
-    }
-}
