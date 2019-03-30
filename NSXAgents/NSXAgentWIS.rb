@@ -57,8 +57,5 @@ class NSXAgentWIS
             LucilleCore::pressEnterToContinue()
         end
     end
-
-    def self.interface()
-    end
 end
 

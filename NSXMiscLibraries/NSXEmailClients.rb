@@ -127,7 +127,7 @@ class GeneralEmailClient
                 next
             end
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
-            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem)
+            streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_i)
             imap.store(id, "+FLAGS", [:Deleted])
         }
 
@@ -175,7 +175,7 @@ class GeneralEmailClient
             end
 
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
-            streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem)
+            streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_f)
             claim = NSXEmailTrackingClaims::makeclaim(emailuid, genericContentsItem["uuid"], streamItem["uuid"])
             NSXEmailTrackingClaims::commitClaimToDisk(claim)
         }
@@ -183,25 +183,23 @@ class GeneralEmailClient
         imap.expunge
 
         # ------------------------------------------------------------------------
-        # Updating the status of the existing StreamItem based on the contents of emailUIDsOnTheServer
-        # Essentially if we have a stream item that is not on the server, we mark it appropriately.
+        # If we have a stream item that is not on the server, we mark it appropriately.
 
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+        $STREAM_ITEMS_MANAGER.items()
         .each{|item|
-            #puts "Updating stream item claims: item uuid: #{item["uuid"]}" if verbose
+            # "init" | "detached" | "deleted-on-server" | "deleted-on-local" | "dead"
             claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
-            next if claim.nil?
-            next if claim["status"] == "detached"
-            next if claim["status"] == "dead"
-            next if claim["status"] == "deleted-on-server"
-            next if emailUIDsOnTheServer.include?(claim["emailuid"])
-            # We have a element on local that is not detached and not dead and not on the server
-            if claim["status"]=="init" then
-                NSXStreamsUtils::destroyItem(item["filename"])
+            next if claim.nil?                                       # item is not an email.
+            next if claim["status"] == "detached"                    # item is detached, so no longer kept in sync with server.
+            next if claim["status"] == "dead"                        # item is dead, scheduled for deletion.
+            next if claim["status"] == "deleted-on-server"           # item has already been written as deleted on the server, will be written as dead
+            next if emailUIDsOnTheServer.include?(claim["emailuid"]) # item is an email on the server
+            if claim["status"] == "init" then
+                $STREAM_ITEMS_MANAGER.destroyItem(item)
                 claim["status"] = "deleted-on-server"
                 NSXEmailTrackingClaims::commitClaimToDisk(claim)
             end
-            if claim["status"]=="deleted-on-local" then
+            if claim["status"] == "deleted-on-local" then
                 claim["status"] = "dead"
                 NSXEmailTrackingClaims::commitClaimToDisk(claim)
             end
@@ -210,16 +208,16 @@ class GeneralEmailClient
         # ------------------------------------------------------------------------
         # We now delete on the server the items that are marked as deleted-on-local
 
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+        $STREAM_ITEMS_MANAGER.items()
         .each{|item|
-            #puts "Deleting emails on server: item uuid: #{item["uuid"]}" if verbose
+            # "init" | "detached" | "deleted-on-server" | "deleted-on-local" | "dead"
             claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
-            next if claim.nil?
-            next if claim["status"] == "init"
-            next if claim["status"] == "detached"
-            next if claim["status"] == "dead"
-            next if claim["status"] == "deleted-on-server"
-            if claim["status"]=="deleted-on-local" then
+            next if claim.nil?                               # item is not an email.
+            next if claim["status"] == "init"                #
+            next if claim["status"] == "detached"            #
+            next if claim["status"] == "dead"                #
+            next if claim["status"] == "deleted-on-server"   #
+            if claim["status"] == "deleted-on-local" then
                 id = emailUIDToServerIDMap[claim["emailuid"]]
                 next if id.nil?
                 imap.store(id, "+FLAGS", [:Deleted])
@@ -233,7 +231,6 @@ class GeneralEmailClient
         imap.logout()
         imap.disconnect()
     end
-
 end
 
 # -------------------------------------------------------------------------------------

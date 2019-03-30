@@ -10,5 +10,5 @@ EmailTrackingClaim
     "lastStatusUpdateUnixtime" : Integer
 }
 
-"detached" : for when an email has been recast or datecoded, they are deleted from the server and operate as standard catalyst LightThread inbox items
+"detached" : for when an email has been recast or datecoded, they are deleted from the server and operate as standard Stream items.
 

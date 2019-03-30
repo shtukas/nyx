@@ -103,10 +103,8 @@ class NSXGenericContents
 
     # NSXGenericContents::makeBaseItem()
     def self.makeBaseItem()
-        filename = "#{NSXGenericContents::timeStringL22()}.CatalystGenericItem.json"
         item = {}
         item["uuid"] = SecureRandom.hex
-        item["filename"] = filename
         item
     end
 
@@ -115,8 +113,7 @@ class NSXGenericContents
         item = NSXGenericContents::makeBaseItem()
         item["type"] = "text"
         item["text"] = text
-        NSXGenericContents::sendItemToDisk(item)
-        item        
+        item
     end
 
     # NSXGenericContents::issueItemURL(url)
@@ -124,8 +121,7 @@ class NSXGenericContents
         item = NSXGenericContents::makeBaseItem()
         item["type"] = "url"
         item["url"] = url
-        NSXGenericContents::sendItemToDisk(item)
-        item        
+        item
     end
 
     # NSXGenericContents::issueItemEmail(email)
@@ -137,8 +133,7 @@ class NSXGenericContents
         item["type"] = "email"
         item["email-subject"] = NSXGenericContents::emailFilenameToSubjectLine(emailFilename)
         item["email-filename"] = emailFilename
-        NSXGenericContents::sendItemToDisk(item)
-        item        
+        item
     end
 
     # NSXGenericContents::issueItemLocationMoveOriginal(location)
@@ -150,18 +145,8 @@ class NSXGenericContents
         item = NSXGenericContents::makeBaseItem()
         item["type"] = "location"
         item["parent-foldername"] = targetLocationParentFoldername
-        NSXGenericContents::sendItemToDisk(item)
         LucilleCore::removeFileSystemLocation(location)
         item 
-    end
-
-    # NSXGenericContents::sendItemToDisk(item)
-    def self.sendItemToDisk(item)
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(item["filename"])
-        if filepath.nil? then
-            filepath = NSXGenericContents::newItemFilenameToFilepath(item["filename"])
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # NSXGenericContents::emailFilenameToSubjectLine(filename)
@@ -225,13 +210,8 @@ class NSXGenericContents
         outputAsArray.join("\n")
     end
 
-    # NSXGenericContents::filenameToCatalystObjectAnnounce(genericContentFilename)
-    def self.filenameToCatalystObjectAnnounce(genericContentFilename)
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(genericContentFilename)
-        if filepath.nil? then
-            return "Error f849ab3a: #{genericContentFilename}"
-        end
-        genericContentItem = JSON.parse(IO.read(filepath))
+    # NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(genericContentItem)
+    def self.genericContentsItemToCatalystObjectAnnounce(genericContentItem)
         if genericContentItem["type"]=="text" then
             return ( genericContentItem["text"].lines.first || "(empty file text)" )
         end
@@ -252,24 +232,21 @@ class NSXGenericContents
         "Error a561fefa: #{filepath}"
     end
 
-    # NSXGenericContents::viewItem(filename)
-    def self.viewItem(filename)
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
-        item = JSON.parse(IO.read(filepath))
-
+    # NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item)
+    def self.viewGenericContentItemReturnUpdatedItemOrNull(item)
         if item["type"]=="email" then
             emailFilename = item["email-filename"]
             emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
             system("open '#{emailFilepath}'")
-            return
+            LucilleCore::pressEnterToContinue()
+            return nil
         end
-
         if item["type"]=="url" then
             url = item["url"]
             system("open '#{url}'")
-            return
+            LucilleCore::pressEnterToContinue()
+            return nil
         end
-
         if item["type"]=="text" then
             filepath = "#{NSXMiscUtils::newBinArchivesFolderpath()}/#{NSXGenericContents::timeStringL22()}.txt"
             File.open(filepath, "w"){|f| f.puts(item["text"]) }
@@ -280,43 +257,28 @@ class NSXGenericContents
             updatedText = IO.read(filepath)
             if item["text"] != updatedText then
                 item["text"] = updatedText
-                NSXGenericContents::sendItemToDisk(item)
+                return item
             end
-            return
+            return nil
         end
-
         if item["type"]=="location" then
             parentFoldername = item["parent-foldername"]
             folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(parentFoldername)
             return if folderpath.nil?
             system("open '#{folderpath}'")
-            return
-        end
-
-        puts "954650e9-9087: To be implemented"
-        puts JSON.pretty_generate(item)
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # NSXGenericContents::destroyItem(filename)
-    def self.destroyItem(filename)
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
-
-        if filepath.nil? then
-            puts "Error f818f708: unknown file (#{filename})" 
             LucilleCore::pressEnterToContinue()
+            return nil
         end
-
-        item = JSON.parse(IO.read(filepath))
-
+    end
+    
+    # NSXGenericContents::destroyItem(item)
+    def self.destroyItem(item)
         if item["type"]=="url" then
             # nothing
         end
-
         if item["type"]=="text" then
             # nothing
         end
-
         if item["type"]=="email" then
             emailfilename = item["email-filename"]
             emailfilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailfilename)
@@ -324,7 +286,6 @@ class NSXGenericContents
                 NSXMiscUtils::moveLocationToCatalystBin(emailfilepath)
             end
         end
-
         if item["type"]=="location" then
             locationfoldername = item["parent-foldername"]
             locationfolderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(locationfoldername)
@@ -332,9 +293,6 @@ class NSXGenericContents
                 NSXMiscUtils::moveLocationToCatalystBin(locationfolderpath)
             end
         end
-
-        NSXMiscUtils::moveLocationToCatalystBin(filepath)
     end
-
 end
 

@@ -75,21 +75,4 @@ class NSXAgentHouse
             NSXAgentHouse::markTaskAsDone(object[":task:"])
         end
     end
-
-    # NSXAgentHouse::interface()
-    def self.interface()
-        puts "Welcome to House Interface"
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation:", ["show", "hide", "select for done"])
-        if operation == "show" then
-            NSXData::setWritableValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true")
-        end
-        if operation == "hide" then
-            NSXData::setWritableValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "false")
-        end
-        if operation == "select for done" then
-            task = LucilleCore::selectEntityFromListOfEntitiesOrNull("task:", NSXAgentHouse::getTasks())
-            return if task.nil?
-            NSXAgentHouse::markTaskAsDone(task)
-        end
-    end
 end

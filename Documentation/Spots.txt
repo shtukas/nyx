@@ -1,7 +1,0 @@
-Spots (are the new Requirements)
-
-Spots: Array[SpotClaim]
-SpotClaim: [spotname: String, objectuuid: String]
-
-When an object can't be done right now because I am not at the right location or a condition is not met (for instance no internet connection), we issue a spot claim to postpone it. This replaces the "do not show until" DateTime.
-

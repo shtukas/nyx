@@ -335,9 +335,9 @@ class NSXMiscUtils
         return true if object["announce"].include?("condition 58f3eb60")
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].start_with?("Declined:") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].start_with?("Declined:") then
             return true
         end
         if object and 
@@ -354,65 +354,65 @@ class NSXMiscUtils
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].start_with?("Tentatively Accepted:") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].start_with?("Tentatively Accepted:") then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].start_with?("On leave until") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].start_with?("On leave until") then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("on leave re:") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].downcase.start_with?("on leave re:") then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("out of office") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].downcase.start_with?("out of office") then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("ooo ") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].downcase.start_with?("ooo ") then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("accepted: learning groups:") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].downcase.start_with?("accepted: learning groups:") then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].downcase.start_with?("Declined: Learning Groups:".downcase) then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].downcase.start_with?("Declined: Learning Groups:".downcase) then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].start_with?("I'm back in the office on") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].start_with?("I'm back in the office on") then
             return true
         end
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["data"]["generic-contents-item"] and
-            object["data"]["generic-contents-item"]["email-subject"] and
-            object["data"]["generic-contents-item"]["email-subject"].start_with?("Sorry I'm away Re:") then
+            object["generic-content-item"] and
+            object["generic-content-item"]["email-subject"] and
+            object["generic-content-item"]["email-subject"].start_with?("Sorry I'm away Re:") then
             return true
         end
         false

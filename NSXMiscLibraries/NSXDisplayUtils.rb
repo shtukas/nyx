@@ -33,7 +33,7 @@ class NSXDisplayUtils
         announce = object['announce'].strip
         part2 = 
             [
-                " #{object["commands"].join(" ")}",
+                object["commands"] ? " #{object["commands"].join(" ")}" : '',
                 object["defaultExpression"] ? " (#{object["defaultExpression"].green})" : ""
             ].join()
         part2.strip
@@ -42,7 +42,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object)
     def self.objectToMultipleLinesForCatalystListings(object)
         controlAnnounceHeight = lambda{|text, object, screenHeight|
-            if object["agentuid"]=="d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["generic-contents-item"]["type"]=="email" then
+            if object["agentuid"]=="d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["generic-content-item"]["type"]=="email" then
                 targetHeight = [10, (0.7*screenHeight).to_i].max
                 text.lines.first(targetHeight).join()
             else

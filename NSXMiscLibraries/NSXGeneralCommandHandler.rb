@@ -28,15 +28,15 @@ class NSXGeneralCommandHandler
     def self.interactiveMakeNewStreamItem()
         description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-        return if lightThread.nil?
         genericContentsItem = 
             if description.start_with?("http") then
                 NSXGenericContents::issueItemURL(description)
             else
                 NSXGenericContents::issueItemText(description)
             end
-        streamItem = NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem(lightThread["streamuuid"], genericContentsItem)
+        streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
+        streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUID(description)
+        streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem(streamuuid, genericContentsItem, Time.new.to_f)
         puts JSON.pretty_generate(streamItem)
     end
 
@@ -82,16 +82,15 @@ class NSXGeneralCommandHandler
             if text == "text" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["LightThread", "Wave"])
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream", "Wave"])
             catalystobjectuuid = nil
-            if type == "LightThread" then
+            if type == "Stream" then
                 genericContentsItem = NSXGenericContents::issueItemText(text)
-                pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
-                return if pair.nil?
-                streamuuid, ordinal = pair
-                streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
+                streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
+                streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUID(streamDescription)
+                streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem(streamuuid, genericContentsItem, Time.new.to_f)
                 puts JSON.pretty_generate(streamItem)
-                catalystobjectuuid = streamItem["uuid"][0,8]
+                catalystobjectuuid = streamItem["uuid"]
             end
             if type == "Wave" then
                 catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)
@@ -111,15 +110,11 @@ class NSXGeneralCommandHandler
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
             genericContentsItem = NSXGenericContents::issueItemText(text)
-            streamuuid = "03b79978bcf7a712953c5543a9df9047" # StreamUUID of LightThread Catalyst Inbox
-            ordinal = NSXStreamsUtils::getNextOrdinalForStream("03b79978bcf7a712953c5543a9df9047")
-            streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
-            puts JSON.pretty_generate(streamItem)
-            catalystobjectuuid = streamItem["uuid"][0,8]
+            streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_f)
             datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")
             datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
             return if datetime.nil?
-            NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
+            NSXDoNotShowUntilDatetime::setDatetime(streamItem["uuid"], datetime)
             return
         end
 
@@ -136,10 +131,8 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "LightThreads",
                 "new Stream Item", 
                 "new wave (repeat item)", 
-                "new LightThread",
                 "email-sync",
                 "speed"
             ]
@@ -151,16 +144,6 @@ class NSXGeneralCommandHandler
             if option == "new wave (repeat item)" then
                 description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
                 NSXMiscUtils::spawnNewWaveItem(description)
-            end
-            if option == "new LightThread" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                dailyTimeCommitment = NSXLightThreadUtils::dailyTimeCommitmentPickerOrNull()
-                isPriorityThread = LucilleCore::askQuestionAnswerAsBoolean("Is priority ?")
-                lightThread = NSXLightThreadUtils::makeNewLightThread(description, dailyTimeCommitment, isPriorityThread)
-                puts JSON.pretty_generate(lightThread)
-            end
-            if option == "LightThreads" then
-                NSXLightThreadUtils::lightThreadsDive()
             end
             if option == "email-sync" then
                 begin
@@ -195,16 +178,6 @@ class NSXGeneralCommandHandler
 
         # object needed
 
-        if object["commandsLambdas"] and object["commandsLambdas"][command] then
-            object["commandsLambdas"][command].call(object)
-            return
-        end
-
-        if object["commandsShells"] and object["commandsShells"][command] then
-            system(object["commandsShells"][command])
-            return
-        end
-
         if command == ".." and object["defaultExpression"] and object["defaultExpression"]!=".." then
             command = object["defaultExpression"]
             return NSXGeneralCommandHandler::processCommand(object, command)
@@ -217,6 +190,10 @@ class NSXGeneralCommandHandler
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
+            claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"])
+            if claim then
+                puts JSON.pretty_generate(claim)
+            end
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -231,7 +208,7 @@ class NSXGeneralCommandHandler
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["data"]["stream-item"]["uuid"])
+                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"])
                 if claim then
                     claim["status"] = "detached"
                     NSXEmailTrackingClaims::commitClaimToDisk(claim)

@@ -1,29 +1,25 @@
-We have the following streams
-    - Right Now
-    - Today Important
-    - XStream
 
 Streams are implemented as sequences of StreamItem
 
-StreamItem {
-    "uuid"                     : UUID
-    "streamuuid"               : UUID
-    "description"              : String # optional, when set overrides the computed description
-    "filename"                 : String
-    "generic-content-filename" : String
-    "ordinal"                  : Float
-    "run-data"                 : nil | Array[StreamItemRunTimeData]
-    "filename"                 : String
-    "filepath"                 : String # last known filepath
+StreamItem extends CatalystObject {
+    uuid                     : UUID
+    agentuid                 : "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
+    streamuuid               : UUID
+    ordinal                  : Float
+    announce                 : String
+    commands                 : Array[String]
+    prioritization           : nil | standard | high | running # optional
+    filename                 : String
+    generic-content-item     : GenericContentItem
+    run-data                 : nil | Array[StreamItemRunTimeData]
+    filename                 : String # added by the extractor
+    filepath                 : String # last known filepath # added by the extractor
 }
 
-StreamItemRunTimeData : (Unixtime, TimespanInSeconds)
+StreamItemRunTimeData : [Unixtime, TimespanInSeconds]
 
-The streams are processed as FIFO queues.
-
-The first three items are active.
-
-The others are ignored.
-
-When an item has been worked on more than few hours, it is pushed to position 5
-
+Rules:
+    1. The streams are processed as FIFO queues.
+    2. The first three items are active.
+    3. The others are ignored.
+    4. When an item has been worked on more than one hour, it is pushed to position 5.

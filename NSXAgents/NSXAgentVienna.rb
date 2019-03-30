@@ -72,16 +72,12 @@ class NSXAgentVienna
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
-            NSXStreamsUtils::issueItemAtNextOrdinalUsingGenericContentsItem("354d0160d6151cb10015e6325ca5f26a", NSXGenericContents::issueItemURL(link))
+            $STREAM_ITEMS_MANAGER.issueNewStreamItem("354d0160d6151cb10015e6325ca5f26a", NSXGenericContents::issueItemURL(link), Time.new.to_f)
             $viennaLinkFeeder.done(link)
         }
         []
     end
 
     def self.processObjectAndCommand(object, command)
-
-    end
-
-    def self.interface()
     end
 end

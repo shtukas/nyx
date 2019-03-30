@@ -6,16 +6,5 @@ CatalystObject
     "prioritization"     : nil | standard | high | running # optional
     "announce"           : String
     "commands"           : Array[String]
-    "defaultExpression"  : Null or String                      # optional
-    "commandsLambdas"    : Null or Map[String, Lambda]         # optional
-    "commandsShells"     : Null or Map[String, String]         # optional
+    "defaultExpression"  : Null or String # optional
 }
-
-When a command is issued by the user the following happens:
-
-    1. "commandsLambdas" is looked at first. If "commandsLambdas" is defined and object["commandsLambdas"][command] is defined, then we run the associated lambda.
-
-    2. Then we try "commandsShells". If "commandsShells" is defined and object["commandsShells"][command] is defined, then we run the associated shell command. (With great power comes great responsibility). This is the mechanism by which we allow external entities to provide Catalyst Objects
-
-	3. Otherwise we send the object and the command to the Agent.
-

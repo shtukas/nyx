@@ -8,5 +8,3 @@ getObjects(): Array[CatalystObject]
 
 processObjectAndCommand(object, command): ProcessorSignal
 
-interface()
-    # Allows interaction with the agent itself.

@@ -25,10 +25,6 @@ class NSXAgentTheBridge
     end
 
     def self.processObjectAndCommand(object, command)
-
-    end
-
-    def self.interface()
     end
 end
 

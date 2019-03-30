@@ -69,9 +69,8 @@ class NSXAgentTodayNotes
                     "prioritization"     => NSXRunner::isRunning?(uuid) ? "running" : "standard",
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.65 - integers.next().to_f/1000),
                     "announce"           => "Today: #{sectionAsString}#{runningMarker}",
-                    "commands"           => ( NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"] ) + ["done", ">stream"],
+                    "commands"           => ["done", ">stream"],
                     "defaultExpression"  => "done",
-                    "commandsLambdas"    => nil,
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),
                     "section"            => section
                 }
@@ -80,52 +79,20 @@ class NSXAgentTodayNotes
             .compact
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
-            .first(3)
-    end
-
-    # NSXAgentTodayNotes::stopObject(object): null | timespanInSeconds
-    def self.stopObject(object)
-        timespanInSeconds = NSXRunner::stop(object["uuid"])
-        return nil if timespanInSeconds.nil?
-        lightThread = NSXLightThreadUtils::interactivelySelectLightThreadOrNull()
-        return nil if lightThread.nil?
-        NSXLightThreadUtils::addTimeToLightThread(lightThread["uuid"], timespanInSeconds)
-        [timespanInSeconds, lightThread["description"]]
     end
 
     # NSXAgentTodayNotes::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
-        if command == "start" then
-            NSXRunner::start(object["uuid"])
-            NSXMiscUtils::setStandardListingPosition(1)
-        end
-        if command == "stop" then
-            answer = NSXAgentTodayNotes::stopObject(object)
-            if !answer.nil? then
-                puts "Added #{(answer[0].to_f/3600).round(2)} hours to #{answer[1]}"
-                LucilleCore::pressEnterToContinue()
-            end
-        end
         if command == "done" then
-            answer = NSXAgentTodayNotes::stopObject(object)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
-            if !answer.nil? then
-                puts "Added #{(answer[0].to_f/3600).round(2)} hours to #{answer[1]}"
-                LucilleCore::pressEnterToContinue()
-            end
         end
         if command == ">stream" then
-            NSXAgentTodayNotes::stopObject(object)
             text = object["section"].join()
             genericContentsItem = NSXGenericContents::issueItemText(text)
-            pair = NSXStreamsUtils::interactivelySelectStreamUUIDAndOrdinalPairOrNull()
-            return if pair.nil?
-            streamuuid, ordinal = pair
-            streamItem = NSXStreamsUtils::issueItemAtOrdinalUsingGenericContentsItem(streamuuid, genericContentsItem, ordinal)
+            streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
+            streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUID(streamDescription)
+            streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem(streamuuid, genericContentsItem, Time.new.to_f)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
         end
-    end
-
-    def self.interface()
     end
 end

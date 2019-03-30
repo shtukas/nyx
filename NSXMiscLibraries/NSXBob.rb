@@ -54,16 +54,6 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "LightThreads",
-        "agentuid"    => "201cac75-9ecc-4cac-8ca1-2643e962a6c6",
-        "get-objects" => lambda { NSXAgentLightThread::getObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentLightThread::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentLightThread::interface() }
-    }
-)
-
-NSXBob::registerAgent(
-    {
         "agent-name"  => "Streams",
         "agentuid"    => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
         "get-objects" => lambda { NSXAgentStreams::getObjects() },

@@ -4,7 +4,6 @@
 require_relative "NSXAgentBabyNights.rb"
 require_relative "NSXAgentTodayNotes.rb"
 require_relative "NSXAgentHouse.rb"
-require_relative "NSXAgentLightThread.rb"
 require_relative "NSXAgentStreams.rb"
 require_relative "NSXAgentTheBridge.rb"
 require_relative "NSXAgentVienna.rb"
