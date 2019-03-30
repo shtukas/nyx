@@ -84,7 +84,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::recastStreamItem(item): item
     def self.recastStreamItem(item)
         description = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-        streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUID(description)
+        streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
         item["streamuuid"] = streamuuid
         item["ordinal"] = Time.new.to_f
         item
@@ -104,58 +104,72 @@ class NSXStreamsUtils
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end
 
+    # NSXStreamsUtils::streamsMetadata()
+    def self.streamsMetadata()
+        [
+            {
+                "streamuuid"       => "03b79978bcf7a712953c5543a9df9047",
+                "description"      => "Catalyst Inbox",
+                "isPriorityStream" => true
+            },
+            {
+                "streamuuid"       => "38d5658ed46c4daf0ec064e58fb2b97a",
+                "description"      => "Personal Admin",
+                "isPriorityStream" => false
+            },
+            {
+                "streamuuid"       => "134de9a4e9eae4841fdbc4c1e53f4455",
+                "description"      => "Pascal Technology Jedi",
+                "isPriorityStream" => false
+            },
+            {
+                "streamuuid"       => "00010011101100010011101100011001",
+                "description"      => "Infinity Stream",
+                "isPriorityStream" => false
+            }
+        ]
+    end
+
+
     # NSXStreamsUtils::streamUUIDs()
     def self.streamUUIDs()
-        [
-            "38d5658ed46c4daf0ec064e58fb2b97a",
-            "134de9a4e9eae4841fdbc4c1e53f4455",
-            "03b79978bcf7a712953c5543a9df9047",
-            "00010011101100010011101100011001"
-        ]
+        NSXStreamsUtils::streamsMetadata().map{|item| item["streamuuid"] }
     end
 
     # NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
     def self.interactivelySelectStreamDescriptionOrNull()
-        descriptions = [
-            "Catalyst Inbox",
-            "Pascal Technology Jedi",
-            "Personal Admin & Entertainment",
-            "Infinity Stream"
-        ]
+        descriptions = NSXStreamsUtils::streamsMetadata().map{|item| item["description"] }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("description:", descriptions)
     end
 
-    # NSXStreamsUtils::streamDescriptionToStreamUUID(description)
-    def self.streamDescriptionToStreamUUID(description)
-        mapping = {
-            "Catalyst Inbox"                 => "03b79978bcf7a712953c5543a9df9047",
-            "Pascal Technology Jedi"         => "134de9a4e9eae4841fdbc4c1e53f4455",
-            "Personal Admin & Entertainment" => "38d5658ed46c4daf0ec064e58fb2b97a",
-            "Infinity Stream"                => "00010011101100010011101100011001"
-        }
-        mapping[description]
+    # NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
+    def self.streamDescriptionToStreamUUIDOrNull(description)
+        NSXStreamsUtils::streamsMetadata()
+            .select{|item| item["description"]==description }
+            .each{|item|
+                return item["streamuuid"]
+            }
+        nil
     end
 
-    # NSXStreamsUtils::streamuuidToStreamDescription(streamuuid)
-    def self.streamuuidToStreamDescription(streamuuid)
-        mapping = {
-            "38d5658ed46c4daf0ec064e58fb2b97a" => "Personal Admin & Entertainment",
-            "134de9a4e9eae4841fdbc4c1e53f4455" => "Pascal Technology Jedi",
-            "03b79978bcf7a712953c5543a9df9047" => "Catalyst Inbox",
-            "00010011101100010011101100011001" => "Infinity Stream"
-        }
-        mapping[streamuuid]
+    # NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)
+    def self.streamuuidToStreamDescriptionOrNull(streamuuid)
+        NSXStreamsUtils::streamsMetadata()
+            .select{|item| item["streamuuid"]==streamuuid }
+            .each{|item|
+                return item["description"]
+            }
+        nil
     end
 
-    # NSXStreamsUtils::streamuuidToPriorityFlag(streamuuid)
-    def self.streamuuidToPriorityFlag(streamuuid)
-        mapping = {
-            "38d5658ed46c4daf0ec064e58fb2b97a" => false,
-            "134de9a4e9eae4841fdbc4c1e53f4455" => false,
-            "03b79978bcf7a712953c5543a9df9047" => true,
-            "00010011101100010011101100011001" => false
-        }
-        mapping[streamuuid]
+    # NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid)
+    def self.streamuuidToPriorityFlagOrNull(streamuuid)
+        NSXStreamsUtils::streamsMetadata()
+            .select{|item| item["streamuuid"]==streamuuid }
+            .each{|item|
+                return item["isPriorityStream"]
+            }
+        nil
     end
 
     # -----------------------------------------------------------------
@@ -175,7 +189,7 @@ class NSXStreamsUtils
         if NSXRunner::isRunning?(item["uuid"]) then
             runtimestring = " (running for #{(NSXRunner::runningTimeOrNull(item["uuid"]).to_f/3600).round(2)} hours)"
         end
-        "#{NSXStreamsUtils::streamuuidToStreamDescription(item['streamuuid'])} : #{announce}#{doNotShowString}#{runtimestring}"
+        "#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])} : #{announce}#{doNotShowString}#{runtimestring}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
@@ -221,7 +235,7 @@ class StreamItemsManager
         @DISPLAYITEMS = 
             streamuuids
                 .map{|streamuuid|
-                    if NSXStreamsUtils::streamuuidToPriorityFlag(streamuuid) then
+                    if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid) then
                         self.itemsForStreamUUIDOrdered(streamuuid)
                     else
                         self
