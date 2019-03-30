@@ -74,9 +74,10 @@ class NSXAgentStreams
     # NSXAgentStreams::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         if command == "open" then
-            item = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(object["generic-content-item"])
-            if item then
-                $STREAM_ITEMS_MANAGER.commitItem(item)
+            genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(object["generic-content-item"])
+            if genericContentItem then
+                object["generic-content-item"] = genericContentItem
+                $STREAM_ITEMS_MANAGER.commitItem(object)
             end
         end
         if command == "start" then
