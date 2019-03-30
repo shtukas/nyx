@@ -238,13 +238,11 @@ class NSXGenericContents
             emailFilename = item["email-filename"]
             emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
             system("open '#{emailFilepath}'")
-            LucilleCore::pressEnterToContinue()
             return nil
         end
         if item["type"]=="url" then
             url = item["url"]
             system("open '#{url}'")
-            LucilleCore::pressEnterToContinue()
             return nil
         end
         if item["type"]=="text" then
@@ -266,7 +264,6 @@ class NSXGenericContents
             folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(parentFoldername)
             return if folderpath.nil?
             system("open '#{folderpath}'")
-            LucilleCore::pressEnterToContinue()
             return nil
         end
     end
