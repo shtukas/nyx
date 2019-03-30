@@ -84,7 +84,7 @@ class NSXDisplayUtils
         return if object.nil?
         puts NSXDisplayUtils::objectToStringForCatalystListing(object, nil, nil)
         puts NSXDisplayUtils::objectInferfaceString(object)
-        print "--> "
+        print "-->(2) "
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["defaultExpression"] ? object["defaultExpression"] : "" )
         NSXGeneralCommandHandler::processCommand(object, command)

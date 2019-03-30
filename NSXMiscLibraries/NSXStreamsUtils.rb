@@ -234,6 +234,8 @@ class StreamItemsManager
                 .flatten
                 .map{|item|
                     item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+                    item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+                    item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
                     item
                 }
     end
