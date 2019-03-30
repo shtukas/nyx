@@ -63,19 +63,19 @@ class NSXDisplayUtils
 
             if object['announce'].lines.to_a.size > 1 then
                 [
-                    NSXDisplayUtils::positionPrefix(standardlp, position) + " " + NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object),
+                    NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object),
                     "\n" + "              " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" ),
                     ( hasPlanningText ? ("               " + "planning".green) : "" )
                 ].join()
             else
                 [
-                   NSXDisplayUtils::positionPrefix(standardlp, position) + " " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object),
+                   NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object),
                    "\n" + "               " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" ),
                    ( hasPlanningText ? ("\n" + "               " + "planning".green) : "" )
                 ].join()
             end
         else
-            NSXDisplayUtils::positionPrefix(standardlp, position) + " " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
+            NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
         end
     end
 
