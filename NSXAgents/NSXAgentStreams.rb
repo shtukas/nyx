@@ -29,7 +29,9 @@ class NSXAgentStreams
         if item["run-data"].nil? then
             item["run-data"] = []
         end
-        item["run-data"] << [Time.new.to_i, NSXRunner::stop(item["uuid"])]
+        runningTimeInSeconds = NSXRunner::stop(item["uuid"])
+        StreamTimeTracking::addTimeInSecondsToStream(item["streamuuid"], runningTimeInSeconds)
+        item["run-data"] << [Time.new.to_i, runningTimeInSeconds]
         if item["run-data"].map{|x| x[1] }.inject(0, :+) >= 3600 then
             item["run-data"] = []
             item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 5, item["uuid"])
