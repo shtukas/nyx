@@ -192,17 +192,23 @@ class NSXStreamsUtils
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         announce = NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"]).strip
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(item["uuid"])
-        doNotShowString = 
+        doNotShowString =
             if datetime then
-                " (DoNotShowUntil: #{datetime})"
+                "(DoNotShowUntil: #{datetime})"
             else
                 ""
             end
-        runtimestring = ""
-        if NSXRunner::isRunning?(item["uuid"]) then
-            runtimestring = " (running for #{(NSXRunner::runningTimeOrNull(item["uuid"]).to_f/3600).round(2)} hours)"
+        runtimestring =
+            if NSXRunner::isRunning?(item["uuid"]) then
+                "(running for #{(NSXRunner::runningTimeOrNull(item["uuid"]).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+        if announce.lines.size>1 then
+            announce = announce.lines.map{|line| "             "+line }.join()
         end
-        "#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])} : #{announce}#{doNotShowString}#{runtimestring}"
+        splitChar = announce.lines.size>1 ? "\n" : " "
+        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{splitChar}#{doNotShowString}#{splitChar}#{runtimestring}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)

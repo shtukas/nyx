@@ -213,7 +213,7 @@ class NSXGenericContents
     # NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(genericContentItem)
     def self.genericContentsItemToCatalystObjectAnnounce(genericContentItem)
         if genericContentItem["type"]=="text" then
-            return ( genericContentItem["text"].lines.first || "(empty file text)" )
+            return genericContentItem["text"]
         end
         if genericContentItem["type"]=="url" then
             return genericContentItem["url"]
