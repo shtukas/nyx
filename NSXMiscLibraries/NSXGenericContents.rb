@@ -212,13 +212,13 @@ class NSXGenericContents
 
     # NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(genericContentItem)
     def self.genericContentsItemToCatalystObjectAnnounce(genericContentItem)
-        if genericContentItem["type"]=="text" then
+        if genericContentItem["type"] == "text" then
             return genericContentItem["text"]
         end
-        if genericContentItem["type"]=="url" then
+        if genericContentItem["type"] == "url" then
             return genericContentItem["url"]
         end
-        if genericContentItem["type"]=="email" then
+        if genericContentItem["type"] == "email" then
             emailFilename = genericContentItem["email-filename"]
             emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
             output = []
@@ -226,8 +226,19 @@ class NSXGenericContents
             output << NSXGenericContents::emailToString(emailFilepath)
             return output.map{|str| str.force_encoding("utf-8") }.join("\n")
         end
-        if genericContentItem["type"]=="location" then
-            return "location: #{genericContentItem["parent-foldername"]}"
+        if genericContentItem["type"] == "location" then
+            folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(genericContentItem["parent-foldername"])
+            if folderpath then
+                filepath = NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
+                if filepath then
+                    return "location: #{File.basename(filepath)}"
+                else
+                    return "location: #{genericContentItem["parent-foldername"]}"
+                end
+            else
+                return "location (not found): #{genericContentItem["parent-foldername"]}"
+            end
+
         end
         "Error a561fefa: #{filepath}"
     end

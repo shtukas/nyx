@@ -461,4 +461,11 @@ class NSXMiscUtils
             .compact
     end
 
+    # NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
+    def self.filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
+        filenames = Dir.entries(folderpath).select{|filename| filename[0,1] != '.' }
+        return nil if filenames.size != 1
+        "#{folderpath}/#{filenames.first}"
+    end
+
 end
