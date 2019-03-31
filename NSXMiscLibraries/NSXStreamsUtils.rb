@@ -275,6 +275,7 @@ class StreamItemsManager
                     if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid) then
                         self.itemsForStreamUUIDOrdered(streamuuid)
                     else
+                        puts "StreamTimeTracking::shouldDisplayMoreItems: #{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)} (#{StreamTimeTracking::getTimeInSecondsForStream(streamuuid).to_i}): #{StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid))}"
                         if StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)) then
                             self
                                 .itemsForStreamUUIDOrdered(streamuuid)

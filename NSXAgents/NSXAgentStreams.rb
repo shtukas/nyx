@@ -125,6 +125,5 @@ class NSXAgentStreams
             object["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(object["streamuuid"], 5, object["uuid"])
             $STREAM_ITEMS_MANAGER.commitItem(object)
         end
-        $STREAM_ITEMS_MANAGER.cookItemsForDisplay()
     end
 end
