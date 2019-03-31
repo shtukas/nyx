@@ -260,6 +260,9 @@ class StreamItemsManager
             item = JSON.parse(IO.read(path))
             item["filename"] = File.basename(path)
             item["filepath"] = path
+            if !NSXStreamsUtils::streamUUIDs().include?(item["streamuuid"]) then
+                item["streamuuid"] = "03b79978bcf7a712953c5543a9df9047"
+            end
             @ITEMS[item["uuid"]] = item.clone
         end
         cookItemsForDisplay()
