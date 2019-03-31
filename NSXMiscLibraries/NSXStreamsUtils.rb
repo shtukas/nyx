@@ -73,7 +73,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamUUID)
     def self.getStreamItemsOrdinalOrdered(streamUUID)
-        NSXStreamsUtils::allStreamsItemsEnumerator()
+        $STREAM_ITEMS_MANAGER.items()
             .select{|item| item["streamuuid"]==streamUUID }
             .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
     end
@@ -129,7 +129,6 @@ class NSXStreamsUtils
             }
         ]
     end
-
 
     # NSXStreamsUtils::streamUUIDs()
     def self.streamUUIDs()
@@ -203,7 +202,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
     def self.streamItemToStreamCatalystDefaultCommand(item)
-        NSXRunner::isRunning?(item["uuid"]) ? "stop" : "done"
+        NSXRunner::isRunning?(item["uuid"]) ? "done" : "start ; open"
     end
 end
 
