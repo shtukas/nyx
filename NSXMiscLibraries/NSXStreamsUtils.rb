@@ -202,7 +202,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
     def self.streamItemToStreamCatalystDefaultCommand(item)
-        NSXRunner::isRunning?(item["uuid"]) ? "done" : "start ; open"
+        NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
     end
 end
 
