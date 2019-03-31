@@ -63,6 +63,7 @@ class NSXAgentStreams
 
     # NSXAgentStreams::doneStreamItem(object)
     def self.doneStreamItem(object)
+        object = NSXAgentStreams::stopStreamItem(object) # Important to perform that step to record the time. 
         # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
         if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
             if NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"]) then
