@@ -326,14 +326,7 @@ class StreamItemsManager
         item
     end
     def getItemByUUIDOrNull(itemuuid)
-        @ITEMS.values.each{|map1| 
-            map1.values.each{|item|
-                if item["uuid"]==itemuuid then
-                    return item
-                end
-            }
-        }
-        nil
+        @ITEMS[itemuuid]
     end
     def commitItem(item)
         @ITEMS[item["uuid"]] = item.clone
@@ -359,4 +352,6 @@ class StreamItemsManager
 end
 
 $STREAM_ITEMS_MANAGER = StreamItemsManager.new()
+
+# $STREAM_ITEMS_MANAGER.getItemByUUIDOrNull(itemuuid)
 

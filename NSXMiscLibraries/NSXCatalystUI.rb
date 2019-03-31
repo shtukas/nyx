@@ -112,6 +112,9 @@ class NSXCatalystUI
 
         if command == "open" then
             NSXGeneralCommandHandler::processCommand(focusobject, "open")
+            if focusobject["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
+                focusobject = $STREAM_ITEMS_MANAGER.getItemByUUIDOrNull(focusobject["uuid"])
+            end
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
             return
         end
