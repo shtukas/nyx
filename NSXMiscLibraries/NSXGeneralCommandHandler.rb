@@ -111,10 +111,6 @@ class NSXGeneralCommandHandler
             end
             genericContentsItem = NSXGenericContents::issueItemText(text)
             streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_f)
-            datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")
-            datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
-            return if datetime.nil?
-            NSXDoNotShowUntilDatetime::setDatetime(streamItem["uuid"], datetime)
             return
         end
 
