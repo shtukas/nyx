@@ -92,8 +92,10 @@ class NSXAgentStreams
         if command == "stop" then
             object = NSXAgentStreams::stopStreamItem(object)
             object["prioritization"] = "standard"
-            NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
             $STREAM_ITEMS_MANAGER.commitItem(object)
+            if LucilleCore::askQuestionAnswerAsBoolean("Relocate to back of queue ? ") then
+                NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
+            end
         end
         if command == "done" then
             NSXAgentStreams::doneStreamItemEmailCarrier(object["uuid"])
@@ -123,8 +125,23 @@ class NSXAgentStreams
             $STREAM_ITEMS_MANAGER.commitItem(object)
         end
         if command == "push" then
-            object["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(object["streamuuid"], 5, object["uuid"])
-            $STREAM_ITEMS_MANAGER.commitItem(object)
+            options = [
+                "send to end of placement queue",
+                "put to position 5 on stream",
+                "put to end of stream"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            if option == "send to end of placement queue" then
+                NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
+            end
+            if option == "put to position 5 on stream" then
+                object["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(object["streamuuid"], 5, object["uuid"])
+                $STREAM_ITEMS_MANAGER.commitItem(object)
+            end
+            if option == "put to end of stream" then
+                object["ordinal"] = Time.new.to_f
+                $STREAM_ITEMS_MANAGER.commitItem(object)
+            end
         end
     end
 end
