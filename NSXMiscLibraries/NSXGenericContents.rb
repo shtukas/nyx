@@ -273,9 +273,22 @@ class NSXGenericContents
         if item["type"]=="location" then
             parentFoldername = item["parent-foldername"]
             folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(parentFoldername)
-            return if folderpath.nil?
-            system("open '#{folderpath}'")
-            return nil
+            if folderpath.nil? then
+                puts "[error: e0fb264] Could not locate foldername: #{item["parent-foldername"]}"
+            else
+                filepath = NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
+                if filepath then
+                    if filepath[-'.webloc'.size, '.webloc'.size] == '.webloc' then
+                        system("open '#{filepath}'")
+                    else
+                        system("open '#{folderpath}'")
+                    end
+                else
+                    system("open '#{folderpath}'")
+                end
+                return nil
+            end
+
         end
     end
     
