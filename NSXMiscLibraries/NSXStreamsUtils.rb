@@ -284,7 +284,7 @@ class StreamItemsManager
                     if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid) then
                         self.itemsForStreamUUIDOrdered(streamuuid)
                     else
-                        puts "StreamTimeTracking::shouldDisplayMoreItems: #{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)} (#{StreamTimeTracking::getTimeInSecondsForStream(streamuuid).to_i}): #{StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid))}"
+                        #puts "StreamTimeTracking::shouldDisplayMoreItems: #{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)} (#{StreamTimeTracking::getTimeInSecondsForStream(streamuuid).to_i}): #{StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid))}"
                         if StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)) then
                             self
                                 .itemsForStreamUUIDOrdered(streamuuid)
@@ -357,4 +357,4 @@ end
 $STREAM_ITEMS_MANAGER = StreamItemsManager.new()
 
 # $STREAM_ITEMS_MANAGER.getItemByUUIDOrNull(itemuuid)
-
+# $STREAM_ITEMS_MANAGER.commitItem(item)
