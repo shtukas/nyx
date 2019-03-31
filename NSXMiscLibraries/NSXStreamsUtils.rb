@@ -108,24 +108,28 @@ class NSXStreamsUtils
     def self.streamsMetadata()
         [
             {
-                "streamuuid"       => "03b79978bcf7a712953c5543a9df9047",
-                "description"      => "Catalyst Inbox",
-                "isPriorityStream" => true
+                "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
+                "description"        => "Catalyst Inbox",
+                "isPriorityStream"   => true,
+                "timeControlInHours" => nil
             },
             {
-                "streamuuid"       => "38d5658ed46c4daf0ec064e58fb2b97a",
-                "description"      => "Personal Admin",
-                "isPriorityStream" => false
+                "streamuuid"         => "38d5658ed46c4daf0ec064e58fb2b97a",
+                "description"        => "Personal Admin",
+                "isPriorityStream"   => false,
+                "timeControlInHours" => 1
             },
             {
-                "streamuuid"       => "134de9a4e9eae4841fdbc4c1e53f4455",
-                "description"      => "Pascal Technology Jedi",
-                "isPriorityStream" => false
+                "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",
+                "description"        => "Pascal Technology Jedi",
+                "isPriorityStream"   => false,
+                "timeControlInHours" => 3
             },
             {
-                "streamuuid"       => "00010011101100010011101100011001",
-                "description"      => "Infinity Stream",
-                "isPriorityStream" => false
+                "streamuuid"         => "00010011101100010011101100011001",
+                "description"        => "Infinity Stream",
+                "isPriorityStream"   => false,
+                "timeControlInHours" => 2
             }
         ]
     end
@@ -171,6 +175,16 @@ class NSXStreamsUtils
         nil
     end
 
+    # NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)
+    def self.streamuuidToTimeControlInHours(streamuuid)
+        NSXStreamsUtils::streamsMetadata()
+            .select{|item| item["streamuuid"]==streamuuid }
+            .each{|item|
+                return item["timeControlInHours"]
+            }
+        1
+    end
+
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
@@ -206,6 +220,30 @@ class NSXStreamsUtils
     end
 end
 
+class StreamTimeTracking
+
+    # StreamTimeTracking::currentDate()
+    def self.currentDate()
+        Time.now.utc.iso8601[0,10]
+    end
+
+    # StreamTimeTracking::addTimeInSecondsToStream(streamuuid, seconds)
+    def self.addTimeInSecondsToStream(streamuuid, seconds)
+        existingtime = KeyValueStore::getOrDefaultValue(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{StreamTimeTracking::currentDate()} #{streamuuid}", "0").to_f
+        KeyValueStore::set(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{StreamTimeTracking::currentDate()} #{streamuuid}", existingtime+seconds)
+    end
+
+    # StreamTimeTracking::getTimeInSecondsForStream(streamuuid)
+    def self.getTimeInSecondsForStream(streamuuid)
+        KeyValueStore::getOrDefaultValue(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{StreamTimeTracking::currentDate()} #{streamuuid}", "0").to_f
+    end
+
+    # StreamTimeTracking::shouldDisplayMoreItems(streamuuid, timeControlInHours)
+    def self.shouldDisplayMoreItems(streamuuid, timeControlInHours)
+        StreamTimeTracking::getTimeInSecondsForStream(streamuuid) < timeControlInHours*3600
+    end
+end
+
 class StreamItemsManager
     def initialize()
         @ITEMS = {} # Map[String#streamuuid, Map[String#itemuuid, StreamItem]]
@@ -237,11 +275,15 @@ class StreamItemsManager
                     if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid) then
                         self.itemsForStreamUUIDOrdered(streamuuid)
                     else
-                        self
-                            .itemsForStreamUUIDOrdered(streamuuid)
-                            .map{|object| NSXMiscUtils::catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object) }
-                            .compact
-                            .first(3)
+                        if StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)) then
+                            self
+                                .itemsForStreamUUIDOrdered(streamuuid)
+                                .map{|object| NSXMiscUtils::catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object) }
+                                .compact
+                                .first(3)
+                        else
+                            []
+                        end
                     end
                 }
                 .flatten
