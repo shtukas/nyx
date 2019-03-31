@@ -93,7 +93,7 @@ class NSXAgentStreams
             object = NSXAgentStreams::stopStreamItem(object)
             object["prioritization"] = "standard"
             $STREAM_ITEMS_MANAGER.commitItem(object)
-            if LucilleCore::askQuestionAnswerAsBoolean("Relocate to back of queue ? ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("Relocate to back of placement queue ? ") then
                 NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
             end
         end
