@@ -54,11 +54,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if ( agentdata = NSXBob::getAgentDataByAgentNameOrNull(command) ) then
-            agentdata["interface"].call()
-            return
-        end
-
         if command == 'help' then
             puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
             puts NSXGeneralCommandHandler::helpLines().join("\n")
@@ -212,15 +207,13 @@ class NSXGeneralCommandHandler
             end
             return
         end
-        
-        if object["agentuid"] then
-            command.split(";").map{|t| t.strip }
-                .each{|command|
-                    agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
-                    next if agentdata.nil?
-                    agentdata["object-command-processor"].call(object, command)
-                }
-        end
+
+        command.split(";").map{|t| t.strip }
+            .each{|command|
+                agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+                next if agentdata.nil?
+                agentdata["object-command-processor"].call(object, command)
+            }
     end
 
 end

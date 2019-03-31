@@ -16,7 +16,10 @@ class NSXAgentTheBridge
 
     # NSXAgentTheBridge::getAgentsFilepaths()
     def self.getAgentsFilepaths()
-        IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/filepaths.txt").lines.map{|line| line.strip }.select{|line| line.size>0 }
+        IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/filepaths.txt")
+            .lines
+            .map{|line| line.strip }
+            .select{|line| line.size>0 }
     end
 
     # NSXAgentTheBridge::getObjects()
@@ -25,6 +28,7 @@ class NSXAgentTheBridge
     end
 
     def self.processObjectAndCommand(object, command)
+        system(object["commandToShellInvocation"][command]) # With great powers come great responsibilities
     end
 end
 
