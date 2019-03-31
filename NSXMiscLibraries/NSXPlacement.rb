@@ -37,8 +37,8 @@ class NSXPlacement
         end
     end
 
-    # NSXPlacement::rotate(objectuuid)
-    def self.rotate(objectuuid)
+    # NSXPlacement::relocateToBackOfTheQueue(objectuuid)
+    def self.relocateToBackOfTheQueue(objectuuid)
         if $NSXPlacementX11[NSXPlacement::currentDate()].nil? then
             $NSXPlacementX11[NSXPlacement::currentDate()] = {}
         end

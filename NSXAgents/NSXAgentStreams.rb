@@ -88,8 +88,8 @@ class NSXAgentStreams
         end
         if command == "stop" then
             object = NSXAgentStreams::stopStreamItem(object)
-            $STREAM_ITEMS_MANAGER.commitItem(object)
             object["prioritization"] = "standard"
+            NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
             $STREAM_ITEMS_MANAGER.commitItem(object)
         end
         if command == "done" then
