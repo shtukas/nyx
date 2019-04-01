@@ -24,7 +24,11 @@ class NSXAgentTheBridge
 
     # NSXAgentTheBridge::getObjects()
     def self.getObjects()
-        NSXAgentTheBridge::getAgentsFilepaths().map{|filepath| JSON.parse(`#{filepath}`) }.flatten
+        if NSXMiscUtils::isLucille18() then
+            NSXAgentTheBridge::getAgentsFilepaths().map{|filepath| JSON.parse(`#{filepath}`) }.flatten
+        else
+            []
+        end
     end
 
     def self.processObjectAndCommand(object, command)
