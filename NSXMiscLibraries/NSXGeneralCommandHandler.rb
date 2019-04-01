@@ -175,7 +175,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == ',,' then
-            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+#{1+rand} hour"))
+            NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
             return
         end
 
