@@ -257,6 +257,11 @@ class NSXGenericContents
             return nil
         end
         if item["type"]=="text" then
+            if item["text"].start_with?("http") then
+                url = item["text"].strip
+                system("open '#{url}'")
+                return nil
+            end
             filepath = "#{NSXMiscUtils::newBinArchivesFolderpath()}/#{NSXGenericContents::timeStringL22()}.txt"
             File.open(filepath, "w"){|f| f.puts(item["text"]) }
             puts "Opening the file and then you can edit it..."

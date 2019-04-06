@@ -208,7 +208,7 @@ class NSXStreamsUtils
             announce = announce.lines.map{|line| "             "+line }.join()
         end
         splitChar = announce.lines.size>1 ? "\n" : " "
-        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{splitChar}#{doNotShowString}#{splitChar}#{runtimestring}"
+        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{splitChar}#{doNotShowString}#{splitChar}#{runtimestring} (stream: #{(StreamTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
