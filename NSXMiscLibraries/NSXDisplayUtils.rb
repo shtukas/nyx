@@ -57,21 +57,18 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
     def self.objectToStringForCatalystListing(object, position, standardlp)
+        object["commands"] = object["commands"].reject{|command| command.include?('planning') }
+        object["commands"] = ( NSXMiscUtils::hasPlanningText(object["uuid"]) ? ["planning".green] : ["planning".yellow] ) + object["commands"]
         if position == standardlp then
-            planningText = NSXMiscUtils::getPlanningText(object["uuid"])
-            hasPlanningText = planningText.strip.size>0
-
             if object['announce'].lines.to_a.size > 1 then
                 [
                     NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object),
                     "\n" + "              " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" ),
-                    ( hasPlanningText ? ("               " + "planning".green) : "" )
                 ].join()
             else
                 [
                    NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object),
                    "\n" + "               " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" ),
-                   ( hasPlanningText ? ("\n" + "               " + "planning".green) : "" )
                 ].join()
             end
         else
