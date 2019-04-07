@@ -30,7 +30,7 @@ class NSXPlacement
             value
         else
             value = ($NSXPlacementX11[NSXPlacement::currentDate()].values + [0]).max + 1
-            puts "placement: #{objectuuid} @ #{value}"
+            #puts "placement: #{objectuuid} @ #{value}"
             $NSXPlacementX11[NSXPlacement::currentDate()][objectuuid] = value
             KeyValueStore::set(nil, "6d232da2-4bc3-485b-8b78-d9b4d372d599:#{NSXPlacement::currentDate()}", JSON.generate($NSXPlacementX11))
             value
