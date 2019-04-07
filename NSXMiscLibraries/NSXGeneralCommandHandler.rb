@@ -113,7 +113,7 @@ class NSXGeneralCommandHandler
             pattern = command[7, command.size].strip
             loop {
                 searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| NSXDisplayUtils::objectToOneLineForCatalystDisplay(object).downcase.include?(pattern.downcase) }
+                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| object["announce"].downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status

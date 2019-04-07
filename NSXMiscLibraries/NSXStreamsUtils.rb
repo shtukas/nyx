@@ -210,9 +210,6 @@ class NSXStreamsUtils
             else
                 ""
             end
-        if announce.lines.size>1 then
-            announce = announce.lines.map{|line| "             "+line }.join()
-        end
         streamTimeAsString = "#{splitChar}(stream: #{(StreamTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
         "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}#{streamTimeAsString}"
     end

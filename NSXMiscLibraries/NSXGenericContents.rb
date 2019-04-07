@@ -243,9 +243,6 @@ class NSXGenericContents
     # NSXGenericContents::genericContentsItemToCatalystObjectBody(genericContentItem)
     def self.genericContentsItemToCatalystObjectBody(genericContentItem)
         if genericContentItem["type"] == "text" then
-            if genericContentItem["text"].lines.to_a.size==1 then
-                return "line: #{genericContentItem["text"].strip}"
-            end
             return genericContentItem["text"]
         end
         if genericContentItem["type"] == "url" then
@@ -256,7 +253,7 @@ class NSXGenericContents
             emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
             output = []
             output << "email (#{NSXGenericContents::emailFilenameToDateTime(emailFilename)}, #{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
-            output << NSXGenericContents::emailToString(emailFilepath)
+            output << NSXGenericContents::emailToString(emailFilepath).lines.first(NSXMiscUtils::screenHeight()-10).join()
             return output.map{|str| str.force_encoding("utf-8") }.join("\n")
         end
         if genericContentItem["type"] == "location" then
