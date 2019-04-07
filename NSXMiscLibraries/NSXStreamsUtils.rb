@@ -191,24 +191,25 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         announce = NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"]).strip
+        splitChar = announce.lines.size>1 ? "\n" : " "
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(item["uuid"])
         doNotShowString =
             if datetime then
-                "(DoNotShowUntil: #{datetime})"
+                "#{splitChar}(DoNotShowUntil: #{datetime})"
             else
                 ""
             end
         runtimestring =
             if NSXRunner::isRunning?(item["uuid"]) then
-                "(running for #{(NSXRunner::runningTimeOrNull(item["uuid"]).to_f/3600).round(2)} hours)"
+                "#{splitChar}(running for #{(NSXRunner::runningTimeOrNull(item["uuid"]).to_f/3600).round(2)} hours)"
             else
                 ""
             end
         if announce.lines.size>1 then
             announce = announce.lines.map{|line| "             "+line }.join()
         end
-        splitChar = announce.lines.size>1 ? "\n" : " "
-        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{splitChar}#{doNotShowString}#{splitChar}#{runtimestring} (stream: #{(StreamTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
+        streamTimeAsString = "#{splitChar}(stream: #{(StreamTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
+        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}#{streamTimeAsString}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
