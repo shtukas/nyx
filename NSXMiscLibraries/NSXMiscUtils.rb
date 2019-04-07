@@ -304,32 +304,6 @@ class NSXMiscUtils
         Digest::SHA1.hexdigest("66b44d63-0168-4217-9712-2b84ad3e41cb:#{(Time.new.to_f/n).to_i.to_s}")
     end
 
-    # NSXMiscUtils::objectIsDoneOnEmptyCommand(object)
-    def self.objectIsDoneOnEmptyCommand(object)
-        return false if object.nil?
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["announce"].include?('notifications@github.com') then
-            return true
-        end
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["announce"].include?('no-reply@sns.amazonaws.com') and object["announce"].include?('frontend-PROD-security-groups-update') then
-            return true
-        end
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["announce"].include?('Fastly Maintenance - Capacity Expansion') then
-            return true
-        end
-        if object and
-            object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
-            object["announce"].include?('Fastly Incident - Traffic rerouted') then
-            return true
-        end
-        false
-    end
-
     # NSXMiscUtils::objectIsAutoDone(object)
     def self.objectIsAutoDone(object)
         return true if object["announce"].include?("condition 58f3eb60")

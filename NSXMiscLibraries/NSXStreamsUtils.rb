@@ -190,7 +190,12 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
-        announce = NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"]).strip
+        NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])
+    end
+
+    # NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
+    def self.streamItemToStreamCatalystObjectBody(item)
+        announce = NSXGenericContents::genericContentsItemToCatalystObjectBody(item["generic-content-item"]).strip
         splitChar = announce.lines.size>1 ? "\n" : " "
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(item["uuid"])
         doNotShowString =
@@ -300,6 +305,7 @@ class StreamItemsManager
                 .flatten
                 .map{|item|
                     item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+                    item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
                     item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
                     item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
                     item

@@ -4,19 +4,6 @@
 
 class NSXDisplayUtils
 
-    # NSXDisplayUtils::positionPrefix(standardlp, position)
-    def self.positionPrefix(standardlp, position)
-        if standardlp and position and standardlp==position then
-            "[* #{"%2d" % position}]"
-        else
-            if position then
-                "[  #{"%2d" % position}]"
-            else
-                "[]"
-            end
-        end
-    end
-
     # NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)
     def self.objectToOneLineForCatalystDisplay(object)
         announce = (object['announce'].lines.first || "").strip
@@ -55,31 +42,32 @@ class NSXDisplayUtils
         ].compact.join("\n")
     end
 
-    # NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
-    def self.objectToStringForCatalystListing(object, position, standardlp)
+    # NSXDisplayUtils::objectToStringForCatalystListing(object, isFocus)
+    def self.objectToStringForCatalystListing(object, isFocus)
         object["commands"] = object["commands"].reject{|command| command.include?('planning') }
         object["commands"] = ( NSXMiscUtils::hasPlanningText(object["uuid"]) ? ["planning".green] : ["planning".yellow] ) + object["commands"]
-        if position == standardlp then
-            if object['announce'].lines.to_a.size > 1 then
+        if isFocus then
+            if object['body'] then
                 [
-                    NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToMultipleLinesForCatalystListings(object),
-                    "\n" + "              " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" ),
+                    object['body'],
+                    "\n" + "              " + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             else
                 [
-                   NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object),
-                   "\n" + "               " + NSXDisplayUtils::objectInferfaceString(object) + ( NSXMiscUtils::objectIsDoneOnEmptyCommand(object) ? " [ DONE ON EMPTY COMMAND ]".green : "" ),
+                    "[] ",
+                   object['announce'],
+                   "\n" + "               " + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             end
         else
-            NSXDisplayUtils::positionPrefix(standardlp, position) + " (#{NSXPlacement::getValue(object["uuid"])}) " + NSXDisplayUtils::objectToOneLineForCatalystDisplay(object)[0,NSXMiscUtils::screenWidth()-9]
+            "[] "+object['announce'][0,NSXMiscUtils::screenWidth()-9]
         end
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
-        puts NSXDisplayUtils::objectToStringForCatalystListing(object, nil, nil)
+        puts NSXDisplayUtils::objectToStringForCatalystListing(object, true)
         puts NSXDisplayUtils::objectInferfaceString(object)
         print "-->(2) "
         command = STDIN.gets().strip

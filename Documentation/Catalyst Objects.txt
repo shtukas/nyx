@@ -5,6 +5,7 @@ CatalystObject
     "agentuid"           : nil or String
     "prioritization"     : nil | standard | high | running # optional
     "announce"           : String
+    "body"               : String
     "commands"           : Array[String]
     "defaultExpression"  : Null or String # optional
 }

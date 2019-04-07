@@ -77,7 +77,7 @@ class NSXCatalystUI
                 if position == standardlp then
                     focusobject = object
                 end 
-                displayStr = NSXDisplayUtils::objectToStringForCatalystListing(object, position, standardlp)
+                displayStr = NSXDisplayUtils::objectToStringForCatalystListing(object, position == standardlp)
                 verticalSize = NSXDisplayUtils::verticalSize(displayStr)
                 puts displayStr
                 verticalSpaceLeft = verticalSpaceLeft - verticalSize
@@ -104,11 +104,6 @@ class NSXCatalystUI
         end
 
         # -----------------------------------------------------------------------------------
-
-        if command == "" and NSXMiscUtils::objectIsDoneOnEmptyCommand(focusobject) then
-            NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            return
-        end
 
         if command == "open" then
             NSXGeneralCommandHandler::processCommand(focusobject, "open")
