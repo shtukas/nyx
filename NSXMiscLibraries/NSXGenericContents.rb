@@ -213,6 +213,9 @@ class NSXGenericContents
     # NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(genericContentItem)
     def self.genericContentsItemToCatalystObjectAnnounce(genericContentItem)
         if genericContentItem["type"] == "text" then
+            if genericContentItem["text"].lines.to_a.size==1 then
+                return "line: #{genericContentItem["text"].strip}"
+            end
             return genericContentItem["text"]
         end
         if genericContentItem["type"] == "url" then
