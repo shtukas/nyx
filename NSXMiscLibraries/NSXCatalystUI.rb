@@ -40,7 +40,7 @@ class NSXCatalystUI
             return
         end
         
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2 # 2 for prompt and last empty line
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
         if displayObjects.size==0 then
             puts "No objects found"
