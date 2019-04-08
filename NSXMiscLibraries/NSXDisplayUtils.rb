@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-NSX1950 = "😏"
+NSX1950 = "🙂"
 
 class NSXDisplayUtils
 
