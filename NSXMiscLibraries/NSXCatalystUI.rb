@@ -18,16 +18,6 @@ class NSXCatalystUI
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
-    # NSXCatalystUI::cardinalForTakingAllTheRunnings(objects)
-    def self.cardinalForTakingAllTheRunnings(objects, cardinal = 0)
-        objects = objects.clone
-        if objects.any?{|object| object["prioritization"]=="running" } then
-            NSXCatalystUI::cardinalForTakingAllTheRunnings(objects[1, objects.size], cardinal+1)
-        else
-            cardinal
-        end
-    end
-
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
@@ -68,7 +58,7 @@ class NSXCatalystUI
         focusobject = nil
 
         displayObjects
-            .first([NSXCatalystUI::cardinalForTakingAllTheRunnings(displayObjects), verticalSpaceLeft].max)
+            .first(verticalSpaceLeft)
             .each_with_index{|object, indx|
                 position = indx+1
                 if (position>1 and verticalSpaceLeft<=0) then

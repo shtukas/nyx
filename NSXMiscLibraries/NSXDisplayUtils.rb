@@ -27,13 +27,13 @@ class NSXDisplayUtils
                 ].join()
             else
                 [
-                    "[] ",
+                    "-> ",
                    object['announce'],
                    "\n" + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             end
         else
-            "[] "+object['announce'][0,NSXMiscUtils::screenWidth()-9]
+            "-> "+object['announce'][0,NSXMiscUtils::screenWidth()-9]
         end
     end
 
