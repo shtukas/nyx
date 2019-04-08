@@ -28,12 +28,12 @@ class NSXDisplayUtils
             else
                 [
                     "-> ",
-                   object['announce'],
+                   (object["prioritization"]=="running" ? object['announce'].green : object['announce']),
                    "\n" + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             end
         else
-            "-> "+object['announce'][0,NSXMiscUtils::screenWidth()-9]
+            "-> "+(object["prioritization"]=="running" ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-9])
         end
     end
 

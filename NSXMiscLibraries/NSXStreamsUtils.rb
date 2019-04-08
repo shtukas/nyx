@@ -227,6 +227,11 @@ class NSXStreamsUtils
     def self.streamItemToStreamCatalystDefaultCommand(item)
         NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
     end
+
+    # NSXStreamsUtils::streamItemToStreamCatalystPriotirization(item)
+    def self.streamItemToStreamCatalystPriotirization(item)
+        "standard"
+    end
 end
 
 class StreamTimeTracking
@@ -255,7 +260,7 @@ end
 
 class StreamItemsManager
     def initialize()
-        @ITEMS = {} # Map[String#streamuuid, Map[String#itemuuid, StreamItem]]
+        @ITEMS = {} # Map[String#itemuuid, StreamItem]
         @DISPLAYITEMS = []
         Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
@@ -305,11 +310,12 @@ class StreamItemsManager
                     item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
                     item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
                     item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+                    item["prioritization"] = NSXStreamsUtils::streamItemToStreamCatalystPriotirization(item)
                     item
                 }
     end
     def getItemsForDisplay()
-        @DISPLAYITEMS
+        @DISPLAYITEMS.map{|item| item.clone }
     end
     def issueNewStreamItem(streamUUID, genericContentItem, ordinal)
 
