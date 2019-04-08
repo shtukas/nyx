@@ -19,7 +19,7 @@ class NSXAgentStreams
 
     # NSXAgentStreams::getObjects()
     def self.getObjects()
-        $STREAM_ITEMS_MANAGER.getItemsForDisplay()
+        NSXStreamsUtils::getCatalystObjectsForDisplayFromManagedCooking()
     end
 
     # NSXAgentStreams::stopStreamItem(item): item
@@ -30,13 +30,26 @@ class NSXAgentStreams
             item["run-data"] = []
         end
         runningTimeInSeconds = NSXRunner::stop(item["uuid"])
-        StreamTimeTracking::addTimeInSecondsToStream(item["streamuuid"], runningTimeInSeconds)
+        NSXStreamsTimeTracking::addTimeInSecondsToStream(item["streamuuid"], runningTimeInSeconds)
         item["run-data"] << [Time.new.to_i, runningTimeInSeconds]
         if item["run-data"].map{|x| x[1] }.inject(0, :+) >= 3600 then
             item["run-data"] = []
             item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 5, item["uuid"])
         end
         item
+    end
+
+    # NSXAgentStreams::doneStreamItem(item)
+    def self.doneStreamItem(item)
+        item = NSXAgentStreams::stopStreamItem(item) # Important to perform that step to record the time. 
+        # If the item carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
+        if item["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
+            if NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"]) then
+                NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
+                return
+            end
+        end
+        NSXStreamsUtils::destroyItem(item)
     end
 
     # NSXAgentStreams::doneStreamItemEmailCarrier(itemuuid)
@@ -61,50 +74,39 @@ class NSXAgentStreams
         end
     end
 
-    # NSXAgentStreams::doneStreamItem(object)
-    def self.doneStreamItem(object)
-        object = NSXAgentStreams::stopStreamItem(object) # Important to perform that step to record the time. 
-        # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
-        if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-            if NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"]) then
-                NSXAgentStreams::doneStreamItemEmailCarrier(object["uuid"])
-                return
-            end
-        end
-        $STREAM_ITEMS_MANAGER.destroyItem(object)
-    end
-
-    # NSXAgentStreams::processObjectAndCommand(object, command)
-    def self.processObjectAndCommand(object, command)
+    # NSXAgentStreams::processObjectAndCommand(item, command)
+    def self.processObjectAndCommand(item, command)
         if command == "open" then
-            genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(object["generic-content-item"])
+            genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
             if genericContentItem then
-                object["generic-content-item"] = genericContentItem
-                $STREAM_ITEMS_MANAGER.commitItem(object)
+                item["generic-content-item"] = genericContentItem
+                NSXStreamsUtils::commitItemToDisk(item)
             end
         end
         if command == "start" then
-            NSXRunner::start(object["uuid"])
+            NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
-            object["prioritization"] = "running"
-            $STREAM_ITEMS_MANAGER.commitItem(object)
+            item["prioritization"] = "running"
+            NSXStreamsUtils::commitItemToDisk(item)
         end
         if command == "stop" then
-            object = NSXAgentStreams::stopStreamItem(object)
-            object["prioritization"] = "standard"
-            $STREAM_ITEMS_MANAGER.commitItem(object)
+            item = NSXAgentStreams::stopStreamItem(item)
+            item["prioritization"] = "standard"
+            NSXStreamsUtils::commitItemToDisk(item)
             if LucilleCore::askQuestionAnswerAsBoolean("Relocate to back of placement queue ? ") then
-                NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
+                NSXPlacement::relocateToBackOfTheQueue(item["uuid"])
+                NSXStreamsUtils::discardItemUUIDAtCooking(item["uuid"])
             end
         end
         if command == "done" then
-            NSXAgentStreams::doneStreamItemEmailCarrier(object["uuid"])
-            $STREAM_ITEMS_MANAGER.destroyItem(object)
+            NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
+            NSXStreamsUtils::destroyItem(item)
+            NSXStreamsUtils::discardItemUUIDAtCooking(item["uuid"])
         end
         if command == "recast" then
-            # If the object carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
-            if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"])
+            # If the item carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
+            if item["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
+                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
                 if claim then
                     if claim["status"]=="init" then
                         claim["status"] = "detached"
@@ -120,9 +122,9 @@ class NSXAgentStreams
                     end
                 end
             end
-            object = NSXAgentStreams::stopStreamItem(object)
-            object = NSXStreamsUtils::recastStreamItem(object)
-            $STREAM_ITEMS_MANAGER.commitItem(object)
+            item = NSXAgentStreams::stopStreamItem(item)
+            item = NSXStreamsUtils::recastStreamItem(item)
+            NSXStreamsUtils::commitItemToDisk(item)
         end
         if command == "push" then
             options = [
@@ -132,15 +134,15 @@ class NSXAgentStreams
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             if option == "send to end of placement queue" then
-                NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
+                NSXPlacement::relocateToBackOfTheQueue(item["uuid"])
             end
             if option == "put to position 5 on stream" then
-                object["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(object["streamuuid"], 5, object["uuid"])
-                $STREAM_ITEMS_MANAGER.commitItem(object)
+                item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 5, item["uuid"])
+                NSXStreamsUtils::commitItemToDisk(item)
             end
             if option == "put to end of stream" then
-                object["ordinal"] = Time.new.to_f
-                $STREAM_ITEMS_MANAGER.commitItem(object)
+                item["ordinal"] = Time.new.to_f
+                NSXStreamsUtils::commitItemToDisk(item)
             end
         end
     end

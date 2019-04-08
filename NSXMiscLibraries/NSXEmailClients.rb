@@ -127,7 +127,7 @@ class GeneralEmailClient
                 next
             end
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
-            streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_i)
+            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_i)
             imap.store(id, "+FLAGS", [:Deleted])
         }
 
@@ -175,7 +175,7 @@ class GeneralEmailClient
             end
 
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
-            streamItem = $STREAM_ITEMS_MANAGER.issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_f)
+            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_f)
             claim = NSXEmailTrackingClaims::makeclaim(emailuid, genericContentsItem["uuid"], streamItem["uuid"])
             NSXEmailTrackingClaims::commitClaimToDisk(claim)
         }
@@ -185,7 +185,7 @@ class GeneralEmailClient
         # ------------------------------------------------------------------------
         # If we have a stream item that is not on the server, we mark it appropriately.
 
-        $STREAM_ITEMS_MANAGER.items()
+        NSXStreamsUtils::getItemsFromDisk()
         .each{|item|
             # "init" | "detached" | "deleted-on-server" | "deleted-on-local" | "dead"
             claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
@@ -195,7 +195,7 @@ class GeneralEmailClient
             next if claim["status"] == "deleted-on-server"           # item has already been written as deleted on the server, will be written as dead
             next if emailUIDsOnTheServer.include?(claim["emailuid"]) # item is an email on the server
             if claim["status"] == "init" then
-                $STREAM_ITEMS_MANAGER.destroyItem(item)
+                NSXStreamsUtils::destroyItem(item)
                 claim["status"] = "deleted-on-server"
                 NSXEmailTrackingClaims::commitClaimToDisk(claim)
             end
@@ -208,7 +208,7 @@ class GeneralEmailClient
         # ------------------------------------------------------------------------
         # We now delete on the server the items that are marked as deleted-on-local
 
-        $STREAM_ITEMS_MANAGER.items()
+        NSXStreamsUtils::getItemsFromDisk()
         .each{|item|
             # "init" | "detached" | "deleted-on-server" | "deleted-on-local" | "dead"
             claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])

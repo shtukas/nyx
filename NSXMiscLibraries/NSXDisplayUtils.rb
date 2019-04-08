@@ -2,6 +2,8 @@
 
 # encoding: UTF-8
 
+NSX1950 = "😏"
+
 class NSXDisplayUtils
 
     # NSXDisplayUtils::objectInferfaceString(object)
@@ -22,18 +24,25 @@ class NSXDisplayUtils
         if isFocus then
             if object['body'] then
                 [
+                    NSX1950,
+                    "\n",
                     object['body'],
                     "\n" + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             else
                 [
-                    "-> ",
+                    NSX1950,
+                    " ",
                    (object["prioritization"]=="running" ? object['announce'].green : object['announce']),
                    "\n" + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             end
         else
-            "-> "+(object["prioritization"]=="running" ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-9])
+            [
+                NSX1950,
+                " ",
+                (object["prioritization"]=="running" ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-9])
+            ].join()
         end
     end
 
@@ -41,7 +50,6 @@ class NSXDisplayUtils
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
         puts NSXDisplayUtils::objectCatalystListingDisplayString(object, true)
-        puts NSXDisplayUtils::objectInferfaceString(object)
         print "-->(2) "
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["defaultExpression"] ? object["defaultExpression"] : "" )

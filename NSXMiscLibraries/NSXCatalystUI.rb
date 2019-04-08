@@ -30,7 +30,7 @@ class NSXCatalystUI
             return
         end
         
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
         if displayObjects.size==0 then
             puts "No objects found"
@@ -71,9 +71,6 @@ class NSXCatalystUI
                 verticalSize = NSXDisplayUtils::verticalSize(displayStr)
                 puts displayStr
                 verticalSpaceLeft = verticalSpaceLeft - verticalSize
-                if position == 1 then
-                    puts ""
-                end
             }
 
         if focusobject.nil? and (standardlp>1) then
@@ -100,7 +97,7 @@ class NSXCatalystUI
         if command == "open" then
             NSXGeneralCommandHandler::processCommand(focusobject, "open")
             if focusobject["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                focusobject = $STREAM_ITEMS_MANAGER.getItemByUUIDOrNull(focusobject["uuid"])
+                focusobject = NSXStreamsUtils::getItemByUUIDOrNull(focusobject["uuid"])
             end
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
             return

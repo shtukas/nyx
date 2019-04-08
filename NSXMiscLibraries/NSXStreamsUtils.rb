@@ -73,9 +73,174 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamUUID)
     def self.getStreamItemsOrdinalOrdered(streamUUID)
-        $STREAM_ITEMS_MANAGER.items()
+        NSXStreamsUtils::getItemsFromDisk()
             .select{|item| item["streamuuid"]==streamUUID }
             .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
+    end
+
+    # -----------------------------------------------------------------
+    # Item Management
+
+    # NSXStreamsUtils::getItemMapFromDisk()
+    def self.getItemMapFromDisk() # Map[String#itemuuid, StreamItem]
+        items = {}
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-16, 16] != ".StreamItem.json"
+            item = JSON.parse(IO.read(path))
+            item["filename"] = File.basename(path)
+            item["filepath"] = path
+            if !NSXStreamsUtils::streamUUIDs().include?(item["streamuuid"]) then
+                item["streamuuid"] = "03b79978bcf7a712953c5543a9df9047"
+            end
+            items[item["uuid"]] = item
+        end
+        items
+    end
+
+    # NSXStreamsUtils::getItemsFromDisk()
+    def self.getItemsFromDisk()
+        NSXStreamsUtils::getItemMapFromDisk().values
+    end
+
+    # NSXStreamsUtils::itemsForStreamUUIDOrdered(streamuuid)
+    def self.itemsForStreamUUIDOrdered(streamuuid)
+        NSXStreamsUtils::getItemsFromDisk()
+            .select{|item| item["streamuuid"]==streamuuid }
+            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
+    end
+
+    # NSXStreamsUtils::issueNewStreamItem(streamUUID, genericContentItem, ordinal)
+    def self.issueNewStreamItem(streamUUID, genericContentItem, ordinal)
+
+        item = {}
+        item["uuid"]                     = SecureRandom.hex
+        item["agentuid"]                 = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
+        item["prioritization"]           = nil
+
+        item["streamuuid"]               = streamUUID
+        item["ordinal"]                  = ordinal
+        item["filename"]                 = "#{NSXStreamsUtils::timeStringL22()}.StreamItem.json"
+        item['generic-content-item']     = genericContentItem
+        item["run-data"]                 = []
+
+        # The next one should come after 'generic-content-item' has been set
+        item["announce"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+        item["commands"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+        item["defaultExpression"]        = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+
+        NSXStreamsUtils::commitItemToDisk(item)
+        item
+    end
+
+    # NSXStreamsUtils::destroyItem(item)
+    def self.destroyItem(item)
+        filename = item['filename']
+        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
+        if filepath.nil? then
+            puts "Error 316492ca: unknown file (#{filename})"
+        else
+            NSXMiscUtils::moveLocationToCatalystBin(filepath)
+        end
+        NSXGenericContents::destroyItem(item["generic-content-item"])
+    end
+
+    # NSXStreamsUtils::commitItemToDisk(item)
+    def self.commitItemToDisk(item)
+        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(item["filename"])
+        if filepath.nil? then
+            filepath = NSXStreamsUtils::newItemFilenameToFilepath(item["filename"])
+        end
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # NSXStreamsUtils::getFilepathByUUIDOrNull(uuid)
+    def self.getFilepathByUUIDOrNull(uuid)
+        filepath = KeyValueStore::getOrNull(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}")
+        if filepath then
+            if File.exists?(filepath) then
+                item = JSON.parse(IO.read(filepath))
+                if item["uuid"] == uuid then
+                    return filepath
+                end
+            end
+        end
+        filepath = nil
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-16, 16] != ".StreamItem.json"
+            item = JSON.parse(IO.read(path))
+            if item["uuid"] == uuid then
+                filepath = path
+            end
+        end
+        if filepath then
+            KeyValueStore::set(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}", filepath)
+        end
+        filepath
+    end
+
+    # NSXStreamsUtils::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
+        filepath = NSXStreamsUtils::getFilepathByUUIDOrNull(uuid)
+        return nil if filepath.nil?
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NSXStreamsUtils::cookItemUUIDsSelectionForDisplay()
+    def self.cookItemUUIDsSelectionForDisplay()
+        NSXStreamsUtils::getItemsFromDisk()
+            .map{|item| item["streamuuid"] }
+            .uniq
+            .map{|streamuuid|
+                if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid) then
+                    NSXStreamsUtils::itemsForStreamUUIDOrdered(streamuuid)
+                else
+                    if NSXStreamsTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)) then
+                        NSXStreamsUtils::itemsForStreamUUIDOrdered(streamuuid).first(3)
+                    else
+                        []
+                    end
+                end
+            }
+            .flatten
+            .map{|item|
+                item["uuid"]
+            }
+    end
+
+    # NSXStreamsUtils::getCatalystObjectsForDisplayFromManagedCooking()
+    def self.getCatalystObjectsForDisplayFromManagedCooking()
+        itemuuidToUpdatedItemOrNull = lambda{|itemuuid|
+            item = NSXStreamsUtils::getItemByUUIDOrNull(itemuuid)
+            return nil if item.nil?
+            item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+            item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
+            item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+            item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+            NSXStreamsUtils::commitItemToDisk(item)
+            item
+        }
+        itemuuids = KeyValueStore::getOrNull(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1")
+        if itemuuids then
+            itemuuids = JSON.parse(itemuuids)
+            if itemuuids.size>0 then
+                return itemuuids.map{|itemuuid| itemuuidToUpdatedItemOrNull.call(itemuuid) }.compact
+            end
+        end
+        itemuuids = NSXStreamsUtils::cookItemUUIDsSelectionForDisplay()
+        KeyValueStore::set(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1", JSON.generate(itemuuids))
+        itemuuids.map{|itemuuid| itemuuidToUpdatedItemOrNull.call(itemuuid) }.compact
+    end
+
+    # NSXStreamsUtils::discardItemUUIDAtCooking(itemuuid)
+    def self.discardItemUUIDAtCooking(itemuuid)
+        itemuuids = KeyValueStore::getOrNull(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1")
+        if itemuuids then
+            itemuuids = JSON.parse(itemuuids)
+            itemuuids = itemuuids.reject{|i| i == itemuuid }
+            KeyValueStore::set(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1", JSON.generate(itemuuids))
+        end
     end
 
     # -----------------------------------------------------------------
@@ -210,7 +375,7 @@ class NSXStreamsUtils
             else
                 ""
             end
-        streamTimeAsString = "#{splitChar}(stream: #{(StreamTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
+        streamTimeAsString = "#{splitChar}(stream: #{(NSXStreamsTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
         "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}#{streamTimeAsString}"
     end
 
@@ -233,138 +398,3 @@ class NSXStreamsUtils
         "standard"
     end
 end
-
-class StreamTimeTracking
-
-    # StreamTimeTracking::currentDate()
-    def self.currentDate()
-        Time.now.utc.iso8601[0,10]
-    end
-
-    # StreamTimeTracking::addTimeInSecondsToStream(streamuuid, seconds)
-    def self.addTimeInSecondsToStream(streamuuid, seconds)
-        existingtime = KeyValueStore::getOrDefaultValue(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{StreamTimeTracking::currentDate()} #{streamuuid}", "0").to_f
-        KeyValueStore::set(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{StreamTimeTracking::currentDate()} #{streamuuid}", existingtime+seconds)
-    end
-
-    # StreamTimeTracking::getTimeInSecondsForStream(streamuuid)
-    def self.getTimeInSecondsForStream(streamuuid)
-        KeyValueStore::getOrDefaultValue(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{StreamTimeTracking::currentDate()} #{streamuuid}", "0").to_f
-    end
-
-    # StreamTimeTracking::shouldDisplayMoreItems(streamuuid, timeControlInHours)
-    def self.shouldDisplayMoreItems(streamuuid, timeControlInHours)
-        StreamTimeTracking::getTimeInSecondsForStream(streamuuid) < timeControlInHours*3600
-    end
-end
-
-class StreamItemsManager
-    def initialize()
-        @ITEMS = {} # Map[String#itemuuid, StreamItem]
-        @DISPLAYITEMS = []
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
-            next if !File.file?(path)
-            next if File.basename(path)[-16, 16] != ".StreamItem.json"
-            item = JSON.parse(IO.read(path))
-            item["filename"] = File.basename(path)
-            item["filepath"] = path
-            if !NSXStreamsUtils::streamUUIDs().include?(item["streamuuid"]) then
-                item["streamuuid"] = "03b79978bcf7a712953c5543a9df9047"
-            end
-            @ITEMS[item["uuid"]] = item.clone
-        end
-        cookItemsForDisplay()
-    end
-    def items()
-        @ITEMS.values
-    end
-    def itemsForStreamUUIDOrdered(streamuuid)
-        @ITEMS
-            .values
-            .select{|item| item["streamuuid"]==streamuuid }
-            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
-    end
-    def cookItemsForDisplay()
-        streamuuids = @ITEMS.values.map{|item| item["streamuuid"] }.uniq
-        @DISPLAYITEMS = 
-            streamuuids
-                .map{|streamuuid|
-                    if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid) then
-                        self.itemsForStreamUUIDOrdered(streamuuid)
-                    else
-                        #puts "StreamTimeTracking::shouldDisplayMoreItems: #{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)} (#{StreamTimeTracking::getTimeInSecondsForStream(streamuuid).to_i}): #{StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid))}"
-                        if StreamTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)) then
-                            self
-                                .itemsForStreamUUIDOrdered(streamuuid)
-                                .map{|object| NSXMiscUtils::catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object) }
-                                .compact
-                                .first(3)
-                        else
-                            []
-                        end
-                    end
-                }
-                .flatten
-                .map{|item|
-                    item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
-                    item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
-                    item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-                    item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
-                    item["prioritization"] = NSXStreamsUtils::streamItemToStreamCatalystPriotirization(item)
-                    item
-                }
-    end
-    def getItemsForDisplay()
-        @DISPLAYITEMS.map{|item| item.clone }
-    end
-    def issueNewStreamItem(streamUUID, genericContentItem, ordinal)
-
-        item = {}
-        item["uuid"]                     = SecureRandom.hex
-        item["agentuid"]                 = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
-        item["prioritization"]           = nil
-
-        item["streamuuid"]               = streamUUID
-        item["ordinal"]                  = ordinal
-        item["filename"]                 = "#{NSXStreamsUtils::timeStringL22()}.StreamItem.json"
-        item['generic-content-item']     = genericContentItem
-        item["run-data"]                 = []
-
-        # The next one should come after 'generic-content-item' has been set
-        item["announce"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
-        item["commands"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-        item["defaultExpression"]        = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
-
-        commitItem(item)
-        item
-    end
-    def getItemByUUIDOrNull(itemuuid)
-        @ITEMS[itemuuid]
-    end
-    def commitItem(item)
-        @ITEMS[item["uuid"]] = item.clone
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(item["filename"])
-        if filepath.nil? then
-            filepath = NSXStreamsUtils::newItemFilenameToFilepath(item["filename"])
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        cookItemsForDisplay()
-    end
-    def destroyItem(item)
-        filename = item['filename']
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
-        if filepath.nil? then
-            puts "Error 316492ca: unknown file (#{filename})"
-        else
-            NSXMiscUtils::moveLocationToCatalystBin(filepath)
-        end
-        NSXGenericContents::destroyItem(item["generic-content-item"])
-        @ITEMS.delete(item['uuid'])
-        cookItemsForDisplay()
-    end
-end
-
-$STREAM_ITEMS_MANAGER = StreamItemsManager.new()
-
-# $STREAM_ITEMS_MANAGER.getItemByUUIDOrNull(itemuuid)
-# $STREAM_ITEMS_MANAGER.commitItem(item)

@@ -66,7 +66,7 @@ $TIMER81EF0221 = Timer.new
 
 NSXEstateServices::archivesTimelineGarbageCollection(true)
 
-$STREAM_ITEMS_MANAGER.items()
+NSXStreamsUtils::getItemsFromDisk()
 .each{|item|
     claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
     next if claim.nil?
@@ -74,13 +74,13 @@ $STREAM_ITEMS_MANAGER.items()
         puts "Destroying email #{item["uuid"]}"
         puts JSON.pretty_generate(item)
         puts JSON.pretty_generate(claim)
-        $STREAM_ITEMS_MANAGER.destroyItem(item)
+        NSXStreamsUtils::destroyItem(item)
     end
     if claim["status"] == "deleted-on-server" then
         puts "Destroying email #{item["uuid"]}"
         puts JSON.pretty_generate(item)
         puts JSON.pretty_generate(claim)
-        $STREAM_ITEMS_MANAGER.destroyItem(item)
+        NSXStreamsUtils::destroyItem(item)
     end
 }
 
