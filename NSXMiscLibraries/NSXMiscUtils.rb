@@ -426,4 +426,9 @@ class NSXMiscUtils
         "#{folderpath}/#{filenames.first}"
     end
 
+    # NSXMiscUtils::makeStreamItemOrdinal()
+    def self.makeStreamItemOrdinal()
+        (Time.new.to_f - 1554795370).to_f/(7*86400) # number of weeks since inception
+    end
+
 end

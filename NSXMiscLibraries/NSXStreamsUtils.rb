@@ -32,8 +32,8 @@ class NSXStreamsUtils
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # NSXStreamsUtils::newItemFilenameToFilepath(filename)
-    def self.newItemFilenameToFilepath(filename)
+    # NSXStreamsUtils::newItemFilepathForFilename(filename)
+    def self.newItemFilepathForFilename(filename)
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
@@ -46,8 +46,8 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # IO
 
-    # NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
-    def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
+    # NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
+    def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
         Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
@@ -56,34 +56,81 @@ class NSXStreamsUtils
         nil
     end
 
-    # NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
-    def self.resolveFilenameToFilepathOrNull(filename)
+    # NSXStreamsUtils::filenameToFilepathResolutionOrNull(filename)
+    def self.filenameToFilepathResolutionOrNull(filename)
         filepath = KeyValueStore::getOrNull(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}")
         if filepath then
             if File.exists?(filepath) then
                 return filepath
             end
         end
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNullUseTheForce(filename)
+        filepath = NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
         if filepath then
             KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
         end
         filepath
     end
 
-    # NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamUUID)
-    def self.getStreamItemsOrdinalOrdered(streamUUID)
-        NSXStreamsUtils::getItemsFromDisk()
-            .select{|item| item["streamuuid"]==streamUUID }
-            .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
+    # NSXStreamsUtils::uuidToFilepathResolutionOrNull(uuid)
+    def self.uuidToFilepathResolutionOrNull(uuid)
+        filepath = KeyValueStore::getOrNull(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}")
+        if filepath then
+            if File.exists?(filepath) then
+                item = JSON.parse(IO.read(filepath))
+                if item["uuid"] == uuid then
+                    return filepath
+                end
+            end
+        end
+        filepath = nil
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-16, 16] != ".StreamItem.json"
+            item = JSON.parse(IO.read(path))
+            if item["uuid"] == uuid then
+                filepath = path
+            end
+        end
+        if filepath then
+            KeyValueStore::set(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}", filepath)
+        end
+        filepath
+    end
+
+    # NSXStreamsUtils::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
+        filepath = NSXStreamsUtils::uuidToFilepathResolutionOrNull(uuid)
+        return nil if filepath.nil?
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NSXStreamsUtils::destroyItem(item)
+    def self.destroyItem(item)
+        filename = item['filename']
+        filepath = NSXStreamsUtils::filenameToFilepathResolutionOrNull(filename)
+        if filepath.nil? then
+            puts "Error 316492ca: unknown file (#{filename})"
+        else
+            NSXMiscUtils::moveLocationToCatalystBin(filepath)
+        end
+        NSXGenericContents::destroyItem(item["generic-content-item"])
+    end
+
+    # NSXStreamsUtils::commitItemToDisk(item)
+    def self.commitItemToDisk(item)
+        filepath = NSXStreamsUtils::filenameToFilepathResolutionOrNull(item["filename"])
+        if filepath.nil? then
+            filepath = NSXStreamsUtils::newItemFilepathForFilename(item["filename"])
+        end
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # -----------------------------------------------------------------
     # Item Management
 
-    # NSXStreamsUtils::getItemMapFromDisk()
-    def self.getItemMapFromDisk() # Map[String#itemuuid, StreamItem]
-        items = {}
+    # NSXStreamsUtils::getItemsFromDisk()
+    def self.getItemsFromDisk()
+        items = []
         Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
@@ -93,14 +140,16 @@ class NSXStreamsUtils
             if !NSXStreamsUtils::streamUUIDs().include?(item["streamuuid"]) then
                 item["streamuuid"] = "03b79978bcf7a712953c5543a9df9047"
             end
-            items[item["uuid"]] = item
+            items << item
         end
         items
     end
 
-    # NSXStreamsUtils::getItemsFromDisk()
-    def self.getItemsFromDisk()
-        NSXStreamsUtils::getItemMapFromDisk().values
+    # NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamUUID)
+    def self.getStreamItemsOrdinalOrdered(streamUUID)
+        NSXStreamsUtils::getItemsFromDisk()
+            .select{|item| item["streamuuid"]==streamUUID }
+            .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
     end
 
     # NSXStreamsUtils::itemsForStreamUUIDOrdered(streamuuid)
@@ -133,60 +182,6 @@ class NSXStreamsUtils
         item
     end
 
-    # NSXStreamsUtils::destroyItem(item)
-    def self.destroyItem(item)
-        filename = item['filename']
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(filename)
-        if filepath.nil? then
-            puts "Error 316492ca: unknown file (#{filename})"
-        else
-            NSXMiscUtils::moveLocationToCatalystBin(filepath)
-        end
-        NSXGenericContents::destroyItem(item["generic-content-item"])
-    end
-
-    # NSXStreamsUtils::commitItemToDisk(item)
-    def self.commitItemToDisk(item)
-        filepath = NSXStreamsUtils::resolveFilenameToFilepathOrNull(item["filename"])
-        if filepath.nil? then
-            filepath = NSXStreamsUtils::newItemFilenameToFilepath(item["filename"])
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # NSXStreamsUtils::getFilepathByUUIDOrNull(uuid)
-    def self.getFilepathByUUIDOrNull(uuid)
-        filepath = KeyValueStore::getOrNull(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}")
-        if filepath then
-            if File.exists?(filepath) then
-                item = JSON.parse(IO.read(filepath))
-                if item["uuid"] == uuid then
-                    return filepath
-                end
-            end
-        end
-        filepath = nil
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
-            next if !File.file?(path)
-            next if File.basename(path)[-16, 16] != ".StreamItem.json"
-            item = JSON.parse(IO.read(path))
-            if item["uuid"] == uuid then
-                filepath = path
-            end
-        end
-        if filepath then
-            KeyValueStore::set(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}", filepath)
-        end
-        filepath
-    end
-
-    # NSXStreamsUtils::getItemByUUIDOrNull(uuid)
-    def self.getItemByUUIDOrNull(uuid)
-        filepath = NSXStreamsUtils::getFilepathByUUIDOrNull(uuid)
-        return nil if filepath.nil?
-        JSON.parse(IO.read(filepath))
-    end
-
     # NSXStreamsUtils::getCatalystObjectsForDisplay()
     def self.getCatalystObjectsForDisplay()
         NSXStreamsUtils::getItemsFromDisk()
@@ -209,7 +204,7 @@ class NSXStreamsUtils
         description = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
         streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
         item["streamuuid"] = streamuuid
-        item["ordinal"] = Time.new.to_f
+        item["ordinal"] = NSXMiscUtils::makeStreamItemOrdinal()
         item
     end
 
@@ -219,10 +214,10 @@ class NSXStreamsUtils
         # First we remove the item from the stream
         items = items.reject{|item| item["uuid"]==streamItemUUID }
         if items.size == 0 then
-        return 1 # There was only one item (or zero) in the stream and we default to 1
+            return NSXMiscUtils::makeStreamItemOrdinal()
         end 
         if items.size < n then
-        return items.last["ordinal"] + 1
+            return NSXMiscUtils::makeStreamItemOrdinal()
         end
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end
@@ -359,8 +354,8 @@ class NSXStreamsUtils
     def self.streamItemToStreamCatalystMetric(item)
         return 2 if NSXRunner::isRunning?(item["uuid"])
         if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
-            return ( 0.9 + Math.exp(-item["ordinal"].to_f/1000).to_f/100 )
+            return ( 0.9 + Math.exp(-item["ordinal"].to_f).to_f/100 )
         end
-        0.6 + Math.exp(-item["ordinal"].to_f/1000).to_f/100
+        0.6 + Math.exp(-item["ordinal"].to_f).to_f/100
     end
 end

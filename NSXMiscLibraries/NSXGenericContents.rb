@@ -26,8 +26,8 @@ class NSXGenericContents
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # NSXGenericContents::newItemFilenameToFilepath(filename)
-    def self.newItemFilenameToFilepath(filename)
+    # NSXGenericContents::newItemFilepathForFilename(filename)
+    def self.newItemFilepathForFilename(filename)
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
@@ -51,8 +51,8 @@ class NSXGenericContents
         folder3
     end
 
-    # NSXGenericContents::resolveFilenameToFilepathOrNullUseTheForce(filename)
-    def self.resolveFilenameToFilepathOrNullUseTheForce(filename)
+    # NSXGenericContents::filenameToFilepathResolutionOrNullUseTheForce(filename)
+    def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
         Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Generic-Contents") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
@@ -61,15 +61,15 @@ class NSXGenericContents
         nil
     end
 
-    # NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
-    def self.resolveFilenameToFilepathOrNull(filename)
+    # NSXGenericContents::filenameToFilepathResolutionOrNull(filename)
+    def self.filenameToFilepathResolutionOrNull(filename)
         filepath = KeyValueStore::getOrNull(nil, "2fea73a3-469d-4eae-bbbd-aa73628f42cc:#{filename}")
         if filepath then
             if File.exists?(filepath) then
                 return filepath
             end
         end
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNullUseTheForce(filename)
+        filepath = NSXGenericContents::filenameToFilepathResolutionOrNullUseTheForce(filename)
         if filepath then
             KeyValueStore::set(nil, "2fea73a3-469d-4eae-bbbd-aa73628f42cc:#{filename}", filepath)
         end
@@ -127,7 +127,7 @@ class NSXGenericContents
     # NSXGenericContents::issueItemEmail(email)
     def self.issueItemEmail(email)
         emailFilename = "#{NSXGenericContents::timeStringL22()}.eml"
-        emailFilepath = NSXGenericContents::newItemFilenameToFilepath(emailFilename)
+        emailFilepath = NSXGenericContents::newItemFilepathForFilename(emailFilename)
         File.open(emailFilepath, "w"){|f| f.write(email) }
         item = NSXGenericContents::makeBaseItem()
         item["type"] = "email"
@@ -151,7 +151,7 @@ class NSXGenericContents
 
     # NSXGenericContents::emailFilenameToSubjectLine(filename)
     def self.emailFilenameToSubjectLine(filename)
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
+        filepath = NSXGenericContents::filenameToFilepathResolutionOrNull(filename)
         return "Error 12wasas: unknown file" if filepath.nil?
         begin
             mailObject = Mail.read(filepath)
@@ -163,7 +163,7 @@ class NSXGenericContents
 
     # NSXGenericContents::emailFilenameToFrom(filename)
     def self.emailFilenameToFrom(filename)
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
+        filepath = NSXGenericContents::filenameToFilepathResolutionOrNull(filename)
         return "Error cbfcecae: unknown file" if filepath.nil?
         IO.read(filepath).lines.select{|line| line.start_with?("From:") }.each{|line| return line.strip }
         "Error 42b5f47a: #{address.class.to_s}"
@@ -171,7 +171,7 @@ class NSXGenericContents
 
     # NSXGenericContents::emailFilenameToDateTime(filename)
     def self.emailFilenameToDateTime(filename)
-        filepath = NSXGenericContents::resolveFilenameToFilepathOrNull(filename)
+        filepath = NSXGenericContents::filenameToFilepathResolutionOrNull(filename)
         return "Error cf238fc1: unknown file" if filepath.nil?
         mailObject = Mail.read(filepath)
         DateTime.parse(mailObject.date.to_s).to_time.utc.iso8601
@@ -220,7 +220,7 @@ class NSXGenericContents
         end
         if genericContentItem["type"] == "email" then
             emailFilename = genericContentItem["email-filename"]
-            emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
+            emailFilepath = NSXGenericContents::filenameToFilepathResolutionOrNull(emailFilename)
             return "email: (#{NSXGenericContents::emailFilenameToDateTime(emailFilename)}, #{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}".force_encoding("utf-8")
         end
         if genericContentItem["type"] == "location" then
@@ -250,7 +250,7 @@ class NSXGenericContents
         end
         if genericContentItem["type"] == "email" then
             emailFilename = genericContentItem["email-filename"]
-            emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
+            emailFilepath = NSXGenericContents::filenameToFilepathResolutionOrNull(emailFilename)
             output = []
             output << "email (#{NSXGenericContents::emailFilenameToDateTime(emailFilename)}, #{NSXGenericContents::emailFilenameToFrom(emailFilename)}): #{NSXGenericContents::emailFilenameToSubjectLine(emailFilename)}"
             output << NSXGenericContents::emailToString(emailFilepath).lines.first(NSXMiscUtils::screenHeight()-10).join()
@@ -277,7 +277,7 @@ class NSXGenericContents
     def self.viewGenericContentItemReturnUpdatedItemOrNull(item)
         if item["type"]=="email" then
             emailFilename = item["email-filename"]
-            emailFilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailFilename)
+            emailFilepath = NSXGenericContents::filenameToFilepathResolutionOrNull(emailFilename)
             system("open '#{emailFilepath}'")
             return nil
         end
@@ -337,7 +337,7 @@ class NSXGenericContents
         end
         if item["type"]=="email" then
             emailfilename = item["email-filename"]
-            emailfilepath = NSXGenericContents::resolveFilenameToFilepathOrNull(emailfilename)
+            emailfilepath = NSXGenericContents::filenameToFilepathResolutionOrNull(emailfilename)
             if emailfilepath then
                 NSXMiscUtils::moveLocationToCatalystBin(emailfilepath)
             end

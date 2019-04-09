@@ -46,42 +46,51 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 # nslog
 
-# -------------------------------------------------------------------------
-
-class Timer
-    def initialize()
-        @startingTime = Time.new.to_f
-        @lastInstant = Time.new.to_f
-    end
-    def event(str)
-        instant = Time.new.to_f
-        puts "[Timer] #{str} (#{instant-@startingTime}, #{instant-@lastInstant})"
-        @lastInstant = instant
-    end
-end
-
-$TIMER81EF0221 = Timer.new
+#NSXStreamsUtils::getCatalystObjectsForDisplay().each{|item|
+    #next if !item["announce"].include?("[Catalyst Inbox] http")
+    #item["streamuuid"] = "00010011101100010011101100011001"
+    #puts JSON.pretty_generate(item)
+    #NSXStreamsUtils::commitItemToDisk(item)
+#}
+#exit
 
 # -------------------------------------------------------------------------
 
-NSXEstateServices::archivesTimelineGarbageCollection(true)
+Thread.new {
+    loop {
+        sleep 1000
+        NSXMiscUtils::emailSync(false)
+    }
+}
 
-NSXStreamsUtils::getItemsFromDisk()
-.each{|item|
-    claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
-    next if claim.nil?
-    if claim["status"] == "dead" then
-        puts "Destroying email #{item["uuid"]}"
-        puts JSON.pretty_generate(item)
-        puts JSON.pretty_generate(claim)
-        NSXStreamsUtils::destroyItem(item)
-    end
-    if claim["status"] == "deleted-on-server" then
-        puts "Destroying email #{item["uuid"]}"
-        puts JSON.pretty_generate(item)
-        puts JSON.pretty_generate(claim)
-        NSXStreamsUtils::destroyItem(item)
-    end
+Thread.new {
+    loop {
+        sleep 2000
+        NSXEstateServices::archivesTimelineGarbageCollection(true)
+    }
+}
+
+Thread.new {
+    loop {
+        sleep 3000
+        NSXStreamsUtils::getItemsFromDisk()
+        .each{|item|
+            claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
+            next if claim.nil?
+            if claim["status"] == "dead" then
+                puts "Destroying email #{item["uuid"]}"
+                puts JSON.pretty_generate(item)
+                puts JSON.pretty_generate(claim)
+                NSXStreamsUtils::destroyItem(item)
+            end
+            if claim["status"] == "deleted-on-server" then
+                puts "Destroying email #{item["uuid"]}"
+                puts JSON.pretty_generate(item)
+                puts JSON.pretty_generate(claim)
+                NSXStreamsUtils::destroyItem(item)
+            end
+        }
+    }
 }
 
 # -------------------------------------------------------------------------

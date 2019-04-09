@@ -132,7 +132,7 @@ class NSXAgentStreams
                 NSXStreamsUtils::commitItemToDisk(item)
             end
             if option == "put to end of stream" then
-                item["ordinal"] = Time.new.to_f
+                item["ordinal"] = NSXMiscUtils::makeStreamItemOrdinal()
                 NSXStreamsUtils::commitItemToDisk(item)
             end
         end
