@@ -37,6 +37,7 @@ class NSXAgentHouse
         {
             "uuid"               => uuid,
             "agentuid"           => self.agentuuid(),
+            "metric"             => 0.7,
             "announce"           => "House: #{task}",
             "commands"           => ["done"],
             "defaultExpression"  => "done",

@@ -175,7 +175,6 @@ class NSXGeneralCommandHandler
         end
 
         if command == ',,' then
-            NSXPlacement::relocateToBackOfTheQueue(object["uuid"])
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+2 hours"))
             return
         end

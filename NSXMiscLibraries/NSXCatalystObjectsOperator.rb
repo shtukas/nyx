@@ -12,27 +12,14 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
-    # NSXCatalystObjectsOperator::catalystObjectsForMainListing()
-    def self.catalystObjectsForMainListing()
+    # NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing()
+    def self.catalystObjectsOrderedForMainListing()
         objects = NSXCatalystObjectsOperator::getObjects()
-        objects = NSXMiscUtils::upgradePriotarizationIfRunningAndFilterAwayDoNotShowUntilObjects(objects)
         objects = objects
-                    .map{|object| 
-                        object["catalyst:placement"] = NSXPlacement::getValue(object["uuid"]) 
-                        object
-                    }
-        NSXPlacement::clean(objects.map{|object| object["uuid"] })
-        objects1 = objects
-                    .select{|object| object["prioritization"] == "running" }
-                    .sort{|o1, o2| o1["catalyst:placement"] <=> o2["catalyst:placement"] }
-        objects2 = objects
-                    .select{|object| object["prioritization"] == "high" }
-                    .sort{|o1, o2| o1["catalyst:placement"] <=> o2["catalyst:placement"] }
-        objects3 = objects
-                    .select{|object| object["prioritization"] == "standard" or object["prioritization"].nil? }
-                    .sort{|o1, o2| o1["catalyst:placement"] <=> o2["catalyst:placement"] }
-        objects = objects1 + objects2 + objects3
+                    .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
         objects
+                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                .reverse
     end
 
 end

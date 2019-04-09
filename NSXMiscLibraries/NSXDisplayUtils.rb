@@ -2,9 +2,14 @@
 
 # encoding: UTF-8
 
-NSX1950 = "🙂"
+NSX0746_StandardPadding = "        "
 
 class NSXDisplayUtils
+
+    # NSXDisplayUtils::addLeftPaddingToLinesOfText(text, padding)
+    def self.addLeftPaddingToLinesOfText(text, padding)
+        text.lines.map{|line| padding+line }.join()
+    end
 
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
@@ -17,31 +22,37 @@ class NSXDisplayUtils
         part2.strip
     end
 
-    # NSXDisplayUtils::objectCatalystListingDisplayString(object, isFocus)
-    def self.objectCatalystListingDisplayString(object, isFocus)
+    # NSXDisplayUtils::objectCatalystListingDisplayString(object, isFocus, displayOrdinal)
+    def self.objectCatalystListingDisplayString(object, isFocus, displayOrdinal)
         object["commands"] = object["commands"].reject{|command| command.include?('planning') }
         object["commands"] = ( NSXMiscUtils::hasPlanningText(object["uuid"]) ? ["planning".green] : ["planning".yellow] ) + object["commands"]
         if isFocus then
             if object['body'] then
                 [
-                    NSX1950,
+                    "[#{isFocus ? "*".green : " "}#{"%2d" % displayOrdinal}]",
+                    " ",
+                    "(#{"%5.3f" % object["metric"]})",
                     "\n",
-                    object['body'],
-                    "\n" + NSXDisplayUtils::objectInferfaceString(object),
+                    object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding),
+                    "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             else
                 [
-                    NSX1950,
+                    "[#{isFocus ? "*".green : " "}#{"%2d" % displayOrdinal}]",
                     " ",
-                   (object["prioritization"]=="running" ? object['announce'].green : object['announce']),
-                   "\n" + NSXDisplayUtils::objectInferfaceString(object),
+                    "(#{"%5.3f" % object["metric"]})",
+                    " ",
+                   (object["isRunning"] ? object['announce'].green : object['announce']),
+                   "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             end
         else
             [
-                NSX1950,
+                "[#{isFocus ? "*".green : " "}#{"%2d" % displayOrdinal}]",
                 " ",
-                (object["prioritization"]=="running" ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-9])
+                "(#{"%5.3f" % object["metric"]})",
+                " ",
+                (object["isRunning"] ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-9])
             ].join()
         end
     end
@@ -49,7 +60,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
-        puts NSXDisplayUtils::objectCatalystListingDisplayString(object, true)
+        puts NSXDisplayUtils::objectCatalystListingDisplayString(object, true, 1)
         print "-->(2) "
         command = STDIN.gets().strip
         command = command.size>0 ? command : ( object["defaultExpression"] ? object["defaultExpression"] : "" )

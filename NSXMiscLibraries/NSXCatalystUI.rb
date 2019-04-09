@@ -67,8 +67,11 @@ class NSXCatalystUI
                 if position == standardlp then
                     focusobject = object
                 end 
-                displayStr = NSXDisplayUtils::objectCatalystListingDisplayString(object, position == standardlp)
+                displayStr = NSXDisplayUtils::objectCatalystListingDisplayString(object, position == standardlp, position)
                 verticalSize = NSXDisplayUtils::verticalSize(displayStr)
+                if verticalSpaceLeft < verticalSize then
+                    next
+                end
                 puts displayStr
                 verticalSpaceLeft = verticalSpaceLeft - verticalSize
             }
@@ -96,9 +99,6 @@ class NSXCatalystUI
 
         if command == "open" then
             NSXGeneralCommandHandler::processCommand(focusobject, "open")
-            if focusobject["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                focusobject = NSXStreamsUtils::getItemByUUIDOrNull(focusobject["uuid"])
-            end
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
             return
         end
@@ -123,7 +123,7 @@ class NSXCatalystUI
                 return
             end
             NSXEstateServices::collectInboxPackage()
-            objects = NSXCatalystObjectsOperator::catalystObjectsForMainListing()
+            objects = NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end

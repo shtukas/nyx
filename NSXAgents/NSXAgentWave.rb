@@ -178,40 +178,6 @@ class WaveSchedules
     end
 end
 
-class WaveEmailSupport
-    # WaveEmailSupport::emailUIDToCatalystUUIDOrNull(emailuid)
-    def self.emailUIDToCatalystUUIDOrNull(emailuid)
-        NSXAgentWave::catalystUUIDsEnumerator()
-            .each{|uuid|
-                folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
-                next if folderpath.nil?
-                emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
-                next if !File.exist?(emailuidfilepath)
-                next if IO.read(emailuidfilepath).strip != emailuid
-                return uuid
-            }
-        nil
-    end
-    # WaveEmailSupport::allEmailUIDs()
-    def self.allEmailUIDs()
-        NSXAgentWave::catalystUUIDsEnumerator()
-            .map{|uuid|
-                folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
-                if folderpath then
-                    emailuidfilepath = "#{folderpath}/email-metatada-emailuid.txt"
-                    if File.exist?(emailuidfilepath) then
-                        IO.read(emailuidfilepath).strip
-                    else
-                        nil
-                    end
-                else
-                    nil
-                end
-            }
-            .compact
-    end
-end
-
 class NSXAgentWave
 
     # NSXAgentWave::agentuuid()
@@ -403,7 +369,8 @@ class NSXAgentWave
     def self.getObjects()
         objects = NSXAgentWave::catalystUUIDsEnumerator()
                     .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
-        objects = NSXMiscUtils::upgradePriotarizationIfRunningAndFilterAwayDoNotShowUntilObjects(objects)
+        objects = objects
+                    .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
         objects = objects
                     .map{|object|
                         if object["prioritization"] == "running" then

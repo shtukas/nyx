@@ -419,27 +419,6 @@ class NSXMiscUtils
         KeyValueStore::set("/Galaxy/DataBank/Catalyst/planning-strings", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
     end
 
-    # NSXMiscUtils::catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object)
-    def self.catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object)
-        if NSXRunner::isRunning?(object["uuid"]) then 
-            object["prioritization"] = "running"
-            object 
-        else
-            if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil? then
-                object
-            else
-                nil
-            end
-        end
-    end
-
-    # NSXMiscUtils::upgradePriotarizationIfRunningAndFilterAwayDoNotShowUntilObjects(objects)
-    def self.upgradePriotarizationIfRunningAndFilterAwayDoNotShowUntilObjects(objects)
-        objects
-            .map{|object| NSXMiscUtils::catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object) }
-            .compact
-    end
-
     # NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
     def self.filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
         filenames = Dir.entries(folderpath).select{|filename| filename[0,1] != '.' }

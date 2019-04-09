@@ -19,7 +19,7 @@ class NSXAgentStreams
 
     # NSXAgentStreams::getObjects()
     def self.getObjects()
-        NSXStreamsUtils::getCatalystObjectsForDisplayFromManagedCooking()
+        NSXStreamsUtils::getCatalystObjectsForDisplay()
     end
 
     # NSXAgentStreams::stopStreamItem(item): item
@@ -93,15 +93,10 @@ class NSXAgentStreams
             item = NSXAgentStreams::stopStreamItem(item)
             item["prioritization"] = "standard"
             NSXStreamsUtils::commitItemToDisk(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("Relocate to back of placement queue ? ") then
-                NSXPlacement::relocateToBackOfTheQueue(item["uuid"])
-                NSXStreamsUtils::discardItemUUIDAtCooking(item["uuid"])
-            end
         end
         if command == "done" then
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
-            NSXStreamsUtils::discardItemUUIDAtCooking(item["uuid"])
         end
         if command == "recast" then
             # If the item carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
@@ -128,14 +123,10 @@ class NSXAgentStreams
         end
         if command == "push" then
             options = [
-                "send to end of placement queue",
                 "put to position 5 on stream",
                 "put to end of stream"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option == "send to end of placement queue" then
-                NSXPlacement::relocateToBackOfTheQueue(item["uuid"])
-            end
             if option == "put to position 5 on stream" then
                 item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 5, item["uuid"])
                 NSXStreamsUtils::commitItemToDisk(item)

@@ -66,8 +66,7 @@ class NSXAgentTodayNotes
                 {
                     "uuid"               => uuid,
                     "agentuid"           => NSXAgentTodayNotes::agentuuid(),
-                    "prioritization"     => NSXRunner::isRunning?(uuid) ? "running" : "standard",
-                    "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.65 - integers.next().to_f/1000),
+                    "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.88 - integers.next().to_f/1000),
                     "announce"           => "Today: #{sectionAsString.lines.first}#{runningMarker}",
                     "body"               => "Today: #{sectionAsString}#{runningMarker}",
                     "commands"           => ["done", ">stream"],
@@ -76,10 +75,6 @@ class NSXAgentTodayNotes
                     "section"            => section
                 }
             }
-            .map{|object| NSXMiscUtils::catalystObjectToObjectOrPrioritizedObjectOrNilIfDoNotShowUntil(object) }
-            .compact
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
     end
 
     # NSXAgentTodayNotes::processObjectAndCommand(object, command)

@@ -116,7 +116,7 @@ class NSXStreamsUtils
         item = {}
         item["uuid"]                     = SecureRandom.hex
         item["agentuid"]                 = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
-        item["prioritization"]           = nil
+        item["metric"]                   = nil
 
         item["streamuuid"]               = streamUUID
         item["ordinal"]                  = ordinal
@@ -187,60 +187,18 @@ class NSXStreamsUtils
         JSON.parse(IO.read(filepath))
     end
 
-    # NSXStreamsUtils::cookItemUUIDsSelectionForDisplay()
-    def self.cookItemUUIDsSelectionForDisplay()
+    # NSXStreamsUtils::getCatalystObjectsForDisplay()
+    def self.getCatalystObjectsForDisplay()
         NSXStreamsUtils::getItemsFromDisk()
-            .map{|item| item["streamuuid"] }
-            .uniq
-            .map{|streamuuid|
-                if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid) then
-                    NSXStreamsUtils::itemsForStreamUUIDOrdered(streamuuid)
-                else
-                    if NSXStreamsTimeTracking::shouldDisplayMoreItems(streamuuid, NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)) then
-                        NSXStreamsUtils::itemsForStreamUUIDOrdered(streamuuid).first(3)
-                    else
-                        []
-                    end
-                end
-            }
-            .flatten
             .map{|item|
-                item["uuid"]
+                item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
+                item["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
+                item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+                item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
+                item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+                item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+                item
             }
-    end
-
-    # NSXStreamsUtils::getCatalystObjectsForDisplayFromManagedCooking()
-    def self.getCatalystObjectsForDisplayFromManagedCooking()
-        itemuuidToUpdatedItemOrNull = lambda{|itemuuid|
-            item = NSXStreamsUtils::getItemByUUIDOrNull(itemuuid)
-            return nil if item.nil?
-            item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
-            item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
-            item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-            item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
-            NSXStreamsUtils::commitItemToDisk(item)
-            item
-        }
-        itemuuids = KeyValueStore::getOrNull(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1")
-        if itemuuids then
-            itemuuids = JSON.parse(itemuuids)
-            if itemuuids.size>0 then
-                return itemuuids.map{|itemuuid| itemuuidToUpdatedItemOrNull.call(itemuuid) }.compact
-            end
-        end
-        itemuuids = NSXStreamsUtils::cookItemUUIDsSelectionForDisplay()
-        KeyValueStore::set(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1", JSON.generate(itemuuids))
-        itemuuids.map{|itemuuid| itemuuidToUpdatedItemOrNull.call(itemuuid) }.compact
-    end
-
-    # NSXStreamsUtils::discardItemUUIDAtCooking(itemuuid)
-    def self.discardItemUUIDAtCooking(itemuuid)
-        itemuuids = KeyValueStore::getOrNull(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1")
-        if itemuuids then
-            itemuuids = JSON.parse(itemuuids)
-            itemuuids = itemuuids.reject{|i| i == itemuuid }
-            KeyValueStore::set(nil, "7cfda6a4-f5e7-42f1-aeaf-b297e7002cb1", JSON.generate(itemuuids))
-        end
     end
 
     # -----------------------------------------------------------------
@@ -355,7 +313,11 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
-        NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])
+        [
+            "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item["streamuuid"])}]",
+            " ",
+            NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])
+        ].join()
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
@@ -393,8 +355,12 @@ class NSXStreamsUtils
         NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystPriotirization(item)
-    def self.streamItemToStreamCatalystPriotirization(item)
-        "standard"
+    # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
+    def self.streamItemToStreamCatalystMetric(item)
+        return 2 if NSXRunner::isRunning?(item["uuid"])
+        if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
+            return ( 0.9 + Math.exp(-item["ordinal"].to_f/1000).to_f/100 )
+        end
+        0.6 + Math.exp(-item["ordinal"].to_f/1000).to_f/100
     end
 end
