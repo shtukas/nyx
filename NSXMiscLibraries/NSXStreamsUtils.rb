@@ -357,9 +357,11 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
     def self.streamItemToStreamCatalystMetric(item)
         return 2 if NSXRunner::isRunning?(item["uuid"])
+        streamRatio = NSXStreamsTimeTracking::streamWideDisplayRatioForItems(item["streamuuid"])
+        itemShift = Math.exp(-item["ordinal"].to_f).to_f/100
         if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
-            return ( 0.9 + Math.exp(-item["ordinal"].to_f).to_f/100 )
+            return streamRatio*(0.9 + itemShift)
         end
-        0.6 + Math.exp(-item["ordinal"].to_f).to_f/100
+        streamRatio * (0.6 + itemShift)
     end
 end

@@ -40,8 +40,24 @@ class NSXStreamsTimeTracking
         KeyValueStore::getOrDefaultValue(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{NSXStreamsTimeTracking::currentDate()} #{streamuuid}", "0").to_f
     end
 
-    # NSXStreamsTimeTracking::shouldDisplayMoreItems(streamuuid, timeControlInHours)
-    def self.shouldDisplayMoreItems(streamuuid, timeControlInHours)
-        NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid) < timeControlInHours*3600
+    # NSXStreamsTimeTracking::streamWideDisplayRatioForItemsTrueCompute(streamuuid)
+    def self.streamWideDisplayRatioForItemsTrueCompute(streamuuid)
+        return 1 if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid)
+        commitmentInHours = NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)
+        doneTimeInHours = NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid).to_f/3600
+        if doneTimeInHours < commitmentInHours then
+            1
+        else
+            Math.exp(-(doneTimeInHours-commitmentInHours))
+        end
+    end
+
+    # NSXStreamsTimeTracking::streamWideDisplayRatioForItems(streamuuid)
+    def self.streamWideDisplayRatioForItems(streamuuid)
+        value = KeyValueStore::getOrNull(nil, "fda35a65-e960-4a92-8dfb-4fafba1d0032:#{NSXMiscUtils::currentHour()}:#{streamuuid}")
+        return value.to_f if value
+        value = NSXStreamsTimeTracking::streamWideDisplayRatioForItemsTrueCompute(streamuuid)
+        KeyValueStore::set(nil, "fda35a65-e960-4a92-8dfb-4fafba1d0032:#{NSXMiscUtils::currentHour()}:#{streamuuid}", value)
+        value
     end
 end
