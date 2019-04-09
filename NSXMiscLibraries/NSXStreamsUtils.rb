@@ -341,7 +341,11 @@ class NSXStreamsUtils
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast"]
         else
-            ["open" ,"start", "done", "push", "recast"]
+            if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
+                ["open", "done", "recast"]
+            else
+                ["open" ,"start", "done", "push", "recast"]
+            end
         end
     end
 
