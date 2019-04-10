@@ -22,6 +22,10 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 
 # ----------------------------------------------------------------------
 
+$NSXStreamInMemoryItems = []
+
+# ----------------------------------------------------------------------
+
 class NSXStreamsUtils
 
     # ----------------------------------------------------------------
@@ -184,6 +188,20 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::getCatalystObjectsForDisplay()
     def self.getCatalystObjectsForDisplay()
+
+        objects = $NSXStreamInMemoryItems
+            .map{|item| NSXStreamsUtils::getItemByUUIDOrNull(uuid) }
+            .map{|item|
+                item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
+                item["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
+                item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+                item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
+                item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+                item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+                item
+            }
+        return objects
+
         NSXStreamsUtils::getItemsFromDisk()
             .map{|item|
                 item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
@@ -365,3 +383,16 @@ class NSXStreamsUtils
         streamRatio * (0.6 + itemShift)
     end
 end
+
+Thread.new {
+    loop {
+        sleep 60
+        $NSXStreamInMemoryItems = NSXStreamsUtils::getCatalystObjectsForDisplay()
+                                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                                    .first(20)
+    }
+}
+
+
+
+

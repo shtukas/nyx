@@ -44,15 +44,23 @@ CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
 STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
 # -------------------------------------------------------------------------
-# nslog
 
-#NSXStreamsUtils::getCatalystObjectsForDisplay().each{|item|
-    #next if !item["announce"].include?("[Catalyst Inbox] http")
-    #item["streamuuid"] = "00010011101100010011101100011001"
-    #puts JSON.pretty_generate(item)
-    #NSXStreamsUtils::commitItemToDisk(item)
-#}
-#exit
+class Timer
+    def initialize()
+        @startingTime = Time.new.to_f
+        @lastInstant = Time.new.to_f
+    end
+    def event(str)
+        instant = Time.new.to_f
+        puts "[Timer] #{str} : #{instant-@lastInstant})"
+        @lastInstant = instant
+    end
+end
+
+$TIMER81EF0221 = Timer.new
+
+# -------------------------------------------------------------------------
+# nslog
 
 # -------------------------------------------------------------------------
 
