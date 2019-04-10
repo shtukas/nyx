@@ -64,6 +64,15 @@ $TIMER81EF0221 = Timer.new
 
 # -------------------------------------------------------------------------
 
+NSXStreamsUtils::updateNSXStreamInMemoryItems()
+
+Thread.new {
+    loop {
+        sleep 60
+        NSXStreamsUtils::updateNSXStreamInMemoryItems()
+    }
+}
+
 Thread.new {
     loop {
         sleep 1000

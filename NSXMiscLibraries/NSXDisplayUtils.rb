@@ -52,7 +52,7 @@ class NSXDisplayUtils
                 " ",
                 "(#{"%5.3f" % object["metric"]})",
                 " ",
-                (object["isRunning"] ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-9])
+                (object["isRunning"] ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-15])
             ].join()
         end
     end
