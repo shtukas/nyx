@@ -127,7 +127,7 @@ class GeneralEmailClient
                 next
             end
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
-            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_i)
+            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
             imap.store(id, "+FLAGS", [:Deleted])
         }
 
@@ -175,7 +175,7 @@ class GeneralEmailClient
             end
 
             genericContentsItem = NSXGenericContents::issueItemEmail(msg)
-            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, Time.new.to_f)
+            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
             claim = NSXEmailTrackingClaims::makeclaim(emailuid, genericContentsItem["uuid"], streamItem["uuid"])
             NSXEmailTrackingClaims::commitClaimToDisk(claim)
         }

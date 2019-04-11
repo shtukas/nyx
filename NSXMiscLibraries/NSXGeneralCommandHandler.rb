@@ -36,7 +36,7 @@ class NSXGeneralCommandHandler
             end
         streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
         streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
-        streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, Time.new.to_f)
+        streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
         puts JSON.pretty_generate(streamItem)
     end
 
@@ -83,7 +83,7 @@ class NSXGeneralCommandHandler
                 genericContentsItem = NSXGenericContents::issueItemText(text)
                 streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
                 streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(streamDescription)
-                streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, Time.new.to_f)
+                streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
             end
