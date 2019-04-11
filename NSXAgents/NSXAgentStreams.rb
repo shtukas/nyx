@@ -86,12 +86,10 @@ class NSXAgentStreams
         if command == "start" then
             NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
-            item["prioritization"] = "running"
             NSXStreamsUtils::commitItemToDisk(item)
         end
         if command == "stop" then
             item = NSXAgentStreams::stopStreamItem(item)
-            item["prioritization"] = "standard"
             NSXStreamsUtils::commitItemToDisk(item)
         end
         if command == "done" then

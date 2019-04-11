@@ -6,9 +6,9 @@ StreamItem extends CatalystObject {
     agentuid                 : "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
     streamuuid               : UUID
     ordinal                  : Float
+    metric                   : Float
     announce                 : String
     commands                 : Array[String]
-    prioritization           : nil | standard | high | running # optional
     filename                 : String
     generic-content-item     : GenericContentItem
     run-data                 : nil | Array[StreamItemRunTimeData]

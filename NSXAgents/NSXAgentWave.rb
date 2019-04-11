@@ -367,19 +367,11 @@ class NSXAgentWave
 
     # NSXAgentWave::getObjects()
     def self.getObjects()
-        objects = NSXAgentWave::catalystUUIDsEnumerator()
-                    .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
-        objects = objects
-                    .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-        objects = objects
-                    .map{|object|
-                        if object["prioritization"] == "running" then
-                            object["metric"] = 2
-                        end
-                        object
-                    }
-                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                    .reverse
+        NSXAgentWave::catalystUUIDsEnumerator()
+            .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
+            .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
     end
 
     def self.performDone(object)

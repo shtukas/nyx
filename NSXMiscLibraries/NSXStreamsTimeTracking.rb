@@ -20,6 +20,12 @@ KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
 KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/AccumulatorWithDecay.rb"
+=begin
+    AccumulatorWithDecay::registerValue(repositorylocation or nil, collectionuuid, value: Float)
+    AccumulatorWithDecay::sum(repositorylocation or nil, collectionuuid, timeToMinusOneInSeconds)
+=end
+
 # ----------------------------------------------------------------------
 
 class NSXStreamsTimeTracking
@@ -31,13 +37,12 @@ class NSXStreamsTimeTracking
 
     # NSXStreamsTimeTracking::addTimeInSecondsToStream(streamuuid, seconds)
     def self.addTimeInSecondsToStream(streamuuid, seconds)
-        existingtime = KeyValueStore::getOrDefaultValue(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{NSXStreamsTimeTracking::currentDate()} #{streamuuid}", "0").to_f
-        KeyValueStore::set(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{NSXStreamsTimeTracking::currentDate()} #{streamuuid}", existingtime+seconds)
+        AccumulatorWithDecay::registerValue(nil, "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", seconds)
     end
 
     # NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid)
     def self.getTimeInSecondsForStream(streamuuid)
-        KeyValueStore::getOrDefaultValue(nil, "[pascal Catalyst] 2019-03-31 09:17:01 #{NSXStreamsTimeTracking::currentDate()} #{streamuuid}", "0").to_f
+        AccumulatorWithDecay::sum(nil, "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400*2)
     end
 
     # NSXStreamsTimeTracking::streamWideDisplayRatioForItemsTrueCompute(streamuuid)
