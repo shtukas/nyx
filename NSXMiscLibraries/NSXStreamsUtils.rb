@@ -360,7 +360,12 @@ class NSXStreamsUtils
             else
                 ""
             end
-        streamTimeAsString = "#{splitChar}(stream: #{(NSXStreamsTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
+        streamTimeAsString = 
+            if NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"]) then
+                "#{splitChar}(stream: #{(NSXStreamsTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
+            else
+                ""
+            end
         "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}#{streamTimeAsString}"
     end
 
