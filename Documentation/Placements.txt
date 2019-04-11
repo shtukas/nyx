@@ -1,0 +1,16 @@
+
+Placement 
+{
+    "uuid"             : String
+    "creationUnixtime" : Integer
+    "ordinal"          : Float
+    "description"      : String
+    "elementsSetUUID"  : String
+}
+
+PlacementClaim
+{
+    "uuid"
+    "placementuuid"
+    "catalystObjectUUID"
+}
