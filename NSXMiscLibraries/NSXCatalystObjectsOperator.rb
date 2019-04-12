@@ -6,9 +6,7 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getObjects()
     def self.getObjects()
         NSXBob::agents()
-            .map{|agentinterface| 
-                agentinterface["get-objects"].call()
-            }
+            .map{|agentinterface| agentinterface["get-objects"].call() }
             .flatten
     end
 

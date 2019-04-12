@@ -119,8 +119,8 @@ class NSXGeneralCommandHandler
 
         if command == "/p" then
             options = [
-                "new placement", 
                 "focus",
+                "new placement", 
                 "destroy placement"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
