@@ -107,6 +107,7 @@ class NSXMiscUtils
         }
     end
 
+    # NSXMiscUtils::codeToDatetimeOrNull(code)
     def self.codeToDatetimeOrNull(code)
 
         return nil if code.nil?
