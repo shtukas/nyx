@@ -51,7 +51,6 @@ class NSXAgentTodayNotes
             .map{|section|
                 uuid = "#{SectionsType2102::section_to_uuid(section)}-#{NSXMiscUtils::currentDay()}"
                 if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
-                    NSXMiscUtils::onScreenNotification("Catalyst", "Today item running by more than 20 minutes")
                 end
                 runningMarker = ""
                 if NSXRunner::isRunning?(uuid) then
