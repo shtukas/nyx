@@ -54,6 +54,15 @@ class NSXCatalystUI
             end
         end
 
+        placements = NSXPlacements::getAllPlacements()
+        if placements.size>0 then
+            puts "Placements".yellow
+            placements.each{|placement|
+                puts "   - [#{"%6.3f" % placement["ordinal"]}] #{placement["description"]} (#{NSXPlacements::getClaimsForPlacement(placement).size})".yellow
+            }
+            verticalSpaceLeft = verticalSpaceLeft - (placements.size+1)
+        end
+
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
@@ -123,7 +132,7 @@ class NSXCatalystUI
                 return
             end
             NSXEstateServices::collectInboxPackage()
-            objects = NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing()
+            objects = NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing2()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end

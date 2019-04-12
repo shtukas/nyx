@@ -392,18 +392,6 @@ class NSXMiscUtils
         false
     end
 
-    # NSXMiscUtils::setMinusEmailsUnixtime()
-    def self.setMinusEmailsUnixtime()
-        KeyValueStore::set(nil, "2ceaa52e-1889-4fcd-b3c7-ee1f331ab690", Time.new.to_i)
-    end
-
-    # NSXMiscUtils::getMinusEmailsUnixtimeOrNull()
-    def self.getMinusEmailsUnixtimeOrNull()
-        value = KeyValueStore::getOrNull(nil, "2ceaa52e-1889-4fcd-b3c7-ee1f331ab690")
-        return nil if value.nil?
-        value.to_i
-    end
-
     # NSXMiscUtils::getPlanningText(objectuuid)
     def self.getPlanningText(objectuuid)
         KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/planning-strings", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip

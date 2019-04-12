@@ -19,7 +19,7 @@ class NSXGeneralCommandHandler
     def self.helpLines()
         [
             "catalyst --allowEmailQueriesOnLucille19",
-            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text' , search: <pattern> , --",
+            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text' , search: <pattern> , /p",
             "Special Object Commands: ,, , .. , -- , +datetimecode , +<weekdayname> , +<integer>day(s) , +<integer>hour(s) , +YYYY-MM-DD expose , planning"
         ]
     end
@@ -46,11 +46,6 @@ class NSXGeneralCommandHandler
         # no object needed
 
         if command == "" then
-            return
-        end
-
-        if command == "--" then
-            NSXMiscUtils::setMinusEmailsUnixtime()
             return
         end
 
@@ -122,6 +117,34 @@ class NSXGeneralCommandHandler
             }
         end
 
+        if command == "/p" then
+            options = [
+                "new placement", 
+                "focus",
+                "destroy placement"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            if option == "new placement" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                placement = NSXPlacements::issuePlacement(ordinal, description)
+                puts JSON.pretty_generate(placement)
+            end
+            if option == "focus" then
+                placement = NSXPlacements::selectPlacementOrNullInteractively()
+                $GLOBAL_PLACEMENT = placement
+            end
+            if option == "destroy placement" then
+                placement = NSXPlacements::selectPlacementOrNullInteractively()
+                return if placement.nil?
+                NSXPlacements::destroyPlacement(placement)
+                if $GLOBAL_PLACEMENT and $GLOBAL_PLACEMENT["uuid"]==placement["uuid"] then
+                    $GLOBAL_PLACEMENT = nil
+                end
+            end
+            return
+        end
+
         if command == "/" then
             options = [
                 "new Stream Item", 
@@ -177,7 +200,11 @@ class NSXGeneralCommandHandler
         end
 
         if command == ',,' then
-            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+2 hours"))
+            placement = NSXPlacements::selectPlacementOrNullInteractively()
+            return if placement.nil?
+            puts JSON.pretty_generate(placement)
+            claim = NSXPlacements::issuePlacementClaim(placement, object["uuid"])
+            puts JSON.pretty_generate(claim)
             return
         end
 

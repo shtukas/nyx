@@ -17,7 +17,9 @@ require 'securerandom'
 
 class NSXPlacements
 
-    #NSXPlacements::issuePlacement(ordinal, description)
+    # Placements ------------------------------------------------------------
+
+    # NSXPlacements::issuePlacement(ordinal, description)
     def self.issuePlacement(ordinal, description)
         placement = {}
         placement["uuid"] = SecureRandom.uuid
@@ -29,24 +31,44 @@ class NSXPlacements
         placement
     end
 
-    #NSXPlacements::getAllPlacements()
+    # NSXPlacements::getAllPlacements()
     def self.getAllPlacements()
         BTreeSets::values("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", "f8adfacb-a470-41b0-b154-1f224dd1ce3b")
+        .sort{|p1,p2| p1["ordinal"]<=>p2["ordinal"] }
     end
 
-    #NSXPlacements::issuePlacementClaim(placementuuid, catalystObjectUUID)
-    def self.issuePlacementClaim(placementuuid, catalystObjectUUID)
+    # NSXPlacements::selectPlacementOrNullInteractively()
+    def self.selectPlacementOrNullInteractively()
+        placements = NSXPlacements::getAllPlacements()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("placement", placements, lambda{|placement| placement["description"] })
+    end
+
+    # NSXPlacements::destroyPlacement(placement)
+    def self.destroyPlacement(placement)
+        BTreeSets::destroy("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", "f8adfacb-a470-41b0-b154-1f224dd1ce3b", placement["uuid"])
+    end
+
+    # Claims ------------------------------------------------------------
+
+    # NSXPlacements::issuePlacementClaim(placementuuid, catalystObjectUUID)
+    def self.issuePlacementClaim(placement, catalystObjectUUID)
         claim = {}
         claim["uuid"] = SecureRandom.uuid
-        claim["placementuuid"] = placementuuid
+        claim["placementuuid"] = placement["uuid"]
         claim["catalystObjectUUID"] = catalystObjectUUID
-        BTreeSets::set("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", "c0151d3f-1761-42c1-9e51-68360f7c9d57", claim["uuid"], claim)
+        BTreeSets::set("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", placement["elementsSetUUID"], claim["uuid"], claim)
         claim
     end
 
-    #NSXPlacements::getAllClaims()
-    def self.getAllClaims()
-        BTreeSets::values("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", "c0151d3f-1761-42c1-9e51-68360f7c9d57")
+    # NSXPlacements::getClaimsForPlacement(placement)
+    def self.getClaimsForPlacement(placement)
+        BTreeSets::values("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", placement["elementsSetUUID"])
     end
 
+    # NSXPlacements::getAllClaimsForAllActivePlacements()
+    def self.getAllClaimsForAllActivePlacements()
+        NSXPlacements::getAllPlacements()
+            .map{|placement| NSXPlacements::getClaimsForPlacement(placement) }
+            .flatten
+    end
 end
