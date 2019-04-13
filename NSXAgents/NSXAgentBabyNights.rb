@@ -27,19 +27,24 @@ class NSXAgentBabyNights
 
     def self.getObjects()
         if NSXData::getValueAsStringOrNull(BABY_NIGHTS_DATA_FOLDER, "2b966eeb-1f2c-416c-8aec-bb711b9cc478:#{Time.now.utc.iso8601[0,10]}").nil? then
-            [
-                {
-                    "uuid"      => "4b9bcf0a",
-                    "agentuid"  => self.agentuuid(),
-                    "metric"    => 1,
-                    "announce"  => "👶 Mining",
-                    "commands"  => [],
-                    "defaultExpression" => "update"
-                }
-            ]
+            NSXAgentBabyNights::getAllObjects()
         else
             []
         end
+    end
+
+    # NSXAgentBabyNights::getAllObjects()
+    def self.getAllObjects()
+        [
+            {
+                "uuid"      => "4b9bcf0a",
+                "agentuid"  => self.agentuuid(),
+                "metric"    => 1,
+                "announce"  => "👶 Mining",
+                "commands"  => [],
+                "defaultExpression" => "update"
+            }
+        ]
     end
 
     def self.processObjectAndCommand(object, command)

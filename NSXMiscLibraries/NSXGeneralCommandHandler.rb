@@ -109,8 +109,9 @@ class NSXGeneralCommandHandler
         if command.start_with?("search:") then
             pattern = command[7, command.size].strip
             loop {
-                searchobjects1 = NSXCatalystObjectsOperator::getObjects().select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = NSXCatalystObjectsOperator::getObjects().select{|object| object["announce"].downcase.include?(pattern.downcase) }
+                objects = NSXCatalystObjectsOperator::getAllObjects()
+                searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
+                searchobjects2 = objects.select{|object| object["announce"].downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status

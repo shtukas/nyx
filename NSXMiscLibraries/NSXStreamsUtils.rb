@@ -216,6 +216,20 @@ class NSXStreamsUtils
             }
     end
 
+    # NSXStreamsUtils::getAllCatalystObjects()
+    def self.getAllCatalystObjects()
+        NSXStreamsUtils::getItemsFromDisk()
+            .map{|item|
+                item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
+                item["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
+                item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+                item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
+                item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+                item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+                item
+            }
+    end
+
     # NSXStreamsUtils::updateNSXStreamInMemoryItems()
     def self.updateNSXStreamInMemoryItems()
         $NSXStreamInMemoryItems = NSXStreamsUtils::getCatalystObjectsForDisplayUseDiskData()

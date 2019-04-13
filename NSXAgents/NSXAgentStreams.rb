@@ -22,6 +22,10 @@ class NSXAgentStreams
         NSXStreamsUtils::getCatalystObjectsForDisplay()
     end
 
+    def self.getAllObjects()
+        NSXStreamsUtils::getAllCatalystObjects()
+    end
+
     # NSXAgentStreams::stopStreamItem(item): item
     def self.stopStreamItem(item)
         return item if item.nil?

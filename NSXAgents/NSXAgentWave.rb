@@ -367,11 +367,16 @@ class NSXAgentWave
 
     # NSXAgentWave::getObjects()
     def self.getObjects()
-        NSXAgentWave::catalystUUIDsEnumerator()
-            .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
+        NSXAgentWave::getAllObjects()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
+    end
+
+    # NSXAgentWave::getAllObjects()
+    def self.getAllObjects()
+        NSXAgentWave::catalystUUIDsEnumerator()
+            .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
     end
 
     def self.performDone(object)

@@ -112,6 +112,24 @@ Thread.new {
     }
 }
 
+Thread.new {
+    sleep 60
+    loop {
+        objects = NSXCatalystObjectsOperator::getObjectsEligibleForListing()
+        objects = objects.reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+        NSXPlacements::getAllPlacements()
+        .each{|placement|
+            next if (Time.new.to_i-placement["creationUnixtime"]) < 3600
+            claims = NSXPlacements::getClaimsForPlacement(placement)
+            if claims.none?{|claim| objects.any?{|object| object["uuid"] == claim["catalystObjectUUID"] } } then
+                puts "destroying placement #{placement}"
+                NSXPlacements::destroyPlacement(placement)
+            end
+        }
+        sleep 3600
+    }
+}
+
 # -------------------------------------------------------------------------
 
 NSXCatalystUI::standardUILoop()

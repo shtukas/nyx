@@ -3,18 +3,26 @@
 
 class NSXCatalystObjectsOperator
 
-    # NSXCatalystObjectsOperator::getObjects()
-    def self.getObjects()
+    # NSXCatalystObjectsOperator::getObjectsEligibleForListing()
+    def self.getObjectsEligibleForListing()
         NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects"].call() }
+            .flatten
+            .select{|object| object['metric'] >= 0.2 }
+            .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+
+    end
+
+    # NSXCatalystObjectsOperator::getAllObjects()
+    def self.getAllObjects()
+        NSXBob::agents()
+            .map{|agentinterface| agentinterface["get-objects-all"].call() }
             .flatten
     end
 
     # NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing1()
     def self.catalystObjectsOrderedForMainListing1()
-        objects = NSXCatalystObjectsOperator::getObjects()
-        objects = objects
-                    .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+        objects = NSXCatalystObjectsOperator::getObjectsEligibleForListing()
         objects
                 .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                 .reverse
@@ -22,8 +30,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing2()
     def self.catalystObjectsOrderedForMainListing2()
-        objects = NSXCatalystObjectsOperator::getObjects()
-        objects = objects.reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+        objects = NSXCatalystObjectsOperator::getObjectsEligibleForListing()
         if $GLOBAL_PLACEMENT then
             uuids = NSXPlacements::getClaimsForPlacement($GLOBAL_PLACEMENT).map{|claim| claim["catalystObjectUUID"] }
             objects = objects.select{|object| uuids.include?(object["uuid"]) }

@@ -6,5 +6,7 @@ agentuuid(): String
 
 getObjects(): Array[CatalystObject]
 
+getAllObjects(): Array[CatalystObject] # All known objects, used for search and placements
+
 processObjectAndCommand(object, command): ProcessorSignal
 

@@ -71,6 +71,12 @@ class NSXAgentHouse
             .map{|task| NSXAgentHouse::taskToCatalystObject(task) }
     end
 
+    # NSXAgentHouse::getAllObjects()
+    def self.getAllObjects()
+        NSXAgentHouse::getTasks()
+            .map{|task| NSXAgentHouse::taskToCatalystObject(task) }
+    end
+
     def self.processObjectAndCommand(object, command)
         if command == "done" then
             NSXAgentHouse::markTaskAsDone(object[":task:"])

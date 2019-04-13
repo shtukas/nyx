@@ -78,6 +78,10 @@ class NSXAgentVienna
         []
     end
 
+    def self.getAllObjects()
+        []
+    end
+
     def self.processObjectAndCommand(object, command)
     end
 end

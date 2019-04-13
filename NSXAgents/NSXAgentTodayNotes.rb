@@ -26,7 +26,7 @@ class NSXAgentTodayNotes
         sections1 = SectionsType2102::contents_to_sections(filecontents1.lines.to_a,[])
         sections2 = sections1.reject{|section| SectionsType2102::section_to_uuid(section)==uuid }
         filecontents2 = sections2.map{|section| section.join() }.join()
-        File.open(DAY_NOTES_DATA_FILE_PATH, "w") { |io| io.puts(filecontents2)  }
+        File.open(DAY_NOTES_DATA_FILE_PATH, "w") { |io| io.puts(filecontents2) }
     end
 
     # NSXAgentTodayNotes::agentuuid()
@@ -44,6 +44,11 @@ class NSXAgentTodayNotes
 
     # NSXAgentTodayNotes::getObjects()
     def self.getObjects()
+        NSXAgentTodayNotes::getAllObjects()
+    end
+
+    # NSXAgentTodayNotes::getAllObjects()
+    def self.getAllObjects()
         integers = LucilleCore::integerEnumerator()
         sections = SectionsType2102::contents_to_sections(IO.read(DAY_NOTES_DATA_FILE_PATH).lines.to_a,[])
         sections = sections.take_while{|section| !section[0].include?("ee25043d-c12a-4e80-9d0a-fa70aff4dd00") }
