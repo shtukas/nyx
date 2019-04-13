@@ -76,10 +76,11 @@ class NSXCatalystUI
                 if position == standardlp then
                     focusobject = object
                 end 
+
                 displayStr = NSXDisplayUtils::objectCatalystListingDisplayString(object, position == standardlp, position)
                 verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-                if verticalSpaceLeft < verticalSize then
-                    next
+                if position>1 and verticalSpaceLeft < verticalSize then
+                    break
                 end
                 puts displayStr
                 verticalSpaceLeft = verticalSpaceLeft - verticalSize
