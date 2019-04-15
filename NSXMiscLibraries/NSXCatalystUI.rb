@@ -58,7 +58,7 @@ class NSXCatalystUI
         if placements.size>0 then
             puts "Placements".yellow
             placements.each{|placement|
-                puts "   - [#{"%6.3f" % placement["ordinal"]}] #{placement["description"]} (#{NSXPlacements::getClaimsForPlacement(placement).size})".yellow
+                puts "   - #{placement["description"]} (#{NSXPlacements::getClaimsForPlacement(placement).size})".yellow
             }
             verticalSpaceLeft = verticalSpaceLeft - (placements.size+1)
         end

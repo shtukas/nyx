@@ -19,12 +19,11 @@ class NSXPlacements
 
     # Placements ------------------------------------------------------------
 
-    # NSXPlacements::issuePlacement(ordinal, description)
-    def self.issuePlacement(ordinal, description)
+    # NSXPlacements::issuePlacement(description)
+    def self.issuePlacement(description)
         placement = {}
         placement["uuid"] = SecureRandom.uuid
         placement["creationUnixtime"] = Time.new.to_i
-        placement["ordinal"] = ordinal
         placement["description"] = description
         placement["elementsSetUUID"] = SecureRandom.uuid
         BTreeSets::set("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", "f8adfacb-a470-41b0-b154-1f224dd1ce3b", placement["uuid"], placement)
@@ -34,7 +33,7 @@ class NSXPlacements
     # NSXPlacements::getAllPlacements()
     def self.getAllPlacements()
         BTreeSets::values("/Galaxy/DataBank/Catalyst/Placements-KVStoreRepository", "f8adfacb-a470-41b0-b154-1f224dd1ce3b")
-        .sort{|p1,p2| p1["ordinal"]<=>p2["ordinal"] }
+        .sort{|p1,p2| p1["creationUnixtime"]<=>p2["creationUnixtime"] }
     end
 
     # NSXPlacements::selectPlacementOrNullInteractively()

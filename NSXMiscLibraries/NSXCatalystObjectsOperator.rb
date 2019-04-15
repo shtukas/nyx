@@ -10,7 +10,6 @@ class NSXCatalystObjectsOperator
             .flatten
             .select{|object| object['metric'] >= 0.2 }
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-
     end
 
     # NSXCatalystObjectsOperator::getAllObjects()

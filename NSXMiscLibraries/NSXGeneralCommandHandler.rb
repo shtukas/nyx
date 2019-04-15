@@ -127,8 +127,7 @@ class NSXGeneralCommandHandler
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             if option == "new placement" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                placement = NSXPlacements::issuePlacement(ordinal, description)
+                placement = NSXPlacements::issuePlacement(description)
                 puts JSON.pretty_generate(placement)
             end
             if option == "focus" then
@@ -210,8 +209,7 @@ class NSXGeneralCommandHandler
             if placement.nil? then
                 if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new placement for this item ? ") then
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
-                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                    placement = NSXPlacements::issuePlacement(ordinal, description)
+                    placement = NSXPlacements::issuePlacement(description)
                 else
                     return
                 end
