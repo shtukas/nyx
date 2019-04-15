@@ -207,7 +207,15 @@ class NSXGeneralCommandHandler
 
         if command == '//' then
             placement = NSXPlacements::selectPlacementOrNullInteractively()
-            return if placement.nil?
+            if placement.nil? then
+                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new placement for this item ? ") then
+                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    placement = NSXPlacements::issuePlacement(ordinal, description)
+                else
+                    return
+                end
+            end
             puts JSON.pretty_generate(placement)
             claim = NSXPlacements::issuePlacementClaim(placement, object["uuid"])
             puts JSON.pretty_generate(claim)
