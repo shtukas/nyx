@@ -67,7 +67,6 @@ class NSXCatalystUI
         focusobject = nil
 
         displayObjects
-            .first(verticalSpaceLeft)
             .each_with_index{|object, indx|
                 position = indx+1
                 if (position>1 and verticalSpaceLeft<=0) then
