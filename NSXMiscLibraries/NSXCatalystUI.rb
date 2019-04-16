@@ -79,7 +79,7 @@ class NSXCatalystUI
 
                 displayStr = NSXDisplayUtils::objectCatalystListingDisplayString(object, position == standardlp, position)
                 verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-                if position>1 and verticalSpaceLeft < verticalSize then
+                if (position > 1) and (position > standardlp) and (verticalSpaceLeft < verticalSize) then
                     break
                 end
                 puts displayStr
