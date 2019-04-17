@@ -118,31 +118,6 @@ if NSXMiscUtils::isLucille18() then
     }
 end
 
-if NSXMiscUtils::isLucille18() then
-    Thread.new {
-        sleep 60
-        loop {
-            # In the below sum we add NSXStreamsUtils::getAllCatalystObjects
-            # This is because Stream items for display are cached. and object
-            # which have been placed could be removed from the cache and then not
-            # appearing in NSXCatalystObjectsOperator::getObjectsEligibleForListing
-            # causing the placement to be deleted.
-            objects = ( NSXCatalystObjectsOperator::getObjectsEligibleForListing() + NSXStreamsUtils::getAllCatalystObjects() )
-            objects = objects.reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-            NSXPlacements::getAllPlacements()
-            .each{|placement|
-                next if (Time.new.to_i-placement["creationUnixtime"]) < 3600
-                claims = NSXPlacements::getClaimsForPlacement(placement)
-                if claims.none?{|claim| objects.any?{|object| object["uuid"] == claim["catalystObjectUUID"] } } then
-                    puts "destroying placement #{placement}"
-                    NSXPlacements::destroyPlacement(placement)
-                end
-            }
-            sleep 3600
-        }
-    }
-end
-
 # -------------------------------------------------------------------------
 
 NSXCatalystUI::standardUILoop()
