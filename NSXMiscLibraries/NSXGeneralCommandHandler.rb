@@ -173,7 +173,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == ',,' then
-            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], NSXMiscUtils::codeToDatetimeOrNull("+2 hours"))
+            NSXHidden::setObjectHidden(object["uuid"])
             return
         end
 

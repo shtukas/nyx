@@ -10,6 +10,7 @@ class NSXCatalystObjectsOperator
             .flatten
             .select{|object| object['metric'] >= 0.2 }
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+            .reject{|object| NSXHidden::trueIfObjectHidden(object['uuid']) }
     end
 
     # NSXCatalystObjectsOperator::getAllObjects()
@@ -19,12 +20,22 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
+    # NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing()
+    def self.catalystObjectsOrderedForMainListing()
+        objects = NSXCatalystObjectsOperator::getObjectsEligibleForListing()
+        objects
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+    end
+
     # NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing1()
     def self.catalystObjectsOrderedForMainListing1()
         objects = NSXCatalystObjectsOperator::getObjectsEligibleForListing()
+        if objects.size <= 1 then
+            NSXHidden::rotatePrefix()
+        end
         objects
-                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                .reverse
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
     end
-
 end
