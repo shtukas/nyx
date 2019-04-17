@@ -28,17 +28,17 @@ class NSXHidden
 
     # NSXHidden::getPrefix()
     def self.getPrefix()
-        prefix = KeyValueStore::getOrNull(HIDDEN_KVSTORE_REPOSITORY, "06406c69-12e1-4a5e-9128-21aeac22e64c")
+        prefix = KeyValueStore::getOrNull(HIDDEN_KVSTORE_REPOSITORY, "06406c69-12e1-4a5e-9128-21aeac22e64c:#{NSXMiscUtils::currentDay()}")
         return prefix if prefix
         prefix = SecureRandom.hex
-        KeyValueStore::set(HIDDEN_KVSTORE_REPOSITORY, "06406c69-12e1-4a5e-9128-21aeac22e64c", prefix)
+        KeyValueStore::set(HIDDEN_KVSTORE_REPOSITORY, "06406c69-12e1-4a5e-9128-21aeac22e64c:#{NSXMiscUtils::currentDay()}", prefix)
         prefix
     end
 
     # NSXHidden::rotatePrefix()
     def self.rotatePrefix()
         prefix = SecureRandom.hex
-        KeyValueStore::set(HIDDEN_KVSTORE_REPOSITORY, "06406c69-12e1-4a5e-9128-21aeac22e64c", prefix)
+        KeyValueStore::set(HIDDEN_KVSTORE_REPOSITORY, "06406c69-12e1-4a5e-9128-21aeac22e64c:#{NSXMiscUtils::currentDay()}", prefix)
     end
 
     # NSXHidden::setObjectHidden(objectuuid)
