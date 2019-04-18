@@ -398,7 +398,12 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
     def self.streamItemToStreamCatalystDefaultCommand(item)
-        NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
+        if item['streamuuid'] == "03b79978bcf7a712953c5543a9df9047" then
+            NSXRunner::isRunning?(item["uuid"]) ? nil : "open ; done"
+        else
+            NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
+        end
+
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
