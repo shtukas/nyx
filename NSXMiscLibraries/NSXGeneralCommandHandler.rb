@@ -20,7 +20,7 @@ class NSXGeneralCommandHandler
         [
             "catalyst --allowEmailQueriesOnLucille19",
             "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text' , search: <pattern> , ,,",
-            "Special Object Commands: ,, , .. , -- , +datetimecode , +<weekdayname> , +<integer>day(s) , +<integer>hour(s) , +YYYY-MM-DD expose , planning"
+            "Special Object Commands: .. , -- , +datetimecode , +<weekdayname> , +<integer>day(s) , +<integer>hour(s) , +YYYY-MM-DD expose , planning"
         ]
     end
     
@@ -170,11 +170,6 @@ class NSXGeneralCommandHandler
         if command == ".." and object["defaultExpression"] and object["defaultExpression"]!=".." then
             command = object["defaultExpression"]
             return NSXGeneralCommandHandler::processCommand(object, command)
-        end
-
-        if command == ',,' then
-            NSXHidden::setObjectHidden(object["uuid"])
-            return
         end
 
         if command == 'expose' then

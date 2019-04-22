@@ -1,0 +1,26 @@
+NSXFolderProbe Results
+
+{
+    "target-type" => "folder"
+    "target-location" =>
+    "contents" =>
+}
+{
+    "target-type" => "openable-file"
+    "target-location" =>
+    "contents" =>
+}
+{
+    "target-type" => "line",
+    "text" => line
+    "contents" =>
+}
+{
+    "target-type" => "url",
+    "url" =>
+    "contents" =>
+}
+{
+    "target-type" => "virtually-empty-wave-folder",
+    "contents" =>
+}

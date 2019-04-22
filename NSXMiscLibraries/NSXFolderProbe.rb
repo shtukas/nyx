@@ -1,43 +1,16 @@
 
 # encoding: UTF-8
 
-
-# NSXFolderProbe::nonDotFilespathsAtFolder(folderpath)
-# NSXFolderProbe::folderpath2metadata(folderpath)
-    #    {
-    #        "target-type" => "folder"
-    #        "target-location" =>
-    #        "announce" =>
-    #    }
-    #    {
-    #        "target-type" => "openable-file"
-    #        "target-location" =>
-    #        "announce" =>
-    #    }
-    #    {
-    #        "target-type" => "line",
-    #        "text" => line
-    #        "announce" =>
-    #    }
-    #    {
-    #        "target-type" => "url",
-    #        "url" =>
-    #        "announce" =>
-    #    }
-    #    {
-    #        "target-type" => "virtually-empty-wave-folder",
-    #        "announce" =>
-    #    }
-
-# NSXFolderProbe::openActionOnMetadata(metadata)
-
 class NSXFolderProbe
+
+    # NSXFolderProbe::nonDotFilespathsAtFolder(folderpath)
     def self.nonDotFilespathsAtFolder(folderpath)
         Dir.entries(folderpath)
             .select{|filename| filename[0,1]!="." }
             .map{|filename| "#{folderpath}/#{filename}" }
     end
 
+    # NSXFolderProbe::folderpath2metadata(folderpath)
     def self.folderpath2metadata(folderpath)
 
         metadata = {}
@@ -65,7 +38,7 @@ class NSXFolderProbe
 
         descriptionOpt = getDescriptionFromDescriptionFileMaybe.call(folderpath)
         if descriptionOpt then
-            metadata["announce"] = descriptionOpt
+            metadata["contents"] = descriptionOpt
             if descriptionOpt.start_with?("http") then
                 metadata["target-type"] = "url"
                 metadata["url"] = descriptionOpt
@@ -117,8 +90,8 @@ class NSXFolderProbe
             metadata["target-type"] = "openable-file"
             emailFilename = Dir.entries(folderpath).select{|filename| filename[-4, 4]==".eml" }.first
             metadata["target-location"] = "#{folderpath}/#{emailFilename}"
-            if metadata["announce"].nil? then
-                metadata["announce"] = "[email]"
+            if metadata["contents"].nil? then
+                metadata["contents"] = "[email]"
             end
             metadata["folderpath2metadata:case"] = "cf6f25cb"
             return metadata
@@ -126,8 +99,8 @@ class NSXFolderProbe
 
         if files.size==0 then
             metadata["target-type"] = "virtually-empty-wave-folder"
-            if metadata["announce"].nil? then
-                metadata["announce"] = folderpath
+            if metadata["contents"].nil? then
+                metadata["contents"] = folderpath
             end
             metadata["folderpath2metadata:case"] = "b6e8ac55"
             return metadata
@@ -137,8 +110,8 @@ class NSXFolderProbe
             filepath = files.first
             metadata["target-type"] = "url"
             metadata["url"] = url
-            if metadata["announce"].nil? then
-                metadata["announce"] = url
+            if metadata["contents"].nil? then
+                metadata["contents"] = url
             end
             metadata["folderpath2metadata:case"] = "95e7dd30"
             return metadata
@@ -148,8 +121,8 @@ class NSXFolderProbe
             filepath = files.first
             metadata["target-type"] = "line"
             metadata["text"] = line
-            if metadata["announce"].nil? then
-                metadata["announce"] = line
+            if metadata["contents"].nil? then
+                metadata["contents"] = line
             end
             metadata["folderpath2metadata:case"] = "a888e991"
             return metadata
@@ -159,8 +132,8 @@ class NSXFolderProbe
             filepath = files.first
             metadata["target-type"] = "openable-file"
             metadata["target-location"] = filepath
-            if metadata["announce"].nil? then
-                metadata["announce"] = File.basename(filepath)
+            if metadata["contents"].nil? then
+                metadata["contents"] = File.basename(filepath)
             end
             metadata["folderpath2metadata:case"] = "54b1a4b5"
             return metadata
@@ -170,8 +143,8 @@ class NSXFolderProbe
             filepath = files.first
             metadata["target-type"] = "folder"
             metadata["target-location"] = folderpath
-            if metadata["announce"].nil? then
-                metadata["announce"] = "One non-openable file in #{File.basename(folderpath)}"
+            if metadata["contents"].nil? then
+                metadata["contents"] = "One non-openable file in #{File.basename(folderpath)}"
             end
             metadata["folderpath2metadata:case"] = "439bba64"
             return metadata
@@ -180,8 +153,8 @@ class NSXFolderProbe
         if files.size > 1 and filesWithoutTheDescription.size==1 and fileIsOpenable.call(filesWithoutTheDescription.first) then
             metadata["target-type"] = "openable-file"
             metadata["target-location"] = filesWithoutTheDescription.first
-            if metadata["announce"].nil? then
-                metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
+            if metadata["contents"].nil? then
+                metadata["contents"] = "Multiple files in #{File.basename(folderpath)}"
             end
             metadata["folderpath2metadata:case"] = "29d2dc25"
             return metadata
@@ -190,14 +163,15 @@ class NSXFolderProbe
         if files.size > 1 then
             metadata["target-type"] = "folder"
             metadata["target-location"] = folderpath
-            if metadata["announce"].nil? then
-                metadata["announce"] = "Multiple files in #{File.basename(folderpath)}"
+            if metadata["contents"].nil? then
+                metadata["contents"] = "Multiple files in #{File.basename(folderpath)}"
             end
             metadata["folderpath2metadata:case"] = "f6a683b0"
             return metadata
         end
     end
 
+    # NSXFolderProbe::openActionOnMetadata(metadata)
     def self.openActionOnMetadata(metadata)
         if metadata["target-type"]=="folder" then
             if File.exists?(metadata["target-location"]) then

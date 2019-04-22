@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-NSX0746_StandardPadding = "        "
+NSX0746_StandardPadding = "              "
 
 class NSXDisplayUtils
 
@@ -28,17 +28,28 @@ class NSXDisplayUtils
         object["commands"] = ( NSXMiscUtils::hasPlanningText(object["uuid"]) ? ["planning".green] : ["planning".yellow] ) + object["commands"]
         if isFocus then
             if object['body'] then
-                [
-                    "[#{isFocus ? "*".green : " "}#{"%2d" % displayOrdinal}]",
-                    " ",
-                    "(#{"%5.3f" % object["metric"]})",
-                    "\n",
-                    object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding),
-                    "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
-                ].join()
+                if object['body'].lines.size>1 then
+                    [
+                        "[#{"*".green}#{"%2d" % displayOrdinal}]",
+                        " ",
+                        "(#{"%5.3f" % object["metric"]})",
+                        "\n",
+                        object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding),
+                        "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
+                    ].join()
+                else
+                    [
+                        "[#{"*".green}#{"%2d" % displayOrdinal}]",
+                        " ",
+                        "(#{"%5.3f" % object["metric"]})",
+                        " ",
+                       (object["isRunning"] ? object['body'].green : object['body']),
+                       "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
+                    ].join()
+                end
             else
                 [
-                    "[#{isFocus ? "*".green : " "}#{"%2d" % displayOrdinal}]",
+                    "[#{"*".green}#{"%2d" % displayOrdinal}]",
                     " ",
                     "(#{"%5.3f" % object["metric"]})",
                     " ",
@@ -48,7 +59,7 @@ class NSXDisplayUtils
             end
         else
             [
-                "[#{isFocus ? "*".green : " "}#{"%2d" % displayOrdinal}]",
+                "[ #{"%2d" % displayOrdinal}]",
                 " ",
                 "(#{"%5.3f" % object["metric"]})",
                 " ",

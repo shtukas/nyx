@@ -326,10 +326,27 @@ class NSXAgentWave
         nil
     end
 
-    def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
-        "[#{WaveSchedules::scheduleToAnnounce(schedule)}] #{folderProbeMetadata["announce"]}"
+    # NSXAgentWave::extractFirstLineFromText(text)
+    def self.extractFirstLineFromText(text)
+        return "" if text.size==0
+        text.lines.first
     end
 
+    # NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata,schedule)
+    def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
+        "[#{WaveSchedules::scheduleToAnnounce(schedule)}] #{NSXAgentWave::extractFirstLineFromText(folderProbeMetadata["contents"])}"
+    end
+
+    # NSXAgentWave::objectUUIDToBody(folderProbeMetadata,schedule)
+    def self.objectUUIDToBody(folderProbeMetadata,schedule)
+        if folderProbeMetadata["contents"].lines.size>1 then
+            "[#{WaveSchedules::scheduleToAnnounce(schedule)}]\n#{folderProbeMetadata["contents"]}"
+        else
+            "[#{WaveSchedules::scheduleToAnnounce(schedule)}] #{folderProbeMetadata["contents"]}"
+        end
+    end
+
+    # NSXAgentWave::removeWaveMetadataFilesAtLocation(location)
     def self.removeWaveMetadataFilesAtLocation(location)
         # Removing wave files.
         Dir.entries(location)
@@ -350,12 +367,12 @@ class NSXAgentWave
         end
         folderProbeMetadata = NSXFolderProbe::folderpath2metadata(location)
         metric = WaveSchedules::scheduleToMetric(schedule)
-        announce = NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object = {}
         object['uuid'] = objectuuid
         object["agentuid"] = self.agentuuid()
         object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
-        object['announce'] = announce
+        object['announce'] = NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
         object['commands'] = NSXAgentWave::commands(schedule)
         object["defaultExpression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule

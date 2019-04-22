@@ -5,7 +5,7 @@ CatalystObject
     "agentuid"           : nil or String
     "metric"             : Float
     "announce"           : String
-    "body"               : String
+    "body"               : String # Optional, used when present and if the object is focus.
     "commands"           : Array[String]
     "defaultExpression"  : Null or String # optional
     "isRunning"          : Boolean
