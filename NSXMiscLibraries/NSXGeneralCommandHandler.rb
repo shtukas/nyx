@@ -20,7 +20,7 @@ class NSXGeneralCommandHandler
         [
             "catalyst --allowEmailQueriesOnLucille19",
             "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text' , search: <pattern> , ,,",
-            "Special Object Commands: .. , -- , +datetimecode , +<weekdayname> , +<integer>day(s) , +<integer>hour(s) , +YYYY-MM-DD expose , planning"
+            "Special Object Commands: .. , -- , +datetimecode , +<weekdayname> , +<integer>day(s) , +<integer>hour(s) , +YYYY-MM-DD , +1@23:45 ,  expose , planning"
         ]
     end
     

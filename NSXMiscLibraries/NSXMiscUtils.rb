@@ -34,6 +34,11 @@ class NSXMiscUtils
         (Time.now-86400*n).utc.iso8601[0,10]
     end
 
+    # NSXMiscUtils::nDaysInTheFuture(n)
+    def self.nDaysInTheFuture(n)
+        (Time.now+86400*n).utc.iso8601[0,10]
+    end
+
     # NSXMiscUtils::currentDay()
     def self.currentDay()
         Time.now.utc.iso8601[0,10]
@@ -117,6 +122,7 @@ class NSXMiscUtils
         # +<integer>day(s)
         # +<integer>hour(s)
         # +YYYY-MM-DD
+        # +1@12:34
 
         code = code[1,99]
 
@@ -124,6 +130,7 @@ class NSXMiscUtils
         # <integer>day(s)
         # <integer>hour(s)
         # YYYY-MM-DD
+        # 1@12:34
 
         localsuffix = Time.new.to_s[-5,5]
         morningShowTime = "09:00:00 #{localsuffix}"
@@ -147,6 +154,11 @@ class NSXMiscUtils
 
         if code[4,1]=="-" and code[7,1]=="-" then
             return DateTime.parse("#{code} #{morningShowTime}").to_time.utc.iso8601
+        end
+
+        if code.include?('@') then
+            p1, p2 = code.split('@') # 1 12:34
+            return "#{NSXMiscUtils::nDaysInTheFuture(p1.to_i)[0, 10]} #{p2}:00 #{localsuffix}"
         end
 
         nil
