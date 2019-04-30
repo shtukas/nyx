@@ -18,9 +18,13 @@ class NSXGeneralCommandHandler
     # NSXGeneralCommandHandler::helpLines()
     def self.helpLines()
         [
-            "catalyst --allowEmailQueriesOnLucille19",
-            "Special General Commands: help , :<p> , '<p> , + , / , new: <line> | 'text' , inbox: <line> | 'text' , search: <pattern> , ,,",
-            "Special Object Commands: .. , -- , +datetimecode , +<weekdayname> , +<integer>day(s) , +<integer>hour(s) , +YYYY-MM-DD , +1@23:45 ,  expose , planning"
+            "Special General Commands:",
+            "\n",
+            ["help", ":<p>", "+", "/", "new: <line> | 'text'", "inbox: <line> | 'text'", "search: <pattern>"].map{|command| "        "+command }.join("\n"),
+            "\n",
+            "Special Object Commands:",
+            "\n",
+            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning"].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -50,8 +54,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == 'help' then
-            puts NSXBob::agents().map{|agentdata| agentdata["agent-name"] }.join(", ")
-            puts NSXGeneralCommandHandler::helpLines().join("\n")
+            puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -186,6 +189,11 @@ class NSXGeneralCommandHandler
         if command == 'planning' then
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getPlanningText(object["uuid"]))
             NSXMiscUtils::setPlanningText(object["uuid"], text)
+            return
+        end
+
+        if command == ',,' then
+            NSXMiscUtils::resetMetricWeightRatio(object["uuid"])
             return
         end
 

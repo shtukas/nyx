@@ -8,8 +8,8 @@ class NSXCatalystObjectsOperator
         NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects"].call() }
             .flatten
-            .select{|object| object['metric'] >= 0.2 }
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+            .select{|object| object['metric'] >= 0.2 }
     end
 
     # NSXCatalystObjectsOperator::getAllObjects()
@@ -23,6 +23,15 @@ class NSXCatalystObjectsOperator
     def self.catalystObjectsOrderedForMainListing()
         objects = NSXCatalystObjectsOperator::getObjectsEligibleForListing()
         objects
+            .map{|object|
+                ratio = NSXMiscUtils::metricWeightRatioOrNull(object["uuid"])
+                object[":catalyst-weigth-ratio:"] = ratio
+                if ratio then
+                    object["metric"] = ratio*object["metric"]
+
+                end
+                object
+            }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
     end

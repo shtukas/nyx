@@ -4,6 +4,10 @@
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
@@ -434,4 +438,17 @@ class NSXMiscUtils
         items.map{|item| item["ordinal"] }.max + 0.1
     end
 
+    # NSXMiscUtils::metricWeightRatioOrNull(objectuuid)
+    def self.metricWeightRatioOrNull(objectuuid)
+        unixtime = KeyValueStore::getOrNull(nil, "8678525c-de46-4208-9dc7-2a8acd0f8f1a:#{NSXMiscUtils::currentDay()}:#{objectuuid}")
+        return nil if unixtime.nil?
+        timespanInHours = (Time.new.to_f-unixtime.to_f)/3600
+        return 1 if timespanInHours > 2
+        (timespanInHours.to_f/2).to_f ** 3
+    end
+
+    # NSXMiscUtils::resetMetricWeightRatio(objectuuid)
+    def self.resetMetricWeightRatio(objectuuid)
+        KeyValueStore::set(nil, "8678525c-de46-4208-9dc7-2a8acd0f8f1a:#{NSXMiscUtils::currentDay()}:#{objectuuid}", Time.new.to_i)
+    end
 end
