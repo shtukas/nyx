@@ -246,7 +246,7 @@ class NSXStreamsUtils
         description = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
         streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
         item["streamuuid"] = streamuuid
-        item["ordinal"] = NSXMiscUtils::makeStreamItemOrdinal()
+        item["ordinal"] = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
         item
     end
 
@@ -256,10 +256,10 @@ class NSXStreamsUtils
         # First we remove the item from the stream
         items = items.reject{|item| item["uuid"]==streamItemUUID }
         if items.size == 0 then
-            return NSXMiscUtils::makeStreamItemOrdinal()
+            return NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
         end 
         if items.size < n then
-            return NSXMiscUtils::makeStreamItemOrdinal()
+            return NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
         end
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end
@@ -345,6 +345,24 @@ class NSXStreamsUtils
         1
     end
 
+    # NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
+    def self.interactivelySpecifyStreamItemOrdinal(streamuuid)
+        # We get the first 20 items, display them, ask for either a number or null for the next ordinal at the end of the queue
+        puts "-> start"
+        NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamuuid)
+            .first(10)
+            .each{|item|
+                puts "#{item["ordinal"]} #{NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
+            }
+        puts "-> end"
+        NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamuuid)
+            .last(5)
+            .each{|item|
+                puts "#{item["ordinal"]} #{NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
+            }
+        LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+    end
+
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
@@ -403,7 +421,6 @@ class NSXStreamsUtils
         else
             NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
         end
-
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)

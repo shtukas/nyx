@@ -36,7 +36,7 @@ class NSXGeneralCommandHandler
             end
         streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
         streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
-        streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
+        streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
         puts JSON.pretty_generate(streamItem)
     end
 
@@ -75,10 +75,11 @@ class NSXGeneralCommandHandler
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream", "Wave"])
             catalystobjectuuid = nil
             if type == "Stream" then
-                genericContentsItem = NSXGenericContents::issueItemText(text)
                 streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
                 streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(streamDescription)
-                streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
+                streamItemOrdinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
+                genericContentsItem = NSXGenericContents::issueItemText(text)
+                streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, streamItemOrdinal)
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
             end
@@ -101,7 +102,7 @@ class NSXGeneralCommandHandler
             end
             genericContentsItem = NSXGenericContents::issueItemText(text)
             puts JSON.pretty_generate(genericContentsItem)
-            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
+            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
             puts JSON.pretty_generate(streamItem)
             return
         end

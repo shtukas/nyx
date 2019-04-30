@@ -91,7 +91,7 @@ class NSXAgentTodayNotes
             genericContentsItem = NSXGenericContents::issueItemText(text)
             streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
             streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(streamDescription)
-            streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeStreamItemOrdinal())
+            streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
         end
     end

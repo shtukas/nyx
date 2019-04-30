@@ -427,9 +427,11 @@ class NSXMiscUtils
         "#{folderpath}/#{filenames.first}"
     end
 
-    # NSXMiscUtils::makeStreamItemOrdinal()
-    def self.makeStreamItemOrdinal()
-        (Time.new.to_f - 1554795370).to_f/(7*86400) # number of weeks since inception
+    # NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
+    def self.makeEndOfQueueStreamItemOrdinal()
+        items = NSXStreamsUtils::getItemsFromDisk()
+        return 1 if items.size==0
+        items.map{|item| item["ordinal"] }.max + 0.1
     end
 
 end
