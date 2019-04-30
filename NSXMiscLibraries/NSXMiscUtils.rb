@@ -186,12 +186,12 @@ class NSXMiscUtils
 
     # NSXMiscUtils::getStandardListingPosition()   
     def self.getStandardListingPosition()
-        KeyValueStore::getOrDefaultValue(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133", "1").to_i
+        KeyValueStore::getOrDefaultValue(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133:#{NSXMiscUtils::currentDay()}", "1").to_i
     end
 
     # NSXMiscUtils::setStandardListingPosition(position)
     def self.setStandardListingPosition(position)
-        KeyValueStore::set(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133", position)
+        KeyValueStore::set(nil, "301bc639-db20-4eff-bc84-94b4b9e4c133:#{NSXMiscUtils::currentDay()}", position)
     end
 
     # NSXMiscUtils::emailSync(verbose)
