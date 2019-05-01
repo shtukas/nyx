@@ -40,15 +40,19 @@ class NSXCatalystUI
 
         performanceReportExecutableFilepath = "/Galaxy/LucilleOS/Binaries/month-performance"
         if !File.exists?(performanceReportExecutableFilepath) then
-            puts "I can see the performance report executable filepath"
-            LucilleCore::pressEnterToContinue()
-            return
+            puts "[error:4206ef88] I can't see the performance report executable filepath"
+            exit
         else
-            report = `#{performanceReportExecutableFilepath}`
-            report = JSON.parse(report)
-            if report["rent-percentage"] < 110 then
-                puts "Month performance: #{report["rent-percentage"]} %".yellow
-                verticalSpaceLeft = verticalSpaceLeft - 1
+            report = `#{performanceReportExecutableFilepath}`.strip
+            if report.size==0 then
+                puts "[error:b87d8617] I can't get the performance report"
+                exit
+            else
+                report = JSON.parse(report)
+                if report["rent-percentage"] < 110 then
+                    puts "Month performance: #{report["rent-percentage"]} %".yellow
+                    verticalSpaceLeft = verticalSpaceLeft - 1
+                end
             end
         end
 
