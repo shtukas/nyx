@@ -125,7 +125,7 @@ class NSXCatalystUI
                 return
             end
             NSXEstateServices::collectInboxPackage()
-            objects = NSXCatalystObjectsOperator::catalystObjectsOrderedForMainListing()
+            objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end

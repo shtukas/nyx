@@ -444,7 +444,7 @@ class NSXMiscUtils
         return nil if unixtime.nil?
         timespanInHours = (Time.new.to_f-unixtime.to_f)/3600
         return 1 if timespanInHours > 2
-        (timespanInHours.to_f/2).to_f ** 3
+        timespanInHours.to_f/2
     end
 
     # NSXMiscUtils::resetMetricWeightRatio(objectuuid)
