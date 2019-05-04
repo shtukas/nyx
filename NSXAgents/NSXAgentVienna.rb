@@ -83,5 +83,6 @@ class NSXAgentVienna
     end
 
     def self.processObjectAndCommand(object, command)
+        [nil]
     end
 end

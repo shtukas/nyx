@@ -50,27 +50,37 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 $GLOBAL_PLACEMENT = nil
 
 # -------------------------------------------------------------------------
-
-class Timer
-    def initialize()
-        @startingTime = Time.new.to_f
-        @lastInstant = Time.new.to_f
-    end
-    def event(str)
-        instant = Time.new.to_f
-        puts "[Timer] #{str} : #{instant-@lastInstant})"
-        @lastInstant = instant
-    end
-end
-
-$TIMER81EF0221 = Timer.new
-
-# -------------------------------------------------------------------------
 # nslog
 
 # -------------------------------------------------------------------------
 
+if NSXMiscUtils::isLucille18() then
+    NSXEstateServices::archivesTimelineGarbageCollection(true)
+    NSXStreamsUtils::getItemsFromDisk()
+    .each{|item|
+        claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
+        next if claim.nil?
+        if claim["status"] == "dead" then
+            puts "Destroying email #{item["uuid"]}"
+            puts JSON.pretty_generate(item)
+            puts JSON.pretty_generate(claim)
+            NSXStreamsUtils::destroyItem(item)
+        end
+        if claim["status"] == "deleted-on-server" then
+            puts "Destroying email #{item["uuid"]}"
+            puts JSON.pretty_generate(item)
+            puts JSON.pretty_generate(claim)
+            NSXStreamsUtils::destroyItem(item)
+        end
+    }
+end
+
 NSXStreamsUtils::updateNSXStreamInMemoryItems()
+
+NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
+.each{|object|
+    $CATALYST_OBJECTS_C1C8DF29[object["uuid"]] = object
+}
 
 Thread.new {
     loop {
@@ -79,45 +89,21 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        sleep 130
+        NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
+        .each{|object|
+            $CATALYST_OBJECTS_C1C8DF29[object["uuid"]] = object
+        }
+    }
+}
+
 if NSXMiscUtils::isLucille18() then
     Thread.new {
         loop {
             sleep 1000
             NSXMiscUtils::emailSync(false)
-        }
-    }
-end
-
-if NSXMiscUtils::isLucille18() then
-    Thread.new {
-        loop {
-            sleep 2000
-            NSXEstateServices::archivesTimelineGarbageCollection(true)
-        }
-    }
-end
-
-if NSXMiscUtils::isLucille18() then
-    Thread.new {
-        loop {
-            sleep 3000
-            NSXStreamsUtils::getItemsFromDisk()
-            .each{|item|
-                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
-                next if claim.nil?
-                if claim["status"] == "dead" then
-                    puts "Destroying email #{item["uuid"]}"
-                    puts JSON.pretty_generate(item)
-                    puts JSON.pretty_generate(claim)
-                    NSXStreamsUtils::destroyItem(item)
-                end
-                if claim["status"] == "deleted-on-server" then
-                    puts "Destroying email #{item["uuid"]}"
-                    puts JSON.pretty_generate(item)
-                    puts JSON.pretty_generate(claim)
-                    NSXStreamsUtils::destroyItem(item)
-                end
-            }
         }
     }
 end

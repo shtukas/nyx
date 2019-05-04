@@ -416,15 +416,16 @@ class NSXAgentWave
     def self.processObjectAndCommand(object, command)
         uuid = object['uuid']
         schedule = object['schedule']
-
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
             NSXFolderProbe::openActionOnMetadata(metadata)
+            return [nil]
         end
 
         if command=='done' then
             self.performDone(object)
             NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
+            return ["remove", object["uuid"]]
         end
 
         if command=='recast' then
@@ -432,6 +433,7 @@ class NSXAgentWave
             schedule = NSXAgentWave::makeNewSchedule()
             NSXAgentWave::writeScheduleToDisk(uuid, schedule)
             NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
+            return ["remove", object["uuid"]]
         end
 
         if command.start_with?('description:') then
@@ -444,19 +446,24 @@ class NSXAgentWave
             folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
             NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
+            return ["update",  NSXStreamsUtils::itemToCatalystObject(NSXStreamsUtils::getItemByUUIDOrNull(object["uuid"])) ]
         end
 
         if command=='folder' then
             location = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
+            return [nil]
         end
 
         if command=='destroy' then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 NSXAgentWave::archiveWaveItem(uuid)
+                return ["remove", object["uuid"]]
             end
+            return [nil]
         end
+        [nil]
     end
 end
 

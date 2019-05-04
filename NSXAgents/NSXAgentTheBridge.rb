@@ -40,8 +40,10 @@ class NSXAgentTheBridge
             .flatten
     end
 
+    # NSXAgentTheBridge::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
-        system(object["commandToShellInvocation"][command]) # With great powers come great responsibilities
+        signal = `#{object["commandToShellInvocation"][command]}`.lines.last # With great powers come great responsibilities
+        JSON.parse(signal)
     end
 end
 

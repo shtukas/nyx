@@ -50,24 +50,24 @@ class NSXGeneralCommandHandler
         # no object needed
 
         if command == "" then
-            return
+            return [nil]
         end
 
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
-            return
+            return [nil]
         end
 
         if command == "+" then
             NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            return
+            return [nil]
         end
 
         if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
             position = command[1, command.size].strip.to_i
             NSXMiscUtils::setStandardListingPosition([position, 0].max)
-            return
+            return [nil]
         end
 
         if command.start_with?("new:") then
@@ -95,7 +95,7 @@ class NSXGeneralCommandHandler
                 return if datetime.nil?
                 NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
             end
-            return
+            return [nil]
         end
 
         if command.start_with?("inbox:") then
@@ -107,7 +107,7 @@ class NSXGeneralCommandHandler
             puts JSON.pretty_generate(genericContentsItem)
             streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
             puts JSON.pretty_generate(streamItem)
-            return
+            return [nil]
         end
 
         if command.start_with?("search:") then
@@ -120,14 +120,14 @@ class NSXGeneralCommandHandler
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status
             }
+            return [nil]
         end
 
         if command == "/" then
             options = [
                 "new Stream Item", 
                 "new wave (repeat item)", 
-                "email-sync",
-                "speed"
+                "email-sync"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -145,29 +145,10 @@ class NSXGeneralCommandHandler
                     puts "-> Could not retrieve emails"
                 end
             end
-            if option == "speed" then
-                puts "Agents Speed Report"
-                NSXBob::agents()
-                    .map{|agentinterface| 
-                        startTime = Time.new.to_f
-                        agentinterface["get-objects"].call()
-                        endTime = Time.new.to_f
-                        timeSpanInSeconds = endTime - startTime
-                        [ agentinterface["agent-name"], timeSpanInSeconds ]
-                    }
-                    .sort{|p1, p2| p1[1] <=> p2[1] }
-                    .reverse
-                    .each{|pair|
-                        agentName = pair[0]
-                        timeSpanInSeconds = pair[1]
-                        puts "  - #{agentName}: #{timeSpanInSeconds.round(2)}"
-                    }
-                LucilleCore::pressEnterToContinue()
-            end
-            return
+            return [nil]
         end
 
-        return if object.nil?
+        return [nil] if object.nil?
 
         # object needed
 
@@ -183,18 +164,18 @@ class NSXGeneralCommandHandler
                 puts JSON.pretty_generate(claim)
             end
             LucilleCore::pressEnterToContinue()
-            return
+            return [nil]
         end
 
         if command == 'planning' then
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getPlanningText(object["uuid"]))
             NSXMiscUtils::setPlanningText(object["uuid"], text)
-            return
+            return [nil]
         end
 
         if command == ',,' then
             NSXMiscUtils::resetMetricWeightRatio(object["uuid"])
-            return
+            return [nil]
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
@@ -207,14 +188,16 @@ class NSXGeneralCommandHandler
                     NSXEmailTrackingClaims::commitClaimToDisk(claim)
                 end
             end
-            return
+            return ["remove", object["uuid"]]
         end
 
         command.split(";").map{|t| t.strip }
             .each{|command|
                 agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
                 next if agentdata.nil?
-                agentdata["object-command-processor"].call(object, command)
+                signal = agentdata["object-command-processor"].call(object, command)
+                NSXCatalystObjectsOperator::processProcessingSignal(signal)
             }
+        [nil]
     end
 end

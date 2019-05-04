@@ -80,6 +80,8 @@ class NSXAgentHouse
     def self.processObjectAndCommand(object, command)
         if command == "done" then
             NSXAgentHouse::markTaskAsDone(object[":task:"])
+            ["remove", object["uuid"]]
         end
+        [nil]
     end
 end
