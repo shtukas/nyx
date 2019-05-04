@@ -424,7 +424,15 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
     def self.streamItemToStreamCatalystDefaultCommand(item)
         if item['streamuuid'] == "03b79978bcf7a712953c5543a9df9047" then
-            NSXRunner::isRunning?(item["uuid"]) ? nil : "open ; done"
+            if NSXRunner::isRunning?(item["uuid"]) then
+                nil
+            else
+                if item["announce"].start_with?('[Catalyst Inbox] http') then
+                    "open ; done"
+                else
+                    "open"
+                end
+            end
         else
             NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
         end
