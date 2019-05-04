@@ -435,7 +435,7 @@ class NSXMiscUtils
     def self.makeEndOfQueueStreamItemOrdinal()
         items = NSXStreamsUtils::getItemsFromDisk()
         return 1 if items.size==0
-        items.map{|item| item["ordinal"] }.max + 0.1
+        items.map{|item| item["ordinal"] }.max.to_i + 1
     end
 
     # NSXMiscUtils::metricWeightRatioOrNull(objectuuid)

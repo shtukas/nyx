@@ -348,19 +348,26 @@ class NSXStreamsUtils
     # NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
     def self.interactivelySpecifyStreamItemOrdinal(streamuuid)
         # We get the first 20 items, display them, ask for either a number or null for the next ordinal at the end of the queue
+        items = NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamuuid)
+        return 1 if items.size==0
         puts "-> start"
-        NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamuuid)
+        items
             .first(10)
             .each{|item|
                 puts "#{item["ordinal"]} #{NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
             }
         puts "-> end"
-        NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamuuid)
+        items
             .last(5)
             .each{|item|
                 puts "#{item["ordinal"]} #{NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
             }
-        LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        answer = LucilleCore::askQuestionAnswerAsString("ordinal: ")
+        if answer.size==0 then
+            items.map{|item| item["ordinal"] }.max.to_i + 1
+        else
+            answe.to_f
+        end
     end
 
     # -----------------------------------------------------------------
