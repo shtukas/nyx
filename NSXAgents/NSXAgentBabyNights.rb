@@ -89,6 +89,10 @@ class NSXAgentBabyNights
 
     # NSXAgentBabyNights::isPendingEvent(event)
     def self.isPendingEvent(event)
+        return false if event[1] == "saturday" and event[2] == BABY_NIGHTS_OPERATION_DROP
+        return false if event[1] == "saturday" and event[2] == BABY_NIGHTS_OPERATION_PICKUP
+        return false if event[1] == "sunday" and event[2] == BABY_NIGHTS_OPERATION_DROP
+        return false if event[1] == "sunday" and event[2] == BABY_NIGHTS_OPERATION_PICKUP
         return false if NSXAgentBabyNights::trueIfEventAsBeenProcessed(event)
         if  event[0] == NSXMiscUtils::currentDay() then
             if event[2] == BABY_NIGHTS_OPERATION_DROP then
