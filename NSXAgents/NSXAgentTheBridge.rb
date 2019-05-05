@@ -42,8 +42,8 @@ class NSXAgentTheBridge
 
     # NSXAgentTheBridge::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
-        signal = `#{object["commandToShellInvocation"][command]}`.lines.last # With great powers come great responsibilities
-        JSON.parse(signal)
+        system("#{object["commandToShellInvocation"][command]}")
+        ["remove", object["uuid"]]
     end
 end
 
