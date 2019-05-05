@@ -92,10 +92,12 @@ Thread.new {
 Thread.new {
     loop {
         sleep 130
+        catalyst_in_memory_objects = {}
         NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
         .each{|object|
-            $CATALYST_OBJECTS_C1C8DF29[object["uuid"]] = object
+            catalyst_in_memory_objects[object["uuid"]] = object
         }
+        $CATALYST_OBJECTS_C1C8DF29 = catalyst_in_memory_objects
     }
 }
 
