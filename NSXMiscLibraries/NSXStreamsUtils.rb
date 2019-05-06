@@ -278,7 +278,7 @@ class NSXStreamsUtils
             },
             {
                 "streamuuid"         => "38d5658ed46c4daf0ec064e58fb2b97a",
-                "description"        => "Personal Admin",
+                "description"        => "Personal Entertainment",
                 "isPriorityStream"   => false,
                 "timeControlInHours" => 1
             },
