@@ -92,8 +92,9 @@ class NSXGeneralCommandHandler
             if catalystobjectuuid then
                 datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")
                 datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
-                return if datetime.nil?
-                NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
+                if datetime then
+                    NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
+                end
             end
             return [nil]
         end
