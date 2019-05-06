@@ -43,7 +43,10 @@ class NSXAgentTheBridge
     # NSXAgentTheBridge::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         system("#{object["commandToShellInvocation"][command]}")
-        ["remove", object["uuid"]]
+        NSXCatalystObjectsOperator::processProcessingSignal(["remove", object["uuid"]])
+        NSXAgentTheBridge::getObjects().each{|object|
+            NSXCatalystObjectsOperator::processProcessingSignal(["update", object])
+        }
     end
 end
 
