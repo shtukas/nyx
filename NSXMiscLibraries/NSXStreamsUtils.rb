@@ -369,7 +369,7 @@ class NSXStreamsUtils
         if answer.size==0 then
             items.map{|item| item["ordinal"] }.max.to_i + 1
         else
-            answe.to_f
+            answer.to_f
         end
     end
 
