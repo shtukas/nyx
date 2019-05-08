@@ -34,7 +34,7 @@ class NSXCatalystObjectsOperator
                 ratio = NSXMiscUtils::metricWeightRatioOrNull(object["uuid"])
                 object[":catalyst-weigth-ratio:"] = ratio
                 if ratio then
-                    object["metric"] = ratio*(object["metric"]-0.2)+0.2
+                    object["metric"] = ratio*object["metric"]
 
                 end
                 object
