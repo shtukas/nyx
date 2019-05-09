@@ -20,10 +20,11 @@ KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
 KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/AccumulatorWithDecay.rb"
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
 =begin
-    AccumulatorWithDecay::registerValue(repositorylocation or nil, collectionuuid, value: Float)
-    AccumulatorWithDecay::sum(repositorylocation or nil, collectionuuid, timeToMinusOneInSeconds)
+    Torr::event(repositorylocation, collectionuuid, mass)
+    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds)
+    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
 =end
 
 # ----------------------------------------------------------------------
@@ -37,24 +38,19 @@ class NSXStreamsTimeTracking
 
     # NSXStreamsTimeTracking::addTimeInSecondsToStream(streamuuid, seconds)
     def self.addTimeInSecondsToStream(streamuuid, seconds)
-        AccumulatorWithDecay::registerValue(nil, "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", seconds)
+        Torr::event("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", seconds)
     end
 
     # NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid)
     def self.getTimeInSecondsForStream(streamuuid)
-        AccumulatorWithDecay::sum(nil, "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400*2)
+        Torr::weight("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400)
     end
 
     # NSXStreamsTimeTracking::streamWideDisplayRatioForItemsTrueCompute(streamuuid)
     def self.streamWideDisplayRatioForItemsTrueCompute(streamuuid)
         return 1 if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid)
         commitmentInHours = NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)
-        doneTimeInHours = NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid).to_f/3600
-        if doneTimeInHours < commitmentInHours then
-            1
-        else
-            Math.exp(-(doneTimeInHours-commitmentInHours))
-        end
+        Torr::metric("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400, commitmentInHours*3600, 1, 0.5)
     end
 
     # NSXStreamsTimeTracking::streamWideDisplayRatioForItems(streamuuid)
