@@ -29,6 +29,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 # -------------------------------------------------------------------------------------
 
 BABY_NIGHTS_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/BabyNights/data"
+BABY_NIGHT_KVSTORE_FOLDER = "/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/kvstore"
 BABY_NIGHTS_OPERATION_DROP = "dropping luc"
 BABY_NIGHTS_OPERATION_PICKUP = "pick luc up"
 BABY_NIGHTS_OPERATION_NIGHT = "night"
@@ -55,12 +56,12 @@ class NSXAgentBabyNights
 
     # NSXAgentBabyNights::markEventAsProcessed(event)
     def self.markEventAsProcessed(event)
-        KeyValueStore::setFlagTrue("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/kvstore", "64a57a44-bc77-4c79-a70a-dc9b256083b3:#{NSXAgentBabyNights::evenTrace(event)}")
+        KeyValueStore::setFlagTrue(BABY_NIGHT_KVSTORE_FOLDER, "64a57a44-bc77-4c79-a70a-dc9b256083b3:#{NSXAgentBabyNights::evenTrace(event)}")
     end
 
     # NSXAgentBabyNights::trueIfEventAsBeenProcessed(event)
     def self.trueIfEventAsBeenProcessed(event)
-        KeyValueStore::flagIsTrue("/Galaxy/DataBank/Catalyst/Agents-Data/BabyNights/kvstore", "64a57a44-bc77-4c79-a70a-dc9b256083b3:#{NSXAgentBabyNights::evenTrace(event)}")
+        KeyValueStore::flagIsTrue(BABY_NIGHT_KVSTORE_FOLDER, "64a57a44-bc77-4c79-a70a-dc9b256083b3:#{NSXAgentBabyNights::evenTrace(event)}")
     end
 
     # NSXAgentBabyNights::next(event)
