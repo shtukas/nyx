@@ -84,20 +84,25 @@ NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
 
 Thread.new {
     loop {
+        # Replenish Stream in-memory collection
         sleep 60
         NSXStreamsUtils::updateNSXStreamInMemoryItems()
     }
 }
 
 Thread.new {
+    # Loop update of Catalyst in-memory objects
     loop {
         sleep 130
-        catalyst_in_memory_objects = {}
-        NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
-        .each{|object|
-            catalyst_in_memory_objects[object["uuid"]] = object
-        }
-        $CATALYST_OBJECTS_C1C8DF29 = catalyst_in_memory_objects
+        NSXCatalystObjectsOperator::updateInMemoryObjects()
+    }
+}
+
+Thread.new {
+    sleep 28
+    loop {
+        sleep 120
+        NSXCatalystObjectsOperator::notifyAllDoneMemoryObjects()
     }
 }
 

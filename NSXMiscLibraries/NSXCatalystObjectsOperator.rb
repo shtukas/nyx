@@ -17,6 +17,16 @@ class NSXCatalystObjectsOperator
         $CATALYST_OBJECTS_C1C8DF29.values.map{|object| object.clone }
     end
 
+    # NSXCatalystObjectsOperator::updateInMemoryObjects()
+    def self.updateInMemoryObjects()
+        catalyst_in_memory_objects = {}
+        NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
+            .each{|object|
+                catalyst_in_memory_objects[object["uuid"]] = object
+            }
+        $CATALYST_OBJECTS_C1C8DF29 = catalyst_in_memory_objects
+    end
+
     # NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
     def self.getCatalystListingObjectsFromAgents()
         NSXBob::agents()
@@ -42,6 +52,17 @@ class NSXCatalystObjectsOperator
             .select{|object| object['metric'] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
+    end
+
+    # NSXCatalystObjectsOperator::notifyAllDoneMemoryObjects()
+    def self.notifyAllDoneMemoryObjects()
+        NSXCatalystObjectsOperator::getCatalystListingObjectsFromMemory()
+        .each{|object|
+            if object["isDone"] then
+                sleep 2
+                NSXMiscUtils::onScreenNotification("Catalyst", "[done] #{object["announce"]}")
+            end
+        }
     end
 
     # NSXCatalystObjectsOperator::processProcessingSignal(signal)

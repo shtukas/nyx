@@ -5,8 +5,12 @@ CatalystObject
     "agentuid"           : nil or String
     "metric"             : Float
     "announce"           : String
-    "body"               : String # Optional, used when present and if the object is focus.
+    "body"               : String # Optional [1]
     "commands"           : Array[String]
-    "defaultExpression"  : Null or String # optional
-    "isRunning"          : Boolean
+    "defaultExpression"  : Null or String # Optional
+    "isRunning"          : Boolean # Optional
+    "isDone"             : Boolean # Optional [2]
 }
+
+[1] Used when present and if the object is focus.
+[2] When true, triggers the on screen notification. The most common use if this is to alert that a running object is done. In this case it is set to trus only while "isRunning" is also true.
