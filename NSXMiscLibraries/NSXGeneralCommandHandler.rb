@@ -131,7 +131,7 @@ class NSXGeneralCommandHandler
                 "email-sync"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            return if option.nil?
+            return [nil] if option.nil?
             if option == "new Stream Item" then
                 NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
             end
