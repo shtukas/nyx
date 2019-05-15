@@ -443,8 +443,8 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
     def self.streamItemToStreamCatalystMetric(item)
-        return 2 if NSXRunner::isRunning?(item["uuid"])
-        itemShift = Math.exp(-item["ordinal"].to_f).to_f/100
+        return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
+        itemShift = Math.exp(-item["ordinal"].to_f/100).to_f/100
         if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
             return 0.9 + itemShift
         end

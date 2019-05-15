@@ -5,6 +5,17 @@ $CATALYST_OBJECTS_C1C8DF29 = {}
 
 class NSXCatalystObjectsOperator
 
+    # NSXCatalystObjectsOperator::catalystObjectWaterLevel()
+    def self.catalystObjectWaterLevel()
+        object = {}
+        object["uuid"] = "0c1daadd-5759-4775-9b42-957bf9701506"
+        object["agentuid"] = nil
+        object["metric"] = 0.3
+        object["announce"] = "-- water level --"
+        object["commands"] = []
+        object
+    end
+
     # NSXCatalystObjectsOperator::getAllObjects()
     def self.getAllObjects()
         NSXBob::agents()
@@ -29,7 +40,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
     def self.getCatalystListingObjectsFromAgents()
-        NSXBob::agents()
+        objects = NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects"].call() }
             .flatten
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
@@ -39,6 +50,7 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsOperator::getCatalystListingObjectsFromMemory()
+        objects = objects + [ NSXCatalystObjectsOperator::catalystObjectWaterLevel() ]
         objects
             .map{|object|
                 ratio = NSXMiscUtils::metricWeightRatioOrNull(object["uuid"])

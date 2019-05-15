@@ -33,17 +33,6 @@ end
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "BabyNights",
-        "agentuid"    => "83837e64-554b-4dd0-a478-04386d8010ea",
-        "get-objects" => lambda { NSXAgentBabyNights::getObjects() },
-        "get-objects-all" => lambda { NSXAgentBabyNights::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentBabyNights::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentBabyNights::interface() }
-    }
-)
-
-NSXBob::registerAgent(
-    {
         "agent-name"  => "House",
         "agentuid"    => "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10",
         "get-objects" => lambda { NSXAgentHouse::getObjects() },
