@@ -16,16 +16,18 @@ class NSXCatalystObjectsOperator
         object
     end
 
-    # NSXCatalystObjectsOperator::getAllObjects()
-    def self.getAllObjects()
+    # NSXCatalystObjectsOperator::getListingObjectsFromAgents()
+    def self.getListingObjectsFromAgents()
         NSXBob::agents()
-            .map{|agentinterface| agentinterface["get-objects-all"].call() }
+            .map{|agentinterface| agentinterface["get-objects"].call() }
             .flatten
     end
 
-    # NSXCatalystObjectsOperator::getCatalystListingObjectsFromMemory()
-    def self.getCatalystListingObjectsFromMemory()
-        $CATALYST_OBJECTS_C1C8DF29.values.map{|object| object.clone }
+    # NSXCatalystObjectsOperator::getAllObjectsFromAgents()
+    def self.getAllObjectsFromAgents()
+        NSXBob::agents()
+            .map{|agentinterface| agentinterface["get-objects-all"].call() }
+            .flatten
     end
 
     # NSXCatalystObjectsOperator::updateInMemoryObjects()
@@ -40,16 +42,15 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
     def self.getCatalystListingObjectsFromAgents()
-        objects = NSXBob::agents()
-            .map{|agentinterface| agentinterface["get-objects"].call() }
-            .flatten
+        NSXCatalystObjectsOperator::getListingObjectsFromAgents()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+            .map{|object| NSXOrdinals::ordinalTransform(object) }
             .select{|object| object['metric'] >= 0.2 }
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsFromMemory()
+        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
         objects = objects + [ NSXCatalystObjectsOperator::catalystObjectWaterLevel() ]
         objects
             .map{|object|
@@ -66,9 +67,9 @@ class NSXCatalystObjectsOperator
             .reverse
     end
 
-    # NSXCatalystObjectsOperator::notifyAllDoneMemoryObjects()
-    def self.notifyAllDoneMemoryObjects()
-        NSXCatalystObjectsOperator::getCatalystListingObjectsFromMemory()
+    # NSXCatalystObjectsOperator::notifyAllDoneObjects()
+    def self.notifyAllDoneObjects()
+        NSXCatalystObjectsOperator::getAllObjectsFromAgents()
         .each{|object|
             if object["isDone"] then
                 sleep 2

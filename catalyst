@@ -75,19 +75,9 @@ if NSXMiscUtils::isLucille18() then
     }
 end
 
-NSXStreamsUtils::updateNSXStreamInMemoryItems()
-
 NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
 .each{|object|
     $CATALYST_OBJECTS_C1C8DF29[object["uuid"]] = object
-}
-
-Thread.new {
-    loop {
-        # Replenish Stream in-memory collection
-        sleep 60
-        NSXStreamsUtils::updateNSXStreamInMemoryItems()
-    }
 }
 
 Thread.new {
@@ -102,7 +92,7 @@ Thread.new {
     sleep 28
     loop {
         sleep 120
-        NSXCatalystObjectsOperator::notifyAllDoneMemoryObjects()
+        NSXCatalystObjectsOperator::notifyAllDoneObjects()
     }
 }
 

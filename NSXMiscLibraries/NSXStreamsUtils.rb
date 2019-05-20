@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 require 'fileutils'
@@ -21,8 +20,6 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
 # ----------------------------------------------------------------------
-
-$NSXStreamInMemoryItems = []
 
 # ----------------------------------------------------------------------
 
@@ -186,25 +183,9 @@ class NSXStreamsUtils
         item
     end
 
-    # NSXStreamsUtils::getCatalystObjectsForDisplayUseDiskData()
-    def self.getCatalystObjectsForDisplayUseDiskData()
-        NSXStreamsUtils::getItemsFromDisk()
-            .map{|item|
-                item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
-                item["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
-                item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
-                item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
-                item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-                item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
-                item
-            }
-    end
-
     # NSXStreamsUtils::getCatalystObjectsForDisplay()
     def self.getCatalystObjectsForDisplay()
-        $NSXStreamInMemoryItems
-            .map{|item| NSXStreamsUtils::getItemByUUIDOrNull(item["uuid"]) }
-            .compact
+        NSXStreamsUtils::getItemsFromDisk()
             .map{|item|
                 item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
                 item["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
@@ -231,14 +212,6 @@ class NSXStreamsUtils
     def self.getAllCatalystObjects()
         NSXStreamsUtils::getItemsFromDisk()
             .map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
-    end
-
-    # NSXStreamsUtils::updateNSXStreamInMemoryItems()
-    def self.updateNSXStreamInMemoryItems()
-        $NSXStreamInMemoryItems = NSXStreamsUtils::getCatalystObjectsForDisplayUseDiskData()
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
-            .first(20)
     end
 
     # -----------------------------------------------------------------

@@ -24,7 +24,7 @@ class NSXGeneralCommandHandler
             "\n",
             "Special Object Commands:",
             "\n",
-            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning"].map{|command| "        "+command }.join("\n")
+            ["..", ",,", "ordinal/release", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning"].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -96,6 +96,13 @@ class NSXGeneralCommandHandler
                     NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
                 end
             end
+            if catalystobjectuuid then
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for nothing): ")
+                if ordinal.size>0 then
+                    ordinal = ordinal.to_f
+                    NSXOrdinals::setOrdinal(catalystobjectuuid, ordinal)
+                end
+            end
             return [nil]
         end
 
@@ -108,13 +115,18 @@ class NSXGeneralCommandHandler
             puts JSON.pretty_generate(genericContentsItem)
             streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
             puts JSON.pretty_generate(streamItem)
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for nothing): ")
+            if ordinal.size>0 then
+                ordinal = ordinal.to_f
+                NSXOrdinals::setOrdinal(streamItem["uuid"], ordinal)
+            end
             return [nil]
         end
 
         if command.start_with?("search:") then
             pattern = command[7, command.size].strip
             loop {
-                objects = NSXCatalystObjectsOperator::getAllObjects()
+                objects = NSXCatalystObjectsOperator::getAllObjectsFromAgents()
                 searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
                 searchobjects2 = objects.select{|object| object["announce"].downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
@@ -166,6 +178,17 @@ class NSXGeneralCommandHandler
             end
             LucilleCore::pressEnterToContinue()
             return [nil]
+        end
+
+        if command == "ordinal" then
+            value = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            NSXOrdinals::setOrdinal(object["uuid"], value)
+            return [nil]
+        end
+
+        if command == "release" then
+            NSXOrdinals::unsetOrdinal(object["uuid"])
+            return ["remove", object["uuid"]]
         end
 
         if command == 'planning' then
