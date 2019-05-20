@@ -48,6 +48,9 @@ class NSXOrdinals
         object[":meta:is-ordinal-d5522ec9"] = true
         object["metric"] = NSXOrdinals::ordinalToMetric(ordinal)
         object["announce"] = "{ ordinal: #{ordinal} } #{object["announce"]}"
+        if object["body"] then
+            object["body"] = "{ ordinal: #{ordinal} } #{object["body"]}"
+        end
         object
     end
 
