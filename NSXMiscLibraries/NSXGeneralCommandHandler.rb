@@ -20,7 +20,7 @@ class NSXGeneralCommandHandler
         [
             "Special General Commands:",
             "\n",
-            ["help", ":<p>", "+", "/", "new: <line> | 'text'", "inbox: <line> | 'text'", "search: <pattern>"].map{|command| "        "+command }.join("\n"),
+            ["help", ":<p>", "+", "/", "new: <line> | 'text'", "search: <pattern>"].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
             "\n",
@@ -75,8 +75,19 @@ class NSXGeneralCommandHandler
             if text == "text" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream", "Wave"])
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream:Inbox", "Stream", "Wave"])
             catalystobjectuuid = nil
+            if type == "Stream:Inbox" then
+                text = LucilleCore::askQuestionAnswerAsString("description (use 'text' for editor): ")
+                if text == "text" then
+                    text = NSXMiscUtils::editTextUsingTextmate("")
+                end
+                genericContentsItem = NSXGenericContents::issueItemText(text)
+                puts JSON.pretty_generate(genericContentsItem)
+                streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
+                puts JSON.pretty_generate(streamItem)
+                catalystobjectuuid = streamItem["uuid"]
+            end
             if type == "Stream" then
                 streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
                 streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(streamDescription)
@@ -102,23 +113,6 @@ class NSXGeneralCommandHandler
                     ordinal = ordinal.to_f
                     NSXOrdinals::setOrdinal(catalystobjectuuid, ordinal)
                 end
-            end
-            return [nil]
-        end
-
-        if command.start_with?("inbox:") then
-            text = command[6, command.size].strip
-            if text == "text" then
-                text = NSXMiscUtils::editTextUsingTextmate("")
-            end
-            genericContentsItem = NSXGenericContents::issueItemText(text)
-            puts JSON.pretty_generate(genericContentsItem)
-            streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
-            puts JSON.pretty_generate(streamItem)
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for nothing): ")
-            if ordinal.size>0 then
-                ordinal = ordinal.to_f
-                NSXOrdinals::setOrdinal(streamItem["uuid"], ordinal)
             end
             return [nil]
         end
