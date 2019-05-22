@@ -75,19 +75,6 @@ if NSXMiscUtils::isLucille18() then
     }
 end
 
-NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
-.each{|object|
-    $CATALYST_OBJECTS_C1C8DF29[object["uuid"]] = object
-}
-
-Thread.new {
-    # Loop update of Catalyst in-memory objects
-    loop {
-        sleep 130
-        NSXCatalystObjectsOperator::updateInMemoryObjects()
-    }
-}
-
 Thread.new {
     sleep 28
     loop {

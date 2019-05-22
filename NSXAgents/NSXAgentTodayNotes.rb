@@ -85,7 +85,7 @@ class NSXAgentTodayNotes
     def self.processObjectAndCommand(object, command)
         if command == "done" then
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
-            return ["remove", object["uuid"]]
+            return
         end
         if command == ">stream" then
             text = object["section"].join()
@@ -95,8 +95,7 @@ class NSXAgentTodayNotes
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
             NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
-            return ["remove", object["uuid"]]
+            return
         end
-        [nil]
     end
 end

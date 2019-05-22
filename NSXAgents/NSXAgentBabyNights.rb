@@ -178,8 +178,7 @@ class NSXAgentBabyNights
             NSXAgentBabyNights::pendingEvents().each{|event|
                 NSXAgentBabyNights::processEvent(event)
             }
-            return ["remove", object["uuid"]]
+            return
         end
-        [nil]
     end
 end

@@ -112,8 +112,7 @@ class NSXCatalystUI
             return
         end
 
-        signal = NSXGeneralCommandHandler::processCommand(focusobject, command)
-        NSXCatalystObjectsOperator::processProcessingSignal(signal)
+        NSXGeneralCommandHandler::processCommand(focusobject, command)
     end
 
     # NSXCatalystUI::standardUILoop()

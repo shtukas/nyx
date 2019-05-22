@@ -1,8 +1,6 @@
 
 # encoding: UTF-8
 
-$CATALYST_OBJECTS_C1C8DF29 = {}
-
 class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectWaterLevel()
@@ -28,16 +26,6 @@ class NSXCatalystObjectsOperator
         NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects-all"].call() }
             .flatten
-    end
-
-    # NSXCatalystObjectsOperator::updateInMemoryObjects()
-    def self.updateInMemoryObjects()
-        catalyst_in_memory_objects = {}
-        NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
-            .each{|object|
-                catalyst_in_memory_objects[object["uuid"]] = object
-            }
-        $CATALYST_OBJECTS_C1C8DF29 = catalyst_in_memory_objects
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
@@ -76,19 +64,5 @@ class NSXCatalystObjectsOperator
                 NSXMiscUtils::onScreenNotification("Catalyst", "[done] #{object["announce"]}")
             end
         }
-    end
-
-    # NSXCatalystObjectsOperator::processProcessingSignal(signal)
-    def self.processProcessingSignal(signal)
-        puts "signal: #{JSON.generate(signal)}"
-        return if signal[0].nil?
-        if signal[0] == "remove" then
-            objectuuid = signal[1]
-            $CATALYST_OBJECTS_C1C8DF29.delete(objectuuid)
-        end
-        if signal[0] == "update" then
-            object = signal[1].clone
-            $CATALYST_OBJECTS_C1C8DF29[object["uuid"]] = object
-        end
     end
 end

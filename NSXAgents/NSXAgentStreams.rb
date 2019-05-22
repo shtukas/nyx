@@ -86,23 +86,23 @@ class NSXAgentStreams
                 item["generic-content-item"] = genericContentItem
                 NSXStreamsUtils::commitItemToDisk(item)
             end
-            return [nil]
+            return
         end
         if command == "start" then
             NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
             NSXStreamsUtils::commitItemToDisk(item)
-            return [nil]
+            return
         end
         if command == "stop" then
             item = NSXAgentStreams::stopStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
-            return ["remove", item["uuid"]]
+            return
         end
         if command == "done" then
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
-            return ["remove", item["uuid"]]
+            return
         end
         if command == "recast" then
             # If the item carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
@@ -126,7 +126,7 @@ class NSXAgentStreams
             item = NSXAgentStreams::stopStreamItem(item)
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
-            return ["remove", item["uuid"]]
+            return
         end
         if command == "push" then
             options = [
@@ -142,8 +142,7 @@ class NSXAgentStreams
                 item["ordinal"] = NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
                 NSXStreamsUtils::commitItemToDisk(item)
             end
-            return ["remove", item["uuid"]]
+            return
         end
-        [nil]
     end
 end

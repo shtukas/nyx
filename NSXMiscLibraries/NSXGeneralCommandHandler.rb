@@ -50,24 +50,24 @@ class NSXGeneralCommandHandler
         # no object needed
 
         if command == "" then
-            return [nil]
+            return
         end
 
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
-            return [nil]
+            return
         end
 
         if command == "+" then
             NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            return [nil]
+            return
         end
 
         if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
             position = command[1, command.size].strip.to_i
             NSXMiscUtils::setStandardListingPosition([position, 0].max)
-            return [nil]
+            return
         end
 
         if command.start_with?("new:") then
@@ -114,7 +114,7 @@ class NSXGeneralCommandHandler
                     NSXOrdinals::setOrdinal(catalystobjectuuid, ordinal)
                 end
             end
-            return [nil]
+            return
         end
 
         if command.start_with?("search:") then
@@ -127,7 +127,7 @@ class NSXGeneralCommandHandler
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status
             }
-            return [nil]
+            return
         end
 
         if command == "/" then
@@ -137,7 +137,7 @@ class NSXGeneralCommandHandler
                 "email-sync"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            return [nil] if option.nil?
+            return if option.nil?
             if option == "new Stream Item" then
                 NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
             end
@@ -152,16 +152,17 @@ class NSXGeneralCommandHandler
                     puts "-> Could not retrieve emails"
                 end
             end
-            return [nil]
+            return
         end
 
-        return [nil] if object.nil?
+        return if object.nil?
 
         # object needed
 
         if command == ".." and object["defaultExpression"] and object["defaultExpression"]!=".." then
             command = object["defaultExpression"]
-            return NSXGeneralCommandHandler::processCommand(object, command)
+            NSXGeneralCommandHandler::processCommand(object, command)
+            return
         end
 
         if command == 'expose' then
@@ -171,29 +172,29 @@ class NSXGeneralCommandHandler
                 puts JSON.pretty_generate(claim)
             end
             LucilleCore::pressEnterToContinue()
-            return [nil]
+            return
         end
 
         if command == "ordinal" then
             value = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             NSXOrdinals::setOrdinal(object["uuid"], value)
-            return [nil]
+            return
         end
 
         if command == "release" then
             NSXOrdinals::unsetOrdinal(object["uuid"])
-            return ["remove", object["uuid"]]
+            return
         end
 
         if command == 'planning' then
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getPlanningText(object["uuid"]))
             NSXMiscUtils::setPlanningText(object["uuid"], text)
-            return [nil]
+            return
         end
 
         if command == ',,' then
             NSXMiscUtils::resetMetricWeightRatio(object["uuid"])
-            return [nil]
+            return
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
@@ -206,16 +207,14 @@ class NSXGeneralCommandHandler
                     NSXEmailTrackingClaims::commitClaimToDisk(claim)
                 end
             end
-            return ["remove", object["uuid"]]
+            return
         end
 
         command.split(";").map{|t| t.strip }
             .each{|command|
                 agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
                 next if agentdata.nil?
-                signal = agentdata["object-command-processor"].call(object, command)
-                NSXCatalystObjectsOperator::processProcessingSignal(signal)
+                agentdata["object-command-processor"].call(object, command)
             }
-        [nil]
     end
 end
