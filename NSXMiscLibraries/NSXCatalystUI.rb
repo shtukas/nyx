@@ -90,10 +90,8 @@ class NSXCatalystUI
         # -----------------------------------------------------------------------------------
 
         print "--> "
-        endOfPrintTime = Time.new.to_f
         command = STDIN.gets().strip
-        commandTime = Time.new.to_f
-        if command=='' and (commandTime - endOfPrintTime) < 0.5 then
+        if command=='' then
             return
         end
 
