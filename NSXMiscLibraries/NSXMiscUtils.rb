@@ -438,8 +438,10 @@ class NSXMiscUtils
         items.map{|item| item["ordinal"] }.max.to_i + 1
     end
 
-    # NSXMiscUtils::metricWeightRatioOrNull(objectuuid)
-    def self.metricWeightRatioOrNull(objectuuid)
+    # NSXMiscUtils::metricWeightRatioOrNull(object)
+    def self.metricWeightRatioOrNull(object)
+        return nil if object["metric"] > 1
+        objectuuid = object["uuid"]
         unixtime = KeyValueStore::getOrNull(nil, "8678525c-de46-4208-9dc7-2a8acd0f8f1a:#{NSXMiscUtils::currentDay()}:#{objectuuid}")
         return nil if unixtime.nil?
         timespanInHours = (Time.new.to_f-unixtime.to_f)/3600

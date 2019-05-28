@@ -42,7 +42,7 @@ class NSXCatalystObjectsOperator
         objects = objects + [ NSXCatalystObjectsOperator::catalystObjectWaterLevel() ]
         objects
             .map{|object|
-                ratio = NSXMiscUtils::metricWeightRatioOrNull(object["uuid"])
+                ratio = NSXMiscUtils::metricWeightRatioOrNull(object)
                 object[":catalyst-weigth-ratio:"] = ratio
                 if ratio then
                     object["metric"] = ratio*object["metric"]
