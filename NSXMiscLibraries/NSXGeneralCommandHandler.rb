@@ -75,13 +75,18 @@ class NSXGeneralCommandHandler
             if text == "text" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream:Inbox", "Stream", "Wave"])
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream:Inbox:Ordinal", "Stream:Inbox", "Stream", "Wave"])
             catalystobjectuuid = nil
+            if type == "Stream:Inbox:Ordinal" then
+                genericContentsItem = NSXGenericContents::issueItemText(text)
+                puts JSON.pretty_generate(genericContentsItem)
+                streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
+                puts JSON.pretty_generate(streamItem)
+                catalystobjectuuid = streamItem["uuid"]
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                NSXOrdinals::setOrdinal(catalystobjectuuid, ordinal)
+            end
             if type == "Stream:Inbox" then
-                text = LucilleCore::askQuestionAnswerAsString("description (use 'text' for editor): ")
-                if text == "text" then
-                    text = NSXMiscUtils::editTextUsingTextmate("")
-                end
                 genericContentsItem = NSXGenericContents::issueItemText(text)
                 puts JSON.pretty_generate(genericContentsItem)
                 streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
@@ -99,20 +104,6 @@ class NSXGeneralCommandHandler
             end
             if type == "Wave" then
                 catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)
-            end
-            if catalystobjectuuid then
-                datecode = LucilleCore::askQuestionAnswerAsString("datecode (leave empty for nothing): ")
-                datetime = NSXMiscUtils::codeToDatetimeOrNull(datecode)
-                if datetime then
-                    NSXDoNotShowUntilDatetime::setDatetime(catalystobjectuuid, datetime)
-                end
-            end
-            if catalystobjectuuid then
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (leave empty for nothing): ")
-                if ordinal.size>0 then
-                    ordinal = ordinal.to_f
-                    NSXOrdinals::setOrdinal(catalystobjectuuid, ordinal)
-                end
             end
             return
         end

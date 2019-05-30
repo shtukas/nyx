@@ -36,7 +36,7 @@ class NSXOrdinals
 
     # NSXOrdinals::ordinalToMetric(ordinal)
     def self.ordinalToMetric(ordinal)
-        0.2*(Math.atan(ordinal).to_f/2) + 1.30
+        -0.2*(Math.atan(ordinal).to_f/2) + 1.50
     end
 
     # NSXOrdinals::ordinalTransform(object)
