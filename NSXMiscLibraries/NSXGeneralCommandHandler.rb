@@ -72,6 +72,9 @@ class NSXGeneralCommandHandler
 
         if command.start_with?("new:") then
             text = command[4, command.size].strip
+            if text == "" then
+                text = LucilleCore::askQuestionAnswerAsString("description (use 'text' for editor): ")
+            end
             if text == "text" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
