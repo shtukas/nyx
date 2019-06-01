@@ -19,6 +19,9 @@ class NSXAgentStreams
 
     # NSXAgentStreams::getObjects()
     def self.getObjects()
+        if $NSXStreamSmallCarrier then
+            return $NSXStreamSmallCarrier.getWatchedCatalystObjects()
+        end
         NSXStreamsUtils::getCatalystObjectsForDisplay()
     end
 

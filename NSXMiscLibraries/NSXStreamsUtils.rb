@@ -21,7 +21,58 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 
 # ----------------------------------------------------------------------
 
-# ----------------------------------------------------------------------
+class NSXStreamSmallCarrier
+    # @watchedUUIDs = [] # 10 elements
+    def initialize()
+        self.reloadWatchedUUIDs()
+    end
+    def selectWatchedObjects(catalystObjects)
+        wobjects = []
+        # ---------------------------------------------
+        # We get all those which carry ordinals
+        catalystObjects
+            .select{|object| NSXOrdinals::getOrdinalOrNull(object["uuid"]) }
+            .each{|object| wobjects << object }
+        # ---------------------------------------------
+        # We get all the Inbox ones
+        catalystObjects
+            .select{|object| object["streamuuid"] == "03b79978bcf7a712953c5543a9df9047" }
+            .each{|object| wobjects << object }
+        # ---------------------------------------------
+        # We get the first 10 ones
+        catalystObjects
+            .select{|object| object['metric'] >= 0.2 }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+            .first(10)
+            .each{|object|
+                wobjects << object
+            }
+        wobjects
+    end
+    def reloadWatchedUUIDs()
+        @watchedUUIDs = selectWatchedObjects(NSXStreamsUtils::getCatalystObjectsForDisplay()).map{|object| object["uuid"] }.uniq
+    end
+    def getWatchedItems()
+        @watchedUUIDs.clone
+    end
+    def getWatchedCatalystObjects()
+        @watchedUUIDs
+        .map{|itemuuid|
+            item = NSXStreamsUtils::getItemByUUIDOrNull(itemuuid)
+            if item then
+                NSXStreamsUtils::itemToCatalystObject(item)
+            else
+                nil
+            end
+        }
+        .compact
+    end
+end
+
+# $NSXStreamSmallCarrier.getWatchedItems()
+# $NSXStreamSmallCarrier.getWatchedCatalystObjects()
+# $NSXStreamSmallCarrier.reloadWatchedUUIDs()
 
 class NSXStreamsUtils
 

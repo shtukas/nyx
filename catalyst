@@ -47,8 +47,6 @@ CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__)
 CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
 STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
-$GLOBAL_PLACEMENT = nil
-
 # -------------------------------------------------------------------------
 # nslog
 
@@ -75,8 +73,16 @@ if NSXMiscUtils::isLucille18() then
     }
 end
 
+$NSXStreamSmallCarrier = NSXStreamSmallCarrier.new()
+
 Thread.new {
-    sleep 28
+    loop {
+        sleep 128
+        $NSXStreamSmallCarrier.reloadWatchedUUIDs()
+    }
+}
+
+Thread.new {
     loop {
         sleep 120
         NSXCatalystObjectsOperator::notifyAllDoneObjects()
