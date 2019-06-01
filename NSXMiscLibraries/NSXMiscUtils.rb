@@ -453,4 +453,19 @@ class NSXMiscUtils
     def self.resetMetricWeightRatio(objectuuid)
         KeyValueStore::set(nil, "8678525c-de46-4208-9dc7-2a8acd0f8f1a:#{NSXMiscUtils::currentDay()}:#{objectuuid}", Time.new.to_i)
     end
+
+    # NSXMiscUtils::agentsSpeedReport()
+    def self.agentsSpeedReport()
+        NSXBob::agents()
+            .map{|agentinterface|
+                t1 = Time.new.to_f
+                agentinterface["get-objects"].call()
+                t2 = Time.new.to_f
+                object = {}
+                object["agent-name"] = agentinterface["agent-name"]
+                object["retreive-time"] = t2-t1
+                object
+            }
+            .sort{|o1,o2| o1["retreive-time"]<=>o2["retreive-time"] }
+    end
 end
