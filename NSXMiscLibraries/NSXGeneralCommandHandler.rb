@@ -148,8 +148,9 @@ class NSXGeneralCommandHandler
                 end
             end
             if option == "agent-speed" then
+                puts "Agent speed report"
                 NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
-                    puts object["agent-name"] + ": " + object["retreive-time"]
+                    puts "    - #{object["agent-name"]}: #{"%.3f" % object["retreive-time"]}"
                 }
                 LucilleCore::pressEnterToContinue()
             end
