@@ -128,7 +128,8 @@ class NSXGeneralCommandHandler
             options = [
                 "new Stream Item", 
                 "new wave (repeat item)", 
-                "email-sync"
+                "email-sync",
+                "agent-speed"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -145,6 +146,12 @@ class NSXGeneralCommandHandler
                 rescue SocketError
                     puts "-> Could not retrieve emails"
                 end
+            end
+            if option == "agent-speed" then
+                NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
+                    puts object["agent-name"] + ": " + object["retreive-time"]
+                }
+                LucilleCore::pressEnterToContinue()
             end
             return
         end
