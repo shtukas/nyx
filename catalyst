@@ -49,7 +49,27 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 # nslog
+=begin
 
+puts DRbObject.new(nil, "druby://:12345").catalystObjects()
+exit
+
+NSXAgentTheBridgeCLIs::getAgentsFilepaths()
+    .map{|filepath| 
+        begin
+            puts filepath
+            t1 = Time.new.to_f
+            JSON.parse(`#{filepath}`) 
+            puts Time.new.to_f - t1
+        rescue
+            puts filepath
+            exit
+        end
+    }
+
+exit
+
+=end
 # -------------------------------------------------------------------------
 
 if NSXMiscUtils::isLucille18() then

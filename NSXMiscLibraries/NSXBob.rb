@@ -38,7 +38,6 @@ NSXBob::registerAgent(
         "get-objects" => lambda { NSXAgentBabyNights::getObjects() },
         "get-objects-all" => lambda { NSXAgentBabyNights::getAllObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentBabyNights::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentBabyNights::interface() }
     }
 )
 
@@ -49,7 +48,6 @@ NSXBob::registerAgent(
         "get-objects" => lambda { NSXAgentHouse::getObjects() },
         "get-objects-all" => lambda { NSXAgentHouse::getAllObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentHouse::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentHouse::interface() }
     }
 )
 
@@ -60,18 +58,6 @@ NSXBob::registerAgent(
         "get-objects" => lambda { NSXAgentStreams::getObjects() },
         "get-objects-all" => lambda { NSXAgentStreams::getAllObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentStreams::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentStreams::interface() }
-    }
-)
-
-NSXBob::registerAgent(
-    {
-        "agent-name"  => "TheBridge",
-        "agentuid"    => "d2422ba0-88e9-4abb-9ab9-6d609015268f",
-        "get-objects" => lambda { NSXAgentTheBridge::getObjects() },
-        "get-objects-all" => lambda { NSXAgentTheBridge::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentTheBridge::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentTheBridge::interface() }
     }
 )
 
@@ -82,7 +68,6 @@ NSXBob::registerAgent(
         "get-objects" => lambda { NSXAgentTodayNotes::getObjects() },
         "get-objects-all" => lambda { NSXAgentTodayNotes::getAllObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentTodayNotes::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentTodayNotes::interface() }
     }
 )
 
@@ -93,7 +78,6 @@ NSXBob::registerAgent(
         "get-objects" => lambda { NSXAgentVienna::getObjects() },
         "get-objects-all" => lambda { NSXAgentVienna::getAllObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentVienna::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentVienna::interface() }
     }
 )
 
@@ -104,9 +88,28 @@ NSXBob::registerAgent(
         "get-objects" => lambda { NSXAgentWave::getObjects() },
         "get-objects-all" => lambda { NSXAgentWave::getAllObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentWave::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentWave::interface() }
     }
 )
 
+NSXBob::registerAgent(
+    {
+        "agent-name"  => "NSXAgentTheBridgeCLIs",
+        "agentuid"    => "d2422ba0-88e9-4abb-9ab9-6d609015268f",
+        "get-objects" => lambda { NSXAgentTheBridgeCLIs::getObjects() },
+        "get-objects-all" => lambda { NSXAgentTheBridgeCLIs::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentTheBridgeCLIs::processObjectAndCommand(object, command) },
+    }
+)
+
+NSXBob::registerAgent(
+    {
+        "agent-name"  => "NSXAgentTheBridgeDistributedRuby",
+        "agentuid"    => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
+        "get-objects" => lambda { NSXAgentTheBridgeDistributedRuby::getObjects() },
+        "get-objects-all" => lambda { NSXAgentTheBridgeDistributedRuby::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentTheBridgeDistributedRuby::processObjectAndCommand(object, command) },
+        "interface"   => lambda { NSXAgentTheBridgeDistributedRuby::interface() }
+    }
+)
 
 

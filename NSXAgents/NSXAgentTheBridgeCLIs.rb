@@ -7,24 +7,24 @@ require 'json'
 
 $ninja_packet = nil
 
-class NSXAgentTheBridge
+class NSXAgentTheBridgeCLIs
 
-    # NSXAgentTheBridge::agentuuid()
+    # NSXAgentTheBridgeCLIs::agentuuid()
     def self.agentuuid()
         "d2422ba0-88e9-4abb-9ab9-6d609015268f"
     end
 
-    # NSXAgentTheBridge::getAgentsFilepaths()
+    # NSXAgentTheBridgeCLIs::getAgentsFilepaths()
     def self.getAgentsFilepaths()
-        IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/filepaths.txt")
+        IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/TheBridgeCLIsFilepaths.txt")
             .lines
             .map{|line| line.strip }
             .select{|line| line.size>0 }
     end
 
-    # NSXAgentTheBridge::getObjects()
+    # NSXAgentTheBridgeCLIs::getObjects()
     def self.getObjects()
-        NSXAgentTheBridge::getAgentsFilepaths()
+        NSXAgentTheBridgeCLIs::getAgentsFilepaths()
             .map{|filepath| 
                 begin
                     JSON.parse(`#{filepath}`) 
@@ -36,14 +36,14 @@ class NSXAgentTheBridge
             .flatten
     end
 
-    # NSXAgentTheBridge::getAllObjects()
+    # NSXAgentTheBridgeCLIs::getAllObjects()
     def self.getAllObjects()
-        NSXAgentTheBridge::getAgentsFilepaths()
+        NSXAgentTheBridgeCLIs::getAgentsFilepaths()
             .map{|filepath| JSON.parse(`#{filepath}`) }
             .flatten
     end
 
-    # NSXAgentTheBridge::processObjectAndCommand(object, command)
+    # NSXAgentTheBridgeCLIs::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         system("#{object["commandToShellInvocation"][command]}")
     end
