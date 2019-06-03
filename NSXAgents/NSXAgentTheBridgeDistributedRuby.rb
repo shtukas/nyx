@@ -19,19 +19,10 @@ class NSXAgentTheBridgeDistributedRuby
 
     # NSXAgentTheBridgeDistributedRuby::getObjects()
     def self.getObjects()
+        return [] if !NSXMiscUtils::isLucille18()
         NSXAgentTheBridgeDistributedRuby::servicePortNumbers()
             .map{|postNumber|
-                begin
-                    DRbObject.new(nil, "druby://:#{postNumber}").catalystObjects()
-                rescue
-                    object = {}
-                    object["uuid"] = "0c1daadd-5759-4775-9b42-957bf9701506:#{postNumber}"
-                    object["agentuid"] = nil
-                    object["metric"] = 1
-                    object["announce"] = "Error while calling NSXAgentTheBridgeDistributedRuby service #{servicePort}"
-                    object["commands"] = []
-                    [object]
-                end
+                DRbObject.new(nil, "druby://:#{postNumber}").catalystObjects()
             }
             .flatten
     end

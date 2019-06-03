@@ -184,6 +184,7 @@ class NSXMiscUtils
         ENV["COMPUTERLUCILLENAME"] == "Lucille18"
     end
 
+    # NSXMiscUtils::isLucille19()
     def self.isLucille19()
         ENV["COMPUTERLUCILLENAME"] == "Lucille19"
     end
