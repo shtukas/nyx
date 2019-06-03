@@ -22,7 +22,7 @@ class NSXAgentTheBridgeDistributedRuby
         NSXAgentTheBridgeDistributedRuby::servicePortNumbers()
             .map{|postNumber|
                 begin
-                    DRbObject.new(nil, "druby://:12345").catalystObjects()
+                    DRbObject.new(nil, "druby://:#{postNumber}").catalystObjects()
                 rescue
                     object = {}
                     object["uuid"] = "0c1daadd-5759-4775-9b42-957bf9701506:#{postNumber}"
