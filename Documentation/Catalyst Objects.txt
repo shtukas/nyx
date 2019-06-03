@@ -16,4 +16,16 @@ CatalystObject
 [1] Used when present and if the object is focus.
 [2] When true, triggers the on screen notification. The most common use if this is to alert that a running object is done. In this case it is set to trus only while "isRunning" is also true.
 
+CatalystObjectTheBridgeCLI
+{
+    (...)
+    "commandToShellInvocation" : CommandToShellInvocation
+}
+
 CommandToShellInvocation = Map[String#Command, String#Shell]
+
+CatalystObjectTheBridgeDistributedRuby
+{
+    (...)
+    "service-port" : Integer
+}

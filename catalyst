@@ -49,6 +49,7 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 # nslog
+
 =begin
 
 puts DRbObject.new(nil, "druby://:12345").catalystObjects()
