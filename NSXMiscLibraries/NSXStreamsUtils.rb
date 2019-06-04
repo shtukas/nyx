@@ -53,8 +53,8 @@ class NSXStreamSmallCarrier
     def reloadWatchedUUIDs()
         @watchedUUIDs = selectWatchedObjects(NSXStreamsUtils::getCatalystObjectsForDisplay()).map{|object| object["uuid"] }.uniq
     end
-    def getWatchedItems()
-        @watchedUUIDs.clone
+    def insertWatchedUUID(objectuuid)
+        @watchedUUIDs << objectuuid
     end
     def getWatchedCatalystObjects()
         @watchedUUIDs
@@ -70,9 +70,13 @@ class NSXStreamSmallCarrier
     end
 end
 
-# $NSXStreamSmallCarrier.getWatchedItems()
 # $NSXStreamSmallCarrier.getWatchedCatalystObjects()
 # $NSXStreamSmallCarrier.reloadWatchedUUIDs()
+# $NSXStreamSmallCarrier.insertWatchedUUID(objectuuid)
+
+$NSXStreamSmallCarrier = nil
+    # The object is being instanciated in catalyst
+    # In particular it is not always present, in doubt, test for existence.
 
 class NSXStreamsUtils
 
