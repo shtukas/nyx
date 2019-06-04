@@ -186,8 +186,16 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "ordinal" then
-            value = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        if command.start_with?("ordinal") then
+            value = nil
+            if command == "ordinal" then
+                value = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            else
+                if command.start_with?("ordinal:") then
+                    value = command[8,99].to_f
+                end 
+            end
+            return if value.nil?
             NSXOrdinals::setOrdinal(object["uuid"], value)
             return
         end
