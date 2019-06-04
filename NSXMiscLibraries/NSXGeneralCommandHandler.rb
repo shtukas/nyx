@@ -197,6 +197,7 @@ class NSXGeneralCommandHandler
             end
             return if value.nil?
             NSXOrdinals::setOrdinal(object["uuid"], value)
+            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
             return
         end
 
