@@ -113,7 +113,7 @@ Thread.new {
 if NSXMiscUtils::isLucille18() then
     Thread.new {
         loop {
-            sleep 1000
+            sleep 7200
             NSXMiscUtils::emailSync(false)
         }
     }

@@ -201,7 +201,6 @@ class NSXMiscUtils
 
     # NSXMiscUtils::emailSync(verbose)
     def self.emailSync(verbose)
-        GeneralEmailClient::downloadWithSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/guardian-relay.json")), verbose)
         GeneralEmailClient::downloadWithoutSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/operator.json")), verbose)
     end
 
