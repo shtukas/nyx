@@ -23,10 +23,11 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 
 class NSXStreamSmallCarrier
     # @watchedUUIDs = [] # 10 elements
+    # @precomputedCatalystObjects = [] # 10 elements
     def initialize()
-        self.reloadWatchedUUIDs()
+        self.reloadWatchedObjectsFromDisk()
     end
-    def selectWatchedObjects(catalystObjects)
+    def extractWatchedObjects(catalystObjects)
         wobjects = []
         # ---------------------------------------------
         # We get all those which carry ordinals
@@ -37,11 +38,16 @@ class NSXStreamSmallCarrier
         # We get all the Inbox ones
         catalystObjects
             .select{|object| object["streamuuid"] == "03b79978bcf7a712953c5543a9df9047" }
-            .each{|object| wobjects << object }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+            .first(10)
+            .each{|object|
+                wobjects << object
+            }
         # ---------------------------------------------
         # We get the first 10 ones
         catalystObjects
-            .select{|object| object['metric'] >= 0.2 }
+            .reject{|object| object["streamuuid"] == "03b79978bcf7a712953c5543a9df9047" }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
             .first(10)
@@ -50,28 +56,23 @@ class NSXStreamSmallCarrier
             }
         wobjects
     end
-    def reloadWatchedUUIDs()
-        @watchedUUIDs = selectWatchedObjects(NSXStreamsUtils::getCatalystObjectsForDisplay()).map{|object| object["uuid"] }.uniq
+    def reloadWatchedObjectsFromDisk()
+        @precomputedCatalystObjects = extractWatchedObjects(NSXStreamsUtils::getCatalystObjectsForDisplay())
     end
-    def insertWatchedUUID(objectuuid)
-        @watchedUUIDs << objectuuid
+    def insertWatchedUUID(itemuuid)
+        item = NSXStreamsUtils::getItemByUUIDOrNull(itemuuid)
+        return if item.nil?
+        object = NSXStreamsUtils::itemToCatalystObject(item)
+        @precomputedCatalystObjects = @precomputedCatalystObjects.reject{|o| o["uuid"]==object["uuid"] }
+        @precomputedCatalystObjects << object
     end
     def getWatchedCatalystObjects()
-        @watchedUUIDs
-        .map{|itemuuid|
-            item = NSXStreamsUtils::getItemByUUIDOrNull(itemuuid)
-            if item then
-                NSXStreamsUtils::itemToCatalystObject(item)
-            else
-                nil
-            end
-        }
-        .compact
+        @precomputedCatalystObjects.map{|object| object.clone }
     end
 end
 
 # $NSXStreamSmallCarrier.getWatchedCatalystObjects()
-# $NSXStreamSmallCarrier.reloadWatchedUUIDs()
+# $NSXStreamSmallCarrier.reloadWatchedObjectsFromDisk()
 # $NSXStreamSmallCarrier.insertWatchedUUID(objectuuid)
 
 $NSXStreamSmallCarrier = nil
