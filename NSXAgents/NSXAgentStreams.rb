@@ -105,6 +105,7 @@ class NSXAgentStreams
         if command == "done" then
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
+            $NSXStreamSmallCarrier.removeObject(item["uuid"])
             return
         end
         if command == "recast" then
@@ -129,6 +130,7 @@ class NSXAgentStreams
             item = NSXAgentStreams::stopStreamItem(item)
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
+            $NSXStreamSmallCarrier.removeObject(item["uuid"])
             return
         end
         if command == "push" then
@@ -145,6 +147,7 @@ class NSXAgentStreams
                 item["ordinal"] = NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
                 NSXStreamsUtils::commitItemToDisk(item)
             end
+            $NSXStreamSmallCarrier.removeObject(item["uuid"])
             return
         end
     end

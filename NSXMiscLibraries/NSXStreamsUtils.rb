@@ -66,6 +66,9 @@ class NSXStreamSmallCarrier
         @precomputedCatalystObjects = @precomputedCatalystObjects.reject{|o| o["uuid"]==object["uuid"] }
         @precomputedCatalystObjects << object
     end
+    def removeObject(objectuuid)
+        @precomputedCatalystObjects = @precomputedCatalystObjects.reject{|o| o["uuid"]==objectuuid }
+    end
     def getWatchedCatalystObjects()
         @precomputedCatalystObjects.map{|object| object.clone }
     end
