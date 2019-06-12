@@ -153,6 +153,7 @@ class NSXAgentBabyNights
     def self.processEvent(event)
         puts event.join(', ')
         xname = LucilleCore::selectEntityFromListOfEntitiesOrNull("Name", ["pascal", "tracy", "exception"])
+        return if xname.nil?
         if xname == "exception" then
             NSXAgentBabyNights::markEventAsProcessed(event)
             return
