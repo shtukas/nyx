@@ -32,7 +32,6 @@ class NSXCatalystObjectsOperator
     def self.getCatalystListingObjectsFromAgents()
         NSXCatalystObjectsOperator::getListingObjectsFromAgents()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-            .map{|object| NSXOrdinals::ordinalTransform(object) }
             .select{|object| object['metric'] >= 0.2 }
     end
 

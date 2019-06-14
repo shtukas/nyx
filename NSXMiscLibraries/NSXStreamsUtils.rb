@@ -30,11 +30,6 @@ class NSXStreamSmallCarrier
     def extractWatchedObjects(catalystObjects)
         wobjects = []
         # ---------------------------------------------
-        # We get all those which carry ordinals
-        catalystObjects
-            .select{|object| NSXOrdinals::getOrdinalOrNull(object["uuid"]) }
-            .each{|object| wobjects << object }
-        # ---------------------------------------------
         # We get all the Inbox ones
         catalystObjects
             .select{|object| object["streamuuid"] == "03b79978bcf7a712953c5543a9df9047" }

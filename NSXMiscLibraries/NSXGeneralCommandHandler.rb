@@ -24,7 +24,7 @@ class NSXGeneralCommandHandler
             "\n",
             "Special Object Commands:",
             "\n",
-            ["..", ",,", "ordinal/release", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning"].map{|command| "        "+command }.join("\n")
+            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning"].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -78,20 +78,8 @@ class NSXGeneralCommandHandler
             if text == "text" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream:Inbox:Ordinal", "Stream:Inbox", "Stream", "Wave"])
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream:Inbox", "Stream", "Wave"])
             catalystobjectuuid = nil
-            if type == "Stream:Inbox:Ordinal" then
-                genericContentsItem = NSXGenericContents::issueItemText(text)
-                puts JSON.pretty_generate(genericContentsItem)
-                streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
-                puts JSON.pretty_generate(streamItem)
-                catalystobjectuuid = streamItem["uuid"]
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                NSXOrdinals::setOrdinal(catalystobjectuuid, ordinal)
-                if $NSXStreamSmallCarrier then
-                    $NSXStreamSmallCarrier.insertWatchedUUID(catalystobjectuuid)
-                end
-            end
             if type == "Stream:Inbox" then
                 genericContentsItem = NSXGenericContents::issueItemText(text)
                 puts JSON.pretty_generate(genericContentsItem)
@@ -186,26 +174,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?("ordinal") then
-            value = nil
-            if command == "ordinal" then
-                value = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            else
-                if command.start_with?("ordinal:") then
-                    value = command[8,99].to_f
-                end 
-            end
-            return if value.nil?
-            NSXOrdinals::setOrdinal(object["uuid"], value)
-            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            return
-        end
-
-        if command == "release" then
-            NSXOrdinals::unsetOrdinal(object["uuid"])
-            return
-        end
-
         if command == 'planning' then
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getPlanningText(object["uuid"]))
             NSXMiscUtils::setPlanningText(object["uuid"], text)
@@ -214,7 +182,6 @@ class NSXGeneralCommandHandler
 
         if command == ',,' then
             NSXMiscUtils::resetMetricWeightRatio(object["uuid"])
-            NSXOrdinals::unsetOrdinal(object["uuid"])
             return
         end
 
