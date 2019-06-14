@@ -10,9 +10,42 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -------------------------------------------------------------------------------------
 
 HOUSE_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/House/data"
+
+class NSXData
+    # To be decommissioned upon site.
+    def self.getValueAsStringOrNull(datarootfolderpath, id)
+        id = Digest::SHA1.hexdigest(id)
+        pathfragment = "#{id[0,2]}/#{id[2,2]}"
+        filepath = "#{datarootfolderpath}/#{pathfragment}/#{id}.data"
+        return nil if !File.exists?(filepath)
+        IO.read(filepath)
+    end
+    def self.getValueAsIntegerOrNull(datarootfolderpath, id)
+        value = NSXData::getValueAsStringOrNull(datarootfolderpath, id)
+        return nil if value.nil?
+        value.to_i
+    end
+    def self.getValueAsIntegerOrDefaultValue(datarootfolderpath, id, defaultValue)
+        value = NSXData::getValueAsIntegerOrNull(datarootfolderpath, id)
+        return defaultValue if value.nil?
+        value
+    end
+end
 
 class NSXAgentHouse
 
@@ -21,15 +54,23 @@ class NSXAgentHouse
         "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10"
     end
 
-    def self.shouldDoTask(task)
-        return false if Time.new.hour < 6
-        unixtime = NSXData::getValueAsIntegerOrDefaultValue(HOUSE_DATA_FOLDER, "7aec05d2-0156-404b-883a-4024348c1907:#{task}", 0)
-        periodInDays = task.split(";")[0].to_f 
-        (Time.new.to_i-unixtime) > periodInDays*86400
+    # NSXAgentHouse::getValueAsIntegerOrDefaultValue(task)
+    def self.getValueAsIntegerOrDefaultValue(task)
+        value = KeyValueStore::getOrNull(HOUSE_DATA_FOLDER, "9970d93a-9715-45b1-b751-aba99bb2e84f:#{task}")
+        return value.to_i if value
+        NSXData::getValueAsIntegerOrDefaultValue(HOUSE_DATA_FOLDER, "7aec05d2-0156-404b-883a-4024348c1907:#{task}", 0)
     end
 
+    # NSXAgentHouse::markTaskAsDone(task)
     def self.markTaskAsDone(task)
-        NSXData::setWritableValue(HOUSE_DATA_FOLDER, "7aec05d2-0156-404b-883a-4024348c1907:#{task}", Time.new.to_i)
+        KeyValueStore::set(HOUSE_DATA_FOLDER, "9970d93a-9715-45b1-b751-aba99bb2e84f:#{task}", Time.new.to_i)
+    end
+
+    def self.shouldDoTask(task)
+        return false if Time.new.hour < 6
+        unixtime = NSXAgentHouse::getValueAsIntegerOrDefaultValue(task)
+        periodInDays = task.split(";")[0].to_f 
+        (Time.new.to_i-unixtime) > periodInDays*86400
     end
 
     def self.taskToCatalystObject(task)
@@ -45,11 +86,6 @@ class NSXAgentHouse
         }
     end
 
-    # NSXAgentHouse::shouldDisplayObjects()
-    def self.shouldDisplayObjects()
-        NSXData::getValueAsStringOrDefaultValue(HOUSE_DATA_FOLDER, "efb5d391-71ff-447e-a670-728d8061e95a:#{NSXMiscUtils::currentDay()}", "true") == "true"
-    end
-
     # NSXAgentHouse::getTasks()
     def self.getTasks()
         tasksFilepath = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Agents-Data/House/tasks.txt"
@@ -63,9 +99,6 @@ class NSXAgentHouse
     # NSXAgentHouse::getObjects()
     def self.getObjects()
         return [] if !NSXMiscUtils::isLucille18()
-        if !NSXAgentHouse::shouldDisplayObjects() then
-            return []
-        end
         NSXAgentHouse::getTasks()
             .select{|task| NSXAgentHouse::shouldDoTask(task) }
             .map{|task| NSXAgentHouse::taskToCatalystObject(task) }
