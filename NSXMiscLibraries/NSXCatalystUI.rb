@@ -1,5 +1,10 @@
 # encoding: UTF-8
 
+$X573751EE = []
+
+# This variable contains the objects of the current display.
+# We use it to speed up display after some operations
+
 class NSXCatalystUI
 
     # NSXCatalystUI::stringOrFirstString(content_type)
@@ -18,6 +23,8 @@ class NSXCatalystUI
 
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
+
+        $X573751EE = displayObjects.map{|object| object.clone }
 
         system("clear")
 
@@ -96,6 +103,15 @@ class NSXCatalystUI
         end
 
         # -----------------------------------------------------------------------------------
+
+        if command == ",," then
+            NSXMiscUtils::resetMetricWeightRatio(focusobject["uuid"])
+            $X573751EE = $X573751EE.reject{|object| object["uuid"]==focusobject["uuid"] }
+            return if $X573751EE.size==0
+            displayObjects = $X573751EE.map{|object| object.clone }
+            NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
+            return
+        end
 
         if command == "open" then
             NSXGeneralCommandHandler::processCommand(focusobject, "open")
