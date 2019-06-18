@@ -120,11 +120,11 @@ class NSXCatalystUI
         end
 
         if command == "done" then
-            $X573751EE = $X573751EE.reject{|object| object["uuid"]==focusobject["uuid"] }
             Thread.new {
                 puts "Running [done] on #{focusobject["announce"]}"
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
             }
+            $X573751EE = $X573751EE.reject{|object| object["uuid"]==focusobject["uuid"] }
             displayObjects = $X573751EE.map{|object| object.clone }
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
             return
