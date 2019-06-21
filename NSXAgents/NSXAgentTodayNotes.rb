@@ -47,6 +47,16 @@ class NSXAgentTodayNotes
         NSXAgentTodayNotes::getAllObjects()
     end
 
+    # NSXAgentTodayNotes::processStringForAnnounce(str)
+    def self.processStringForAnnounce(str)
+        str = str.strip
+        if str.start_with?("[]") then
+            str = str[2,str.size]
+            return NSXAgentTodayNotes::processStringForAnnounce(str)
+        end
+        str
+    end
+
     # NSXAgentTodayNotes::getAllObjects()
     def self.getAllObjects()
         integers = LucilleCore::integerEnumerator()
@@ -71,8 +81,8 @@ class NSXAgentTodayNotes
                     "uuid"               => uuid,
                     "agentuid"           => NSXAgentTodayNotes::agentuuid(),
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.88 - integers.next().to_f/1000),
-                    "announce"           => "Today: #{sectionAsString.lines.first}#{runningMarker}",
-                    "body"               => "Today: #{sectionAsString}#{runningMarker}",
+                    "announce"           => "Today: #{NSXAgentTodayNotes::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}",
+                    "body"               => "Today: #{NSXAgentTodayNotes::processStringForAnnounce(sectionAsString)}#{runningMarker}",
                     "commands"           => ["done", ">stream"],
                     "defaultExpression"  => "done",
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),
