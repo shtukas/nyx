@@ -121,7 +121,6 @@ class NSXCatalystUI
 
         if command == "done" then
             Thread.new {
-                puts "Running [done] on #{focusobject["announce"]}"
                 NSXGeneralCommandHandler::processCommand(focusobject, "done")
             }
             $X573751EE = $X573751EE.reject{|object| object["uuid"]==focusobject["uuid"] }
