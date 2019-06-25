@@ -43,16 +43,6 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "House",
-        "agentuid"    => "f8a8b8e6-623f-4ce1-b6fe-3bc8b34f7a10",
-        "get-objects" => lambda { NSXAgentHouse::getObjects() },
-        "get-objects-all" => lambda { NSXAgentHouse::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentHouse::processObjectAndCommand(object, command) },
-    }
-)
-
-NSXBob::registerAgent(
-    {
         "agent-name"  => "Streams",
         "agentuid"    => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
         "get-objects" => lambda { NSXAgentStreams::getObjects() },
