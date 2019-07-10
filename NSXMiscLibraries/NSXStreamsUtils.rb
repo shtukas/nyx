@@ -441,12 +441,12 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
     def self.streamItemToStreamCatalystObjectCommands(item)
         if NSXRunner::isRunning?(item["uuid"]) then
-            ["open", "stop", "done", "recast"]
+            ["open", "stop", "done", "recast", "folder"]
         else
             if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
-                ["open", "done", "recast"]
+                ["open", "done", "recast", "folder"]
             else
-                ["open" ,"start", "done", "push", "recast"]
+                ["open" ,"start", "done", "push", "recast", "folder"]
             end
         end
     end

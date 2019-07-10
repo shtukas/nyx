@@ -91,6 +91,12 @@ class NSXAgentStreams
             end
             return
         end
+        if command == "folder" then
+            folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(item["generic-content-item"]["parent-foldername"])
+            return if folderpath.nil?
+            system("open '#{folderpath}'")
+            return
+        end
         if command == "start" then
             NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
