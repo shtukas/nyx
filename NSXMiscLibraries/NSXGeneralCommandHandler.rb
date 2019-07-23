@@ -20,11 +20,11 @@ class NSXGeneralCommandHandler
         [
             "Special General Commands:",
             "\n",
-            ["help", ":<p>", "+", "/", "new: <line> | 'text'", "search: <pattern>"].map{|command| "        "+command }.join("\n"),
+            ["help", ":<p>", "+", "/", "new: <line> | 'text'", "search: <pattern>",  ">>"].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
             "\n",
-            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning"].map{|command| "        "+command }.join("\n")
+            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning",  ">"].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -154,6 +154,16 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == '>>' then
+            domainname = NSXDisplayDomains::interactivelySelectOneExistingDomainsOrNull()
+            if domainname then
+                NSXDisplayDomains::setNewActiveDomain(domainname)
+            else
+                NSXDisplayDomains::setNewActiveDomainToNothing()
+            end
+            return
+        end
+
         return if object.nil?
 
         # object needed
@@ -182,6 +192,14 @@ class NSXGeneralCommandHandler
 
         if command == ',,' then
             NSXMiscUtils::resetMetricWeightRatio(object["uuid"])
+            return
+        end
+
+        if command == '>' then
+            domainname = NSXDisplayDomains::interactivelySelectDomainPossiblyNewOrNull()
+            return if domainname.nil?
+            claim = NSXDisplayDomains::registerClaim(object["uuid"], domainname)
+            puts JSON.pretty_generate(claim)
             return
         end
 

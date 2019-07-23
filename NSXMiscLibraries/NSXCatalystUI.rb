@@ -34,7 +34,7 @@ class NSXCatalystUI
             displayObjects = displayObjects.drop(1)
             return
         end
-        
+
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
         if displayObjects.size==0 then
@@ -45,22 +45,29 @@ class NSXCatalystUI
             return
         end
 
-        performanceReportExecutableFilepath = "/Galaxy/LucilleOS/Binaries/month-performance"
-        if !File.exists?(performanceReportExecutableFilepath) then
-            puts "[error:4206ef88] I can't see the performance report executable filepath"
-            exit
+        activeDisplayDomain = NSXDisplayDomains::activeDomainOrNull()
+        if activeDisplayDomain then
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            puts "#{activeDisplayDomain.green} (active domain)"
+            domainObjectUUIDs = NSXDisplayDomains::objectuuidsForDomain(activeDisplayDomain)
+            displayObjects = displayObjects.select{|object| domainObjectUUIDs.include?(object["uuid"]) }
         else
-            report = `#{performanceReportExecutableFilepath}`.strip
-            if report.size==0 then
-                puts "[error:b87d8617] I can't get the performance report"
-                exit
-            else
-                report = JSON.parse(report)
-                if report["rent-percentage"] < 110 then
-                    puts "Month performance: #{report["rent-percentage"]} %".yellow
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                end
-            end
+            # There isn't an active display domain. Here we keep the display objects that are not already against a claim
+            claimsObjectUUIDs = NSXDisplayDomains::objectuuids()
+            displayObjects = displayObjects.select{|object| !claimsObjectUUIDs.include?(object["uuid"]) }
+        end
+
+        displayDomains = NSXDisplayDomains::domains()
+        if displayDomains.size>0 then
+            verticalSpaceLeft = verticalSpaceLeft - displayDomains.size
+            displayDomains.each{|domain|
+                puts domain.yellow
+            }
+        end
+
+        if displayDomains.size>0 or activeDisplayDomain then
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 1
         end
 
         standardlp = NSXMiscUtils::getStandardListingPosition()
@@ -117,6 +124,14 @@ class NSXCatalystUI
             NSXGeneralCommandHandler::processCommand(focusobject, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
             return
+        end
+
+        # We are going to check for domain claims here. 
+        # Looks like the correct place to do it.
+        if focusobject and NSXDisplayDomains::objectuuidIsAgainstAClaim(focusobject["uuid"]) then
+            if LucilleCore::askQuestionAnswerAsBoolean("Domain claim detected. Remove ? ") then
+                NSXDisplayDomains::discardClaimAgainstObjectuui(focusobject["uuid"])
+            end
         end
 
         if command == "done" then
