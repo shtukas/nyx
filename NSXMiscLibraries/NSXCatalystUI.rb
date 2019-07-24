@@ -128,7 +128,7 @@ class NSXCatalystUI
 
         # We are going to check for domain claims here. 
         # Looks like the correct place to do it.
-        if focusobject and NSXDisplayDomains::objectuuidIsAgainstAClaim(focusobject["uuid"]) then
+        if command != ">>" and focusobject and NSXDisplayDomains::objectuuidIsAgainstAClaim(focusobject["uuid"]) then
             if LucilleCore::askQuestionAnswerAsBoolean("Domain claim detected. Remove ? ") then
                 NSXDisplayDomains::discardClaimAgainstObjectuui(focusobject["uuid"])
             end
