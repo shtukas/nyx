@@ -47,8 +47,6 @@ class NSXCatalystUI
 
         activeDisplayDomain = NSXDisplayDomains::activeDomainOrNull()
         if activeDisplayDomain then
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            puts "#{activeDisplayDomain.green} (active domain)"
             domainObjectUUIDs = NSXDisplayDomains::objectuuidsForDomain(activeDisplayDomain)
             displayObjects = displayObjects.select{|object| domainObjectUUIDs.include?(object["uuid"]) }
         else
@@ -61,7 +59,11 @@ class NSXCatalystUI
         if displayDomains.size>0 then
             verticalSpaceLeft = verticalSpaceLeft - displayDomains.size
             displayDomains.each{|domain|
-                puts domain.yellow
+                if activeDisplayDomain == domain then
+                    puts "#{activeDisplayDomain.green} (active domain)"
+                else
+                    puts domain.yellow
+                end
             }
         end
 
