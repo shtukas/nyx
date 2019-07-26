@@ -13,11 +13,44 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 # -------------------------------------------------------------------------------------
 
 DAY_NOTES_DATA_FILE_PATH = "/Users/pascal/Desktop/Today.txt"
 
+$SECTION_UUID_TO_CATALYST_UUIDS = nil
+
 class NSXAgentTodayNotes
+
+    # NSXAgentTodayNotes::sectionUUIDToCatalystUUID(sectionuuid)
+    def self.sectionUUIDToCatalystUUID(sectionuuid)
+        if $SECTION_UUID_TO_CATALYST_UUIDS.nil? then
+            $SECTION_UUID_TO_CATALYST_UUIDS = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/TodayNotes/uuids.json"))
+        end
+        if $SECTION_UUID_TO_CATALYST_UUIDS[sectionuuid] then
+            $SECTION_UUID_TO_CATALYST_UUIDS[sectionuuid]
+        else
+            catalystuuid = SecureRandom.hex(4)
+            $SECTION_UUID_TO_CATALYST_UUIDS[sectionuuid] = catalystuuid
+            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/TodayNotes/uuids.json", 'w'){|f| f.puts(JSON.pretty_generate($SECTION_UUID_TO_CATALYST_UUIDS)) }
+            catalystuuid
+        end
+    end
+
+    # NSXAgentTodayNotes::processSectionUUIDs(currentSectionuuids)
+    def self.processSectionUUIDs(currentSectionuuids)
+        $SECTION_UUID_TO_CATALYST_UUIDS.keys.each{|sectionuuid|
+            if !currentSectionuuids.include?(sectionuuid) then
+                # This section uuid in the dataset but not in the current sectionuuids
+                $SECTION_UUID_TO_CATALYST_UUIDS.delete(sectionuuid)
+                File.open("/Galaxy/DataBank/Catalyst/Agents-Data/TodayNotes/uuids.json", 'w'){|f| f.puts(JSON.pretty_generate($SECTION_UUID_TO_CATALYST_UUIDS)) }
+            end
+        }
+    end
 
     # NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(uuid)
     def self.reWriteTodayFileWithoutThisSectionUUID(uuid)
@@ -59,12 +92,15 @@ class NSXAgentTodayNotes
 
     # NSXAgentTodayNotes::getAllObjects()
     def self.getAllObjects()
+        sectionuuids = []
         integers = LucilleCore::integerEnumerator()
         sections = SectionsType2102::contents_to_sections(IO.read(DAY_NOTES_DATA_FILE_PATH).lines.to_a,[])
         sections = sections.take_while{|section| !section[0].include?("ee25043d-c12a-4e80-9d0a-fa70aff4dd00") }
-        sections
+        objects = sections
             .map{|section|
-                uuid = "#{SectionsType2102::section_to_uuid(section)}-#{NSXMiscUtils::currentDay()}"
+                sectionuuid = SectionsType2102::section_to_uuid(section)
+                sectionuuids << sectionuuid
+                uuid = NSXAgentTodayNotes::sectionUUIDToCatalystUUID(sectionuuid)
                 if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
                 end
                 runningMarker = ""
@@ -89,6 +125,8 @@ class NSXAgentTodayNotes
                     "section"            => section
                 }
             }
+        NSXAgentTodayNotes::processSectionUUIDs(sectionuuids)
+        objects
     end
 
     # NSXAgentTodayNotes::processObjectAndCommand(object, command)
