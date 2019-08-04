@@ -409,18 +409,18 @@ class NSXMiscUtils
         false
     end
 
-    # NSXMiscUtils::getPlanningText(objectuuid)
-    def self.getPlanningText(objectuuid)
+    # NSXMiscUtils::getXNote(objectuuid)
+    def self.getXNote(objectuuid)
         KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
     end
 
-    # NSXMiscUtils::hasPlanningText(objectuuid)
-    def self.hasPlanningText(objectuuid)
-        NSXMiscUtils::getPlanningText(objectuuid).size>0
+    # NSXMiscUtils::hasXNote(objectuuid)
+    def self.hasXNote(objectuuid)
+        NSXMiscUtils::getXNote(objectuuid).size>0
     end
 
-    # NSXMiscUtils::setPlanningText(objectuuid, text)
-    def self.setPlanningText(objectuuid, text)
+    # NSXMiscUtils::setXNote(objectuuid, text)
+    def self.setXNote(objectuuid, text)
         KeyValueStore::set("/Galaxy/DataBank/Catalyst/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
     end
 

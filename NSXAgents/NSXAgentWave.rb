@@ -457,6 +457,11 @@ class NSXAgentWave
         end
 
         if command=='destroy' then
+            if NSXMiscUtils::hasXNote(uuid) then
+                puts "You cannot destroy a wave with an active note"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 NSXAgentWave::archiveWaveItem(uuid)
                 return

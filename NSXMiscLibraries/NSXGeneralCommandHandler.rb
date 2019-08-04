@@ -24,7 +24,7 @@ class NSXGeneralCommandHandler
             "\n",
             "Special Object Commands:",
             "\n",
-            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "planning",  ">"].map{|command| "        "+command }.join("\n")
+            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "x-note",  ">"].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -184,9 +184,9 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'planning' then
-            text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getPlanningText(object["uuid"]))
-            NSXMiscUtils::setPlanningText(object["uuid"], text)
+        if command == 'x-note' then
+            text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
+            NSXMiscUtils::setXNote(object["uuid"], text)
             return
         end
 

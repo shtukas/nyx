@@ -24,8 +24,8 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectCatalystListingDisplayString(object, isFocus, displayOrdinal)
     def self.objectCatalystListingDisplayString(object, isFocus, displayOrdinal)
-        object["commands"] = object["commands"].reject{|command| command.include?('planning') }
-        object["commands"] = ( NSXMiscUtils::hasPlanningText(object["uuid"]) ? ["planning".green] : ["planning".yellow] ) + object["commands"]
+        object["commands"] = object["commands"].reject{|command| command.include?('x-note') }
+        object["commands"] = ( NSXMiscUtils::hasXNote(object["uuid"]) ? ["x-note".green] : ["x-note".yellow] ) + object["commands"]
         if isFocus then
             if object['body'] then
                 if object['body'].lines.size>1 then
