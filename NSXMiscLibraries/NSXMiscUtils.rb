@@ -411,7 +411,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::getPlanningText(objectuuid)
     def self.getPlanningText(objectuuid)
-        KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/planning-strings", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
+        KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
     end
 
     # NSXMiscUtils::hasPlanningText(objectuuid)
@@ -421,7 +421,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::setPlanningText(objectuuid, text)
     def self.setPlanningText(objectuuid, text)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/planning-strings", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
+        KeyValueStore::set("/Galaxy/DataBank/Catalyst/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
     end
 
     # NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
