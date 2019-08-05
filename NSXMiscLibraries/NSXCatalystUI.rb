@@ -33,6 +33,12 @@ class NSXCatalystUI
         end
     end
 
+    # NSXCatalystUI::shouldRemoveObjectFromItsDomain(command, object)
+    def self.shouldRemoveObjectFromItsDomain(command, object)
+        return true if ( command == ".." and object["defaultExpression"] == "open; done" )
+        false
+    end
+
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
@@ -147,8 +153,12 @@ class NSXCatalystUI
         # We are going to check for domain claims here. 
         # Looks like the correct place to do it.
         if command != ">>" and focusobject and NSXDisplayDomains::objectuuidIsAgainstAClaim(focusobject["uuid"]) then
-            if LucilleCore::askQuestionAnswerAsBoolean("Domain claim detected. Remove ? ") then
-                NSXDisplayDomains::discardClaimAgainstObjectuui(focusobject["uuid"])
+            if NSXCatalystUI::shouldRemoveObjectFromItsDomain(command, focusobject) then
+                NSXDisplayDomains::discardClaimAgainstObjectuuid(focusobject["uuid"])
+            else
+                if LucilleCore::askQuestionAnswerAsBoolean("Domain claim detected. Remove ? ") then
+                    NSXDisplayDomains::discardClaimAgainstObjectuuid(focusobject["uuid"])
+                end
             end
         end
 

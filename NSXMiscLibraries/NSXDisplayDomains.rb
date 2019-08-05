@@ -52,8 +52,8 @@ class NSXDisplayDomains
         NSXDisplayDomains::commitInMemoryDataToDisk()
     end
 
-    # NSXDisplayDomains::discardClaimAgainstObjectuui(objectuuid)
-    def self.discardClaimAgainstObjectuui(objectuuid)
+    # NSXDisplayDomains::discardClaimAgainstObjectuuid(objectuuid)
+    def self.discardClaimAgainstObjectuuid(objectuuid)
         $DisplayDomainInMemoryData["claims"].delete(objectuuid)
         NSXDisplayDomains::commitInMemoryDataToDisk()
     end
