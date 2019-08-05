@@ -1,6 +1,18 @@
 
 # encoding: UTF-8
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 DISPLAY_DOMAINS_DATA_FILEPATH = "/Galaxy/DataBank/Catalyst/DisplayDomains/display-domain-data.json"
 
 $DisplayDomainInMemoryData = JSON.parse(IO.read(DISPLAY_DOMAINS_DATA_FILEPATH))
@@ -31,6 +43,7 @@ class NSXDisplayDomains
     def self.setNewActiveDomain(domainname)
         $DisplayDomainInMemoryData["active-domain"] = domainname
         NSXDisplayDomains::commitInMemoryDataToDisk()
+        NSXDisplayDomains::setDomainActivationTime(domainname)
     end
 
     # NSXDisplayDomains::setNewActiveDomainToNothing()
@@ -77,6 +90,31 @@ class NSXDisplayDomains
     # NSXDisplayDomains::objectuuidIsAgainstAClaim(objectuuid)
     def self.objectuuidIsAgainstAClaim(objectuuid)
         NSXDisplayDomains::objectuuids().include?(objectuuid)
+    end
+
+    # -----------------------------------------------
+    # Special Circumstances
+
+    # NSXDisplayDomains::setDomainActivationTime(domainname)
+    def self.setDomainActivationTime(domainname)
+        KeyValueStore::set(nil, "1dfabe77-7cee-4944-aab8-a08979030753:#{domainname}", Time.new.to_i)
+    end
+
+    # NSXDisplayDomains::getDomainLastActivationTime(domainname)
+    def self.getDomainLastActivationTime(domainname)
+        KeyValueStore::getOrDefaultValue(nil, "1dfabe77-7cee-4944-aab8-a08979030753:#{domainname}", "0").to_i
+    end
+
+    # NSXDisplayDomains::domainIsDueForReview(domainname)
+    def self.domainIsDueForReview(domainname)
+        (Time.new.to_i - NSXDisplayDomains::getDomainLastActivationTime(domainname)) > 86400
+    end
+
+    # NSXDisplayDomains::getDisplayDomainDueForReviewOrNull()
+    def self.getDisplayDomainDueForReviewOrNull()
+        NSXDisplayDomains::domains()
+            .select{|domainname| NSXDisplayDomains::domainIsDueForReview(domainname) }
+            .first
     end
 
     # -----------------------------------------------

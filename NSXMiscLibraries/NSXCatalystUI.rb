@@ -21,6 +21,18 @@ class NSXCatalystUI
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
+    # NSXCatalystUI::getDisplayObjectsForActiveDisplayDomain(activeDisplayDomain, displayObjects)
+    def self.getDisplayObjectsForActiveDisplayDomain(activeDisplayDomain, displayObjects)
+        if activeDisplayDomain then
+            domainObjectUUIDs = NSXDisplayDomains::objectuuidsForDomain(activeDisplayDomain)
+            displayObjects.select{|object| domainObjectUUIDs.include?(object["uuid"]) }
+        else
+            # There isn't an active display domain. Here we keep the display objects that are not already against a claim
+            claimsObjectUUIDs = NSXDisplayDomains::objectuuids()
+            displayObjects.select{|object| !claimsObjectUUIDs.include?(object["uuid"]) }
+        end
+    end
+
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
@@ -46,14 +58,18 @@ class NSXCatalystUI
         end
 
         activeDisplayDomain = NSXDisplayDomains::activeDomainOrNull()
-        if activeDisplayDomain then
-            domainObjectUUIDs = NSXDisplayDomains::objectuuidsForDomain(activeDisplayDomain)
-            displayObjects = displayObjects.select{|object| domainObjectUUIDs.include?(object["uuid"]) }
-        else
-            # There isn't an active display domain. Here we keep the display objects that are not already against a claim
-            claimsObjectUUIDs = NSXDisplayDomains::objectuuids()
-            displayObjects = displayObjects.select{|object| !claimsObjectUUIDs.include?(object["uuid"]) }
+
+        if activeDisplayDomain.nil? then
+            displayDomainForReview = NSXDisplayDomains::getDisplayDomainDueForReviewOrNull()
+            if displayDomainForReview then
+                puts "You need to review #{displayDomainForReview}, so I am moving you there"
+                LucilleCore::pressEnterToContinue()
+                NSXDisplayDomains::setNewActiveDomain(displayDomainForReview)
+                activeDisplayDomain = displayDomainForReview
+            end
         end
+
+        displayObjects = NSXCatalystUI::getDisplayObjectsForActiveDisplayDomain(activeDisplayDomain, displayObjects)
 
         displayDomains = NSXDisplayDomains::domains()
         if displayDomains.size>0 then
