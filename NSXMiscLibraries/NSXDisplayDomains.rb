@@ -89,7 +89,14 @@ class NSXDisplayDomains
 
     # NSXDisplayDomains::objectuuidIsAgainstAClaim(objectuuid)
     def self.objectuuidIsAgainstAClaim(objectuuid)
-        NSXDisplayDomains::objectuuids().include?(objectuuid)
+        !$DisplayDomainInMemoryData["claims"][objectuuid].nil?
+    end
+
+    # NSXDisplayDomains::objectuuidToDomainnameOrNull(objectuuid)
+    def self.objectuuidToDomainnameOrNull(objectuuid)
+        claim = $DisplayDomainInMemoryData["claims"][objectuuid]
+        return nil if claim.nil?
+        claim["domainname"]
     end
 
     # -----------------------------------------------
@@ -115,6 +122,18 @@ class NSXDisplayDomains
         NSXDisplayDomains::domains()
             .select{|domainname| NSXDisplayDomains::domainIsDueForReview(domainname) }
             .first
+    end
+
+    # NSXDisplayDomains::addWeightQuantumToDomain(domainname)
+    def self.addWeightQuantumToDomain(domainname)
+        return if domainname.nil?
+        Torr::event(nil, "domain-weight:c00a620d-be93-4bd9-b52b-53e4b04e77b0:#{domainname}", 0.5)
+    end
+
+    # NSXDisplayDomains::getDomainWeightMetricMultiplier(domainname)
+    def self.getDomainWeightMetricMultiplier(domainname)
+        weight = Torr::weight(nil, "domain-weight:c00a620d-be93-4bd9-b52b-53e4b04e77b0:#{domainname}", 3600)
+        Math.exp(-weight)
     end
 
     # -----------------------------------------------

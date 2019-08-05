@@ -35,23 +35,24 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
-    # NSXCatalystObjectsOperator::getCatalystListingObjects()
-    def self.getCatalystListingObjects()
-        NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
-            .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-            .select{|object| object['metric'] >= 0.2 }
-    end
-
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = NSXCatalystObjectsOperator::getCatalystListingObjects()
+        objects = NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
+            .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
+            .select{|object| object['metric'] >= 0.2 }
         objects = objects + [ NSXCatalystObjectsOperator::catalystObjectWaterLevel() ]
         objects
             .map{|object|
                 multiplier = NSXMiscUtils::objectMetricMultiplierOrNull(object)
                 if multiplier then
-                    object[":catalyst-weigth-multiplier:metric-before-adjustement"] = object["metric"]
-                    object[":catalyst-weigth-multiplier:multiplier"] = multiplier
+                    object[":catalyst:object-weigth-multiplier"] = multiplier
+                    object["metric"] = multiplier*object["metric"]
+                end
+                displayDomainname = NSXDisplayDomains::objectuuidToDomainnameOrNull(object["uuid"])
+                if displayDomainname then
+                    multiplier = NSXDisplayDomains::getDomainWeightMetricMultiplier(displayDomainname)
+                    object[":catalyst:domainname:1d5da857"] = displayDomainname
+                    object[":catalyst:display-domain-weigth-multiplier"] = multiplier
                     object["metric"] = multiplier*object["metric"]
                 end
                 object

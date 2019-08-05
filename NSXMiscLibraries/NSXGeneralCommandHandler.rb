@@ -24,7 +24,7 @@ class NSXGeneralCommandHandler
             "\n",
             "Special Object Commands:",
             "\n",
-            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "x-note",  ">"].map{|command| "        "+command }.join("\n")
+            ["..", ",,", ",,,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "x-note",  ">"].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -154,16 +154,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == '>>' then
-            domainname = NSXDisplayDomains::interactivelySelectOneExistingDomainsOrNull()
-            if domainname then
-                NSXDisplayDomains::setNewActiveDomain(domainname)
-            else
-                NSXDisplayDomains::setNewActiveDomainToNothing()
-            end
-            return
-        end
-
         return if object.nil?
 
         # object needed
@@ -192,6 +182,11 @@ class NSXGeneralCommandHandler
 
         if command == ',,' then
             NSXMiscUtils::addToObjectMetricWeight(object["uuid"], 1)
+            return
+        end
+
+        if command == ',,,' then
+            NSXDisplayDomains::addWeightQuantumToDomain(object[":catalyst:domainname:1d5da857"])
             return
         end
 

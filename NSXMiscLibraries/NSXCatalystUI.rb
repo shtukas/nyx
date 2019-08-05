@@ -21,18 +21,6 @@ class NSXCatalystUI
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
-    # NSXCatalystUI::getDisplayObjectsForActiveDisplayDomain(activeDisplayDomain, displayObjects)
-    def self.getDisplayObjectsForActiveDisplayDomain(activeDisplayDomain, displayObjects)
-        if activeDisplayDomain then
-            domainObjectUUIDs = NSXDisplayDomains::objectuuidsForDomain(activeDisplayDomain)
-            displayObjects.select{|object| domainObjectUUIDs.include?(object["uuid"]) }
-        else
-            # There isn't an active display domain. Here we keep the display objects that are not already against a claim
-            claimsObjectUUIDs = NSXDisplayDomains::objectuuids()
-            displayObjects.select{|object| !claimsObjectUUIDs.include?(object["uuid"]) }
-        end
-    end
-
     # NSXCatalystUI::shouldRemoveObjectFromItsDomain(command, object)
     def self.shouldRemoveObjectFromItsDomain(command, object)
         return true if ( command == ".." and object["defaultExpression"] == "open; done" )
@@ -63,37 +51,6 @@ class NSXCatalystUI
             return
         end
 
-        activeDisplayDomain = NSXDisplayDomains::activeDomainOrNull()
-
-        if activeDisplayDomain.nil? then
-            displayDomainForReview = NSXDisplayDomains::getDisplayDomainDueForReviewOrNull()
-            if displayDomainForReview then
-                puts "You need to review #{displayDomainForReview}, so I am moving you there"
-                LucilleCore::pressEnterToContinue()
-                NSXDisplayDomains::setNewActiveDomain(displayDomainForReview)
-                activeDisplayDomain = displayDomainForReview
-            end
-        end
-
-        displayObjects = NSXCatalystUI::getDisplayObjectsForActiveDisplayDomain(activeDisplayDomain, displayObjects)
-
-        displayDomains = NSXDisplayDomains::domains()
-        if displayDomains.size>0 then
-            verticalSpaceLeft = verticalSpaceLeft - displayDomains.size
-            displayDomains.each{|domain|
-                if activeDisplayDomain == domain then
-                    puts "#{activeDisplayDomain.green} (active domain)"
-                else
-                    puts domain.yellow
-                end
-            }
-        end
-
-        if displayDomains.size>0 or activeDisplayDomain then
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        end
-
         standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
@@ -107,7 +64,7 @@ class NSXCatalystUI
                     focusobject = object
                 end 
 
-                displayStr = NSXDisplayUtils::objectCatalystListingDisplayString(object, position == standardlp, position)
+                displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == standardlp, position)
                 verticalSize = NSXDisplayUtils::verticalSize(displayStr)
                 if (position > 1) and (position > standardlp) and (verticalSpaceLeft < verticalSize) then
                     break
@@ -141,6 +98,11 @@ class NSXCatalystUI
             return if $X573751EE.size==0
             displayObjects = $X573751EE.map{|object| object.clone }
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
+            return
+        end
+
+        if command == ',,,' then
+            NSXDisplayDomains::addWeightQuantumToDomain(focusobject[":catalyst:domainname:1d5da857"])
             return
         end
 
