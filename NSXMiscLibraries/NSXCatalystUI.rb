@@ -136,7 +136,7 @@ class NSXCatalystUI
         # -----------------------------------------------------------------------------------
 
         if command == ",," then
-            NSXMiscUtils::resetMetricWeightRatio(focusobject["uuid"])
+            NSXMiscUtils::addToObjectMetricWeight(focusobject["uuid"], 1)
             $X573751EE = $X573751EE.reject{|object| object["uuid"]==focusobject["uuid"] }
             return if $X573751EE.size==0
             displayObjects = $X573751EE.map{|object| object.clone }

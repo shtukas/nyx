@@ -1,6 +1,13 @@
 
 # encoding: UTF-8
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
+=begin
+    Torr::event(repositorylocation, collectionuuid, mass)
+    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds, simulationWeight = 0)
+    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
+=end
+
 class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::catalystObjectWaterLevel()
@@ -14,8 +21,8 @@ class NSXCatalystObjectsOperator
         object
     end
 
-    # NSXCatalystObjectsOperator::getListingObjectsFromAgents()
-    def self.getListingObjectsFromAgents()
+    # NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
+    def self.getSomeObjectsFromAgents()
         NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects"].call() }
             .flatten
@@ -28,24 +35,24 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
-    # NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
-    def self.getCatalystListingObjectsFromAgents()
-        NSXCatalystObjectsOperator::getListingObjectsFromAgents()
+    # NSXCatalystObjectsOperator::getCatalystListingObjects()
+    def self.getCatalystListingObjects()
+        NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
             .select{|object| object['metric'] >= 0.2 }
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsFromAgents()
+        objects = NSXCatalystObjectsOperator::getCatalystListingObjects()
         objects = objects + [ NSXCatalystObjectsOperator::catalystObjectWaterLevel() ]
         objects
             .map{|object|
-                ratio = NSXMiscUtils::metricWeightRatioOrNull(object)
-                object[":catalyst-weigth-ratio:"] = ratio
-                if ratio then
-                    object["metric"] = ratio*object["metric"]
-
+                multiplier = NSXMiscUtils::objectMetricMultiplierOrNull(object)
+                if multiplier then
+                    object[":catalyst-weigth-multiplier:metric-before-adjustement"] = object["metric"]
+                    object[":catalyst-weigth-multiplier:multiplier"] = multiplier
+                    object["metric"] = multiplier*object["metric"]
                 end
                 object
             }

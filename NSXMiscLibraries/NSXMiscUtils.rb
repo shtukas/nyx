@@ -14,6 +14,13 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
+=begin
+    Torr::event(repositorylocation, collectionuuid, mass)
+    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds, simulationWeight = 0)
+    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
+=end
+
 LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
 
 class NSXMiscUtils
@@ -438,20 +445,17 @@ class NSXMiscUtils
         items.map{|item| item["ordinal"] }.max.to_i + 1
     end
 
-    # NSXMiscUtils::metricWeightRatioOrNull(object)
-    def self.metricWeightRatioOrNull(object)
+    # NSXMiscUtils::objectMetricMultiplierOrNull(object)
+    def self.objectMetricMultiplierOrNull(object)
         return nil if object["metric"] > 1
         objectuuid = object["uuid"]
-        unixtime = KeyValueStore::getOrNull(nil, "8678525c-de46-4208-9dc7-2a8acd0f8f1a:#{NSXMiscUtils::currentDay()}:#{objectuuid}")
-        return nil if unixtime.nil?
-        timespanInHours = (Time.new.to_f-unixtime.to_f)/3600
-        return 1 if timespanInHours > 2
-        0.2 + Math.exp(timespanInHours-2) - Math.exp(-2)
+        weight = Torr::weight(nil, "object-metric-weight:8c8d775a-e754-4263-9a0f-e79c523d0670:#{objectuuid}", 3600)
+        Math.exp(-weight)
     end
 
-    # NSXMiscUtils::resetMetricWeightRatio(objectuuid)
-    def self.resetMetricWeightRatio(objectuuid)
-        KeyValueStore::set(nil, "8678525c-de46-4208-9dc7-2a8acd0f8f1a:#{NSXMiscUtils::currentDay()}:#{objectuuid}", Time.new.to_i)
+    # NSXMiscUtils::addToObjectMetricWeight(objectuuid, value)
+    def self.addToObjectMetricWeight(objectuuid, value)
+        Torr::event(nil, "object-metric-weight:8c8d775a-e754-4263-9a0f-e79c523d0670:#{objectuuid}", value)
     end
 
     # NSXMiscUtils::agentsSpeedReport()

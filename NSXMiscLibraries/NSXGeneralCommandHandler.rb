@@ -191,7 +191,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == ',,' then
-            NSXMiscUtils::resetMetricWeightRatio(object["uuid"])
+            NSXMiscUtils::addToObjectMetricWeight(object["uuid"], 1)
             return
         end
 
