@@ -55,9 +55,9 @@ NSXBob::registerAgent(
     {
         "agent-name"  => "TodayNotes",
         "agentuid"    => "f7b21eb4-c249-4f0a-a1b0-d5d584c03316",
-        "get-objects" => lambda { NSXAgentTodayNotes::getObjects() },
-        "get-objects-all" => lambda { NSXAgentTodayNotes::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentTodayNotes::processObjectAndCommand(object, command) },
+        "get-objects" => lambda { NSXAgentDesktopLucilleFile::getObjects() },
+        "get-objects-all" => lambda { NSXAgentDesktopLucilleFile::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentDesktopLucilleFile::processObjectAndCommand(object, command) },
     }
 )
 

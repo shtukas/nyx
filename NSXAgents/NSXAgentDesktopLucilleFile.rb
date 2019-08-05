@@ -78,9 +78,9 @@ class LucilleFileHelper
 
 end
 
-class NSXAgentTodayNotes
+class NSXAgentDesktopLucilleFile
 
-    # NSXAgentTodayNotes::sectionUUIDToCatalystUUID(sectionuuid)
+    # NSXAgentDesktopLucilleFile::sectionUUIDToCatalystUUID(sectionuuid)
     def self.sectionUUIDToCatalystUUID(sectionuuid)
         if $SECTION_UUID_TO_CATALYST_UUIDS.nil? then
             $SECTION_UUID_TO_CATALYST_UUIDS = JSON.parse(IO.read("#{LUCILLE_FILE_AGENT_DATA_FOLDERPATH}/uuids.json"))
@@ -95,7 +95,7 @@ class NSXAgentTodayNotes
         end
     end
 
-    # NSXAgentTodayNotes::processSectionUUIDs(currentSectionuuids)
+    # NSXAgentDesktopLucilleFile::processSectionUUIDs(currentSectionuuids)
     def self.processSectionUUIDs(currentSectionuuids)
         $SECTION_UUID_TO_CATALYST_UUIDS.keys.each{|sectionuuid|
             if !currentSectionuuids.include?(sectionuuid) then
@@ -106,12 +106,12 @@ class NSXAgentTodayNotes
         }
     end
 
-    # NSXAgentTodayNotes::agentuuid()
+    # NSXAgentDesktopLucilleFile::agentuuid()
     def self.agentuuid()
         "f7b21eb4-c249-4f0a-a1b0-d5d584c03316"
     end
 
-    # NSXAgentTodayNotes::removeStartingMarker(str)
+    # NSXAgentDesktopLucilleFile::removeStartingMarker(str)
     def self.removeStartingMarker(str)
         if str.start_with?("[]") then
             str = str[2, str.size].strip
@@ -119,22 +119,22 @@ class NSXAgentTodayNotes
         str
     end
 
-    # NSXAgentTodayNotes::getObjects()
+    # NSXAgentDesktopLucilleFile::getObjects()
     def self.getObjects()
-        NSXAgentTodayNotes::getAllObjects()
+        NSXAgentDesktopLucilleFile::getAllObjects()
     end
 
-    # NSXAgentTodayNotes::processStringForAnnounce(str)
+    # NSXAgentDesktopLucilleFile::processStringForAnnounce(str)
     def self.processStringForAnnounce(str)
         str = str.strip
         if str.start_with?("[]") then
             str = str[2,str.size]
-            return NSXAgentTodayNotes::processStringForAnnounce(str)
+            return NSXAgentDesktopLucilleFile::processStringForAnnounce(str)
         end
         str
     end
 
-    # NSXAgentTodayNotes::getAllObjects()
+    # NSXAgentDesktopLucilleFile::getAllObjects()
     def self.getAllObjects()
         sectionuuids = []
         integers = LucilleCore::integerEnumerator()
@@ -144,7 +144,7 @@ class NSXAgentTodayNotes
             .map{|section|
                 sectionuuid = SectionsType2102::section_to_uuid(section)
                 sectionuuids << sectionuuid
-                uuid = NSXAgentTodayNotes::sectionUUIDToCatalystUUID(sectionuuid)
+                uuid = NSXAgentDesktopLucilleFile::sectionUUIDToCatalystUUID(sectionuuid)
                 if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
                 end
                 runningMarker = ""
@@ -153,27 +153,27 @@ class NSXAgentTodayNotes
                 end
                 sectionAsString = SectionsType2102::section_to_string(section)
                 if sectionAsString.lines.size == 1 then
-                    sectionAsString = NSXAgentTodayNotes::removeStartingMarker(sectionAsString)
+                    sectionAsString = NSXAgentDesktopLucilleFile::removeStartingMarker(sectionAsString)
                 else
                     sectionAsString = "\n" + sectionAsString
                 end
                 {
                     "uuid"               => uuid,
-                    "agentuid"           => NSXAgentTodayNotes::agentuuid(),
+                    "agentuid"           => NSXAgentDesktopLucilleFile::agentuuid(),
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.88 - integers.next().to_f/1000),
-                    "announce"           => "Today: #{NSXAgentTodayNotes::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}",
-                    "body"               => "Today: #{NSXAgentTodayNotes::processStringForAnnounce(sectionAsString)}#{runningMarker}",
+                    "announce"           => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}",
+                    "body"               => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}",
                     "commands"           => ["done", ">stream"],
                     "defaultExpression"  => "done",
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),
                     "section"            => section
                 }
             }
-        NSXAgentTodayNotes::processSectionUUIDs(sectionuuids)
+        NSXAgentDesktopLucilleFile::processSectionUUIDs(sectionuuids)
         objects
     end
 
-    # NSXAgentTodayNotes::processObjectAndCommand(object, command)
+    # NSXAgentDesktopLucilleFile::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         if command == "done" then
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
