@@ -20,23 +20,77 @@ require 'securerandom'
 
 # -------------------------------------------------------------------------------------
 
-DAY_NOTES_DATA_FILE_PATH = "/Users/pascal/Desktop/Today.txt"
+LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/Lucille.txt"
+CHAPTER_MARKER = "@chapter-a93adc2d-ac07-44db-aa40-809ab0e680fd"
+LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Agents-Data/DesktopLucilleFile"
 
 $SECTION_UUID_TO_CATALYST_UUIDS = nil
+
+class LucilleFileHelper
+
+    # LucilleFileHelper::getFileContents()
+    def self.getFileContents()
+        IO.read(LUCILLE_DATA_FILE_PATH)
+    end
+
+    # LucilleFileHelper::fileContentsToChapters(filecontents)
+    def self.fileContentsToChapters(filecontents)
+        sections = []
+        currentSection = []
+        filecontents.lines.each{|line|
+            if line.start_with?(CHAPTER_MARKER) then
+                sections << currentSection
+                currentSection = []
+                currentSection << line
+            else
+                currentSection << line
+            end 
+        }
+        sections << currentSection
+        sections
+            .map{|section| section.join() }
+    end
+
+    # LucilleFileHelper::readTodoChapterFromDisk()
+    def self.readTodoChapterFromDisk()
+        chapters = LucilleFileHelper::fileContentsToChapters(LucilleFileHelper::getFileContents())
+        # The todo section is the second one, the first one is empty
+        chapters[1]
+    end
+
+    # LucilleFileHelper::getSectionsFromDisk()
+    def self.getSectionsFromDisk()
+        chapter = LucilleFileHelper::readTodoChapterFromDisk()
+        SectionsType2102::contents_to_sections(chapter.lines.to_a,[])
+    end
+
+    # LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(uuid)
+    def self.reWriteLucilleFileWithoutThisSectionUUID(uuid)
+        NSXMiscUtils::copyLocationToCatalystBin(LUCILLE_DATA_FILE_PATH)
+        chapters = LucilleFileHelper::fileContentsToChapters(LucilleFileHelper::getFileContents())
+        todoChapter = chapters[1]
+        sections1 = SectionsType2102::contents_to_sections(todoChapter.lines.to_a,[])
+        sections2 = sections1.reject{|section| SectionsType2102::section_to_uuid(section)==uuid }
+        todoChapter = sections2.map{|section| section.join() }.join()
+        chapters[1] = todoChapter
+        File.open(LUCILLE_DATA_FILE_PATH, "w") { |io| io.puts(chapters.join()) }
+    end
+
+end
 
 class NSXAgentTodayNotes
 
     # NSXAgentTodayNotes::sectionUUIDToCatalystUUID(sectionuuid)
     def self.sectionUUIDToCatalystUUID(sectionuuid)
         if $SECTION_UUID_TO_CATALYST_UUIDS.nil? then
-            $SECTION_UUID_TO_CATALYST_UUIDS = JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/TodayNotes/uuids.json"))
+            $SECTION_UUID_TO_CATALYST_UUIDS = JSON.parse(IO.read("#{LUCILLE_FILE_AGENT_DATA_FOLDERPATH}/uuids.json"))
         end
         if $SECTION_UUID_TO_CATALYST_UUIDS[sectionuuid] then
             $SECTION_UUID_TO_CATALYST_UUIDS[sectionuuid]
         else
             catalystuuid = SecureRandom.hex(4)
             $SECTION_UUID_TO_CATALYST_UUIDS[sectionuuid] = catalystuuid
-            File.open("/Galaxy/DataBank/Catalyst/Agents-Data/TodayNotes/uuids.json", 'w'){|f| f.puts(JSON.pretty_generate($SECTION_UUID_TO_CATALYST_UUIDS)) }
+            File.open("#{LUCILLE_FILE_AGENT_DATA_FOLDERPATH}/uuids.json", 'w'){|f| f.puts(JSON.pretty_generate($SECTION_UUID_TO_CATALYST_UUIDS)) }
             catalystuuid
         end
     end
@@ -47,19 +101,9 @@ class NSXAgentTodayNotes
             if !currentSectionuuids.include?(sectionuuid) then
                 # This section uuid in the dataset but not in the current sectionuuids
                 $SECTION_UUID_TO_CATALYST_UUIDS.delete(sectionuuid)
-                File.open("/Galaxy/DataBank/Catalyst/Agents-Data/TodayNotes/uuids.json", 'w'){|f| f.puts(JSON.pretty_generate($SECTION_UUID_TO_CATALYST_UUIDS)) }
+                File.open("#{LUCILLE_FILE_AGENT_DATA_FOLDERPATH}/uuids.json", 'w'){|f| f.puts(JSON.pretty_generate($SECTION_UUID_TO_CATALYST_UUIDS)) }
             end
         }
-    end
-
-    # NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(uuid)
-    def self.reWriteTodayFileWithoutThisSectionUUID(uuid)
-        NSXMiscUtils::copyLocationToCatalystBin(DAY_NOTES_DATA_FILE_PATH)
-        filecontents1 = IO.read(DAY_NOTES_DATA_FILE_PATH)
-        sections1 = SectionsType2102::contents_to_sections(filecontents1.lines.to_a,[])
-        sections2 = sections1.reject{|section| SectionsType2102::section_to_uuid(section)==uuid }
-        filecontents2 = sections2.map{|section| section.join() }.join()
-        File.open(DAY_NOTES_DATA_FILE_PATH, "w") { |io| io.puts(filecontents2) }
     end
 
     # NSXAgentTodayNotes::agentuuid()
@@ -94,8 +138,8 @@ class NSXAgentTodayNotes
     def self.getAllObjects()
         sectionuuids = []
         integers = LucilleCore::integerEnumerator()
-        sections = SectionsType2102::contents_to_sections(IO.read(DAY_NOTES_DATA_FILE_PATH).lines.to_a,[])
-        sections = sections.take_while{|section| !section[0].include?("ee25043d-c12a-4e80-9d0a-fa70aff4dd00") }
+        sections = LucilleFileHelper::getSectionsFromDisk()
+                    .select{|section| section.none?{|line| line.start_with?(CHAPTER_MARKER) } }
         objects = sections
             .map{|section|
                 sectionuuid = SectionsType2102::section_to_uuid(section)
@@ -132,7 +176,7 @@ class NSXAgentTodayNotes
     # NSXAgentTodayNotes::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         if command == "done" then
-            NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
+            LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
             return
         end
         if command == ">stream" then
@@ -142,7 +186,7 @@ class NSXAgentTodayNotes
             streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(streamDescription)
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
-            NSXAgentTodayNotes::reWriteTodayFileWithoutThisSectionUUID(object["section-uuid"])
+            LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
             return
         end
     end
