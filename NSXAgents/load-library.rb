@@ -1,7 +1,6 @@
 
 # encoding: UTF-8
 
-require_relative "NSXAgentBabyNights.rb"
 require_relative "NSXAgentDesktopLucilleFile.rb"
 require_relative "NSXAgentStreams.rb"
 require_relative "NSXAgentTheBridgeCLIs.rb"
