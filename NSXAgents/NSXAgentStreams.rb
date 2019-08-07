@@ -8,6 +8,13 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require "time"
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
+=begin
+    Torr::event(repositorylocation, collectionuuid, mass)
+    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds, simulationWeight = 0)
+    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
+=end
+
 # -------------------------------------------------------------------------------------
 
 class NSXAgentStreams
@@ -44,19 +51,6 @@ class NSXAgentStreams
             item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 5, item["uuid"])
         end
         item
-    end
-
-    # NSXAgentStreams::doneStreamItem(item)
-    def self.doneStreamItem(item)
-        item = NSXAgentStreams::stopStreamItem(item) # Important to perform that step to record the time. 
-        # If the item carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
-        if item["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-            if NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"]) then
-                NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
-                return
-            end
-        end
-        NSXStreamsUtils::destroyItem(item)
     end
 
     # NSXAgentStreams::doneStreamItemEmailCarrier(itemuuid)
@@ -109,6 +103,8 @@ class NSXAgentStreams
             return
         end
         if command == "done" then
+            # We need to record a small activity
+            Torr::event(nil, "dd1a4ed5-a8eb-4bd9-8124-294ad6536b46:#{item["streamuuid"]}", 0.1) # We mark all of them but we are only interested in `Catalyst Inbox`
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
             $NSXStreamSmallCarrier.removeObject(item["uuid"])

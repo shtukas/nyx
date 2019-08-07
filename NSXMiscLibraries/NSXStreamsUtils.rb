@@ -19,6 +19,13 @@ KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
 KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
+=begin
+    Torr::event(repositorylocation, collectionuuid, mass)
+    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds, simulationWeight = 0)
+    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
+=end
+
 # ----------------------------------------------------------------------
 
 class NSXStreamSmallCarrier
@@ -468,14 +475,18 @@ class NSXStreamsUtils
         end
     end
 
+    # NSXStreamsUtils::streamInboxSpecialActivityMetricMultiplier(item)
+    def self.streamInboxSpecialActivityMetricMultiplier(item)
+        return 1 if item["streamuuid"] != "03b79978bcf7a712953c5543a9df9047"
+        Math.exp(-Torr::weight(nil, "dd1a4ed5-a8eb-4bd9-8124-294ad6536b46:#{item["streamuuid"]}", 3600))
+    end
+
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
     def self.streamItemToStreamCatalystMetric(item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
-        itemShift = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
-            return 0.9 + itemShift
-        end
-        streamRatio = NSXStreamsTimeTracking::streamWideDisplayRatioForItems(item["streamuuid"])
-        streamRatio * (0.6 + itemShift)
+        metric = 0.7 + Math.exp(-item["ordinal"].to_f/100).to_f/100
+        metric = metric * NSXStreamsTimeTracking::streamWideDisplayRatioForItems(item["streamuuid"])
+        metric = metric * NSXStreamsUtils::streamInboxSpecialActivityMetricMultiplier(item)
+        metric
     end
 end

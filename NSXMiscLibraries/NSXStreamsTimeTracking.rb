@@ -46,8 +46,8 @@ class NSXStreamsTimeTracking
         Torr::weight("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400)
     end
 
-    # NSXStreamsTimeTracking::streamWideDisplayRatioForItemsTrueCompute(streamuuid)
-    def self.streamWideDisplayRatioForItemsTrueCompute(streamuuid)
+    # NSXStreamsTimeTracking::streamWideDisplayMultipler(streamuuid)
+    def self.streamWideDisplayMultipler(streamuuid)
         return 1 if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid)
         commitmentInHours = NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)
         Torr::metric("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400, commitmentInHours*3600, 1, 0.5)
@@ -57,7 +57,7 @@ class NSXStreamsTimeTracking
     def self.streamWideDisplayRatioForItems(streamuuid)
         value = KeyValueStore::getOrNull(nil, "fda35a65-e960-4a92-8dfb-4fafba1d0032:#{NSXMiscUtils::currentHour()}:#{streamuuid}")
         return value.to_f if value
-        value = NSXStreamsTimeTracking::streamWideDisplayRatioForItemsTrueCompute(streamuuid)
+        value = NSXStreamsTimeTracking::streamWideDisplayMultipler(streamuuid)
         KeyValueStore::set(nil, "fda35a65-e960-4a92-8dfb-4fafba1d0032:#{NSXMiscUtils::currentHour()}:#{streamuuid}", value)
         value
     end
