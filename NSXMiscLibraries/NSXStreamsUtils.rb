@@ -473,7 +473,7 @@ class NSXStreamsUtils
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
         itemShift = Math.exp(-item["ordinal"].to_f/100).to_f/100
         if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
-            return 0.9 - 0.7*(Time.new.hour.to_f/24)  + itemShift
+            return 0.9 + itemShift
         end
         streamRatio = NSXStreamsTimeTracking::streamWideDisplayRatioForItems(item["streamuuid"])
         streamRatio * (0.6 + itemShift)

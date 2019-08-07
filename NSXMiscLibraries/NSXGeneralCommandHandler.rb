@@ -24,7 +24,7 @@ class NSXGeneralCommandHandler
             "\n",
             "Special Object Commands:",
             "\n",
-            ["..", ",,", ",,,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "x-note",  ">"].map{|command| "        "+command }.join("\n")
+            ["..", ",,", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "x-note"].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -184,20 +184,7 @@ class NSXGeneralCommandHandler
             NSXMiscUtils::addToObjectMetricWeight(object["uuid"], 1)
             return
         end
-
-        if command == ',,,' then
-            NSXDisplayDomains::addWeightQuantumToDomain(object[":catalyst:domainname:1d5da857"])
-            return
-        end
-
-        if command == '>' then
-            domainname = NSXDisplayDomains::interactivelySelectDomainPossiblyNewOrNull()
-            return if domainname.nil?
-            claim = NSXDisplayDomains::registerClaim(object["uuid"], domainname)
-            puts JSON.pretty_generate(claim)
-            return
-        end
-
+        
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)

@@ -48,13 +48,6 @@ class NSXCatalystObjectsOperator
                     object[":catalyst:object-weigth-multiplier"] = multiplier
                     object["metric"] = multiplier*object["metric"]
                 end
-                displayDomainname = NSXDisplayDomains::objectuuidToDomainnameOrNull(object["uuid"])
-                if displayDomainname then
-                    multiplier = NSXDisplayDomains::getDomainWeightMetricMultiplier(displayDomainname)
-                    object[":catalyst:domainname:1d5da857"] = displayDomainname
-                    object[":catalyst:display-domain-weigth-multiplier"] = multiplier
-                    object["metric"] = multiplier*object["metric"]
-                end
                 object
             }
             .select{|object| object['metric'] >= 0.2 }

@@ -101,27 +101,10 @@ class NSXCatalystUI
             return
         end
 
-        if command == ',,,' then
-            NSXDisplayDomains::addWeightQuantumToDomain(focusobject[":catalyst:domainname:1d5da857"])
-            return
-        end
-
         if command == "open" then
             NSXGeneralCommandHandler::processCommand(focusobject, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
             return
-        end
-
-        # We are going to check for domain claims here. 
-        # Looks like the correct place to do it.
-        if command != ">>" and focusobject and NSXDisplayDomains::objectuuidIsAgainstAClaim(focusobject["uuid"]) then
-            if NSXCatalystUI::shouldRemoveObjectFromItsDomain(command, focusobject) then
-                NSXDisplayDomains::discardClaimAgainstObjectuuid(focusobject["uuid"])
-            else
-                if LucilleCore::askQuestionAnswerAsBoolean("Domain claim detected. Remove ? ") then
-                    NSXDisplayDomains::discardClaimAgainstObjectuuid(focusobject["uuid"])
-                end
-            end
         end
 
         if command == "done" then

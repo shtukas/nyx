@@ -26,8 +26,6 @@ class NSXDisplayUtils
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
         object["commands"] = object["commands"].reject{|command| command.include?('x-note') }
         object["commands"] = ( NSXMiscUtils::hasXNote(object["uuid"]) ? ["x-note".green] : ["x-note".yellow] ) + object["commands"]
-        displayDomain = NSXDisplayDomains::objectuuidToDomainnameOrNull(object["uuid"])
-        displayDomainString1 = displayDomain ? " [#{displayDomain}]".yellow : ""
         if isFocus then
             if object['body'] then
                 if object['body'].lines.size>1 then
@@ -35,7 +33,6 @@ class NSXDisplayUtils
                         "[#{"*".green}#{"%2d" % displayOrdinal}]",
                         " ",
                         "(#{"%5.3f" % object["metric"]})",
-                        displayDomainString1,
                         "\n",
                         object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding),
                         "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
@@ -45,7 +42,6 @@ class NSXDisplayUtils
                         "[#{"*".green}#{"%2d" % displayOrdinal}]",
                         " ",
                         "(#{"%5.3f" % object["metric"]})",
-                        displayDomainString1,
                         " ",
                        (object["isRunning"] ? object['body'].green : object['body']),
                        "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
@@ -56,7 +52,6 @@ class NSXDisplayUtils
                     "[#{"*".green}#{"%2d" % displayOrdinal}]",
                     " ",
                     "(#{"%5.3f" % object["metric"]})",
-                    displayDomainString1,
                     " ",
                    (object["isRunning"] ? object['announce'].green : object['announce']),
                    "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
@@ -67,7 +62,6 @@ class NSXDisplayUtils
                 "[ #{"%2d" % displayOrdinal}]",
                 " ",
                 "(#{"%5.3f" % object["metric"]})",
-                displayDomainString1,
                 " ",
                 (object["isRunning"] ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-15]),
             ].join()
