@@ -104,7 +104,7 @@ class NSXAgentStreams
         end
         if command == "done" then
             # We need to record a small activity
-            Torr::event(nil, "dd1a4ed5-a8eb-4bd9-8124-294ad6536b46:#{item["streamuuid"]}", 0.1) # We mark all of them but we are only interested in `Catalyst Inbox`
+            Torr::event(nil, "dd1a4ed5-a8eb-4bd9-8124-294ad6536b46:#{item["streamuuid"]}", 0.05) # We mark all of them but we are only interested in `Catalyst Inbox`
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
             $NSXStreamSmallCarrier.removeObject(item["uuid"])
