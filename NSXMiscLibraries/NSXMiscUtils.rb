@@ -449,13 +449,13 @@ class NSXMiscUtils
     def self.objectMetricMultiplierOrNull(object)
         return nil if object["metric"] > 1
         objectuuid = object["uuid"]
-        weight = Torr::weight(nil, "object-metric-weight:8c8d775a-e754-4263-9a0f-e79c523d0670:#{objectuuid}", 3600)
+        weight = Torr::weight(nil, "object-metric-weight:8c8d775a-e754-4263-9a0f-e79c523d0670:#{NSXMiscUtils::currentDay()}:#{objectuuid}", 3600)
         Math.exp(-weight)
     end
 
     # NSXMiscUtils::addToObjectMetricWeight(objectuuid, value)
     def self.addToObjectMetricWeight(objectuuid, value)
-        Torr::event(nil, "object-metric-weight:8c8d775a-e754-4263-9a0f-e79c523d0670:#{objectuuid}", value)
+        Torr::event(nil, "object-metric-weight:8c8d775a-e754-4263-9a0f-e79c523d0670:#{NSXMiscUtils::currentDay()}:#{objectuuid}", value)
     end
 
     # NSXMiscUtils::agentsSpeedReport()
