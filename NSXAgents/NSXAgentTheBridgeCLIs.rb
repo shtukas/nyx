@@ -29,7 +29,7 @@ class NSXAgentTheBridgeCLIs
                 begin
                     JSON.parse(`#{filepath}`) 
                 rescue
-                    puts filepath
+                    puts "error retrieving objects at '#{filepath}'"
                     exit
                 end
             }

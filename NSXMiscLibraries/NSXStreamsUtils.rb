@@ -485,8 +485,8 @@ class NSXStreamsUtils
     def self.streamItemToStreamCatalystMetric(item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
         metric = 0.7 + Math.exp(-item["ordinal"].to_f/100).to_f/100
-        metric = metric * NSXStreamsTimeTracking::streamWideDisplayRatioForItems(item["streamuuid"])
-        metric = metric * NSXStreamsUtils::streamInboxSpecialActivityMetricMultiplier(item)
+        metric = (metric - 0.2) * NSXStreamsTimeTracking::streamWideDisplayRatioForItems(item["streamuuid"]) + 0.2
+        metric = (metric - 0.2) * NSXStreamsUtils::streamInboxSpecialActivityMetricMultiplier(item) + 0.2
         metric
     end
 end
