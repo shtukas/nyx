@@ -95,11 +95,13 @@ class NSXAgentStreams
             NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
             NSXStreamsUtils::commitItemToDisk(item)
+            $NSXStreamSmallCarrier.reloadWatchedObjectsFromDisk()
             return
         end
         if command == "stop" then
             item = NSXAgentStreams::stopStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
+            $NSXStreamSmallCarrier.reloadWatchedObjectsFromDisk()
             return
         end
         if command == "done" then
