@@ -42,14 +42,6 @@ class NSXCatalystObjectsOperator
             .select{|object| object['metric'] >= 0.2 }
         objects = objects + [ NSXCatalystObjectsOperator::catalystObjectWaterLevel() ]
         objects
-            .map{|object|
-                multiplier = NSXMiscUtils::objectMetricMultiplierOrNull(object)
-                if multiplier then
-                    object[":catalyst:object-weigth-multiplier"] = multiplier
-                    object["metric"] = multiplier*object["metric"]
-                end
-                object
-            }
             .select{|object| object['metric'] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
