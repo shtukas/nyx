@@ -307,26 +307,22 @@ class NSXStreamsUtils
             {
                 "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
                 "description"        => "Catalyst Inbox",
-                "isPriorityStream"   => true,
-                "timeControlInHours" => nil
+                "isPriorityStream"   => true
             },
             {
                 "streamuuid"         => "38d5658ed46c4daf0ec064e58fb2b97a",
                 "description"        => "Personal Entertainment",
-                "isPriorityStream"   => false,
-                "timeControlInHours" => 1
+                "isPriorityStream"   => false
             },
             {
                 "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",
                 "description"        => "Pascal Technology Jedi",
-                "isPriorityStream"   => false,
-                "timeControlInHours" => 3
+                "isPriorityStream"   => false
             },
             {
                 "streamuuid"         => "00010011101100010011101100011001",
                 "description"        => "Infinity Stream",
-                "isPriorityStream"   => false,
-                "timeControlInHours" => 2
+                "isPriorityStream"   => false
             }
         ]
     end
@@ -360,26 +356,6 @@ class NSXStreamsUtils
                 return item["description"]
             }
         nil
-    end
-
-    # NSXStreamsUtils::streamuuidToPriorityFlagOrNull(streamuuid)
-    def self.streamuuidToPriorityFlagOrNull(streamuuid)
-        NSXStreamsUtils::streamsMetadata()
-            .select{|item| item["streamuuid"]==streamuuid }
-            .each{|item|
-                return item["isPriorityStream"]
-            }
-        nil
-    end
-
-    # NSXStreamsUtils::streamuuidToTimeControlInHours(streamuuid)
-    def self.streamuuidToTimeControlInHours(streamuuid)
-        NSXStreamsUtils::streamsMetadata()
-            .select{|item| item["streamuuid"]==streamuuid }
-            .each{|item|
-                return item["timeControlInHours"]
-            }
-        1
     end
 
     # NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
@@ -436,13 +412,7 @@ class NSXStreamsUtils
             else
                 ""
             end
-        streamTimeAsString = 
-            if NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"]) then
-                "#{splitChar}(stream: #{(NSXStreamsTimeTracking::getTimeInSecondsForStream(item["streamuuid"]).to_f/3600).round(2)}/#{NSXStreamsUtils::streamuuidToTimeControlInHours(item["streamuuid"])} hours)"
-            else
-                ""
-            end
-        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}#{streamTimeAsString}"
+        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
@@ -450,11 +420,7 @@ class NSXStreamsUtils
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "folder"]
         else
-            if NSXStreamsUtils::streamuuidToPriorityFlagOrNull(item["streamuuid"]) then
-                ["open", "done", "recast", "folder"]
-            else
-                ["open" ,"start", "done", "push", "recast", "folder"]
-            end
+            ["open" ,"start", "done", "push", "recast", "folder"]
         end
     end
 
@@ -475,18 +441,11 @@ class NSXStreamsUtils
         end
     end
 
-    # NSXStreamsUtils::streamInboxSpecialActivityMetricMultiplier(item)
-    def self.streamInboxSpecialActivityMetricMultiplier(item)
-        return 1 if item["streamuuid"] != "03b79978bcf7a712953c5543a9df9047"
-        Math.exp(-Torr::weight(nil, "dd1a4ed5-a8eb-4bd9-8124-294ad6536b46:#{item["streamuuid"]}", 3600))
-    end
-
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
     def self.streamItemToStreamCatalystMetric(item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
         metric = 0.7 + Math.exp(-item["ordinal"].to_f/100).to_f/100
-        metric = (metric - 0.2) * NSXStreamsTimeTracking::streamWideDisplayRatioForItems(item["streamuuid"]) + 0.2
-        metric = (metric - 0.2) * NSXStreamsUtils::streamInboxSpecialActivityMetricMultiplier(item) + 0.2
+        metric = (metric - 0.2) * NSXStreamsTimeTracking::streamWideDisplayMultipler(item["streamuuid"]) + 0.2
         metric
     end
 end
