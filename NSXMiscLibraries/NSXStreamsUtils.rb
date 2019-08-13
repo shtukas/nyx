@@ -28,62 +28,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
 
 # ----------------------------------------------------------------------
 
-class NSXStreamSmallCarrier
-    # @watchedUUIDs = [] # 10 elements
-    # @precomputedCatalystObjects = [] # 10 elements
-    def initialize()
-        self.reloadWatchedObjectsFromDisk()
-    end
-    def extractWatchedObjects(catalystObjects)
-        wobjects = []
-        # ---------------------------------------------
-        # We get all the Inbox ones
-        catalystObjects
-            .select{|object| object["streamuuid"] == "03b79978bcf7a712953c5543a9df9047" }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
-            .first(10)
-            .each{|object|
-                wobjects << object
-            }
-        # ---------------------------------------------
-        # We get the first 10 ones
-        catalystObjects
-            .reject{|object| object["streamuuid"] == "03b79978bcf7a712953c5543a9df9047" }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
-            .first(10)
-            .each{|object|
-                wobjects << object
-            }
-        wobjects
-    end
-    def reloadWatchedObjectsFromDisk()
-        @precomputedCatalystObjects = extractWatchedObjects(NSXStreamsUtils::getCatalystObjectsForDisplay())
-    end
-    def insertWatchedUUID(itemuuid)
-        item = NSXStreamsUtils::getItemByUUIDOrNull(itemuuid)
-        return if item.nil?
-        object = NSXStreamsUtils::itemToCatalystObject(item)
-        @precomputedCatalystObjects = @precomputedCatalystObjects.reject{|o| o["uuid"]==object["uuid"] }
-        @precomputedCatalystObjects << object
-    end
-    def removeObject(objectuuid)
-        @precomputedCatalystObjects = @precomputedCatalystObjects.reject{|o| o["uuid"]==objectuuid }
-    end
-    def getWatchedCatalystObjects()
-        @precomputedCatalystObjects.map{|object| object.clone }
-    end
-end
-
-# $NSXStreamSmallCarrier.getWatchedCatalystObjects()
-# $NSXStreamSmallCarrier.reloadWatchedObjectsFromDisk()
-# $NSXStreamSmallCarrier.insertWatchedUUID(objectuuid)
-
-$NSXStreamSmallCarrier = nil
-    # The object is being instanciated in catalyst
-    # In particular it is not always present, in doubt, test for existence.
-
 class NSXStreamsUtils
 
     # ----------------------------------------------------------------
@@ -244,20 +188,6 @@ class NSXStreamsUtils
         item
     end
 
-    # NSXStreamsUtils::getCatalystObjectsForDisplay()
-    def self.getCatalystObjectsForDisplay()
-        NSXStreamsUtils::getItemsFromDisk()
-            .map{|item|
-                item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
-                item["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
-                item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
-                item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
-                item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-                item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
-                item
-            }
-    end
-
     # NSXStreamsUtils::itemToCatalystObject(item)
     def self.itemToCatalystObject(item)
         item["isRunning"] = NSXRunner::isRunning?(item["uuid"])
@@ -267,6 +197,21 @@ class NSXStreamsUtils
         item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
         item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
         item
+    end
+
+    # NSXStreamsUtils::getCatalystObjectsForDisplay()
+    def self.getCatalystObjectsForDisplay()
+        NSXStreamsUtils::getItemsFromDisk()
+            .map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+            .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
+            .reduce([]) { |collection, object|
+                if collection.select{|o| o["streamuuid"]==object["streamuuid"] }.size < 5 then
+                    collection + [object]
+                else
+                    collection
+                end
+                
+            }
     end
 
     # NSXStreamsUtils::getAllCatalystObjects()
@@ -307,22 +252,26 @@ class NSXStreamsUtils
             {
                 "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
                 "description"        => "Catalyst Inbox",
-                "isPriorityStream"   => true
-            },
-            {
-                "streamuuid"         => "38d5658ed46c4daf0ec064e58fb2b97a",
-                "description"        => "Personal Entertainment",
-                "isPriorityStream"   => false
+                "naturalMetric"      => 0.85,
+                "hoursExpectation"   => 2,
             },
             {
                 "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",
                 "description"        => "Pascal Technology Jedi",
-                "isPriorityStream"   => false
+                "naturalMetric"      => 0.70,
+                "hoursExpectation"   => 2,
+            },
+            {
+                "streamuuid"         => "38d5658ed46c4daf0ec064e58fb2b97a",
+                "description"        => "Personal Entertainment",
+                "naturalMetric"      => 0.60,
+                "hoursExpectation"   => 1,
             },
             {
                 "streamuuid"         => "00010011101100010011101100011001",
                 "description"        => "Infinity Stream",
-                "isPriorityStream"   => false
+                "naturalMetric"      => 0.50,
+                "hoursExpectation"   => 1,
             }
         ]
     end
@@ -356,6 +305,26 @@ class NSXStreamsUtils
                 return item["description"]
             }
         nil
+    end
+
+    # NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid)
+    def self.streamuuidToStreamNaturalMetricDefault1(streamuuid)
+        NSXStreamsUtils::streamsMetadata()
+            .select{|item| item["streamuuid"]==streamuuid }
+            .each{|item|
+                return item["naturalMetric"]
+            }
+        1
+    end
+
+    # NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)
+    def self.streamuuidToStreamHoursExpectationDefault1(streamuuid)
+        NSXStreamsUtils::streamsMetadata()
+            .select{|item| item["streamuuid"]==streamuuid }
+            .each{|item|
+                return item["hoursExpectation"]
+            }
+        1
     end
 
     # NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
@@ -443,9 +412,11 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
     def self.streamItemToStreamCatalystMetric(item)
+        streamNaturalMetric = NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"])
+        hoursExpectation = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"])
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
-        metric = 0.7 + Math.exp(-item["ordinal"].to_f/100).to_f/100
-        metric = (metric - 0.2) * NSXStreamsTimeTracking::streamWideDisplayMultipler(item["streamuuid"]) + 0.2
+        metric = streamNaturalMetric + Math.exp(-item["ordinal"].to_f/100).to_f/100
+        metric = (metric - 0.2) * NSXStreamsTimeTracking::streamWideDisplayMultipler(item["streamuuid"], hoursExpectation) + 0.2
         metric
     end
 end

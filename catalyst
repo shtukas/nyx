@@ -73,15 +73,6 @@ if NSXMiscUtils::isLucille18() then
     }
 end
 
-$NSXStreamSmallCarrier = NSXStreamSmallCarrier.new()
-
-Thread.new {
-    loop {
-        sleep 128
-        $NSXStreamSmallCarrier.reloadWatchedObjectsFromDisk()
-    }
-}
-
 Thread.new {
     loop {
         sleep 120

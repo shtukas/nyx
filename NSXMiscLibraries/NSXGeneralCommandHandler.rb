@@ -86,9 +86,6 @@ class NSXGeneralCommandHandler
                 streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
-                if $NSXStreamSmallCarrier then
-                    $NSXStreamSmallCarrier.insertWatchedUUID(catalystobjectuuid)
-                end
             end
             if type == "Stream" then
                 streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
@@ -98,9 +95,6 @@ class NSXGeneralCommandHandler
                 streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, streamItemOrdinal)
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
-                if $NSXStreamSmallCarrier then
-                    $NSXStreamSmallCarrier.insertWatchedUUID(catalystobjectuuid)
-                end
             end
             if type == "Wave" then
                 catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)

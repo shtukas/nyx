@@ -26,12 +26,10 @@ class NSXAgentStreams
 
     # NSXAgentStreams::getObjects()
     def self.getObjects()
-        if $NSXStreamSmallCarrier then
-            return $NSXStreamSmallCarrier.getWatchedCatalystObjects()
-        end
         NSXStreamsUtils::getCatalystObjectsForDisplay()
     end
 
+    # NSXAgentStreams::getAllObjects()
     def self.getAllObjects()
         NSXStreamsUtils::getAllCatalystObjects()
     end
@@ -95,20 +93,17 @@ class NSXAgentStreams
             NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
             NSXStreamsUtils::commitItemToDisk(item)
-            $NSXStreamSmallCarrier.reloadWatchedObjectsFromDisk()
             return
         end
         if command == "stop" then
             item = NSXAgentStreams::stopStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
-            $NSXStreamSmallCarrier.reloadWatchedObjectsFromDisk()
             return
         end
         if command == "done" then
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsTimeTracking::addTimeInSecondsToStream(item["streamuuid"], 60) # 5 minutes
             NSXStreamsUtils::destroyItem(item)
-            $NSXStreamSmallCarrier.removeObject(item["uuid"])
             return
         end
         if command == "recast" then
@@ -133,24 +128,22 @@ class NSXAgentStreams
             item = NSXAgentStreams::stopStreamItem(item)
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
-            $NSXStreamSmallCarrier.removeObject(item["uuid"])
             return
         end
         if command == "push" then
             options = [
-                "put to position 5 on stream",
+                "put to position 6 on stream",
                 "put to end of stream"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option == "put to position 5 on stream" then
-                item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 5, item["uuid"])
+            if option == "put to position 6 on stream" then
+                item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 6, item["uuid"])
                 NSXStreamsUtils::commitItemToDisk(item)
             end
             if option == "put to end of stream" then
                 item["ordinal"] = NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
                 NSXStreamsUtils::commitItemToDisk(item)
             end
-            $NSXStreamSmallCarrier.removeObject(item["uuid"])
             return
         end
     end
