@@ -10,17 +10,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
 
 class NSXCatalystObjectsOperator
 
-    # NSXCatalystObjectsOperator::catalystObjectWaterLevel()
-    def self.catalystObjectWaterLevel()
-        object = {}
-        object["uuid"] = "0c1daadd-5759-4775-9b42-957bf9701506"
-        object["agentuid"] = nil
-        object["metric"] = 0.3
-        object["announce"] = "-- water level --"
-        object["commands"] = []
-        object
-    end
-
     # NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
     def self.getSomeObjectsFromAgents()
         NSXBob::agents()
@@ -39,12 +28,28 @@ class NSXCatalystObjectsOperator
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-            .select{|object| object['metric'] >= 0.2 }
-        objects = objects + [ NSXCatalystObjectsOperator::catalystObjectWaterLevel() ]
-        objects
+
+        objects = objects + NSXCatalystSpecialObjects::objects()
+
+        objects = objects
             .select{|object| object['metric'] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
+
+        # Now we remove any object after special object 1
+        objects = objects.reduce([]) { |collection, object|
+            if collection.any?{|o| o["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" } then
+                collection
+            else
+                collection + [ object ]
+            end
+        }
+
+        objects = objects
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+
+        objects
     end
 
     # NSXCatalystObjectsOperator::notifyAllDoneObjects()

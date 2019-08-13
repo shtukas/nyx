@@ -46,9 +46,9 @@ class NSXStreamsTimeTracking
         Torr::weight("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400)
     end
 
-    # NSXStreamsTimeTracking::streamWideDisplayMultipler(streamuuid, hoursExpectation)
-    def self.streamWideDisplayMultipler(streamuuid, hoursExpectation)
-        Torr::metric("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400, 3600*hoursExpectation, 1, 0.5)
+    # NSXStreamsTimeTracking::streamWideMetric(streamuuid, expectationTimeInSeconds, metricAtTarget)
+    def self.streamWideMetric(streamuuid, expectationTimeInSeconds, metricAtZero, metricAtTarget)
+        Torr::metric("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400, expectationTimeInSeconds, metricAtZero, metricAtTarget)
     end
 
 end

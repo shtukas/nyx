@@ -39,6 +39,7 @@ class NSXAgentStreams
         return item if item.nil?
         return item if !NSXRunner::isRunning?(item["uuid"])
         runningTimeInSeconds = NSXRunner::stop(item["uuid"])
+        puts "Adding #{runningTimeInSeconds} seconds to stream: #{item["streamuuid"]}"
         NSXStreamsTimeTracking::addTimeInSecondsToStream(item["streamuuid"], runningTimeInSeconds)
     end
 

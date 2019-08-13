@@ -1,7 +1,5 @@
 # encoding: UTF-8
 
-$X573751EE = []
-
 # This variable contains the objects of the current display.
 # We use it to speed up display after some operations
 
@@ -21,16 +19,14 @@ class NSXCatalystUI
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
-    # NSXCatalystUI::shouldRemoveObjectFromItsDomain(command, object)
-    def self.shouldRemoveObjectFromItsDomain(command, object)
-        return true if ( command == ".." and object["defaultExpression"] == "open; done" )
+    # NSXCatalystUI::canPerformAnAsynchronousDoneWithoutRecomputingObjects(object)
+    def self.canPerformAnAsynchronousDoneWithoutRecomputingObjects(object)
+        return true if object["agentuid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d"
         false
     end
 
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
-
-        $X573751EE = displayObjects.map{|object| object.clone }
 
         system("clear")
 
@@ -92,28 +88,25 @@ class NSXCatalystUI
 
         # -----------------------------------------------------------------------------------
 
-        if command == "open" then
-            NSXGeneralCommandHandler::processCommand(focusobject, "open")
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
-            return
-        end
-
-        if command == "done" then
-            Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            }
-            $X573751EE = $X573751EE.reject{|object| object["uuid"]==focusobject["uuid"] }
-            displayObjects = $X573751EE.map{|object| object.clone }
-            NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
-            return
-        end
-
         if command.start_with?("'") then
             position = command[1,9].strip.to_i
             return if position==0
             return if position > displayObjects.size
             object = displayObjects[position-1]
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            return
+        end
+
+        if focusobject["executionLambdas"] and focusobject["executionLambdas"][command] then
+            focusobject["executionLambdas"][command].call(focusobject)
+            return
+        end
+
+        if command=="done" and NSXCatalystUI::canPerformAnAsynchronousDoneWithoutRecomputingObjects(focusobject) then
+            Thread.new {
+                NSXGeneralCommandHandler::processCommand(focusobject, "done")
+            }
+            NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|o| o["uuid"] == focusobject["uuid"] })
             return
         end
 

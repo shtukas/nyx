@@ -412,8 +412,10 @@ class NSXStreamsUtils
         repositorylocation = "/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository"
         collectionuuid = "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}"
         stabililityPeriodInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)
-        if Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds) < NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)then
-            NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"]) + Math.exp(-item["ordinal"].to_f/100).to_f/100
+        expectationTimeInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)*3600
+        metricAtZero = NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid)
+        if NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid) < expectationTimeInSeconds then
+            NSXStreamsTimeTracking::streamWideMetric(streamuuid, expectationTimeInSeconds, metricAtZero, metricAtZero-0.1) + Math.exp(-item["ordinal"].to_f/100).to_f/100
         else
             0.25 + NSXMiscUtils::traceToMetricShift(item["uuid"])
         end

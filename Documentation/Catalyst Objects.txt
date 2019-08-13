@@ -1,30 +1,35 @@
 
+# ------------------------------------------------------------------
 CatalystObject
 {
-    "uuid"               : UUID
-    "agentuid"           : nil or String
-    "metric"             : Float
-    "announce"           : String
-    "body"               : String # Optional [1]
-    "commands"           : Array[String]
-    "defaultExpression"  : Null or String # Optional
-    "isRunning"          : Boolean # Optional
-    "isDone"             : Boolean # Optional [2]
-    "commandToShellInvocation" : CommandToShellInvocation # optional only used by The Bridge
+    "uuid"              : UUID
+    "agentuid"          : String # Optional
+    "metric"            : Float
+    "announce"          : String
+    "body"              : String # Optional [1]
+    "commands"          : Array[String]
+    "defaultExpression" : String # Optional
+    "executionLambdas"  : Map[command: String, Lambda] # Optional [3]
+    "isRunning"         : Boolean # Optional
+    "isDone"            : Boolean # Optional [2]
+
 }
 
 [1] Used when present and if the object is focus.
-[2] When true, triggers the on screen notification. The most common use if this is to alert that a running object is done. In this case it is set to trus only while "isRunning" is also true.
 
-CatalystObjectTheBridgeCLI
+[2] When true, triggers the on screen notification. The most common use if this is to alert that a running object is done.
+
+[3] Take priority over anything else, used at the Catalyst UI level. The lambda should take the object as argument.
+
+# ------------------------------------------------------------------
+CatalystObject :: TheBridgeCLI
 {
     (...)
-    "commandToShellInvocation" : CommandToShellInvocation
+    "commandToShellInvocation" : Map[String#Command, String#Shell]
 }
 
-CommandToShellInvocation = Map[String#Command, String#Shell]
-
-CatalystObjectTheBridgeDistributedRuby
+# ------------------------------------------------------------------
+CatalystObject :: TheBridgeDistributedRuby
 {
     (...)
     "service-port" : Integer

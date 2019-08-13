@@ -152,12 +152,6 @@ class NSXGeneralCommandHandler
 
         # object needed
 
-        if command == ".." and object["defaultExpression"] and object["defaultExpression"]!=".." then
-            command = object["defaultExpression"]
-            NSXGeneralCommandHandler::processCommand(object, command)
-            return
-        end
-
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"])
@@ -187,11 +181,22 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == ".." and object["defaultExpression"] and object["defaultExpression"] != ".." then
+            NSXGeneralCommandHandler::processCommand(object, object["defaultExpression"])
+            return
+        end
+
+        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+        return if agentdata.nil?
         command.split(";").map{|t| t.strip }
             .each{|command|
-                agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
-                next if agentdata.nil?
                 agentdata["object-command-processor"].call(object, command)
             }
+
+        if command == "open" then
+            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            return
+        end
+
     end
 end

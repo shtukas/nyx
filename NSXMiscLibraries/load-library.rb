@@ -4,6 +4,7 @@
 require_relative "NSXCatalystUI.rb"
 require_relative "NSXConstants.rb"
 require_relative "NSXBob.rb"
+require_relative "NSXCatalystSpecialObjects.rb"
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXDisplayUtils.rb"
 require_relative "NSXGeneralCommandHandler.rb"
