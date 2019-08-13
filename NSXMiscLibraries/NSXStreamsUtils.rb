@@ -251,25 +251,25 @@ class NSXStreamsUtils
             {
                 "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
                 "description"        => "Catalyst Inbox",
-                "naturalMetric"      => 0.85,
+                "naturalMetric"      => 0.70,
                 "hoursExpectation"   => 2,
             },
             {
                 "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",
                 "description"        => "Pascal Technology Jedi",
-                "naturalMetric"      => 0.70,
+                "naturalMetric"      => 0.50,
                 "hoursExpectation"   => 2,
             },
             {
                 "streamuuid"         => "38d5658ed46c4daf0ec064e58fb2b97a",
                 "description"        => "Personal Entertainment",
-                "naturalMetric"      => 0.60,
+                "naturalMetric"      => 0.40,
                 "hoursExpectation"   => 1,
             },
             {
                 "streamuuid"         => "00010011101100010011101100011001",
                 "description"        => "Infinity Stream",
-                "naturalMetric"      => 0.50,
+                "naturalMetric"      => 0.30,
                 "hoursExpectation"   => 1,
             }
         ]
@@ -407,11 +407,15 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
     def self.streamItemToStreamCatalystMetric(item)
-        streamNaturalMetric = NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"])
-        hoursExpectation = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"])
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
-        metric = streamNaturalMetric + Math.exp(-item["ordinal"].to_f/100).to_f/100
-        metric = (metric - 0.2) * NSXStreamsTimeTracking::streamWideDisplayMultipler(item["streamuuid"], hoursExpectation) + 0.2
-        metric
+        streamuuid = item["streamuuid"]
+        repositorylocation = "/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository"
+        collectionuuid = "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}"
+        stabililityPeriodInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)
+        if Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds) < NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)then
+            NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"]) + Math.exp(-item["ordinal"].to_f/100).to_f/100
+        else
+            0.25 + NSXMiscUtils::traceToMetricShift(item["uuid"])
+        end
     end
 end

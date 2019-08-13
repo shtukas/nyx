@@ -36,11 +36,6 @@ WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH
 
 # ----------------------------------------------------------------------
 
-# WaveSchedules::scheduleToAnnounce(schedule)
-# WaveSchedules::scheduleOfTypeDateIsInTheFuture(schedule)
-# WaveSchedules::scheduleToDoNotShowDatetime(objectuuid, schedule)
-# WaveSchedules::scheduleToMetric(schedule)
-
 class WaveSchedules
 
     def self.makeScheduleObjectInteractivelyEnsureChoice()
@@ -156,7 +151,7 @@ class WaveSchedules
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? 0.95 : 0
+            return Time.new.hour >= schedule['from-hour'] ? 0.85 : 0
         end
 
         # Repeats
@@ -169,10 +164,10 @@ class WaveSchedules
             return 0.85
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.70
+            return 0.85
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.70
+            return 0.85
         end
         1
     end
