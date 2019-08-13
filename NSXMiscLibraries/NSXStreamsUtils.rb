@@ -177,7 +177,6 @@ class NSXStreamsUtils
         item["ordinal"]                  = ordinal
         item["filename"]                 = "#{NSXStreamsUtils::timeStringL22()}.StreamItem.json"
         item['generic-content-item']     = genericContentItem
-        item["run-data"]                 = []
 
         # The next one should come after 'generic-content-item' has been set
         item["announce"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
@@ -395,18 +394,14 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
     def self.streamItemToStreamCatalystDefaultCommand(item)
-        if item['streamuuid'] == "03b79978bcf7a712953c5543a9df9047" then
-            if NSXRunner::isRunning?(item["uuid"]) then
-                nil
-            else
-                if item["announce"].start_with?('[Catalyst Inbox] http') then
-                    "open ; done"
-                else
-                    "open"
-                end
-            end
+        if NSXRunner::isRunning?(item["uuid"]) then
+            nil
         else
-            NSXRunner::isRunning?(item["uuid"]) ? nil : "start ; open"
+            if item["announce"].start_with?('[Catalyst Inbox] http') then
+                "start ; open"
+            else
+                "start"
+            end
         end
     end
 

@@ -38,17 +38,8 @@ class NSXAgentStreams
     def self.stopStreamItem(item)
         return item if item.nil?
         return item if !NSXRunner::isRunning?(item["uuid"])
-        if item["run-data"].nil? then
-            item["run-data"] = []
-        end
         runningTimeInSeconds = NSXRunner::stop(item["uuid"])
         NSXStreamsTimeTracking::addTimeInSecondsToStream(item["streamuuid"], runningTimeInSeconds)
-        item["run-data"] << [Time.new.to_i, runningTimeInSeconds]
-        if item["run-data"].map{|x| x[1] }.inject(0, :+) >= 3600 then
-            item["run-data"] = []
-            item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 5, item["uuid"])
-        end
-        item
     end
 
     # NSXAgentStreams::doneStreamItemEmailCarrier(itemuuid)
@@ -92,17 +83,15 @@ class NSXAgentStreams
         if command == "start" then
             NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
-            NSXStreamsUtils::commitItemToDisk(item)
             return
         end
         if command == "stop" then
-            item = NSXAgentStreams::stopStreamItem(item)
-            NSXStreamsUtils::commitItemToDisk(item)
+            NSXAgentStreams::stopStreamItem(item)
             return
         end
         if command == "done" then
+            NSXAgentStreams::stopStreamItem(item)
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
-            NSXStreamsTimeTracking::addTimeInSecondsToStream(item["streamuuid"], 60) # 5 minutes
             NSXStreamsUtils::destroyItem(item)
             return
         end
@@ -125,7 +114,7 @@ class NSXAgentStreams
                     end
                 end
             end
-            item = NSXAgentStreams::stopStreamItem(item)
+            NSXAgentStreams::stopStreamItem(item)
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
             return

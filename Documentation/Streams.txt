@@ -11,15 +11,6 @@ StreamItem extends CatalystObject {
     commands                 : Array[String]
     filename                 : String
     generic-content-item     : GenericContentItem
-    run-data                 : nil | Array[StreamItemRunTimeData]
     filename                 : String # added by the extractor
     filepath                 : String # last known filepath # added by the extractor
 }
-
-StreamItemRunTimeData : [Unixtime, TimespanInSeconds]
-
-Rules:
-    1. The streams are processed as FIFO queues.
-    2. The first three items are active.
-    3. The others are ignored.
-    4. When an item has been worked on more than one hour, it is pushed to position 5.
