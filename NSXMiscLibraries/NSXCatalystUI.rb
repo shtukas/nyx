@@ -39,6 +39,18 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
+        nextContents = IO.read("/Users/pascal/Desktop/Catalayst-Next.txt")
+                            .strip
+                            .lines
+                            .first(10)
+                            .join
+        if nextContents.size>0 then
+            puts "-- next ---------------"
+            puts nextContents
+            puts "-----------------------"
+            verticalSpaceLeft = verticalSpaceLeft - (nextContents.lines.to_a.size + 1)
+        end
+
         if displayObjects.size==0 then
             puts "No objects found"
             print "--> "
