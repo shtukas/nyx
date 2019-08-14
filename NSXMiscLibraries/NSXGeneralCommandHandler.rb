@@ -181,22 +181,20 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == ".." and object["defaultExpression"] and object["defaultExpression"] != ".." then
-            NSXGeneralCommandHandler::processCommand(object, object["defaultExpression"])
+        if command == ".." and object["defaultCommand"] and object["defaultCommand"] != ".." then
+            NSXGeneralCommandHandler::processCommand(object, object["defaultCommand"])
             return
         end
+
 
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
         return if agentdata.nil?
-        command.split(";").map{|t| t.strip }
-            .each{|command|
-                agentdata["object-command-processor"].call(object, command)
-            }
 
-        if command == "open" then
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
-            return
-        end
+        command.split(';')
+            .map{|fragment| fragment.strip }
+            .each{|fragment|
+                agentdata["object-command-processor"].call(object, fragment)
+            }
 
     end
 end

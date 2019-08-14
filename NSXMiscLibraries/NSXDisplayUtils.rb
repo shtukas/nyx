@@ -17,7 +17,7 @@ class NSXDisplayUtils
         part2 = 
             [
                 object["commands"] ? " #{object["commands"].join(" ")}" : '',
-                object["defaultExpression"] ? " (#{object["defaultExpression"].green})" : ""
+                object["defaultCommand"] ? " (#{object["defaultCommand"].green})" : ""
             ].join()
         part2.strip
     end
@@ -74,7 +74,7 @@ class NSXDisplayUtils
         puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1)
         print "-->(2) "
         command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["defaultExpression"] ? object["defaultExpression"] : "" )
+        command = command.size>0 ? command : ( object["defaultCommand"] ? object["defaultCommand"] : "" )
         NSXGeneralCommandHandler::processCommand(object, command)
     end
 

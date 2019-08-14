@@ -265,8 +265,8 @@ class NSXAgentWave
         commands
     end
 
-    # NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
-    def self.defaultExpression(objectuuid, folderProbeMetadata, schedule)
+    # NSXAgentWave::defaultCommand(objectuuid, folderProbeMetadata, schedule)
+    def self.defaultCommand(objectuuid, folderProbeMetadata, schedule)
         if folderProbeMetadata["target-type"] == "openable-file" then
             return "open"
         end
@@ -369,7 +369,7 @@ class NSXAgentWave
         object['announce'] = NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
         object['commands'] = NSXAgentWave::commands(schedule)
-        object["defaultExpression"] = NSXAgentWave::defaultExpression(objectuuid, folderProbeMetadata, schedule)
+        object["defaultCommand"] = NSXAgentWave::defaultCommand(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location

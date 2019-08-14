@@ -21,7 +21,8 @@ class NSXCatalystUI
 
     # NSXCatalystUI::canPerformAnAsynchronousDoneWithoutRecomputingObjects(object)
     def self.canPerformAnAsynchronousDoneWithoutRecomputingObjects(object)
-        return true if object["agentuid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d"
+        return true if object["agentuid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" # Wave
+        return true if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" # Stream
         false
     end
 
@@ -46,7 +47,7 @@ class NSXCatalystUI
                             .join
         if nextContents.size>0 then
             puts "-- next ---------------"
-            puts nextContents
+            puts nextContents.red
             puts "-----------------------"
             verticalSpaceLeft = verticalSpaceLeft - (nextContents.lines.to_a.size + 1)
         end

@@ -164,7 +164,7 @@ class NSXAgentDesktopLucilleFile
                     "announce"           => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}",
                     "body"               => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}",
                     "commands"           => ["done", ">stream"],
-                    "defaultExpression"  => "done",
+                    "defaultCommand"  => "done",
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),
                     "section"            => section
                 }

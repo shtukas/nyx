@@ -17,7 +17,7 @@ class NSXCatalystSpecialObjects
 
     # NSXCatalystSpecialObjects::specialObject1OrNull()
     def self.specialObject1OrNull()
-        return nil if KeyValueStore::flagIsTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f")
+        return nil if KeyValueStore::flagIsTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
         object = {}
         object["uuid"] = "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
         object["agentuid"] = nil
@@ -26,7 +26,7 @@ class NSXCatalystSpecialObjects
         object["commands"] = ["done"]
         object["executionLambdas"] = {
             "done" => lambda{|object| 
-                KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f")
+                KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
             }
         }
         object

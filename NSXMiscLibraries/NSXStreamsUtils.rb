@@ -181,7 +181,7 @@ class NSXStreamsUtils
         # The next one should come after 'generic-content-item' has been set
         item["announce"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
         item["commands"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-        item["defaultExpression"]        = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+        item["defaultCommand"]        = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
 
         NSXStreamsUtils::commitItemToDisk(item)
         item
@@ -194,7 +194,7 @@ class NSXStreamsUtils
         item["announce"] = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
         item["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
         item["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-        item["defaultExpression"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+        item["defaultCommand"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
         item
     end
 

@@ -2,16 +2,16 @@
 # ------------------------------------------------------------------
 CatalystObject
 {
-    "uuid"              : UUID
-    "agentuid"          : String # Optional
-    "metric"            : Float
-    "announce"          : String
-    "body"              : String # Optional [1]
-    "commands"          : Array[String]
-    "defaultExpression" : String # Optional
-    "executionLambdas"  : Map[command: String, Lambda] # Optional [3]
-    "isRunning"         : Boolean # Optional
-    "isDone"            : Boolean # Optional [2]
+    "uuid"             : UUID
+    "agentuid"         : String # Optional
+    "metric"           : Float
+    "announce"         : String
+    "body"             : String # Optional [1]
+    "commands"         : Array[String]
+    "defaultCommand"   : String # Optional
+    "executionLambdas" : Map[command: String, Lambda] # Optional [3]
+    "isRunning"        : Boolean # Optional
+    "isDone"           : Boolean # Optional [2]
 
 }
 
