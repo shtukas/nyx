@@ -252,7 +252,7 @@ class NSXStreamsUtils
                 "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
                 "description"        => "Catalyst Inbox",
                 "naturalMetric"      => 0.70,
-                "hoursExpectation"   => 2,
+                "hoursExpectation"   => 0.5,
             },
             {
                 "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",

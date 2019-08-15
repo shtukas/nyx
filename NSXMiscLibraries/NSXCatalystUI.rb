@@ -110,6 +110,12 @@ class NSXCatalystUI
             return
         end
 
+        if command == "+" then
+            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
+            NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
+            return
+        end
+
         if focusobject["executionLambdas"] and focusobject["executionLambdas"][command] then
             focusobject["executionLambdas"][command].call(focusobject)
             return
