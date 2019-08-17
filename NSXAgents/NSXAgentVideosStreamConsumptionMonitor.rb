@@ -22,14 +22,14 @@ XSPACE_VIDEO_REPOSITORY_FOLDERPATH = "/x-space/YouTube Videos"
 
 ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH = "/Volumes/EnergyGrid/Data/Pascal/YouTube Videos"
 
-class VideosStreamConsumptionMonitor
+class NSXAgentVideosStreamConsumptionMonitor
 
-    # VideosStreamConsumptionMonitor::agentuuid()
+    # NSXAgentVideosStreamConsumptionMonitor::agentuuid()
     def self.agentuuid()
         "6e02cc3f-5342-46b8-b98c-7865b7e163f1"
     end
 
-    # VideosStreamConsumptionMonitor::getObjects()
+    # NSXAgentVideosStreamConsumptionMonitor::getObjects()
     def self.getObjects()
         []
     end
@@ -42,12 +42,12 @@ class VideosStreamConsumptionMonitor
             .sort
     end
 
-    # VideosStreamConsumptionMonitor::getAllObjects()
+    # NSXAgentVideosStreamConsumptionMonitor::getAllObjects()
     def self.getAllObjects()
         loop {
-            break if VideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 200
-            break if VideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).size == 0
-            filepath = VideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).first
+            break if NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 200
+            break if NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).size == 0
+            filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).first
             filename = File.basename(filepath)
             targetFilepath = "#{XSPACE_VIDEO_REPOSITORY_FOLDERPATH}/#{filename}"
             FileUtils.mv(filepath, targetFilepath)
@@ -66,7 +66,7 @@ class VideosStreamConsumptionMonitor
         ]
     end
 
-    # VideosStreamConsumptionMonitor::processObjectAndCommand(object, command)
+    # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
         if command == "open" then
             return 
