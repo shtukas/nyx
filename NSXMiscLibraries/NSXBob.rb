@@ -73,11 +73,11 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "NSXAgentTheBridgeCLIs",
+        "agent-name"  => "NSXAgentAnniversaries",
         "agentuid"    => "d2422ba0-88e9-4abb-9ab9-6d609015268f",
-        "get-objects" => lambda { NSXAgentTheBridgeCLIs::getObjects() },
-        "get-objects-all" => lambda { NSXAgentTheBridgeCLIs::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentTheBridgeCLIs::processObjectAndCommand(object, command) },
+        "get-objects" => lambda { NSXAgentAnniversaries::getObjects() },
+        "get-objects-all" => lambda { NSXAgentAnniversaries::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentAnniversaries::processObjectAndCommand(object, command) },
     }
 )
 
