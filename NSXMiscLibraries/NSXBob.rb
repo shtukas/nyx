@@ -33,7 +33,7 @@ end
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "Streams",
+        "agent-name"  => "DesktopFilesMonitor",
         "agentuid"    => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
         "get-objects" => lambda { NSXDesktopFilesMonitor::getObjects() },
         "get-objects-all" => lambda { NSXDesktopFilesMonitor::getAllObjects() },
@@ -43,7 +43,7 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "Streams",
+        "agent-name"  => "VideosStreamConsumptionMonitor",
         "agentuid"    => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
         "get-objects" => lambda { NSXAgentVideosStreamConsumptionMonitor::getObjects() },
         "get-objects-all" => lambda { NSXAgentVideosStreamConsumptionMonitor::getAllObjects() },
@@ -63,7 +63,7 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "TodayNotes",
+        "agent-name"  => "DesktopLucilleFile",
         "agentuid"    => "f7b21eb4-c249-4f0a-a1b0-d5d584c03316",
         "get-objects" => lambda { NSXAgentDesktopLucilleFile::getObjects() },
         "get-objects-all" => lambda { NSXAgentDesktopLucilleFile::getAllObjects() },
@@ -93,7 +93,7 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "NSXAgentAnniversaries",
+        "agent-name"  => "Anniversaries",
         "agentuid"    => "d2422ba0-88e9-4abb-9ab9-6d609015268f",
         "get-objects" => lambda { NSXAgentAnniversaries::getObjects() },
         "get-objects-all" => lambda { NSXAgentAnniversaries::getAllObjects() },
@@ -103,7 +103,7 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "NSXAgentBackupsMonitor",
+        "agent-name"  => "BackupsMonitor",
         "agentuid"    => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
         "get-objects" => lambda { NSXAgentBackupsMonitor::getObjects() },
         "get-objects-all" => lambda { NSXAgentBackupsMonitor::getAllObjects() },
