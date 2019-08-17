@@ -47,7 +47,7 @@ class NSXCatalystUI
                             .join
         if nextContents.size>0 then
             puts "-- next ---------------"
-            puts nextContents.red
+            puts nextContents.strip.red
             puts "-----------------------"
             verticalSpaceLeft = verticalSpaceLeft - (nextContents.lines.to_a.size + 1)
         end
