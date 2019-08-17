@@ -83,12 +83,12 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "NSXAgentTheBridgeDistributedRuby",
+        "agent-name"  => "NSXAgentBackupsMonitor",
         "agentuid"    => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
-        "get-objects" => lambda { NSXAgentTheBridgeDistributedRuby::getObjects() },
-        "get-objects-all" => lambda { NSXAgentTheBridgeDistributedRuby::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentTheBridgeDistributedRuby::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentTheBridgeDistributedRuby::interface() }
+        "get-objects" => lambda { NSXAgentBackupsMonitor::getObjects() },
+        "get-objects-all" => lambda { NSXAgentBackupsMonitor::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentBackupsMonitor::processObjectAndCommand(object, command) },
+        "interface"   => lambda { NSXAgentBackupsMonitor::interface() }
     }
 )
 
