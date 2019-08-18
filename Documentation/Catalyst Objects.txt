@@ -20,16 +20,3 @@ CatalystObject
 
 [3] Take priority over anything else, used at the Catalyst UI level. The lambda should take the object as argument.
 
-# ------------------------------------------------------------------
-CatalystObject :: TheBridgeCLI
-{
-    (...)
-    "commandToShellInvocation" : Map[String#Command, String#Shell]
-}
-
-# ------------------------------------------------------------------
-CatalystObject :: TheBridgeDistributedRuby
-{
-    (...)
-    "service-port" : Integer
-}
