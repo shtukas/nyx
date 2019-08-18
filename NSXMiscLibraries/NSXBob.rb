@@ -54,6 +54,16 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
+        "agent-name"  => "DailyGuardianWork",
+        "agentuid"    => "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba",
+        "get-objects" => lambda { NSXAgentDailyGuardianWork::getObjects() },
+        "get-objects-all" => lambda { NSXAgentDailyGuardianWork::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentDailyGuardianWork::processObjectAndCommand(object, command) },
+    }
+)
+
+NSXBob::registerAgent(
+    {
         "agent-name"  => "DailyTimeCommitments",
         "agentuid"    => "8b881a6f-33b7-497a-9293-2aaeefa16c18",
         "get-objects" => lambda { NSXAgentDailyTimeCommitments::getObjects() },

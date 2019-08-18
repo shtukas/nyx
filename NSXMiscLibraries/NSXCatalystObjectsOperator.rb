@@ -29,8 +29,6 @@ class NSXCatalystObjectsOperator
         objects = NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
 
-        objects = objects + NSXCatalystSpecialObjects::objects()
-
         objects = objects
             .select{|object| object['metric'] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
