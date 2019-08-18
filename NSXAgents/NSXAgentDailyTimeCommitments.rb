@@ -55,14 +55,21 @@ class NSXAgentDailyTimeCommitments
         JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/Daily-Time-Commitments/entries.json"))
     end
 
-    # NSXAgentDailyTimeCommitments::entryToCatalystObject(entry)
-    def self.entryToCatalystObject(entry)
+    # NSXAgentDailyTimeCommitments::entryToPercentage(entry)
+    def self.entryToPercentage(entry)
         uuid = entry["uuid"]
         todayTimeInSeconds = BTreeSets::values(nil, "entry-uuid-to-timing-set-uuids:qw213ew:#{uuid}")
             .select{|timingEntry| timingEntry["date"] == NSXMiscUtils::currentDay() }
             .map{|timingEntry| timingEntry["timespan"] }
             .inject(0, :+)
         percentageDone = 100 * todayTimeInSeconds.to_f/(entry["commitmentInHours"]*3600)
+        percentageDone
+    end
+
+    # NSXAgentDailyTimeCommitments::entryToCatalystObject(entry)
+    def self.entryToCatalystObject(entry)
+        uuid = entry["uuid"]
+        percentageDone = NSXAgentDailyTimeCommitments::entryToPercentage(entry)
         isRunning = NSXRunner::isRunning?(uuid)
         {
             "uuid"      => uuid,
@@ -101,4 +108,17 @@ class NSXAgentDailyTimeCommitments
         end
     end
 end
+
+Thread.new {
+    loop {
+        sleep 120
+        status = NSXAgentDailyTimeCommitments::getEntries()
+            .select{|entry| NSXRunner::isRunning?(entry["uuid"]) }
+            .map{|entry| NSXAgentDailyTimeCommitments::entryToPercentage(entry) }
+            .any?{|percentage| percentage>100 }
+        if status then
+            NSXMiscUtils::onScreenNotification("Daily time commitment", "Running item at 100%")
+        end
+    }
+}
 
