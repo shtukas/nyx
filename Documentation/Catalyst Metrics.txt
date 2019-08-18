@@ -5,6 +5,7 @@
         0.80 Lucille file
         0.70 Catalyst Inbox (starting position)
         0.60 Daily Work Special Objects
+        0.55 Daily Time Commitments
         0.50 Pascal Technology Jedi (starting position)
         0.40 Personal Entertainment (starting position)
         0.30 Infinity Stream (starting position)

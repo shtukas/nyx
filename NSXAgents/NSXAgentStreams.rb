@@ -15,6 +15,18 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
     Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
 =end
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -------------------------------------------------------------------------------------
 
 $CATALYST_OBJECTS_CACHE_39192FFA = nil
@@ -45,6 +57,7 @@ class NSXAgentStreams
         else
             objects = NSXStreamsUtils::getCatalystObjectsForDisplay()
             $CATALYST_OBJECTS_CACHE_39192FFA = objects.map{|o| o.clone }
+            KeyValueStore::set(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235", JSON.generate(objects))
             objects
         end
     end
@@ -164,10 +177,16 @@ class NSXAgentStreams
     end
 end
 
+begin
+    $CATALYST_OBJECTS_CACHE_39192FFA = JSON.parse(KeyValueStore::getOrNull(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235"))
+rescue
+end
+
 Thread.new {
     loop {
         sleep 300
         objects = NSXStreamsUtils::getCatalystObjectsForDisplay()
         $CATALYST_OBJECTS_CACHE_39192FFA = objects.map{|o| o.clone }
+        KeyValueStore::set(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235", JSON.generate(objects))
     }
 }

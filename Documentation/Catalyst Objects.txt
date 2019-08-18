@@ -12,7 +12,6 @@ CatalystObject
     "executionLambdas" : Map[command: String, Lambda] # Optional [3]
     "isRunning"        : Boolean # Optional
     "isDone"           : Boolean # Optional [2]
-
 }
 
 [1] Used when present and if the object is focus.
