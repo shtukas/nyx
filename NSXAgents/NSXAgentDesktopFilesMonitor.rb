@@ -7,14 +7,14 @@ require 'drb/drb'
 
 # -----------------------------------------------------------------
 
-class NSXDesktopFilesMonitor
+class NSXAgentDesktopFilesMonitor
 
-    # NSXDesktopFilesMonitor::agentuuid()
+    # NSXAgentDesktopFilesMonitor::agentuuid()
     def self.agentuuid()
         "ec12c56b-9692-424e-bb17-220b9066407d"
     end
 
-    # NSXDesktopFilesMonitor::getObjects()
+    # NSXAgentDesktopFilesMonitor::getObjects()
     def self.getObjects()
         []
     end
@@ -23,7 +23,7 @@ class NSXDesktopFilesMonitor
         Dir.entries("/Users/pascal/Desktop").size > 10
     end
 
-    # NSXDesktopFilesMonitor::getAllObjects()
+    # NSXAgentDesktopFilesMonitor::getAllObjects()
     def self.getAllObjects()
         return [] if !shouldAlert()
         [
@@ -39,7 +39,7 @@ class NSXDesktopFilesMonitor
         ]
     end
 
-    # NSXDesktopFilesMonitor::processObjectAndCommand(object, command)
+    # NSXAgentDesktopFilesMonitor::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
 
     end

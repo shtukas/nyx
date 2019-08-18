@@ -33,21 +33,42 @@ end
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "DesktopFilesMonitor",
-        "agentuid"    => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
-        "get-objects" => lambda { NSXDesktopFilesMonitor::getObjects() },
-        "get-objects-all" => lambda { NSXDesktopFilesMonitor::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXDesktopFilesMonitor::processObjectAndCommand(object, command) },
+        "agent-name"  => "Anniversaries",
+        "agentuid"    => "639beee6-c12e-4cb8-bc9a-f7890fa95db0",
+        "get-objects" => lambda { NSXAgentAnniversaries::getObjects() },
+        "get-objects-all" => lambda { NSXAgentAnniversaries::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentAnniversaries::processObjectAndCommand(object, command) },
     }
 )
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "VideosStreamConsumptionMonitor",
-        "agentuid"    => "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1",
-        "get-objects" => lambda { NSXAgentVideosStreamConsumptionMonitor::getObjects() },
-        "get-objects-all" => lambda { NSXAgentVideosStreamConsumptionMonitor::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(object, command) },
+        "agent-name"  => "BackupsMonitor",
+        "agentuid"    => "63027c23-6131-4230-b49b-d3f23aa5ff54",
+        "get-objects" => lambda { NSXAgentBackupsMonitor::getObjects() },
+        "get-objects-all" => lambda { NSXAgentBackupsMonitor::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentBackupsMonitor::processObjectAndCommand(object, command) },
+        "interface"   => lambda { NSXAgentBackupsMonitor::interface() }
+    }
+)
+
+NSXBob::registerAgent(
+    {
+        "agent-name"  => "DailyTimeCommitments",
+        "agentuid"    => "8b881a6f-33b7-497a-9293-2aaeefa16c18",
+        "get-objects" => lambda { NSXAgentDailyTimeCommitments::getObjects() },
+        "get-objects-all" => lambda { NSXAgentDailyTimeCommitments::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentDailyTimeCommitments::processObjectAndCommand(object, command) },
+    }
+)
+
+NSXBob::registerAgent(
+    {
+        "agent-name"  => "DesktopLucilleFile",
+        "agentuid"    => "f7b21eb4-c249-4f0a-a1b0-d5d584c03316",
+        "get-objects" => lambda { NSXAgentDesktopLucilleFile::getObjects() },
+        "get-objects-all" => lambda { NSXAgentDesktopLucilleFile::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentDesktopLucilleFile::processObjectAndCommand(object, command) },
     }
 )
 
@@ -63,11 +84,11 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "DesktopLucilleFile",
-        "agentuid"    => "f7b21eb4-c249-4f0a-a1b0-d5d584c03316",
-        "get-objects" => lambda { NSXAgentDesktopLucilleFile::getObjects() },
-        "get-objects-all" => lambda { NSXAgentDesktopLucilleFile::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentDesktopLucilleFile::processObjectAndCommand(object, command) },
+        "agent-name"  => "VideosStreamConsumptionMonitor",
+        "agentuid"    => "6e02cc3f-5342-46b8-b98c-7865b7e163f1",
+        "get-objects" => lambda { NSXAgentVideosStreamConsumptionMonitor::getObjects() },
+        "get-objects-all" => lambda { NSXAgentVideosStreamConsumptionMonitor::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(object, command) },
     }
 )
 
@@ -93,23 +114,10 @@ NSXBob::registerAgent(
 
 NSXBob::registerAgent(
     {
-        "agent-name"  => "Anniversaries",
-        "agentuid"    => "d2422ba0-88e9-4abb-9ab9-6d609015268f",
-        "get-objects" => lambda { NSXAgentAnniversaries::getObjects() },
-        "get-objects-all" => lambda { NSXAgentAnniversaries::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentAnniversaries::processObjectAndCommand(object, command) },
+        "agent-name"  => "DesktopFilesMonitor",
+        "agentuid"    => "ec12c56b-9692-424e-bb17-220b9066407d",
+        "get-objects" => lambda { NSXAgentDesktopFilesMonitor::getObjects() },
+        "get-objects-all" => lambda { NSXAgentDesktopFilesMonitor::getAllObjects() },
+        "object-command-processor" => lambda{ |object, command| NSXAgentDesktopFilesMonitor::processObjectAndCommand(object, command) },
     }
 )
-
-NSXBob::registerAgent(
-    {
-        "agent-name"  => "BackupsMonitor",
-        "agentuid"    => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
-        "get-objects" => lambda { NSXAgentBackupsMonitor::getObjects() },
-        "get-objects-all" => lambda { NSXAgentBackupsMonitor::getAllObjects() },
-        "object-command-processor" => lambda{ |object, command| NSXAgentBackupsMonitor::processObjectAndCommand(object, command) },
-        "interface"   => lambda { NSXAgentBackupsMonitor::interface() }
-    }
-)
-
-
