@@ -63,13 +63,14 @@ class NSXAgentDailyTimeCommitments
             .map{|timingEntry| timingEntry["timespan"] }
             .inject(0, :+)
         percentageDone = 100 * todayTimeInSeconds.to_f/(entry["commitmentInHours"]*3600)
+        isRunning = NSXRunner::isRunning?(uuid)
         {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuuid(),
-            "metric"    => 0.55,
+            "metric"    => isRunning ? 2 : 0.55,
             "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{percentageDone.round(3)} %)",
-            "commands"  => NSXRunner::isRunning?(uuid) ? ["stop"] : ["start"],
-            "isRunning" => NSXRunner::isRunning?(uuid)
+            "commands"  => isRunning ? ["stop"] : ["start"],
+            "isRunning" => isRunning
         }
     end
 
