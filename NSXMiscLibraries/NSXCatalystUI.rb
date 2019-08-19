@@ -26,20 +26,8 @@ class NSXCatalystUI
         false
     end
 
-    # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
-    def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
-
-        system("clear")
-
-        while displayObjects.size>0 and NSXMiscUtils::objectIsAutoDone(displayObjects.first) do
-            puts "-> processing auto done".green
-            NSXGeneralCommandHandler::processCommand(displayObjects.first, "done")
-            displayObjects = displayObjects.drop(1)
-            return
-        end
-
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
-
+    # NSXCatalystUI::printCatalytNext()
+    def self.printCatalytNext()
         nextContents = IO.read("/Users/pascal/Desktop/Catalayst-Next.txt")
                             .strip
                             .lines
@@ -49,7 +37,25 @@ class NSXCatalystUI
             puts "-- next ---------------"
             puts nextContents.strip.red
             puts "-----------------------"
-            verticalSpaceLeft = verticalSpaceLeft - (nextContents.lines.to_a.size + 1)
+        end
+        nextContents.lines.to_a.size + 1
+    end
+
+    # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
+    def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
+
+        system("clear")
+
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
+
+        standardlp = NSXMiscUtils::getStandardListingPosition()
+        focusobject = nil
+
+        while displayObjects.size>0 and NSXMiscUtils::objectIsAutoDone(displayObjects.first) do
+            puts "-> processing auto done".green
+            NSXGeneralCommandHandler::processCommand(displayObjects.first, "done")
+            displayObjects = displayObjects.drop(1)
+            return
         end
 
         if displayObjects.size==0 then
@@ -60,27 +66,34 @@ class NSXCatalystUI
             return
         end
 
-        standardlp = NSXMiscUtils::getStandardListingPosition()
-        focusobject = nil
+        displayObjectForListing = displayObjects.map{|object| object.clone }
+        # displayObjectForListing is being consumed while displayObjects should remain static
 
-        displayObjects
-            .each_with_index{|object, indx|
-                position = indx+1
-                if (position>1 and verticalSpaceLeft<=0) then
-                    next
-                end
-                if position == standardlp then
-                    focusobject = object
-                end 
+        position = 0
+        hasDisplayedCatalystNext = false
+        while displayObjectForListing.size>0 do
+            break if verticalSpaceLeft<=0
 
-                displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == standardlp, position)
-                verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-                if (position > 1) and (position > standardlp) and (verticalSpaceLeft < verticalSize) then
-                    break
-                end
-                puts displayStr
-                verticalSpaceLeft = verticalSpaceLeft - verticalSize
-            }
+            if displayObjectForListing.all?{|object| object["metric"] <= 1 } and !hasDisplayedCatalystNext then
+                vspace = NSXCatalystUI::printCatalytNext()
+                verticalSpaceLeft = verticalSpaceLeft - vspace
+                hasDisplayedCatalystNext = true
+            end
+
+            # Position management
+            position = position + 1
+            object = displayObjectForListing.shift
+            if position == standardlp then
+                focusobject = object
+            end
+            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == standardlp, position)
+            verticalSize = NSXDisplayUtils::verticalSize(displayStr)
+            break if (position > 1) and (position > standardlp) and (verticalSpaceLeft < verticalSize)
+
+            # Display
+            puts displayStr
+            verticalSpaceLeft = verticalSpaceLeft - verticalSize
+        end
 
         if focusobject.nil? and (standardlp>1) then
             NSXMiscUtils::setStandardListingPosition(1)
