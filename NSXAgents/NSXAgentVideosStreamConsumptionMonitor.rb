@@ -57,9 +57,9 @@ class NSXAgentVideosStreamConsumptionMonitor
             {
                 "uuid"               => "f7845869-e058-44cd-bfae-3412957c7db9",
                 "agentuid"           => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
-                "metric"             => Torr::metric("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.8, 0.2),
+                "metric"             => Torr::metric("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
                 "announce"           => "videos stream consumption [day target 15]",
-                "commands"           => [],
+                "commands"           => ["view"],
                 "defaultCommand"     => nil,
                 ":meta:weight"       => Torr::weight("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400)
             }
@@ -68,7 +68,19 @@ class NSXAgentVideosStreamConsumptionMonitor
 
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(object, command)
-        if command == "open" then
+        if command == "view" then
+            filepath = videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+            return if filepath.nil?
+            puts filepath
+            if filepath.include?("'") then
+                filepath2 = filepath.gsub("'", ',')
+                FileUtils.mv(filepath, filepath2)
+                filepath = filepath2
+            end
+            system("open '#{filepath}'")
+            LucilleCore::pressEnterToContinue()
+            FileUtils.rm(filepath)
+            Torr::event("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 1)
             return 
         end
     end

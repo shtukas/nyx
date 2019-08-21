@@ -157,7 +157,7 @@ class NSXAgentAnniversaries
         object = {
             "uuid"      => "eace4480-b93c-4b2f-bfb4-600f300812d3",
             "agentuid"  => NSXAgentAnniversaries::agentuuid(),
-            "metric"    => 1,
+            "metric"    => 0.95,
             "announce"  => "anniversaries",
             "commands"  => ["process"],
             "defaultCommand" => "process"

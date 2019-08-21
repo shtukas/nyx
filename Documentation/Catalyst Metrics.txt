@@ -1,12 +1,16 @@
 
-        2.00 running
-0.90 -> 1.00 Interruptions
-        0.85 Wave items
-        0.80 Lucille file
+        2.00 [Generic] Running items
+0.90 -> 1.00 [Generic] Interruptions ; Wave sticky
+0.81 -> 0.84 Lucille desktop file
         0.70 Catalyst Inbox (starting position)
-        0.60 Daily Work Special Objects
-        0.55 Daily Time Commitments
+        0.65 Wave every-this-day-of-the-month/every-this-day-of-the-week
+        0.63 Wave every-n-hours
+        0.60 Daily Guardian Work (one special object)
+0.55 -> 0.59 Daily Time Commitments
+0.51 -> 0.54 [Generic] Ideally done today ; Wave every-n-days
         0.50 Pascal Technology Jedi (starting position)
         0.40 Personal Entertainment (starting position)
         0.30 Infinity Stream (starting position)
-0.20 -> 0.30 The Zone
+0.20 -> 0.30 [Generic] The Zone
+
+In addition of the above Catalyst-Next is displayed in the middle of the listing.

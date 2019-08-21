@@ -74,7 +74,7 @@ class NSXAgentDailyTimeCommitments
         {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuuid(),
-            "metric"    => isRunning ? 2 : 0.55,
+            "metric"    => isRunning ? 2 : 0.55 + 0.02*(percentageDone.to_f/100),
             "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{percentageDone.round(3)} %)",
             "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning

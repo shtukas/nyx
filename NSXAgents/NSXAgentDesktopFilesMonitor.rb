@@ -30,7 +30,7 @@ class NSXAgentDesktopFilesMonitor
             {
                 "uuid"               => "78558e33-68b0-4fc4-b7c5-b69192ea4f1c",
                 "agentuid"           => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
-                "metric"             => 0.9,
+                "metric"             => 0.95,
                 "announce"           => "Seeing too many files on the Desktop",
                 "commands"           => ["done"],
                 "defaultCommand"  => "done",

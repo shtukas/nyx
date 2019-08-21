@@ -151,23 +151,23 @@ class WaveSchedules
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? 0.85 : 0
+            return Time.new.hour >= schedule['from-hour'] ? 0.95 : 0
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.85
+            return 0.65
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.85
+            return 0.65
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.85
+            return 0.63
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.85
+            return 0.52
         end
         1
     end

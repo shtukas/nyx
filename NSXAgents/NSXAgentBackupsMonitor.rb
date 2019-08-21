@@ -58,7 +58,7 @@ class NSXAgentBackupsMonitor
         {
             "uuid"               => uuid,
             "agentuid"           => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
-            "metric"             => 0.8,
+            "metric"             => 0.53,
             "announce"           => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
             "commands"           => [],
             "service-port"       => 12345
