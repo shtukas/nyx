@@ -95,7 +95,7 @@ NSXBob::registerAgent(
 NSXBob::registerAgent(
     {
         "agent-name"  => "VideosStreamConsumptionMonitor",
-        "agentuid"    => "6e02cc3f-5342-46b8-b98c-7865b7e163f1",
+        "agentuid"    => "a3b9934f-4b01-4fca-80a3-63eb2a521df0",
         "get-objects" => lambda { NSXAgentVideosStreamConsumptionMonitor::getObjects() },
         "get-objects-all" => lambda { NSXAgentVideosStreamConsumptionMonitor::getAllObjects() },
         "object-command-processor" => lambda{ |object, command| NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(object, command) },

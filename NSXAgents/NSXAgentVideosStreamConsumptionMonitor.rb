@@ -26,12 +26,12 @@ class NSXAgentVideosStreamConsumptionMonitor
 
     # NSXAgentVideosStreamConsumptionMonitor::agentuuid()
     def self.agentuuid()
-        "6e02cc3f-5342-46b8-b98c-7865b7e163f1"
+        "a3b9934f-4b01-4fca-80a3-63eb2a521df0"
     end
 
     # NSXAgentVideosStreamConsumptionMonitor::getObjects()
     def self.getObjects()
-        []
+        NSXAgentVideosStreamConsumptionMonitor::getAllObjects()
     end
 
     def self.videoFolderpathsAtFolder(folderpath)
@@ -53,15 +53,18 @@ class NSXAgentVideosStreamConsumptionMonitor
             FileUtils.mv(filepath, targetFilepath)
             break if !File.exists?(targetFilepath)
         }
+        filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+        return [] if filepath.nil?
         [
             {
-                "uuid"               => "f7845869-e058-44cd-bfae-3412957c7db9",
-                "agentuid"           => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
+                "uuid"               => "f7845869-e058-44cd-bfae-3412957c7dba",
+                "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuuid(),
                 "metric"             => Torr::metric("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
-                "announce"           => "videos stream consumption [day target 15]",
+                "announce"           => "YouTube Video Stream",
                 "commands"           => ["view"],
-                "defaultCommand"     => nil,
-                ":meta:weight"       => Torr::weight("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400)
+                "defaultCommand"     => "view",
+                "agent:meta:filepath" => filepath,
+                "agent:meta:weight"  => Torr::weight("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400)
             }
         ]
     end
