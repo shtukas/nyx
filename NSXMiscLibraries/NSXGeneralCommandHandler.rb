@@ -20,7 +20,14 @@ class NSXGeneralCommandHandler
         [
             "Special General Commands:",
             "\n",
-            ["help", ":<p>", "+", "/", "new: <line> | 'text'", "search: <pattern>",  ">>"].map{|command| "        "+command }.join("\n"),
+            [
+                "help", 
+                ":<p>", 
+                "+", 
+                "/", 
+                "new: <line> | 'text'", 
+                "search: <pattern>",
+            ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
             "\n",
@@ -115,7 +122,8 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "email-sync",
-                "agent-speed"
+                "agent-speed",
+                "set no internet for this hour"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -139,6 +147,9 @@ class NSXGeneralCommandHandler
                     puts "    - #{object["agent-name"]}: #{"%.3f" % object["retreive-time"]}"
                 }
                 LucilleCore::pressEnterToContinue()
+            end
+            if option == "set no internet for this hour" then
+                NSXMiscUtils::setNoInternetForThisHour()
             end
             return
         end
@@ -180,7 +191,6 @@ class NSXGeneralCommandHandler
             NSXGeneralCommandHandler::processCommand(object, object["defaultCommand"])
             return
         end
-
 
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
         return if agentdata.nil?

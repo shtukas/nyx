@@ -459,4 +459,15 @@ class NSXMiscUtils
             }
             .sort{|o1,o2| o1["retreive-time"]<=>o2["retreive-time"] }
     end
+
+    # NSXMiscUtils::setNoInternetForThisHour()
+    def self.setNoInternetForThisHour()
+        KeyValueStore::setFlagTrue(nil, "d24cbf78-b01e-4fc0-896b-ecc505ffda2a:#{NSXMiscUtils::currentHour()}")
+    end
+
+    # NSXMiscUtils::hasInternetCondition1121()
+    def self.hasInternetCondition1121()
+        !KeyValueStore::flagIsTrue(nil, "d24cbf78-b01e-4fc0-896b-ecc505ffda2a:#{NSXMiscUtils::currentHour()}")
+    end
+
 end

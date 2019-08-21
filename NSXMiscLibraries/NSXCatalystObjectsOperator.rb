@@ -29,6 +29,10 @@ class NSXCatalystObjectsOperator
         objects = NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
 
+        if !NSXMiscUtils::hasInternetCondition1121() then
+            objects = objects.reject{|object| object["announce"].include?("http") }
+        end
+
         objects = objects
             .select{|object| object['metric'] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
