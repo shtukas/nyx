@@ -410,7 +410,7 @@ class NSXStreamsUtils
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
         streamuuid = item["streamuuid"]
         if streamuuid == "03b79978bcf7a712953c5543a9df9047" then
-            return NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid)
+            return NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid) + Math.exp(-item["ordinal"].to_f/100).to_f/100
         end
         repositorylocation = "/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository"
         collectionuuid = "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}"
