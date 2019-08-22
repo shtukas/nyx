@@ -181,7 +181,7 @@ class NSXStreamsUtils
         # The next one should come after 'generic-content-item' has been set
         item["announce"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
         item["commands"]                 = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-        item["defaultCommand"]        = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
+        item["defaultCommand"]           = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item)
 
         NSXStreamsUtils::commitItemToDisk(item)
         item
@@ -251,8 +251,8 @@ class NSXStreamsUtils
             {
                 "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
                 "description"        => "Catalyst Inbox",
-                "naturalMetric"      => 0.70,
-                "hoursExpectation"   => 0.5,
+                "naturalMetric"      => 0.70, # Stable metric
+                "hoursExpectation"   => 1, # This has no effect due to special processing of this Stream
             },
             {
                 "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",
@@ -409,6 +409,9 @@ class NSXStreamsUtils
     def self.streamItemToStreamCatalystMetric(item)
         return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
         streamuuid = item["streamuuid"]
+        if streamuuid == "03b79978bcf7a712953c5543a9df9047" then
+            return NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid)
+        end
         repositorylocation = "/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository"
         collectionuuid = "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}"
         stabililityPeriodInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)
