@@ -204,7 +204,7 @@ class NSXStreamsUtils
             .map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
             .reduce([]) { |collection, object|
-                if collection.select{|o| o["streamuuid"]==object["streamuuid"] }.size < 5 then
+                if (object["streamuuid"] == "03b79978bcf7a712953c5543a9df9047") or (collection.select{|o| o["streamuuid"]==object["streamuuid"] }.size < 5) then
                     collection + [object]
                 else
                     collection
