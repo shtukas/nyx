@@ -19,13 +19,14 @@ class NSXAgentDesktopFilesMonitor
         []
     end
 
-    def shouldAlert()
+    # NSXAgentDesktopFilesMonitor::shouldAlert()
+    def self.shouldAlert()
         Dir.entries("/Users/pascal/Desktop").size > 10
     end
 
     # NSXAgentDesktopFilesMonitor::getAllObjects()
     def self.getAllObjects()
-        return [] if !shouldAlert()
+        return [] if !NSXAgentDesktopFilesMonitor::shouldAlert()
         [
             {
                 "uuid"               => "78558e33-68b0-4fc4-b7c5-b69192ea4f1c",
