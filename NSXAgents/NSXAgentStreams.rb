@@ -29,20 +29,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # -------------------------------------------------------------------------------------
 
-$CATALYST_OBJECTS_CACHE_39192FFA = nil
-
-def _68c8f015_removeObjectFromCache(uuid)
-    $CATALYST_OBJECTS_CACHE_39192FFA = $CATALYST_OBJECTS_CACHE_39192FFA.reject{|o| o["uuid"]==uuid }
-end
-
-def _68c8f015_updateCacheWithNewlyIssuedCatalystObject(uuid)
-    item = NSXStreamsUtils::getItemByUUIDOrNull(uuid)
-    return if item.nil?
-    catalystObject = NSXStreamsUtils::itemToCatalystObject(item)
-    _68c8f015_removeObjectFromCache(uuid)
-    $CATALYST_OBJECTS_CACHE_39192FFA = $CATALYST_OBJECTS_CACHE_39192FFA + [ catalystObject ]
-end
-
 class NSXAgentStreams
 
     # NSXAgentStreams::agentuuid()
@@ -52,14 +38,9 @@ class NSXAgentStreams
 
     # NSXAgentStreams::getObjects()
     def self.getObjects()
-        if $CATALYST_OBJECTS_CACHE_39192FFA and ($CATALYST_OBJECTS_CACHE_39192FFA.size != 0) then
-            $CATALYST_OBJECTS_CACHE_39192FFA.map{|o| o.clone }
-        else
-            objects = NSXStreamsUtils::getCatalystObjectsForDisplay()
-            $CATALYST_OBJECTS_CACHE_39192FFA = objects.map{|o| o.clone }
-            KeyValueStore::set(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235", JSON.generate(objects))
-            objects
-        end
+        objects = NSXStreamsUtils::getCatalystObjectsForDisplay()
+        KeyValueStore::set(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235", JSON.generate(objects))
+        objects
     end
 
     # NSXAgentStreams::getAllObjects()
@@ -117,19 +98,16 @@ class NSXAgentStreams
         if command == "start" then
             NSXRunner::start(item["uuid"])
             NSXMiscUtils::setStandardListingPosition(1)
-            _68c8f015_updateCacheWithNewlyIssuedCatalystObject(item["uuid"])
             return
         end
         if command == "stop" then
             NSXAgentStreams::stopStreamItem(item)
-            _68c8f015_removeObjectFromCache(item["uuid"])
             return
         end
         if command == "done" then
             NSXAgentStreams::stopStreamItem(item)
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
-            _68c8f015_removeObjectFromCache(item["uuid"])
             return
         end
         if command == "recast" then
@@ -154,7 +132,6 @@ class NSXAgentStreams
             NSXAgentStreams::stopStreamItem(item)
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
-            _68c8f015_removeObjectFromCache(item["uuid"])
             return
         end
         if command == "push" then
@@ -171,22 +148,7 @@ class NSXAgentStreams
                 item["ordinal"] = NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
                 NSXStreamsUtils::commitItemToDisk(item)
             end
-            _68c8f015_removeObjectFromCache(item["uuid"])
             return
         end
     end
 end
-
-begin
-    $CATALYST_OBJECTS_CACHE_39192FFA = JSON.parse(KeyValueStore::getOrNull(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235"))
-rescue
-end
-
-Thread.new {
-    loop {
-        sleep 300
-        objects = NSXStreamsUtils::getCatalystObjectsForDisplay()
-        $CATALYST_OBJECTS_CACHE_39192FFA = objects.map{|o| o.clone }
-        KeyValueStore::set(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235", JSON.generate(objects))
-    }
-}
