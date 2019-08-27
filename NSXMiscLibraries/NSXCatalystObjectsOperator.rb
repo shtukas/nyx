@@ -10,8 +10,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
 
 class NSXCatalystObjectsOperator
 
-    # NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
-    def self.getSomeObjectsFromAgents()
+    # NSXCatalystObjectsOperator::getListingObjectsFromAgents()
+    def self.getListingObjectsFromAgents()
         NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects"].call() }
             .flatten
@@ -26,7 +26,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = NSXCatalystObjectsOperator::getSomeObjectsFromAgents()
+        objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
 
         if !NSXMiscUtils::hasInternetCondition1121() then
@@ -54,8 +54,8 @@ class NSXCatalystObjectsOperator
         objects
     end
 
-    # NSXCatalystObjectsOperator::notifyAllDoneObjects()
-    def self.notifyAllDoneObjects()
+    # NSXCatalystObjectsOperator::screenNotificationsForAllDoneObjects()
+    def self.screenNotificationsForAllDoneObjects()
         NSXCatalystObjectsOperator::getAllObjectsFromAgents()
         .each{|object|
             if object["isDone"] then
@@ -64,4 +64,14 @@ class NSXCatalystObjectsOperator
             end
         }
     end
+
+    # NSXCatalystObjectsOperator::screenNotificationsForOmega1Condition()
+    def self.screenNotificationsForOmega1Condition()
+        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        return if objects.empty?
+        return if objects.none?{|object| object["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" }
+        return if objects.first["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
+        NSXMiscUtils::onScreenNotification("Catalyst", "Objects above Daily Guardian Work")
+    end
+
 end

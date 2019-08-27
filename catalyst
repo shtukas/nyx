@@ -75,8 +75,15 @@ end
 
 Thread.new {
     loop {
+        sleep 10
+        NSXCatalystObjectsOperator::screenNotificationsForOmega1Condition()
+    }
+}
+
+Thread.new {
+    loop {
         sleep 120
-        NSXCatalystObjectsOperator::notifyAllDoneObjects()
+        NSXCatalystObjectsOperator::screenNotificationsForAllDoneObjects()
     }
 }
 
