@@ -75,26 +75,17 @@ end
 
 Thread.new {
     loop {
-        sleep 10
+        sleep 110
         NSXCatalystObjectsOperator::screenNotificationsForOmega1Condition()
     }
 }
 
 Thread.new {
     loop {
-        sleep 120
+        sleep 130
         NSXCatalystObjectsOperator::screenNotificationsForAllDoneObjects()
     }
 }
-
-if NSXMiscUtils::isLucille18() then
-    Thread.new {
-        loop {
-            sleep 7200
-            NSXMiscUtils::emailSync(false)
-        }
-    }
-end
 
 # -------------------------------------------------------------------------
 

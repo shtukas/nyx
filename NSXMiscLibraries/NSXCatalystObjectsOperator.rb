@@ -24,6 +24,13 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
+    # NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(uuid)
+    def self.getObjectIdentifiedByUUIDOrNull(uuid)
+        NSXCatalystObjectsOperator::getAllObjectsFromAgents()
+            .select{|object| object["uuid"] == uuid }
+            .first
+    end
+
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()

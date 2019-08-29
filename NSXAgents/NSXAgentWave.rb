@@ -136,7 +136,7 @@ class WaveSchedules
         end
     end
 
-    # NSXMiscUtils::metricForNewObjects(unixtime
+    # NSXMiscUtils::metricForNewObjects(unixtime)
     def self.metricForNewObjects(unixtime)
         ageInHours = (Time.new.to_f - unixtime).to_f/3600
         0.6 + 0.2*(1-Math.exp(-ageInHours.to_f/6))
@@ -419,7 +419,6 @@ class NSXAgentWave
 
         if command=='done' then
             self.performDone(object)
-            NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
             return
         end
 
@@ -427,7 +426,6 @@ class NSXAgentWave
             NSXAgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
             schedule = NSXAgentWave::makeNewSchedule()
             NSXAgentWave::writeScheduleToDisk(uuid, schedule)
-            NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
             return
         end
 
@@ -440,7 +438,6 @@ class NSXAgentWave
             uuid = object["uuid"]
             folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
-            NSXAgentWave::makeCatalystObjectOrNull(object["uuid"])
             return
         end
 

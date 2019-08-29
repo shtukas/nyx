@@ -19,13 +19,6 @@ class NSXCatalystUI
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
-    # NSXCatalystUI::canPerformAnAsynchronousDoneWithoutRecomputingObjects(object)
-    def self.canPerformAnAsynchronousDoneWithoutRecomputingObjects(object)
-        return true if object["agentuid"] == "283d34dd-c871-4a55-8610-31e7c762fb0d" # Wave
-        return true if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" # Stream
-        false
-    end
-
     # NSXCatalystUI::printCatalytNext()
     def self.printCatalytNext()
         nextContents = IO.read("/Users/pascal/Desktop/Catalayst-Next.txt")
@@ -134,14 +127,6 @@ class NSXCatalystUI
             return
         end
 
-        if command=="done" and NSXCatalystUI::canPerformAnAsynchronousDoneWithoutRecomputingObjects(focusobject) then
-            Thread.new {
-                NSXGeneralCommandHandler::processCommand(focusobject, "done")
-            }
-            NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects.reject{|o| o["uuid"] == focusobject["uuid"] })
-            return
-        end
-
         NSXGeneralCommandHandler::processCommand(focusobject, command)
     end
 
@@ -153,6 +138,7 @@ class NSXCatalystUI
                 return
             end
             NSXEstateServices::collectInboxPackage()
+            NSXMultiInstancesRead::processLocalMessages()
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }

@@ -21,8 +21,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
     Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
 =end
 
-LIGHT_THREADS_SECONDARY_OBJECTS_RUNNINGSTATUS_SETUUID = "7ee01bb9-0ff8-41de-aec8-8966869d4c96"
-
 class NSXMiscUtils
 
     # NSXMiscUtils::currentMonth()
@@ -186,14 +184,19 @@ class NSXMiscUtils
       IO.read(filepath)
     end
 
+    # NSXMiscUtils::instanceName()
+    def self.instanceName()
+        ENV["COMPUTERLUCILLENAME"]
+    end
+
     # NSXMiscUtils::isLucille18()
     def self.isLucille18()
-        ENV["COMPUTERLUCILLENAME"] == "Lucille18"
+        NSXMiscUtils::instanceName() == "Lucille18"
     end
 
     # NSXMiscUtils::isLucille19()
     def self.isLucille19()
-        ENV["COMPUTERLUCILLENAME"] == "Lucille19"
+        NSXMiscUtils::instanceName() == "Lucille19"
     end
 
     # NSXMiscUtils::getStandardListingPosition()   
@@ -468,6 +471,20 @@ class NSXMiscUtils
     # NSXMiscUtils::hasInternetCondition1121()
     def self.hasInternetCondition1121()
         !KeyValueStore::flagIsTrue(nil, "d24cbf78-b01e-4fc0-896b-ecc505ffda2a:#{NSXMiscUtils::currentHour()}")
+    end
+
+    # NSXMiscUtils::getIPAddressOrNull()
+    def self.getIPAddressOrNull()
+        line = `ifconfig`
+            .lines
+            .map{|line| line.strip }
+            .drop_while{|line| !line.start_with?("en0:") }
+            .first(10)
+            .select{|line| line.start_with?("inet ") }
+            .first
+        return nil if line.nil?
+        line = line[5, 99]
+        line.split(" ").first.strip
     end
 
 end
