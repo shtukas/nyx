@@ -55,7 +55,7 @@ class LucilleFileHelper
     def self.readTodoChapterFromDisk()
         chapters = LucilleFileHelper::fileContentsToChapters(LucilleFileHelper::getFileContents())
         # The todo section is the second one, the first one is empty
-        chapters[1]
+        chapters[0]
     end
 
     # LucilleFileHelper::getSectionsFromDisk()
@@ -68,11 +68,11 @@ class LucilleFileHelper
     def self.reWriteLucilleFileWithoutThisSectionUUID(uuid)
         NSXMiscUtils::copyLocationToCatalystBin(LUCILLE_DATA_FILE_PATH)
         chapters = LucilleFileHelper::fileContentsToChapters(LucilleFileHelper::getFileContents())
-        todoChapter = chapters[1]
+        todoChapter = chapters[0]
         sections1 = SectionsType2102::contents_to_sections(todoChapter.lines.to_a,[])
         sections2 = sections1.reject{|section| SectionsType2102::section_to_uuid(section)==uuid }
         todoChapter = sections2.map{|section| section.join() }.join()
-        chapters[1] = todoChapter
+        chapters[0] = todoChapter
         File.open(LUCILLE_DATA_FILE_PATH, "w") { |io| io.puts(chapters.join()) }
     end
 
