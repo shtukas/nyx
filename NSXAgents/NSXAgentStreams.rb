@@ -116,6 +116,9 @@ class NSXAgentStreams
             NSXAgentStreams::stopStreamItem(item)
             NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
+            if isLocalCommand then
+                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentWave::agentuid(), "done")
+            end
             return
         end
         if command == "recast" then
