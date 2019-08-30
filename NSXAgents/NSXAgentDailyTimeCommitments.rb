@@ -66,6 +66,12 @@ class NSXAgentDailyTimeCommitments
         percentageDone
     end
 
+    # NSXAgentDailyTimeCommitments::metricParameters()
+    def self.metricParameters() # for the moment only the base metric
+        return 0.85 if Time.new.hour < 9
+        0.55
+    end
+
     # NSXAgentDailyTimeCommitments::entryToCatalystObject(entry)
     def self.entryToCatalystObject(entry)
         uuid = entry["uuid"]
@@ -74,7 +80,7 @@ class NSXAgentDailyTimeCommitments
         {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
-            "metric"    => isRunning ? 2 : 0.55 + 0.02*(percentageDone.to_f/100),
+            "metric"    => isRunning ? 2 : NSXAgentDailyTimeCommitments::metricParameters() + 0.01*(percentageDone.to_f/100),
             "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{percentageDone.round(3)} %)",
             "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning
