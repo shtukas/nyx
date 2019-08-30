@@ -177,6 +177,7 @@ class NSXGeneralCommandHandler
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
+            NSXMultiInstancesWrite::issueEventDoNotShowUntil(object["uuid"], datetime)
             if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
                 claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"])
                 if claim then

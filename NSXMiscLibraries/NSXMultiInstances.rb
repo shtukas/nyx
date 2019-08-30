@@ -44,6 +44,15 @@ class NSXMultiInstancesWrite
         NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
     end
 
+    # NSXMultiInstancesWrite::issueEventDoNotShowUntil(objectuuid, datetime)
+    def self.issueEventDoNotShowUntil(objectuuid, datetime)
+        payload = {
+            "objectuuid" => objectuuid,
+            "datetime"   => datetime
+        }
+        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "DoNotShowUntil", payload)
+        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
+    end
 end
 
 class NSXMultiInstancesRead
@@ -65,6 +74,13 @@ class NSXMultiInstancesRead
             agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
             return if agentdata.nil?
             agentdata["object-command-processor"].call(objectuuid, command, false)
+            return
+        end
+        if event["eventType"] == "DoNotShowUntil" then
+            payload    = event["payload"]
+            objectuuid = payload["objectuuid"]
+            datetime   = payload["datetime"]
+            NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
             return
         end
         puts "Doesn't know how to process this event"
