@@ -490,9 +490,7 @@ class NSXMiscUtils
     # NSXMiscUtils::transformNextFile()
     def self.transformNextFile()
         pathToFile = "/Users/pascal/Desktop/Next.txt"
-        pathToSaveFile = "/Users/pascal/Desktop/Catalayst-Next-#{Time.new.to_i}.txt"
-        FileUtils.cp(pathToFile, pathToSaveFile)
-        NSXMiscUtils::moveLocationToCatalystBin(pathToSaveFile)
+        NSXMiscUtils::copyLocationToCatalystBin(pathToFile)
         lines = IO.read(pathToFile).strip.lines.to_a
         return if lines.empty?
         sline = lines.reduce(lines.first) {|selectedLine, cursorLine|

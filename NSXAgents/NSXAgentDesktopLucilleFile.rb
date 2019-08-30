@@ -21,59 +21,26 @@ require 'securerandom'
 # -------------------------------------------------------------------------------------
 
 LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/Lucille.txt"
-CHAPTER_MARKER = "@chapter-a93adc2d-ac07-44db-aa40-809ab0e680fd"
 LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
 
 $SECTION_UUID_TO_CATALYST_UUIDS = nil
 
 class LucilleFileHelper
 
-    # LucilleFileHelper::getFileContents()
-    def self.getFileContents()
-        IO.read(LUCILLE_DATA_FILE_PATH)
-    end
-
-    # LucilleFileHelper::fileContentsToChapters(filecontents)
-    def self.fileContentsToChapters(filecontents)
-        sections = []
-        currentSection = []
-        filecontents.lines.each{|line|
-            if line.start_with?(CHAPTER_MARKER) then
-                sections << currentSection
-                currentSection = []
-                currentSection << line
-            else
-                currentSection << line
-            end 
-        }
-        sections << currentSection
-        sections
-            .map{|section| section.join() }
-    end
-
-    # LucilleFileHelper::readTodoChapterFromDisk()
-    def self.readTodoChapterFromDisk()
-        chapters = LucilleFileHelper::fileContentsToChapters(LucilleFileHelper::getFileContents())
-        # The todo section is the second one, the first one is empty
-        chapters[0]
-    end
-
     # LucilleFileHelper::getSectionsFromDisk()
     def self.getSectionsFromDisk()
-        chapter = LucilleFileHelper::readTodoChapterFromDisk()
-        SectionsType2102::contents_to_sections(chapter.lines.to_a,[])
+        filecontents = IO.read(LUCILLE_DATA_FILE_PATH)
+        SectionsType2102::contents_to_sections(filecontents.lines.to_a,[])
     end
 
     # LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(uuid)
     def self.reWriteLucilleFileWithoutThisSectionUUID(uuid)
         NSXMiscUtils::copyLocationToCatalystBin(LUCILLE_DATA_FILE_PATH)
-        chapters = LucilleFileHelper::fileContentsToChapters(LucilleFileHelper::getFileContents())
-        todoChapter = chapters[0]
-        sections1 = SectionsType2102::contents_to_sections(todoChapter.lines.to_a,[])
+        filecontents = IO.read(LUCILLE_DATA_FILE_PATH)
+        sections1 = SectionsType2102::contents_to_sections(filecontents.lines.to_a,[])
         sections2 = sections1.reject{|section| SectionsType2102::section_to_uuid(section)==uuid }
-        todoChapter = sections2.map{|section| section.join() }.join()
-        chapters[0] = todoChapter
-        File.open(LUCILLE_DATA_FILE_PATH, "w") { |io| io.puts(chapters.join()) }
+        filecontents = sections2.map{|section| section.join() }.join()
+        File.open(LUCILLE_DATA_FILE_PATH, "w") { |io| io.puts(filecontents) }
     end
 
 end
@@ -146,7 +113,6 @@ class NSXAgentDesktopLucilleFile
         sectionuuids = []
         integers = LucilleCore::integerEnumerator()
         sections = LucilleFileHelper::getSectionsFromDisk()
-                    .select{|section| section.none?{|line| line.start_with?(CHAPTER_MARKER) } }
         objects = sections
             .map{|section|
                 sectionuuid = SectionsType2102::section_to_uuid(section)
