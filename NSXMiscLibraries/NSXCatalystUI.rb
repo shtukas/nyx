@@ -21,7 +21,7 @@ class NSXCatalystUI
 
     # NSXCatalystUI::printCatalytNext()
     def self.printCatalytNext()
-        nextContents = IO.read("/Users/pascal/Desktop/Catalayst-Next.txt")
+        nextContents = IO.read("/Users/pascal/Desktop/Next.txt")
                             .strip
                             .lines
                             .first(10)

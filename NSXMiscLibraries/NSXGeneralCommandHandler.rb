@@ -26,6 +26,7 @@ class NSXGeneralCommandHandler
                 "+", 
                 "/", 
                 "new: <line> | 'text'", 
+                "next",
                 "search: <pattern>",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
@@ -152,6 +153,11 @@ class NSXGeneralCommandHandler
                 NSXMiscUtils::setNoInternetForThisHour()
             end
             return
+        end
+
+        if command == "next" then
+            # Get rid of the first inner line of the Next file
+            NSXMiscUtils::transformNextFile()
         end
 
         return if object.nil?

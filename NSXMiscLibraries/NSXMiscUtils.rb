@@ -487,4 +487,19 @@ class NSXMiscUtils
         line.split(" ").first.strip
     end
 
+    # NSXMiscUtils::transformNextFile()
+    def self.transformNextFile()
+        pathToFile = "/Users/pascal/Desktop/Next.txt"
+        pathToSaveFile = "/Users/pascal/Desktop/Catalayst-Next-#{Time.new.to_i}.txt"
+        FileUtils.cp(pathToFile, pathToSaveFile)
+        NSXMiscUtils::moveLocationToCatalystBin(pathToSaveFile)
+        lines = IO.read(pathToFile).strip.lines.to_a
+        return if lines.empty?
+        sline = lines.reduce(lines.first) {|selectedLine, cursorLine|
+            selectedLine
+        }
+        newContents = lines.reject{|line| line == sline }
+        File.open(pathToFile, "w"){|f| f.puts(newContents) }
+    end
+
 end
