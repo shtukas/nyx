@@ -19,8 +19,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
 
 class NSXAgentDailyGuardianWork
 
-    # NSXAgentDailyGuardianWork::agentuuid()
-    def self.agentuuid()
+    # NSXAgentDailyGuardianWork::agentuid()
+    def self.agentuid()
         "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
     end
 
@@ -48,8 +48,8 @@ class NSXAgentDailyGuardianWork
         [object]
     end
 
-    # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "open" then
             return 
         end

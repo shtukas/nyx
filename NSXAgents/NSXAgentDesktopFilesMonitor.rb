@@ -9,8 +9,8 @@ require 'drb/drb'
 
 class NSXAgentDesktopFilesMonitor
 
-    # NSXAgentDesktopFilesMonitor::agentuuid()
-    def self.agentuuid()
+    # NSXAgentDesktopFilesMonitor::agentuid()
+    def self.agentuid()
         "ec12c56b-9692-424e-bb17-220b9066407d"
     end
 
@@ -40,8 +40,8 @@ class NSXAgentDesktopFilesMonitor
         ]
     end
 
-    # NSXAgentDesktopFilesMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentDesktopFilesMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
 
     end
 end

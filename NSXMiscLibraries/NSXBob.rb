@@ -15,10 +15,10 @@ class NSXBob
         $BOB_AGENTS_IDENTITIES
     end
 
-    # NSXBob::getAgentDataByAgentUUIDOrNull(agentuuid)
-    def self.getAgentDataByAgentUUIDOrNull(agentuuid)
+    # NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
+    def self.getAgentDataByAgentUUIDOrNull(agentuid)
         NSXBob::agents()
-            .select{|agentinterface| agentinterface["agentuid"]==agentuuid }
+            .select{|agentinterface| agentinterface["agentuid"]==agentuid }
             .first
     end
 

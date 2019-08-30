@@ -19,8 +19,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
 
 class NSXAgentTemplate
 
-    # NSXAgentTemplate::agentuuid()
-    def self.agentuuid()
+    # NSXAgentTemplate::agentuid()
+    def self.agentuid()
         "4b0f5665-9480-4583-8554-592e9b076c76"
     end
 
@@ -34,8 +34,8 @@ class NSXAgentTemplate
         []
     end
 
-    # NSXAgentTemplate::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentTemplate::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "open" then
             return 
         end

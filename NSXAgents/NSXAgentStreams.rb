@@ -31,8 +31,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 class NSXAgentStreams
 
-    # NSXAgentStreams::agentuuid()
-    def self.agentuuid()
+    # NSXAgentStreams::agentuid()
+    def self.agentuid()
         "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
     end
 
@@ -86,8 +86,8 @@ class NSXAgentStreams
         end
     end
 
-    # NSXAgentStreams::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentStreams::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         item = NSXAgentStreams::getObjectByUUIDOrNull(objectuuid)
         if command == "open" then
             genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])

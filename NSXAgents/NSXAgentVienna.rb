@@ -59,11 +59,9 @@ end
 
 $viennaLinkFeeder = ViennaLinkFeeder.new()
 
-# NSXAgentVienna::processObjectAndCommand(object, command)
-
 class NSXAgentVienna
 
-    def self.agentuuid()
+    def self.agentuid()
         "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
     end
 
@@ -82,7 +80,8 @@ class NSXAgentVienna
         []
     end
 
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentVienna::processObjectAndCommand(object, command)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "open" then
             return 
         end

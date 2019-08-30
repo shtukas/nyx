@@ -40,8 +40,8 @@ NSXAgentDailyTimeCommitmentsPrimarySetUUID = "679bd7b9-7eec-4455-b8d7-d089785d25
 
 class NSXAgentDailyTimeCommitments
 
-    # NSXAgentDailyTimeCommitments::agentuuid()
-    def self.agentuuid()
+    # NSXAgentDailyTimeCommitments::agentuid()
+    def self.agentuid()
         "8b881a6f-33b7-497a-9293-2aaeefa16c18"
     end
 
@@ -73,7 +73,7 @@ class NSXAgentDailyTimeCommitments
         isRunning = NSXRunner::isRunning?(uuid)
         {
             "uuid"      => uuid,
-            "agentuid"  => NSXAgentDailyTimeCommitments::agentuuid(),
+            "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
             "metric"    => isRunning ? 2 : 0.55 + 0.02*(percentageDone.to_f/100),
             "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{percentageDone.round(3)} %)",
             "commands"  => isRunning ? ["stop"] : ["start"],
@@ -87,8 +87,8 @@ class NSXAgentDailyTimeCommitments
             .map{|entry| NSXAgentDailyTimeCommitments::entryToCatalystObject(entry) }
     end
 
-    # NSXAgentDailyTimeCommitments::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentDailyTimeCommitments::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "start" then
             return if NSXRunner::isRunning?(objectuuid)
             NSXRunner::start(objectuuid)

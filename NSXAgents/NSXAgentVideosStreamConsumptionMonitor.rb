@@ -24,8 +24,8 @@ ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH = "/Volumes/EnergyGrid/Data/Pascal/YouTub
 
 class NSXAgentVideosStreamConsumptionMonitor
 
-    # NSXAgentVideosStreamConsumptionMonitor::agentuuid()
-    def self.agentuuid()
+    # NSXAgentVideosStreamConsumptionMonitor::agentuid()
+    def self.agentuid()
         "a3b9934f-4b01-4fca-80a3-63eb2a521df0"
     end
 
@@ -58,7 +58,7 @@ class NSXAgentVideosStreamConsumptionMonitor
         [
             {
                 "uuid"               => "f7845869-e058-44cd-bfae-3412957c7dba",
-                "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuuid(),
+                "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
                 "metric"             => Torr::metric("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
                 "announce"           => "YouTube Video Stream",
                 "commands"           => ["view"],
@@ -69,8 +69,8 @@ class NSXAgentVideosStreamConsumptionMonitor
         ]
     end
 
-    # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "view" then
             filepath = videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
             return if filepath.nil?

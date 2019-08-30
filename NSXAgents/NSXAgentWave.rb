@@ -175,8 +175,8 @@ end
 
 class NSXAgentWave
 
-    # NSXAgentWave::agentuuid()
-    def self.agentuuid()
+    # NSXAgentWave::agentuid()
+    def self.agentuid()
         "283d34dd-c871-4a55-8610-31e7c762fb0d"
     end
 
@@ -364,7 +364,7 @@ class NSXAgentWave
         metric = WaveSchedules::scheduleToMetric(schedule)
         object = {}
         object['uuid'] = objectuuid
-        object["agentuid"] = self.agentuuid()
+        object["agentuid"] = self.agentuid()
         object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
         object['announce'] = NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
@@ -415,7 +415,7 @@ class NSXAgentWave
         end
     end
 
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         uuid = objectuuid
         object = NSXAgentWave::getObjectByUUIDOrNull(objectuuid)
         schedule = object['schedule']
@@ -427,6 +427,9 @@ class NSXAgentWave
 
         if command=='done' then
             self.performDone(object)
+            if isLocalCommand then
+                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentWave::agentuid(), "done")
+            end
             return
         end
 

@@ -34,8 +34,8 @@ $NSXAgentBackupsMonitorScriptnamesToPeriodInDays = {
 
 class NSXAgentBackupsMonitor
 
-    # NSXAgentBackupsMonitor::agentuuid()
-    def self.agentuuid()
+    # NSXAgentBackupsMonitor::agentuid()
+    def self.agentuid()
         "63027c23-6131-4230-b49b-d3f23aa5ff54"
     end
 
@@ -79,8 +79,8 @@ class NSXAgentBackupsMonitor
             .compact
     end
 
-    # NSXAgentBackupsMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentBackupsMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "open" then
             return 
         end

@@ -57,8 +57,8 @@ $NSXAgentAnniversariesgetWeekdays = ["sunday", "monday", "tuesday", "wednesday",
 
 class NSXAgentAnniversaries
 
-    # NSXAgentAnniversaries::agentuuid()
-    def self.agentuuid()
+    # NSXAgentAnniversaries::agentuid()
+    def self.agentuid()
         "639beee6-c12e-4cb8-bc9a-f7890fa95db0"
     end
 
@@ -156,7 +156,7 @@ class NSXAgentAnniversaries
         return [] if NSXAgentAnniversaries::getNs1203WithOutstandingSequenceElements().empty?
         object = {
             "uuid"      => "eace4480-b93c-4b2f-bfb4-600f300812d3",
-            "agentuid"  => NSXAgentAnniversaries::agentuuid(),
+            "agentuid"  => NSXAgentAnniversaries::agentuid(),
             "metric"    => 0.95,
             "announce"  => "anniversaries",
             "commands"  => ["process"],
@@ -165,8 +165,8 @@ class NSXAgentAnniversaries
         [object]
     end
 
-    # NSXAgentAnniversaries::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    # NSXAgentAnniversaries::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "process" then
             NSXAgentAnniversaries::getNs1203WithOutstandingSequenceElements().each{|ns1203|
                 ns1203["anniversaries"].each{|anniversary|

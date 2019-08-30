@@ -33,11 +33,11 @@ class NSXMultiInstancesWrite
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
     end
 
-    # NSXMultiInstancesWrite::issueEventCommand(objectuuid, agentuuid, command)
-    def self.issueEventCommand(objectuuid, agentuuid, command)
+    # NSXMultiInstancesWrite::issueEventCommand(objectuuid, agentuid, command)
+    def self.issueEventCommand(objectuuid, agentuid, command)
         payload = {
             "objectuuid" => objectuuid,
-            "agentuuid"  => agentuuid,
+            "agentuid"  => agentuid,
             "command"    => command
         }
         event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "command", payload)
@@ -64,7 +64,7 @@ class NSXMultiInstancesRead
             command    = payload ["command"]
             agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
             return if agentdata.nil?
-            agentdata["object-command-processor"].call(objectuuid, fragment, false)
+            agentdata["object-command-processor"].call(objectuuid, command, false)
             return
         end
         puts "Doesn't know how to process this event"
@@ -79,6 +79,7 @@ class NSXMultiInstancesRead
             event = JSON.parse(IO.read(filepath))
             next if event["instanceName"] == NSXMiscUtils::instanceName()
             puts "processing: #{filepath}"
+            puts JSON.pretty_generate(event)
             NSXMultiInstancesRead::processEvent(event, filepath)
             FileUtils.rm(filepath)
         }

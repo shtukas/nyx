@@ -106,8 +106,8 @@ class NSXAgentDesktopLucilleFile
         }
     end
 
-    # NSXAgentDesktopLucilleFile::agentuuid()
-    def self.agentuuid()
+    # NSXAgentDesktopLucilleFile::agentuid()
+    def self.agentuid()
         "f7b21eb4-c249-4f0a-a1b0-d5d584c03316"
     end
 
@@ -166,7 +166,7 @@ class NSXAgentDesktopLucilleFile
                 end
                 {
                     "uuid"               => uuid,
-                    "agentuid"           => NSXAgentDesktopLucilleFile::agentuuid(),
+                    "agentuid"           => NSXAgentDesktopLucilleFile::agentuid(),
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
                     "announce"           => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}",
                     "body"               => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}",
@@ -187,7 +187,7 @@ class NSXAgentDesktopLucilleFile
             return if object.nil?
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
             if isLocalCommand then
-                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentDesktopLucilleFile::agentuuid(), "done")
+                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentDesktopLucilleFile::agentuid(), "done")
             end
             return
         end
