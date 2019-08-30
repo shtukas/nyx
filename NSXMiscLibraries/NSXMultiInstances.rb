@@ -95,7 +95,7 @@ class NSXMultiInstancesRead
             event = JSON.parse(IO.read(filepath))
             next if event["instanceName"] == NSXMiscUtils::instanceName()
             puts "processing: #{filepath}"
-            puts JSON.pretty_generate(event)
+            #puts JSON.pretty_generate(event)
             NSXMultiInstancesRead::processEvent(event, filepath)
             FileUtils.rm(filepath)
         }
