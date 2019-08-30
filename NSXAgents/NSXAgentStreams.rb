@@ -62,6 +62,7 @@ class NSXAgentStreams
         runningTimeInSeconds = NSXRunner::stop(item["uuid"])
         puts "Adding #{runningTimeInSeconds} seconds to stream: #{item["streamuuid"]}"
         NSXStreamsTimeTracking::addTimeInSecondsToStream(item["streamuuid"], runningTimeInSeconds)
+        NSXMultiInstancesWrite::issueEventAddTimeToStream(item["streamuuid"], runningTimeInSeconds)
     end
 
     # NSXAgentStreams::doneStreamItemEmailCarrier(itemuuid)

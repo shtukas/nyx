@@ -53,6 +53,26 @@ class NSXMultiInstancesWrite
         event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "DoNotShowUntil", payload)
         NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
     end
+
+    # NSXMultiInstancesWrite::issueEventAddTimeToStream(streamuuid, timespan)
+    def self.issueEventAddTimeToStream(streamuuid, timespan)
+        payload = {
+            "streamuuid" => streamuuid,
+            "timespan"   => timespan
+        }
+        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "AddTimeToStream", payload)
+        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
+    end
+
+    # NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimingEntry(objectuuid, timingEntry)
+    def self.issueEventDailyTimeCommitmentTimingEntry(objectuuid, timingEntry)
+        payload = {
+            "objectuuid"  => objectuuid,
+            "timingEntry" => timingEntry
+        }
+        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "DailyTimeCommitmentTimingEntry", payload)
+        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
+    end
 end
 
 class NSXMultiInstancesRead
@@ -81,6 +101,20 @@ class NSXMultiInstancesRead
             objectuuid = payload["objectuuid"]
             datetime   = payload["datetime"]
             NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
+            return
+        end
+        if event["eventType"] == "AddTimeToStream" then
+            payload    = event["payload"]
+            streamuuid = payload["streamuuid"]
+            timespan   = payload["timespan"]
+            NSXStreamsTimeTracking::addTimeInSecondsToStream(streamuuid, timespan)
+            return
+        end
+        if event["eventType"] == "DailyTimeCommitmentTimingEntry" then
+            payload     = event["payload"]
+            objectuuid  = payload["objectuuid"]
+            timingEntry = payload["timingEntry"]
+            NSXDailyTimeCommitments::commitTimingEntry(objectuuid, timingEntry)
             return
         end
         puts "Doesn't know how to process this event"

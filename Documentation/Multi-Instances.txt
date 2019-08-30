@@ -2,24 +2,40 @@ Multi Instances is the solution to the problem of running Catalyst both on Lucil
 
 In practice this means that when an event occurs on one of the two instances, a message will be generated for the other one. Each instance will check for incoming messages at each UI loop. The messages will be sent between the two instances during a standard unison synchronization.
 
+InstanceName = "Lucille18" | "Lucille19"
+
 MultiInstanceMessage 
 {
-    "instanceName" : "Lucille18" | "Lucille19"
+    "instanceName" : InstanceName
     "eventType"    : "command"
-    "payload"      : MultiInstanceCommandPayload
+    "payload"      : {
+        "objectuuid" => String # UUID of the target object
+        "agentuid"   => String
+        "command"    => String
+    }
 }
 {
-    "instanceName" : "Lucille18" | "Lucille19"
+    "instanceName" : InstanceName
     "eventType"    : "DoNotShowUntil"
-    "payload"      : MultiInstanceDoNotShowUntilPayload
+    "payload"      : {
+        "objectuuid"   : String # UUID of the target object
+        "datetime"     : String
+    }
+}
+{
+    "instanceName" : InstanceName
+    "eventType"    : "AddTimeToStream"
+    "payload"      : {
+        "streamuuid" : String # UUID of the target object
+        "timespan"   : Float
+    }
+}
+{
+    "instanceName" : InstanceName
+    "eventType"    : "DailyTimeCommitmentTimingEntry"
+    "payload"      : {
+        "objectuuid"  => objectuuid,
+        "timingEntry" => timingEntry
+    }
 }
 
-MultiInstanceCommandPayload {
-    "objectuuid"   : String # UUID of the target object
-    "command"      : String # Command to apply to the object
-}
-
-MultiInstanceDoNotShowUntilPayload {
-    "objectuuid"   : String # UUID of the target object
-    "datetime"     : String
-}

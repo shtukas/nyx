@@ -108,7 +108,8 @@ class NSXAgentDailyTimeCommitments
                 "unixtime" => Time.new.to_i,
                 "timespan" => timeInSeconds
             }
-            BTreeSets::set(nil, "entry-uuid-to-timing-set-uuids:qw213ew:#{objectuuid}", SecureRandom.uuid, timingEntry)
+            NSXDailyTimeCommitments::commitTimingEntry(objectuuid, timingEntry)
+            NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimingEntry(objectuuid, timingEntry)
             return
         end
     end
