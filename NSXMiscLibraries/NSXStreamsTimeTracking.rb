@@ -38,17 +38,17 @@ class NSXStreamsTimeTracking
 
     # NSXStreamsTimeTracking::addTimeInSecondsToStream(streamuuid, seconds)
     def self.addTimeInSecondsToStream(streamuuid, seconds)
-        Torr::event("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", seconds)
+        Torr::event("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", seconds)
     end
 
     # NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid)
     def self.getTimeInSecondsForStream(streamuuid)
-        Torr::weight("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400)
+        Torr::weight("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400)
     end
 
     # NSXStreamsTimeTracking::streamWideMetric(streamuuid, expectationTimeInSeconds, metricAtTarget)
     def self.streamWideMetric(streamuuid, expectationTimeInSeconds, metricAtZero, metricAtTarget)
-        Torr::metric("/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400, expectationTimeInSeconds, metricAtZero, metricAtTarget)
+        Torr::metric("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-KVStoreRepository", "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}", 86400, expectationTimeInSeconds, metricAtZero, metricAtTarget)
     end
 
 end

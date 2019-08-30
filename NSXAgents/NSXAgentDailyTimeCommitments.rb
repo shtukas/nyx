@@ -35,7 +35,7 @@ TimingEntry {
 
 =end
 
-NSXAgentDailyTimeCommitmentsPrimarySetDataPath = "/Galaxy/DataBank/Catalyst/Agents-Data/Daily-Time-Commitments/BTreeSets"
+NSXAgentDailyTimeCommitmentsPrimarySetDataPath = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/BTreeSets"
 NSXAgentDailyTimeCommitmentsPrimarySetUUID = "679bd7b9-7eec-4455-b8d7-d089785d2595"
 
 class NSXAgentDailyTimeCommitments
@@ -52,7 +52,7 @@ class NSXAgentDailyTimeCommitments
 
     # NSXAgentDailyTimeCommitments::getEntries()
     def self.getEntries()
-        JSON.parse(IO.read("/Galaxy/DataBank/Catalyst/Agents-Data/Daily-Time-Commitments/entries.json"))
+        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
     end
 
     # NSXAgentDailyTimeCommitments::entryToPercentage(entry)

@@ -34,7 +34,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # ----------------------------------------------------------------------
 
-DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/DoNotShowUntilDateTime"
+DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/DoNotShowUntilDateTime"
 
 class NSXData
     # To be decommissioned upon site.

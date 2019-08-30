@@ -211,7 +211,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::emailSync(verbose)
     def self.emailSync(verbose)
-        GeneralEmailClient::downloadWithoutSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Email-Credentials/operator.json")), verbose)
+        GeneralEmailClient::downloadWithoutSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Email-Credentials/operator.json")), verbose)
     end
 
     # NSXMiscUtils::newBinArchivesFolderpath()
@@ -421,7 +421,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::getXNote(objectuuid)
     def self.getXNote(objectuuid)
-        KeyValueStore::getOrDefaultValue("/Galaxy/DataBank/Catalyst/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
+        KeyValueStore::getOrDefaultValue("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
     end
 
     # NSXMiscUtils::hasXNote(objectuuid)
@@ -431,7 +431,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::setXNote(objectuuid, text)
     def self.setXNote(objectuuid, text)
-        KeyValueStore::set("/Galaxy/DataBank/Catalyst/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
+        KeyValueStore::set("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
     end
 
     # NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)

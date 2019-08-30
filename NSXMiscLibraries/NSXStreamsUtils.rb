@@ -43,7 +43,7 @@ class NSXStreamsUtils
         frg1 = filename[0,4]
         frg2 = filename[0,6]
         frg3 = filename[0,8]
-        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams/#{frg1}/#{frg2}/#{frg3}"
+        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams/#{frg1}/#{frg2}/#{frg3}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         filepath = "#{folder2}/#{filename}"
         filepath
@@ -54,7 +54,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
     def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
@@ -89,7 +89,7 @@ class NSXStreamsUtils
             end
         end
         filepath = nil
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))
@@ -137,7 +137,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::getItemsFromDisk()
     def self.getItemsFromDisk()
         items = []
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_FOLDERPATH}/Streams") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))
@@ -412,7 +412,7 @@ class NSXStreamsUtils
         if streamuuid == "03b79978bcf7a712953c5543a9df9047" then
             return NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid) + Math.exp(-item["ordinal"].to_f/100).to_f/100
         end
-        repositorylocation = "/Galaxy/DataBank/Catalyst/Streams-KVStoreRepository"
+        repositorylocation = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-KVStoreRepository"
         collectionuuid = "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}"
         stabililityPeriodInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)
         expectationTimeInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)*3600

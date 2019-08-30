@@ -10,7 +10,7 @@ require 'fileutils'
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
-MULTIINSTANCE_ROOT_PATH = "/Galaxy/DataBank/Catalyst/Multi-Instance"
+MULTIINSTANCE_LOG_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Multi-Instance-Log"
 
 class NSXMultiInstancesWrite
 
@@ -26,7 +26,7 @@ class NSXMultiInstancesWrite
     # NSXMultiInstancesWrite::sendEventToDisk(instanceName, event)
     def self.sendEventToDisk(instanceName, event)
         filename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.json"
-        filepath = "#{MULTIINSTANCE_ROOT_PATH}/Log/#{filename}"
+        filepath = "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -50,10 +50,9 @@ class NSXMultiInstancesRead
 
     # NSXMultiInstancesRead::eventsFilepaths()
     def self.eventsFilepaths()
-        instanceMessagesRepositoryPath = "#{MULTIINSTANCE_ROOT_PATH}/Log"
-        filenames = Dir.entries(instanceMessagesRepositoryPath).select{|filename| filename[-5, 5] == ".json" }.sort
+        filenames = Dir.entries(MULTIINSTANCE_LOG_FOLDERPATH).select{|filename| filename[-5, 5] == ".json" }.sort
         filenames
-            .map{|filename| "#{instanceMessagesRepositoryPath}/#{filename}" }
+            .map{|filename| "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}" }
     end
 
     # NSXMultiInstancesRead::processEvent(event, filepath)

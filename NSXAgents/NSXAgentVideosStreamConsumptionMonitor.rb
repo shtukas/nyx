@@ -59,12 +59,12 @@ class NSXAgentVideosStreamConsumptionMonitor
             {
                 "uuid"               => "f7845869-e058-44cd-bfae-3412957c7dba",
                 "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuuid(),
-                "metric"             => Torr::metric("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
+                "metric"             => Torr::metric("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
                 "announce"           => "YouTube Video Stream",
                 "commands"           => ["view"],
                 "defaultCommand"     => "view",
                 "agent:meta:filepath" => filepath,
-                "agent:meta:weight"  => Torr::weight("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400)
+                "agent:meta:weight"  => Torr::weight("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400)
             }
         ]
     end
@@ -83,7 +83,7 @@ class NSXAgentVideosStreamConsumptionMonitor
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
             FileUtils.rm(filepath)
-            Torr::event("/Galaxy/DataBank/Catalyst/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 1)
+            Torr::event("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 1)
             return 
         end
     end

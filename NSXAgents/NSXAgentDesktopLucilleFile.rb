@@ -22,7 +22,7 @@ require 'securerandom'
 
 LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/Lucille.txt"
 CHAPTER_MARKER = "@chapter-a93adc2d-ac07-44db-aa40-809ab0e680fd"
-LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "/Galaxy/DataBank/Catalyst/Agents-Data/DesktopLucilleFile"
+LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
 
 $SECTION_UUID_TO_CATALYST_UUIDS = nil
 
