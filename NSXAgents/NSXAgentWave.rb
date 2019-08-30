@@ -408,7 +408,7 @@ class NSXAgentWave
         end
     end
 
-    def self.processObjectAndCommand(object, command)
+    def self.processObjectAndCommand(object, command, isLocalCommand = true)
         uuid = object['uuid']
         schedule = object['schedule']
         if command=='open' then

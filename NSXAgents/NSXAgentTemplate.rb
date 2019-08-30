@@ -34,8 +34,8 @@ class NSXAgentTemplate
         []
     end
 
-    # NSXAgentTemplate::processObjectAndCommand(object, command)
-    def self.processObjectAndCommand(object, command)
+    # NSXAgentTemplate::processObjectAndCommand(object, command, isLocalCommand = true)
+    def self.processObjectAndCommand(object, command, isLocalCommand = true)
         if command == "open" then
             return 
         end

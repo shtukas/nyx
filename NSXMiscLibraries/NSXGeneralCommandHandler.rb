@@ -198,7 +198,7 @@ class NSXGeneralCommandHandler
         command.split(';')
             .map{|fragment| fragment.strip }
             .each{|fragment|
-                agentdata["object-command-processor"].call(object, fragment)
+                agentdata["object-command-processor"].call(object, fragment, true)
             }
 
     end

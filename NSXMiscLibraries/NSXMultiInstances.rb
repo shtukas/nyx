@@ -14,18 +14,17 @@ MULTIINSTANCE_ROOT_PATH = "/Galaxy/DataBank/Catalyst/Multi-Instance"
 
 class NSXMultiInstancesWrite
 
-    # NSXMultiInstancesWrite::makeEvent(instanceName, eventType, objectuuid, command)
-    def self.makeEvent(instanceName, eventType, objectuuid, command)
+    # NSXMultiInstancesWrite::makeEvent(instanceName, eventType, payload)
+    def self.makeEvent(instanceName, eventType, payload)
         {
             "instanceName" => instanceName,
             "eventType"    => eventType,
-            "objectuuid"   => objectuuid,
-            "command"      => command
+            "payload"      => payload
         }
     end
 
-    # NSXMultiInstancesWrite::sendEventToDisk(event, instanceName)
-    def self.sendEventToDisk(event, instanceName)
+    # NSXMultiInstancesWrite::sendEventToDisk(instanceName, event)
+    def self.sendEventToDisk(instanceName, event)
         filename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.json"
         filepath = "#{MULTIINSTANCE_ROOT_PATH}/Log/#{filename}"
         if !File.exists?(File.dirname(filepath)) then
@@ -34,61 +33,58 @@ class NSXMultiInstancesWrite
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
     end
 
-    # NSXMultiInstancesWrite::getOtherInstanceName()
-    def self.getOtherInstanceName()
-        (NSXMiscUtils::instanceName() == "Lucille18") ? "Lucille19" : "Lucille18" 
-    end
-
-    # NSXMultiInstancesWrite::issueEventCommand(objectuuid, command)
-    def self.issueEventCommand(objectuuid, command)
-        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "command", objectuuid, command)
-        NSXMultiInstancesWrite::sendEventToDisk(event, NSXMiscUtils::instanceName())
+    # NSXMultiInstancesWrite::issueEventCommand(objectuuid, agentuuid, command)
+    def self.issueEventCommand(objectuuid, agentuuid, command)
+        payload = {
+            "objectuuid" => objectuuid,
+            "agentuuid"  => agentuuid,
+            "command"    => command
+        }
+        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "command", payload)
+        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
     end
 
 end
 
 class NSXMultiInstancesRead
 
-    # NSXMultiInstancesRead::instanceEventsFilepaths(instanceName)
-    def self.instanceEventsFilepaths(instanceName)
+    # NSXMultiInstancesRead::eventsFilepaths()
+    def self.eventsFilepaths()
         instanceMessagesRepositoryPath = "#{MULTIINSTANCE_ROOT_PATH}/Log"
         filenames = Dir.entries(instanceMessagesRepositoryPath).select{|filename| filename[-5, 5] == ".json" }.sort
         filenames
             .map{|filename| "#{instanceMessagesRepositoryPath}/#{filename}" }
-            .select{|filepath| JSON.parse(IO.read(filepath))["instanceName"]==instanceName }
     end
 
-    # NSXMultiInstancesRead::processMessage(message)
-    def self.processMessage(message)
-        if message["eventType"] == "command" then
-            objectuuid = message["objectuuid"]
-            command = message["command"]
+    # NSXMultiInstancesRead::processEvent(event, filepath)
+    def self.processEvent(event, filepath)
+        if event["eventType"] == "command" then
+            payload    = event["payload"]
+            objectuuid = payload["objectuuid"]
+            agentuid   = payload["agentuid"]
+            command    = payload ["command"]
             object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
             return if object.nil?
-            # To be implemented
-            return true
+            agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
+            return if agentdata.nil?
+            agentdata["object-command-processor"].call(object, fragment, false)
+            return
         end
-        puts "Doesn't know how to process this message"
-        puts JSON.pretty_generate(message)
+        puts "Doesn't know how to process this event"
+        puts JSON.pretty_generate(event)
         exit
     end
 
-    # NSXMultiInstancesRead::processMessages(instanceName)
-    def self.processMessages(instanceName)
-        NSXMultiInstancesRead::instanceEventsFilepaths(instanceName)
+    # NSXMultiInstancesRead::processEvents()
+    def self.processEvents()
+        NSXMultiInstancesRead::eventsFilepaths()
         .each{|filepath|
+            event = JSON.parse(IO.read(filepath))
+            next if event["instanceName"] == NSXMiscUtils::instanceName()
             puts filepath
-            message = JSON.parse(IO.read(filepath))
-            shouldDelete = NSXMultiInstancesRead::processMessage(message)
-            if shouldDelete then
-                FileUtils.rm(filepath)
-            end
+            NSXMultiInstancesRead::processEvent(event, filepath)
+            FileUtils.rm(filepath)
         }
-    end
-
-    # NSXMultiInstancesRead::processLocalMessages()
-    def self.processLocalMessages()
-        NSXMultiInstancesRead::processMessages(NSXMiscUtils::instanceName())
     end
 
 end

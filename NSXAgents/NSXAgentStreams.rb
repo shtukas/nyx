@@ -79,8 +79,8 @@ class NSXAgentStreams
         end
     end
 
-    # NSXAgentStreams::processObjectAndCommand(item, command)
-    def self.processObjectAndCommand(item, command)
+    # NSXAgentStreams::processObjectAndCommand(item, command, isLocalCommand = true)
+    def self.processObjectAndCommand(item, command, isLocalCommand = true)
         if command == "open" then
             genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
             if genericContentItem then

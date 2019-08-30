@@ -173,10 +173,13 @@ class NSXAgentDesktopLucilleFile
         objects
     end
 
-    # NSXAgentDesktopLucilleFile::processObjectAndCommand(object, command)
-    def self.processObjectAndCommand(object, command)
+    # NSXAgentDesktopLucilleFile::processObjectAndCommand(object, command, isLocalCommand)
+    def self.processObjectAndCommand(object, command, isLocalCommand)
         if command == "done" then
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
+            if isLocalCommand then
+                NSXMultiInstancesWrite::issueEventCommand(object["uuid"], NSXAgentDesktopLucilleFile::agentuuid(), "done")
+            end
             return
         end
         if command == ">stream" then

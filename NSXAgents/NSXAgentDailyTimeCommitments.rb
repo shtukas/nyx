@@ -87,8 +87,8 @@ class NSXAgentDailyTimeCommitments
             .map{|entry| NSXAgentDailyTimeCommitments::entryToCatalystObject(entry) }
     end
 
-    # NSXAgentDailyTimeCommitments::processObjectAndCommand(object, command)
-    def self.processObjectAndCommand(object, command)
+    # NSXAgentDailyTimeCommitments::processObjectAndCommand(object, command, isLocalCommand = true)
+    def self.processObjectAndCommand(object, command, isLocalCommand = true)
         uuid = object["uuid"]
         if command == "start" then
             return if NSXRunner::isRunning?(uuid)

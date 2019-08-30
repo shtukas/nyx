@@ -138,7 +138,7 @@ class NSXCatalystUI
                 return
             end
             NSXEstateServices::collectInboxPackage()
-            NSXMultiInstancesRead::processLocalMessages()
+            NSXMultiInstancesRead::processEvents()
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }

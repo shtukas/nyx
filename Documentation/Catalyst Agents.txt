@@ -8,7 +8,7 @@ getObjects(): Array[CatalystObject]
 
 getAllObjects(): Array[CatalystObject] # All known objects, used for search
 
-processObjectAndCommand(object, command): ProcessingSignal
+processObjectAndCommand(object, command, isLocalCommand = true): ProcessingSignal
     [nil]                  # Nothing happens
     ["remove", objectuuid] # Object to be removed from the central repository
     ["update", object]     # Passed object to replace the existing one in repository
