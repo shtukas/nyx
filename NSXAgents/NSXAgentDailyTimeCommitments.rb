@@ -87,23 +87,22 @@ class NSXAgentDailyTimeCommitments
             .map{|entry| NSXAgentDailyTimeCommitments::entryToCatalystObject(entry) }
     end
 
-    # NSXAgentDailyTimeCommitments::processObjectAndCommand(object, command, isLocalCommand = true)
-    def self.processObjectAndCommand(object, command, isLocalCommand = true)
-        uuid = object["uuid"]
+    # NSXAgentDailyTimeCommitments::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
         if command == "start" then
-            return if NSXRunner::isRunning?(uuid)
-            NSXRunner::start(uuid)
+            return if NSXRunner::isRunning?(objectuuid)
+            NSXRunner::start(objectuuid)
             return
         end
         if command == "stop" then
-            return if !NSXRunner::isRunning?(uuid)
-            timeInSeconds = NSXRunner::stop(uuid)
+            return if !NSXRunner::isRunning?(objectuuid)
+            timeInSeconds = NSXRunner::stop(objectuuid)
             timingEntry = {
                 "date"     => NSXMiscUtils::currentDay(),
                 "unixtime" => Time.new.to_i,
                 "timespan" => timeInSeconds
             }
-            BTreeSets::set(nil, "entry-uuid-to-timing-set-uuids:qw213ew:#{uuid}", SecureRandom.uuid, timingEntry)
+            BTreeSets::set(nil, "entry-uuid-to-timing-set-uuids:qw213ew:#{objectuuid}", SecureRandom.uuid, timingEntry)
             return
         end
     end

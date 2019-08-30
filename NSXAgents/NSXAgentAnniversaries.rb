@@ -165,8 +165,8 @@ class NSXAgentAnniversaries
         [object]
     end
 
-    # NSXAgentAnniversaries::processObjectAndCommand(object, command, isLocalCommand = true)
-    def self.processObjectAndCommand(object, command, isLocalCommand = true)
+    # NSXAgentAnniversaries::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
         if command == "process" then
             NSXAgentAnniversaries::getNs1203WithOutstandingSequenceElements().each{|ns1203|
                 ns1203["anniversaries"].each{|anniversary|

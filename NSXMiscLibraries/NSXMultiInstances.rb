@@ -63,11 +63,9 @@ class NSXMultiInstancesRead
             objectuuid = payload["objectuuid"]
             agentuid   = payload["agentuid"]
             command    = payload ["command"]
-            object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
-            return if object.nil?
             agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
             return if agentdata.nil?
-            agentdata["object-command-processor"].call(object, fragment, false)
+            agentdata["object-command-processor"].call(objectuuid, fragment, false)
             return
         end
         puts "Doesn't know how to process this event"
@@ -81,7 +79,7 @@ class NSXMultiInstancesRead
         .each{|filepath|
             event = JSON.parse(IO.read(filepath))
             next if event["instanceName"] == NSXMiscUtils::instanceName()
-            puts filepath
+            puts "processing: #{filepath}"
             NSXMultiInstancesRead::processEvent(event, filepath)
             FileUtils.rm(filepath)
         }

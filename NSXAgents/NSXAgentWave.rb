@@ -391,6 +391,13 @@ class NSXAgentWave
             .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
     end
 
+    # NSXAgentWave::getObjectByUUIDOrNull(objectuuid)
+    def self.getObjectByUUIDOrNull(objectuuid)
+        NSXAgentWave::getAllObjects()
+            .select{|object| object["uuid"] == objectuuid }
+            .first
+    end
+
     def self.performDone(object)
         uuid = object['uuid']
         schedule = object['schedule']
@@ -408,8 +415,9 @@ class NSXAgentWave
         end
     end
 
-    def self.processObjectAndCommand(object, command, isLocalCommand = true)
-        uuid = object['uuid']
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+        uuid = objectuuid
+        object = NSXAgentWave::getObjectByUUIDOrNull(objectuuid)
         schedule = object['schedule']
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]

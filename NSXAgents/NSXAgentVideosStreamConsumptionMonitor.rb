@@ -69,8 +69,8 @@ class NSXAgentVideosStreamConsumptionMonitor
         ]
     end
 
-    # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(object, command, isLocalCommand = true)
-    def self.processObjectAndCommand(object, command, isLocalCommand = true)
+    # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
         if command == "view" then
             filepath = videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
             return if filepath.nil?

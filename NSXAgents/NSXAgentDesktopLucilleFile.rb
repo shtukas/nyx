@@ -119,6 +119,13 @@ class NSXAgentDesktopLucilleFile
         str
     end
 
+    # NSXAgentDesktopLucilleFile::getObjectByUUIDOrNull(objectuuid)
+    def self.getObjectByUUIDOrNull(objectuuid)
+        NSXAgentDesktopLucilleFile::getAllObjects()
+            .select{|object| object["uuid"] == objectuuid }
+            .first
+    end
+
     # NSXAgentDesktopLucilleFile::getObjects()
     def self.getObjects()
         NSXAgentDesktopLucilleFile::getAllObjects()
@@ -173,16 +180,20 @@ class NSXAgentDesktopLucilleFile
         objects
     end
 
-    # NSXAgentDesktopLucilleFile::processObjectAndCommand(object, command, isLocalCommand)
-    def self.processObjectAndCommand(object, command, isLocalCommand)
+    # NSXAgentDesktopLucilleFile::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "done" then
+            object = NSXAgentDesktopLucilleFile::getObjectByUUIDOrNull(objectuuid)
+            return if object.nil?
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
             if isLocalCommand then
-                NSXMultiInstancesWrite::issueEventCommand(object["uuid"], NSXAgentDesktopLucilleFile::agentuuid(), "done")
+                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentDesktopLucilleFile::agentuuid(), "done")
             end
             return
         end
         if command == ">stream" then
+            object = NSXAgentDesktopLucilleFile::getObjectByUUIDOrNull(objectuuid)
+            return if object.nil?
             text = object["section"].join()
             genericContentsItem = NSXGenericContents::issueItemText(text)
             streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()

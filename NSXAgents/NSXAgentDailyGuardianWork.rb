@@ -48,8 +48,8 @@ class NSXAgentDailyGuardianWork
         [object]
     end
 
-    # NSXAgentDailyGuardianWork::processObjectAndCommand(object, command, isLocalCommand = true)
-    def self.processObjectAndCommand(object, command, isLocalCommand = true)
+    # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
         if command == "open" then
             return 
         end

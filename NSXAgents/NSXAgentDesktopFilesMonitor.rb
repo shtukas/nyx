@@ -40,8 +40,8 @@ class NSXAgentDesktopFilesMonitor
         ]
     end
 
-    # NSXAgentDesktopFilesMonitor::processObjectAndCommand(object, command, isLocalCommand = true)
-    def self.processObjectAndCommand(object, command, isLocalCommand = true)
+    # NSXAgentDesktopFilesMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand = true)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand = true)
 
     end
 end
