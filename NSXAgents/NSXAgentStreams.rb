@@ -41,13 +41,6 @@ class NSXAgentStreams
         NSXStreamsUtils::getCatalystObjectsForDisplay()
     end
 
-    # NSXAgentStreams::getObjectByUUIDOrNull(objectuuid)
-    def self.getObjectByUUIDOrNull(objectuuid)
-        NSXAgentStreams::getAllObjects()
-            .select{|object| object["uuid"] == objectuuid }
-            .first
-    end
-
     # NSXAgentStreams::getAllObjects()
     def self.getAllObjects()
         NSXStreamsUtils::getAllCatalystObjects()
@@ -87,7 +80,8 @@ class NSXAgentStreams
 
     # NSXAgentStreams::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        item = NSXAgentStreams::getObjectByUUIDOrNull(objectuuid)
+        item = NSXStreamsUtils::getItemByUUIDOrNull(objectuuid)
+        return if item.nil?
         if command == "open" then
             genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
             if genericContentItem then
