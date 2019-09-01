@@ -38,9 +38,7 @@ class NSXAgentStreams
 
     # NSXAgentStreams::getObjects()
     def self.getObjects()
-        objects = NSXStreamsUtils::getCatalystObjectsForDisplay()
-        KeyValueStore::set(nil, "4f66bad9-d8e7-4645-bbc3-0d99e16a6235", JSON.generate(objects))
-        objects
+        NSXStreamsUtils::getCatalystObjectsForDisplay()
     end
 
     # NSXAgentStreams::getObjectByUUIDOrNull(objectuuid)

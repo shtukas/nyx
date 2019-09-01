@@ -1,16 +1,11 @@
 
 Streams are implemented as sequences of StreamItem
 
-StreamItem extends CatalystObject {
-    uuid                     : UUID
-    agentuid                 : "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
-    streamuuid               : UUID
-    ordinal                  : Float
-    metric                   : Float
-    announce                 : String
-    commands                 : Array[String]
-    filename                 : String
-    generic-content-item     : GenericContentItem
-    filename                 : String # added by the extractor
-    filepath                 : String # last known filepath # added by the extractor
+StreamItem {
+    uuid                 : UUID
+    streamuuid           : UUID
+    ordinal              : Float
+    generic-content-item : GenericContentItem
+    filename             : String # (Re)Computed at extraction
+    filepath             : String # Computed at extraction
 }

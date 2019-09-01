@@ -54,7 +54,7 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 if NSXMiscUtils::isLucille18() then
     NSXEstateServices::archivesTimelineGarbageCollection(true)
-    NSXStreamsUtils::getItemsFromDisk()
+    NSXStreamsUtils::getItems()
     .each{|item|
         claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
         next if claim.nil?

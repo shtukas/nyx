@@ -443,7 +443,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
     def self.makeEndOfQueueStreamItemOrdinal()
-        items = NSXStreamsUtils::getItemsFromDisk()
+        items = NSXStreamsUtils::getItems()
         return 1 if items.size==0
         items.map{|item| item["ordinal"] }.max.to_i + 1
     end

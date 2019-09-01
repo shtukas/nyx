@@ -185,7 +185,7 @@ class GeneralEmailClient
         # ------------------------------------------------------------------------
         # If we have a stream item that is not on the server, we mark it appropriately.
 
-        NSXStreamsUtils::getItemsFromDisk()
+        NSXStreamsUtils::getItems()
         .each{|item|
             # "init" | "detached" | "deleted-on-server" | "deleted-on-local" | "dead"
             claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
@@ -208,7 +208,7 @@ class GeneralEmailClient
         # ------------------------------------------------------------------------
         # We now delete on the server the items that are marked as deleted-on-local
 
-        NSXStreamsUtils::getItemsFromDisk()
+        NSXStreamsUtils::getItems()
         .each{|item|
             # "init" | "detached" | "deleted-on-server" | "deleted-on-local" | "dead"
             claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
