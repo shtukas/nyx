@@ -28,7 +28,12 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
 
 # ----------------------------------------------------------------------
 
-$ITEMS_IN_MEMORY = nil
+$STREAM_ITEMS_IN_MEMORY_4B4BFE22 = nil
+
+def nsx1309_removeItemIdentifiedById(uuid)
+    $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = $STREAM_ITEMS_IN_MEMORY_4B4BFE22.reject{|item| item["uuid"]==uuid }
+end
+
 
 class NSXStreamsUtils
 
@@ -284,10 +289,10 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::getCatalystObjectsForDisplay()
     def self.getCatalystObjectsForDisplay()
-        if $ITEMS_IN_MEMORY.nil? then
-            $ITEMS_IN_MEMORY = NSXStreamsUtils::getSelectionOfItems()
+        if $STREAM_ITEMS_IN_MEMORY_4B4BFE22.nil? or $STREAM_ITEMS_IN_MEMORY_4B4BFE22.empty? then
+            $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfItems()
         end
-        $ITEMS_IN_MEMORY.map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+        $STREAM_ITEMS_IN_MEMORY_4B4BFE22.map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
     end
 
     # NSXStreamsUtils::getAllCatalystObjects()
@@ -430,6 +435,6 @@ end
 Thread.new {
     loop {
         sleep 300
-        $ITEMS_IN_MEMORY = NSXStreamsUtils::getSelectionOfItems()
+        $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfItems()
     }
 }

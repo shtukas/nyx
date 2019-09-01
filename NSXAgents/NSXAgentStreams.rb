@@ -112,6 +112,7 @@ class NSXAgentStreams
             if isLocalCommand then
                 NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentWave::agentuid(), "done")
             end
+            nsx1309_removeItemIdentifiedById(item["uuid"])
             return
         end
         if command == "recast" then
@@ -136,6 +137,7 @@ class NSXAgentStreams
             NSXAgentStreams::stopStreamItem(item)
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
+            nsx1309_removeItemIdentifiedById(item["uuid"])
             return
         end
         if command == "push" then
@@ -152,6 +154,7 @@ class NSXAgentStreams
                 item["ordinal"] = NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
                 NSXStreamsUtils::commitItemToDisk(item)
             end
+            nsx1309_removeItemIdentifiedById(item["uuid"])
             return
         end
     end
