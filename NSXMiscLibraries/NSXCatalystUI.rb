@@ -30,8 +30,10 @@ class NSXCatalystUI
             puts "-- next ---------------"
             puts nextContents.strip.red
             puts "-----------------------"
+            nextContents.lines.to_a.size + 2
+        else
+            0
         end
-        nextContents.lines.to_a.size + 2
     end
 
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
