@@ -25,6 +25,7 @@ class NSXMultiInstancesWrite
 
     # NSXMultiInstancesWrite::sendEventToDisk(instanceName, event)
     def self.sendEventToDisk(instanceName, event)
+        puts JSON.pretty_generate(event)
         filename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.json"
         filepath = "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}"
         if !File.exists?(File.dirname(filepath)) then

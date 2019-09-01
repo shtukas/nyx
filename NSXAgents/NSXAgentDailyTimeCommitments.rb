@@ -17,6 +17,18 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/BTreeSets.rb"
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -------------------------------------------------------------------------------------
 
 =begin
@@ -27,16 +39,86 @@ DailyTimeCommitment {
     commitmentInHours : Float
 }
 
-TimingEntry {
-    date
-    unixtime
-    timespan
-}
-
 =end
 
-NSXAgentDailyTimeCommitmentsPrimarySetDataPath = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/BTreeSets"
-NSXAgentDailyTimeCommitmentsPrimarySetUUID = "679bd7b9-7eec-4455-b8d7-d089785d2595"
+class NSXAgentDailyTimeCommitmentsHelpers
+
+    # NSXAgentDailyTimeCommitmentsHelpers::getEntries()
+    def self.getEntries()
+        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
+    end
+
+    # NSXAgentDailyTimeCommitmentsHelpers::baseMetric()
+    def self.baseMetric() # for the moment only the base metric
+        return 0.85 if Time.new.hour < 9
+        0.55
+    end
+
+    # NSXAgentDailyTimeCommitmentsHelpers::metric(entry)
+    def self.metric(entry)
+        uuid = entry["uuid"]
+        isRunning = NSXRunner::isRunning?(uuid)
+        if isRunning then
+            2
+        else
+            NSXAlgebraicTimePoints::metric(uuid, NSXAgentDailyTimeCommitmentsHelpers::baseMetric())
+        end
+    end
+
+    # NSXAgentDailyTimeCommitmentsHelpers::entryToCatalystObject(entry)
+    def self.entryToCatalystObject(entry)
+        uuid = entry["uuid"]
+        collectionValue = NSXAlgebraicTimePoints::getCollectionCumulatedValue(uuid)
+        isRunning = NSXRunner::isRunning?(uuid)
+        {
+            "uuid"      => uuid,
+            "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
+            "metric"    => NSXAgentDailyTimeCommitmentsHelpers::metric(entry),
+            "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{collectionValue.round(3)} seconds)",
+            "commands"  => isRunning ? ["stop"] : ["start"],
+            "isRunning" => isRunning,
+            ":base-metric:" => NSXAgentDailyTimeCommitmentsHelpers::baseMetric(),
+            ":last-negative-mark-unixtime:" => NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry),
+            ":last-negative-mark-datetime:" => Time.at(NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry)).to_s
+        }
+    end
+
+    # NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry)
+    def self.getLastNegativeMarkUnixtimeForEntry(entry)
+        KeyValueStore::getOrDefaultValue(nil, "fd8d4e07-0fc7-4c95-a0c9-0f7f2d5784e0:#{entry["uuid"]}", Time.new.to_i.to_s).to_i
+    end
+
+    # NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
+    def self.setLastNegativeMarkUnixtimeForEntry(entry)
+        KeyValueStore::set(nil, "fd8d4e07-0fc7-4c95-a0c9-0f7f2d5784e0:#{entry["uuid"]}", Time.new.to_i)
+    end
+
+    # NSXAgentDailyTimeCommitmentsHelpers::performNegativeValueForEntryIfTimeReady(entry)
+    def self.performNegativeValueForEntryIfTimeReady(entry)
+        if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "591e1ce5-92ca-49a0-ac80-c3387f30d874:#{entry["uuid"]}", 3600) then
+            unixtime = NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry)
+            timespanInSeconds = Time.new.to_i - unixtime
+            commitmentInSecondsPerDay = entry["commitmentInHours"]*3600
+            fractionOfADaySinceLastUpdate = timespanInSeconds.to_f/86400
+            negativeValue = -commitmentInSecondsPerDay*fractionOfADaySinceLastUpdate
+            NSXAlgebraicTimePoints::issuePoint(entry["uuid"], negativeValue)
+            NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(entry["uuid"], {
+                "collection" => entry["uuid"],
+                "weigthInSeconds" => negativeValue
+            })
+            NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
+        end
+    end
+
+    # NSXAgentDailyTimeCommitmentsHelpers::performNegativeValuesIfTimeReady()
+    def self.performNegativeValuesIfTimeReady()
+        NSXAgentDailyTimeCommitmentsHelpers::getEntries()
+        .each{|entry|
+            NSXAgentDailyTimeCommitmentsHelpers::performNegativeValueForEntryIfTimeReady(entry)
+        }
+    end
+
+end
 
 class NSXAgentDailyTimeCommitments
 
@@ -47,50 +129,16 @@ class NSXAgentDailyTimeCommitments
 
     # NSXAgentDailyTimeCommitments::getObjects()
     def self.getObjects()
-        NSXAgentDailyTimeCommitments::getAllObjects()
-    end
-
-    # NSXAgentDailyTimeCommitments::getEntries()
-    def self.getEntries()
-        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
-    end
-
-    # NSXAgentDailyTimeCommitments::baseMetric()
-    def self.baseMetric() # for the moment only the base metric
-        return 0.85 if Time.new.hour < 9
-        0.55
-    end
-
-    # NSXAgentDailyTimeCommitments::metric(entry)
-    def self.metric(entry)
-        uuid = entry["uuid"]
-        isRunning = NSXRunner::isRunning?(uuid)
-        if isRunning then
-            2
-        else
-            NSXAlgebraicTimePoints::metric(uuid, NSXAgentDailyTimeCommitments::baseMetric())
+        if NSXMiscUtils::isLucille18() then
+            NSXAgentDailyTimeCommitmentsHelpers::performNegativeValuesIfTimeReady()
         end
-    end
-
-    # NSXAgentDailyTimeCommitments::entryToCatalystObject(entry)
-    def self.entryToCatalystObject(entry)
-        uuid = entry["uuid"]
-        collectionValue = NSXAlgebraicTimePoints::getCollectionCumulatedValue(uuid)
-        isRunning = NSXRunner::isRunning?(uuid)
-        {
-            "uuid"      => uuid,
-            "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
-            "metric"    => NSXAgentDailyTimeCommitments::metric(entry),
-            "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{collectionValue.round(3)} seconds)",
-            "commands"  => isRunning ? ["stop"] : ["start"],
-            "isRunning" => isRunning
-        }
+        NSXAgentDailyTimeCommitments::getAllObjects()
     end
 
     # NSXAgentDailyTimeCommitments::getAllObjects()
     def self.getAllObjects()
-        NSXAgentDailyTimeCommitments::getEntries()
-            .map{|entry| NSXAgentDailyTimeCommitments::entryToCatalystObject(entry) }
+        NSXAgentDailyTimeCommitmentsHelpers::getEntries()
+            .map{|entry| NSXAgentDailyTimeCommitmentsHelpers::entryToCatalystObject(entry) }
     end
 
     # NSXAgentDailyTimeCommitments::processObjectAndCommand(objectuuid, command, isLocalCommand)
@@ -103,12 +151,11 @@ class NSXAgentDailyTimeCommitments
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
             timeInSeconds = NSXRunner::stop(objectuuid)
-            point = {
-                "collection" => Time.new.to_i,
-                "weigthInSeconds" => timeInSeconds
-            }
             NSXAlgebraicTimePoints::issuePoint(objectuuid, timeInSeconds)
-            NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(objectuuid, point)
+            NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(objectuuid, {
+                "collection" => objectuuid,
+                "weigthInSeconds" => timeInSeconds
+            })
             return
         end
     end
@@ -117,7 +164,7 @@ end
 Thread.new {
     loop {
         sleep 120
-        status = NSXAgentDailyTimeCommitments::getEntries()
+        status = NSXAgentDailyTimeCommitmentsHelpers::getEntries()
             .select{|entry| NSXRunner::isRunning?(entry["uuid"]) }
             .map{|entry| NSXAlgebraicTimePoints::getCollectionCumulatedValue(entry["uuid"]) }
             .any?{|value| value > 0 }
