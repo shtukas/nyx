@@ -23,7 +23,6 @@ class NSXGeneralCommandHandler
             [
                 "help", 
                 ":<p>", 
-                "+", 
                 "/", 
                 "new: <line> | 'text'", 
                 "next",
@@ -69,7 +68,6 @@ class NSXGeneralCommandHandler
 
         if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
             position = command[1, command.size].strip.to_i
-            NSXMiscUtils::setStandardListingPosition([position, 0].max)
             return
         end
 

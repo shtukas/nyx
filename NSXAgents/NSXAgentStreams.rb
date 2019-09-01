@@ -98,7 +98,6 @@ class NSXAgentStreams
         end
         if command == "start" then
             NSXRunner::start(item["uuid"])
-            NSXMiscUtils::setStandardListingPosition(1)
             return
         end
         if command == "stop" then

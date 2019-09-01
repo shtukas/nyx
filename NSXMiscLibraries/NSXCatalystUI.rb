@@ -43,7 +43,6 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
-        standardlp = NSXMiscUtils::getStandardListingPosition()
         focusobject = nil
 
         while displayObjects.size>0 and NSXMiscUtils::objectIsAutoDone(displayObjects.first) do
@@ -78,21 +77,16 @@ class NSXCatalystUI
             # Position management
             position = position + 1
             object = displayObjectForListing.shift
-            if position == standardlp then
+            if position == 1 then
                 focusobject = object
             end
-            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == standardlp, position)
+            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
             verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-            break if (position > 1) and (position > standardlp) and (verticalSpaceLeft < verticalSize)
+            break if (position > 1) and (verticalSpaceLeft < verticalSize)
 
             # Display
             puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - verticalSize
-        end
-
-        if focusobject.nil? and (standardlp>1) then
-            NSXMiscUtils::setStandardListingPosition(1)
-            return
         end
 
         if focusobject.nil? then
@@ -115,12 +109,6 @@ class NSXCatalystUI
             return if position > displayObjects.size
             object = displayObjects[position-1]
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
-            return
-        end
-
-        if command == "+" then
-            NSXMiscUtils::setStandardListingPosition(NSXMiscUtils::getStandardListingPosition()+1)
-            NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
             return
         end
 
