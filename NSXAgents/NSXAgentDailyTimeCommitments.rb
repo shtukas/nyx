@@ -62,6 +62,7 @@ class NSXAgentDailyTimeCommitments
             .select{|timingEntry| timingEntry["date"] == NSXMiscUtils::currentDay() }
             .map{|timingEntry| timingEntry["timespan"] }
             .inject(0, :+)
+        todayTimeInSeconds = todayTimeInSeconds + ( NSXRunner::runningTimeOrNull(uuid) || 0 )
         percentageDone = 100 * todayTimeInSeconds.to_f/(entry["commitmentInHours"]*3600)
         percentageDone
     end
