@@ -32,10 +32,10 @@ MultiInstanceMessage
 }
 {
     "instanceName" : InstanceName
-    "eventType"    : "DailyTimeCommitmentTimingEntry"
+    "eventType"    : "DailyTimeCommitmentTimePoint"
     "payload"      : {
-        "objectuuid"  => objectuuid,
-        "timingEntry" => timingEntry
+        "collection"      => collection,
+        "weigthInSeconds" => weigthInSeconds
     }
 }
 

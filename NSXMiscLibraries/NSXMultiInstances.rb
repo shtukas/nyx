@@ -64,13 +64,13 @@ class NSXMultiInstancesWrite
         NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
     end
 
-    # NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimingEntry(objectuuid, timingEntry)
-    def self.issueEventDailyTimeCommitmentTimingEntry(objectuuid, timingEntry)
+    # NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(objectuuid, point)
+    def self.issueEventDailyTimeCommitmentTimePoint(objectuuid, point)
         payload = {
-            "objectuuid"  => objectuuid,
-            "timingEntry" => timingEntry
+            "objectuuid" => objectuuid,
+            "point"      => point
         }
-        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "DailyTimeCommitmentTimingEntry", payload)
+        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "DailyTimeCommitmentTimePoint", payload)
         NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
     end
 end
@@ -110,11 +110,11 @@ class NSXMultiInstancesRead
             NSXStreamsTimeTracking::addTimeInSecondsToStream(streamuuid, timespan)
             return
         end
-        if event["eventType"] == "DailyTimeCommitmentTimingEntry" then
+        if event["eventType"] == "DailyTimeCommitmentTimePoint" then
             payload     = event["payload"]
-            objectuuid  = payload["objectuuid"]
-            timingEntry = payload["timingEntry"]
-            NSXDailyTimeCommitments::commitTimingEntry(objectuuid, timingEntry)
+            collection  = payload["collection"]
+            weigthInSeconds = payload["weigthInSeconds"]
+            NSXAlgebraicTimePoints::issuePoint(collection, weigthInSeconds)
             return
         end
         puts "Doesn't know how to process this event"
@@ -129,7 +129,7 @@ class NSXMultiInstancesRead
             event = JSON.parse(IO.read(filepath))
             next if event["instanceName"] == NSXMiscUtils::instanceName()
             puts "processing: #{filepath}"
-            #puts JSON.pretty_generate(event)
+            puts JSON.pretty_generate(event)
             NSXMultiInstancesRead::processEvent(event, filepath)
             FileUtils.rm(filepath)
         }

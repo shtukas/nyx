@@ -55,34 +55,33 @@ class NSXAgentDailyTimeCommitments
         JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
     end
 
-    # NSXAgentDailyTimeCommitments::entryToPercentage(entry)
-    def self.entryToPercentage(entry)
-        uuid = entry["uuid"]
-        todayTimeInSeconds = BTreeSets::values(nil, "entry-uuid-to-timing-set-uuids:qw213ew:#{uuid}")
-            .select{|timingEntry| timingEntry["date"] == NSXMiscUtils::currentDay() }
-            .map{|timingEntry| timingEntry["timespan"] }
-            .inject(0, :+)
-        todayTimeInSeconds = todayTimeInSeconds + ( NSXRunner::runningTimeOrNull(uuid) || 0 )
-        percentageDone = 100 * todayTimeInSeconds.to_f/(entry["commitmentInHours"]*3600)
-        percentageDone
-    end
-
-    # NSXAgentDailyTimeCommitments::metricParameters()
-    def self.metricParameters() # for the moment only the base metric
+    # NSXAgentDailyTimeCommitments::baseMetric()
+    def self.baseMetric() # for the moment only the base metric
         return 0.85 if Time.new.hour < 9
         0.55
+    end
+
+    # NSXAgentDailyTimeCommitments::metric(entry)
+    def self.metric(entry)
+        uuid = entry["uuid"]
+        isRunning = NSXRunner::isRunning?(uuid)
+        if isRunning then
+            2
+        else
+            NSXAlgebraicTimePoints::metric(uuid, NSXAgentDailyTimeCommitments::baseMetric())
+        end
     end
 
     # NSXAgentDailyTimeCommitments::entryToCatalystObject(entry)
     def self.entryToCatalystObject(entry)
         uuid = entry["uuid"]
-        percentageDone = NSXAgentDailyTimeCommitments::entryToPercentage(entry)
+        collectionValue = NSXAlgebraicTimePoints::getCollectionCumulatedValue(uuid)
         isRunning = NSXRunner::isRunning?(uuid)
         {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
-            "metric"    => isRunning ? 2 : NSXAgentDailyTimeCommitments::metricParameters() + 0.01*(percentageDone.to_f/100),
-            "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{percentageDone.round(3)} %)",
+            "metric"    => NSXAgentDailyTimeCommitments::metric(entry),
+            "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{collectionValue.round(3)} seconds)",
             "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning
         }
@@ -104,13 +103,12 @@ class NSXAgentDailyTimeCommitments
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
             timeInSeconds = NSXRunner::stop(objectuuid)
-            timingEntry = {
-                "date"     => NSXMiscUtils::currentDay(),
-                "unixtime" => Time.new.to_i,
-                "timespan" => timeInSeconds
+            point = {
+                "collection" => Time.new.to_i,
+                "weigthInSeconds" => timeInSeconds
             }
-            NSXDailyTimeCommitments::commitTimingEntry(objectuuid, timingEntry)
-            NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimingEntry(objectuuid, timingEntry)
+            NSXAlgebraicTimePoints::issuePoint(objectuuid, timeInSeconds)
+            NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(objectuuid, point)
             return
         end
     end
@@ -121,10 +119,10 @@ Thread.new {
         sleep 120
         status = NSXAgentDailyTimeCommitments::getEntries()
             .select{|entry| NSXRunner::isRunning?(entry["uuid"]) }
-            .map{|entry| NSXAgentDailyTimeCommitments::entryToPercentage(entry) }
-            .any?{|percentage| percentage>100 }
+            .map{|entry| NSXAlgebraicTimePoints::getCollectionCumulatedValue(entry["uuid"]) }
+            .any?{|value| value > 0 }
         if status then
-            NSXMiscUtils::onScreenNotification("Daily time commitment", "Running item at 100%")
+            NSXMiscUtils::onScreenNotification("Daily time commitment", "Running item is overflowing")
         end
     }
 }
