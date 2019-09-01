@@ -493,9 +493,21 @@ class NSXMiscUtils
         NSXMiscUtils::copyLocationToCatalystBin(pathToFile)
         lines = IO.read(pathToFile).strip.lines.to_a
         return if lines.empty?
-        sline = lines.reduce(lines.first) {|selectedLine, cursorLine|
-            selectedLine
-        }
+        slineWithIndex = lines
+            .each_with_index
+            .map{|line, i| [line, i] }
+            .reduce(nil) {|selectedLineWithIndex, cursorLineWithIndex|
+                if selectedLineWithIndex.nil? then
+                    cursorLineWithIndex
+                else
+                    if selectedLineWithIndex.first.index("[]") and cursorLineWithIndex.first.index("[]") and (selectedLineWithIndex.first.index("[]") < cursorLineWithIndex.first.index("[]")) and (selectedLineWithIndex[1] == cursorLineWithIndex[1]-1) then
+                        cursorLineWithIndex
+                    else
+                        selectedLineWithIndex
+                    end
+                end
+            }
+        sline = slineWithIndex.first
         newContents = lines.reject{|line| line == sline }
         File.open(pathToFile, "w"){|f| f.puts(newContents) }
     end
