@@ -418,6 +418,7 @@ class NSXAgentWave
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         uuid = objectuuid
         object = NSXAgentWave::getObjectByUUIDOrNull(objectuuid)
+        return if object.nil?
         schedule = object['schedule']
         if command=='open' then
             metadata = object["item-data"]["folder-probe-metadata"]
