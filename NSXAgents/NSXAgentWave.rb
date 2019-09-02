@@ -416,7 +416,6 @@ class NSXAgentWave
     end
 
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        uuid = objectuuid
         object = NSXAgentWave::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
         schedule = object['schedule']
@@ -435,9 +434,9 @@ class NSXAgentWave
         end
 
         if command=='recast' then
-            NSXAgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(uuid)
+            NSXAgentWave::disconnectMaybeEmailWaveCatalystItemFromEmailClientMetadata(objectuuid)
             schedule = NSXAgentWave::makeNewSchedule()
-            NSXAgentWave::writeScheduleToDisk(uuid, schedule)
+            NSXAgentWave::writeScheduleToDisk(objectuuid, schedule)
             return
         end
 
@@ -447,27 +446,26 @@ class NSXAgentWave
                 puts "usage: description: <description>"
                 LucilleCore::pressEnterToContinue()
             end
-            uuid = object["uuid"]
-            folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+            folderpath = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(objectuuid)
             File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
             return
         end
 
         if command=='folder' then
-            location = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(uuid)
+            location = NSXAgentWave::catalystUUIDToItemFolderPathOrNull(objectuuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
             return
         end
 
         if command=='destroy' then
-            if NSXMiscUtils::hasXNote(uuid) then
+            if NSXMiscUtils::hasXNote(objectuuid) then
                 puts "You cannot destroy a wave with an active note"
                 LucilleCore::pressEnterToContinue()
                 return
             end
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                NSXAgentWave::archiveWaveItem(uuid)
+                NSXAgentWave::archiveWaveItem(objectuuid)
                 return
             end
             return
