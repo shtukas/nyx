@@ -5,8 +5,9 @@ CatalystObject
     "uuid"             : UUID
     "agentuid"         : String # Optional
     "metric"           : Float
-    "announce"         : String
-    "body"             : String # Optional [1]
+    "announce"           : String
+    "contentStoreItemId" : String
+    "body"               : String # Optional [1]
     "commands"         : Array[String]
     "defaultCommand"   : String # Optional
     "executionLambdas" : Map[command: String, Lambda] # Optional [3]

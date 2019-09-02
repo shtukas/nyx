@@ -275,11 +275,17 @@ class NSXStreamsUtils
     # NSXStreamsUtils::itemToCatalystObject(item)
     def self.itemToCatalystObject(item)
         announce = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
+        contentStoreItem = {
+            "type" => "line",
+            "line" => announce
+        }
+        NSXContentStore::setItem(item["uuid"], contentStoreItem)
         object = {}
         object["uuid"] = item["uuid"]
         object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
         object["announce"] = announce
+        object["contentStoreItemId"] = item["uuid"]
         object["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
         object["defaultCommand"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item, announce)

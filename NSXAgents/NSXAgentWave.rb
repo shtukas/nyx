@@ -362,11 +362,20 @@ class NSXAgentWave
         end
         folderProbeMetadata = NSXFolderProbe::folderpath2metadata(location)
         metric = WaveSchedules::scheduleToMetric(schedule)
+
+        announce = NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        contentStoreItem = {
+            "type" => "line",
+            "line" => announce
+        }
+        NSXContentStore::setItem(objectuuid, contentStoreItem)
+
         object = {}
         object['uuid'] = objectuuid
         object["agentuid"] = self.agentuid()
         object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
-        object['announce'] = NSXAgentWave::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        object['announce'] = announce
+        object["contentStoreItemId"] = objectuuid
         object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
         object['commands'] = NSXAgentWave::commands(schedule)
         object["defaultCommand"] = NSXAgentWave::defaultCommand(objectuuid, folderProbeMetadata, schedule)

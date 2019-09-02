@@ -50,10 +50,6 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 # nslog
 
-#NSXContentStore::setItem("67ff8ea7-bf10-4e86-9717-784230dff0c7", {})
-puts JSON.pretty_generate([NSXContentStore::getItemOrNull("67ff8ea7-bf10-4e86-9717-784230dff0c7")])
-exit
-
 # -------------------------------------------------------------------------
 
 if NSXMiscUtils::isLucille18() then

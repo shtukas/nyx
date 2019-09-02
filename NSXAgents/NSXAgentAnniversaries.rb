@@ -154,11 +154,18 @@ class NSXAgentAnniversaries
     # NSXAgentAnniversaries::getAllObjects()
     def self.getAllObjects()
         return [] if NSXAgentAnniversaries::getNs1203WithOutstandingSequenceElements().empty?
+        uuid  = "eace4480-b93c-4b2f-bfb4-600f300812d3"
+        contentStoreItem = {
+            "type" => "line",
+            "line" => "anniversaries"
+        }
+        NSXContentStore::setItem(uuid, contentStoreItem)
         object = {
-            "uuid"      => "eace4480-b93c-4b2f-bfb4-600f300812d3",
+            "uuid"      => uuid,
             "agentuid"  => NSXAgentAnniversaries::agentuid(),
             "metric"    => 0.95,
             "announce"  => "anniversaries",
+            "contentStoreItemId" => uuid,
             "commands"  => ["process"],
             "defaultCommand" => "process"
         }

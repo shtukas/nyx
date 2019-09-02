@@ -70,11 +70,18 @@ class NSXAgentDailyTimeCommitmentsHelpers
         uuid = entry["uuid"]
         collectionValue = NSXAlgebraicTimePoints::getCollectionCumulatedValue(uuid)
         isRunning = NSXRunner::isRunning?(uuid)
+        announce = "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(3)} hours)"
+        contentStoreItem = {
+            "type" => "line",
+            "line" => announce
+        }
+        NSXContentStore::setItem(uuid, contentStoreItem)
         {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
             "metric"    => NSXAgentDailyTimeCommitmentsHelpers::metric(entry),
-            "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(3)} hours)",
+            "announce"  => announce,
+            "contentStoreItemId" => uuid,
             "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning,
             ":base-metric:" => NSXAgentDailyTimeCommitmentsHelpers::baseMetric(),

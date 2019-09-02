@@ -130,14 +130,21 @@ class NSXAgentDesktopLucilleFile
                 else
                     sectionAsString = "\n" + sectionAsString
                 end
+                announce = "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}"
+                contentStoreItem = {
+                    "type" => "line",
+                    "line" => announce
+                }
+                NSXContentStore::setItem(uuid, contentStoreItem)
                 {
                     "uuid"               => uuid,
                     "agentuid"           => NSXAgentDesktopLucilleFile::agentuid(),
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
-                    "announce"           => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}",
+                    "announce"           => announce,
+                    "contentStoreItemId" => uuid,
                     "body"               => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}",
                     "commands"           => ["done", ">stream"],
-                    "defaultCommand"  => "done",
+                    "defaultCommand"     => "done",
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),
                     "section"            => section
                 }

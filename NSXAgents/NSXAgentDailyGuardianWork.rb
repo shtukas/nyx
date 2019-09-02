@@ -34,11 +34,18 @@ class NSXAgentDailyGuardianWork
         return [] if [0,6].include?(Time.new.wday)
         return [] if Time.new.hour < 6
         return [] if KeyValueStore::flagIsTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
+        announce = "Daily Guardian Work"
+        contentStoreItem = {
+            "type" => "line",
+            "line" => announce
+        }
+        NSXContentStore::setItem(uuid, contentStoreItem)
         object = {}
         object["uuid"] = "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
         object["agentuid"] = "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
         object["metric"] = 0.60
-        object["announce"] = "Daily Guardian Work"
+        object["announce"] = announce
+        object["contentStoreItemId"] = uuid
         object["commands"] = ["done"]
         [object]
     end

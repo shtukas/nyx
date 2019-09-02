@@ -27,12 +27,20 @@ class NSXAgentDesktopFilesMonitor
     # NSXAgentDesktopFilesMonitor::getAllObjects()
     def self.getAllObjects()
         return [] if !NSXAgentDesktopFilesMonitor::shouldAlert()
+        uuid = "78558e33-68b0-4fc4-b7c5-b69192ea4f1c"
+        announce = "Seeing too many files on the Desktop"
+        contentStoreItem = {
+            "type" => "line",
+            "line" => announce
+        }
+        NSXContentStore::setItem(uuid, contentStoreItem)
         [
             {
-                "uuid"               => "78558e33-68b0-4fc4-b7c5-b69192ea4f1c",
-                "agentuid"           => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
+                "uuid"               => uuid,
+                "agentuid"           => NSXAgentDesktopFilesMonitor::agentuid(),
                 "metric"             => 0.95,
-                "announce"           => "Seeing too many files on the Desktop",
+                "announce"           => announce,
+                "contentStoreItemId" => uuid,
                 "commands"           => ["done"],
                 "defaultCommand"  => "done",
                 "service-port"       => 12350

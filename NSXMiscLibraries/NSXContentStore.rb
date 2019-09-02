@@ -41,7 +41,7 @@ class NSXContentStore
         KeyValueStore::set("#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Content-Store/Mapping-Id-Content", contentStoreItemId, sha1hash)
         pathfragment = "#{sha1hash[0,2]}/#{sha1hash[2,2]}/#{sha1hash}.json"
         filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Content-Store/Content/#{pathfragment}"
-        # return if File.exists?(filepath) # Content Adressable Storage
+        return if File.exists?(filepath) # Content Adressable Storage
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end

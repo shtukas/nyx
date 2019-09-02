@@ -4,6 +4,8 @@ Contents are stored and retrieved against ids and the ContentStore also provides
 
 Internaly there is a mapping between a ContentStoreItemId and a hash of contents object. This choice ensures, that clients can resubmit the same contents (which will be the case of some agents) with no file created or modified.
 
+Because the ContentStore operate its own repository, it's ok to use the catalyst object uuid as ContentStoreItemId.
+
 # ---------------------------------
 # DataTypes
 

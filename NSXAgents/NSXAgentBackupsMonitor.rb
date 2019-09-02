@@ -55,11 +55,18 @@ class NSXAgentBackupsMonitor
     def self.scriptNameToCatalystObjectOrNull(scriptname)
         return nil if !NSXAgentBackupsMonitor::scriptNameToIsDueFlag(scriptname)
         uuid = Digest::SHA1.hexdigest("60507ff5-adce-4444-9e57-c533efb01136:#{scriptname}")
+        announce = "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}"
+        contentStoreItem = {
+            "type" => "line",
+            "line" => announce
+        }
+        NSXContentStore::setItem(uuid, contentStoreItem)
         {
             "uuid"               => uuid,
-            "agentuid"           => "9fad55cf-3f41-45ae-b480-5cbef40ce57f",
+            "agentuid"           => NSXAgentBackupsMonitor::agentuid(),
             "metric"             => 0.53,
-            "announce"           => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}",
+            "announce"           => announce,
+            "contentStoreItemId" => uuid,
             "commands"           => [],
             "service-port"       => 12345
         }

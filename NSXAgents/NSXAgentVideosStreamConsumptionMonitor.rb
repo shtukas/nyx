@@ -55,12 +55,20 @@ class NSXAgentVideosStreamConsumptionMonitor
         }
         filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
         return [] if filepath.nil?
+        uuid = "f7845869-e058-44cd-bfae-3412957c7dba"
+        announce = "YouTube Video Stream"
+        contentStoreItem = {
+            "type" => "line",
+            "line" => announce
+        }
+        NSXContentStore::setItem(uuid, contentStoreItem)
         [
             {
-                "uuid"               => "f7845869-e058-44cd-bfae-3412957c7dba",
+                "uuid"               => uuid,
                 "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
                 "metric"             => Torr::metric("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
-                "announce"           => "YouTube Video Stream",
+                "announce"           => announce,
+                "contentStoreItemId" => uuid,
                 "commands"           => ["view"],
                 "defaultCommand"     => "view",
                 "agent:meta:filepath" => filepath,
