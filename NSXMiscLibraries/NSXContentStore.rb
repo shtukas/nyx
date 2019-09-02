@@ -49,3 +49,38 @@ class NSXContentStore
     end
 
 end
+
+
+class NSXContentStoreUtils
+
+    # NSXContentStoreUtils::itemToAnnounce(item)
+    def self.itemToAnnounce(item)
+        if item["type"] == "line" then
+            return item["line"]
+        end
+        "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
+    end
+
+    # NSXContentStoreUtils::itemToBody(item)
+    def self.itemToBody(item)
+        if item["type"] == "line" then
+            return item["line"]
+        end
+        "[8f854b3a] I don't know how to body: #{JSON.generate(item)}"
+    end
+
+    # NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(contentStoreItemId)
+    def self.contentStoreItemIdToAnnounceOrNull(contentStoreItemId)
+        item = NSXContentStore::getItemOrNull(contentStoreItemId)
+        return "NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(#{contentStoreItemId})" if item.nil?
+        NSXContentStoreUtils::itemToAnnounce(item)
+    end
+
+    # NSXContentStoreUtils::contentStoreItemIdToBodyOrNull(contentStoreItemId)
+    def self.contentStoreItemIdToBodyOrNull(contentStoreItemId)
+        item = NSXContentStore::getItemOrNull(contentStoreItemId)
+        return "NSXContentStoreUtils::contentStoreItemIdToBodyOrNull(#{contentStoreItemId})" if item.nil?
+        NSXContentStoreUtils::itemToBody(item)
+    end
+
+end

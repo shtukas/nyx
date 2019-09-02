@@ -65,7 +65,6 @@ class NSXAgentBackupsMonitor
             "uuid"               => uuid,
             "agentuid"           => NSXAgentBackupsMonitor::agentuid(),
             "metric"             => 0.53,
-            "announce"           => announce,
             "contentStoreItemId" => uuid,
             "commands"           => [],
             "service-port"       => 12345

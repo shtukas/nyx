@@ -374,7 +374,6 @@ class NSXAgentWave
         object['uuid'] = objectuuid
         object["agentuid"] = self.agentuid()
         object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
-        object['announce'] = announce
         object["contentStoreItemId"] = objectuuid
         object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
         object['commands'] = NSXAgentWave::commands(schedule)

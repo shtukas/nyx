@@ -39,7 +39,6 @@ class NSXAgentDesktopFilesMonitor
                 "uuid"               => uuid,
                 "agentuid"           => NSXAgentDesktopFilesMonitor::agentuid(),
                 "metric"             => 0.95,
-                "announce"           => announce,
                 "contentStoreItemId" => uuid,
                 "commands"           => ["done"],
                 "defaultCommand"  => "done",

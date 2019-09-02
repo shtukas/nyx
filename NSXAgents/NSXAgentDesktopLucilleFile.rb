@@ -140,7 +140,6 @@ class NSXAgentDesktopLucilleFile
                     "uuid"               => uuid,
                     "agentuid"           => NSXAgentDesktopLucilleFile::agentuid(),
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
-                    "announce"           => announce,
                     "contentStoreItemId" => uuid,
                     "body"               => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}",
                     "commands"           => ["done", ">stream"],

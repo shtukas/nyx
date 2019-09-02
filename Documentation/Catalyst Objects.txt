@@ -5,7 +5,6 @@ CatalystObject
     "uuid"             : UUID
     "agentuid"         : String # Optional
     "metric"           : Float
-    "announce"           : String
     "contentStoreItemId" : String
     "body"               : String # Optional [1]
     "commands"         : Array[String]

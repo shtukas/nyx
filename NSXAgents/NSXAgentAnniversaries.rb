@@ -164,7 +164,6 @@ class NSXAgentAnniversaries
             "uuid"      => uuid,
             "agentuid"  => NSXAgentAnniversaries::agentuid(),
             "metric"    => 0.95,
-            "announce"  => "anniversaries",
             "contentStoreItemId" => uuid,
             "commands"  => ["process"],
             "defaultCommand" => "process"

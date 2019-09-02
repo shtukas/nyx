@@ -323,7 +323,8 @@ class NSXMiscUtils
 
     # NSXMiscUtils::objectIsAutoDone(object)
     def self.objectIsAutoDone(object)
-        return true if object["announce"].include?("condition 58f3eb60")
+        announce = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])
+        return true if announce.include?("condition 58f3eb60")
         if object and
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and
             object["generic-content-item"] and
@@ -333,14 +334,14 @@ class NSXMiscUtils
         end
         if object and 
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and 
-            object["announce"].include?("notifications@github.com") and 
-            /Merged #\d+ into master./.match(object["announce"]) then
+            announce.include?("notifications@github.com") and 
+            /Merged #\d+ into master./.match(announce) then
             return true
         end
         if object and 
             object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and 
-            object["announce"].include?("notifications@github.com") and 
-            /^Closed #\d+/.match(object["announce"]) then
+            announce.include?("notifications@github.com") and 
+            /^Closed #\d+/.match(announce) then
             return true
         end
         if object and

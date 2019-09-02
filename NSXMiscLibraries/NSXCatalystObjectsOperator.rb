@@ -37,7 +37,7 @@ class NSXCatalystObjectsOperator
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
 
         if !NSXMiscUtils::hasInternetCondition1121() then
-            objects = objects.reject{|object| object["announce"].include?("http") }
+            objects = objects.reject{|object| NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).include?("http") }
         end
 
         objects = objects
@@ -67,7 +67,7 @@ class NSXCatalystObjectsOperator
         .each{|object|
             if object["isDone"] then
                 sleep 2
-                NSXMiscUtils::onScreenNotification("Catalyst", "[done] #{object["announce"]}")
+                NSXMiscUtils::onScreenNotification("Catalyst", "[done] #{NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])}")
             end
         }
     end

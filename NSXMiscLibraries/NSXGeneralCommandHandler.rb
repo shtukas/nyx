@@ -108,7 +108,7 @@ class NSXGeneralCommandHandler
             loop {
                 objects = NSXCatalystObjectsOperator::getAllObjectsFromAgents()
                 searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = objects.select{|object| object["announce"].downcase.include?(pattern.downcase) }
+                searchobjects2 = objects.select{|object| NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status

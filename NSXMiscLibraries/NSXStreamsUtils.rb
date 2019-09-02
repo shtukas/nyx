@@ -284,7 +284,6 @@ class NSXStreamsUtils
         object["uuid"] = item["uuid"]
         object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
-        object["announce"] = announce
         object["contentStoreItemId"] = item["uuid"]
         object["body"] = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)

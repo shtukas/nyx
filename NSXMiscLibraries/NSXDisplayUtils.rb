@@ -13,7 +13,6 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
-        announce = object['announce'].strip
         part2 = 
             [
                 object["commands"] ? " #{object["commands"].join(" ")}" : '',
@@ -26,15 +25,17 @@ class NSXDisplayUtils
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
         object["commands"] = object["commands"].reject{|command| command.include?('x-note') }
         object["commands"] = ( NSXMiscUtils::hasXNote(object["uuid"]) ? ["x-note".green] : ["x-note".yellow] ) + object["commands"]
+        announce = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])
+        body = NSXContentStoreUtils::contentStoreItemIdToBodyOrNull(object['contentStoreItemId'])
         if isFocus then
-            if object['body'] then
-                if object['body'].lines.size>1 then
+            if body then
+                if body.lines.size>1 then
                     [
                         "[#{"*".green}#{"%2d" % displayOrdinal}]",
                         " ",
                         "(#{"%5.3f" % object["metric"]})",
                         "\n",
-                        object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(object['body'], NSX0746_StandardPadding),
+                        object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
                         "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                     ].join()
                 else
@@ -43,7 +44,7 @@ class NSXDisplayUtils
                         " ",
                         "(#{"%5.3f" % object["metric"]})",
                         " ",
-                       (object["isRunning"] ? object['body'].green : object['body']),
+                       (object["isRunning"] ? body.green : body),
                        "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                     ].join()
                 end
@@ -53,7 +54,7 @@ class NSXDisplayUtils
                     " ",
                     "(#{"%5.3f" % object["metric"]})",
                     " ",
-                   (object["isRunning"] ? object['announce'].green : object['announce']),
+                   (object["isRunning"] ? announce.green : announce),
                    "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             end
@@ -63,7 +64,7 @@ class NSXDisplayUtils
                 " ",
                 "(#{"%5.3f" % object["metric"]})",
                 " ",
-                (object["isRunning"] ? (object['announce'][0,NSXMiscUtils::screenWidth()-9]).green : object['announce'][0,NSXMiscUtils::screenWidth()-15]),
+                (object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
             ].join()
         end
     end
@@ -85,7 +86,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean
     # Return value specifies if an oject was chosen and processed
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
-        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| object['announce'] })
+        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']) })
         return false if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
         true

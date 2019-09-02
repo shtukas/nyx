@@ -80,7 +80,6 @@ class NSXAgentDailyTimeCommitmentsHelpers
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
             "metric"    => NSXAgentDailyTimeCommitmentsHelpers::metric(entry),
-            "announce"  => announce,
             "contentStoreItemId" => uuid,
             "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning,

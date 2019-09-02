@@ -67,7 +67,6 @@ class NSXAgentVideosStreamConsumptionMonitor
                 "uuid"               => uuid,
                 "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
                 "metric"             => Torr::metric("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
-                "announce"           => announce,
                 "contentStoreItemId" => uuid,
                 "commands"           => ["view"],
                 "defaultCommand"     => "view",
