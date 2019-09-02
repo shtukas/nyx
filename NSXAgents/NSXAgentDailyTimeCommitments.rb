@@ -74,7 +74,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
             "metric"    => NSXAgentDailyTimeCommitmentsHelpers::metric(entry),
-            "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours, done: #{collectionValue.round(3)} seconds)",
+            "announce"  => "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(3)} hours)",
             "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning,
             ":base-metric:" => NSXAgentDailyTimeCommitmentsHelpers::baseMetric(),
