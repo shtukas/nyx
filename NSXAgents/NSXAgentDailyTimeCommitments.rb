@@ -45,7 +45,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
 
     # NSXAgentDailyTimeCommitmentsHelpers::getEntries()
     def self.getEntries()
-        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
+        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
     end
 
     # NSXAgentDailyTimeCommitmentsHelpers::baseMetric()
