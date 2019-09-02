@@ -20,7 +20,7 @@ require 'securerandom'
 
 # -------------------------------------------------------------------------------------
 
-LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/Lucille.txt"
+LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt"
 LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
 
 $SECTION_UUID_TO_CATALYST_UUIDS = nil
