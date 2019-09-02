@@ -7,6 +7,7 @@ require_relative "NSXConstants.rb"
 # Then the others
 require_relative "NSXAlgebraicTimePoints.rb"
 require_relative "NSXCatalystUI.rb"
+require_relative "NSXContentStore.rb"
 require_relative "NSXBob.rb"
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXDisplayUtils.rb"
