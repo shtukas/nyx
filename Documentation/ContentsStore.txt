@@ -17,4 +17,4 @@ ContentsStoreItem {
 # ---------------------------------
 # Interface
 
-ContentStore::getItemOrNull(contentStoreItemId: String): Item or null
+NSXContentStore::getItemOrNull(contentStoreItemId: String): Item or null
