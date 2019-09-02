@@ -1,0 +1,20 @@
+ContentStore provides the service of storing and serving contents. This is the replacement of the old "announce".
+
+Contents are stored and retrieved against ids and the ContentStore also provides the services of transforming a contents to an announce as well as transforming a contents to a body (if relevant).
+
+Internaly there is a mapping between a ContentStoreItemId and a hash of contents object. This choice ensures, that clients can resubmit the same contents (which will be the case of some agents) with no file created or modified.
+
+# ---------------------------------
+# DataTypes
+
+The rest of this file describes the various types of contents.
+
+ContentsStoreItem {
+    "type" : "line"
+    "line" : String # carries a single line.
+}
+
+# ---------------------------------
+# Interface
+
+ContentStore::getItemOrNull(contentStoreItemId: String): Item or null
