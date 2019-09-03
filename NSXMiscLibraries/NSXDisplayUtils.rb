@@ -75,11 +75,6 @@ class NSXDisplayUtils
         puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1)
         print "-->(2) "
         command = STDIN.gets().strip
-        command = command.size>0 ? command : ( object["defaultCommand"] ? object["defaultCommand"] : "" )
-        if object["executionLambdas"] and object["executionLambdas"][command] then
-            object["executionLambdas"][command].call(object)
-            return
-        end
         NSXGeneralCommandHandler::processCommand(object, command)
     end
 

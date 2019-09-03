@@ -111,12 +111,7 @@ class NSXCatalystUI
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end
-
-        if focusobject["executionLambdas"] and focusobject["executionLambdas"][command] then
-            focusobject["executionLambdas"][command].call(focusobject)
-            return
-        end
-
+        
         NSXGeneralCommandHandler::processCommand(focusobject, command)
     end
 

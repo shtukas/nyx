@@ -20,28 +20,27 @@ require 'digest/sha1'
 
 class NSXContentStore
 
-    # NSXContentStore::getItemOrNull(contentStoreItemId: String): ContentsStoreItem or null
+    # NSXContentStore::getItemOrNull(contentStoreItemId: String): ContentStoreItem or null
     def self.getItemOrNull(contentStoreItemId)
-        # First we look up the hash of the file
-        sha1hash = KeyValueStore::getOrNull("#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Content-Store/Mapping-Id-Content", contentStoreItemId)
-        return nil if sha1hash.nil?
-        # Second we look for the file
+        sha1hash = Digest::SHA1.hexdigest(contentStoreItemId)
         pathfragment = "#{sha1hash[0,2]}/#{sha1hash[2,2]}/#{sha1hash}.json"
-        filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Content-Store/Content/#{pathfragment}"
+        filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Content-Store/Content/#{pathfragment}"
         if !File.exists?(filepath) then
-            raise "Error 8ce029e4: Found a hash againt a contentStoreItemId, but no content"
+            return nil
         end
         JSON.parse(IO.read(filepath))
     end
 
     # NSXContentStore::setItem(contentStoreItemId, contentStoreItem)
     def self.setItem(contentStoreItemId, contentStoreItem)
-        contentStoreItemAsString = JSON.generate(contentStoreItem)
-        sha1hash = Digest::SHA1.hexdigest(contentStoreItemAsString)
-        KeyValueStore::set("#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Content-Store/Mapping-Id-Content", contentStoreItemId, sha1hash)
+        sha1hash = Digest::SHA1.hexdigest(contentStoreItemId)
         pathfragment = "#{sha1hash[0,2]}/#{sha1hash[2,2]}/#{sha1hash}.json"
-        filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Content-Store/Content/#{pathfragment}"
-        return if File.exists?(filepath) # Content Adressable Storage
+        filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Content-Store/Content/#{pathfragment}"
+        contentStoreItemAsString = JSON.pretty_generate(contentStoreItem)
+        if File.exists?(filepath) and (IO.read(filepath) == contentStoreItemAsString) then
+            # We avoid rewriting a file whose content have nove changed
+            return
+        end
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -58,6 +57,9 @@ class NSXContentStoreUtils
         if item["type"] == "line" then
             return item["line"]
         end
+        if item["type"] == "line-and-body" then
+            return item["line"]
+        end
         "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
     end
 
@@ -66,7 +68,10 @@ class NSXContentStoreUtils
         if item["type"] == "line" then
             return item["line"]
         end
-        "[8f854b3a] I don't know how to body: #{JSON.generate(item)}"
+        if item["type"] == "line-and-body" then
+            return item["body"]
+        end
+        "[09bab884] I don't know how to body: #{JSON.generate(item)}"
     end
 
     # NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(contentStoreItemId)

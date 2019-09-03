@@ -5,11 +5,10 @@ CatalystObject
     "uuid"             : UUID
     "agentuid"         : String # Optional
     "metric"           : Float
-    "contentStoreItemId" : String
-    "body"               : String # Optional [1]
+    "contentStoreItemId"  : String
+    "scheduleStoreItemId" : String
     "commands"         : Array[String]
     "defaultCommand"   : String # Optional
-    "executionLambdas" : Map[command: String, Lambda] # Optional [3]
     "isRunning"        : Boolean # Optional
     "isDone"           : Boolean # Optional [2]
 }
@@ -17,6 +16,4 @@ CatalystObject
 [1] Used when present and if the object is focus.
 
 [2] When true, triggers the on screen notification. The most common use if this is to alert that a running object is done.
-
-[3] Take priority over anything else, used at the Catalyst UI level. The lambda should take the object as argument.
 

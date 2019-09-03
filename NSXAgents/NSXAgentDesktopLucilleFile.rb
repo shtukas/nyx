@@ -131,17 +131,23 @@ class NSXAgentDesktopLucilleFile
                     sectionAsString = "\n" + sectionAsString
                 end
                 announce = "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}"
+                body = "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}"
                 contentStoreItem = {
-                    "type" => "line",
-                    "line" => announce
+                    "type" => "line-and-body",
+                    "line" => announce,
+                    "body" => body
                 }
                 NSXContentStore::setItem(uuid, contentStoreItem)
+                scheduleStoreItem = {
+                    "type" => "todo-and-inform-agent-11b30518"
+                }
+                NSXScheduleStore::setItem(uuid, scheduleStoreItem)
                 {
                     "uuid"               => uuid,
                     "agentuid"           => NSXAgentDesktopLucilleFile::agentuid(),
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
-                    "contentStoreItemId" => uuid,
-                    "body"               => "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}",
+                    "contentStoreItemId"  => uuid,
+                    "scheduleStoreItemId" => uuid,
                     "commands"           => ["done", ">stream"],
                     "defaultCommand"     => "done",
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),

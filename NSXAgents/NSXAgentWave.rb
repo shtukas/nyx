@@ -369,12 +369,17 @@ class NSXAgentWave
             "line" => announce
         }
         NSXContentStore::setItem(objectuuid, contentStoreItem)
-
+        scheduleStoreItem = {
+            "type" => "wave-item-dc583ed2",
+            "native-schedule" => schedule
+        }
+        NSXScheduleStore::setItem(objectuuid, scheduleStoreItem)
         object = {}
         object['uuid'] = objectuuid
         object["agentuid"] = self.agentuid()
         object['metric'] = metric + NSXMiscUtils::traceToMetricShift(objectuuid)
         object["contentStoreItemId"] = objectuuid
+        object["scheduleStoreItemId"] = objectuuid
         object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
         object['commands'] = NSXAgentWave::commands(schedule)
         object["defaultCommand"] = NSXAgentWave::defaultCommand(objectuuid, folderProbeMetadata, schedule)

@@ -61,13 +61,18 @@ class NSXAgentBackupsMonitor
             "line" => announce
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
+        scheduleStoreItem = {
+            "type" => "todo-and-inform-agent-11b30518"
+        }
+        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {
-            "uuid"               => uuid,
-            "agentuid"           => NSXAgentBackupsMonitor::agentuid(),
-            "metric"             => 0.53,
-            "contentStoreItemId" => uuid,
-            "commands"           => [],
-            "service-port"       => 12345
+            "uuid"                => uuid,
+            "agentuid"            => NSXAgentBackupsMonitor::agentuid(),
+            "metric"              => 0.53,
+            "contentStoreItemId"  => uuid,
+            "scheduleStoreItemId" => uuid,
+            "commands"            => [],
+            "service-port"        => 12345
         }
     end
 

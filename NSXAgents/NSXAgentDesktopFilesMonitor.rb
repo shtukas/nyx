@@ -34,12 +34,17 @@ class NSXAgentDesktopFilesMonitor
             "line" => announce
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
+        scheduleStoreItem = {
+            "type" => "todo-and-inform-agent-11b30518"
+        }
+        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         [
             {
                 "uuid"               => uuid,
                 "agentuid"           => NSXAgentDesktopFilesMonitor::agentuid(),
                 "metric"             => 0.95,
-                "contentStoreItemId" => uuid,
+                "contentStoreItemId"  => uuid,
+                "scheduleStoreItemId" => uuid,
                 "commands"           => ["done"],
                 "defaultCommand"  => "done",
                 "service-port"       => 12350

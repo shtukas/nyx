@@ -9,11 +9,15 @@ Because the ContentStore operate its own repository, it's ok to use the catalyst
 # ---------------------------------
 # DataTypes
 
-The rest of this file describes the various types of contents.
-
-ContentsStoreItem {
+ContentStoreItem {
     "type" : "line"
     "line" : String # carries a single line.
+}
+
+ContentStoreItem {
+    "type" : "line-and-body"
+    "line" : String # carries a single line.
+    "body" : String
 }
 
 # ---------------------------------

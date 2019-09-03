@@ -160,11 +160,16 @@ class NSXAgentAnniversaries
             "line" => "anniversaries"
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
+        scheduleStoreItem = {
+            "type" => "todo-and-inform-agent-11b30518"
+        }
+        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         object = {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentAnniversaries::agentuid(),
             "metric"    => 0.95,
-            "contentStoreItemId" => uuid,
+            "contentStoreItemId"  => uuid,
+            "scheduleStoreItemId" => uuid,
             "commands"  => ["process"],
             "defaultCommand" => "process"
         }

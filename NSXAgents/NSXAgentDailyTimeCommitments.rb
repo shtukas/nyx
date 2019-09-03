@@ -45,7 +45,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
 
     # NSXAgentDailyTimeCommitmentsHelpers::getEntries()
     def self.getEntries()
-        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
+        JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
     end
 
     # NSXAgentDailyTimeCommitmentsHelpers::baseMetric()
@@ -76,11 +76,17 @@ class NSXAgentDailyTimeCommitmentsHelpers
             "line" => announce
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
+        scheduleStoreItem = {
+            "type" => "24h-sliding-time-commitment-da8b7ca8",
+            "commitmentInHours" => entry["commitmentInHours"]
+        }
+        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
             "metric"    => NSXAgentDailyTimeCommitmentsHelpers::metric(entry),
             "contentStoreItemId" => uuid,
+            "scheduleStoreItemId" => uuid,
             "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning,
             ":base-metric:" => NSXAgentDailyTimeCommitmentsHelpers::baseMetric(),
