@@ -80,6 +80,10 @@ class NSXAgentVienna
         []
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentVienna::processObjectAndCommand(object, command)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "open" then

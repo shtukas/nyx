@@ -67,6 +67,10 @@ class NSXAgentAnniversaries
         NSXAgentAnniversaries::getAllObjects()
     end
 
+    def self.getCommands()
+        []
+    end
+
     def self.getEventLines()
         IO.read("/Galaxy/DataBank/anniversaries/anniversaries.txt")
             .lines

@@ -90,6 +90,10 @@ class NSXAgentBackupsMonitor
             .compact
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentBackupsMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "open" then

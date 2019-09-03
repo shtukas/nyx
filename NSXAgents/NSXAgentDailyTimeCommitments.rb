@@ -153,6 +153,10 @@ class NSXAgentDailyTimeCommitments
             .map{|entry| NSXAgentDailyTimeCommitmentsHelpers::entryToCatalystObject(entry) }
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentDailyTimeCommitments::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "start" then

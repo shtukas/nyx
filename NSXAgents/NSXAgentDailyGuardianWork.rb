@@ -55,6 +55,10 @@ class NSXAgentDailyGuardianWork
         [object]
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "done" then

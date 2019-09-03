@@ -46,6 +46,10 @@ class NSXAgentStreams
         NSXStreamsUtils::getAllCatalystObjects()
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentStreams::stopStreamItem(item): item
     def self.stopStreamItem(item)
         return item if item.nil?

@@ -81,6 +81,10 @@ class NSXAgentVideosStreamConsumptionMonitor
         ]
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "view" then

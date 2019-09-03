@@ -404,6 +404,10 @@ class NSXAgentWave
             .map{|uuid| NSXAgentWave::makeCatalystObjectOrNull(uuid) }
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentWave::getObjectByUUIDOrNull(objectuuid)
     def self.getObjectByUUIDOrNull(objectuuid)
         NSXAgentWave::getAllObjects()

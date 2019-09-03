@@ -158,6 +158,10 @@ class NSXAgentDesktopLucilleFile
         objects
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentDesktopLucilleFile::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "done" then

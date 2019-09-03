@@ -11,6 +11,19 @@ class NSXDisplayUtils
         text.lines.map{|line| padding+line }.join()
     end
 
+    # NSXDisplayUtils::defaultCatalystObjectCommands()
+    def self.defaultCatalystObjectCommands()
+        # This doesn't include x-note
+        ["expose"]
+    end
+
+    # NSXDisplayUtils::agentCommands(object)
+    def self.agentCommands(object)
+        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+        raise "Error: 0b00c9b7" if agentdata.nil?
+        agentdata["agent-commands"].call()
+    end
+
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(object["scheduleStoreItemId"])
@@ -18,16 +31,17 @@ class NSXDisplayUtils
         scheduleStoreCommands = NSXScheduleStoreUtils::scheduleStoreItemToCommands(object["uuid"], scheduleStoreItem)
         part2 = 
             [
-                (object["commands"]+scheduleStoreCommands).join(" ") ,
-                object["defaultCommand"] ? " (#{object["defaultCommand"].green})" : ""
-            ].join()
+                NSXMiscUtils::hasXNote(object["uuid"]) ? "x-note".green : "x-note".yellow,
+                NSXScheduleStoreUtils::scheduleStoreItemToCommands(object["uuid"], scheduleStoreItem).join(" "),
+                NSXDisplayUtils::agentCommands(object).join(" "),
+                NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
+                object["defaultCommand"] ? "(#{object["defaultCommand"].green})" : ""
+            ].join(" ")
         part2.strip
     end
 
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
-        object["commands"] = object["commands"].reject{|command| command.include?('x-note') }
-        object["commands"] = ( NSXMiscUtils::hasXNote(object["uuid"]) ? ["x-note".green] : ["x-note".yellow] ) + object["commands"]
         announce = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])
         body = NSXContentStoreUtils::contentStoreItemIdToBodyOrNull(object['contentStoreItemId'])
         if isFocus then

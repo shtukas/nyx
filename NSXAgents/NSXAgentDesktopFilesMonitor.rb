@@ -52,6 +52,10 @@ class NSXAgentDesktopFilesMonitor
         ]
     end
 
+    def self.getCommands()
+        []
+    end
+
     # NSXAgentDesktopFilesMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
 
