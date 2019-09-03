@@ -86,6 +86,14 @@ class NSXScheduleStoreUtils
             agentdata["object-command-processor"].call(objectuuid, command, true)
             return
         end
+        if scheduleStoreItem["type"] == "stream-item-7e37790b" then
+            object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
+            return if object.nil?
+            agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+            return if agentdata.nil?
+            agentdata["object-command-processor"].call(objectuuid, command, true)
+            return
+        end
         puts "NSXScheduleStoreUtils::executeScheduleStoreItem cannot to this:"
         puts "objectuuid: #{objectuuid}"
         puts "scheduleStoreItem"
