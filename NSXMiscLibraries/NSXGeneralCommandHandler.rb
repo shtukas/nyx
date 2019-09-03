@@ -155,7 +155,7 @@ class NSXGeneralCommandHandler
 
         if command == "next" then
             # Get rid of the first inner line of the Next file
-            NSXMiscUtils::transformNextFile()
+            NSXMiscUtils::applyNextTransformationToLucilleInstanceFile()
         end
 
         return if object.nil?

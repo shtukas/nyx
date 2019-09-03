@@ -19,9 +19,9 @@ class NSXCatalystUI
         object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
-    # NSXCatalystUI::printCatalytNext()
-    def self.printCatalytNext()
-        nextContents = IO.read("/Users/pascal/Desktop/Next.txt")
+    # NSXCatalystUI::printLucilleInstanceFileAsNext()
+    def self.printLucilleInstanceFileAsNext()
+        nextContents = IO.read("/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt")
                             .strip
                             .lines
                             .first(10)
@@ -69,7 +69,7 @@ class NSXCatalystUI
             break if verticalSpaceLeft<=0
 
             if displayObjectForListing.all?{|object| object["metric"] <= 1 } and !hasDisplayedCatalystNext then
-                vspace = NSXCatalystUI::printCatalytNext()
+                vspace = NSXCatalystUI::printLucilleInstanceFileAsNext()
                 verticalSpaceLeft = verticalSpaceLeft - vspace
                 hasDisplayedCatalystNext = true
             end
@@ -111,7 +111,7 @@ class NSXCatalystUI
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end
-        
+
         NSXGeneralCommandHandler::processCommand(focusobject, command)
     end
 

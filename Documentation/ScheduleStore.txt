@@ -25,3 +25,6 @@ ScheduleStoreItem {
 # Interface
 
 NSXScheduleStore::getItemOrNull(scheduleStoreItemId: String): Item or null
+
+NSXScheduleStore::executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
+

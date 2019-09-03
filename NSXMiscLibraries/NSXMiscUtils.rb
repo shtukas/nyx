@@ -478,9 +478,9 @@ class NSXMiscUtils
         line.split(" ").first.strip
     end
 
-    # NSXMiscUtils::transformNextFile()
-    def self.transformNextFile()
-        pathToFile = "/Users/pascal/Desktop/Next.txt"
+    # NSXMiscUtils::applyNextTransformationToLucilleInstanceFile()
+    def self.applyNextTransformationToLucilleInstanceFile()
+        pathToFile = "/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt"
         NSXMiscUtils::copyLocationToCatalystBin(pathToFile)
         lines = IO.read(pathToFile).strip.lines.to_a
         return if lines.empty?
