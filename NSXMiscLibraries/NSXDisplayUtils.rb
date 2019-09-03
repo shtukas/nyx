@@ -13,9 +13,12 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
+        scheduleStoreItem = NSXScheduleStore::getItemOrNull(object["scheduleStoreItemId"])
+        raise "Error: e34954d5" if scheduleStoreItem.nil?
+        scheduleStoreCommands = NSXScheduleStoreUtils::scheduleStoreItemToCommands(object["uuid"], scheduleStoreItem)
         part2 = 
             [
-                object["commands"] ? " #{object["commands"].join(" ")}" : '',
+                (object["commands"]+scheduleStoreCommands).join(" ") ,
                 object["defaultCommand"] ? " (#{object["defaultCommand"].green})" : ""
             ].join()
         part2.strip

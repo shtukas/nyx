@@ -56,6 +56,23 @@ class NSXScheduleStoreUtils
 
     end
 
+    # NSXScheduleStoreUtils::scheduleStoreItemToCommands(objectuuid, scheduleStoreItem)
+    def self.scheduleStoreItemToCommands(objectuuid, scheduleStoreItem)
+        if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
+            return ["done"]
+        end
+        if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
+            return ["start", "stop", "done"]
+        end
+        if scheduleStoreItem["type"] == "stream-item-7e37790b" then
+            return ["start", "stop", "done"]
+        end
+        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
+            return ["done"]
+        end
+        raise "I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
+    end
+
     # NSXScheduleStoreUtils::scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
     def self.scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
         item = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
