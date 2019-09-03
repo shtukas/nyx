@@ -28,14 +28,14 @@ class NSXDisplayUtils
     def self.objectInferfaceString(object)
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(object["scheduleStoreItemId"])
         raise "Error: e34954d5" if scheduleStoreItem.nil?
-        scheduleStoreCommands = NSXScheduleStoreUtils::scheduleStoreItemToCommands(object["uuid"], scheduleStoreItem)
+        defaultCommand = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(object["uuid"], scheduleStoreItem)
         part2 = 
             [
                 NSXMiscUtils::hasXNote(object["uuid"]) ? "x-note".green : "x-note".yellow,
                 NSXScheduleStoreUtils::scheduleStoreItemToCommands(object["uuid"], scheduleStoreItem).join(" "),
                 NSXDisplayUtils::agentCommands(object).join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
-                object["defaultCommand"] ? "(#{object["defaultCommand"].green})" : ""
+                defaultCommand ? "(#{defaultCommand.green})" : ""
             ].join(" ")
         part2.strip
     end

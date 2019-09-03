@@ -376,7 +376,6 @@ class NSXAgentWave
         object["contentStoreItemId"] = objectuuid
         object["scheduleStoreItemId"] = objectuuid
         object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
-        object["defaultCommand"] = NSXAgentWave::defaultCommand(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location

@@ -148,7 +148,6 @@ class NSXAgentDesktopLucilleFile
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
                     "contentStoreItemId"  => uuid,
                     "scheduleStoreItemId" => uuid,
-                    "defaultCommand"     => "done",
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),
                     "section"            => section
                 }

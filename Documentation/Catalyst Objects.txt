@@ -7,7 +7,6 @@ CatalystObject
     "metric"           : Float
     "contentStoreItemId"  : String
     "scheduleStoreItemId" : String
-    "defaultCommand"   : String # Optional
     "isRunning"        : Boolean # Optional
     "isDone"           : Boolean # Optional [2]
 }

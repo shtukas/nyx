@@ -76,6 +76,11 @@ class NSXScheduleStoreUtils
         raise "I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
     end
 
+    # NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(objectuuid, scheduleStoreItem)
+    def self.scheduleStoreItemToDefaultCommandOrNull(objectuuid, scheduleStoreItem)
+        nil
+    end
+
     # NSXScheduleStoreUtils::scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
     def self.scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
         item = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)

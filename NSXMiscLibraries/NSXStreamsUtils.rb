@@ -292,7 +292,6 @@ class NSXStreamsUtils
         object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
         object["contentStoreItemId"] = item["uuid"]
         object["scheduleStoreItemId"] = item["uuid"]
-        object["defaultCommand"] = NSXStreamsUtils::streamItemToStreamCatalystDefaultCommand(item, announce)
         object["isRunning"] = NSXRunner::isRunning?(item["uuid"])
         object
     end

@@ -165,7 +165,7 @@ class NSXAgentAnniversaries
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
-            "type" => "todo-and-inform-agent-11b30518"
+            "type" => "toactivate-and-inform-agent-2d839ef7"
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         object = {
@@ -173,15 +173,14 @@ class NSXAgentAnniversaries
             "agentuid"  => NSXAgentAnniversaries::agentuid(),
             "metric"    => 0.95,
             "contentStoreItemId"  => uuid,
-            "scheduleStoreItemId" => uuid,
-            "defaultCommand" => "process"
+            "scheduleStoreItemId" => uuid
         }
         [object]
     end
 
     # NSXAgentAnniversaries::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        if command == "done" then
+        if command == "activate" then
             NSXAgentAnniversaries::getNs1203WithOutstandingSequenceElements().each{|ns1203|
                 ns1203["anniversaries"].each{|anniversary|
                     puts ns1203["description"]
