@@ -416,7 +416,7 @@ class NSXStreamsUtils
             nil
         else
             if announce.start_with?('[Catalyst Inbox] http') then
-                "start ; open"
+                "start;open"
             else
                 "start"
             end
