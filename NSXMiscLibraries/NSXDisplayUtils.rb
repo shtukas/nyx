@@ -73,9 +73,9 @@ class NSXDisplayUtils
     def self.doPresentObjectInviteAndExecuteCommand(object)
         return if object.nil?
         puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1)
-        print "-->(2) "
+        print "-->(object: command only) "
         command = STDIN.gets().strip
-        NSXGeneralCommandHandler::processCommand(object, command)
+        NSXGeneralCommandHandler::processCommandAgainstCatalystObject(object, command)
     end
 
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean

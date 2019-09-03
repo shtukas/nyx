@@ -63,4 +63,34 @@ class NSXScheduleStoreUtils
         NSXScheduleStoreUtils::itemToAnnounce(item)
     end
 
+    # NSXScheduleStoreUtils::executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
+    def self.executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
+        puts "NSXScheduleStoreUtils::executeScheduleStoreItem(#{objectuuid}, #{scheduleStoreItemId}, #{command})"
+        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
+        return if scheduleStoreItem.nil?
+        if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
+            # In this case it doesn't matter what the command is, we just forwards to the agent.
+            # TODO: here we are calling the object to get the agent uid. We should have a shortcut here
+            object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
+            return if object.nil?
+            agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+            return if agentdata.nil?
+            agentdata["object-command-processor"].call(objectuuid, command, true)
+            return
+        end
+        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
+            object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
+            return if object.nil?
+            agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+            return if agentdata.nil?
+            agentdata["object-command-processor"].call(objectuuid, command, true)
+            return
+        end
+        puts "NSXScheduleStoreUtils::executeScheduleStoreItem cannot to this:"
+        puts "objectuuid: #{objectuuid}"
+        puts "scheduleStoreItem"
+        puts JSON.pretty_generate(scheduleStoreItem)
+        puts "command: #{command}"
+        exit
+    end
 end

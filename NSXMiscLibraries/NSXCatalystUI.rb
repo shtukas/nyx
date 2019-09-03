@@ -47,7 +47,7 @@ class NSXCatalystUI
 
         while displayObjects.size>0 and NSXMiscUtils::objectIsAutoDone(displayObjects.first) do
             puts "-> processing auto done".green
-            NSXGeneralCommandHandler::processCommand(displayObjects.first, "done")
+            NSXGeneralCommandHandler::processCommandAgainstCatalystObject(displayObjects.first, "done")
             displayObjects = displayObjects.drop(1)
             return
         end
@@ -56,7 +56,7 @@ class NSXCatalystUI
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
-            NSXGeneralCommandHandler::processCommand(nil, command)
+            NSXGeneralCommandHandler::processGeneralCommand(command)
             return
         end
 
@@ -112,7 +112,9 @@ class NSXCatalystUI
             return
         end
 
-        NSXGeneralCommandHandler::processCommand(focusobject, command)
+        NSXGeneralCommandHandler::processGeneralCommand(command)
+
+        NSXGeneralCommandHandler::processCommandAgainstCatalystObject(focusobject, command)
     end
 
     # NSXCatalystUI::standardUILoop()

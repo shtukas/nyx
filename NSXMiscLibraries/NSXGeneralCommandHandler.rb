@@ -21,8 +21,7 @@ class NSXGeneralCommandHandler
             "Special General Commands:",
             "\n",
             [
-                "help", 
-                ":<p>", 
+                "help",
                 "/", 
                 "new: <line> | 'text'", 
                 "next",
@@ -51,10 +50,8 @@ class NSXGeneralCommandHandler
         puts JSON.pretty_generate(streamItem)
     end
 
-    # NSXGeneralCommandHandler::processCommand(object, command)
-    def self.processCommand(object, command)
-
-        # no object needed
+    # NSXGeneralCommandHandler::processGeneralCommand(command)
+    def self.processGeneralCommand(command)
 
         if command == "" then
             return
@@ -63,11 +60,6 @@ class NSXGeneralCommandHandler
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if command.start_with?(":") and NSXMiscUtils::isInteger(command[1, command.size]) then
-            position = command[1, command.size].strip.to_i
             return
         end
 
@@ -157,18 +149,24 @@ class NSXGeneralCommandHandler
             # Get rid of the first inner line of the Next file
             NSXMiscUtils::applyNextTransformationToLucilleInstanceFile()
         end
+    end
+
+    # NSXGeneralCommandHandler::processCommandAgainstCatalystObject(object, command)
+    def self.processCommandAgainstCatalystObject(object, command)
 
         return if object.nil?
 
-        # object needed
+        if command == "" then
+            return
+        end
+
+        if command == ".." and object["defaultCommand"] and object["defaultCommand"] != ".." then
+            NSXGeneralCommandHandler::processCommandAgainstCatalystObject(object, object["defaultCommand"])
+            return
+        end
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
-            claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"])
-            if claim then
-                puts JSON.pretty_generate(claim)
-            end
-            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -192,19 +190,7 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == ".." and object["defaultCommand"] and object["defaultCommand"] != ".." then
-            NSXGeneralCommandHandler::processCommand(object, object["defaultCommand"])
-            return
-        end
-
-        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
-        return if agentdata.nil?
-
-        command.split(';')
-            .map{|fragment| fragment.strip }
-            .each{|fragment|
-                agentdata["object-command-processor"].call(object["uuid"], fragment, true)
-            }
+        NSXScheduleStoreUtils::executeScheduleStoreItem(object["uuid"], object["scheduleStoreItemId"], command)
 
     end
 end
