@@ -87,7 +87,6 @@ class NSXAgentDailyTimeCommitmentsHelpers
             "metric"    => NSXAgentDailyTimeCommitmentsHelpers::metric(entry),
             "contentStoreItemId" => uuid,
             "scheduleStoreItemId" => uuid,
-            "commands"  => isRunning ? ["stop"] : ["start"],
             "isRunning" => isRunning,
             ":base-metric:" => NSXAgentDailyTimeCommitmentsHelpers::baseMetric(),
             ":last-negative-mark-unixtime:" => NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry),

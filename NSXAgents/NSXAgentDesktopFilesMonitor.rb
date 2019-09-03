@@ -45,7 +45,6 @@ class NSXAgentDesktopFilesMonitor
                 "metric"             => 0.95,
                 "contentStoreItemId"  => uuid,
                 "scheduleStoreItemId" => uuid,
-                "commands"           => ["done"],
                 "defaultCommand"  => "done",
                 "service-port"       => 12350
             }

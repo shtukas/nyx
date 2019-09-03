@@ -174,7 +174,6 @@ class NSXAgentAnniversaries
             "metric"    => 0.95,
             "contentStoreItemId"  => uuid,
             "scheduleStoreItemId" => uuid,
-            "commands"  => ["process"],
             "defaultCommand" => "process"
         }
         [object]
@@ -182,7 +181,7 @@ class NSXAgentAnniversaries
 
     # NSXAgentAnniversaries::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        if command == "process" then
+        if command == "done" then
             NSXAgentAnniversaries::getNs1203WithOutstandingSequenceElements().each{|ns1203|
                 ns1203["anniversaries"].each{|anniversary|
                     puts ns1203["description"]

@@ -71,7 +71,6 @@ class NSXAgentBackupsMonitor
             "metric"              => 0.53,
             "contentStoreItemId"  => uuid,
             "scheduleStoreItemId" => uuid,
-            "commands"            => [],
             "service-port"        => 12345
         }
     end

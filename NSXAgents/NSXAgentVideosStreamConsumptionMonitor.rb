@@ -63,7 +63,7 @@ class NSXAgentVideosStreamConsumptionMonitor
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
-            "type" => "todo-and-inform-agent-11b30518"
+            "type" => "toactivate-and-inform-agent-2d839ef7"
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         [
@@ -73,7 +73,6 @@ class NSXAgentVideosStreamConsumptionMonitor
                 "metric"             => Torr::metric("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51),
                 "contentStoreItemId"  => uuid,
                 "scheduleStoreItemId" => uuid,
-                "commands"           => ["view"],
                 "defaultCommand"     => "view",
                 "agent:meta:filepath" => filepath,
                 "agent:meta:weight"  => Torr::weight("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400)
@@ -87,7 +86,7 @@ class NSXAgentVideosStreamConsumptionMonitor
 
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        if command == "view" then
+        if command == "activate" then
             filepath = videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
             return if filepath.nil?
             puts filepath

@@ -61,6 +61,9 @@ class NSXScheduleStoreUtils
         if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
             return ["done"]
         end
+        if scheduleStoreItem["type"] == "toactivate-and-inform-agent-2d839ef7" then
+            return ["activate"]
+        end
         if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
             return ["start", "stop", "done"]
         end
@@ -86,6 +89,16 @@ class NSXScheduleStoreUtils
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
         return if scheduleStoreItem.nil?
         if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
+            # In this case it doesn't matter what the command is, we just forwards to the agent.
+            # TODO: here we are calling the object to get the agent uid. We should have a shortcut here
+            object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
+            return if object.nil?
+            agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+            return if agentdata.nil?
+            agentdata["object-command-processor"].call(objectuuid, command, true)
+            return
+        end
+        if scheduleStoreItem["type"] == "toactivate-and-inform-agent-2d839ef7" then
             # In this case it doesn't matter what the command is, we just forwards to the agent.
             # TODO: here we are calling the object to get the agent uid. We should have a shortcut here
             object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)

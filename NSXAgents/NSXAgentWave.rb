@@ -260,11 +260,6 @@ class NSXAgentWave
         NSXMiscUtils::moveLocationToCatalystBin(folderpath)
     end
 
-    def self.commands(schedule)
-        commands = ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "folder", "destroy"]
-        commands
-    end
-
     # NSXAgentWave::defaultCommand(objectuuid, folderProbeMetadata, schedule)
     def self.defaultCommand(objectuuid, folderProbeMetadata, schedule)
         if folderProbeMetadata["target-type"] == "openable-file" then
@@ -381,7 +376,6 @@ class NSXAgentWave
         object["contentStoreItemId"] = objectuuid
         object["scheduleStoreItemId"] = objectuuid
         object['body'] = NSXAgentWave::objectUUIDToBody(folderProbeMetadata, schedule)
-        object['commands'] = NSXAgentWave::commands(schedule)
         object["defaultCommand"] = NSXAgentWave::defaultCommand(objectuuid, folderProbeMetadata, schedule)
         object['schedule'] = schedule
         object["item-data"] = {}
@@ -405,7 +399,7 @@ class NSXAgentWave
     end
 
     def self.getCommands()
-        []
+        ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "folder", "destroy"]
     end
 
     # NSXAgentWave::getObjectByUUIDOrNull(objectuuid)

@@ -148,7 +148,6 @@ class NSXAgentDesktopLucilleFile
                     "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
                     "contentStoreItemId"  => uuid,
                     "scheduleStoreItemId" => uuid,
-                    "commands"           => ["done", ">stream"],
                     "defaultCommand"     => "done",
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),
                     "section"            => section
@@ -159,7 +158,7 @@ class NSXAgentDesktopLucilleFile
     end
 
     def self.getCommands()
-        []
+        [">stream"]
     end
 
     # NSXAgentDesktopLucilleFile::processObjectAndCommand(objectuuid, command, isLocalCommand)

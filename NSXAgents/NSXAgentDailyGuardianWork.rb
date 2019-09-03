@@ -51,7 +51,6 @@ class NSXAgentDailyGuardianWork
         object["metric"] = 0.60
         object["contentStoreItemId"] = uuid
         object["scheduleStoreItemId"] = uuid
-        object["commands"] = ["done"]
         [object]
     end
 
