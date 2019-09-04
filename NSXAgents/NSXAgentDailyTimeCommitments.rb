@@ -79,7 +79,10 @@ class NSXAgentDailyTimeCommitmentsHelpers
         scheduleStoreItem = {
             "type" => "24h-sliding-time-commitment-da8b7ca8",
             "collectionuid" => uuid,
-            "commitmentInHours" => entry["commitmentInHours"]
+            "commitmentInHours"        => entry["commitmentInHours"],
+            "stabilityPeriodInSeconds" => 86400,
+            "metricAtZero"             => 0.8,
+            "metricAtTarget"           => 0.5
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {

@@ -14,9 +14,13 @@ ScheduleStoreItem {
 }
 
 ScheduleStoreItem {
-    "type"              : "24h-sliding-time-commitment-da8b7ca8"
-    "collectionuid"     : String
-    "commitmentInHours" : Float
+    "type"                     : "24h-sliding-time-commitment-da8b7ca8"
+    "collectionuid"            : String
+    "commitmentInHours"        : Float
+    "stabilityPeriodInSeconds" : Float
+    "metricAtZero"             : Float
+    "metricAtTarget"           : Float
+
 }
 
 ScheduleStoreItem {

@@ -157,7 +157,11 @@ class NSXScheduleStoreUtils
         if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
             collectionuid = scheduleStoreItem["collectionuid"]
             points = NSXRunTimes::getCollection(collectionuid)
-            return NSXRunTimes::pointsToMetric1(points)
+            targetTimeInSeconds = scheduleStoreItem["commitmentInHours"]*3600
+            stabilityPeriodInSeconds = scheduleStoreItem["stabilityPeriodInSeconds"]
+            metricAtZero = scheduleStoreItem["metricAtZero"]
+            metricAtTarget = scheduleStoreItem["metricAtTarget"]
+            return NSXRunTimes::metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget)
         end
         if scheduleStoreItem["type"] == "stream-item-7e37790b" then
             return NSXStreamsUtils::streamItemToStreamCatalystMetric(scheduleStoreItem["item"])

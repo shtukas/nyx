@@ -41,9 +41,24 @@ class NSXRunTimes
         BTreeSets::values(nil, collectionuid)
     end
 
-    # NSXRunTimes::pointsToMetric1(points)
-    def self.pointsToMetric1(points)
-        return 0.7
+    # NSXRunTimes::linearMap(x1, y1, x2, y2, x)
+    def self.linearMap(x1, y1, x2, y2, x)
+        slope = (y2-y1).to_f/(x2-x1)
+        (x-x1)*slope + y1
+    end
+
+    # NSXRunTimes::metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget)
+        timespanInSeconds = points
+            .select{|point| (Time.new.to_i-point["unixtime"]) < 86400 }
+            .map{|point| point["timespanInSeconds"] }
+            .inject(0, :+)
+        x1 = 0
+        y1 = metricAtZero
+        x2 = targetTimeInSeconds
+        y2 = metricAtTarget
+        x  = timespanInSeconds
+        NSXRunTimes::linearMap(x1, y1, x2, y2, x)
     end
 
 
