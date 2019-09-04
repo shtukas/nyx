@@ -52,7 +52,7 @@ class NSXDisplayUtils
                         " ",
                         "(#{"%5.3f" % object["decoration:metric"]})",
                         "\n",
-                        object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
+                        object["decoration:isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
                         "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                     ].join()
                 else
@@ -61,7 +61,7 @@ class NSXDisplayUtils
                         " ",
                         "(#{"%5.3f" % object["decoration:metric"]})",
                         " ",
-                       (object["isRunning"] ? body.green : body),
+                       (object["decoration:isRunning"] ? body.green : body),
                        "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                     ].join()
                 end
@@ -71,7 +71,7 @@ class NSXDisplayUtils
                     " ",
                     "(#{"%5.3f" % object["decoration:metric"]})",
                     " ",
-                   (object["isRunning"] ? announce.green : announce),
+                   (object["decoration:isRunning"] ? announce.green : announce),
                    "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
                 ].join()
             end
@@ -81,7 +81,7 @@ class NSXDisplayUtils
                 " ",
                 "(#{"%5.3f" % object["decoration:metric"]})",
                 " ",
-                (object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
+                (object["decoration:isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
             ].join()
         end
     end

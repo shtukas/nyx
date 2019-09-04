@@ -6,7 +6,6 @@ CatalystObject
     "agentuid"         : String # Optional
     "contentStoreItemId"  : String
     "scheduleStoreItemId" : String
-    "isRunning"        : Boolean # Optional
     "isDone"           : Boolean # Optional [2]
 }
 

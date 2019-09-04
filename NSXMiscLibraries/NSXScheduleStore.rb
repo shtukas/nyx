@@ -80,7 +80,7 @@ class NSXScheduleStoreUtils
         if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
             return ["done"]
         end
-        raise "[error: 748abbe9] I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
+        raise "Error: 283ffabe-7dce-4a5a-9230-02851f122e51 ; I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
     end
 
     # NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
@@ -108,19 +108,33 @@ class NSXScheduleStoreUtils
         end
         if scheduleStoreItem["type"] == "stream-item-7e37790b" then
             if command == "start" then
-                puts "error 1311"
-                exit
+                return true if NSXRunner::isRunning?(scheduleStoreItemId)
+                NSXRunner::start(scheduleStoreItemId)
                 return true
             end
             if command == "stop" then
-                puts "error 1312"
-                exit
+                return true if !NSXRunner::isRunning?(scheduleStoreItemId)
+                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
+                NSXRunTimes::addPoint(scheduleStoreItemId, Time.new.to_i, timespanInSeconds)
                 return true
             end
-            # We let the agent perform "done"
             return false
         end
-        false
+        if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
+            if command == "start" then
+                return true if NSXRunner::isRunning?(scheduleStoreItemId)
+                NSXRunner::start(scheduleStoreItemId)
+                return true
+            end
+            if command == "stop" then
+                return true if !NSXRunner::isRunning?(scheduleStoreItemId)
+                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
+                NSXRunTimes::addPoint(scheduleStoreItemId, Time.new.to_i, timespanInSeconds)
+                return true
+            end
+            return false
+        end
+        raise "Error: 41cf3608-b1ca-4547-9e48-fe4500acfd34"
     end
 
     # NSXScheduleStoreUtils::metric(scheduleStoreItemId)
@@ -157,7 +171,12 @@ class NSXScheduleStoreUtils
         if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
             return WaveSchedules::scheduleToMetric(scheduleStoreItem["wave-schedule"]) + NSXMiscUtils::traceToMetricShift(Digest::SHA1.hexdigest(scheduleStoreItemId)) 
         end
-        raise "[error: 15833148] I do not know compute metric for scheduleStoreItem: #{scheduleStoreItem}"
+        raise "Error: 989fd7e9-e1f4-4063-af85-5bb8b4d80c9f ; I do not know compute metric for scheduleStoreItem: #{scheduleStoreItem}"
+    end
+
+    # NSXScheduleStoreUtils::isRunning(scheduleStoreItemId)
+    def self.isRunning(scheduleStoreItemId)
+        NSXRunner::isRunning?(scheduleStoreItemId)
     end
 
 end

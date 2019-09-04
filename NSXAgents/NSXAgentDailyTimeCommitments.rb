@@ -54,22 +54,10 @@ class NSXAgentDailyTimeCommitmentsHelpers
         0.55
     end
 
-    # NSXAgentDailyTimeCommitmentsHelpers::metric(entry)
-    def self.metric(entry)
-        uuid = entry["uuid"]
-        isRunning = NSXRunner::isRunning?(uuid)
-        if isRunning then
-            2
-        else
-            NSXAlgebraicTimePoints::metric(uuid, NSXAgentDailyTimeCommitmentsHelpers::baseMetric())
-        end
-    end
-
     # NSXAgentDailyTimeCommitmentsHelpers::entryToCatalystObject(entry)
     def self.entryToCatalystObject(entry)
         uuid = entry["uuid"]
-        collectionValue = NSXAlgebraicTimePoints::getCollectionCumulatedValue(uuid)
-        isRunning = NSXRunner::isRunning?(uuid)
+        collectionValue = 0
         announce = "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(3)} hours)"
         contentStoreItem = {
             "type" => "line",
@@ -78,7 +66,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
             "type" => "24h-sliding-time-commitment-da8b7ca8",
-            "collectionuid" => uuid,
+            "collectionuid"            => uuid,
             "commitmentInHours"        => entry["commitmentInHours"],
             "stabilityPeriodInSeconds" => 86400,
             "metricAtZero"             => 0.8,
@@ -86,11 +74,10 @@ class NSXAgentDailyTimeCommitmentsHelpers
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {
-            "uuid"      => uuid,
-            "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
-            "contentStoreItemId" => uuid,
-            "scheduleStoreItemId" => uuid,
-            "isRunning" => isRunning
+            "uuid"                => uuid,
+            "agentuid"            => NSXAgentDailyTimeCommitments::agentuid(),
+            "contentStoreItemId"  => uuid,
+            "scheduleStoreItemId" => uuid
         }
     end
 
@@ -112,7 +99,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
             commitmentInSecondsPerDay = entry["commitmentInHours"]*3600
             fractionOfADaySinceLastUpdate = timespanInSeconds.to_f/86400
             negativeValue = -commitmentInSecondsPerDay*fractionOfADaySinceLastUpdate
-            NSXAlgebraicTimePoints::issuePoint(entry["uuid"], negativeValue)
+            NSXRunTimes::addPoint(entry["uuid"], Time.new.to_i, negativeValue)
             NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(entry["uuid"], {
                 "collection" => entry["uuid"],
                 "weigthInSeconds" => negativeValue
@@ -158,20 +145,7 @@ class NSXAgentDailyTimeCommitments
 
     # NSXAgentDailyTimeCommitments::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        if command == "start" then
-            return if NSXRunner::isRunning?(objectuuid)
-            NSXRunner::start(objectuuid)
-            return
-        end
-        if command == "stop" then
-            return if !NSXRunner::isRunning?(objectuuid)
-            timeInSeconds = NSXRunner::stop(objectuuid)
-            NSXAlgebraicTimePoints::issuePoint(objectuuid, timeInSeconds)
-            NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(objectuuid, {
-                "collection" => objectuuid,
-                "weigthInSeconds" => timeInSeconds
-            })
-            return
+        if command == "" then
         end
     end
 end
@@ -181,7 +155,7 @@ Thread.new {
         sleep 120
         status = NSXAgentDailyTimeCommitmentsHelpers::getEntries()
             .select{|entry| NSXRunner::isRunning?(entry["uuid"]) }
-            .map{|entry| NSXAlgebraicTimePoints::getCollectionCumulatedValue(entry["uuid"]) }
+            .map{|entry| NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+) }
             .any?{|value| value > 0 }
         if status then
             NSXMiscUtils::onScreenNotification("Daily time commitment", "Running item is overflowing")

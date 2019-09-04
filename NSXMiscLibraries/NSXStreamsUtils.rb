@@ -290,7 +290,6 @@ class NSXStreamsUtils
         object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
         object["contentStoreItemId"] = item["uuid"]
         object["scheduleStoreItemId"] = item["uuid"]
-        object["isRunning"] = NSXRunner::isRunning?(item["uuid"])
         object
     end
 

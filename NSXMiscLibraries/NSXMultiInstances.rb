@@ -114,7 +114,7 @@ class NSXMultiInstancesRead
             payload     = event["payload"]
             collection  = payload["collection"]
             weigthInSeconds = payload["weigthInSeconds"]
-            NSXAlgebraicTimePoints::issuePoint(collection, weigthInSeconds)
+            NSXRunTimes::addPoint(collection, Time.new.to_i, weigthInSeconds)
             return
         end
         puts "Doesn't know how to process this event"
