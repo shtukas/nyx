@@ -45,18 +45,11 @@ class NSXCatalystUI
 
         focusobject = nil
 
-        while displayObjects.size>0 and NSXMiscUtils::objectIsAutoDone(displayObjects.first) do
-            puts "-> processing auto done".green
-            NSXGeneralCommandHandler::processCommandAgainstCatalystObject(displayObjects.first, "done")
-            displayObjects = displayObjects.drop(1)
-            return
-        end
-
         if displayObjects.size==0 then
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
-            NSXGeneralCommandHandler::processGeneralCommand(command)
+            NSXGeneralCommandHandler::processCatalystGeneralCommand(command)
             return
         end
 
@@ -112,9 +105,10 @@ class NSXCatalystUI
             return
         end
 
-        NSXGeneralCommandHandler::processGeneralCommand(command)
-
-        NSXGeneralCommandHandler::processCommandAgainstCatalystObject(focusobject, command)
+        return true if NSXGeneralCommandHandler::processCatalystGeneralCommand(command)
+        return true if NSXGeneralCommandHandler::processCatalystObjectMetaCommand(focusobject, command)
+        return true if NSXGeneralCommandHandler::processScheduleStoreCommand(focusobject["uuid"], focusobject["scheduleStoreItemId"], command)
+        return NSXGeneralCommandHandler::processCommandAtAgent(focusobject["uuid"], command)
     end
 
     # NSXCatalystUI::standardUILoop()

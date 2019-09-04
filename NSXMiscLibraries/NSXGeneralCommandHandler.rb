@@ -50,17 +50,18 @@ class NSXGeneralCommandHandler
         puts JSON.pretty_generate(streamItem)
     end
 
-    # NSXGeneralCommandHandler::processGeneralCommand(command)
-    def self.processGeneralCommand(command)
+    # NSXGeneralCommandHandler::processCatalystGeneralCommand(command): Boolean 
+    # The return value indicates whether the command was executed.
+    def self.processCatalystGeneralCommand(command)
 
         if command == "" then
-            return
+            return true
         end
 
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
-            return
+            return true
         end
 
         if command.start_with?("new:") then
@@ -92,7 +93,7 @@ class NSXGeneralCommandHandler
             if type == "Wave" then
                 catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)
             end
-            return
+            return true
         end
 
         if command.start_with?("search:") then
@@ -105,7 +106,7 @@ class NSXGeneralCommandHandler
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status
             }
-            return
+            return true
         end
 
         if command == "/" then
@@ -142,39 +143,42 @@ class NSXGeneralCommandHandler
             if option == "set no internet for this hour" then
                 NSXMiscUtils::setNoInternetForThisHour()
             end
-            return
+            return true
         end
 
         if command == "next" then
             # Get rid of the first inner line of the Next file
             NSXMiscUtils::applyNextTransformationToLucilleInstanceFile()
+            return true
         end
+
+        false
     end
 
-    # NSXGeneralCommandHandler::processCommandAgainstCatalystObject(object, command)
-    def self.processCommandAgainstCatalystObject(object, command)
+    # NSXGeneralCommandHandler::processCatalystObjectMetaCommand(object, command): Boolean 
+    # The return value indicates whether the command was executed.
+    def self.processCatalystObjectMetaCommand(object, command)
 
-        return if object.nil?
-
-        return if command.nil?
-
-        return if command == ""
+        return false if object.nil?
+        return false if command.nil?
+        return false if command == ""
 
         if command == ".." and object["decoration:defaultCommand"] then
-            NSXGeneralCommandHandler::processCommandAgainstCatalystObject(object, object["decoration:defaultCommand"])
-            return
+            # We we assume that a default command is never one of the current general object command.
+            return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["uuid"], object["scheduleStoreItemId"], object["decoration:defaultCommand"])
+            return NSXGeneralCommandHandler::processCommandAtAgent(object["uuid"], command)
         end
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
-            return
+            return true
         end
 
         if command == 'x-note' then
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
             NSXMiscUtils::setXNote(object["uuid"], text)
-            return
+            return true
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
@@ -188,10 +192,25 @@ class NSXGeneralCommandHandler
                     NSXEmailTrackingClaims::commitClaimToDisk(claim)
                 end
             end
-            return
+            return true
         end
 
-        NSXScheduleStoreUtils::executeScheduleStoreItem(object["uuid"], object["scheduleStoreItemId"], command)
-
+        false
     end
+
+    # NSXGeneralCommandHandler::processScheduleStoreCommand(objectuuid, scheduleStoreItemId, command)
+    def self.processScheduleStoreCommand(objectuuid, scheduleStoreItemId, command)
+        return NSXScheduleStoreUtils::executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
+    end
+
+    # NSXGeneralCommandHandler::processCommandAtAgent(objectuuid, command)
+    def self.processCommandAtAgent(objectuuid, command)
+        # TODO: we are retriveing the object only because we need the agentuid
+        object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
+        return if object.nil?
+        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+        return if agentdata.nil?
+        agentdata["object-command-processor"].call(objectuuid, command, true)
+    end
+
 end
