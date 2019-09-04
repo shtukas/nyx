@@ -13,28 +13,26 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 
 # We store the starting unixtime
 
-RUNNER_KV_REPOSITORY_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Runner"
-
 class NSXRunner
 
     # NSXRunner::isRunning?(id): Boolean
     def self.isRunning?(id)
-        status = KeyValueStore::getOrNull(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
+        status = KeyValueStore::getOrNull(nil, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
         !status.nil?
     end
 
     # NSXRunner::start(id): Boolean
     def self.start(id)
         return false if NSXRunner::isRunning?(id)
-        KeyValueStore::set(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}", Time.new.to_f) 
+        KeyValueStore::set(nil, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}", Time.new.to_f) 
         true
     end
 
     # NSXRunner::stop(id): Null or Float
     def self.stop(id)
-        unixtime = KeyValueStore::getOrNull(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
+        unixtime = KeyValueStore::getOrNull(nil, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
         if unixtime then
-            KeyValueStore::destroy(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
+            KeyValueStore::destroy(nil, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
             Time.new.to_f - unixtime.to_f
         else
             nil
@@ -43,7 +41,7 @@ class NSXRunner
 
     # NSXRunner::runningTimeOrNull(id) Null or Float
     def self.runningTimeOrNull(id)
-        unixtime = KeyValueStore::getOrNull(RUNNER_KV_REPOSITORY_FOLDERPATH, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
+        unixtime = KeyValueStore::getOrNull(nil, "e22b0997-557c-4bc0-a265-13d6a7a62b3f:#{id}")
         if unixtime then
             Time.new.to_f - unixtime.to_f
         else
