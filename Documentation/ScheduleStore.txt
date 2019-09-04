@@ -25,7 +25,12 @@ ScheduleStoreItem {
 
 ScheduleStoreItem {
     "type" : "stream-item-7e37790b"
-    "item" : StremItem # used to compute the metric
+    "collectionuid"            : String
+    "ordinal"                  : Float
+    "commitmentInHours"        : Float
+    "stabilityPeriodInSeconds" : Float
+    "metricAtZero"             : Float
+    "metricAtTarget"           : Float
 }
 
 ScheduleStoreItem {

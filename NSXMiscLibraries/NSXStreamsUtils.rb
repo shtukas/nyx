@@ -284,7 +284,12 @@ class NSXStreamsUtils
         NSXContentStore::setItem(item["uuid"], contentStoreItem)
         scheduleStoreItem = {
             "type" => "stream-item-7e37790b",
-            "item" => item # used to compute the metric
+            "collectionuid"            => item["streamuuid"], # The item contributes to the stream
+            "ordinal"                  => item["ordinal"],
+            "commitmentInHours"        => NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"]),
+            "stabilityPeriodInSeconds" => 86400,
+            "metricAtZero"             => 0.7,
+            "metricAtTarget"           => 0.4
         }
         NSXScheduleStore::setItem(item["uuid"], scheduleStoreItem)
         object = {}
@@ -421,24 +426,6 @@ class NSXStreamsUtils
         end
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
-    def self.streamItemToStreamCatalystMetric(item)
-        return (2 + NSXMiscUtils::traceToMetricShift(item["uuid"])) if NSXRunner::isRunning?(item["uuid"])
-        streamuuid = item["streamuuid"]
-        if streamuuid == "03b79978bcf7a712953c5543a9df9047" then
-            return NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid) + Math.exp(-item["ordinal"].to_f/100).to_f/100
-        end
-        repositorylocation = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-KVStoreRepository"
-        collectionuuid = "a12b763e-6e84-4c31-9e5e-470cfbd93a32:#{streamuuid}"
-        stabililityPeriodInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)
-        expectationTimeInSeconds = NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)*3600
-        metricAtZero = NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid)
-        if NSXStreamsTimeTracking::getTimeInSecondsForStream(streamuuid) < expectationTimeInSeconds then
-            NSXStreamsTimeTracking::streamWideMetric(streamuuid, expectationTimeInSeconds, metricAtZero, metricAtZero-0.1) + Math.exp(-item["ordinal"].to_f/100).to_f/100
-        else
-            0.25 + NSXMiscUtils::traceToMetricShift(item["uuid"])
-        end
-    end
 end
 
 Thread.new {

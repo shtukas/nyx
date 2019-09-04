@@ -33,12 +33,12 @@ class NSXRunTimes
             "unixtime"          => unixtime,
             "timespanInSeconds" => timespanInSeconds
         }
-        BTreeSets::set(nil, collectionuid, uuid, point)
+        BTreeSets::set(nil, "4032a477-81a3-418f-b670-79d099bd5407:#{collectionuid}", uuid, point)
     end
 
-    # NSXRunTimes::getCollection(collectionuid)
-    def self.getCollection(collectionuid)
-        BTreeSets::values(nil, collectionuid)
+    # NSXRunTimes::getPoints(collectionuid)
+    def self.getPoints(collectionuid)
+        BTreeSets::values(nil, "4032a477-81a3-418f-b670-79d099bd5407:#{collectionuid}")
     end
 
     # NSXRunTimes::linearMap(x1, y1, x2, y2, x)
