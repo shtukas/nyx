@@ -108,7 +108,6 @@ class NSXMultiInstancesRead
             payload    = event["payload"]
             streamuuid = payload["streamuuid"]
             timespan   = payload["timespan"]
-            NSXStreamsTimeTracking::addTimeInSecondsToStream(streamuuid, timespan)
             return
         end
         if event["eventType"] == "DailyTimeCommitmentTimePoint" then

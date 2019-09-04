@@ -7,13 +7,6 @@ require 'fileutils'
 
 require 'drb/drb'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
-=begin
-    Torr::event(repositorylocation, collectionuuid, mass)
-    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds)
-    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
-=end
-
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # -----------------------------------------------------------------
@@ -64,7 +57,7 @@ class NSXAgentVideosStreamConsumptionMonitor
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
             "type" => "toactivate-and-inform-agent-2d839ef7",
-            "metric" => Torr::metric("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400, 20, 0.53, 0.51)
+            "metric" => 0.5
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         [
@@ -73,8 +66,7 @@ class NSXAgentVideosStreamConsumptionMonitor
                 "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
                 "contentStoreItemId"  => uuid,
                 "scheduleStoreItemId" => uuid,
-                "agent:meta:filepath" => filepath,
-                "agent:meta:weight"  => Torr::weight("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 86400)
+                "agent:meta:filepath" => filepath
             }
         ]
     end
@@ -97,7 +89,6 @@ class NSXAgentVideosStreamConsumptionMonitor
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
             FileUtils.rm(filepath)
-            Torr::event("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/TheBridge/Data/videos-stream-consumption", "d1dc93db-baac-440f-bc61-e069092427f6", 1)
             return 
         end
     end

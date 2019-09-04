@@ -14,13 +14,6 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
-=begin
-    Torr::event(repositorylocation, collectionuuid, mass)
-    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds, simulationWeight = 0)
-    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
-=end
-
 class NSXMiscUtils
 
     # NSXMiscUtils::currentMonth()

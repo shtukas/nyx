@@ -19,13 +19,6 @@ KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
 KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
-=begin
-    Torr::event(repositorylocation, collectionuuid, mass)
-    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds, simulationWeight = 0)
-    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
-=end
-
 # ----------------------------------------------------------------------
 
 $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = nil

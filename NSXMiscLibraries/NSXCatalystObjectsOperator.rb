@@ -1,13 +1,6 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/Torr.rb"
-=begin
-    Torr::event(repositorylocation, collectionuuid, mass)
-    Torr::weight(repositorylocation, collectionuuid, stabililityPeriodInSeconds, simulationWeight = 0)
-    Torr::metric(repositorylocation, collectionuuid, stabililityPeriodInSeconds, targetWeight, metricAtZero, metricAtTarget)
-=end
-
 class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getListingObjectsFromAgents()
