@@ -170,7 +170,7 @@ class NSXGeneralCommandHandler
 
         if command == ".." and object["decoration:defaultCommand"] then
             # We we assume that a default command is never one of the current general object command.
-            return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["uuid"], object["scheduleStoreItemId"], object["decoration:defaultCommand"])
+            return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["scheduleStoreItemId"], object["decoration:defaultCommand"])
             return NSXGeneralCommandHandler::processCommandAtAgent(object["uuid"], command)
         end
 
@@ -203,9 +203,9 @@ class NSXGeneralCommandHandler
         false
     end
 
-    # NSXGeneralCommandHandler::processScheduleStoreCommand(objectuuid, scheduleStoreItemId, command)
-    def self.processScheduleStoreCommand(objectuuid, scheduleStoreItemId, command)
-        return NSXScheduleStoreUtils::executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
+    # NSXGeneralCommandHandler::processScheduleStoreCommand(scheduleStoreItemId, command)
+    def self.processScheduleStoreCommand(scheduleStoreItemId, command)
+        return NSXScheduleStoreUtils::executeScheduleStoreItem(scheduleStoreItemId, command)
     end
 
     # NSXGeneralCommandHandler::processCommandAtAgent(objectuuid, command)

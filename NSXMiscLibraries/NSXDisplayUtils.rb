@@ -93,7 +93,7 @@ class NSXDisplayUtils
         print "-->(object: command only) "
         command = STDIN.gets().strip
         return true if NSXGeneralCommandHandler::processCatalystObjectMetaCommand(object, command)
-        return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["uuid"], object["scheduleStoreItemId"], command)
+        return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["scheduleStoreItemId"], command)
         NSXGeneralCommandHandler::processCommandAtAgent(object["uuid"], command)
     end
 

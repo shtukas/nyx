@@ -107,7 +107,7 @@ class NSXCatalystUI
 
         return true if NSXGeneralCommandHandler::processCatalystGeneralCommand(command)
         return true if NSXGeneralCommandHandler::processCatalystObjectMetaCommand(focusobject, command)
-        return true if NSXGeneralCommandHandler::processScheduleStoreCommand(focusobject["uuid"], focusobject["scheduleStoreItemId"], command)
+        return true if NSXGeneralCommandHandler::processScheduleStoreCommand(focusobject["scheduleStoreItemId"], command)
         return NSXGeneralCommandHandler::processCommandAtAgent(focusobject["uuid"], command)
     end
 

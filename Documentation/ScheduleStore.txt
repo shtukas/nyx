@@ -39,10 +39,3 @@ ScheduleStoreItem {
     "wave-schedule" : WaveSchedule
 }
 
-# ---------------------------------
-# Interface
-
-NSXScheduleStore::getItemOrNull(scheduleStoreItemId: String): Item or null
-
-NSXScheduleStoreUtils::executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
-

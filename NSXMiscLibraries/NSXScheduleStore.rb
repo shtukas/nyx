@@ -93,8 +93,8 @@ class NSXScheduleStoreUtils
         nil
     end
 
-    # NSXScheduleStoreUtils::executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
-    def self.executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
+    # NSXScheduleStoreUtils::executeScheduleStoreItem(scheduleStoreItemId, command)
+    def self.executeScheduleStoreItem(scheduleStoreItemId, command)
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
         return if scheduleStoreItem.nil?
         if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
