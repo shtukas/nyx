@@ -28,15 +28,15 @@ class NSXDisplayUtils
     def self.objectInferfaceString(object)
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(object["scheduleStoreItemId"])
         raise "Error: e34954d5" if scheduleStoreItem.nil?
-        defaultCommand = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(object["uuid"], scheduleStoreItem)
+        defaultCommand = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
         part2 = 
             [
                 NSXMiscUtils::hasXNote(object["uuid"]) ? "x-note".green : "x-note".yellow,
                 NSXScheduleStoreUtils::scheduleStoreItemToCommands(object["uuid"], scheduleStoreItem).join(" "),
                 NSXDisplayUtils::agentCommands(object).join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
-                defaultCommand ? "(#{defaultCommand.green})" : ""
-            ].join(" ")
+                defaultCommand ? "(#{defaultCommand.green})" : nil
+            ].compact.reject{|command| command=='' }.join(" ")
         part2.strip
     end
 
@@ -50,7 +50,7 @@ class NSXDisplayUtils
                     [
                         "[#{"*".green}#{"%2d" % displayOrdinal}]",
                         " ",
-                        "(#{"%5.3f" % object["metric"]})",
+                        "(#{"%5.3f" % object["decoration:metric"]})",
                         "\n",
                         object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
                         "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
@@ -59,7 +59,7 @@ class NSXDisplayUtils
                     [
                         "[#{"*".green}#{"%2d" % displayOrdinal}]",
                         " ",
-                        "(#{"%5.3f" % object["metric"]})",
+                        "(#{"%5.3f" % object["decoration:metric"]})",
                         " ",
                        (object["isRunning"] ? body.green : body),
                        "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
@@ -69,7 +69,7 @@ class NSXDisplayUtils
                 [
                     "[#{"*".green}#{"%2d" % displayOrdinal}]",
                     " ",
-                    "(#{"%5.3f" % object["metric"]})",
+                    "(#{"%5.3f" % object["decoration:metric"]})",
                     " ",
                    (object["isRunning"] ? announce.green : announce),
                    "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
@@ -79,7 +79,7 @@ class NSXDisplayUtils
             [
                 "[ #{"%2d" % displayOrdinal}]",
                 " ",
-                "(#{"%5.3f" % object["metric"]})",
+                "(#{"%5.3f" % object["decoration:metric"]})",
                 " ",
                 (object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
             ].join()

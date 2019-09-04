@@ -156,17 +156,18 @@ class NSXGeneralCommandHandler
 
         return if object.nil?
 
-        if command == "" then
-            return
-        end
+        return if command.nil?
 
-        if command == ".." and object["defaultCommand"] and object["defaultCommand"] != ".." then
-            NSXGeneralCommandHandler::processCommandAgainstCatalystObject(object, object["defaultCommand"])
+        return if command == ""
+
+        if command == ".." and object["decoration:defaultCommand"] then
+            NSXGeneralCommandHandler::processCommandAgainstCatalystObject(object, object["decoration:defaultCommand"])
             return
         end
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
+            LucilleCore::pressEnterToContinue()
             return
         end
 

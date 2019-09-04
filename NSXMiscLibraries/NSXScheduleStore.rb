@@ -83,8 +83,13 @@ class NSXScheduleStoreUtils
         raise "[error: 748abbe9] I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
     end
 
-    # NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(objectuuid, scheduleStoreItem)
-    def self.scheduleStoreItemToDefaultCommandOrNull(objectuuid, scheduleStoreItem)
+    # NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
+    def self.scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
+        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
+            if scheduleStoreItem["wave-schedule"]["@"] == "sticky" then
+                return "done"
+            end
+        end
         nil
     end
 

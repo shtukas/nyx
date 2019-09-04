@@ -384,7 +384,6 @@ class NSXAgentWave
     def self.getObjects()
         NSXAgentWave::getAllObjects()
             .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
     end
 

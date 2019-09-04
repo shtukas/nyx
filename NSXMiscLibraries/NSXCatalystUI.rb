@@ -68,7 +68,7 @@ class NSXCatalystUI
         while displayObjectForListing.size>0 do
             break if verticalSpaceLeft<=0
 
-            if displayObjectForListing.all?{|object| object["metric"] <= 1 } and !hasDisplayedCatalystNext then
+            if displayObjectForListing.all?{|object| object["decoration:metric"] <= 1 } and !hasDisplayedCatalystNext then
                 vspace = NSXCatalystUI::printLucilleInstanceFileAsNext()
                 verticalSpaceLeft = verticalSpaceLeft - vspace
                 hasDisplayedCatalystNext = true

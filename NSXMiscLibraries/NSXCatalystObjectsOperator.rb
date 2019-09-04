@@ -42,11 +42,15 @@ class NSXCatalystObjectsOperator
 
         objects = objects
             .map{|object|
-                object["metric"] = NSXScheduleStoreUtils::metric(object["scheduleStoreItemId"])
+                scheduleStoreItemId = object["scheduleStoreItemId"]
+                scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
+                object["decoration:metric"] = NSXScheduleStoreUtils::metric(scheduleStoreItemId)
+                object["decoration:scheduleStoreItem"] = scheduleStoreItem
+                object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
                 object
             }
-            .select{|object| object['metric'] >= 0.2 }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .select{|object| object['decoration:metric'] >= 0.2 }
+            .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
             .reverse
 
         # Now we remove any object after special object 1
@@ -59,7 +63,7 @@ class NSXCatalystObjectsOperator
         }
 
         objects = objects
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
             .reverse
 
         objects
