@@ -283,13 +283,13 @@ class NSXStreamsUtils
         }
         NSXContentStore::setItem(item["uuid"], contentStoreItem)
         scheduleStoreItem = {
-            "type" => "stream-item-7e37790b"
+            "type" => "stream-item-7e37790b",
+            "item" => item # used to compute the metric
         }
         NSXScheduleStore::setItem(item["uuid"], scheduleStoreItem)
         object = {}
         object["uuid"] = item["uuid"]
         object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
-        object["metric"] = NSXStreamsUtils::streamItemToStreamCatalystMetric(item)
         object["contentStoreItemId"] = item["uuid"]
         object["scheduleStoreItemId"] = item["uuid"]
         object["isRunning"] = NSXRunner::isRunning?(item["uuid"])

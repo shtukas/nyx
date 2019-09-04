@@ -53,7 +53,14 @@ class NSXScheduleStoreUtils
 
     # NSXScheduleStoreUtils::itemToAnnounce(item)
     def self.itemToAnnounce(item)
+        "NSXScheduleStoreUtils::itemToAnnounce"
+    end
 
+    # NSXScheduleStoreUtils::scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
+    def self.scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
+        item = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
+        return "NSXScheduleStoreUtils::scheduleStoreItemIdToAnnounceOrNull(#{scheduleStoreItemId})" if item.nil?
+        NSXScheduleStoreUtils::itemToAnnounce(item)
     end
 
     # NSXScheduleStoreUtils::scheduleStoreItemToCommands(objectuuid, scheduleStoreItem)
@@ -73,19 +80,12 @@ class NSXScheduleStoreUtils
         if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
             return ["done"]
         end
-        raise "I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
+        raise "[error: 748abbe9] I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
     end
 
     # NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(objectuuid, scheduleStoreItem)
     def self.scheduleStoreItemToDefaultCommandOrNull(objectuuid, scheduleStoreItem)
         nil
-    end
-
-    # NSXScheduleStoreUtils::scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
-    def self.scheduleStoreItemIdToAnnounceOrNull(scheduleStoreItemId)
-        item = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
-        return "NSXScheduleStoreUtils::scheduleStoreItemIdToAnnounceOrNull(#{scheduleStoreItemId})" if item.nil?
-        NSXScheduleStoreUtils::itemToAnnounce(item)
     end
 
     # NSXScheduleStoreUtils::executeScheduleStoreItem(objectuuid, scheduleStoreItemId, command)
@@ -136,4 +136,31 @@ class NSXScheduleStoreUtils
         puts "command: #{command}"
         exit
     end
+
+    # NSXScheduleStoreUtils::metric(scheduleStoreItemId)
+    def self.metric(scheduleStoreItemId)
+        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
+        if scheduleStoreItem.nil? then
+            raise "Error: c27092edd0a3 (attemtping to compute metric of an unknown scheduleStoreItem)"
+        end
+        if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
+            return scheduleStoreItem["metric"]
+        end
+        if scheduleStoreItem["type"] == "toactivate-and-inform-agent-2d839ef7" then
+            return scheduleStoreItem["metric"]
+        end
+        if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
+            collectionuid = scheduleStoreItem["collectionuid"]
+            points = NSXRunTimes::getCollection(collectionuid)
+            return NSXRunTimes::pointsToMetric1(points)
+        end
+        if scheduleStoreItem["type"] == "stream-item-7e37790b" then
+            return NSXStreamsUtils::streamItemToStreamCatalystMetric(scheduleStoreItem["item"])
+        end
+        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
+            return WaveSchedules::scheduleToMetric(scheduleStoreItem["wave-schedule"]) + NSXMiscUtils::traceToMetricShift(Digest::SHA1.hexdigest(scheduleStoreItemId)) 
+        end
+        raise "[error: 15833148] I do not know compute metric for scheduleStoreItem: #{scheduleStoreItem}"
+    end
+
 end

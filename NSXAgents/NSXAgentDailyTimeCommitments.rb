@@ -78,19 +78,16 @@ class NSXAgentDailyTimeCommitmentsHelpers
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
             "type" => "24h-sliding-time-commitment-da8b7ca8",
+            "collectionuid" => uuid,
             "commitmentInHours" => entry["commitmentInHours"]
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentDailyTimeCommitments::agentuid(),
-            "metric"    => NSXAgentDailyTimeCommitmentsHelpers::metric(entry),
             "contentStoreItemId" => uuid,
             "scheduleStoreItemId" => uuid,
-            "isRunning" => isRunning,
-            ":base-metric:" => NSXAgentDailyTimeCommitmentsHelpers::baseMetric(),
-            ":last-negative-mark-unixtime:" => NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry),
-            ":last-negative-mark-datetime:" => Time.at(NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry)).to_s
+            "isRunning" => isRunning
         }
     end
 

@@ -4,7 +4,6 @@ CatalystObject
 {
     "uuid"             : UUID
     "agentuid"         : String # Optional
-    "metric"           : Float
     "contentStoreItemId"  : String
     "scheduleStoreItemId" : String
     "isRunning"        : Boolean # Optional

@@ -42,13 +42,13 @@ class NSXAgentDailyGuardianWork
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
-            "type" => "todo-and-inform-agent-11b30518"
+            "type" => "todo-and-inform-agent-11b30518",
+            "metric" => 0.60
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         object = {}
         object["uuid"] = uuid
         object["agentuid"] = "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
-        object["metric"] = 0.60
         object["contentStoreItemId"] = uuid
         object["scheduleStoreItemId"] = uuid
         [object]

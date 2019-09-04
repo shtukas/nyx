@@ -139,13 +139,13 @@ class NSXAgentDesktopLucilleFile
                 }
                 NSXContentStore::setItem(uuid, contentStoreItem)
                 scheduleStoreItem = {
-                    "type" => "todo-and-inform-agent-11b30518"
+                    "type" => "todo-and-inform-agent-11b30518",
+                    "metric" => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
                 }
                 NSXScheduleStore::setItem(uuid, scheduleStoreItem)
                 {
                     "uuid"               => uuid,
                     "agentuid"           => NSXAgentDesktopLucilleFile::agentuid(),
-                    "metric"             => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
                     "contentStoreItemId"  => uuid,
                     "scheduleStoreItemId" => uuid,
                     "section-uuid"       => SectionsType2102::section_to_uuid(section),

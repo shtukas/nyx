@@ -35,14 +35,14 @@ class NSXAgentDesktopFilesMonitor
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
-            "type" => "todo-and-inform-agent-11b30518"
+            "type" => "todo-and-inform-agent-11b30518",
+            "metric" => 0.95
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         [
             {
                 "uuid"               => uuid,
                 "agentuid"           => NSXAgentDesktopFilesMonitor::agentuid(),
-                "metric"             => 0.95,
                 "contentStoreItemId"  => uuid,
                 "scheduleStoreItemId" => uuid,
             }

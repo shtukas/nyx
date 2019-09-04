@@ -165,13 +165,13 @@ class NSXAgentAnniversaries
         }
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
-            "type" => "toactivate-and-inform-agent-2d839ef7"
+            "type" => "toactivate-and-inform-agent-2d839ef7",
+            "metric" => 0.95
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         object = {
             "uuid"      => uuid,
             "agentuid"  => NSXAgentAnniversaries::agentuid(),
-            "metric"    => 0.95,
             "contentStoreItemId"  => uuid,
             "scheduleStoreItemId" => uuid
         }

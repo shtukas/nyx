@@ -41,6 +41,10 @@ class NSXCatalystObjectsOperator
         end
 
         objects = objects
+            .map{|object|
+                object["metric"] = NSXScheduleStoreUtils::metric(object["scheduleStoreItemId"])
+                object
+            }
             .select{|object| object['metric'] >= 0.2 }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
