@@ -114,7 +114,7 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "email-sync",
-                "agent-speed",
+                "generation-speed",
                 "set no internet for this hour"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -133,11 +133,16 @@ class NSXGeneralCommandHandler
                     puts "-> Could not retrieve emails"
                 end
             end
-            if option == "agent-speed" then
+            if option == "generation-speed" then
                 puts "Agent speed report"
                 NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
                     puts "    - #{object["agent-name"]}: #{"%.3f" % object["retreive-time"]}"
                 }
+                t1 = Time.new.to_f
+                NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                    .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
+                t2 = Time.new.to_f
+                puts "UI generation speed: #{(t2-t1).round(3)} seconds"
                 LucilleCore::pressEnterToContinue()
             end
             if option == "set no internet for this hour" then

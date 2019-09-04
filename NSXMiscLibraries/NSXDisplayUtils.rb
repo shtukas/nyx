@@ -32,7 +32,7 @@ class NSXDisplayUtils
         part2 = 
             [
                 NSXMiscUtils::hasXNote(object["uuid"]) ? "x-note".green : "x-note".yellow,
-                NSXScheduleStoreUtils::scheduleStoreItemToCommands(object["uuid"], scheduleStoreItem).join(" "),
+                NSXScheduleStoreUtils::scheduleStoreItemToCommands(scheduleStoreItem).join(" "),
                 NSXDisplayUtils::agentCommands(object).join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
                 defaultCommand ? "(#{defaultCommand.green})" : nil

@@ -63,8 +63,8 @@ class NSXScheduleStoreUtils
         NSXScheduleStoreUtils::itemToAnnounce(item)
     end
 
-    # NSXScheduleStoreUtils::scheduleStoreItemToCommands(objectuuid, scheduleStoreItem)
-    def self.scheduleStoreItemToCommands(objectuuid, scheduleStoreItem)
+    # NSXScheduleStoreUtils::scheduleStoreItemToCommands(scheduleStoreItem)
+    def self.scheduleStoreItemToCommands(scheduleStoreItem)
         if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
             return ["done"]
         end
