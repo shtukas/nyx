@@ -14,6 +14,7 @@ ScheduleStoreItem {
 }
 
 Running is against ScheduleStoreItemId, but the recording of TimePoints is against collectionuid
+Currently used by Daily Time Commitments, ScheduleStoreItemId and collectionuid are equal.
 
 ScheduleStoreItem {
     "type"                     : "24h-sliding-time-commitment-da8b7ca8"
@@ -25,6 +26,7 @@ ScheduleStoreItem {
 }
 
 Running is against ScheduleStoreItemId, but the recording of TimePoints is against collectionuid
+The collectionuid is the streamuid
 
 ScheduleStoreItem {
     "type"                     : "stream-item-7e37790b"
