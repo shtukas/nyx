@@ -98,16 +98,6 @@ class NSXAgentDesktopLucilleFile
         NSXAgentDesktopLucilleFile::getAllObjects()
     end
 
-    # NSXAgentDesktopLucilleFile::processStringForAnnounce(str)
-    def self.processStringForAnnounce(str)
-        str = str.strip
-        if str.start_with?("[]") then
-            str = str[2,str.size]
-            return NSXAgentDesktopLucilleFile::processStringForAnnounce(str)
-        end
-        str
-    end
-
     # NSXAgentDesktopLucilleFile::getAllObjects()
     def self.getAllObjects()
         sectionuuids = []
@@ -130,8 +120,8 @@ class NSXAgentDesktopLucilleFile
                 else
                     sectionAsString = "\n" + sectionAsString
                 end
-                announce = "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString).lines.first}#{runningMarker}"
-                body = "Today: #{NSXAgentDesktopLucilleFile::processStringForAnnounce(sectionAsString)}#{runningMarker}"
+                announce = "#{sectionAsString.strip.lines.first}#{runningMarker}"
+                body = "#{sectionAsString.strip}#{runningMarker}"
                 contentStoreItem = {
                     "type" => "line-and-body",
                     "line" => announce,
