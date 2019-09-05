@@ -24,7 +24,7 @@ ScheduleStoreItem {
 }
 
 ScheduleStoreItem {
-    "type" : "stream-item-7e37790b"
+    "type"                     : "stream-item-7e37790b"
     "collectionuid"            : String
     "ordinal"                  : Float
     "commitmentInHours"        : Float

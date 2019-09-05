@@ -57,8 +57,8 @@ class NSXAgentDailyTimeCommitmentsHelpers
     # NSXAgentDailyTimeCommitmentsHelpers::entryToCatalystObject(entry)
     def self.entryToCatalystObject(entry)
         uuid = entry["uuid"]
-        collectionValue = 0
-        announce = "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(3)} hours)"
+        collectionValue = ( NSXRunner::runningTimeOrNull(entry["uuid"]) || 0 ) + NSXRunTimes::getPoints(uuid).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
+        announce = "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(2)} hours)"
         contentStoreItem = {
             "type" => "line",
             "line" => announce
@@ -155,7 +155,7 @@ Thread.new {
         sleep 120
         status = NSXAgentDailyTimeCommitmentsHelpers::getEntries()
             .select{|entry| NSXRunner::isRunning?(entry["uuid"]) }
-            .map{|entry| NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+) }
+            .map{|entry| (NSXRunner::runningTimeOrNull(entry["uuid"]) || 0) + NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+) }
             .any?{|value| value > 0 }
         if status then
             NSXMiscUtils::onScreenNotification("Daily time commitment", "Running item is overflowing")
