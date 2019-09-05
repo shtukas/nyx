@@ -113,7 +113,6 @@ class NSXGeneralCommandHandler
             options = [
                 "new Stream Item", 
                 "new wave (repeat item)", 
-                "email-sync",
                 "generation-speed",
                 "set no internet for this hour"
             ]
@@ -125,13 +124,6 @@ class NSXGeneralCommandHandler
             if option == "new wave (repeat item)" then
                 description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
                 NSXMiscUtils::spawnNewWaveItem(description)
-            end
-            if option == "email-sync" then
-                begin
-                    NSXMiscUtils::emailSync(true)
-                rescue SocketError
-                    puts "-> Could not retrieve emails"
-                end
             end
             if option == "generation-speed" then
                 puts "Agent speed report"
@@ -190,13 +182,6 @@ class NSXGeneralCommandHandler
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             NSXMultiInstancesWrite::issueEventDoNotShowUntil(object["uuid"], datetime)
-            if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(object["uuid"])
-                if claim then
-                    claim["status"] = "detached"
-                    NSXEmailTrackingClaims::commitClaimToDisk(claim)
-                end
-            end
             return true
         end
 

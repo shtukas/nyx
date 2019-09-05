@@ -57,7 +57,7 @@ class NSXStreamsUtils
                 "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
                 "description"        => "Catalyst Inbox",
                 "naturalMetric"      => 0.70, # Stable metric
-                "hoursExpectation"   => 1, # This has no effect due to special processing of this Stream
+                "hoursExpectation"   => 1,
             },
             {
                 "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",
@@ -281,8 +281,8 @@ class NSXStreamsUtils
             "ordinal"                  => item["ordinal"],
             "commitmentInHours"        => NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"]),
             "stabilityPeriodInSeconds" => 86400,
-            "metricAtZero"             => 0.7,
-            "metricAtTarget"           => 0.4
+            "metricAtZero"             => NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"]),
+            "metricAtTarget"           => NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"])-0.1
         }
         NSXScheduleStore::setItem(item["uuid"], scheduleStoreItem)
         object = {}

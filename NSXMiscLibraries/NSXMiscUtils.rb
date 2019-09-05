@@ -192,11 +192,6 @@ class NSXMiscUtils
         NSXMiscUtils::instanceName() == "Lucille19"
     end
 
-    # NSXMiscUtils::emailSync(verbose)
-    def self.emailSync(verbose)
-        GeneralEmailClient::downloadWithoutSync(JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Email-Credentials/operator.json")), verbose)
-    end
-
     # NSXMiscUtils::newBinArchivesFolderpath()
     def self.newBinArchivesFolderpath()
         time = Time.new

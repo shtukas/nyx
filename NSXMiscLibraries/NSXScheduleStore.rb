@@ -72,10 +72,10 @@ class NSXScheduleStoreUtils
             return ["activate"]
         end
         if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
-            return ["start", "stop", "done"]
+            return ["start", "stop"]
         end
         if scheduleStoreItem["type"] == "stream-item-7e37790b" then
-            return ["start", "stop", "done"]
+            return ["start", "stop"]
         end
         if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
             return ["done"]
@@ -115,7 +115,7 @@ class NSXScheduleStoreUtils
             if command == "stop" then
                 return true if !NSXRunner::isRunning?(scheduleStoreItemId)
                 timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
-                NSXRunTimes::addPoint(scheduleStoreItemId, Time.new.to_i, timespanInSeconds)
+                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
                 return true
             end
             return false
@@ -129,7 +129,7 @@ class NSXScheduleStoreUtils
             if command == "stop" then
                 return true if !NSXRunner::isRunning?(scheduleStoreItemId)
                 timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
-                NSXRunTimes::addPoint(scheduleStoreItemId, Time.new.to_i, timespanInSeconds)
+                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
                 return true
             end
             return false

@@ -40,48 +40,13 @@ class NSXAgentStreams
     end
 
     def self.getCommands()
-        []
-    end
-
-    # NSXAgentStreams::stopStreamItem(item): item
-    def self.stopStreamItem(item)
-        return item if item.nil?
-        return item if !NSXRunner::isRunning?(item["uuid"])
-        runningTimeInSeconds = NSXRunner::stop(item["uuid"])
-        puts "Adding #{runningTimeInSeconds} seconds to stream: #{item["streamuuid"]}"
-        NSXMultiInstancesWrite::issueEventAddTimeToStream(item["streamuuid"], runningTimeInSeconds)
-    end
-
-    # NSXAgentStreams::doneStreamItemEmailCarrier(itemuuid)
-    def self.doneStreamItemEmailCarrier(itemuuid)
-        claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(itemuuid)
-        return if claim.nil?
-        if claim["status"]=="init" then
-            claim["status"] = "deleted-on-local"
-            NSXEmailTrackingClaims::commitClaimToDisk(claim)
-        end
-        if claim["status"]=="detached" then
-            claim["status"] = "deleted-on-local"
-            NSXEmailTrackingClaims::commitClaimToDisk(claim)
-        end
-        if claim["status"]=="deleted-on-server" then
-            claim["status"] = "dead"
-            NSXEmailTrackingClaims::commitClaimToDisk(claim)
-        end
-        if claim["status"]=="deleted-on-local" then
-        end
-        if claim["status"]=="dead" then
-        end
+        ["open", "folder", "done", "recast", "push"]
     end
 
     # NSXAgentStreams::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         item = NSXStreamsUtils::getItemByUUIDOrNull(objectuuid)
         return if item.nil?
-        if command == "start;open" then
-            NSXRunner::start(item["uuid"])
-            NSXAgentStreamsUtils::openItem(item)
-        end
         if command == "open" then
             NSXAgentStreamsUtils::openItem(item)
             return
@@ -92,17 +57,7 @@ class NSXAgentStreams
             system("open '#{folderpath}'")
             return
         end
-        if command == "start" then
-            NSXRunner::start(item["uuid"])
-            return
-        end
-        if command == "stop" then
-            NSXAgentStreams::stopStreamItem(item)
-            return
-        end
         if command == "done" then
-            NSXAgentStreams::stopStreamItem(item)
-            NSXAgentStreams::doneStreamItemEmailCarrier(item["uuid"])
             NSXStreamsUtils::destroyItem(item)
             if isLocalCommand then
                 NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentWave::agentuid(), "done")
@@ -111,25 +66,6 @@ class NSXAgentStreams
             return
         end
         if command == "recast" then
-            # If the item carries a stream item that is an email with a tracking claim, then we need to update the tracking claim
-            if item["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
-                if claim then
-                    if claim["status"]=="init" then
-                        claim["status"] = "detached"
-                        NSXEmailTrackingClaims::commitClaimToDisk(claim)
-                    end
-                    if claim["status"]=="detached" then
-                    end
-                    if claim["status"]=="deleted-on-server" then
-                    end
-                    if claim["status"]=="deleted-on-local" then
-                    end
-                    if claim["status"]=="dead" then
-                    end
-                end
-            end
-            NSXAgentStreams::stopStreamItem(item)
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])

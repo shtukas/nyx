@@ -52,27 +52,6 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 
-if NSXMiscUtils::isLucille18() then
-    NSXEstateServices::archivesTimelineGarbageCollection(true)
-    NSXStreamsUtils::getItems()
-    .each{|item|
-        claim = NSXEmailTrackingClaims::getClaimByStreamItemUUIDOrNull(item["uuid"])
-        next if claim.nil?
-        if claim["status"] == "dead" then
-            puts "Destroying email #{item["uuid"]}"
-            puts JSON.pretty_generate(item)
-            puts JSON.pretty_generate(claim)
-            NSXStreamsUtils::destroyItem(item)
-        end
-        if claim["status"] == "deleted-on-server" then
-            puts "Destroying email #{item["uuid"]}"
-            puts JSON.pretty_generate(item)
-            puts JSON.pretty_generate(claim)
-            NSXStreamsUtils::destroyItem(item)
-        end
-    }
-end
-
 Thread.new {
     loop {
         sleep 110

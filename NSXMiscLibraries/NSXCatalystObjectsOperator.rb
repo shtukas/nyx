@@ -41,7 +41,7 @@ class NSXCatalystObjectsOperator
                 object["decoration:scheduleStoreItem"] = scheduleStoreItem
                 object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
                 object["decoration:isRunning"] = NSXScheduleStoreUtils::isRunning(scheduleStoreItemId)
-                object["decoration:RunTimesPoints"] = NSXRunTimes::getPoints(scheduleStoreItemId)
+                object["decoration:RunTimesPoints"] = NSXRunTimes::getPoints(scheduleStoreItem["collectionuid"])
                 object
             }
             .select{|object| object['decoration:metric'] >= 0.2 }
