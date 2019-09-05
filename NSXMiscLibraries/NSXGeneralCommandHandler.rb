@@ -50,18 +50,24 @@ class NSXGeneralCommandHandler
         puts JSON.pretty_generate(streamItem)
     end
 
-    # NSXGeneralCommandHandler::processCatalystGeneralCommand(command): Boolean 
-    # The return value indicates whether the command was executed.
-    def self.processCatalystGeneralCommand(command)
+    # NSXGeneralCommandHandler::processCatalystCommand(object, command)
+    def self.processCatalystCommand(object, command)
+
+        return false if command.nil?
+
+        # ---------------------------------------
+        # General Command
+        puts "General Command"
+        # ---------------------------------------
 
         if command == "" then
-            return true
+            return
         end
 
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
-            return true
+            return
         end
 
         if command.start_with?("new:") then
@@ -93,7 +99,7 @@ class NSXGeneralCommandHandler
             if type == "Wave" then
                 catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)
             end
-            return true
+            return
         end
 
         if command.start_with?("search:") then
@@ -106,7 +112,7 @@ class NSXGeneralCommandHandler
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status
             }
-            return true
+            return
         end
 
         if command == "/" then
@@ -140,42 +146,37 @@ class NSXGeneralCommandHandler
             if option == "set no internet for this hour" then
                 NSXMiscUtils::setNoInternetForThisHour()
             end
-            return true
+            return
         end
 
         if command == "next" then
             # Get rid of the first inner line of the Next file
             NSXMiscUtils::applyNextTransformationToLucilleInstanceFile()
-            return true
+            return
         end
 
-        false
-    end
-
-    # NSXGeneralCommandHandler::processCatalystObjectMetaCommand(object, command): Boolean 
-    # The return value indicates whether the command was executed.
-    def self.processCatalystObjectMetaCommand(object, command)
+        # ---------------------------------------
+        # General Utility Command Against Object
+        puts "General Utility Command Against Object"
+        # ---------------------------------------
 
         return false if object.nil?
-        return false if command.nil?
-        return false if command == ""
 
         if command == ".." and object["decoration:defaultCommand"] then
-            # We we assume that a default command is never one of the current general object command.
-            return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["scheduleStoreItemId"], object["decoration:defaultCommand"])
-            return NSXGeneralCommandHandler::processCommandAtAgent(object["uuid"], object["decoration:defaultCommand"])
+            NSXGeneralCommandHandler::processCatalystCommand(object, object["decoration:defaultCommand"])
+            return
         end
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
-            return true
+            return
         end
 
         if command == 'x-note' then
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
             NSXMiscUtils::setXNote(object["uuid"], text)
-            return true
+            return
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
@@ -189,25 +190,78 @@ class NSXGeneralCommandHandler
                     "datetime"   => datetime
                 }
             })
-            return true
+            return
         end
 
-        false
-    end
+        # ---------------------------------------
+        # Schedule Store Item
+        puts "Schedule Store Item"
+        # ---------------------------------------
 
-    # NSXGeneralCommandHandler::processScheduleStoreCommand(scheduleStoreItemId, command)
-    def self.processScheduleStoreCommand(scheduleStoreItemId, command)
-        return NSXScheduleStoreUtils::executeCommandAgainstScheduleStoreItem(scheduleStoreItemId, command)
-    end
+        scheduleStoreItemId = object["scheduleStoreItemId"]
+        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
+        puts scheduleStoreItem
+        return if scheduleStoreItem.nil?
 
-    # NSXGeneralCommandHandler::processCommandAtAgent(objectuuid, command)
-    def self.processCommandAtAgent(objectuuid, command)
-        # TODO: we are retriveing the object only because we need the agentuid
-        object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
-        return if object.nil?
-        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
+        if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
+
+        end
+        if scheduleStoreItem["type"] == "toactivate-and-inform-agent-2d839ef7" then
+
+        end
+        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
+
+        end
+        if scheduleStoreItem["type"] == "stream-item-7e37790b" then
+            if command == "start" then
+                return if NSXRunner::isRunning?(scheduleStoreItemId)
+                NSXRunner::start(scheduleStoreItemId)
+                return
+            end
+            if command == "stop" then
+                return if !NSXRunner::isRunning?(scheduleStoreItemId)
+                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
+                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
+                return
+            end
+        end
+        if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
+            if command == "start" then
+                return if NSXRunner::isRunning?(scheduleStoreItemId)
+                NSXRunner::start(scheduleStoreItemId)
+                return
+            end
+            if command == "stop" then
+                return if !NSXRunner::isRunning?(scheduleStoreItemId)
+                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
+                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                    "payload"      => {
+                        "uuid"          => SecureRandom.hex,
+                        "collectionuid" => scheduleStoreItem["collectionuid"],
+                        "unixtime"      => Time.new.to_i,
+                        "algebraicTimespanInSeconds" => timespanInSeconds
+                    }
+                })
+                return
+            end
+        end
+
+        # ---------------------------------------
+        # Agent
+        puts "Agent"
+        # ---------------------------------------
+
+        objectuuid = object["uuid"]
+
+        agentuid = NSXCatalystObjectsOperator::getAgentUUIDByObjectUUIDOrNull(objectuuid)
+        return if agentuid.nil?
+        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
         return if agentdata.nil?
         agentdata["object-command-processor"].call(objectuuid, command, true)
+
     end
 
 end

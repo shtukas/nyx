@@ -49,7 +49,7 @@ class NSXCatalystUI
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
-            NSXGeneralCommandHandler::processCatalystGeneralCommand(command)
+            NSXGeneralCommandHandler::processCatalystCommand(nil, command)
             return
         end
 
@@ -105,10 +105,7 @@ class NSXCatalystUI
             return
         end
 
-        return true if NSXGeneralCommandHandler::processCatalystGeneralCommand(command)
-        return true if NSXGeneralCommandHandler::processCatalystObjectMetaCommand(focusobject, command)
-        return true if NSXGeneralCommandHandler::processScheduleStoreCommand(focusobject["scheduleStoreItemId"], command)
-        return NSXGeneralCommandHandler::processCommandAtAgent(focusobject["uuid"], command)
+        NSXGeneralCommandHandler::processCatalystCommand(focusobject, command)
     end
 
     # NSXCatalystUI::standardUILoop()

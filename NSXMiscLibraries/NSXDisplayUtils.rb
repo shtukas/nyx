@@ -92,9 +92,7 @@ class NSXDisplayUtils
         puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1)
         print "-->(object: command only) "
         command = STDIN.gets().strip
-        return true if NSXGeneralCommandHandler::processCatalystObjectMetaCommand(object, command)
-        return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["scheduleStoreItemId"], command)
-        NSXGeneralCommandHandler::processCommandAtAgent(object["uuid"], command)
+        NSXGeneralCommandHandler::processCatalystCommand(object, command)
     end
 
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean

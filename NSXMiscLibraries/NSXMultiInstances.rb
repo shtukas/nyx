@@ -29,14 +29,10 @@ class NSXMultiInstancesRead
 
     # NSXMultiInstancesRead::processEvent(event, filepath): Boolean
     def self.processEvent(event, filepath)
-        if event["eventType"] == "MultiInstanceEventType:Command-Against-ScheduleStore" then
-            NSXGeneralCommandHandler::processScheduleStoreCommand(event["payload"]["scheduleStoreItemId"], event["payload"]["command"])
-            return true
-        end
-        if event["eventType"] == "MultiInstanceEventType:Command-Against-Agent" then
-            agentdata  = NSXBob::getAgentDataByAgentUUIDOrNull(event["payload"]["agentuid"])
-            return if agentdata.nil?
-            agentdata["object-command-processor"].call(event["payload"]["objectuuid"], event["payload"]["command"], false)
+        if event["eventType"] == "MultiInstanceEventType:CatalystObjectUUID+Command" then
+            object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(event["payload"]["objectuuid"])
+            return true if object.nil?
+            NSXGeneralCommandHandler::processCatalystCommand(object, event["payload"]["command"])
             return true
         end
         if event["eventType"] == "MultiInstanceEventType:DoNotShowUntil" then

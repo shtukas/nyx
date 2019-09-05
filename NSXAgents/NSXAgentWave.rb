@@ -353,10 +353,9 @@ class NSXAgentWave
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({
                     "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:Command-Against-Agent",
+                    "eventType"    => "MultiInstanceEventType:CatalystObjectUUID+Command",
                     "payload"      => {
                         "objectuuid" => objectuuid,
-                        "agentuid"   => NSXAgentWave::agentuid(),
                         "command"    => "done"
                     }
                 })

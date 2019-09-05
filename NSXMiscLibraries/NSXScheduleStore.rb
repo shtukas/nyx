@@ -93,60 +93,6 @@ class NSXScheduleStoreUtils
         nil
     end
 
-    # NSXScheduleStoreUtils::executeCommandAgainstScheduleStoreItem(scheduleStoreItemId, command)
-    def self.executeCommandAgainstScheduleStoreItem(scheduleStoreItemId, command)
-        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
-        return if scheduleStoreItem.nil?
-        if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
-            return false
-        end
-        if scheduleStoreItem["type"] == "toactivate-and-inform-agent-2d839ef7" then
-            return false
-        end
-        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
-            return false
-        end
-        if scheduleStoreItem["type"] == "stream-item-7e37790b" then
-            if command == "start" then
-                return true if NSXRunner::isRunning?(scheduleStoreItemId)
-                NSXRunner::start(scheduleStoreItemId)
-                return true
-            end
-            if command == "stop" then
-                return true if !NSXRunner::isRunning?(scheduleStoreItemId)
-                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
-                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
-                return true
-            end
-            return false
-        end
-        if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
-            if command == "start" then
-                return true if NSXRunner::isRunning?(scheduleStoreItemId)
-                NSXRunner::start(scheduleStoreItemId)
-                return true
-            end
-            if command == "stop" then
-                return true if !NSXRunner::isRunning?(scheduleStoreItemId)
-                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
-                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                    "payload"      => {
-                        "uuid"          => SecureRandom.hex,
-                        "collectionuid" => scheduleStoreItem["collectionuid"],
-                        "unixtime"      => Time.new.to_i,
-                        "algebraicTimespanInSeconds" => timespanInSeconds
-                    }
-                })
-                return true
-            end
-            return false
-        end
-        raise "Error: 41cf3608-b1ca-4547-9e48-fe4500acfd34"
-    end
-
     # NSXScheduleStoreUtils::metric(scheduleStoreItemId)
     def self.metric(scheduleStoreItemId)
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)

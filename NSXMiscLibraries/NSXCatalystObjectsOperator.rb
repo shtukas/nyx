@@ -1,6 +1,18 @@
 
 # encoding: UTF-8
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getListingObjectsFromAgents()
@@ -23,6 +35,16 @@ class NSXCatalystObjectsOperator
         NSXCatalystObjectsOperator::getAllObjectsFromAgents()
             .select{|object| object["uuid"] == uuid }
             .first
+    end
+
+    # NSXCatalystObjectsOperator::getAgentUUIDByObjectUUIDOrNull(objectuuid)
+    def self.getAgentUUIDByObjectUUIDOrNull(objectuuid)
+        agentuid = KeyValueStore::getOrNull(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{objectuuid}")
+        return agentuid if agentuid
+        object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
+        return nil if object.nil?
+        KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{objectuuid}", object["agentuid"])
+        object["agentuid"]
     end
 
     # NSXCatalystObjectsOperator::addObjectDecorations(object)
@@ -64,6 +86,10 @@ class NSXCatalystObjectsOperator
         objects = objects
             .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
             .reverse
+
+        objects.each{|object|
+            KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{object["uuid"]}", object["agentuid"])
+        }
 
         objects
     end
