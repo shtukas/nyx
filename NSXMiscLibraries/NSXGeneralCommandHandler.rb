@@ -163,7 +163,7 @@ class NSXGeneralCommandHandler
         if command == ".." and object["decoration:defaultCommand"] then
             # We we assume that a default command is never one of the current general object command.
             return true if NSXGeneralCommandHandler::processScheduleStoreCommand(object["scheduleStoreItemId"], object["decoration:defaultCommand"])
-            return NSXGeneralCommandHandler::processCommandAtAgent(object["uuid"], command)
+            return NSXGeneralCommandHandler::processCommandAtAgent(object["uuid"], object["decoration:defaultCommand"])
         end
 
         if command == 'expose' then
