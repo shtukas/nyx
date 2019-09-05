@@ -15,6 +15,7 @@ class NSXCatalystObjectsOperator
         NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects-all"].call() }
             .flatten
+            .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
     end
 
     # NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(uuid)
@@ -22,6 +23,18 @@ class NSXCatalystObjectsOperator
         NSXCatalystObjectsOperator::getAllObjectsFromAgents()
             .select{|object| object["uuid"] == uuid }
             .first
+    end
+
+    # NSXCatalystObjectsOperator::addObjectDecorations(object)
+    def self.addObjectDecorations(object)
+        scheduleStoreItemId = object["scheduleStoreItemId"]
+        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
+        object["decoration:metric"] = NSXScheduleStoreUtils::metric(scheduleStoreItemId)
+        object["decoration:scheduleStoreItem"] = scheduleStoreItem
+        object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
+        object["decoration:isRunning"] = NSXScheduleStoreUtils::isRunning(scheduleStoreItemId)
+        object["decoration:RunTimesPoints"] = NSXRunTimes::getPoints(scheduleStoreItem["collectionuid"])
+        object
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
@@ -34,16 +47,7 @@ class NSXCatalystObjectsOperator
         end
 
         objects = objects
-            .map{|object|
-                scheduleStoreItemId = object["scheduleStoreItemId"]
-                scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
-                object["decoration:metric"] = NSXScheduleStoreUtils::metric(scheduleStoreItemId)
-                object["decoration:scheduleStoreItem"] = scheduleStoreItem
-                object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
-                object["decoration:isRunning"] = NSXScheduleStoreUtils::isRunning(scheduleStoreItemId)
-                object["decoration:RunTimesPoints"] = NSXRunTimes::getPoints(scheduleStoreItem["collectionuid"])
-                object
-            }
+            .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
             .select{|object| object['decoration:metric'] >= 0.2 }
             .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
             .reverse
