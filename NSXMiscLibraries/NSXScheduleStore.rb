@@ -169,7 +169,7 @@ class NSXScheduleStoreUtils
             return NSXRunTimes::metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget) + Math.exp(-ordinal.to_f/100).to_f/100
         end
         if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
-            return WaveSchedules::scheduleToMetric(scheduleStoreItem["wave-schedule"]) + NSXMiscUtils::traceToMetricShift(Digest::SHA1.hexdigest(scheduleStoreItemId)) 
+            return NSXAgentWaveUtils::scheduleToMetric(scheduleStoreItem["wave-schedule"]) + NSXMiscUtils::traceToMetricShift(Digest::SHA1.hexdigest(scheduleStoreItemId)) 
         end
         raise "Error: 989fd7e9-e1f4-4063-af85-5bb8b4d80c9f ; I do not know compute metric for scheduleStoreItem: #{scheduleStoreItem}"
     end

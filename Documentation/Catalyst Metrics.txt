@@ -1,5 +1,4 @@
 
-        2.00 [Generic] Running items
 0.90 -> 1.00 [Generic] Interruptions ; Wave sticky
 0.85 -> 0.86 Daily Time Commitments (before 9am)
 0.81 -> 0.84 Lucille desktop file
