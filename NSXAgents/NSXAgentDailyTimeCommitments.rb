@@ -104,7 +104,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
                 "uuid"          => SecureRandom.hex,
                 "collectionuid" => entry["uuid"],
                 "unixtime"      => Time.new.to_i,
-                "algebraicTimespanInSeconds" => negativeValues
+                "algebraicTimespanInSeconds" => negativeValue
             })
             NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
         end
