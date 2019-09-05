@@ -55,9 +55,6 @@ class NSXAgentDailyGuardianWork
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "done" then
             KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
-            if isLocalCommand then
-                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentDailyGuardianWork::agentuid(), "done")
-            end
             return 
         end
     end
