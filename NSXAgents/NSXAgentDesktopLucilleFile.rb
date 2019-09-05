@@ -27,6 +27,21 @@ $SECTION_UUID_TO_CATALYST_UUIDS = nil
 
 class LucilleFileHelper
 
+    # LucilleFileHelper::importOtherFileContents()
+    def self.importOtherFileContents()
+        thisInstanceName = NSXMiscUtils::instanceName()
+        otherInstanceName = (NSXMiscUtils::instanceName() == "Lucille18") ? "Lucille19" : "Lucille18"
+        thisInstanceFilepath = "/Users/pascal/Desktop/#{thisInstanceName}.txt"
+        otherInstanceFilepath = "/Users/pascal/Desktop/#{otherInstanceName}.txt"
+        thisSectionsAsStrings = SectionsType2102::contents_to_sections(IO.read(thisInstanceFilepath).lines.to_a,[]).map{|section| section.join() }
+        otherSectionsAsStrings = SectionsType2102::contents_to_sections(IO.read(otherInstanceFilepath).lines.to_a,[]).map{|section| section.join() }
+        thisSectionsAsStringsUpdated = (thisSectionsAsStrings + otherSectionsAsStrings).uniq
+        if thisSectionsAsStringsUpdated.size > thisSectionsAsStrings.size then
+            NSXMiscUtils::copyLocationToCatalystBin(LUCILLE_DATA_FILE_PATH)
+            File.open(LUCILLE_DATA_FILE_PATH, "w") { |io| io.puts(thisSectionsAsStringsUpdated.join()) }
+        end
+    end
+
     # LucilleFileHelper::getSectionsFromDisk()
     def self.getSectionsFromDisk()
         filecontents = IO.read(LUCILLE_DATA_FILE_PATH)
@@ -100,6 +115,7 @@ class NSXAgentDesktopLucilleFile
 
     # NSXAgentDesktopLucilleFile::getAllObjects()
     def self.getAllObjects()
+        LucilleFileHelper::importOtherFileContents()
         sectionuuids = []
         integers = LucilleCore::integerEnumerator()
         sections = LucilleFileHelper::getSectionsFromDisk()
