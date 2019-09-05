@@ -65,13 +65,9 @@ class NSXMultiInstancesWrite
         NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
     end
 
-    # NSXMultiInstancesWrite::issueEventDailyTimeCommitmentTimePoint(objectuuid, point)
-    def self.issueEventDailyTimeCommitmentTimePoint(objectuuid, point)
-        payload = {
-            "objectuuid" => objectuuid,
-            "point"      => point
-        }
-        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "DailyTimeCommitmentTimePoint", payload)
+    # NSXMultiInstancesWrite::issueRunTimesPoint(point)
+    def self.issueRunTimesPoint(point)
+        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "RunTimesPoint", point)
         NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
     end
 end
@@ -92,7 +88,7 @@ class NSXMultiInstancesRead
             objectuuid = payload["objectuuid"]
             agentuid   = payload["agentuid"]
             command    = payload ["command"]
-            agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
+            agentdata  = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
             return if agentdata.nil?
             agentdata["object-command-processor"].call(objectuuid, command, false)
             return
@@ -110,11 +106,9 @@ class NSXMultiInstancesRead
             timespan   = payload["timespan"]
             return
         end
-        if event["eventType"] == "DailyTimeCommitmentTimePoint" then
-            payload     = event["payload"]
-            collection  = payload["collection"]
-            weigthInSeconds = payload["weigthInSeconds"]
-            NSXRunTimes::addPoint(collection, Time.new.to_i, weigthInSeconds)
+        if event["eventType"] == "RunTimesPoint" then
+            point = event["payload"]
+            NSXRunTimes::addPoint2(point)
             return
         end
         puts "Doesn't know how to process this event"

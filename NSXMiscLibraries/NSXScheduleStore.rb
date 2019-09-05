@@ -93,8 +93,8 @@ class NSXScheduleStoreUtils
         nil
     end
 
-    # NSXScheduleStoreUtils::executeScheduleStoreItem(scheduleStoreItemId, command)
-    def self.executeScheduleStoreItem(scheduleStoreItemId, command)
+    # NSXScheduleStoreUtils::executeCommandAgainstScheduleStoreItem(scheduleStoreItemId, command)
+    def self.executeCommandAgainstScheduleStoreItem(scheduleStoreItemId, command)
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
         return if scheduleStoreItem.nil?
         if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
@@ -130,6 +130,12 @@ class NSXScheduleStoreUtils
                 return true if !NSXRunner::isRunning?(scheduleStoreItemId)
                 timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
                 NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
+                NSXMultiInstancesWrite::issueRunTimesPoint({
+                    "uuid"          => SecureRandom.hex,
+                    "collectionuid" => scheduleStoreItem["collectionuid"],
+                    "unixtime"      => Time.new.to_i,
+                    "algebraicTimespanInSeconds" => timespanInSeconds
+                })
                 return true
             end
             return false

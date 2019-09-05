@@ -36,6 +36,13 @@ class NSXRunTimes
         BTreeSets::set(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", uuid, point)
     end
 
+    # NSXRunTimes::addPoint2(point)
+    def self.addPoint2(point)
+        collectionuid = point["collectionuid"]
+        uuid = point["uuid"]
+        BTreeSets::set(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", uuid, point)
+    end
+
     # NSXRunTimes::getPoints(collectionuid)
     def self.getPoints(collectionuid)
         BTreeSets::values(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}")

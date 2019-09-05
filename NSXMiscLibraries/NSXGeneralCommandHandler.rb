@@ -190,7 +190,7 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::processScheduleStoreCommand(scheduleStoreItemId, command)
     def self.processScheduleStoreCommand(scheduleStoreItemId, command)
-        return NSXScheduleStoreUtils::executeScheduleStoreItem(scheduleStoreItemId, command)
+        return NSXScheduleStoreUtils::executeCommandAgainstScheduleStoreItem(scheduleStoreItemId, command)
     end
 
     # NSXGeneralCommandHandler::processCommandAtAgent(objectuuid, command)
