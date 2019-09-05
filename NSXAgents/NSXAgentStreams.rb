@@ -48,7 +48,11 @@ class NSXAgentStreams
         item = NSXStreamsUtils::getItemByUUIDOrNull(objectuuid)
         return if item.nil?
         if command == "open" then
-            NSXAgentStreamsUtils::openItem(item)
+            genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
+            if genericContentItem then
+                item["generic-content-item"] = genericContentItem
+                NSXStreamsUtils::commitItemToDisk(item)
+            end
             return
         end
         if command == "folder" then
@@ -87,18 +91,6 @@ class NSXAgentStreams
             end
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return
-        end
-    end
-end
-
-class NSXAgentStreamsUtils
-
-    # NSXAgentStreamsUtils::openItem(item)
-    def self.openItem(item)
-        genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
-        if genericContentItem then
-            item["generic-content-item"] = genericContentItem
-            NSXStreamsUtils::commitItemToDisk(item)
         end
     end
 end
