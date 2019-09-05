@@ -130,11 +130,15 @@ class NSXScheduleStoreUtils
                 return true if !NSXRunner::isRunning?(scheduleStoreItemId)
                 timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
                 NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
-                NSXMultiInstancesWrite::issueRunTimesPoint({
-                    "uuid"          => SecureRandom.hex,
-                    "collectionuid" => scheduleStoreItem["collectionuid"],
-                    "unixtime"      => Time.new.to_i,
-                    "algebraicTimespanInSeconds" => timespanInSeconds
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                    "payload"      => {
+                        "uuid"          => SecureRandom.hex,
+                        "collectionuid" => scheduleStoreItem["collectionuid"],
+                        "unixtime"      => Time.new.to_i,
+                        "algebraicTimespanInSeconds" => timespanInSeconds
+                    }
                 })
                 return true
             end

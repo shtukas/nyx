@@ -181,7 +181,14 @@ class NSXGeneralCommandHandler
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
-            NSXMultiInstancesWrite::issueEventDoNotShowUntil(object["uuid"], datetime)
+            NSXMultiInstancesWrite::sendEventToDisk({
+                "instanceName" => NSXMiscUtils::instanceName(),
+                "eventType"    => "MultiInstanceEventType:DoNotShowUntil",
+                "payload"      => {
+                    "objectuuid" => object["uuid"],
+                    "datetime"   => datetime
+                }
+            })
             return true
         end
 

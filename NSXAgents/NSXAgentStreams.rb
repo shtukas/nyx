@@ -64,7 +64,15 @@ class NSXAgentStreams
         if command == "done" then
             NSXStreamsUtils::destroyItem(item)
             if isLocalCommand then
-                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentWave::agentuid(), "done")
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:Command-Against-Agent",
+                    "payload"      => {
+                        "objectuuid" => objectuuid,
+                        "agentuid"   => NSXAgentStreams::agentuid(),
+                        "command"    => "done"
+                    }
+                })
             end
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return

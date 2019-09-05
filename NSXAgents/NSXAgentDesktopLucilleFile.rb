@@ -7,6 +7,10 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/SectionsType2102.rb"
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
@@ -27,25 +31,23 @@ $SECTION_UUID_TO_CATALYST_UUIDS = nil
 
 class LucilleFileHelper
 
-    # LucilleFileHelper::importOtherFileContents()
-    def self.importOtherFileContents()
-        thisInstanceName = NSXMiscUtils::instanceName()
-        otherInstanceName = (NSXMiscUtils::instanceName() == "Lucille18") ? "Lucille19" : "Lucille18"
-        thisInstanceFilepath = "/Users/pascal/Desktop/#{thisInstanceName}.txt"
-        otherInstanceFilepath = "/Users/pascal/Desktop/#{otherInstanceName}.txt"
-        thisSectionsAsStrings = SectionsType2102::contents_to_sections(IO.read(thisInstanceFilepath).lines.to_a,[]).map{|section| section.join() }
-        otherSectionsAsStrings = SectionsType2102::contents_to_sections(IO.read(otherInstanceFilepath).lines.to_a,[]).map{|section| section.join() }
-        thisSectionsAsStringsUpdated = (thisSectionsAsStrings + otherSectionsAsStrings).uniq
-        if thisSectionsAsStringsUpdated.size > thisSectionsAsStrings.size then
-            NSXMiscUtils::copyLocationToCatalystBin(LUCILLE_DATA_FILE_PATH)
-            File.open(LUCILLE_DATA_FILE_PATH, "w") { |io| io.puts(thisSectionsAsStringsUpdated.join()) }
-        end
+    # LucilleFileHelper::markSectionAsDoneForToday(sectionuuid)
+    def self.markSectionAsDoneForToday(sectionuuid)
+        KeyValueStore::setFlagTrue(nil, "a1dca76d-1a58-4a07-9dc1-e9bee4609056:#{sectionuuid}:#{NSXMiscUtils::currentDay()}")
+    end
+
+    # LucilleFileHelper::trueIfSectionIsDoneToday(sectionuuid)
+    def self.trueIfSectionIsDoneToday(sectionuuid)
+        KeyValueStore::flagIsTrue(nil, "a1dca76d-1a58-4a07-9dc1-e9bee4609056:#{sectionuuid}:#{NSXMiscUtils::currentDay()}")
     end
 
     # LucilleFileHelper::getSectionsFromDisk()
     def self.getSectionsFromDisk()
-        filecontents = IO.read(LUCILLE_DATA_FILE_PATH)
-        SectionsType2102::contents_to_sections(filecontents.lines.to_a,[])
+        filecontents18 = IO.read("/Users/pascal/Desktop/Lucille18.txt")
+        filecontents19 = IO.read("/Users/pascal/Desktop/Lucille19.txt")
+        a18 = SectionsType2102::contents_to_sections(filecontents18.lines.to_a,[])
+        a19 = SectionsType2102::contents_to_sections(filecontents19.lines.to_a,[])
+        a18+a19
     end
 
     # LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(uuid)
@@ -115,11 +117,19 @@ class NSXAgentDesktopLucilleFile
 
     # NSXAgentDesktopLucilleFile::getAllObjects()
     def self.getAllObjects()
-        LucilleFileHelper::importOtherFileContents()
         sectionuuids = []
         integers = LucilleCore::integerEnumerator()
         sections = LucilleFileHelper::getSectionsFromDisk()
         objects = sections
+            .select{|section|
+                sectionuuid = SectionsType2102::section_to_uuid(section)
+                if LucilleFileHelper::trueIfSectionIsDoneToday(sectionuuid) then
+                    LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+                    false
+                else
+                    true
+                end
+            }
             .map{|section|
                 sectionuuid = SectionsType2102::section_to_uuid(section)
                 sectionuuids << sectionuuid
@@ -140,8 +150,8 @@ class NSXAgentDesktopLucilleFile
                 body = "#{sectionAsString.strip}#{runningMarker}"
                 contentStoreItem = {
                     "type" => "line-and-body",
-                    "line" => announce,
-                    "body" => body
+                    "line" => "Lucille: #{announce}",
+                    "body" => "Lucille:\n#{body}"
                 }
                 NSXContentStore::setItem(uuid, contentStoreItem)
                 scheduleStoreItem = {
@@ -150,12 +160,12 @@ class NSXAgentDesktopLucilleFile
                 }
                 NSXScheduleStore::setItem(uuid, scheduleStoreItem)
                 {
-                    "uuid"               => uuid,
-                    "agentuid"           => NSXAgentDesktopLucilleFile::agentuid(),
+                    "uuid"                => uuid,
+                    "agentuid"            => NSXAgentDesktopLucilleFile::agentuid(),
                     "contentStoreItemId"  => uuid,
                     "scheduleStoreItemId" => uuid,
-                    "section-uuid"       => SectionsType2102::section_to_uuid(section),
-                    "section"            => section
+                    "section-uuid"        => SectionsType2102::section_to_uuid(section),
+                    "section"             => section
                 }
             }
         NSXAgentDesktopLucilleFile::processSectionUUIDs(sectionuuids)
@@ -172,9 +182,12 @@ class NSXAgentDesktopLucilleFile
             object = NSXAgentDesktopLucilleFile::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
-            if isLocalCommand then
-                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentDesktopLucilleFile::agentuid(), "done")
-            end
+            LucilleFileHelper::markSectionAsDoneForToday(object["section-uuid"])
+            NSXMultiInstancesWrite::sendEventToDisk({
+                "instanceName" => NSXMiscUtils::instanceName(),
+                "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
+                "payload"      => object["section-uuid"]
+            })
             return
         end
         if command == ">stream" then
@@ -187,6 +200,12 @@ class NSXAgentDesktopLucilleFile
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
+            LucilleFileHelper::markSectionAsDoneForToday(object["section-uuid"])
+            NSXMultiInstancesWrite::sendEventToDisk({
+                "instanceName" => NSXMiscUtils::instanceName(),
+                "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
+                "payload"      => object["section-uuid"]
+            })
             return
         end
     end

@@ -351,7 +351,15 @@ class NSXAgentWave
         if command=='done' then
             NSXAgentWaveUtils::performDone(object)
             if isLocalCommand then
-                NSXMultiInstancesWrite::issueEventCommand(objectuuid, NSXAgentWave::agentuid(), "done")
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:Command-Against-Agent",
+                    "payload"      => {
+                        "objectuuid" => objectuuid,
+                        "agentuid"   => NSXAgentWave::agentuid(),
+                        "command"    => "done"
+                    }
+                })
             end
             return
         end

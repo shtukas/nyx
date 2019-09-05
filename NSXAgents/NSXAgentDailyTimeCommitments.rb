@@ -100,11 +100,15 @@ class NSXAgentDailyTimeCommitmentsHelpers
             fractionOfADaySinceLastUpdate = timespanInSeconds.to_f/86400
             negativeValue = -commitmentInSecondsPerDay*fractionOfADaySinceLastUpdate
             NSXRunTimes::addPoint(entry["uuid"], Time.new.to_i, negativeValue)
-            NSXMultiInstancesWrite::issueRunTimesPoint({
-                "uuid"          => SecureRandom.hex,
-                "collectionuid" => entry["uuid"],
-                "unixtime"      => Time.new.to_i,
-                "algebraicTimespanInSeconds" => negativeValue
+            NSXMultiInstancesWrite::sendEventToDisk({
+                "instanceName" => NSXMiscUtils::instanceName(),
+                "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                "payload"      => {
+                    "uuid"          => SecureRandom.hex,
+                    "collectionuid" => entry["uuid"],
+                    "unixtime"      => Time.new.to_i,
+                    "algebraicTimespanInSeconds" => negativeValue
+                }
             })
             NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
         end

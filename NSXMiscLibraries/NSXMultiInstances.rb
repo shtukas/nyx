@@ -13,18 +13,8 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 MULTIINSTANCE_LOG_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Activity-Log"
 
 class NSXMultiInstancesWrite
-
-    # NSXMultiInstancesWrite::makeEvent(instanceName, eventType, payload)
-    def self.makeEvent(instanceName, eventType, payload)
-        {
-            "instanceName" => instanceName,
-            "eventType"    => eventType,
-            "payload"      => payload
-        }
-    end
-
-    # NSXMultiInstancesWrite::sendEventToDisk(instanceName, event)
-    def self.sendEventToDisk(instanceName, event)
+    # NSXMultiInstancesWrite::sendEventToDisk(event)
+    def self.sendEventToDisk(event)
         #puts JSON.pretty_generate(event)
         filename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.json"
         filepath = "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}"
@@ -33,87 +23,45 @@ class NSXMultiInstancesWrite
         end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
     end
-
-    # NSXMultiInstancesWrite::issueEventCommand(objectuuid, agentuid, command)
-    def self.issueEventCommand(objectuuid, agentuid, command)
-        payload = {
-            "objectuuid" => objectuuid,
-            "agentuid"  => agentuid,
-            "command"    => command
-        }
-        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "command", payload)
-        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
-    end
-
-    # NSXMultiInstancesWrite::issueEventDoNotShowUntil(objectuuid, datetime)
-    def self.issueEventDoNotShowUntil(objectuuid, datetime)
-        payload = {
-            "objectuuid" => objectuuid,
-            "datetime"   => datetime
-        }
-        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "DoNotShowUntil", payload)
-        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
-    end
-
-    # NSXMultiInstancesWrite::issueEventAddTimeToStream(streamuuid, timespan)
-    def self.issueEventAddTimeToStream(streamuuid, timespan)
-        payload = {
-            "streamuuid" => streamuuid,
-            "timespan"   => timespan
-        }
-        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "AddTimeToStream", payload)
-        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
-    end
-
-    # NSXMultiInstancesWrite::issueRunTimesPoint(point)
-    def self.issueRunTimesPoint(point)
-        event = NSXMultiInstancesWrite::makeEvent(NSXMiscUtils::instanceName(), "RunTimesPoint", point)
-        NSXMultiInstancesWrite::sendEventToDisk(NSXMiscUtils::instanceName(), event)
-    end
 end
 
 class NSXMultiInstancesRead
 
-    # NSXMultiInstancesRead::eventsFilepaths()
-    def self.eventsFilepaths()
-        filenames = Dir.entries(MULTIINSTANCE_LOG_FOLDERPATH).select{|filename| filename[-5, 5] == ".json" }.sort
-        filenames
-            .map{|filename| "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}" }
+    # NSXMultiInstancesRead::processEvent(event, filepath): Boolean
+    def self.processEvent(event, filepath)
+        if event["eventType"] == "MultiInstanceEventType:Command-Against-ScheduleStore" then
+            NSXGeneralCommandHandler::processScheduleStoreCommand(event["payload"]["scheduleStoreItemId"], event["payload"]["command"])
+            return true
+        end
+        if event["eventType"] == "MultiInstanceEventType:Command-Against-Agent" then
+            agentdata  = NSXBob::getAgentDataByAgentUUIDOrNull(event["payload"]["agentuid"])
+            return if agentdata.nil?
+            agentdata["object-command-processor"].call(event["payload"]["objectuuid"], event["payload"]["command"], false)
+            return true
+        end
+        if event["eventType"] == "MultiInstanceEventType:DoNotShowUntil" then
+            NSXDoNotShowUntilDatetime::setDatetime(event["payload"]["objectuuid"], event["payload"]["datetime"])
+            return true
+        end
+        if event["eventType"] == "MultiInstanceEventType:RunTimesPoint" then
+            NSXRunTimes::addPoint2(event["payload"])
+            return true
+        end
+        if event["eventType"] == "MultiInstanceEventType:LucilleSectionDoneToday" then
+            LucilleFileHelper::markSectionAsDoneForToday(event["payload"])
+            return true
+        end
+        puts "I do not have instructions on how to process this event:"
+        puts JSON.pretty_generate(event)
+        false
     end
 
-    # NSXMultiInstancesRead::processEvent(event, filepath)
-    def self.processEvent(event, filepath)
-        if event["eventType"] == "command" then
-            payload    = event["payload"]
-            objectuuid = payload["objectuuid"]
-            agentuid   = payload["agentuid"]
-            command    = payload ["command"]
-            agentdata  = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
-            return if agentdata.nil?
-            agentdata["object-command-processor"].call(objectuuid, command, false)
-            return
-        end
-        if event["eventType"] == "DoNotShowUntil" then
-            payload    = event["payload"]
-            objectuuid = payload["objectuuid"]
-            datetime   = payload["datetime"]
-            NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
-            return
-        end
-        if event["eventType"] == "AddTimeToStream" then
-            payload    = event["payload"]
-            streamuuid = payload["streamuuid"]
-            timespan   = payload["timespan"]
-            return
-        end
-        if event["eventType"] == "RunTimesPoint" then
-            point = event["payload"]
-            NSXRunTimes::addPoint2(point)
-            return
-        end
-        puts "Doesn't know how to process this event"
-        puts JSON.pretty_generate(event)
-        exit
+    # NSXMultiInstancesRead::eventsFilepaths()
+    def self.eventsFilepaths()
+        Dir.entries(MULTIINSTANCE_LOG_FOLDERPATH)
+            .select{|filename| filename[-5, 5] == ".json" }
+            .sort
+            .map{|filename| "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}" }
     end
 
     # NSXMultiInstancesRead::processEvents()
@@ -122,10 +70,8 @@ class NSXMultiInstancesRead
         .each{|filepath|
             event = JSON.parse(IO.read(filepath))
             next if event["instanceName"] == NSXMiscUtils::instanceName()
-            #puts "processing: #{filepath}"
-            #puts JSON.pretty_generate(event)
-            NSXMultiInstancesRead::processEvent(event, filepath)
-            FileUtils.rm(filepath)
+            status = NSXMultiInstancesRead::processEvent(event, filepath)
+            FileUtils.rm(filepath) if status
         }
     end
 
