@@ -43,10 +43,6 @@ class NSXMultiInstancesRead
             NSXRunTimes::addPoint2(event["payload"])
             return true
         end
-        if event["eventType"] == "MultiInstanceEventType:LucilleSectionDoneToday" then
-            LucilleFileHelper::markSectionAsDoneForToday(event["payload"])
-            return true
-        end
         puts "I do not have instructions on how to process this event:"
         puts JSON.pretty_generate(event)
         false

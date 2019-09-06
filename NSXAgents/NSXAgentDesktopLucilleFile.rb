@@ -186,8 +186,11 @@ class NSXAgentDesktopLucilleFile
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({
                     "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
-                    "payload"      => object["section-uuid"]
+                    "eventType"    => "MultiInstanceEventType:CatalystObjectUUID+Command",
+                    "payload"      => {
+                        "objectuuid" => objectuuid,
+                        "command" => "done"
+                    }
                 })
             end
             return
@@ -206,8 +209,11 @@ class NSXAgentDesktopLucilleFile
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({
                     "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
-                    "payload"      => object["section-uuid"]
+                    "eventType"    => "MultiInstanceEventType:CatalystObjectUUID+Command",
+                    "payload"      => {
+                        "objectuuid" => objectuuid,
+                        "command" => "done" # `done` and not `>stream` because the new stream item will be created on the other side by virtue of DataBank transfert
+                    }
                 })
             end
             return
