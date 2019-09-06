@@ -197,7 +197,7 @@ class NSXGeneralCommandHandler
 
         scheduleStoreItemId = object["scheduleStoreItemId"]
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
-        puts scheduleStoreItem
+
         return if scheduleStoreItem.nil?
 
         if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
