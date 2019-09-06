@@ -57,7 +57,6 @@ class NSXGeneralCommandHandler
 
         # ---------------------------------------
         # General Command
-        puts "General Command"
         # ---------------------------------------
 
         if command == "" then
@@ -157,7 +156,6 @@ class NSXGeneralCommandHandler
 
         # ---------------------------------------
         # General Utility Command Against Object
-        puts "General Utility Command Against Object"
         # ---------------------------------------
 
         return false if object.nil?
@@ -195,7 +193,6 @@ class NSXGeneralCommandHandler
 
         # ---------------------------------------
         # Schedule Store Item
-        puts "Schedule Store Item"
         # ---------------------------------------
 
         scheduleStoreItemId = object["scheduleStoreItemId"]
@@ -251,7 +248,6 @@ class NSXGeneralCommandHandler
 
         # ---------------------------------------
         # Agent
-        puts "Agent"
         # ---------------------------------------
 
         objectuuid = object["uuid"]
