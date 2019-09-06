@@ -105,6 +105,12 @@ class NSXCatalystUI
             return
         end
 
+        if command == "open" then
+            NSXGeneralCommandHandler::processCatalystCommand(focusobject, "open")
+            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
+            return
+        end
+
         if command == "open+done" then
             NSXGeneralCommandHandler::processCatalystCommand(focusobject, "open")
             NSXGeneralCommandHandler::processCatalystCommand(focusobject, "done")
