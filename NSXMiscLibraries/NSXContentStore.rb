@@ -38,7 +38,7 @@ class NSXContentStore
         filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Content-Store/Content/#{pathfragment}"
         contentStoreItemAsString = JSON.pretty_generate(contentStoreItem)
         if File.exists?(filepath) and (IO.read(filepath) == contentStoreItemAsString) then
-            # We avoid rewriting a file whose content have nove changed
+            # We avoid rewriting a file whose content have not changed
             return
         end
         if !File.exists?(File.dirname(filepath)) then

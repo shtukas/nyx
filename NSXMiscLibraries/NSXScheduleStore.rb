@@ -38,7 +38,7 @@ class NSXScheduleStore
         filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Schedule-Store/Schedule/#{pathfragment}"
         scheduleStoreItemAsString = JSON.generate(scheduleStoreItem)
         if File.exists?(filepath) and (IO.read(filepath) == scheduleStoreItemAsString) then
-            # We avoid rewriting a file whose content have nove changed
+            # We avoid rewriting a file whose content have not changed
             return
         end
         if !File.exists?(File.dirname(filepath)) then
