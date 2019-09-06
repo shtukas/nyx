@@ -91,9 +91,17 @@ class NSXAgentDailyTimeCommitmentsHelpers
         KeyValueStore::set(nil, "fd8d4e07-0fc7-4c95-a0c9-0f7f2d5784e0:#{entry["uuid"]}", Time.new.to_i)
     end
 
-    # NSXAgentDailyTimeCommitmentsHelpers::performNegativeValueForEntryIfTimeReady(entry)
-    def self.performNegativeValueForEntryIfTimeReady(entry)
+    # NSXAgentDailyTimeCommitmentsHelpers::performNegativeValueForEntry(entry)
+    def self.performNegativeValueForEntry(entry)
+        # We only do those calculations on alexandra
+        return if !NSXMiscUtils::isLucille18()
         if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "591e1ce5-92ca-49a0-ac80-c3387f30d874:#{entry["uuid"]}", 3600) then
+            existingWeight = NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
+            if existingWeight < -3600 then
+                # We do not add negative weight if we are already late by one hour.
+                NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
+                return
+            end 
             unixtime = NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry)
             timespanInSeconds = Time.new.to_i - unixtime
             commitmentInSecondsPerDay = entry["commitmentInHours"]*3600
@@ -114,11 +122,11 @@ class NSXAgentDailyTimeCommitmentsHelpers
         end
     end
 
-    # NSXAgentDailyTimeCommitmentsHelpers::performNegativeValuesIfTimeReady()
-    def self.performNegativeValuesIfTimeReady()
+    # NSXAgentDailyTimeCommitmentsHelpers::performNegativeValuesForEntries()
+    def self.performNegativeValuesForEntries()
         NSXAgentDailyTimeCommitmentsHelpers::getEntries()
         .each{|entry|
-            NSXAgentDailyTimeCommitmentsHelpers::performNegativeValueForEntryIfTimeReady(entry)
+            NSXAgentDailyTimeCommitmentsHelpers::performNegativeValueForEntry(entry)
         }
     end
 
@@ -134,7 +142,7 @@ class NSXAgentDailyTimeCommitments
     # NSXAgentDailyTimeCommitments::getObjects()
     def self.getObjects()
         if NSXMiscUtils::isLucille18() then
-            NSXAgentDailyTimeCommitmentsHelpers::performNegativeValuesIfTimeReady()
+            NSXAgentDailyTimeCommitmentsHelpers::performNegativeValuesForEntries()
         end
         NSXAgentDailyTimeCommitments::getAllObjects()
     end
