@@ -62,14 +62,27 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
-            .reject{|object| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']) }
-
-        if !NSXMiscUtils::hasInternetCondition1121() then
-            objects = objects.reject{|object| NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).include?("http") }
-        end
 
         objects = objects
             .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
+
+        objects = objects
+            .reject{|object| 
+                b1 = !NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil? 
+                b2 = !object["decoration:isRunning"]
+                b1 and b2
+            }
+
+        if !NSXMiscUtils::hasInternetCondition1121() then
+            objects = objects
+                .reject{|object| 
+                    b1 = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).include?("http") 
+                    b2 = !object["decoration:isRunning"]
+                    b1 and b2
+                }
+        end
+
+        objects = objects
             .select{|object| object['decoration:metric'] >= 0.2 }
             .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
             .reverse
