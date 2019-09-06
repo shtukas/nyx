@@ -183,11 +183,13 @@ class NSXAgentDesktopLucilleFile
             return if object.nil?
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
             LucilleFileHelper::markSectionAsDoneForToday(object["section-uuid"])
-            NSXMultiInstancesWrite::sendEventToDisk({
-                "instanceName" => NSXMiscUtils::instanceName(),
-                "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
-                "payload"      => object["section-uuid"]
-            })
+            if isLocalCommand then
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
+                    "payload"      => object["section-uuid"]
+                })
+            end
             return
         end
         if command == ">stream" then
@@ -201,11 +203,13 @@ class NSXAgentDesktopLucilleFile
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(object["section-uuid"])
             LucilleFileHelper::markSectionAsDoneForToday(object["section-uuid"])
-            NSXMultiInstancesWrite::sendEventToDisk({
-                "instanceName" => NSXMiscUtils::instanceName(),
-                "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
-                "payload"      => object["section-uuid"]
-            })
+            if isLocalCommand then
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:LucilleSectionDoneToday",
+                    "payload"      => object["section-uuid"]
+                })
+            end
             return
         end
     end

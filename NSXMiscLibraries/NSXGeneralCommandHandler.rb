@@ -50,8 +50,8 @@ class NSXGeneralCommandHandler
         puts JSON.pretty_generate(streamItem)
     end
 
-    # NSXGeneralCommandHandler::processCatalystCommand(object, command)
-    def self.processCatalystCommand(object, command)
+    # NSXGeneralCommandHandler::processCatalystCommand(object, command, isLocalCommand)
+    def self.processCatalystCommand(object, command, isLocalCommand)
 
         return false if command.nil?
 
@@ -161,7 +161,7 @@ class NSXGeneralCommandHandler
         return false if object.nil?
 
         if command == ".." and object["decoration:defaultCommand"] then
-            NSXGeneralCommandHandler::processCatalystCommand(object, object["decoration:defaultCommand"])
+            NSXGeneralCommandHandler::processCatalystCommand(object, object["decoration:defaultCommand"], isLocalCommand)
             return
         end
 
@@ -180,14 +180,16 @@ class NSXGeneralCommandHandler
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
-            NSXMultiInstancesWrite::sendEventToDisk({
-                "instanceName" => NSXMiscUtils::instanceName(),
-                "eventType"    => "MultiInstanceEventType:DoNotShowUntil",
-                "payload"      => {
-                    "objectuuid" => object["uuid"],
-                    "datetime"   => datetime
-                }
-            })
+            if isLocalCommand then
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:DoNotShowUntil",
+                    "payload"      => {
+                        "objectuuid" => object["uuid"],
+                        "datetime"   => datetime
+                    }
+                })
+            end
             return
         end
 
@@ -232,16 +234,18 @@ class NSXGeneralCommandHandler
                 return if !NSXRunner::isRunning?(scheduleStoreItemId)
                 timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
                 NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                    "payload"      => {
-                        "uuid"          => SecureRandom.hex,
-                        "collectionuid" => scheduleStoreItem["collectionuid"],
-                        "unixtime"      => Time.new.to_i,
-                        "algebraicTimespanInSeconds" => timespanInSeconds
-                    }
-                })
+                if isLocalCommand then
+                    NSXMultiInstancesWrite::sendEventToDisk({
+                        "instanceName" => NSXMiscUtils::instanceName(),
+                        "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                        "payload"      => {
+                            "uuid"          => SecureRandom.hex,
+                            "collectionuid" => scheduleStoreItem["collectionuid"],
+                            "unixtime"      => Time.new.to_i,
+                            "algebraicTimespanInSeconds" => timespanInSeconds
+                        }
+                    })
+                end
                 return
             end
         end
@@ -256,7 +260,7 @@ class NSXGeneralCommandHandler
         return if agentuid.nil?
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
         return if agentdata.nil?
-        agentdata["object-command-processor"].call(objectuuid, command, true)
+        agentdata["object-command-processor"].call(objectuuid, command, isLocalCommand)
 
     end
 

@@ -32,7 +32,7 @@ class NSXMultiInstancesRead
         if event["eventType"] == "MultiInstanceEventType:CatalystObjectUUID+Command" then
             object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(event["payload"]["objectuuid"])
             return true if object.nil?
-            NSXGeneralCommandHandler::processCatalystCommand(object, event["payload"]["command"])
+            NSXGeneralCommandHandler::processCatalystCommand(object, event["payload"]["command"], false)
             return true
         end
         if event["eventType"] == "MultiInstanceEventType:DoNotShowUntil" then
