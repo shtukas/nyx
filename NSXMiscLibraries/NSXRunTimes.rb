@@ -66,7 +66,7 @@ class NSXRunTimes
         y2 = metricAtTarget
         x  = algebraicTimespanInSeconds
         return y1 if x < x1
-        return metricAtTarget*Math.exp((x-x2).to_f/(0.1*targetTimeInSeconds)) if x > x2
+        return metricAtTarget*Math.exp(-(x-x2).to_f/(0.1*targetTimeInSeconds)) if x > x2
         NSXRunTimes::linearMap(x1, y1, x2, y2, x)
     end
 
