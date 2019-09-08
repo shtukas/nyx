@@ -221,6 +221,18 @@ class NSXGeneralCommandHandler
                 return if !NSXRunner::isRunning?(scheduleStoreItemId)
                 timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
                 NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
+                if isLocalCommand then
+                    NSXMultiInstancesWrite::sendEventToDisk({
+                        "instanceName" => NSXMiscUtils::instanceName(),
+                        "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                        "payload"      => {
+                            "uuid"          => SecureRandom.hex,
+                            "collectionuid" => scheduleStoreItem["collectionuid"],
+                            "unixtime"      => Time.new.to_i,
+                            "algebraicTimespanInSeconds" => timespanInSeconds
+                        }
+                    })
+                end
                 return
             end
         end
