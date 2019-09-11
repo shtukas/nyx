@@ -50,6 +50,17 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 # nslog
 
+uid = "e100979a-5226-4cb4-a98a-8dc5e228d483"
+NSXMetaDataStore::set(uid, "key", ["Pascal", 1])
+puts JSON.pretty_generate(NSXMetaDataStore::get(uid))
+
+object = {
+    "uuid" => "e100979a-5226-4cb4-a98a-8dc5e228d483"
+}
+NSXMetaDataStore::uiEditCatalystObjectMetadata(object)
+
+exit
+
 # -------------------------------------------------------------------------
 
 Thread.new {

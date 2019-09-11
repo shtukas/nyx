@@ -29,3 +29,12 @@ Events:
         "algebraicTimespanInSeconds" => Integer
     }
 }
+
+{
+    "eventType" : "MultiInstanceEventType:MetaDataStoreUpdate"
+    "payload" : {
+        "uid"   : String,
+        "key"   : String,
+        "value" : Value
+    }
+}

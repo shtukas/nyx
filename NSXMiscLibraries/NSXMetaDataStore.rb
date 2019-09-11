@@ -37,8 +37,25 @@ class NSXMetaDataStore
         return {} if value.nil?
         JSON.parse(value)
     end
+
     # NSXMetaDataStore::set(uid, key, value)
     def self.set(uid, key, value)
+        metadata = NSXMetaDataStore::get(uid)
+        metadata[key] = value
+        KeyValueStore::set(NSXMetaDataStoreRepositoryFolderPath, uid, JSON.generate(metadata))
+        NSXMultiInstancesWrite::sendEventToDisk({
+            "instanceName" => NSXMiscUtils::instanceName(),
+            "eventType"    => "MultiInstanceEventType:MetaDataStoreUpdate",
+            "payload"      => {
+                "uid"   => uid,
+                "key"   => key,
+                "value" => value
+            }
+        })
+    end
+
+    # NSXMetaDataStore::setFromMultiInstanceProcessing(uid, key, value)
+    def self.setFromMultiInstanceProcessing(uid, key, value)
         metadata = NSXMetaDataStore::get(uid)
         metadata[key] = value
         KeyValueStore::set(NSXMetaDataStoreRepositoryFolderPath, uid, JSON.generate(metadata))
