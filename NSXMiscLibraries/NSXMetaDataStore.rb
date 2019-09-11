@@ -20,19 +20,43 @@ NSXMetaDataStoreRepositoryFolderPath = "#{CATALYST_COMMON_DATABANK_CATALYST_INST
 =begin
 The starting idea was to have a metadata object for Catalyst Objects, 
 but in the end I decided to make it more generic.
+
+Keys:
+
+    runtimes-targets-1738: Array[String] 
+        If the object is runnable (determined by the kind of NSX content store item it carries)
+        Then the time it has created while running is reported to those other uids
+
 =end
 
 class NSXMetaDataStore
 
+    # NSXMetaDataStore::get(uid)
+    def self.get(uid)
+        value = KeyValueStore::getOrNull(NSXMetaDataStoreRepositoryFolderPath, uid)
+        return {} if value.nil?
+        JSON.parse(value)
+    end
     # NSXMetaDataStore::set(uid, key, value)
     def self.set(uid, key, value)
-        KeyValueStore::set(NSXMetaDataStoreRepositoryFolderPath, key, JSON.generate([value]))
+        metadata = NSXMetaDataStore::get(uid)
+        metadata[key] = value
+        KeyValueStore::set(NSXMetaDataStoreRepositoryFolderPath, uid, JSON.generate(metadata))
     end
 
-    # NSXMetaDataStore::get(uid, key)
-    def self.get(uid, key)
-        value = KeyValueStore::getOrNull(NSXMetaDataStoreRepositoryFolderPath, key)
-        return nil if value.nil?
-        JSON.parse(value).first
+    # NSXMetaDataStore::uiEditCatalystObjectMetadata(object)
+    def self.uiEditCatalystObjectMetadata(object)
+        puts "Catalyst Object Metadata Edit"
+        puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, false, 1)
+        options = ["add streamuuid target for run times"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+        if option == "add streamuuid target for run times" then
+            streamuuid = LucilleCore::askQuestionAnswerAsString("streamuuid: ")
+            metadata = NSXMetaDataStore::get(object["uuid"])
+            targets = ((metadata["runtimes-targets-1738"] || []) + [streamuuid]).uniq
+            NSXMetaDataStore::set(object["uuid"], "runtimes-targets-1738", targets)
+        end
+        LucilleCore::pressEnterToContinue()
     end
+
 end

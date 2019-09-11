@@ -14,7 +14,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::defaultCatalystObjectCommands()
     def self.defaultCatalystObjectCommands()
         # This doesn't include x-note
-        ["expose"]
+        ["expose", "metadata"]
     end
 
     # NSXDisplayUtils::agentCommands(object)

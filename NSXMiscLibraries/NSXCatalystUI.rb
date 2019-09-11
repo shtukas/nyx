@@ -125,7 +125,6 @@ class NSXCatalystUI
         end
 
         NSXGeneralCommandHandler::processCatalystCommand(focusobject, command, true)
-
     end
 
     # NSXCatalystUI::standardUILoop()

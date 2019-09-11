@@ -119,7 +119,8 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "generation-speed",
-                "set no internet for this hour"
+                "set no internet for this hour",
+                "edit catalyst object metadata"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -144,6 +145,9 @@ class NSXGeneralCommandHandler
             end
             if option == "set no internet for this hour" then
                 NSXMiscUtils::setNoInternetForThisHour()
+            end
+            if option == "edit catalyst object metadata" then
+                NSXMetaDataStore::uiEditCatalystObjectMetadata(object)
             end
             return
         end
@@ -171,12 +175,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'x-note' then
-            text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
-            NSXMiscUtils::setXNote(object["uuid"], text)
-            return
-        end
-
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
@@ -191,6 +189,16 @@ class NSXGeneralCommandHandler
                 })
             end
             return
+        end
+
+        if command == 'x-note' then
+            text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
+            NSXMiscUtils::setXNote(object["uuid"], text)
+            return
+        end
+
+        if command == "metadata" then
+            NSXMetaDataStore::uiEditCatalystObjectMetadata(object)
         end
 
         # ---------------------------------------
