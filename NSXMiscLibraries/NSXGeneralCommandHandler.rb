@@ -266,6 +266,23 @@ class NSXGeneralCommandHandler
                         }
                     })
                 end
+                metadata = NSXMetaDataStore::get(uid)
+                (metadata["runtimes-targets-1738"] || [])
+                    .each{|timetargetuid|
+                        NSXRunTimes::addPoint(timetargetuid, Time.new.to_i, timespanInSeconds)
+                        if isLocalCommand then
+                            NSXMultiInstancesWrite::sendEventToDisk({
+                                "instanceName" => NSXMiscUtils::instanceName(),
+                                "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                                "payload"      => {
+                                    "uuid"          => SecureRandom.hex,
+                                    "collectionuid" => timetargetuid,
+                                    "unixtime"      => Time.new.to_i,
+                                    "algebraicTimespanInSeconds" => timespanInSeconds
+                                }
+                            })
+                        end
+                    }
                 return
             end
         end
@@ -281,7 +298,6 @@ class NSXGeneralCommandHandler
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
         return if agentdata.nil?
         agentdata["object-command-processor"].call(objectuuid, command, isLocalCommand)
-
     end
 
 end

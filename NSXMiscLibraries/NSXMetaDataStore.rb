@@ -23,7 +23,7 @@ but in the end I decided to make it more generic.
 
 Keys:
 
-    runtimes-targets-1738: Array[String] 
+    runtimes-targets-1738: null or Array[String] 
         If the object is runnable (determined by the kind of NSX content store item it carries)
         Then the time it has created while running is reported to those other uids
 
