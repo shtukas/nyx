@@ -119,8 +119,7 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "generation-speed",
-                "set no internet for this hour",
-                "edit catalyst object metadata"
+                "set no internet for this hour"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -145,9 +144,6 @@ class NSXGeneralCommandHandler
             end
             if option == "set no internet for this hour" then
                 NSXMiscUtils::setNoInternetForThisHour()
-            end
-            if option == "edit catalyst object metadata" then
-                NSXMetaDataStore::uiEditCatalystObjectMetadata(object)
             end
             return
         end
