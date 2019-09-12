@@ -384,6 +384,7 @@ class NSXMiscUtils
         lines = IO.read(pathToFile).strip.lines.to_a
         return if lines.empty?
         slineWithIndex = lines
+            .reject{|line| line.strip == "" }
             .each_with_index
             .map{|line, i| [line, i] }
             .reduce(nil) {|selectedLineWithIndex, cursorLineWithIndex|
@@ -398,7 +399,9 @@ class NSXMiscUtils
                 end
             }
         sline = slineWithIndex.first
-        newContents = lines.reject{|line| line == sline }
+        newContents = lines
+            .reject{|line| line == sline }
+            .strip
         File.open(pathToFile, "w"){|f| f.puts(newContents) }
     end
 
