@@ -45,6 +45,7 @@ class NSXMultiInstancesRead
         end
         if event["eventType"] == "MultiInstanceEventType:MetaDataStoreUpdate" then
             NSXMetaDataStore::setFromMultiInstanceProcessing(event["payload"]["uid"], event["payload"]["key"], event["payload"]["value"])
+            return true
         end
         puts "I do not have instructions on how to process this event:"
         puts JSON.pretty_generate(event)
