@@ -56,6 +56,7 @@ class NSXCatalystObjectsOperator
         object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
         object["decoration:isRunning"] = NSXScheduleStoreUtils::isRunning(scheduleStoreItemId)
         object["decoration:RunTimesPoints"] = NSXRunTimes::getPoints(scheduleStoreItem["collectionuid"])
+        object["decoration:metadata"] = NSXMetaDataStore::get(object["uuid"])
         object
     end
 
