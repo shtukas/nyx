@@ -22,15 +22,26 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "help",
-                "/", 
-                "new: <line> | 'text'", 
+                "/",
+                "new: <line> | 'text'",
                 "next",
                 "search: <pattern>",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
             "\n",
-            ["..", "+datetimecode", "+<weekdayname>", "+<integer>day(s)", "+<integer>hour(s)", "+YYYY-MM-DD", "+1@23:45", "expose", "x-note"].map{|command| "        "+command }.join("\n")
+            [
+                "..",
+                "+datetimecode",
+                "++",
+                "+<weekdayname>",
+                "+<integer>day(s)",
+                "+<integer>hour(s)",
+                "+YYYY-MM-DD",
+                "+1@23:45",
+                "expose",
+                "x-note"
+            ].map{|command| "        "+command }.join("\n")
         ]
     end
     
@@ -169,6 +180,10 @@ class NSXGeneralCommandHandler
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
             return
+        end
+
+        if command == "++" then
+            NSXGeneralCommandHandler::processCatalystCommand(object, "+1 hour", isLocalCommand)
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
