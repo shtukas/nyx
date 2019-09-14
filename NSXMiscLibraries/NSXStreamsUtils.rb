@@ -339,6 +339,11 @@ class NSXStreamsUtils
         LucilleCore::selectEntityFromListOfEntitiesOrNull("description:", descriptions)
     end
 
+    # NSXStreamsUtils::interactivelySelectStreamOrNull()
+    def self.interactivelySelectStreamOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", NSXStreamsUtils::streamsMetadata(), lambda{|item| item["description"] })
+    end
+
     # NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
     def self.interactivelySpecifyStreamItemOrdinal(streamuuid)
         # We get the first 20 items, display them, ask for either a number or null for the next ordinal at the end of the queue

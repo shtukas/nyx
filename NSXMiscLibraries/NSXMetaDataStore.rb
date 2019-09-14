@@ -68,7 +68,9 @@ class NSXMetaDataStore
         options = ["add streamuuid target for run times"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
         if option == "add streamuuid target for run times" then
-            streamuuid = LucilleCore::askQuestionAnswerAsString("streamuuid: ")
+            stream = NSXStreamsUtils::interactivelySelectStreamOrNull()
+            return if stream.nil?
+            streamuuid = stream["streamuuid"]
             metadata = NSXMetaDataStore::get(object["uuid"])
             targets = ((metadata["runtimes-targets-1738"] || []) + [streamuuid]).uniq
             NSXMetaDataStore::set(object["uuid"], "runtimes-targets-1738", targets)
