@@ -27,6 +27,8 @@ Keys:
         If the object is runnable (determined by the kind of NSX content store item it carries)
         Then the time it has created while running is reported to those other uids
 
+    runtimes-targets-1832: null or Array[String]
+
 =end
 
 class NSXMetaDataStore
@@ -76,6 +78,17 @@ class NSXMetaDataStore
             NSXMetaDataStore::set(object["uuid"], "runtimes-targets-1738", targets)
         end
         LucilleCore::pressEnterToContinue()
+    end
+
+    # NSXMetaDataStore::enrichMetadataObject(objectuuid, metadata)
+    def self.enrichMetadataObject(objectuuid, metadata)
+        if metadata["runtimes-targets-1738"] then
+            metadata["runtimes-targets-1832"] = metadata["runtimes-targets-1738"]
+                                                    .map{|streamuuid|
+                                                        NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)
+                                                    }
+        end
+        metadata
     end
 
 end

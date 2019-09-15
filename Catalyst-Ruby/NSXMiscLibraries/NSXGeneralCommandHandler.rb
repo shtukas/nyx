@@ -178,7 +178,9 @@ class NSXGeneralCommandHandler
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
-            puts JSON.pretty_generate(NSXMetaDataStore::get(object["uuid"]))
+            metadata = NSXMetaDataStore::get(object["uuid"])
+            metadata = NSXMetaDataStore::enrichMetadataObject(object["uuid"], metadata)
+            puts JSON.pretty_generate(metadata)
             LucilleCore::pressEnterToContinue()
             return
         end
