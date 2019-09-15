@@ -178,6 +178,7 @@ class NSXGeneralCommandHandler
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
+            puts JSON.pretty_generate(NSXMetaDataStore::get(object["uuid"]))
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -277,7 +278,7 @@ class NSXGeneralCommandHandler
                         }
                     })
                 end
-                metadata = NSXMetaDataStore::get(uid)
+                metadata = NSXMetaDataStore::get(object["uuid"])
                 (metadata["runtimes-targets-1738"] || [])
                     .each{|timetargetuid|
                         NSXRunTimes::addPoint(timetargetuid, Time.new.to_i, timespanInSeconds)
