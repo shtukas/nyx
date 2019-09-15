@@ -3,8 +3,6 @@
 # encoding: UTF-8
 require 'json'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/SectionsType2102.rb"
-
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
@@ -161,8 +159,7 @@ class NSXAgentDesktopLucilleFile
         struct2 = LucilleFileHelper::fileContentsToStruct2(IO.read(LUCILLE_DATA_FILE_PATH))
         objects = (struct2[0]+struct2[1])
                     .map{|section|
-                        sectionuuid = LucilleFileHelper::sectionToSectionUUID(section)
-                        uuid = Digest::SHA1.hexdigest(section)
+                        uuid = LucilleFileHelper::sectionToSectionUUID(section)
                         if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
                         end
                         contentStoreItem = {
