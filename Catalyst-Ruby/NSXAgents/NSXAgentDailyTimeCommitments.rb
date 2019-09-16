@@ -81,32 +81,18 @@ class NSXAgentDailyTimeCommitmentsHelpers
         }
     end
 
-    # NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry)
-    def self.getLastNegativeMarkUnixtimeForEntry(entry)
-        KeyValueStore::getOrDefaultValue(nil, "fd8d4e07-0fc7-4c95-a0c9-0f7f2d5784e0:#{entry["uuid"]}", Time.new.to_i.to_s).to_i
-    end
-
-    # NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
-    def self.setLastNegativeMarkUnixtimeForEntry(entry)
-        KeyValueStore::set(nil, "fd8d4e07-0fc7-4c95-a0c9-0f7f2d5784e0:#{entry["uuid"]}", Time.new.to_i)
-    end
-
     # NSXAgentDailyTimeCommitmentsHelpers::performNegativeValueForEntry(entry)
     def self.performNegativeValueForEntry(entry)
         # We only do those calculations on alexandra
         return if !NSXMiscUtils::isLucille18()
-        if NSXMiscUtils::trueNoMoreOftenThanNEverySeconds(nil, "591e1ce5-92ca-49a0-ac80-c3387f30d874:#{entry["uuid"]}", 3600) then
+        if !KeyValueStore::flagIsTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c00:#{NSXMiscUtils::currentDay()}") then
+            NSXRunTimes::algebraicSimplification(entry["uuid"], 86400)
             existingWeight = NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
-            if existingWeight < -3600 then
-                # We do not add negative weight if we are already late by one hour.
-                NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
+            if existingWeight < 0 then
+                KeyValueStore::setFlagTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c00:#{NSXMiscUtils::currentDay()}")
                 return
-            end 
-            unixtime = NSXAgentDailyTimeCommitmentsHelpers::getLastNegativeMarkUnixtimeForEntry(entry)
-            timespanInSeconds = Time.new.to_i - unixtime
-            commitmentInSecondsPerDay = entry["commitmentInHours"]*3600
-            fractionOfADaySinceLastUpdate = timespanInSeconds.to_f/86400
-            negativeValue = -commitmentInSecondsPerDay*fractionOfADaySinceLastUpdate
+            end
+            negativeValue = -entry["commitmentInHours"]*3600
             NSXRunTimes::addPoint(entry["uuid"], Time.new.to_i, negativeValue)
             NSXMultiInstancesWrite::sendEventToDisk({
                 "instanceName" => NSXMiscUtils::instanceName(),
@@ -118,7 +104,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
                     "algebraicTimespanInSeconds" => negativeValue
                 }
             })
-            NSXAgentDailyTimeCommitmentsHelpers::setLastNegativeMarkUnixtimeForEntry(entry)
+            KeyValueStore::setFlagTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c00:#{NSXMiscUtils::currentDay()}")
         end
     end
 
