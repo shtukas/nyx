@@ -307,6 +307,23 @@ class NSXStreamsUtils
             .map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
     end
 
+    # NSXStreamsUtils::getAllCatalystObjectsChaseMode()
+    def self.getAllCatalystObjectsChaseMode()
+        itemsuuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "895e956d-97fd-46fc-af10-1f94fd79e026:#{NSXMiscUtils::currentHour()}", '[]'))
+        items = NSXStreamsUtils::getItems()
+            .select{|item| itemsuuids.include?(item["uuid"]) }
+        if items.size > 0 then
+            items.map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+        else
+            items = NSXStreamsUtils::getItems()
+                .select{|item|  item["streamuuid"] == "00010011101100010011101100011001" }
+                .sample(64)
+            itemsuuids = items.map{|item| item["uuid"] }
+            KeyValueStore::set(nil, "895e956d-97fd-46fc-af10-1f94fd79e026:#{NSXMiscUtils::currentHour()}", JSON.generate(itemsuuids))
+            items.map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+        end
+    end
+
     # -----------------------------------------------------------------
     # Stream Utils
 
