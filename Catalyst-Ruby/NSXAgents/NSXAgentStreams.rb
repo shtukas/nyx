@@ -93,7 +93,7 @@ class NSXAgentStreams
                 NSXStreamsUtils::commitItemToDisk(item)
             end
             if option == "put to end of stream" then
-                item["ordinal"] = NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
+                item["ordinal"] = NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
                 NSXStreamsUtils::commitItemToDisk(item)
             end
             nsx1309_removeItemIdentifiedById(item["uuid"])

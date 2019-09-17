@@ -331,8 +331,8 @@ class NSXMiscUtils
         "#{folderpath}/#{filenames.first}"
     end
 
-    # NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
-    def self.makeEndOfQueueStreamItemOrdinal()
+    # NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
+    def self.getNewEndOfQueueStreamOrdinal()
         items = NSXStreamsUtils::getItems()
         return 1 if items.size==0
         items.map{|item| item["ordinal"] }.max.to_i + 1

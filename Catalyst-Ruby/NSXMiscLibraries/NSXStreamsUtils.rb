@@ -342,10 +342,10 @@ class NSXStreamsUtils
         # First we remove the item from the stream
         items = items.reject{|item| item["uuid"]==streamItemUUID }
         if items.size == 0 then
-            return NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
+            return NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
         end 
         if items.size < n then
-            return NSXMiscUtils::makeEndOfQueueStreamItemOrdinal()
+            return NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
         end
         return ( items[n-2]["ordinal"] + items[n-1]["ordinal"] ).to_f/2 # Average of the (n-1)^th item and the n^th item ordinals
     end

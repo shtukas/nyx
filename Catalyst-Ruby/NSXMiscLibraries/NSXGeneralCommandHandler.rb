@@ -57,7 +57,7 @@ class NSXGeneralCommandHandler
             end
         streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
         streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
-        streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
+        streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
         puts JSON.pretty_generate(streamItem)
     end
 
@@ -93,7 +93,7 @@ class NSXGeneralCommandHandler
             if type == "Stream:Inbox" then
                 genericContentsItem = NSXGenericContents::issueItemText(text)
                 puts JSON.pretty_generate(genericContentsItem)
-                streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::makeEndOfQueueStreamItemOrdinal())
+                streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
             end
