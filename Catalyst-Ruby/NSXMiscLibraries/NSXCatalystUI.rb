@@ -50,7 +50,7 @@ class NSXCatalystUI
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
-            NSXGeneralCommandHandler::processCatalystCommand(nil, command, true)
+            NSXGeneralCommandHandler::processCatalystCommandManager(nil, command, true)
             return
         end
 
@@ -106,19 +106,7 @@ class NSXCatalystUI
             return
         end
 
-        if command == "open" then
-            NSXGeneralCommandHandler::processCatalystCommand(focusobject, "open", true)
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
-            return
-        end
-
-        if command == "start" then
-            NSXGeneralCommandHandler::processCatalystCommand(focusobject, "start", true)
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
-            return
-        end
-
-        NSXGeneralCommandHandler::processCatalystCommand(focusobject, command, true)
+        NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, command, true)
     end
 
     # NSXCatalystUI::standardUILoop()

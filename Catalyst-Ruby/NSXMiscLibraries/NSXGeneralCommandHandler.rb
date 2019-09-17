@@ -61,8 +61,8 @@ class NSXGeneralCommandHandler
         puts JSON.pretty_generate(streamItem)
     end
 
-    # NSXGeneralCommandHandler::processCatalystCommand(object, command, isLocalCommand)
-    def self.processCatalystCommand(object, command, isLocalCommand)
+    # NSXGeneralCommandHandler::processCatalystCommandCore(object, command, isLocalCommand)
+    def self.processCatalystCommandCore(object, command, isLocalCommand)
 
         return false if command.nil?
 
@@ -172,7 +172,7 @@ class NSXGeneralCommandHandler
         return false if object.nil?
 
         if command == ".." and object["decoration:defaultCommand"] then
-            NSXGeneralCommandHandler::processCatalystCommand(object, object["decoration:defaultCommand"], isLocalCommand)
+            NSXGeneralCommandHandler::processCatalystCommandManager(object, object["decoration:defaultCommand"], isLocalCommand)
             return
         end
 
@@ -186,7 +186,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == "++" then
-            NSXGeneralCommandHandler::processCatalystCommand(object, "+1 hour", isLocalCommand)
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "+1 hour", isLocalCommand)
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
@@ -312,6 +312,21 @@ class NSXGeneralCommandHandler
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
         return if agentdata.nil?
         agentdata["object-command-processor"].call(objectuuid, command, isLocalCommand)
+    end
+
+    # NSXGeneralCommandHandler::processCatalystCommandManager(object, command, isLocalCommand)
+    def self.processCatalystCommandManager(object, command, isLocalCommand)
+        if object and command == "open" then
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "open", true)
+            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            return
+        end
+        if object and command == "start" then
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "start", true)
+            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            return
+        end
+        NSXGeneralCommandHandler::processCatalystCommandCore(object, command, isLocalCommand)
     end
 
 end
