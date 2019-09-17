@@ -85,11 +85,11 @@ class NSXAgentDailyTimeCommitmentsHelpers
     def self.performNegativeValueForEntry(entry)
         # We only do those calculations on alexandra
         return if !NSXMiscUtils::isLucille18()
-        if !KeyValueStore::flagIsTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c00:#{NSXMiscUtils::currentDay()}") then
+        if !KeyValueStore::flagIsTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c01:#{NSXMiscUtils::currentDay()}") then
             NSXRunTimes::algebraicSimplification(entry["uuid"], 86400)
             existingWeight = NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
             if existingWeight < 0 then
-                KeyValueStore::setFlagTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c00:#{NSXMiscUtils::currentDay()}")
+                KeyValueStore::setFlagTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c01:#{NSXMiscUtils::currentDay()}")
                 return
             end
             negativeValue = -entry["commitmentInHours"]*3600
@@ -104,7 +104,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
                     "algebraicTimespanInSeconds" => negativeValue
                 }
             })
-            KeyValueStore::setFlagTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c00:#{NSXMiscUtils::currentDay()}")
+            KeyValueStore::setFlagTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c01:#{NSXMiscUtils::currentDay()}")
         end
     end
 

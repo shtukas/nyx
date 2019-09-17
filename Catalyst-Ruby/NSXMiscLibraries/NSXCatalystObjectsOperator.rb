@@ -60,6 +60,7 @@ class NSXCatalystObjectsOperator
                 point["datetime"] = Time.at(point["unixtime"]).to_s
                 point
             }
+            .sort{|p1, p2| p1["unixtime"]<=>p2["unixtime"] }
         object["decoration:metadata"] = NSXMetaDataStore::get(object["uuid"])
         object
     end

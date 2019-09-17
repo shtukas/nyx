@@ -112,7 +112,7 @@ class NSXScheduleStoreUtils
             stabilityPeriodInSeconds = scheduleStoreItem["stabilityPeriodInSeconds"]
             metricAtZero = scheduleStoreItem["metricAtZero"]
             metricAtTarget = scheduleStoreItem["metricAtTarget"]
-            return NSXRunMetrics::metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget) 
+            return NSXRunMetrics::metric1(points, targetTimeInSeconds, metricAtZero, metricAtTarget) 
         end
         if scheduleStoreItem["type"] == "stream-item-7e37790b" then
             collectionuid = scheduleStoreItem["collectionuid"]
@@ -122,7 +122,7 @@ class NSXScheduleStoreUtils
             stabilityPeriodInSeconds = scheduleStoreItem["stabilityPeriodInSeconds"]
             metricAtZero = scheduleStoreItem["metricAtZero"]
             metricAtTarget = scheduleStoreItem["metricAtTarget"]
-            return NSXRunMetrics::metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget) + Math.exp(-ordinal.to_f/100).to_f/100
+            return NSXRunMetrics::metric1(points, targetTimeInSeconds, metricAtZero, metricAtTarget) + Math.exp(-ordinal.to_f/100).to_f/100
         end
         if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
             return NSXAgentWaveUtils::scheduleToMetric(scheduleStoreItem["wave-schedule"]) + NSXMiscUtils::traceToMetricShift(Digest::SHA1.hexdigest(scheduleStoreItemId)) 

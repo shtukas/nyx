@@ -57,22 +57,17 @@ class NSXRunTimes
     # NSXRunTimes::algebraicSimplification(collectionuid, stabilityPeriodInSeconds)
     def self.algebraicSimplification(collectionuid, stabilityPeriodInSeconds)
         points = NSXRunTimes::getPoints(collectionuid)
-        onePositivePoint = points
             .select{|point| point["unixtime"] < (Time.new.to_i - stabilityPeriodInSeconds) }
-            .select{|point| point["algebraicTimespanInSeconds"] >= 0 }
-            .first
-        return if onePositivePoint.nil?
-        oneNegativePoint = points
-            .select{|point| point["unixtime"] < (Time.new.to_i - stabilityPeriodInSeconds) }
-            .select{|point| point["algebraicTimespanInSeconds"] < 0 }
-            .first
-        return if oneNegativePoint.nil?
-        unixtime = [onePositivePoint["unixtime"], oneNegativePoint["unixtime"]].max
-        algebraicTimespanInSeconds = onePositivePoint["algebraicTimespanInSeconds"] + oneNegativePoint["algebraicTimespanInSeconds"]
-        NSXRunTimes::addPoint(collectionuid, unixtime, algebraicTimespanInSeconds)
-        BTreeSets::destroy(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", onePositivePoint["uuid"])
-        BTreeSets::destroy(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", oneNegativePoint["uuid"])
-        NSXRunTimes::algebraicSimplification(collectionuid, stabilityPeriodInSeconds)
+
+        algebraicTimespanInSeconds = points
+            .map{|point| point["algebraicTimespanInSeconds"] }
+            .inject(0, :+)
+
+        NSXRunTimes::addPoint(collectionuid, Time.new.to_i - stabilityPeriodInSeconds, algebraicTimespanInSeconds)
+
+        points.each{|point|
+            BTreeSets::destroy(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", point["uuid"])
+        }
     end
 
 end

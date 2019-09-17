@@ -23,10 +23,9 @@ Point {
 =end
 
 class NSXRunMetrics
-    # NSXRunMetrics::metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget)
+    # NSXRunMetrics::metric1(points, targetTimeInSeconds,  metricAtZero, metricAtTarget)
+    def self.metric1(points, targetTimeInSeconds, metricAtZero, metricAtTarget)
         algebraicTimespanInSeconds = points
-            .select{|point| (Time.new.to_i-point["unixtime"]) < stabilityPeriodInSeconds }
             .map{|point| point["algebraicTimespanInSeconds"] }
             .inject(0, :+)
         x1 = 0
