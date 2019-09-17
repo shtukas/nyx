@@ -54,22 +54,6 @@ class NSXRunTimes
         (x-x1)*slope + y1
     end
 
-    # NSXRunTimes::metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric1(points, targetTimeInSeconds, stabilityPeriodInSeconds, metricAtZero, metricAtTarget)
-        algebraicTimespanInSeconds = points
-            .select{|point| (Time.new.to_i-point["unixtime"]) < stabilityPeriodInSeconds }
-            .map{|point| point["algebraicTimespanInSeconds"] }
-            .inject(0, :+)
-        x1 = 0
-        y1 = metricAtZero
-        x2 = targetTimeInSeconds
-        y2 = metricAtTarget
-        x  = algebraicTimespanInSeconds
-        return y1 if x < x1
-        return metricAtTarget*Math.exp(-(x-x2).to_f/(0.1*targetTimeInSeconds)) if x > x2
-        NSXRunTimes::linearMap(x1, y1, x2, y2, x)
-    end
-
     # NSXRunTimes::algebraicSimplification(collectionuid, stabilityPeriodInSeconds)
     def self.algebraicSimplification(collectionuid, stabilityPeriodInSeconds)
         points = NSXRunTimes::getPoints(collectionuid)
