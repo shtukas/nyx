@@ -16,7 +16,7 @@ class NSXAgentDesktopFilesMonitor
 
     # NSXAgentDesktopFilesMonitor::getObjects()
     def self.getObjects()
-        []
+        NSXAgentDesktopFilesMonitor::getAllObjects()
     end
 
     # NSXAgentDesktopFilesMonitor::shouldAlert()
