@@ -28,9 +28,9 @@ class NSXCatalystUI
                             .first(10)
                             .join
         if nextContents.size>0 then
-            puts "-- next ---------------"
+            puts "-- next " + "-" * (NSXMiscUtils::screenWidth()-9)
             puts nextContents.strip.red
-            puts "-----------------------"
+            puts "-" * (NSXMiscUtils::screenWidth()-1)
             nextContents.lines.to_a.size + 2
         else
             0
@@ -57,16 +57,12 @@ class NSXCatalystUI
         displayObjectForListing = displayObjects.map{|object| object.clone }
         # displayObjectForListing is being consumed while displayObjects should remain static
 
-        position = 0
-        hasDisplayedCatalystNext = false
-        while displayObjectForListing.size>0 do
-            break if verticalSpaceLeft<=0
+        vspace = NSXCatalystUI::printLucilleInstanceFileAsNext()
+        verticalSpaceLeft = verticalSpaceLeft - vspace
 
-            if displayObjectForListing.all?{|object| object["decoration:metric"] <= 1 } and !hasDisplayedCatalystNext then
-                vspace = NSXCatalystUI::printLucilleInstanceFileAsNext()
-                verticalSpaceLeft = verticalSpaceLeft - vspace
-                hasDisplayedCatalystNext = true
-            end
+        position = 0
+
+        while displayObjectForListing.size>0 do
 
             # Position management
             position = position + 1
@@ -76,11 +72,12 @@ class NSXCatalystUI
             end
             displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
             verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-            break if (position > 1) and (verticalSpaceLeft < verticalSize)
+            break if (position > 1) and (verticalSpaceLeft < verticalSize) and displayObjectForListing.none?{|object| object["decoration:isRunning"] }
 
             # Display
             puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - verticalSize
+            break if verticalSpaceLeft<=0 and displayObjectForListing.none?{|object| object["decoration:isRunning"] }
         end
 
         if focusobject.nil? then
