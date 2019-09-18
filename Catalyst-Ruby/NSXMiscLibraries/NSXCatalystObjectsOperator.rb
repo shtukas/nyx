@@ -20,6 +20,7 @@ class NSXCatalystObjectsOperator
         NSXBob::agents()
             .map{|agentinterface| agentinterface["get-objects"].call() }
             .flatten
+            .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
     end
 
     # NSXCatalystObjectsOperator::getAllObjectsFromAgents()
@@ -70,9 +71,6 @@ class NSXCatalystObjectsOperator
         objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
 
         objects = objects
-            .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
-
-        objects = objects
             .reject{|object| 
                 b1 = !NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil? 
                 b2 = !object["decoration:isRunning"]
@@ -89,7 +87,11 @@ class NSXCatalystObjectsOperator
         end
 
         objects = objects
-            .select{|object| object['decoration:metric'] >= 0.2 }
+            .select{|object|
+                b1 = object['decoration:metric'] >= 0.2
+                b2 = object["decoration:isRunning"]
+                b1 or b2
+            }
             .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
             .reverse
 
@@ -136,5 +138,4 @@ class NSXCatalystObjectsOperator
         return if objects.first["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
         NSXMiscUtils::onScreenNotification("Catalyst", "Objects above Daily Guardian Work")
     end
-
 end
