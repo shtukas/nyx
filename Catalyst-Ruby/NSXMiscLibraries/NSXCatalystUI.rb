@@ -72,7 +72,7 @@ class NSXCatalystUI
             end
             displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
             verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-            break if (position > 1) and (verticalSpaceLeft < verticalSize) and displayObjectForListing.none?{|object| object["decoration:isRunning"] }
+            break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectForListing + [object]).none?{|object| object["decoration:isRunning"] }
 
             # Display
             puts displayStr
