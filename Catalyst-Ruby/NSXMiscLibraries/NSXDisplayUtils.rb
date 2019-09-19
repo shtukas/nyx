@@ -31,7 +31,7 @@ class NSXDisplayUtils
         defaultCommand = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
         part2 = 
             [
-                NSXMiscUtils::hasXNote(object["uuid"]) ? "x-note".green : "x-note".yellow,
+                NSXMiscUtils::hasXNote(object["uuid"]) ? nil : "x-note".yellow,
                 NSXScheduleStoreUtils::scheduleStoreItemToCommands(scheduleStoreItem).join(" "),
                 NSXDisplayUtils::agentCommands(object).join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
@@ -42,39 +42,46 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
-        announce = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])
-        body = NSXContentStoreUtils::contentStoreItemIdToBodyOrNull(object['contentStoreItemId'])
-        if isFocus then
+
+        announceOrBodyLines = lambda{|object, announce, body|
             if body then
                 if body.lines.size>1 then
                     [
-                        "[#{"*".green}#{"%2d" % displayOrdinal}]",
-                        " ",
-                        "(#{"%5.3f" % object["decoration:metric"]})",
                         "\n",
                         object["decoration:isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
-                        "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
-                    ].join()
+                    ]
                 else
                     [
-                        "[#{"*".green}#{"%2d" % displayOrdinal}]",
-                        " ",
-                        "(#{"%5.3f" % object["decoration:metric"]})",
                         " ",
                        (object["decoration:isRunning"] ? body.green : body),
-                       "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
-                    ].join()
+                    ]
                 end
             else
                 [
-                    "[#{"*".green}#{"%2d" % displayOrdinal}]",
-                    " ",
-                    "(#{"%5.3f" % object["decoration:metric"]})",
                     " ",
                    (object["decoration:isRunning"] ? announce.green : announce),
-                   "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
-                ].join()
+                ]
             end
+        }
+
+        xnoteForPrint = lambda{|objectuuid|
+            "\n              " + "x-note".green + ":\n" + NSXMiscUtils::getXNote(objectuuid).lines.first(10).map{|line| (" " * 22)+line }.join()
+        }
+
+        announce = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])
+        body = NSXContentStoreUtils::contentStoreItemIdToBodyOrNull(object['contentStoreItemId'])
+        lines = 
+        if isFocus then
+            [
+                "[#{"*".green}#{"%2d" % displayOrdinal}]",
+                " ",
+                "(#{"%5.3f" % object["decoration:metric"]})"
+            ] + 
+            announceOrBodyLines.call(object, announce, body) +
+            [
+                "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
+                NSXMiscUtils::hasXNote(object["uuid"]) ? xnoteForPrint.call(object["uuid"]) : ""
+            ]
         else
             [
                 "[ #{"%2d" % displayOrdinal}]",
@@ -82,8 +89,9 @@ class NSXDisplayUtils
                 "(#{"%5.3f" % object["decoration:metric"]})",
                 " ",
                 (object["decoration:isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
-            ].join()
+            ]
         end
+        lines.join()
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
