@@ -22,7 +22,7 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "help",
-                "/",
+                ";;",
                 "new: <line> | 'text'",
                 "next",
                 "search: <pattern>",
@@ -31,16 +31,19 @@ class NSXGeneralCommandHandler
             "Special Object Commands:",
             "\n",
             [
-                "..",
+                "..                  default command",
+                ("\\"*2) + "                  next green",
+
                 "+datetimecode",
-                "++",
+                "++                  +1 hour",
                 "+<weekdayname>",
                 "+<integer>day(s)",
                 "+<integer>hour(s)",
                 "+YYYY-MM-DD",
                 "+1@23:45",
                 "expose",
-                "x-note"
+                "note",
+                "||                  agent interface",
             ].map{|command| "        "+command }.join("\n")
         ]
     end
@@ -125,7 +128,7 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "/" then
+        if command == ";;" then
             options = [
                 "new Stream Item", 
                 "new wave (repeat item)", 
@@ -159,10 +162,11 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "next" then
-            # Get rid of the first inner line of the Next file
-            LucilleFileHelper::applyNextTransformationToLucilleFile()
-            return
+        if command == CATALYST_COMMON_SPECIAL_COMMAND then
+            if IO.read(LUCILLE_DATA_FILE_PATH).split('@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b')[0].strip.size>0 then
+                LucilleFileHelper::applyNextTransformationToLucilleFile()
+                return
+            end
         end
 
         # ---------------------------------------
@@ -171,7 +175,21 @@ class NSXGeneralCommandHandler
 
         return false if object.nil?
 
-        if command == ".." and object["decoration:defaultCommand"] then
+        if command == CATALYST_COMMON_SPECIAL_COMMAND then
+            if NSXMiscUtils::hasXNote(object["uuid"]) then
+                contents = NSXMiscUtils::getXNote(object["uuid"])
+                contents = NSXMiscUtils::applyNextTransformationToContent(contents)
+                NSXMiscUtils::setXNote(object["uuid"], contents)
+                return
+            end
+        end
+
+        if command == CATALYST_COMMON_SPECIAL_COMMAND and object["decoration:defaultCommand"] then
+            NSXGeneralCommandHandler::processCatalystCommandManager(object, object["decoration:defaultCommand"], isLocalCommand)
+            return
+        end
+
+        if command == '..' and object["decoration:defaultCommand"] then
             NSXGeneralCommandHandler::processCatalystCommandManager(object, object["decoration:defaultCommand"], isLocalCommand)
             return
         end
@@ -205,7 +223,7 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == 'x-note' then
+        if command == 'note' then
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
             NSXMiscUtils::setXNote(object["uuid"], text)
             return

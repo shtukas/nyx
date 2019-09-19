@@ -29,7 +29,7 @@ class NSXCatalystUI
                             .join
         if nextContents.size>0 then
             puts "-- next " + "-" * (NSXMiscUtils::screenWidth()-9)
-            puts nextContents.strip.red
+            puts nextContents.strip.green
             puts "-" * (NSXMiscUtils::screenWidth()-1)
             nextContents.lines.to_a.size + 2
         else

@@ -13,7 +13,6 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::defaultCatalystObjectCommands()
     def self.defaultCatalystObjectCommands()
-        # This doesn't include x-note
         ["expose", "metadata"]
     end
 
@@ -26,12 +25,13 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
-        scheduleStoreItem = NSXScheduleStore::getItemOrNull(object["scheduleStoreItemId"])
+        scheduleStoreItemId = object["scheduleStoreItemId"]
+        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
         raise "Error: e34954d5" if scheduleStoreItem.nil?
-        defaultCommand = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
+        defaultCommand = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItemId, scheduleStoreItem)
         part2 = 
             [
-                NSXMiscUtils::hasXNote(object["uuid"]) ? nil : "x-note".yellow,
+                NSXMiscUtils::hasXNote(object["uuid"]) ? nil : "note".yellow,
                 NSXScheduleStoreUtils::scheduleStoreItemToCommands(scheduleStoreItem).join(" "),
                 NSXDisplayUtils::agentCommands(object).join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
@@ -65,7 +65,7 @@ class NSXDisplayUtils
         }
 
         xnoteForPrint = lambda{|objectuuid|
-            "\n              " + "x-note".green + ":\n" + NSXMiscUtils::getXNote(objectuuid).lines.first(10).map{|line| (" " * 22)+line }.join()
+            "\n              " + "note".green + ":\n" + NSXMiscUtils::getXNote(objectuuid).lines.first(10).map{|line| (" " * 22)+line }.join()
         }
 
         announce = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])
@@ -79,8 +79,8 @@ class NSXDisplayUtils
             ] + 
             announceOrBodyLines.call(object, announce, body) +
             [
-                "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object),
-                NSXMiscUtils::hasXNote(object["uuid"]) ? xnoteForPrint.call(object["uuid"]) : ""
+                NSXMiscUtils::hasXNote(object["uuid"]) ? xnoteForPrint.call(object["uuid"]) : "",
+                "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object)
             ]
         else
             [

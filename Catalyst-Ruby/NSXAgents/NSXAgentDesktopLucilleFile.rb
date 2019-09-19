@@ -29,6 +29,10 @@ require 'digest/sha1'
 
 # -------------------------------------------------------------------------------------
 
+# Struct2: [Array[Section], Array[Section]]
+
+# -------------------------------------------------------------------------------------
+
 LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt"
 LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
 LUCILLE_FILE_MARKER = "@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b"
@@ -83,36 +87,10 @@ class LucilleFileHelper
         LucilleFileHelper::commitStruct2ToDisk(struct2)
     end
 
-    # LucilleFileHelper::applyNextTransformationToContent(content)
-    def self.applyNextTransformationToContent(content)
-        lines = content.strip.lines.to_a
-        return content if lines.empty?
-        slineWithIndex = lines
-            .reject{|line| line.strip == "" }
-            .each_with_index
-            .map{|line, i| [line, i] }
-            .reduce(nil) {|selectedLineWithIndex, cursorLineWithIndex|
-                if selectedLineWithIndex.nil? then
-                    cursorLineWithIndex
-                else
-                    if selectedLineWithIndex.first.index("[]") and cursorLineWithIndex.first.index("[]") and (selectedLineWithIndex.first.index("[]") < cursorLineWithIndex.first.index("[]")) and (selectedLineWithIndex[1] == cursorLineWithIndex[1]-1) then
-                        cursorLineWithIndex
-                    else
-                        selectedLineWithIndex
-                    end
-                end
-            }
-        sline = slineWithIndex.first
-        lines
-            .reject{|line| line == sline }
-            .join()
-            .strip
-    end
-
     # LucilleFileHelper::applyNextTransformationToStruct2(struct2)
     def self.applyNextTransformationToStruct2(struct2)
         return struct2 if struct2[0].empty?
-        struct2[0][0] = LucilleFileHelper::applyNextTransformationToContent(struct2[0][0])
+        struct2[0][0] = NSXMiscUtils::applyNextTransformationToContent(struct2[0][0])
         struct2
     end
 

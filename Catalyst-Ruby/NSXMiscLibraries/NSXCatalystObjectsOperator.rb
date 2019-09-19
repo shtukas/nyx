@@ -54,7 +54,7 @@ class NSXCatalystObjectsOperator
         scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
         object["decoration:metric"] = NSXScheduleStoreUtils::metric(scheduleStoreItemId)
         object["decoration:scheduleStoreItem"] = scheduleStoreItem
-        object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
+        object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItemId, scheduleStoreItem)
         object["decoration:isRunning"] = NSXScheduleStoreUtils::isRunning(scheduleStoreItemId)
         object["decoration:RunTimesPoints"] = NSXRunTimes::getPoints(scheduleStoreItem["collectionuid"])
             .map{|point|

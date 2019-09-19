@@ -83,12 +83,21 @@ class NSXScheduleStoreUtils
         raise "Error: 283ffabe-7dce-4a5a-9230-02851f122e51 ; I do not know the commands for scheduleStoreItem: #{scheduleStoreItem}"
     end
 
-    # NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
-    def self.scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItem)
+    # NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItemId, scheduleStoreItem)
+    def self.scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItemId, scheduleStoreItem)
         if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
             if scheduleStoreItem["wave-schedule"]["@"] == "sticky" then
                 return "done"
             end
+        end
+        if scheduleStoreItem["type"] == "stream-item-7e37790b" then
+            return (NSXScheduleStoreUtils::isRunning(scheduleStoreItemId) ? "stop" : "start")
+        end
+        if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
+            return (NSXScheduleStoreUtils::isRunning(scheduleStoreItemId) ? "stop" : "start")
+        end
+        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
+            return "done"
         end
         nil
     end
