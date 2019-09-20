@@ -25,7 +25,7 @@ class NSXGeneralCommandHandler
                 "new: <line> | 'text'",
                 "next",
                 "search: <pattern>",
-                "//                  next Lucille file",
+                "[]                  next Lucille file",
                 ",,                  Catalyst menu",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
@@ -33,7 +33,7 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "..                  default command",
-                "//                  next XNote",
+                "[]                  next XNote",
                 "+datetimecode",
                 "++                  +1 hour",
                 "+<weekdayname>",
@@ -162,7 +162,7 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "//" then
+        if command == "[]" then
             if IO.read(LUCILLE_DATA_FILE_PATH).split('@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b')[0].strip.size>0 then
                 LucilleFileHelper::applyNextTransformationToLucilleFile()
                 return
@@ -175,7 +175,7 @@ class NSXGeneralCommandHandler
 
         return false if object.nil?
 
-        if command == "//" then
+        if command == "[]" then
             if NSXMiscUtils::hasXNote(object["uuid"]) then
                 contents = NSXMiscUtils::getXNote(object["uuid"])
                 contents = NSXMiscUtils::applyNextTransformationToContent(contents)
