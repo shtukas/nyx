@@ -70,7 +70,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
             "commitmentInHours"        => entry["commitmentInHours"],
             "stabilityPeriodInSeconds" => 86400,
             "metricAtZero"             => 0.8,
-            "metricAtTarget"           => 0.5
+            "metricAtTarget"           => 0.3
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {
