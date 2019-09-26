@@ -9,11 +9,37 @@ require 'drb/drb'
 
 require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
+require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 # -----------------------------------------------------------------
 
 XSPACE_VIDEO_REPOSITORY_FOLDERPATH = "/x-space/YouTube Videos"
 
 ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH = "/Volumes/EnergyGrid/Data/Pascal/YouTube Videos"
+
+class NSXAgentVideosStreamConsumptionMonitorHelper
+    # NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
+    def self.registerHit()
+        i = KeyValueStore::getOrDefaultValue(nil, "9c88426d-00c0-497c-a7f5-9fa2e042bdd6:#{NSXMiscUtils::currentDay()}", "0").to_i
+        KeyValueStore::set(nil, "9c88426d-00c0-497c-a7f5-9fa2e042bdd6:#{NSXMiscUtils::currentDay()}", i+1)
+    end
+
+    # NSXAgentVideosStreamConsumptionMonitorHelper::metric()
+    def self.metric()
+        i = KeyValueStore::getOrDefaultValue(nil, "9c88426d-00c0-497c-a7f5-9fa2e042bdd6:#{NSXMiscUtils::currentDay()}", "0").to_i
+        Math.exp(-i.to_f/20)
+    end
+end
 
 class NSXAgentVideosStreamConsumptionMonitor
 
@@ -57,7 +83,7 @@ class NSXAgentVideosStreamConsumptionMonitor
         NSXContentStore::setItem(uuid, contentStoreItem)
         scheduleStoreItem = {
             "type" => "toactivate-and-inform-agent-2d839ef7",
-            "metric" => 0.5
+            "metric" => NSXAgentVideosStreamConsumptionMonitorHelper::metric()
         }
         NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         [
@@ -89,6 +115,7 @@ class NSXAgentVideosStreamConsumptionMonitor
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
             FileUtils.rm(filepath)
+            NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
             return 
         end
     end
