@@ -71,18 +71,18 @@ class NSXCatalystObjectsOperator
         objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
 
         objects = objects
-            .reject{|object| 
-                b1 = !NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil? 
-                b2 = !object["decoration:isRunning"]
-                b1 and b2
+            .select{|object|
+                b1 = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil?
+                b2 = object["decoration:isRunning"]
+                b1 or b2
             }
 
         if !NSXMiscUtils::hasInternetCondition1121() then
             objects = objects
-                .reject{|object| 
-                    b1 = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).include?("http") 
-                    b2 = !object["decoration:isRunning"]
-                    b1 and b2
+                .select{|object|
+                    b1 = !NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).include?("http") 
+                    b2 = object["decoration:isRunning"]
+                    b1 or b2
                 }
         end
 
@@ -97,7 +97,7 @@ class NSXCatalystObjectsOperator
 
         # Now we remove any object after special object 1
         objects = objects.reduce([]) { |collection, object|
-            if collection.any?{|o| o["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" } then
+            if collection.any?{|o| o["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" } and !object["decoration:isRunning"] then
                 collection
             else
                 collection + [ object ]
