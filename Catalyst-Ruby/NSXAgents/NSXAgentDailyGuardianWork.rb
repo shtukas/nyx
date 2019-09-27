@@ -25,7 +25,7 @@ class NSXAgentDailyGuardianWork
     # NSXAgentDailyGuardianWork::getAllObjects()
     def self.getAllObjects()
         return [] if [0,6].include?(Time.new.wday)
-        return [] if Time.new.hour < 6
+        return [] if Time.new.hour < 9
         return [] if KeyValueStore::flagIsTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
         uuid = "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
         announce = "Daily Guardian Work"
