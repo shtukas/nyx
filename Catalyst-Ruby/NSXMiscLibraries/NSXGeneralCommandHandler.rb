@@ -26,7 +26,7 @@ class NSXGeneralCommandHandler
                 "next",
                 "search: <pattern>",
                 "[]                  next Lucille file",
-                ",,                  Catalyst menu",
+                "/                   Catalyst menu",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -128,7 +128,7 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == ",," then
+        if command == "/" then
             options = [
                 "new Stream Item", 
                 "new wave (repeat item)", 
@@ -238,7 +238,7 @@ class NSXGeneralCommandHandler
         return if agentuid.nil?
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
         return if agentdata.nil?
-        Object.const_get(agentinterface["agent-name"]).send("processObjectAndCommand", objectuuid, command, isLocalCommand)
+        Object.const_get(agentdata["agent-name"]).send("processObjectAndCommand", objectuuid, command, isLocalCommand)
     end
 
     # NSXGeneralCommandHandler::processCatalystCommandManager(object, command, isLocalCommand)
