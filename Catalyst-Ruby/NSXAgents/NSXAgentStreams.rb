@@ -59,6 +59,7 @@ class NSXAgentStreams
             return if !NSXRunner::isRunning?(objectuuid)
             timespanInSeconds = NSXRunner::stop(objectuuid)
             NSXRunTimes::addPoint(item["collectionuid"], Time.new.to_i, timespanInSeconds)
+            NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({
                     "instanceName" => NSXMiscUtils::instanceName(),
@@ -66,6 +67,16 @@ class NSXAgentStreams
                     "payload"      => {
                         "uuid"          => SecureRandom.hex,
                         "collectionuid" => item["collectionuid"],
+                        "unixtime"      => Time.new.to_i,
+                        "algebraicTimespanInSeconds" => timespanInSeconds
+                    }
+                })
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                    "payload"      => {
+                        "uuid"          => SecureRandom.hex,
+                        "collectionuid" => item["uuid"],
                         "unixtime"      => Time.new.to_i,
                         "algebraicTimespanInSeconds" => timespanInSeconds
                     }
@@ -109,19 +120,8 @@ class NSXAgentStreams
             return
         end
         if command == "push" then
-            options = [
-                "put to position 6 on stream",
-                "put to end of stream"
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option == "put to position 6 on stream" then
-                item["ordinal"] = NSXStreamsUtils::newPositionNOrdinalForStreamItem(item["streamuuid"], 6, item["uuid"])
-                NSXStreamsUtils::commitItemToDisk(item)
-            end
-            if option == "put to end of stream" then
-                item["ordinal"] = NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
-                NSXStreamsUtils::commitItemToDisk(item)
-            end
+            item["ordinal"] = NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
+            NSXStreamsUtils::commitItemToDisk(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return
         end
