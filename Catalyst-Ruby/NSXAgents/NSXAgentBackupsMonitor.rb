@@ -95,3 +95,13 @@ class NSXAgentBackupsMonitor
     end
 end
 
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentBackupsMonitor",
+            "agentuid"    => NSXAgentBackupsMonitor::agentuid(),
+        }
+    )
+rescue
+end
+

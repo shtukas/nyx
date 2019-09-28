@@ -177,3 +177,13 @@ class NSXAgentDesktopLucilleFile
         end
     end
 end
+
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentDesktopLucilleFile",
+            "agentuid"    => NSXAgentDesktopLucilleFile::agentuid(),
+        }
+    )
+rescue
+end

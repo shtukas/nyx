@@ -119,4 +119,13 @@ class NSXAgentVideosStreamConsumptionMonitor
     end
 end
 
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentVideosStreamConsumptionMonitor",
+            "agentuid"    => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
+        }
+    )
+rescue
+end
 

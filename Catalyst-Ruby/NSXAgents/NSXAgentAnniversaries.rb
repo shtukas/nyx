@@ -187,3 +187,13 @@ class NSXAgentAnniversaries
     end
 end
 
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentAnniversaries",
+            "agentuid"    => NSXAgentAnniversaries::agentuid(),
+        }
+    )
+rescue
+end
+

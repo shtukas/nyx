@@ -35,3 +35,12 @@ class NSXAgentTemplate
     end
 end
 
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentTemplate",
+            "agentuid"    => NSXAgentTemplate::agentuid(),
+        }
+    )
+rescue
+end

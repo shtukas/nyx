@@ -51,3 +51,13 @@ class NSXAgentDesktopFilesMonitor
         end
     end
 end
+
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentDesktopFilesMonitor",
+            "agentuid"    => NSXAgentDesktopFilesMonitor::agentuid(),
+        }
+    )
+rescue
+end

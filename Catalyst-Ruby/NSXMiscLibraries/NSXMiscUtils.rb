@@ -343,7 +343,7 @@ class NSXMiscUtils
         NSXBob::agents()
             .map{|agentinterface|
                 t1 = Time.new.to_f
-                agentinterface["get-objects"].call()
+                Object.const_get(agentinterface["agent-name"]).send("getObjects")
                 t2 = Time.new.to_f
                 object = {}
                 object["agent-name"] = agentinterface["agent-name"]

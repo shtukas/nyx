@@ -87,3 +87,13 @@ class NSXAgentVienna
         end
     end
 end
+
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentVienna",
+            "agentuid"    => NSXAgentVienna::agentuid(),
+        }
+    )
+rescue
+end

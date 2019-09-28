@@ -18,15 +18,16 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getListingObjectsFromAgents()
     def self.getListingObjectsFromAgents()
         NSXBob::agents()
-            .map{|agentinterface| agentinterface["get-objects"].call() }
+            .map{|agentinterface| Object.const_get(agentinterface["agent-name"]).send("getObjects") }
             .flatten
             .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
     end
 
+
     # NSXCatalystObjectsOperator::getAllObjectsFromAgents()
     def self.getAllObjectsFromAgents()
         NSXBob::agents()
-            .map{|agentinterface| agentinterface["get-objects-all"].call() }
+            .map{|agentinterface| Object.const_get(agentinterface["agent-name"]).send("getAllObjects") }
             .flatten
             .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
     end

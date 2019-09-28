@@ -52,3 +52,13 @@ class NSXAgentDailyGuardianWork
     end
 end
 
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentDailyGuardianWork",
+            "agentuid"    => NSXAgentDailyGuardianWork::agentuid(),
+        }
+    )
+rescue
+end
+

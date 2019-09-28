@@ -184,6 +184,16 @@ class NSXAgentDailyTimeCommitments
     end
 end
 
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentDailyTimeCommitments",
+            "agentuid"    => NSXAgentDailyTimeCommitments::agentuid(),
+        }
+    )
+rescue
+end
+
 Thread.new {
     loop {
         sleep 120

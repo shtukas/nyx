@@ -127,3 +127,13 @@ class NSXAgentStreams
         end
     end
 end
+
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentStreams",
+            "agentuid"    => NSXAgentStreams::agentuid(),
+        }
+    )
+rescue
+end

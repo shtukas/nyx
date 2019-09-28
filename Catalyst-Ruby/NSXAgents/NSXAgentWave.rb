@@ -406,3 +406,13 @@ class NSXAgentWave
     end
 end
 
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentWave",
+            "agentuid"    => NSXAgentWave::agentuid(),
+        }
+    )
+rescue
+end
+

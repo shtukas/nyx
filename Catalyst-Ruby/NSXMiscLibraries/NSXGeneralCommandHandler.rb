@@ -238,7 +238,7 @@ class NSXGeneralCommandHandler
         return if agentuid.nil?
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
         return if agentdata.nil?
-        agentdata["object-command-processor"].call(objectuuid, command, isLocalCommand)
+        Object.const_get(agentinterface["agent-name"]).send("processObjectAndCommand", objectuuid, command, isLocalCommand)
     end
 
     # NSXGeneralCommandHandler::processCatalystCommandManager(object, command, isLocalCommand)
