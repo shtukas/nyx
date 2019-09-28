@@ -16,24 +16,13 @@ class NSXDisplayUtils
         ["expose", "metadata"]
     end
 
-    # NSXDisplayUtils::agentCommands(object)
-    def self.agentCommands(object)
-        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(object["agentuid"])
-        raise "Error: 0b00c9b7" if agentdata.nil?
-        agentdata["agent-commands"].call()
-    end
-
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
-        scheduleStoreItemId = object["scheduleStoreItemId"]
-        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
-        raise "Error: e34954d5" if scheduleStoreItem.nil?
-        defaultCommand = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItemId, scheduleStoreItem)
+        defaultCommand = object["defaultCommand"]
         part2 = 
             [
                 NSXMiscUtils::hasXNote(object["uuid"]) ? nil : "note".yellow,
-                NSXScheduleStoreUtils::scheduleStoreItemToCommands(scheduleStoreItem).join(" "),
-                NSXDisplayUtils::agentCommands(object).join(" "),
+                object["commands"].join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
                 defaultCommand ? "(#{defaultCommand.green})" : nil
             ].compact.reject{|command| command=='' }.join(" ")
@@ -48,18 +37,18 @@ class NSXDisplayUtils
                 if body.lines.size>1 then
                     [
                         "\n",
-                        object["decoration:isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
+                        object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
                     ]
                 else
                     [
                         " ",
-                       (object["decoration:isRunning"] ? body.green : body),
+                       (object["isRunning"] ? body.green : body),
                     ]
                 end
             else
                 [
                     " ",
-                   (object["decoration:isRunning"] ? announce.green : announce),
+                   (object["isRunning"] ? announce.green : announce),
                 ]
             end
         }
@@ -68,14 +57,14 @@ class NSXDisplayUtils
             "\n              " + "note".green + ":\n" + NSXMiscUtils::getXNote(objectuuid).lines.first(10).map{|line| (" " * 22)+line }.join()
         }
 
-        announce = NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])
-        body = NSXContentStoreUtils::contentStoreItemIdToBodyOrNull(object['contentStoreItemId'])
+        announce = NSXContentUtils::itemToAnnounce(object['contentItem'])
+        body = NSXContentUtils::itemToBody(object['contentItem'])
         lines = 
         if isFocus then
             [
                 "[#{"*".green}#{"%2d" % displayOrdinal}]",
                 " ",
-                "(#{"%5.3f" % object["decoration:metric"]})"
+                "(#{"%5.3f" % object["metric"]})"
             ] + 
             announceOrBodyLines.call(object, announce, body) +
             [
@@ -86,9 +75,9 @@ class NSXDisplayUtils
             [
                 "[ #{"%2d" % displayOrdinal}]",
                 " ",
-                "(#{"%5.3f" % object["decoration:metric"]})",
+                "(#{"%5.3f" % object["metric"]})",
                 " ",
-                (object["decoration:isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
+                (object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
             ]
         end
         lines.join()
@@ -106,7 +95,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean
     # Return value specifies if an oject was chosen and processed
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
-        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']) })
+        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXContentUtils::itemToAnnounce(object['contentItem']) })
         return false if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
         true

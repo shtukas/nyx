@@ -138,37 +138,29 @@ class NSXAgentDesktopLucilleFile
         objects = (struct2[0]+struct2[1])
                     .map{|section|
                         uuid = LucilleFileHelper::sectionToSectionUUID(section)
-                        if NSXRunner::isRunning?(uuid) and NSXRunner::runningTimeOrNull(uuid)>=1200 then
-                        end
-                        contentStoreItem = {
+                        contentItem = {
                             "type" => "line-and-body",
                             "line" => "Lucille: #{section.strip.lines.first}",
                             "body" => "Lucille:\n#{section.strip}"
                         }
-                        NSXContentStore::setItem(uuid, contentStoreItem)
-                        scheduleStoreItem = {
-                            "type" => "todo-and-inform-agent-11b30518",
-                            "metric" => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
-                        }
-                        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
                         {
-                            "uuid"                => uuid,
-                            "agentuid"            => NSXAgentDesktopLucilleFile::agentuid(),
-                            "contentStoreItemId"  => uuid,
-                            "scheduleStoreItemId" => uuid,
-                            "section"             => section
+                            "uuid"           => uuid,
+                            "agentuid"       => NSXAgentDesktopLucilleFile::agentuid(),
+                            "contentItem"    => contentItem,
+                            "metric"         => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
+                            "commands"       => ["done", ">stream"],
+                            "defaultCommand" => "done",
+                            "section"        => section
                         }
                     }
         objects
     end
 
-    def self.getCommands()
-        [">stream"]
-    end
-
     # NSXAgentDesktopLucilleFile::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "done" then
+            # The objectuuid is the sectionuuid, so there is not need to look the object up
+            # to extract the sectionuuids
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(objectuuid)
             return
         end

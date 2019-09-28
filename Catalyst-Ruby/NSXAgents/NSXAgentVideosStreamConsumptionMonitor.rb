@@ -82,29 +82,21 @@ class NSXAgentVideosStreamConsumptionMonitor
         return [] if filepath.nil?
         uuid = "f7845869-e058-44cd-bfae-3412957c7dba"
         announce = "YouTube Video Stream"
-        contentStoreItem = {
+        contentItem = {
             "type" => "line",
             "line" => announce
         }
-        NSXContentStore::setItem(uuid, contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "toactivate-and-inform-agent-2d839ef7",
-            "metric" => NSXAgentVideosStreamConsumptionMonitorHelper::metric()
-        }
-        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         [
             {
-                "uuid"               => uuid,
-                "agentuid"           => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
-                "contentStoreItemId"  => uuid,
-                "scheduleStoreItemId" => uuid,
+                "uuid"                => uuid,
+                "agentuid"            => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
+                "contentItem"         => contentItem,
+                "metric"              => NSXAgentVideosStreamConsumptionMonitorHelper::metric(),
+                "commands"            => ["activate"],
+                "defaultCommand"      => "activate",
                 "agent:meta:filepath" => filepath
             }
         ]
-    end
-
-    def self.getCommands()
-        []
     end
 
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)

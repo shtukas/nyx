@@ -120,7 +120,7 @@ class NSXGeneralCommandHandler
             loop {
                 objects = NSXCatalystObjectsOperator::getAllObjectsFromAgents()
                 searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = objects.select{|object| NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).downcase.include?(pattern.downcase) }
+                searchobjects2 = objects.select{|object| NSXContentUtils::itemToAnnounce(object['contentItem']).downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status
@@ -184,8 +184,8 @@ class NSXGeneralCommandHandler
             end
         end
 
-        if command == '..' and object["decoration:defaultCommand"] then
-            NSXGeneralCommandHandler::processCatalystCommandManager(object, object["decoration:defaultCommand"], isLocalCommand)
+        if command == '..' and object["defaultCommand"] then
+            NSXGeneralCommandHandler::processCatalystCommandManager(object, object["defaultCommand"], isLocalCommand)
             return
         end
 
@@ -226,92 +226,6 @@ class NSXGeneralCommandHandler
 
         if command == "metadata" then
             NSXMetaDataStore::uiEditCatalystObjectMetadata(object)
-        end
-
-        # ---------------------------------------
-        # Schedule Store Item
-        # ---------------------------------------
-
-        scheduleStoreItemId = object["scheduleStoreItemId"]
-        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
-
-        return if scheduleStoreItem.nil?
-
-        if scheduleStoreItem["type"] == "todo-and-inform-agent-11b30518" then
-
-        end
-        if scheduleStoreItem["type"] == "toactivate-and-inform-agent-2d839ef7" then
-
-        end
-        if scheduleStoreItem["type"] == "wave-item-dc583ed2" then
-
-        end
-        if scheduleStoreItem["type"] == "stream-item-7e37790b" then
-            if command == "start" then
-                return if NSXRunner::isRunning?(scheduleStoreItemId)
-                NSXRunner::start(scheduleStoreItemId)
-                return
-            end
-            if command == "stop" then
-                return if !NSXRunner::isRunning?(scheduleStoreItemId)
-                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
-                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
-                if isLocalCommand then
-                    NSXMultiInstancesWrite::sendEventToDisk({
-                        "instanceName" => NSXMiscUtils::instanceName(),
-                        "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                        "payload"      => {
-                            "uuid"          => SecureRandom.hex,
-                            "collectionuid" => scheduleStoreItem["collectionuid"],
-                            "unixtime"      => Time.new.to_i,
-                            "algebraicTimespanInSeconds" => timespanInSeconds
-                        }
-                    })
-                end
-                return
-            end
-        end
-        if scheduleStoreItem["type"] == "24h-sliding-time-commitment-da8b7ca8" then
-            if command == "start" then
-                return if NSXRunner::isRunning?(scheduleStoreItemId)
-                NSXRunner::start(scheduleStoreItemId)
-                return
-            end
-            if command == "stop" then
-                return if !NSXRunner::isRunning?(scheduleStoreItemId)
-                timespanInSeconds = NSXRunner::stop(scheduleStoreItemId)
-                NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
-                if isLocalCommand then
-                    NSXMultiInstancesWrite::sendEventToDisk({
-                        "instanceName" => NSXMiscUtils::instanceName(),
-                        "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                        "payload"      => {
-                            "uuid"          => SecureRandom.hex,
-                            "collectionuid" => scheduleStoreItem["collectionuid"],
-                            "unixtime"      => Time.new.to_i,
-                            "algebraicTimespanInSeconds" => timespanInSeconds
-                        }
-                    })
-                end
-                metadata = NSXMetaDataStore::get(object["uuid"])
-                (metadata["runtimes-targets-1738"] || [])
-                    .each{|timetargetuid|
-                        NSXRunTimes::addPoint(timetargetuid, Time.new.to_i, timespanInSeconds)
-                        if isLocalCommand then
-                            NSXMultiInstancesWrite::sendEventToDisk({
-                                "instanceName" => NSXMiscUtils::instanceName(),
-                                "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                                "payload"      => {
-                                    "uuid"          => SecureRandom.hex,
-                                    "collectionuid" => timetargetuid,
-                                    "unixtime"      => Time.new.to_i,
-                                    "algebraicTimespanInSeconds" => timespanInSeconds
-                                }
-                            })
-                        end
-                    }
-                return
-            end
         end
 
         # ---------------------------------------

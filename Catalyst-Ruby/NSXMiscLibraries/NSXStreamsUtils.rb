@@ -269,27 +269,20 @@ class NSXStreamsUtils
     def self.itemToCatalystObject(item)
         announce = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
         body = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
-        contentStoreItem = {
+        contentItem = {
             "type" => "line-and-body",
             "line" => announce,
             "body" => body
         }
-        NSXContentStore::setItem(item["uuid"], contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "stream-item-7e37790b",
-            "collectionuid"            => item["streamuuid"], # The item contributes to the stream
-            "ordinal"                  => item["ordinal"],
-            "commitmentInHours"        => NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"]),
-            "stabilityPeriodInSeconds" => 86400,
-            "metricAtZero"             => NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"]),
-            "metricAtTarget"           => NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"])-0.1
-        }
-        NSXScheduleStore::setItem(item["uuid"], scheduleStoreItem)
+        metric = NSXRunMetrics::metric1(NSXRunTimes::getPoints(item["streamuuid"]), NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"])*3600, NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"]), NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"])-0.1) + Math.exp(-item["ordinal"].to_f/100).to_f/100
         object = {}
-        object["uuid"] = item["uuid"]
-        object["agentuid"] = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
-        object["contentStoreItemId"] = item["uuid"]
-        object["scheduleStoreItemId"] = item["uuid"]
+        object["uuid"]           = item["uuid"]
+        object["agentuid"]       = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
+        object["contentItem"]    = contentItem
+        object["metric"]         = metric
+        object["commands"]       = ["start", "stop", "open", "folder", "done", "recast", "push"]
+        object["defaultCommand"] = NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start"
+        object["isRunning"]      = NSXRunner::isRunning?(item["uuid"])
         object
     end
 

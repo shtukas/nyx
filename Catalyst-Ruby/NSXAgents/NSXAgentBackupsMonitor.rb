@@ -49,22 +49,17 @@ class NSXAgentBackupsMonitor
         return nil if !NSXAgentBackupsMonitor::scriptNameToIsDueFlag(scriptname)
         uuid = Digest::SHA1.hexdigest("60507ff5-adce-4444-9e57-c533efb01136:#{scriptname}")
         announce = "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}"
-        contentStoreItem = {
+        contentItem = {
             "type" => "line",
             "line" => announce
         }
-        NSXContentStore::setItem(uuid, contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "todo-and-inform-agent-11b30518",
-            "metric" => 0.53
-        }
-        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {
-            "uuid"                => uuid,
-            "agentuid"            => NSXAgentBackupsMonitor::agentuid(),
-            "contentStoreItemId"  => uuid,
-            "scheduleStoreItemId" => uuid,
-            "service-port"        => 12345
+            "uuid"         => uuid,
+            "agentuid"     => NSXAgentBackupsMonitor::agentuid(),
+            "contentItem"  => contentItem,
+            "metric"       => 0.53,
+            "commands"     => ["done"],
+            "service-port" => 12345
         }
     end
 
@@ -82,14 +77,20 @@ class NSXAgentBackupsMonitor
             .compact
     end
 
-    def self.getCommands()
-        []
+    # NSXAgentBackupsMonitor::getObjectByUUIDOrNull(objectuuid)
+    def self.getObjectByUUIDOrNull(objectuuid)
+        NSXAgentBackupsMonitor::getAllObjects()
+            .select{|object| object["uuid"] == objectuuid }
+            .first
     end
 
     # NSXAgentBackupsMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "open" then
-            return 
+            return
+        end
+        if command == "done" then
+            return
         end
     end
 end

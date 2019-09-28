@@ -55,6 +55,8 @@ ExtendedEvent
 
 $NSXAgentAnniversariesgetWeekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
 
+NSXAgentAnniversariesObjectUUID = "eace4480-b93c-4b2f-bfb4-600f300812d3"
+
 class NSXAgentAnniversaries
 
     # NSXAgentAnniversaries::agentuid()
@@ -65,10 +67,6 @@ class NSXAgentAnniversaries
     # NSXAgentAnniversaries::getObjects()
     def self.getObjects()
         NSXAgentAnniversaries::getAllObjects()
-    end
-
-    def self.getCommands()
-        []
     end
 
     def self.getEventLines()
@@ -158,22 +156,18 @@ class NSXAgentAnniversaries
     # NSXAgentAnniversaries::getAllObjects()
     def self.getAllObjects()
         return [] if NSXAgentAnniversaries::getNs1203WithOutstandingSequenceElements().empty?
-        uuid  = "eace4480-b93c-4b2f-bfb4-600f300812d3"
-        contentStoreItem = {
+        uuid  = NSXAgentAnniversariesObjectUUID
+        contentItem = {
             "type" => "line",
             "line" => "anniversaries"
         }
-        NSXContentStore::setItem(uuid, contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "toactivate-and-inform-agent-2d839ef7",
-            "metric" => 0.95
-        }
-        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         object = {
-            "uuid"      => uuid,
-            "agentuid"  => NSXAgentAnniversaries::agentuid(),
-            "contentStoreItemId"  => uuid,
-            "scheduleStoreItemId" => uuid
+            "uuid"           => uuid,
+            "agentuid"       => NSXAgentAnniversaries::agentuid(),
+            "contentItem"    => contentItem,
+            "metric"         => 0.95,
+            "commands"       => ["activate"],
+            "defaultCommand" => "activate",
         }
         [object]
     end

@@ -50,18 +50,6 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::addObjectDecorations(object)
     def self.addObjectDecorations(object)
-        scheduleStoreItemId = object["scheduleStoreItemId"]
-        scheduleStoreItem = NSXScheduleStore::getItemOrNull(scheduleStoreItemId)
-        object["decoration:metric"] = NSXScheduleStoreUtils::metric(scheduleStoreItemId)
-        object["decoration:scheduleStoreItem"] = scheduleStoreItem
-        object["decoration:defaultCommand"] = NSXScheduleStoreUtils::scheduleStoreItemToDefaultCommandOrNull(scheduleStoreItemId, scheduleStoreItem)
-        object["decoration:isRunning"] = NSXScheduleStoreUtils::isRunning(scheduleStoreItemId)
-        object["decoration:RunTimesPoints"] = NSXRunTimes::getPoints(scheduleStoreItem["collectionuid"])
-            .map{|point|
-                point["datetime"] = Time.at(point["unixtime"]).to_s
-                point
-            }
-            .sort{|p1, p2| p1["unixtime"]<=>p2["unixtime"] }
         object["decoration:metadata"] = NSXMetaDataStore::get(object["uuid"])
         object
     end
@@ -73,31 +61,31 @@ class NSXCatalystObjectsOperator
         objects = objects
             .select{|object|
                 b1 = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil?
-                b2 = object["decoration:isRunning"]
+                b2 = object["isRunning"]
                 b1 or b2
             }
 
         if !NSXMiscUtils::hasInternetCondition1121() then
             objects = objects
                 .select{|object|
-                    b1 = !NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId']).include?("http") 
-                    b2 = object["decoration:isRunning"]
+                    b1 = !NSXContentUtils::itemToAnnounce(object['contentItem']).include?("http") 
+                    b2 = object["isRunning"]
                     b1 or b2
                 }
         end
 
         objects = objects
             .select{|object|
-                b1 = object['decoration:metric'] >= 0.2
-                b2 = object["decoration:isRunning"]
+                b1 = object['metric'] >= 0.2
+                b2 = object["isRunning"]
                 b1 or b2
             }
-            .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 
         # Now we remove any object after special object 1
         objects = objects.reduce([]) { |collection, object|
-            if collection.any?{|o| o["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" } and !object["decoration:isRunning"] then
+            if collection.any?{|o| o["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" } and !object["isRunning"] then
                 collection
             else
                 collection + [ object ]
@@ -105,7 +93,7 @@ class NSXCatalystObjectsOperator
         }
 
         objects = objects
-            .sort{|o1, o2| o1["decoration:metric"]<=>o2["decoration:metric"] }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 
         objects.each{|object|
@@ -125,7 +113,7 @@ class NSXCatalystObjectsOperator
         .each{|object|
             if object["isDone"] then
                 sleep 2
-                NSXMiscUtils::onScreenNotification("Catalyst", "[done] #{NSXContentStoreUtils::contentStoreItemIdToAnnounceOrNull(object['contentStoreItemId'])}")
+                NSXMiscUtils::onScreenNotification("Catalyst", "[done] #{NSXContentUtils::itemToAnnounce(object['contentItem'])}")
             end
         }
     end

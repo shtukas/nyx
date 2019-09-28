@@ -29,32 +29,25 @@ class NSXAgentDesktopFilesMonitor
         return [] if !NSXAgentDesktopFilesMonitor::shouldAlert()
         uuid = "78558e33-68b0-4fc4-b7c5-b69192ea4f1c"
         announce = "Seeing too many files on the Desktop"
-        contentStoreItem = {
+        contentItem = {
             "type" => "line",
             "line" => announce
         }
-        NSXContentStore::setItem(uuid, contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "todo-and-inform-agent-11b30518",
-            "metric" => 0.95
-        }
-        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         [
             {
-                "uuid"               => uuid,
-                "agentuid"           => NSXAgentDesktopFilesMonitor::agentuid(),
-                "contentStoreItemId"  => uuid,
-                "scheduleStoreItemId" => uuid,
+                "uuid"        => uuid,
+                "agentuid"    => NSXAgentDesktopFilesMonitor::agentuid(),
+                "contentItem" => contentItem,
+                "metric"      => 0.95,
+                "commands"    => ["done"]
             }
         ]
     end
 
-    def self.getCommands()
-        []
-    end
-
     # NSXAgentDesktopFilesMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-
+        if command == "done" then
+            # The only way to done this item is to clean the Desktop.
+        end
     end
 end

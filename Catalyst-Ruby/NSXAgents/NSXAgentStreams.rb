@@ -39,14 +39,40 @@ class NSXAgentStreams
         NSXStreamsUtils::getAllCatalystObjects()
     end
 
-    def self.getCommands()
-        ["open", "folder", "done", "recast", "push"]
+    # NSXAgentStreams::getObjectByUUIDOrNull(objectuuid)
+    def self.getObjectByUUIDOrNull(objectuuid)
+        NSXAgentStreams::getAllObjects()
+            .select{|object| object["uuid"] == objectuuid }
+            .first
     end
 
     # NSXAgentStreams::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         item = NSXStreamsUtils::getItemByUUIDOrNull(objectuuid)
         return if item.nil?
+        if command == "start" then
+            return if NSXRunner::isRunning?(objectuuid)
+            NSXRunner::start(objectuuid)
+            return
+        end
+        if command == "stop" then
+            return if !NSXRunner::isRunning?(objectuuid)
+            timespanInSeconds = NSXRunner::stop(objectuuid)
+            NSXRunTimes::addPoint(item["collectionuid"], Time.new.to_i, timespanInSeconds)
+            if isLocalCommand then
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                    "payload"      => {
+                        "uuid"          => SecureRandom.hex,
+                        "collectionuid" => item["collectionuid"],
+                        "unixtime"      => Time.new.to_i,
+                        "algebraicTimespanInSeconds" => timespanInSeconds
+                    }
+                })
+            end
+            return
+        end
         if command == "open" then
             genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
             if genericContentItem then

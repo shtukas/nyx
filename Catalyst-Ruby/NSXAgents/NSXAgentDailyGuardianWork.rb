@@ -29,26 +29,18 @@ class NSXAgentDailyGuardianWork
         return [] if KeyValueStore::flagIsTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
         uuid = "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
         announce = "Daily Guardian Work"
-        contentStoreItem = {
+        contentItem = {
             "type" => "line",
             "line" => announce
         }
-        NSXContentStore::setItem(uuid, contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "todo-and-inform-agent-11b30518",
-            "metric" => 0.60
-        }
-        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         object = {}
-        object["uuid"] = uuid
-        object["agentuid"] = "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
-        object["contentStoreItemId"] = uuid
-        object["scheduleStoreItemId"] = uuid
+        object["uuid"]           = uuid
+        object["agentuid"]       = "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
+        object["contentItem"]    = contentItem
+        object["metric"]         = 0.60
+        object["commands"]       = ["done"]
+        object["defaultCommand"] = nil
         [object]
-    end
-
-    def self.getCommands()
-        []
     end
 
     # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command, isLocalCommand)

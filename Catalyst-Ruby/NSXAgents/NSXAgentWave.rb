@@ -275,21 +275,17 @@ class NSXAgentWaveUtils
         end
         folderProbeMetadata = NSXFolderProbe::folderpath2metadata(location)
         announce = NSXAgentWaveUtils::objectUUIDToAnnounce(folderProbeMetadata, schedule)
-        contentStoreItem = {
+        contentItem = {
             "type" => "line",
             "line" => announce
         }
-        NSXContentStore::setItem(objectuuid, contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "wave-item-dc583ed2",
-            "wave-schedule" => schedule
-        }
-        NSXScheduleStore::setItem(objectuuid, scheduleStoreItem)
         object = {}
         object['uuid'] = objectuuid
         object["agentuid"] = NSXAgentWave::agentuid()
-        object["contentStoreItemId"] = objectuuid
-        object["scheduleStoreItemId"] = objectuuid
+        object["contentItem"] = contentItem
+        object["metric"] = NSXAgentWaveUtils::scheduleToMetric(schedule)
+        object["commands"] = ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "folder", "destroy"]
+        object["defaultCommand"] = "done"
         object['schedule'] = schedule
         object["item-data"] = {}
         object["item-data"]["folderpath"] = location
@@ -332,10 +328,6 @@ class NSXAgentWave
     def self.getAllObjects()
         NSXAgentWaveUtils::catalystUUIDsEnumerator()
             .map{|uuid| NSXAgentWaveUtils::makeCatalystObjectOrNull(uuid) }
-    end
-
-    def self.getCommands()
-        ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "folder", "destroy"]
     end
 
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)

@@ -59,25 +59,18 @@ class NSXAgentDailyTimeCommitmentsHelpers
         uuid = entry["uuid"]
         collectionValue = ( NSXRunner::runningTimeOrNull(entry["uuid"]) || 0 ) + NSXRunTimes::getPoints(uuid).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
         announce = "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(2)} hours)"
-        contentStoreItem = {
+        contentItem = {
             "type" => "line",
             "line" => announce
         }
-        NSXContentStore::setItem(uuid, contentStoreItem)
-        scheduleStoreItem = {
-            "type" => "24h-sliding-time-commitment-da8b7ca8",
-            "collectionuid"            => uuid,
-            "commitmentInHours"        => entry["commitmentInHours"],
-            "stabilityPeriodInSeconds" => 86400,
-            "metricAtZero"             => 0.8,
-            "metricAtTarget"           => 0.3
-        }
-        NSXScheduleStore::setItem(uuid, scheduleStoreItem)
         {
             "uuid"                => uuid,
             "agentuid"            => NSXAgentDailyTimeCommitments::agentuid(),
-            "contentStoreItemId"  => uuid,
-            "scheduleStoreItemId" => uuid
+            "contentItem"         => contentItem,
+            "metric"              => NSXRunMetrics::metric1(NSXRunTimes::getPoints(uuid), entry["commitmentInHours"]*3600, 0.8, 0.3),
+            "commands"            => ["start", "stop"],
+            "defaultCommand"      => NSXRunner::isRunning?(uuid) ? "stop" : "start",
+            "isRunning"           => NSXRunner::isRunning?(uuid)
         }
     end
 
@@ -139,13 +132,54 @@ class NSXAgentDailyTimeCommitments
             .map{|entry| NSXAgentDailyTimeCommitmentsHelpers::entryToCatalystObject(entry) }
     end
 
-    def self.getCommands()
-        []
+    # NSXAgentDailyTimeCommitments::getObjectByUUIDOrNull(objectuuid)
+    def self.getObjectByUUIDOrNull(objectuuid)
+        NSXAgentDailyTimeCommitments::getAllObjects()
+            .select{|object| object["uuid"] == objectuuid }
+            .first
     end
 
     # NSXAgentDailyTimeCommitments::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        if command == "" then
+        if command == "start" then
+            return if NSXRunner::isRunning?(objectuuid)
+            NSXRunner::start(objectuuid)
+            return
+        end
+        if command == "stop" then
+            return if !NSXRunner::isRunning?(objectuuid)
+            timespanInSeconds = NSXRunner::stop(objectuuid)
+            NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
+            if isLocalCommand then
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                    "payload"      => {
+                        "uuid"          => SecureRandom.hex,
+                        "collectionuid" => scheduleStoreItem["collectionuid"],
+                        "unixtime"      => Time.new.to_i,
+                        "algebraicTimespanInSeconds" => timespanInSeconds
+                    }
+                })
+            end
+            metadata = NSXMetaDataStore::get(object["uuid"])
+            (metadata["runtimes-targets-1738"] || [])
+                .each{|timetargetuid|
+                    NSXRunTimes::addPoint(timetargetuid, Time.new.to_i, timespanInSeconds)
+                    if isLocalCommand then
+                        NSXMultiInstancesWrite::sendEventToDisk({
+                            "instanceName" => NSXMiscUtils::instanceName(),
+                            "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                            "payload"      => {
+                                "uuid"          => SecureRandom.hex,
+                                "collectionuid" => timetargetuid,
+                                "unixtime"      => Time.new.to_i,
+                                "algebraicTimespanInSeconds" => timespanInSeconds
+                            }
+                        })
+                    end
+                }
+            return
         end
     end
 end
