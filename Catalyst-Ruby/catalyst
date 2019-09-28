@@ -50,9 +50,9 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 # nslog
 
-# NSXMiscUtils::traceToMetricShift(trace)
-
 # -------------------------------------------------------------------------
+
+NSXEstateServices::archivesTimelineGarbageCollectionEnvelop(true)
 
 Thread.new {
     loop {
@@ -68,6 +68,6 @@ Thread.new {
     }
 }
 
-# -------------------------------------------------------------------------
-
 NSXCatalystUI::standardUILoop()
+
+# -------------------------------------------------------------------------
