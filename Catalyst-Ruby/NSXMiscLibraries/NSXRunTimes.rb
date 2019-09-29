@@ -48,26 +48,19 @@ class NSXRunTimes
         BTreeSets::values(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}")
     end
 
+    # NSXRunTimes::getPointsWithExponentialCorrection(collectionuid, timespanInSecondsForExponentialMinus1)
+    def self.getPointsWithExponentialCorrection(collectionuid, timespanInSecondsForExponentialMinus1)
+        NSXRunTimes::getPoints(collectionuid)
+        .map{|point|
+            point["algebraicTimespanInSeconds"] = point["algebraicTimespanInSeconds"]*Math.exp( -(Time.new.to_f-point["unixtime"]).to_f/timespanInSecondsForExponentialMinus1 )
+            point
+        }
+    end
+
     # NSXRunTimes::linearMap(x1, y1, x2, y2, x)
     def self.linearMap(x1, y1, x2, y2, x)
         slope = (y2-y1).to_f/(x2-x1)
         (x-x1)*slope + y1
-    end
-
-    # NSXRunTimes::algebraicSimplification(collectionuid, stabilityPeriodInSeconds)
-    def self.algebraicSimplification(collectionuid, stabilityPeriodInSeconds)
-        points = NSXRunTimes::getPoints(collectionuid)
-            .select{|point| point["unixtime"] < (Time.new.to_i - stabilityPeriodInSeconds) }
-
-        algebraicTimespanInSeconds = points
-            .map{|point| point["algebraicTimespanInSeconds"] }
-            .inject(0, :+)
-
-        NSXRunTimes::addPoint(collectionuid, Time.new.to_i - stabilityPeriodInSeconds, algebraicTimespanInSeconds)
-
-        points.each{|point|
-            BTreeSets::destroy(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", point["uuid"])
-        }
     end
 
 end
