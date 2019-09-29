@@ -106,6 +106,18 @@ class NSXCatalystObjectsOperator
             end
         }
 
+        # Now we do not display any non Inbox object if it comes later than an inbox object.
+        objects = objects.reduce([]) { |collection, object|
+            isInboxObject = lambda{|obj|
+                (obj["agentuid"] == NSXAgentStreams::agentuid()) and obj["contentItem"]["line"].include?("Inbox")
+            }
+            if object["isRunning"] or isInboxObject.call(object) or (!isInboxObject.call(object) and collection.none?{|o| isInboxObject.call(o)}) then
+                collection + [ object ]
+            else
+                collection
+            end
+        }
+
         objects = objects
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
