@@ -93,6 +93,19 @@ class NSXCatalystObjectsOperator
             end
         }
 
+        # Now we do not add any stream object if it comes later than a non stream object
+        objects = objects.reduce([]) { |collection, object|
+            b1 = object["isRunning"]
+            b2 = object["agentuid"] != NSXAgentStreams::agentuid()
+            b3 = ((object["agentuid"] == NSXAgentStreams::agentuid()) and collection.none?{|o| o["agentuid"] != NSXAgentStreams::agentuid()})
+            b4 = ((object["agentuid"] == NSXAgentStreams::agentuid()) and object["contentItem"]["line"].include?("Inbox"))
+            if b1 or b2 or b3 or b4 then
+                collection + [ object ]
+            else
+                collection
+            end
+        }
+
         objects = objects
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
