@@ -27,6 +27,7 @@ class NSXGeneralCommandHandler
                 "search: <pattern>",
                 "[]                  next Lucille file",
                 "/                   Catalyst menu",
+                "nyx                 nyx-search",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -167,6 +168,10 @@ class NSXGeneralCommandHandler
                 LucilleFileHelper::applyNextTransformationToLucilleFile()
                 return
             end
+        end
+
+        if command == "nyx" then
+            system("/Galaxy/LucilleOS/Nyx/nyx-search")
         end
 
         # ---------------------------------------
