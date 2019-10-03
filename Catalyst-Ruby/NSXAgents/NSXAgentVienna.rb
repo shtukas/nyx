@@ -70,7 +70,7 @@ class NSXAgentVienna
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
-            NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", NSXGenericContents::issueItemURL(link), NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
+            NSXStreamsUtils::issueNewStreamItem("38d5658ed46c4daf0ec064e58fb2b97a", NSXGenericContents::issueItemURL(link), NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
             $viennaLinkFeeder.done(link)
         }
         []
