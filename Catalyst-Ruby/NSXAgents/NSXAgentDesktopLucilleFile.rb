@@ -61,7 +61,7 @@ class LucilleFileHelper
     # LucilleFileHelper::struct2ToFileContent(struct2)
     def self.struct2ToFileContent(struct2)
         [
-            struct2[0].join().strip,
+            struct2[0].join("\n").strip,
             "\n\n",
             LUCILLE_FILE_MARKER,
             "\n\n",
