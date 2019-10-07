@@ -24,6 +24,7 @@ class NSXCatalystUI
         nextContents = IO.read("/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt")
                             .strip
                             .lines
+                            .select{|line| line.strip.size>0 }
                             .take_while{|line| !line.start_with?(LUCILLE_FILE_MARKER) }
                             .first(10)
                             .join
