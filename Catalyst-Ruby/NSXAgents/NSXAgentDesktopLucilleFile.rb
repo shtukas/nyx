@@ -43,7 +43,7 @@ class LucilleFileHelper
 
     # LucilleFileHelper::sectionToSectionUUID(section)
     def self.sectionToSectionUUID(section)
-        Digest::SHA1.hexdigest(section)[0, 8]
+        Digest::SHA1.hexdigest(section.strip)[0, 8]
     end
 
     # LucilleFileHelper::fileContentsToStruct1(content) : [Part, Part]
