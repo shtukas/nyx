@@ -145,23 +145,23 @@ class NSXAgentWaveUtils
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? 0.95 : 0
+            return Time.new.hour >= schedule['from-hour'] ? ( 0.95 + NSXMiscUtils::traceToMetricShift(schedule["uuid"]) ) : 0
         end
 
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.65
+            return 0.65 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.65
+            return 0.65 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.63
+            return 0.63 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.52
+            return 0.52 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
         1
     end
