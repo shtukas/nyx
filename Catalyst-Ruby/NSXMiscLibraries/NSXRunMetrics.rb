@@ -45,12 +45,18 @@ class NSXRunMetrics
         NSXRunMetrics::linearMap(x1, y1, x2, y2, x)
     end
 
+    # NSXRunMetrics::metric1Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric1Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+        [
+            NSXRunMetrics::metric1Core(points, targetTimeInSeconds*3, periodInSeconds*3, metricAtZero, metricAtTarget),
+            NSXRunMetrics::metric1Core(points, targetTimeInSeconds*2, periodInSeconds*2, metricAtZero, metricAtTarget),
+            NSXRunMetrics::metric1Core(points, targetTimeInSeconds*1, periodInSeconds*1, metricAtZero, metricAtTarget)
+        ]
+    end
+
     # NSXRunMetrics::metric1(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
     def self.metric1(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-        m1 = NSXRunMetrics::metric1Core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-        m2 = NSXRunMetrics::metric1Core(points, targetTimeInSeconds*2, periodInSeconds*2, metricAtZero, metricAtTarget)
-        m3 = NSXRunMetrics::metric1Core(points, targetTimeInSeconds*3, periodInSeconds*3, metricAtZero, metricAtTarget)
-       [m1, m2, m3].min
+        NSXRunMetrics::metric1Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
     end
 end
 

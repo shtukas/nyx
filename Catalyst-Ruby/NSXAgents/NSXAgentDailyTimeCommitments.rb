@@ -77,7 +77,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
             "agentuid"            => NSXAgentDailyTimeCommitments::agentuid(),
             "contentItem"         => contentItem,
             "metric"              => metric,
-            "commands"            => ["start", "stop", "numbers"],
+            "commands"            => ["start", "stop"],
             "defaultCommand"      => NSXRunner::isRunning?(uuid) ? "stop" : "start",
             "isRunning"           => NSXRunner::isRunning?(uuid)
         }
@@ -171,7 +171,7 @@ class NSXAgentDailyTimeCommitments
                     }
                 })
             end
-            metadata = NSXMetaDataStore::get(object["uuid"])
+            metadata = NSXMetaDataStore::get(objectuuid)
             (metadata["runtimes-targets-1738"] || [])
                 .each{|timetargetuid|
                     NSXRunTimes::addPoint(timetargetuid, Time.new.to_i, timespanInSeconds)
@@ -188,15 +188,6 @@ class NSXAgentDailyTimeCommitments
                         })
                     end
                 }
-            return
-        end
-        if command == "numbers" then
-            entry = NSXAgentDailyTimeCommitmentsHelpers::getEntryByUUIDOrNull(objectuuid)
-            puts "live value: #{(NSXRunner::runningTimeOrNull(entry["uuid"]) || 0) + NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)}"
-
-            runPoints = NSXRunTimes::getPoints(objectuuid)
-            puts "metric: #{NSXRunMetrics::metric1(runPoints, entry["commitmentInHours"]*3600, 86400, 0.8, 0.3)}"
-            LucilleCore::pressEnterToContinue()
             return
         end
     end
