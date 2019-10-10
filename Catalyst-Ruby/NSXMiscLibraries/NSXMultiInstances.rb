@@ -8,7 +8,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 MULTIINSTANCE_LOG_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Activity-Log"
 

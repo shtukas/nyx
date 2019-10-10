@@ -21,9 +21,9 @@ require 'find'
 require 'drb/drb'
 require 'thread'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)

@@ -3,7 +3,7 @@
 # encoding: UTF-8
 require 'json'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)
@@ -20,7 +20,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/SectionsType0141.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/SectionsType0141.rb"
 # SectionsType0141::contentToSections(reminaingLines: Array[String])
 
 require 'digest/sha1'

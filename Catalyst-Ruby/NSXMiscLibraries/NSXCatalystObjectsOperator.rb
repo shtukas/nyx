@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)

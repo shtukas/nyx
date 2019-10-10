@@ -11,7 +11,7 @@ require 'json'
 
 require 'find'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
 KeyValueStore::set(repositorylocation or nil, key, value)
 KeyValueStore::getOrNull(repositorylocation or nil, key)
@@ -269,13 +269,14 @@ class NSXStreamsUtils
     def self.itemToMetric(item)
         m1 = 
             NSXRunMetrics::metric1(
-                NSXRunTimes::getPointsWithExponentialCorrection(item["streamuuid"], 86400*3), 
-                NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"])*3600, 
+                NSXRunTimes::getPoints(item["streamuuid"]), 
+                NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"])*3600,
+                86400,
                 NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"]), 
                 NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"])-0.1
             )
         m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        m3 = NSXRunMetrics::metric1(NSXRunTimes::getPointsWithExponentialCorrection(item["uuid"], 86400*3), 3600, 0, -0.2)
+        m3 = NSXRunMetrics::metric1(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.2)
         m1 + m2 + m3
     end
 

@@ -15,7 +15,7 @@ require 'mail'
 
 require 'find'
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # ----------------------------------------------------------------------
 

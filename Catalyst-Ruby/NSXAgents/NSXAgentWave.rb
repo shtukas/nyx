@@ -21,8 +21,8 @@ require 'drb/drb'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)

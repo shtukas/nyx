@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 require 'json'
 require 'date'
 require 'digest/sha1'
@@ -23,7 +23,7 @@ require 'json'
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 # -------------------------------------------------------------------------------------
 

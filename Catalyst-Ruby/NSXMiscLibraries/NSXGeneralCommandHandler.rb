@@ -171,7 +171,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == "nyx" then
-            system("/Galaxy/LucilleOS/Nyx/nyx-search")
+            system("/Users/pascal/Galaxy/LucilleOS/Nyx/nyx-search")
         end
 
         # ---------------------------------------

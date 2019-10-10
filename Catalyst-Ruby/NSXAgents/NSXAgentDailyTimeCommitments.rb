@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
@@ -9,7 +9,7 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 require "time"
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/BTreeSets.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/BTreeSets.rb"
 =begin
     BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
     BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
@@ -17,7 +17,7 @@ require "/Galaxy/Software/Misc-Common/Ruby-Libraries/BTreeSets.rb"
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
-require "/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)
@@ -48,6 +48,13 @@ class NSXAgentDailyTimeCommitmentsHelpers
         JSON.parse(IO.read("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Daily-Time-Commitments/entries.json"))
     end
 
+    # NSXAgentDailyTimeCommitments::getEntryByUUIDOrNull(uuid)
+    def self.getEntryByUUIDOrNull(uuid)
+        NSXAgentDailyTimeCommitmentsHelpers::getEntries()
+            .select{|entry| entry["uuid"] == uuid }
+            .first
+    end
+
     # NSXAgentDailyTimeCommitmentsHelpers::baseMetric()
     def self.baseMetric() # for the moment only the base metric
         return 0.85 if Time.new.hour < 9
@@ -57,19 +64,20 @@ class NSXAgentDailyTimeCommitmentsHelpers
     # NSXAgentDailyTimeCommitmentsHelpers::entryToCatalystObject(entry)
     def self.entryToCatalystObject(entry)
         uuid = entry["uuid"]
-        runPoints = NSXRunTimes::getPointsWithExponentialCorrection(uuid, 86400*3)
+        runPoints = NSXRunTimes::getPoints(uuid)
         collectionValue = ( NSXRunner::runningTimeOrNull(uuid) || 0 ) + runPoints.map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
         announce = "Daily Time Commitment: #{entry["description"]} (commitment: #{entry["commitmentInHours"]} hours; done: #{collectionValue.to_i} seconds, #{(collectionValue.to_f/3600).round(2)} hours)"
         contentItem = {
             "type" => "line",
             "line" => announce
         }
+        metric = NSXRunMetrics::metric1(runPoints, entry["commitmentInHours"]*3600, 86400, 0.8, 0.3)
         {
             "uuid"                => uuid,
             "agentuid"            => NSXAgentDailyTimeCommitments::agentuid(),
             "contentItem"         => contentItem,
-            "metric"              => NSXRunMetrics::metric1(runPoints, entry["commitmentInHours"]*3600, 0.8, 0.3),
-            "commands"            => ["start", "stop"],
+            "metric"              => metric,
+            "commands"            => ["start", "stop", "numbers"],
             "defaultCommand"      => NSXRunner::isRunning?(uuid) ? "stop" : "start",
             "isRunning"           => NSXRunner::isRunning?(uuid)
         }
@@ -80,7 +88,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
         # We only do those calculations on alexandra
         return if !NSXMiscUtils::isLucille18()
         if !KeyValueStore::flagIsTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c01:#{NSXMiscUtils::currentDay()}") then
-            runPoints = NSXRunTimes::getPointsWithExponentialCorrection(entry["uuid"], 86400*3)
+            runPoints = NSXRunTimes::getPoints(entry["uuid"])
             existingWeight = runPoints.map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
             if existingWeight < 0 then
                 KeyValueStore::setFlagTrue(nil, "04ffa335-4bad-415a-a469-2101f0842c01:#{NSXMiscUtils::currentDay()}")
@@ -150,14 +158,14 @@ class NSXAgentDailyTimeCommitments
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
             timespanInSeconds = NSXRunner::stop(objectuuid)
-            NSXRunTimes::addPoint(scheduleStoreItem["collectionuid"], Time.new.to_i, timespanInSeconds)
+            NSXRunTimes::addPoint(objectuuid, Time.new.to_i, timespanInSeconds)
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({
                     "instanceName" => NSXMiscUtils::instanceName(),
                     "eventType"    => "MultiInstanceEventType:RunTimesPoint",
                     "payload"      => {
                         "uuid"          => SecureRandom.hex,
-                        "collectionuid" => scheduleStoreItem["collectionuid"],
+                        "collectionuid" => objectuuid,
                         "unixtime"      => Time.new.to_i,
                         "algebraicTimespanInSeconds" => timespanInSeconds
                     }
@@ -182,6 +190,15 @@ class NSXAgentDailyTimeCommitments
                 }
             return
         end
+        if command == "numbers" then
+            entry = NSXAgentDailyTimeCommitmentsHelpers::getEntryByUUIDOrNull(objectuuid)
+            puts "live value: #{(NSXRunner::runningTimeOrNull(entry["uuid"]) || 0) + NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)}"
+
+            runPoints = NSXRunTimes::getPoints(objectuuid)
+            puts "metric: #{NSXRunMetrics::metric1(runPoints, entry["commitmentInHours"]*3600, 86400, 0.8, 0.3)}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
     end
 end
 
@@ -200,7 +217,7 @@ Thread.new {
         sleep 120
         status = NSXAgentDailyTimeCommitmentsHelpers::getEntries()
             .select{|entry| NSXRunner::isRunning?(entry["uuid"]) }
-            .map{|entry| (NSXRunner::runningTimeOrNull(entry["uuid"]) || 0) + NSXRunTimes::getPointsWithExponentialCorrection(entry["uuid"], 86400*3).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+) }
+            .map{|entry| (NSXRunner::runningTimeOrNull(entry["uuid"]) || 0) + NSXRunTimes::getPoints(entry["uuid"]).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+) }
             .any?{|value| value > 0 }
         if status then
             NSXMiscUtils::onScreenNotification("Daily time commitment", "Running item is overflowing")
