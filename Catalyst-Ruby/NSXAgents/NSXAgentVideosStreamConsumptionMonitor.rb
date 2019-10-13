@@ -23,7 +23,7 @@ require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.
 
 # -----------------------------------------------------------------
 
-XSPACE_VIDEO_REPOSITORY_FOLDERPATH = "/x-space/YouTube Videos"
+XSPACE_VIDEO_REPOSITORY_FOLDERPATH = "/Users/pascal/x-space/YouTube Videos"
 
 ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH = "/Volumes/EnergyGrid/Data/Pascal/YouTube Videos"
 
