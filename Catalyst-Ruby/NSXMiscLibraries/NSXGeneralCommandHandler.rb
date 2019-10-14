@@ -9,6 +9,11 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 # This subsystem entire purpose is to receive commands from the user and either:
 	# The command is "special" and going to be captured and executed at some point along the code
 	# The command is handled by an agent and the signal forwarded to the NSXCatalystObjectsOperator
@@ -134,7 +139,8 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "generation-speed",
-                "set no internet for this hour"
+                "set no internet for this hour",
+                "make new Stream Principal"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -159,6 +165,21 @@ class NSXGeneralCommandHandler
             end
             if option == "set no internet for this hour" then
                 NSXMiscUtils::setNoInternetForThisHour()
+            end
+            if option == "make new Stream Principal" then
+                streamuuid = SecureRandom.hex
+                description = LucilleCore::askQuestionAnswerAsString("Description: ")
+                naturalMetric = 0.70
+                hoursExpectation = LucilleCore::askQuestionAnswerAsString("Expectation in Hours: ").to_f
+                showAsCatalystObject = true
+                streamPrincipal = {
+                    "streamuuid"           => streamuuid,
+                    "description"          => description,
+                    "naturalMetric"        => naturalMetric,
+                    "hoursExpectation"     => hoursExpectation,
+                    "showAsCatalystObject" => showAsCatalystObject
+                }
+                NSXStreamsUtils::commitStreamPrincipalToDisk(streamPrincipal)
             end
             return
         end
