@@ -84,40 +84,6 @@ class NSXCatalystObjectsOperator
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 
-        # Now we remove any object after special object 1
-        objects = objects.reduce([]) { |collection, object|
-            if collection.any?{|o| o["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" } and !object["isRunning"] then
-                collection
-            else
-                collection + [ object ]
-            end
-        }
-
-        # Now we do not add any stream object if it comes later than a non stream object
-        objects = objects.reduce([]) { |collection, object|
-            b1 = object["isRunning"]
-            b2 = object["agentuid"] != NSXAgentStreamsItems::agentuid()
-            b3 = ((object["agentuid"] == NSXAgentStreamsItems::agentuid()) and collection.none?{|o| o["agentuid"] != NSXAgentStreamsItems::agentuid()})
-            b4 = ((object["agentuid"] == NSXAgentStreamsItems::agentuid()) and object["contentItem"]["line"].include?("Inbox"))
-            if b1 or b2 or b3 or b4 then
-                collection + [ object ]
-            else
-                collection
-            end
-        }
-
-        # Now we do not display any non Inbox object if it comes later than an inbox object.
-        objects = objects.reduce([]) { |collection, object|
-            isInboxObject = lambda{|obj|
-                (obj["agentuid"] == NSXAgentStreamsItems::agentuid()) and obj["contentItem"]["line"].include?("Inbox")
-            }
-            if object["isRunning"] or isInboxObject.call(object) or (!isInboxObject.call(object) and collection.none?{|o| isInboxObject.call(o)}) then
-                collection + [ object ]
-            else
-                collection
-            end
-        }
-
         objects = objects
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
