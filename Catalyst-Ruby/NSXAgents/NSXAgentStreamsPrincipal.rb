@@ -1,0 +1,79 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+require "time"
+
+# -------------------------------------------------------------------------------------
+
+class NSXAgentStreamsPrincipal
+
+    # NSXAgentStreamsPrincipal::agentuid()
+    def self.agentuid()
+        "b3e8dccb-77fc-4e13-a895-2d0608bd6abf"
+    end
+
+    # NSXAgentStreamsPrincipal::getObjects()
+    def self.getObjects()
+        NSXAgentStreamsPrincipal::getAllObjects()
+    end
+
+    # NSXAgentStreamsPrincipal::getAllObjects()
+    def self.getAllObjects()
+        NSXStreamsUtils::streamPrincipals()
+            .select{|streamprincipal| streamprincipal["showAsCatalystObject"] }
+            .map{|streamprincipal| NSXStreamsUtils::streamPrincipalToCatalystObject(streamprincipal) }
+    end
+
+    # NSXAgentStreamsPrincipal::getObjectByUUIDOrNull(objectuuid)
+    def self.getObjectByUUIDOrNull(objectuuid)
+        NSXAgentStreamsItems::getAllObjects()
+            .select{|object| object["uuid"] == objectuuid }
+            .first
+    end
+
+    # NSXAgentStreamsPrincipal::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+        object = NSXAgentStreamsPrincipal::getObjectByUUIDOrNull(objectuuid)
+        return if object.nil?
+        streamuuid = object["metadata"]["streamuuid"]
+        streamPrinciplaRuntimeUid = object["metadata"]["runtimeuid"]
+        if command == "start" then
+            return if NSXRunner::isRunning?(streamPrinciplaRuntimeUid)
+            NSXRunner::start(streamPrinciplaRuntimeUid)
+            return
+        end
+        if command == "stop" then
+            return if !NSXRunner::isRunning?(streamPrinciplaRuntimeUid)
+            timespanInSeconds = NSXRunner::stop(streamPrinciplaRuntimeUid)
+            NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
+            if isLocalCommand then
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                    "payload"      => {
+                        "uuid"          => SecureRandom.hex,
+                        "collectionuid" => streamuuid,
+                        "unixtime"      => Time.new.to_i,
+                        "algebraicTimespanInSeconds" => timespanInSeconds
+                    }
+                })
+            end
+            return
+        end
+    end
+end
+
+begin
+    NSXBob::registerAgent(
+        {
+            "agent-name"  => "NSXAgentStreamsPrincipal",
+            "agentuid"    => NSXAgentStreamsPrincipal::agentuid(),
+        }
+    )
+rescue
+end

@@ -22,33 +22,33 @@ require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.
 
 # -------------------------------------------------------------------------------------
 
-class NSXAgentStreams
+class NSXAgentStreamsItems
 
-    # NSXAgentStreams::agentuid()
+    # NSXAgentStreamsItems::agentuid()
     def self.agentuid()
         "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
     end
 
-    # NSXAgentStreams::getObjects()
+    # NSXAgentStreamsItems::getObjects()
     def self.getObjects()
-        NSXStreamsUtils::getCatalystObjectsForDisplay()
+        NSXStreamsUtils::getStreamItemsCatalystObjectsForDisplay()
     end
 
-    # NSXAgentStreams::getAllObjects()
+    # NSXAgentStreamsItems::getAllObjects()
     def self.getAllObjects()
-        NSXStreamsUtils::getAllCatalystObjects()
+        NSXStreamsUtils::getAllStreamItemsCatalystObjects()
     end
 
-    # NSXAgentStreams::getObjectByUUIDOrNull(objectuuid)
+    # NSXAgentStreamsItems::getObjectByUUIDOrNull(objectuuid)
     def self.getObjectByUUIDOrNull(objectuuid)
-        NSXAgentStreams::getAllObjects()
+        NSXAgentStreamsItems::getAllObjects()
             .select{|object| object["uuid"] == objectuuid }
             .first
     end
 
-    # NSXAgentStreams::processObjectAndCommand(objectuuid, command, isLocalCommand)
+    # NSXAgentStreamsItems::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
-        item = NSXStreamsUtils::getItemByUUIDOrNull(objectuuid)
+        item = NSXStreamsUtils::getStreamItemByUUIDOrNull(objectuuid)
         return if item.nil?
         if command == "start" then
             return if NSXRunner::isRunning?(objectuuid)
@@ -58,7 +58,7 @@ class NSXAgentStreams
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
             timespanInSeconds = NSXRunner::stop(objectuuid)
-            NSXRunTimes::addPoint(item["collectionuid"], Time.new.to_i, timespanInSeconds)
+            NSXRunTimes::addPoint(item["streamuuid"], Time.new.to_i, timespanInSeconds)
             NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({
@@ -66,7 +66,7 @@ class NSXAgentStreams
                     "eventType"    => "MultiInstanceEventType:RunTimesPoint",
                     "payload"      => {
                         "uuid"          => SecureRandom.hex,
-                        "collectionuid" => item["collectionuid"],
+                        "collectionuid" => item["streamuuid"],
                         "unixtime"      => Time.new.to_i,
                         "algebraicTimespanInSeconds" => timespanInSeconds
                     }
@@ -131,8 +131,8 @@ end
 begin
     NSXBob::registerAgent(
         {
-            "agent-name"  => "NSXAgentStreams",
-            "agentuid"    => NSXAgentStreams::agentuid(),
+            "agent-name"  => "NSXAgentStreamsItems",
+            "agentuid"    => NSXAgentStreamsItems::agentuid(),
         }
     )
 rescue

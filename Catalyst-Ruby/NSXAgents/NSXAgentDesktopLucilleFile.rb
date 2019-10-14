@@ -169,7 +169,7 @@ class NSXAgentDesktopLucilleFile
             return if object.nil?
             genericContentsItem = NSXGenericContents::issueItemText(object["section"])
             streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-            streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(streamDescription)
+            streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
             LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(objectuuid)

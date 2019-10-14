@@ -1,11 +1,20 @@
 
 Streams are implemented as sequences of StreamItem
 
-StreamItem {
+StreamItem
+{
     uuid                 : UUID
     streamuuid           : UUID
     ordinal              : Float
     generic-content-item : GenericContentItem
     filename             : String # (Re)Computed at extraction
-    filepath             : String # Computed at extraction
+    filepath             : String # (Re)Computed at extraction
+}
+
+StreamPrincipal
+{
+    "streamuuid"         : UUID,
+    "description"        : String,
+    "naturalMetric"      : Float,
+    "hoursExpectation"   : Float
 }

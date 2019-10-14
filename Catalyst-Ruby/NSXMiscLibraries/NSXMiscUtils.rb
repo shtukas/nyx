@@ -333,7 +333,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
     def self.getNewEndOfQueueStreamOrdinal()
-        items = NSXStreamsUtils::getItems()
+        items = NSXStreamsUtils::getStreamItems()
         return 1 if items.size==0
         items.map{|item| item["ordinal"] }.max.to_i + 1
     end

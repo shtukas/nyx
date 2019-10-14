@@ -60,7 +60,7 @@ class NSXGeneralCommandHandler
                 NSXGenericContents::issueItemText(description)
             end
         streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-        streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
+        streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(description)
         streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
         puts JSON.pretty_generate(streamItem)
     end
@@ -103,7 +103,7 @@ class NSXGeneralCommandHandler
             end
             if type == "Stream" then
                 streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-                streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(streamDescription)
+                streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
                 streamItemOrdinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
                 genericContentsItem = NSXGenericContents::issueItemText(text)
                 streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, streamItemOrdinal)

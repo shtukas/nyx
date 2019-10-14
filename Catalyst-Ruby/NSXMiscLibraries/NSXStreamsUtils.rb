@@ -38,9 +38,9 @@ class NSXStreamsUtils
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # NSXStreamsUtils::newItemFilepathForFilename(filename)
-    def self.newItemFilepathForFilename(filename)
-        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
+    # NSXStreamsUtils::newStreamItemFilepathForFilename(filename)
+    def self.newStreamItemFilepathForFilename(filename)
+        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         filepath = "#{folder2}/#{filename}"
         KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
@@ -50,44 +50,29 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Streams Metadata
 
-    # NSXStreamsUtils::streamsMetadata()
-    def self.streamsMetadata()
-        [
-            {
-                "streamuuid"         => "03b79978bcf7a712953c5543a9df9047",
-                "description"        => "Catalyst Inbox",
-                "naturalMetric"      => 0.70, # Stable metric
-                "hoursExpectation"   => 1,
-            },
-            {
-                "streamuuid"         => "134de9a4e9eae4841fdbc4c1e53f4455",
-                "description"        => "Pascal Technology Jedi",
-                "naturalMetric"      => 0.50,
-                "hoursExpectation"   => 2,
-            },
-            {
-                "streamuuid"         => "38d5658ed46c4daf0ec064e58fb2b97a",
-                "description"        => "Personal Entertainment",
-                "naturalMetric"      => 0.40,
-                "hoursExpectation"   => 1,
-            },
-            {
-                "streamuuid"         => "00010011101100010011101100011001",
-                "description"        => "Infinity Stream",
-                "naturalMetric"      => 0.30,
-                "hoursExpectation"   => 1,
-            }
-        ]
+    # NSXStreamsUtils::streamPrincipals()
+    def self.streamPrincipals()
+        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Principals")
+            .reject{|filename| filename[0,1]=="." }
+            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Principals/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # NSXStreamsUtils::streamUUIDs()
-    def self.streamUUIDs()
-        NSXStreamsUtils::streamsMetadata().map{|item| item["streamuuid"] }
+    # NSXStreamsUtils::getStreamPrincipalByStreamUUIDOrNull(streamuuid)
+    def self.getStreamPrincipalByStreamUUIDOrNull(streamuuid)
+        NSXStreamsUtils::streamPrincipals()
+            .select{|streamprincipal| streamprincipal["streamuuid"] == streamuuid }
+            .first
     end
 
-    # NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
-    def self.streamDescriptionToStreamUUIDOrNull(description)
-        NSXStreamsUtils::streamsMetadata()
+    # NSXStreamsUtils::streamItemsUUIDs()
+    def self.streamItemsUUIDs()
+        NSXStreamsUtils::streamPrincipals().map{|item| item["streamuuid"] }
+    end
+
+    # NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(description)
+    def self.streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(description)
+        NSXStreamsUtils::streamPrincipals()
             .select{|item| item["description"]==description }
             .each{|item|
                 return item["streamuuid"]
@@ -95,9 +80,9 @@ class NSXStreamsUtils
         nil
     end
 
-    # NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)
-    def self.streamuuidToStreamDescriptionOrNull(streamuuid)
-        NSXStreamsUtils::streamsMetadata()
+    # NSXStreamsUtils::streamuuidToStreamPrincipalDescriptionOrNull(streamuuid)
+    def self.streamuuidToStreamPrincipalDescriptionOrNull(streamuuid)
+        NSXStreamsUtils::streamPrincipals()
             .select{|item| item["streamuuid"]==streamuuid }
             .each{|item|
                 return item["description"]
@@ -105,9 +90,9 @@ class NSXStreamsUtils
         nil
     end
 
-    # NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(streamuuid)
-    def self.streamuuidToStreamNaturalMetricDefault1(streamuuid)
-        NSXStreamsUtils::streamsMetadata()
+    # NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(streamuuid)
+    def self.streamuuidToStreamPrincipalNaturalMetricDefault1(streamuuid)
+        NSXStreamsUtils::streamPrincipals()
             .select{|item| item["streamuuid"]==streamuuid }
             .each{|item|
                 return item["naturalMetric"]
@@ -115,9 +100,9 @@ class NSXStreamsUtils
         1
     end
 
-    # NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(streamuuid)
-    def self.streamuuidToStreamHoursExpectationDefault1(streamuuid)
-        NSXStreamsUtils::streamsMetadata()
+    # NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamuuid)
+    def self.streamuuidToStreamPricipalHoursExpectationDefault1(streamuuid)
+        NSXStreamsUtils::streamPrincipals()
             .select{|item| item["streamuuid"]==streamuuid }
             .each{|item|
                 return item["hoursExpectation"]
@@ -130,7 +115,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
     def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
@@ -151,8 +136,8 @@ class NSXStreamsUtils
         filepath
     end
 
-    # NSXStreamsUtils::uuidToFilepathResolutionOrNull(uuid)
-    def self.uuidToFilepathResolutionOrNull(uuid)
+    # NSXStreamsUtils::streamItemUUIDToFilepathResolutionOrNull(uuid)
+    def self.streamItemUUIDToFilepathResolutionOrNull(uuid)
         filepath = KeyValueStore::getOrNull(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}")
         if filepath then
             if File.exists?(filepath) then
@@ -163,7 +148,7 @@ class NSXStreamsUtils
             end
         end
         filepath = nil
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))
@@ -177,9 +162,9 @@ class NSXStreamsUtils
         filepath
     end
 
-    # NSXStreamsUtils::getItemByUUIDOrNull(uuid)
-    def self.getItemByUUIDOrNull(uuid)
-        filepath = NSXStreamsUtils::uuidToFilepathResolutionOrNull(uuid)
+    # NSXStreamsUtils::getStreamItemByUUIDOrNull(uuid)
+    def self.getStreamItemByUUIDOrNull(uuid)
+        filepath = NSXStreamsUtils::streamItemUUIDToFilepathResolutionOrNull(uuid)
         return nil if filepath.nil?
         JSON.parse(IO.read(filepath))
     end
@@ -200,7 +185,7 @@ class NSXStreamsUtils
     def self.commitItemToDisk(item)
         filepath = NSXStreamsUtils::filenameToFilepathResolutionOrNull(item["filename"])
         if filepath.nil? then
-            filepath = NSXStreamsUtils::newItemFilepathForFilename(item["filename"])
+            filepath = NSXStreamsUtils::newStreamItemFilepathForFilename(item["filename"])
         end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
@@ -208,10 +193,10 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Core Data
 
-    # NSXStreamsUtils::getItems()
-    def self.getItems()
+    # NSXStreamsUtils::getStreamItems()
+    def self.getStreamItems()
         items = []
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams") do |path|
+        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))
@@ -222,9 +207,9 @@ class NSXStreamsUtils
         items
     end
 
-    # NSXStreamsUtils::getSelectionOfItems()
-    def self.getSelectionOfItems()
-        NSXStreamsUtils::getItems()
+    # NSXStreamsUtils::getSelectionOfStreamItems()
+    def self.getSelectionOfStreamItems()
+        NSXStreamsUtils::getStreamItems()
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
             .reduce([]) { |collection, item|
                 if 
@@ -241,14 +226,14 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::getStreamItemsOrdinalOrdered(streamUUID)
     def self.getStreamItemsOrdinalOrdered(streamUUID)
-        NSXStreamsUtils::getItems()
+        NSXStreamsUtils::getStreamItems()
             .select{|item| item["streamuuid"]==streamUUID }
             .sort{|i1,i2| i1["ordinal"]<=>i2["ordinal"] }
     end
 
-    # NSXStreamsUtils::itemsForStreamUUIDOrdered(streamuuid)
-    def self.itemsForStreamUUIDOrdered(streamuuid)
-        NSXStreamsUtils::getItems()
+    # NSXStreamsUtils::streamItemsForStreamUUIDOrdered(streamuuid)
+    def self.streamItemsForStreamUUIDOrdered(streamuuid)
+        NSXStreamsUtils::getStreamItems()
             .select{|item| item["streamuuid"]==streamuuid }
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
     end
@@ -265,23 +250,23 @@ class NSXStreamsUtils
         item
     end
 
-    # NSXStreamsUtils::itemToMetric(item)
-    def self.itemToMetric(item)
+    # NSXStreamsUtils::streamItemToMetric(item)
+    def self.streamItemToMetric(item)
         m1 = 
-            NSXRunMetrics::metric1(
+            NSXRunMetrics::metric1ThenCollapseToZero(
                 NSXRunTimes::getPoints(item["streamuuid"]), 
-                NSXStreamsUtils::streamuuidToStreamHoursExpectationDefault1(item["streamuuid"])*3600,
+                NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(item["streamuuid"])*3600,
                 86400,
-                NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"]), 
-                NSXStreamsUtils::streamuuidToStreamNaturalMetricDefault1(item["streamuuid"])-0.1
+                NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(item["streamuuid"]), 
+                NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(item["streamuuid"])-0.1
             )
         m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        m3 = NSXRunMetrics::metric1(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.2)
+        m3 = NSXRunMetrics::metric2StuckAtMetricAtTarget(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.2) 
         m1 + m2 + m3
     end
 
-    # NSXStreamsUtils::itemToCatalystObject(item)
-    def self.itemToCatalystObject(item)
+    # NSXStreamsUtils::streamItemToCatalystObject(item)
+    def self.streamItemToCatalystObject(item)
         announce = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
         body = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
         contentItem = {
@@ -291,43 +276,76 @@ class NSXStreamsUtils
         }
         object = {}
         object["uuid"]           = item["uuid"]
-        object["agentuid"]       = "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1"
+        object["agentuid"]       = NSXAgentStreamsItems::agentuid()
         object["contentItem"]    = contentItem
-        object["metric"]         = NSXStreamsUtils::itemToMetric(item)
+        object["metric"]         = NSXStreamsUtils::streamItemToMetric(item)
         object["commands"]       = ["start", "stop", "open", "folder", "done", "recast", "push"]
         object["defaultCommand"] = NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start"
         object["isRunning"]      = NSXRunner::isRunning?(item["uuid"])
         object
     end
 
-    # NSXStreamsUtils::getCatalystObjectsForDisplay()
-    def self.getCatalystObjectsForDisplay()
+    # NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
+    def self.streamPrincipalToMetric(streamPrincipal)
+        NSXRunMetrics::metric1ThenCollapseToZero(
+            NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
+            NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamPrincipal["streamuuid"])*3600,
+            86400,
+            NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(streamPrincipal["streamuuid"]), 
+            NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(streamPrincipal["streamuuid"])-0.1
+        )
+    end
+
+    # NSXStreamsUtils::streamPrincipalToCatalystObject(streamPrincipal)
+    def self.streamPrincipalToCatalystObject(streamPrincipal)
+        streamuuid = streamPrincipal["streamuuid"]
+        uuid = "d4165d307783-#{streamuuid}"
+        contentItem = {
+            "type" => "line",
+            "line" => "Stream Principal: #{streamPrincipal["description"]}",
+        }
+        object = {}
+        object["uuid"]           = uuid
+        object["agentuid"]       = NSXAgentStreamsPrincipal::agentuid()
+        object["contentItem"]    = contentItem
+        object["metric"]         = NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
+        object["commands"]       = ["start", "stop", "done"]
+        object["defaultCommand"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
+        object["isRunning"]      = NSXRunner::isRunning?(uuid)
+        object["metadata"]       = {}
+        object["metadata"]["streamuuid"] = streamuuid
+        object["metadata"]["runtimeuid"] = "1154cbec8566-#{streamuuid}"
+        object
+    end
+
+    # NSXStreamsUtils::getStreamItemsCatalystObjectsForDisplay()
+    def self.getStreamItemsCatalystObjectsForDisplay()
         if $STREAM_ITEMS_IN_MEMORY_4B4BFE22.nil? or $STREAM_ITEMS_IN_MEMORY_4B4BFE22.empty? then
-            $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfItems()
+            $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfStreamItems()
         end
-        $STREAM_ITEMS_IN_MEMORY_4B4BFE22.map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+        $STREAM_ITEMS_IN_MEMORY_4B4BFE22.map{|item| NSXStreamsUtils::streamItemToCatalystObject(item) }
     end
 
-    # NSXStreamsUtils::getAllCatalystObjects()
-    def self.getAllCatalystObjects()
-        NSXStreamsUtils::getItems()
-            .map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+    # NSXStreamsUtils::getAllStreamItemsCatalystObjects()
+    def self.getAllStreamItemsCatalystObjects()
+        NSXStreamsUtils::getStreamItems()
+            .map{|item| NSXStreamsUtils::streamItemToCatalystObject(item) }
     end
 
-    # NSXStreamsUtils::getAllCatalystObjectsChaseMode()
+    # NSXStreamsUtils::getAllStreamItemsCatalystObjectsChaseMode()
     def self.getAllCatalystObjectsChaseMode()
         itemsuuids = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "895e956d-97fd-46fc-af10-1f94fd79e026:#{NSXMiscUtils::currentHour()}", '[]'))
-        items = NSXStreamsUtils::getItems()
+        items = NSXStreamsUtils::getStreamItems()
             .select{|item| itemsuuids.include?(item["uuid"]) }
         if items.size > 0 then
-            items.map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+            items.map{|item| NSXStreamsUtils::streamItemToCatalystObject(item) }
         else
-            items = NSXStreamsUtils::getItems()
+            items = NSXStreamsUtils::getStreamItems()
                 .select{|item|  item["streamuuid"] == "00010011101100010011101100011001" }
                 .sample(64)
             itemsuuids = items.map{|item| item["uuid"] }
             KeyValueStore::set(nil, "895e956d-97fd-46fc-af10-1f94fd79e026:#{NSXMiscUtils::currentHour()}", JSON.generate(itemsuuids))
-            items.map{|item| NSXStreamsUtils::itemToCatalystObject(item) }
+            items.map{|item| NSXStreamsUtils::streamItemToCatalystObject(item) }
         end
     end
 
@@ -337,7 +355,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::recastStreamItem(item): item
     def self.recastStreamItem(item)
         description = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-        streamuuid = NSXStreamsUtils::streamDescriptionToStreamUUIDOrNull(description)
+        streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(description)
         item["streamuuid"] = streamuuid
         item["ordinal"] = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
         item
@@ -359,13 +377,13 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
     def self.interactivelySelectStreamDescriptionOrNull()
-        descriptions = NSXStreamsUtils::streamsMetadata().map{|item| item["description"] }
+        descriptions = NSXStreamsUtils::streamPrincipals().map{|item| item["description"] }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("description:", descriptions)
     end
 
     # NSXStreamsUtils::interactivelySelectStreamOrNull()
     def self.interactivelySelectStreamOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", NSXStreamsUtils::streamsMetadata(), lambda{|item| item["description"] })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", NSXStreamsUtils::streamPrincipals(), lambda{|item| item["description"] })
     end
 
     # NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
@@ -399,7 +417,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         [
-            "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item["streamuuid"])}]",
+            "[#{NSXStreamsUtils::streamuuidToStreamPrincipalDescriptionOrNull(item["streamuuid"])}]",
             " ",
             NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])
         ].join()
@@ -422,7 +440,7 @@ class NSXStreamsUtils
             else
                 ""
             end
-        "[#{NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}"
+        "[#{NSXStreamsUtils::streamuuidToStreamPrincipalDescriptionOrNull(item['streamuuid'])}]#{splitChar}#{announce}#{doNotShowString}#{runtimestring}"
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
@@ -452,6 +470,6 @@ end
 Thread.new {
     loop {
         sleep 300
-        $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfItems()
+        $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfStreamItems()
     }
 }

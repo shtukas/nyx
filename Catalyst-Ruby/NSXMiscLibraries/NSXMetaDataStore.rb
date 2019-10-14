@@ -85,7 +85,7 @@ class NSXMetaDataStore
         if metadata["runtimes-targets-1738"] then
             metadata["runtimes-targets-1832"] = metadata["runtimes-targets-1738"]
                                                     .map{|streamuuid|
-                                                        NSXStreamsUtils::streamuuidToStreamDescriptionOrNull(streamuuid)
+                                                        NSXStreamsUtils::streamuuidToStreamPrincipalDescriptionOrNull(streamuuid)
                                                     }
         end
         metadata

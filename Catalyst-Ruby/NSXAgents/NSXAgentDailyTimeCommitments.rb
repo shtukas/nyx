@@ -71,7 +71,7 @@ class NSXAgentDailyTimeCommitmentsHelpers
             "type" => "line",
             "line" => announce
         }
-        metric = NSXRunMetrics::metric1(runPoints, entry["commitmentInHours"]*3600, 86400, 0.8, 0.3)
+        metric = NSXRunMetrics::metric1ThenCollapseToZero(runPoints, entry["commitmentInHours"]*3600, 86400, 0.8, 0.3)
         {
             "uuid"                => uuid,
             "agentuid"            => NSXAgentDailyTimeCommitments::agentuid(),

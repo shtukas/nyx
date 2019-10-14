@@ -54,10 +54,41 @@ class NSXRunMetrics
         ]
     end
 
-    # NSXRunMetrics::metric1(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric1(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    # NSXRunMetrics::metric1ThenCollapseToZero(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric1ThenCollapseToZero(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
         NSXRunMetrics::metric1Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
     end
+
+    # NSXRunMetrics::metric2Core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric2Core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+        algebraicTimespanInSeconds = points
+            .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
+            .map{|point| point["algebraicTimespanInSeconds"] }
+            .inject(0, :+)
+        x1 = 0
+        y1 = metricAtZero
+        x2 = targetTimeInSeconds
+        y2 = metricAtTarget
+        x  = algebraicTimespanInSeconds
+        return y1 if x < x1
+        return metricAtTarget if x > x2
+        NSXRunMetrics::linearMap(x1, y1, x2, y2, x)
+    end
+
+    # NSXRunMetrics::metric2Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric2Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+        [
+            NSXRunMetrics::metric2Core(points, targetTimeInSeconds*3, periodInSeconds*3, metricAtZero, metricAtTarget),
+            NSXRunMetrics::metric2Core(points, targetTimeInSeconds*2, periodInSeconds*2, metricAtZero, metricAtTarget),
+            NSXRunMetrics::metric2Core(points, targetTimeInSeconds*1, periodInSeconds*1, metricAtZero, metricAtTarget)
+        ]
+    end
+
+    # NSXRunMetrics::metric2StuckAtMetricAtTarget(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric2StuckAtMetricAtTarget(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+        NSXRunMetrics::metric2Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
+    end
+
 end
 
 

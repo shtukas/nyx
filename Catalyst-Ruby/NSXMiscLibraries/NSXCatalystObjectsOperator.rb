@@ -96,9 +96,9 @@ class NSXCatalystObjectsOperator
         # Now we do not add any stream object if it comes later than a non stream object
         objects = objects.reduce([]) { |collection, object|
             b1 = object["isRunning"]
-            b2 = object["agentuid"] != NSXAgentStreams::agentuid()
-            b3 = ((object["agentuid"] == NSXAgentStreams::agentuid()) and collection.none?{|o| o["agentuid"] != NSXAgentStreams::agentuid()})
-            b4 = ((object["agentuid"] == NSXAgentStreams::agentuid()) and object["contentItem"]["line"].include?("Inbox"))
+            b2 = object["agentuid"] != NSXAgentStreamsItems::agentuid()
+            b3 = ((object["agentuid"] == NSXAgentStreamsItems::agentuid()) and collection.none?{|o| o["agentuid"] != NSXAgentStreamsItems::agentuid()})
+            b4 = ((object["agentuid"] == NSXAgentStreamsItems::agentuid()) and object["contentItem"]["line"].include?("Inbox"))
             if b1 or b2 or b3 or b4 then
                 collection + [ object ]
             else
@@ -109,7 +109,7 @@ class NSXCatalystObjectsOperator
         # Now we do not display any non Inbox object if it comes later than an inbox object.
         objects = objects.reduce([]) { |collection, object|
             isInboxObject = lambda{|obj|
-                (obj["agentuid"] == NSXAgentStreams::agentuid()) and obj["contentItem"]["line"].include?("Inbox")
+                (obj["agentuid"] == NSXAgentStreamsItems::agentuid()) and obj["contentItem"]["line"].include?("Inbox")
             }
             if object["isRunning"] or isInboxObject.call(object) or (!isInboxObject.call(object) and collection.none?{|o| isInboxObject.call(o)}) then
                 collection + [ object ]
@@ -127,7 +127,7 @@ class NSXCatalystObjectsOperator
         }
 
         if objects.empty? then
-            return NSXStreamsUtils::getAllCatalystObjectsChaseMode()
+            return NSXStreamsUtils::getAllStreamItemsCatalystObjectsChaseMode()
         end
 
         objects
