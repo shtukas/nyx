@@ -37,7 +37,7 @@ class NSXAgentDailyGuardianWork
         object["uuid"]           = uuid
         object["agentuid"]       = "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
         object["contentItem"]    = contentItem
-        object["metric"]         = 0.60
+        object["metric"]         = 0.70
         object["commands"]       = ["done"]
         object["defaultCommand"] = nil
         [object]

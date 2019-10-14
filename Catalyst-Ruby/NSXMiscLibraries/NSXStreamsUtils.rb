@@ -299,7 +299,7 @@ class NSXStreamsUtils
             NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamPrincipal["streamuuid"])*3600,
             86400,
             0.5, 
-            0.3
+            0.4
         )
     end
 
