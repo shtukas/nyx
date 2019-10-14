@@ -112,6 +112,8 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::screenNotificationsForOmega1Condition()
     def self.screenNotificationsForOmega1Condition()
+        return if Time.new.hour < 9
+        return if Time.new.hour > 18
         objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
         return if objects.empty?
         return if objects.none?{|object| object["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" }
