@@ -102,7 +102,7 @@ class NSXGeneralCommandHandler
             if type == "Stream:Inbox" then
                 genericContentsItem = NSXGenericContents::issueItemText(text)
                 puts JSON.pretty_generate(genericContentsItem)
-                streamItem = NSXStreamsUtils::issueNewStreamItem("03b79978bcf7a712953c5543a9df9047", genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
+                streamItem = NSXStreamsUtils::issueNewStreamItem(CATALYST_INBOX_STREAMUUID, genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
             end
@@ -169,13 +169,11 @@ class NSXGeneralCommandHandler
             if option == "make new Stream Principal" then
                 streamuuid = SecureRandom.hex
                 description = LucilleCore::askQuestionAnswerAsString("Description: ")
-                naturalMetric = 0.70
                 hoursExpectation = LucilleCore::askQuestionAnswerAsString("Expectation in Hours: ").to_f
                 showAsCatalystObject = true
                 streamPrincipal = {
                     "streamuuid"           => streamuuid,
                     "description"          => description,
-                    "naturalMetric"        => naturalMetric,
                     "hoursExpectation"     => hoursExpectation,
                     "showAsCatalystObject" => showAsCatalystObject
                 }

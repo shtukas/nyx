@@ -27,7 +27,6 @@ def nsx1309_removeItemIdentifiedById(uuid)
     $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = $STREAM_ITEMS_IN_MEMORY_4B4BFE22.reject{|item| item["uuid"]==uuid }
 end
 
-
 class NSXStreamsUtils
 
     # ----------------------------------------------------------------
@@ -95,16 +94,6 @@ class NSXStreamsUtils
                 return item["description"]
             }
         nil
-    end
-
-    # NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(streamuuid)
-    def self.streamuuidToStreamPrincipalNaturalMetricDefault1(streamuuid)
-        NSXStreamsUtils::streamPrincipals()
-            .select{|item| item["streamuuid"]==streamuuid }
-            .each{|item|
-                return item["naturalMetric"]
-            }
-        1
     end
 
     # NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamuuid)
@@ -221,7 +210,7 @@ class NSXStreamsUtils
             .reduce([]) { |collection, item|
                 if 
                     NSXRunner::isRunning?(item["uuid"]) or
-                    (item["streamuuid"] == "03b79978bcf7a712953c5543a9df9047") or 
+                    (item["streamuuid"] == CATALYST_INBOX_STREAMUUID) or 
                     (collection.select{|o| o["streamuuid"]==item["streamuuid"] }.size < 5) 
                 then
                     collection + [item]
@@ -259,16 +248,21 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToMetric(item)
     def self.streamItemToMetric(item)
+        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
+            m1 = 0.8
+            m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
+            return m1+m2
+        end
         m1 = 
             NSXRunMetrics::metric1ThenCollapseToZero(
                 NSXRunTimes::getPoints(item["streamuuid"]), 
                 NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(item["streamuuid"])*3600,
                 86400,
-                NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(item["streamuuid"]), 
-                NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(item["streamuuid"])-0.1
+                0.7, 
+                0.6
             )
         m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        m3 = NSXRunMetrics::metric2StuckAtMetricAtTarget(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.2) 
+        m3 = NSXRunMetrics::metric2StuckAtMetricAtTarget(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
         m1 + m2 + m3
     end
 
@@ -298,8 +292,8 @@ class NSXStreamsUtils
             NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
             NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamPrincipal["streamuuid"])*3600,
             86400,
-            NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(streamPrincipal["streamuuid"]), 
-            NSXStreamsUtils::streamuuidToStreamPrincipalNaturalMetricDefault1(streamPrincipal["streamuuid"])-0.1
+            0.5, 
+            0.3
         )
     end
 
@@ -348,7 +342,7 @@ class NSXStreamsUtils
             items.map{|item| NSXStreamsUtils::streamItemToCatalystObject(item) }
         else
             items = NSXStreamsUtils::getStreamItems()
-                .select{|item|  item["streamuuid"] == "00010011101100010011101100011001" }
+                .select{|item|  item["streamuuid"] == STREAMUUID_INFINITY_STREAM_STREAMUUID }
                 .sample(64)
             itemsuuids = items.map{|item| item["uuid"] }
             KeyValueStore::set(nil, "895e956d-97fd-46fc-af10-1f94fd79e026:#{NSXMiscUtils::currentHour()}", JSON.generate(itemsuuids))

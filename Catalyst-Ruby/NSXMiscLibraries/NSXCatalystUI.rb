@@ -16,7 +16,7 @@ class NSXCatalystUI
 
     # NSXCatalystUI::objectShouldTriggerOnScreenNotification(object)
     def self.objectShouldTriggerOnScreenNotification(object)
-        object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
+        object["agentuid"] == CATALYST_INBOX_STREAMUUID and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
     end
 
     # NSXCatalystUI::printLucilleInstanceFileAsNext()

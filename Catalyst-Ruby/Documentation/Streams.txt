@@ -13,8 +13,8 @@ StreamItem
 
 StreamPrincipal
 {
-    "streamuuid"         : UUID,
-    "description"        : String,
-    "naturalMetric"      : Float,
-    "hoursExpectation"   : Float
+    "streamuuid"           : UUID,
+    "description"          : String,
+    "hoursExpectation"     : Float
+    "showAsCatalystObject" : Boolean
 }
