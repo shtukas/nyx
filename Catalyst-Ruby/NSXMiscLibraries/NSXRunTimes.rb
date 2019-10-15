@@ -26,6 +26,7 @@ class NSXRunTimes
 
     # NSXRunTimes::addPoint(collectionuid, unixtime, algebraicTimespanInSeconds)
     def self.addPoint(collectionuid, unixtime, algebraicTimespanInSeconds)
+        puts "NSXRunTimes::addPoint(#{collectionuid}, unixtime, #{algebraicTimespanInSeconds})"
         uuid = SecureRandom.hex
         point = {
             "uuid"          => uuid,
