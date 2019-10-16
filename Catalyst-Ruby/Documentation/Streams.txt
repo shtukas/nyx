@@ -16,5 +16,4 @@ StreamPrincipal
     "streamuuid"           : UUID,
     "description"          : String,
     "hoursExpectation"     : Float
-    "showAsCatalystObject" : Boolean
 }

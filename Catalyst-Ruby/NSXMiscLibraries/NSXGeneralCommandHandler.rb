@@ -170,12 +170,10 @@ class NSXGeneralCommandHandler
                 streamuuid = SecureRandom.hex
                 description = LucilleCore::askQuestionAnswerAsString("Description: ")
                 hoursExpectation = LucilleCore::askQuestionAnswerAsString("Expectation in Hours: ").to_f
-                showAsCatalystObject = true
                 streamPrincipal = {
                     "streamuuid"           => streamuuid,
                     "description"          => description,
-                    "hoursExpectation"     => hoursExpectation,
-                    "showAsCatalystObject" => showAsCatalystObject
+                    "hoursExpectation"     => hoursExpectation
                 }
                 NSXStreamsUtils::commitStreamPrincipalToDisk(streamPrincipal)
             end

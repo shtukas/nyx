@@ -25,7 +25,6 @@ class NSXAgentStreamsPrincipal
     # NSXAgentStreamsPrincipal::getAllObjects()
     def self.getAllObjects()
         NSXStreamsUtils::streamPrincipals()
-            .select{|streamprincipal| streamprincipal["showAsCatalystObject"] }
             .map{|streamprincipal| NSXStreamsUtils::streamPrincipalToCatalystObject(streamprincipal) }
     end
 
