@@ -30,7 +30,7 @@ class NSXAgentStreamsPrincipal
 
     # NSXAgentStreamsPrincipal::getObjectByUUIDOrNull(objectuuid)
     def self.getObjectByUUIDOrNull(objectuuid)
-        NSXAgentStreamsItems::getAllObjects()
+        NSXAgentStreamsPrincipal::getAllObjects()
             .select{|object| object["uuid"] == objectuuid }
             .first
     end
@@ -39,16 +39,15 @@ class NSXAgentStreamsPrincipal
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         object = NSXAgentStreamsPrincipal::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
-        streamuuid = object["metadata"]["streamuuid"]
-        streamPrinciplaRuntimeUid = object["metadata"]["runtimeuid"]
         if command == "start" then
-            return if NSXRunner::isRunning?(streamPrinciplaRuntimeUid)
-            NSXRunner::start(streamPrinciplaRuntimeUid)
+            return if NSXRunner::isRunning?(objectuuid)
+            NSXRunner::start(objectuuid)
             return
         end
         if command == "stop" then
-            return if !NSXRunner::isRunning?(streamPrinciplaRuntimeUid)
-            timespanInSeconds = NSXRunner::stop(streamPrinciplaRuntimeUid)
+            return if !NSXRunner::isRunning?(objectuuid)
+            timespanInSeconds = NSXRunner::stop(objectuuid)
+            streamuuid = object["metadata"]["streamuuid"]
             NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({

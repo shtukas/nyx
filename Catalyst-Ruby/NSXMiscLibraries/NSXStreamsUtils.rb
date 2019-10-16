@@ -321,7 +321,6 @@ class NSXStreamsUtils
         object["isRunning"]      = NSXRunner::isRunning?(uuid)
         object["metadata"]       = {}
         object["metadata"]["streamuuid"] = streamuuid
-        object["metadata"]["runtimeuid"] = "1154cbec8566-#{streamuuid}"
         object
     end
 
