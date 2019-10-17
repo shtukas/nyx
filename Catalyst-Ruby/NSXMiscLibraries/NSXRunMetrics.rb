@@ -102,7 +102,7 @@ class NSXRunMetrics3 # CountTargetThenCollapseToZero
     def self.core(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
         count = points
             .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
-            .inject(0, :+)
+            .size
         # Here, unlike the timespan counterpart, we do not care how long  was spent on that point/hit
         x1 = 0
         y1 = metricAtZero
