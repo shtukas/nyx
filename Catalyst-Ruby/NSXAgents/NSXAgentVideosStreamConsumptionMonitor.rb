@@ -28,23 +28,31 @@ XSPACE_VIDEO_REPOSITORY_FOLDERPATH = "/Users/pascal/x-space/YouTube Videos"
 ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH = "/Volumes/EnergyGrid/Data/Pascal/YouTube Videos"
 
 class NSXAgentVideosStreamConsumptionMonitorHelper
-    # NSXAgentVideosStreamConsumptionMonitorHelper::getHits()
-    def self.getHits()
-        JSON.parse(KeyValueStore::getOrDefaultValue(nil, "9c88426d-00c0-497c-a7f5-9fa2e042bdd7:#{NSXMiscUtils::currentDay()}", "[]"))
-            .select{|x| (Time.new.to_i - x) < 86400 }
-    end
 
     # NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
     def self.registerHit()
-        a = NSXAgentVideosStreamConsumptionMonitorHelper::getHits()
-        a << Time.new.to_i
-        KeyValueStore::set(nil, "9c88426d-00c0-497c-a7f5-9fa2e042bdd7:#{NSXMiscUtils::currentDay()}", JSON.generate(a))
+        NSXRunTimes::addPoint("7766a7ae-01ff-42f4-84e4-5c27f939f4d7", Time.new.to_i, 0)
     end
 
     # NSXAgentVideosStreamConsumptionMonitorHelper::metric()
     def self.metric()
-        Math.exp(-NSXAgentVideosStreamConsumptionMonitorHelper::getHits().count.to_f/20)
+        points = NSXRunTimes::getPoints("7766a7ae-01ff-42f4-84e4-5c27f939f4d7")
+        targetCount = 15
+        periodInSeconds = 86400
+        metricAtZero = 0.8
+        metricAtTarget = 0.5
+        NSXRunMetrics3::metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
     end
+
+    # NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(folderpath)
+    def self.videoFolderpathsAtFolder(folderpath)
+        return [] if !File.exists?(folderpath)
+        Dir.entries(folderpath)
+            .select{|filename| filename[0,1] != "." }
+            .map{|filename| "#{folderpath}/#{filename}" }
+            .sort
+    end
+
 end
 
 class NSXAgentVideosStreamConsumptionMonitor
@@ -59,26 +67,18 @@ class NSXAgentVideosStreamConsumptionMonitor
         NSXAgentVideosStreamConsumptionMonitor::getAllObjects()
     end
 
-    def self.videoFolderpathsAtFolder(folderpath)
-        return [] if !File.exists?(folderpath)
-        Dir.entries(folderpath)
-            .select{|filename| filename[0,1] != "." }
-            .map{|filename| "#{folderpath}/#{filename}" }
-            .sort
-    end
-
     # NSXAgentVideosStreamConsumptionMonitor::getAllObjects()
     def self.getAllObjects()
         loop {
-            break if NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 200
-            break if NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).size == 0
-            filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).first
+            break if NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 200
+            break if NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).size == 0
+            filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).first
             filename = File.basename(filepath)
             targetFilepath = "#{XSPACE_VIDEO_REPOSITORY_FOLDERPATH}/#{filename}"
             FileUtils.mv(filepath, targetFilepath)
             break if !File.exists?(targetFilepath)
         }
-        filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+        filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
         return [] if filepath.nil?
         uuid = "f7845869-e058-44cd-bfae-3412957c7dba"
         announce = "YouTube Video Stream"
@@ -102,7 +102,7 @@ class NSXAgentVideosStreamConsumptionMonitor
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "activate" then
-            filepath = videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+            filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
             return if filepath.nil?
             puts filepath
             if filepath.include?("'") then

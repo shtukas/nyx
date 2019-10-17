@@ -22,15 +22,19 @@ Point {
 }
 =end
 
-class NSXRunMetrics
-    # NSXRunMetrics::linearMap(x1, y1, x2, y2, x)
+class NSXRunMetricsShared
+    # NSXRunMetricsShared::linearMap(x1, y1, x2, y2, x)
     def self.linearMap(x1, y1, x2, y2, x)
         slope = (y2-y1).to_f/(x2-x1)
         (x-x1)*slope + y1
     end
+end
 
-    # NSXRunMetrics::metric1Core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric1Core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+class NSXRunMetrics1 # TimespanTargetThenCollapseToZero
+
+
+    # NSXRunMetrics1::core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
         algebraicTimespanInSeconds = points
             .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
             .map{|point| point["algebraicTimespanInSeconds"] }
@@ -42,25 +46,29 @@ class NSXRunMetrics
         x  = algebraicTimespanInSeconds
         return y1 if x < x1
         return metricAtTarget*Math.exp(-(x-x2).to_f/(0.1*targetTimeInSeconds)) if x > x2
-        NSXRunMetrics::linearMap(x1, y1, x2, y2, x)
+        NSXRunMetricsShared::linearMap(x1, y1, x2, y2, x)
     end
 
-    # NSXRunMetrics::metric1Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric1Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    # NSXRunMetrics1::numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
         [
-            NSXRunMetrics::metric1Core(points, targetTimeInSeconds*3, periodInSeconds*3, metricAtZero, metricAtTarget),
-            NSXRunMetrics::metric1Core(points, targetTimeInSeconds*2, periodInSeconds*2, metricAtZero, metricAtTarget),
-            NSXRunMetrics::metric1Core(points, targetTimeInSeconds*1, periodInSeconds*1, metricAtZero, metricAtTarget)
+            NSXRunMetrics1::core(points, targetTimeInSeconds*3, periodInSeconds*3, metricAtZero, metricAtTarget),
+            NSXRunMetrics1::core(points, targetTimeInSeconds*2, periodInSeconds*2, metricAtZero, metricAtTarget),
+            NSXRunMetrics1::core(points, targetTimeInSeconds*1, periodInSeconds*1, metricAtZero, metricAtTarget)
         ]
     end
 
-    # NSXRunMetrics::metric1ThenCollapseToZero(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric1ThenCollapseToZero(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-        NSXRunMetrics::metric1Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
+    # NSXRunMetrics1::metric(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+        NSXRunMetrics1::numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
     end
 
-    # NSXRunMetrics::metric2Core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric2Core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+end
+
+class NSXRunMetrics2 # TimespanTargetStuckAtMetricAtTarget
+
+    # NSXRunMetrics2::core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
         algebraicTimespanInSeconds = points
             .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
             .map{|point| point["algebraicTimespanInSeconds"] }
@@ -72,23 +80,49 @@ class NSXRunMetrics
         x  = algebraicTimespanInSeconds
         return y1 if x < x1
         return metricAtTarget if x > x2
-        NSXRunMetrics::linearMap(x1, y1, x2, y2, x)
+        NSXRunMetricsShared::linearMap(x1, y1, x2, y2, x)
     end
 
-    # NSXRunMetrics::metric2Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric2Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-        [
-            NSXRunMetrics::metric2Core(points, targetTimeInSeconds*3, periodInSeconds*3, metricAtZero, metricAtTarget),
-            NSXRunMetrics::metric2Core(points, targetTimeInSeconds*2, periodInSeconds*2, metricAtZero, metricAtTarget),
-            NSXRunMetrics::metric2Core(points, targetTimeInSeconds*1, periodInSeconds*1, metricAtZero, metricAtTarget)
-        ]
+    # NSXRunMetrics2::numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+        [3, 2, 1].map{|indx|
+            NSXRunMetrics2::core(points, targetTimeInSeconds*indx, periodInSeconds*indx, metricAtZero, metricAtTarget)
+        }
     end
 
-    # NSXRunMetrics::metric2StuckAtMetricAtTarget(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric2StuckAtMetricAtTarget(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
-        NSXRunMetrics::metric2Numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
+    # NSXRunMetrics2::metric(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+        NSXRunMetrics2::numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
     end
-
 end
 
+class NSXRunMetrics3 # CountTargetThenCollapseToZero
 
+    # NSXRunMetrics3::core(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.core(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+        count = points
+            .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
+            .inject(0, :+)
+        # Here, unlike the timespan counterpart, we do not care how long  was spent on that point/hit
+        x1 = 0
+        y1 = metricAtZero
+        x2 = targetCount
+        y2 = metricAtTarget
+        x  = count
+        return y1 if x < x1
+        return metricAtTarget*Math.exp(-(x-x2).to_f/(0.1*targetCount)) if x > x2
+        NSXRunMetricsShared::linearMap(x1, y1, x2, y2, x)
+    end
+
+    # NSXRunMetrics3::numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+        [3, 2, 1].map{|indx|
+            NSXRunMetrics3::core(points, targetCount*indx, periodInSeconds*indx, metricAtZero, metricAtTarget)
+        }
+    end
+
+    # NSXRunMetrics3::metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+        NSXRunMetrics3::numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget).min
+    end
+end

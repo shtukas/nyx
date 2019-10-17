@@ -254,7 +254,7 @@ class NSXStreamsUtils
             return m1+m2
         end
         m1 = 
-            NSXRunMetrics::metric1ThenCollapseToZero(
+            NSXRunMetrics1::metric(
                 NSXRunTimes::getPoints(item["streamuuid"]), 
                 NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(item["streamuuid"])*3600,
                 86400,
@@ -262,7 +262,7 @@ class NSXStreamsUtils
                 0.6
             )
         m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        m3 = NSXRunMetrics::metric2StuckAtMetricAtTarget(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
+        m3 = NSXRunMetrics2::metric(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
         m1 + m2 + m3
     end
 
@@ -294,7 +294,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
     def self.streamPrincipalToMetric(streamPrincipal)
-        NSXRunMetrics::metric1ThenCollapseToZero(
+        NSXRunMetrics1::metric(
             NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
             NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamPrincipal["streamuuid"])*3600,
             86400,
