@@ -10,7 +10,7 @@ require 'fileutils'
 
 require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
-MULTIINSTANCE_LOG_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_SHARED_FOLDERPATH}/Activity-Log"
+MULTIINSTANCE_LOG_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Activity-Log"
 
 class NSXMultiInstancesWrite
     # NSXMultiInstancesWrite::sendEventToDisk(event)

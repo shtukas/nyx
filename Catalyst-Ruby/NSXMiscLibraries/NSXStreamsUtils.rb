@@ -52,15 +52,15 @@ class NSXStreamsUtils
     # NSXStreamsUtils::commitStreamPrincipalToDisk(streamPrincipal)
     def self.commitStreamPrincipalToDisk(streamPrincipal)
         filename = "#{streamPrincipal["streamuuid"]}.json"
-        filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Principals/#{filename}"
+        filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Streams-Principals/#{filename}"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(streamPrincipal)) }
     end
 
     # NSXStreamsUtils::streamPrincipals()
     def self.streamPrincipals()
-        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Principals")
+        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Streams-Principals")
             .reject{|filename| filename[0,1]=="." }
-            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Principals/#{filename}" }
+            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Streams-Principals/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
