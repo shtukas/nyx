@@ -102,18 +102,21 @@ class NSXAgentVideosStreamConsumptionMonitor
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         if command == "activate" then
-            filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
-            return if filepath.nil?
-            puts filepath
-            if filepath.include?("'") then
-                filepath2 = filepath.gsub("'", ',')
-                FileUtils.mv(filepath, filepath2)
-                filepath = filepath2
-            end
-            system("open '#{filepath}'")
-            LucilleCore::pressEnterToContinue()
-            FileUtils.rm(filepath)
-            NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
+            loop {
+                filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+                break if filepath.nil?
+                puts filepath
+                if filepath.include?("'") then
+                    filepath2 = filepath.gsub("'", ',')
+                    FileUtils.mv(filepath, filepath2)
+                    filepath = filepath2
+                end
+                system("open '#{filepath}'")
+                shouldContinue = LucilleCore::askQuestionAnswerAsBoolean("Continue ? : ")
+                FileUtils.rm(filepath)
+                NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
+                break if !shouldContinue
+            }
             return 
         end
     end
