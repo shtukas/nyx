@@ -102,6 +102,7 @@ class NSXMiscUtils
         `/usr/bin/env tput cols`.to_i
     end
 
+    # NSXMiscUtils::selectDateOfNextNonTodayWeekDay(weekday) #2
     def self.selectDateOfNextNonTodayWeekDay(weekday)
         weekDayIndexToStringRepresentation = lambda {|indx|
             weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
