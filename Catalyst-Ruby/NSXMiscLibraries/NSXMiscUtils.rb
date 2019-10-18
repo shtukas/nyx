@@ -82,6 +82,7 @@ class NSXMiscUtils
         0.001*NSXMiscUtils::traceToRealInUnitInterval(trace)
     end
 
+    # NSXMiscUtils::realNumbersToZeroOne(x, pointAtZeroDotFive, unit) #1
     def self.realNumbersToZeroOne(x, pointAtZeroDotFive, unit)
         alpha =
             if x >= pointAtZeroDotFive then
