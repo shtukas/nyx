@@ -116,7 +116,7 @@ class NSXRunMetrics3 # CountTargetThenCollapseToZero
 
     # NSXRunMetrics3::numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
     def self.numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
-        [3, 2, 1].map{|indx|
+        (1..7).to_a.reverse.map{|indx|
             NSXRunMetrics3::core(points, targetCount*indx, periodInSeconds*indx, metricAtZero, metricAtTarget)
         }
     end
