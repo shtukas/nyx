@@ -36,27 +36,6 @@ require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.
 
 DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/DoNotShowUntilDateTime"
 
-class NSXData
-    # To be decommissioned upon site.
-    def self.getValueAsStringOrNull(datarootfolderpath, id)
-        id = Digest::SHA1.hexdigest(id)
-        pathfragment = "#{id[0,2]}/#{id[2,2]}"
-        filepath = "#{datarootfolderpath}/#{pathfragment}/#{id}.data"
-        return nil if !File.exists?(filepath)
-        IO.read(filepath)
-    end
-    def self.getValueAsIntegerOrNull(datarootfolderpath, id)
-        value = NSXData::getValueAsStringOrNull(datarootfolderpath, id)
-        return nil if value.nil?
-        value.to_i
-    end
-    def self.getValueAsIntegerOrDefaultValue(datarootfolderpath, id, defaultValue)
-        value = NSXData::getValueAsIntegerOrNull(datarootfolderpath, id)
-        return defaultValue if value.nil?
-        value
-    end
-end
-
 class NSXDoNotShowUntilDatetime
 
     # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
@@ -66,9 +45,7 @@ class NSXDoNotShowUntilDatetime
 
     # NSXDoNotShowUntilDatetime::getStoredDatetimeOrNull(objectuuid)
     def self.getStoredDatetimeOrNull(objectuuid)
-        datetime = KeyValueStore::getOrNull(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, "6d3371d3-0600-45d1-93f3-1afa9c3f927f:#{objectuuid}")
-        return datetime if datetime
-        NSXData::getValueAsStringOrNull(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, objectuuid)
+        KeyValueStore::getOrNull(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, "6d3371d3-0600-45d1-93f3-1afa9c3f927f:#{objectuuid}")
     end
 
     # NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
