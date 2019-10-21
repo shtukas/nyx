@@ -169,11 +169,11 @@ class NSXGeneralCommandHandler
             if option == "make new Stream Principal" then
                 streamuuid = SecureRandom.hex
                 description = LucilleCore::askQuestionAnswerAsString("Description: ")
-                hoursExpectation = LucilleCore::askQuestionAnswerAsString("Expectation in Hours: ").to_f
+                multiplicity = LucilleCore::askQuestionAnswerAsString("Multiplicity (multiple of 30 mins, recommended: 1) : ").to_f
                 streamPrincipal = {
-                    "streamuuid"           => streamuuid,
-                    "description"          => description,
-                    "hoursExpectation"     => hoursExpectation
+                    "streamuuid"   => streamuuid,
+                    "description"  => description,
+                    "multiplicity" => multiplicity
                 }
                 NSXStreamsUtils::commitStreamPrincipalToDisk(streamPrincipal)
             end

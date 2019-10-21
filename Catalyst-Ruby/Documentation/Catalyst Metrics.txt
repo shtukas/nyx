@@ -5,9 +5,8 @@
         0.80 Catalyst Inbox
         0.75 Wave: every-this-day-of-the-month / every-this-day-of-the-week
         0.73 Wave: every-n-hours / every-n-days
-        0.70 Daily Guardian Work (special object)
-0.50 -> 0.70 Stream Item
-0.40 -> 0.50 Stream Principal 
+0.50 -> 0.70 Stream Item & Stream Principal 
+        0.60 Daily Guardian Work (special object)
         0.30
 0.20 -> 0.30
 

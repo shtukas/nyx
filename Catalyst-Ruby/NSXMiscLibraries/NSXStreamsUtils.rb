@@ -97,12 +97,12 @@ class NSXStreamsUtils
         nil
     end
 
-    # NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamuuid)
-    def self.streamuuidToStreamPricipalHoursExpectationDefault1(streamuuid)
+    # NSXStreamsUtils::streamuuidToStreamPricipalMultiplicityDefault1(streamuuid)
+    def self.streamuuidToStreamPricipalMultiplicityDefault1(streamuuid)
         NSXStreamsUtils::streamPrincipals()
             .select{|item| item["streamuuid"]==streamuuid }
             .each{|item|
-                return item["hoursExpectation"]
+                return item["multiplicity"]
             }
         1
     end
@@ -247,26 +247,6 @@ class NSXStreamsUtils
         item
     end
 
-    # NSXStreamsUtils::streamItemToMetric(item)
-    def self.streamItemToMetric(item)
-        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
-            m1 = 0.8
-            m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-            return m1+m2
-        end
-        m1 = 
-            NSXRunMetrics1::metric(
-                NSXRunTimes::getPoints(item["streamuuid"]), 
-                NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(item["streamuuid"])*3600,
-                86400,
-                0.7, 
-                0.6
-            )
-        m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        m3 = NSXRunMetrics2::metric(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
-        m1 + m2 + m3
-    end
-
     # NSXStreamsUtils::streamItemToCatalystObject(item)
     def self.streamItemToCatalystObject(item)
         announce = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
@@ -280,44 +260,12 @@ class NSXStreamsUtils
         object["uuid"]           = item["uuid"]
         object["agentuid"]       = NSXAgentStreamsItems::agentuid()
         object["contentItem"]    = contentItem
-        object["metric"]         = NSXStreamsUtils::streamItemToMetric(item)
+        object["metric"]         = NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
         object["commands"]       = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
         object["defaultCommand"] = NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start"
         object["isRunning"]      = NSXRunner::isRunning?(item["uuid"])
         object["metadata"] = {}
         object["metadata"]["item"] = item
-        object
-    end
-
-    # NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
-    def self.streamPrincipalToMetric(streamPrincipal)
-        NSXRunMetrics1::metric(
-            NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
-            NSXStreamsUtils::streamuuidToStreamPricipalHoursExpectationDefault1(streamPrincipal["streamuuid"])*3600,
-            86400,
-            0.5, 
-            0.4
-        )
-    end
-
-    # NSXStreamsUtils::streamPrincipalToCatalystObject(streamPrincipal)
-    def self.streamPrincipalToCatalystObject(streamPrincipal)
-        streamuuid = streamPrincipal["streamuuid"]
-        uuid = "d4165d307783-#{streamuuid}"
-        contentItem = {
-            "type" => "line",
-            "line" => "Stream Principal: #{streamPrincipal["description"]}",
-        }
-        object = {}
-        object["uuid"]           = uuid
-        object["agentuid"]       = NSXAgentStreamsPrincipal::agentuid()
-        object["contentItem"]    = contentItem
-        object["metric"]         = NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
-        object["commands"]       = ["start", "stop", "done"]
-        object["defaultCommand"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
-        object["isRunning"]      = NSXRunner::isRunning?(uuid)
-        object["metadata"]       = {}
-        object["metadata"]["streamuuid"] = streamuuid
         object
     end
 
@@ -417,6 +365,26 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
+    # NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
+    def self.streamItemToCatalystObjectMetric(item)
+        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
+            m1 = 0.8
+            m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
+            return m1+m2
+        end
+        m1 = 
+            NSXRunMetrics1::metric(
+                NSXRunTimes::getPoints(item["streamuuid"]), 
+                NSXStreamsUtils::streamuuidToStreamPricipalMultiplicityDefault1(item["streamuuid"])*1800,
+                86400,
+                0.7, 
+                0.6
+            )
+        m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
+        m3 = NSXRunMetrics2::metric(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
+        m1 + m2 + m3
+    end
+
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         [
@@ -470,6 +438,38 @@ class NSXStreamsUtils
                 "start"
             end
         end
+    end
+
+    # NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
+    def self.streamPrincipalToMetric(streamPrincipal)
+        NSXRunMetrics1::metric(
+            NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
+            NSXStreamsUtils::streamuuidToStreamPricipalMultiplicityDefault1(streamPrincipal["streamuuid"])*1800,
+            86400,
+            0.7,
+            0.6
+        )
+    end
+
+    # NSXStreamsUtils::streamPrincipalToCatalystObject(streamPrincipal)
+    def self.streamPrincipalToCatalystObject(streamPrincipal)
+        streamuuid = streamPrincipal["streamuuid"]
+        uuid = "d4165d307783-#{streamuuid}"
+        contentItem = {
+            "type" => "line",
+            "line" => "Stream Principal: #{streamPrincipal["description"]}",
+        }
+        object = {}
+        object["uuid"]           = uuid
+        object["agentuid"]       = NSXAgentStreamsPrincipal::agentuid()
+        object["contentItem"]    = contentItem
+        object["metric"]         = NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
+        object["commands"]       = ["start", "stop", "done"]
+        object["defaultCommand"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
+        object["isRunning"]      = NSXRunner::isRunning?(uuid)
+        object["metadata"]       = {}
+        object["metadata"]["streamuuid"] = streamuuid
+        object
     end
 
 end

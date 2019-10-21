@@ -15,5 +15,5 @@ StreamPrincipal
 {
     "streamuuid"           : UUID,
     "description"          : String,
-    "hoursExpectation"     : Float
+    "multiplicity"         : Float # multiple of 30 minutes
 }
