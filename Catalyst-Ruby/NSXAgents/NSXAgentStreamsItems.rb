@@ -46,6 +46,36 @@ class NSXAgentStreamsItems
             .first
     end
 
+    # NSXAgentStreamsItems::stopItem(objectuuid, item, isLocalCommand)
+    def self.stopItem(objectuuid, item, isLocalCommand)
+        return if !NSXRunner::isRunning?(objectuuid)
+        timespanInSeconds = NSXRunner::stop(objectuuid)
+        NSXRunTimes::addPoint(item["streamuuid"], Time.new.to_i, timespanInSeconds)
+        NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
+        if isLocalCommand then
+            NSXMultiInstancesWrite::sendEventToDisk({
+                "instanceName" => NSXMiscUtils::instanceName(),
+                "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                "payload"      => {
+                    "uuid"          => SecureRandom.hex,
+                    "collectionuid" => item["streamuuid"],
+                    "unixtime"      => Time.new.to_i,
+                    "algebraicTimespanInSeconds" => timespanInSeconds
+                }
+            })
+            NSXMultiInstancesWrite::sendEventToDisk({
+                "instanceName" => NSXMiscUtils::instanceName(),
+                "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                "payload"      => {
+                    "uuid"          => SecureRandom.hex,
+                    "collectionuid" => item["uuid"],
+                    "unixtime"      => Time.new.to_i,
+                    "algebraicTimespanInSeconds" => timespanInSeconds
+                }
+            })
+        end
+    end
+
     # NSXAgentStreamsItems::processObjectAndCommand(objectuuid, command, isLocalCommand)
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         item = NSXStreamsUtils::getStreamItemByUUIDOrNull(objectuuid)
@@ -57,31 +87,7 @@ class NSXAgentStreamsItems
         end
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
-            timespanInSeconds = NSXRunner::stop(objectuuid)
-            NSXRunTimes::addPoint(item["streamuuid"], Time.new.to_i, timespanInSeconds)
-            NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
-            if isLocalCommand then
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                    "payload"      => {
-                        "uuid"          => SecureRandom.hex,
-                        "collectionuid" => item["streamuuid"],
-                        "unixtime"      => Time.new.to_i,
-                        "algebraicTimespanInSeconds" => timespanInSeconds
-                    }
-                })
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                    "payload"      => {
-                        "uuid"          => SecureRandom.hex,
-                        "collectionuid" => item["uuid"],
-                        "unixtime"      => Time.new.to_i,
-                        "algebraicTimespanInSeconds" => timespanInSeconds
-                    }
-                })
-            end
+            NSXAgentStreamsItems::stopItem(objectuuid, item, isLocalCommand)
             return
         end
         if command == "open" then
@@ -99,6 +105,7 @@ class NSXAgentStreamsItems
             return
         end
         if command == "done" then
+            NSXAgentStreamsItems::stopItem(objectuuid, item, isLocalCommand)
             NSXStreamsUtils::destroyItem(item)
             if isLocalCommand then
                 NSXMultiInstancesWrite::sendEventToDisk({
