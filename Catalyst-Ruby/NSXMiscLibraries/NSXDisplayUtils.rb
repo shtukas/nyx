@@ -13,7 +13,7 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::defaultCatalystObjectCommands()
     def self.defaultCatalystObjectCommands()
-        ["expose", "metadata"]
+        ["expose"]
     end
 
     # NSXDisplayUtils::objectInferfaceString(object)

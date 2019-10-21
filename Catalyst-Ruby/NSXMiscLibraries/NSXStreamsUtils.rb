@@ -275,18 +275,12 @@ class NSXStreamsUtils
             "line" => announce,
             "body" => body
         }
-        commands =
-            if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
-                ["open", "folder", "done", "recast"]
-            else
-                ["start", "stop", "open", "folder", "done", "recast", "push"]
-            end
         object = {}
         object["uuid"]           = item["uuid"]
         object["agentuid"]       = NSXAgentStreamsItems::agentuid()
         object["contentItem"]    = contentItem
         object["metric"]         = NSXStreamsUtils::streamItemToMetric(item)
-        object["commands"]       = commands
+        object["commands"]       = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
         object["defaultCommand"] = NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start"
         object["isRunning"]      = NSXRunner::isRunning?(item["uuid"])
         object
@@ -451,10 +445,14 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
     def self.streamItemToStreamCatalystObjectCommands(item)
+
+        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
+            return ["open", "folder", "done", "recast"]
+        end
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "folder"]
         else
-            ["open" ,"start", "done", "push", "recast", "folder"]
+            ["start", "recast"]
         end
     end
 
