@@ -25,6 +25,7 @@ class NSXAgentStreamsPrincipal
     # NSXAgentStreamsPrincipal::getAllObjects()
     def self.getAllObjects()
         NSXStreamsUtils::streamPrincipals()
+            .reject{|streamprincipal| streamprincipal["streamuuid"] == "03b79978bcf7a712953c5543a9df9047" }
             .map{|streamprincipal| NSXStreamsUtils::streamPrincipalToCatalystObject(streamprincipal) }
     end
 
