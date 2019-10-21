@@ -265,6 +265,10 @@ class NSXGeneralCommandHandler
         end
         if object and command == "start" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "start", true)
+            # We need to update the commands (this is important for Stream objects)
+            if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
+                object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(object["metadata"]["item"])
+            end
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end

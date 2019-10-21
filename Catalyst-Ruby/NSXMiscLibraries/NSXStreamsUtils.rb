@@ -24,6 +24,7 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = nil
 
 def nsx1309_removeItemIdentifiedById(uuid)
+    return if $STREAM_ITEMS_IN_MEMORY_4B4BFE22.nil?
     $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = $STREAM_ITEMS_IN_MEMORY_4B4BFE22.reject{|item| item["uuid"]==uuid }
 end
 
@@ -283,6 +284,8 @@ class NSXStreamsUtils
         object["commands"]       = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
         object["defaultCommand"] = NSXRunner::isRunning?(item["uuid"]) ? "stop" : "start"
         object["isRunning"]      = NSXRunner::isRunning?(item["uuid"])
+        object["metadata"] = {}
+        object["metadata"]["item"] = item
         object
     end
 
