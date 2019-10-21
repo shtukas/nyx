@@ -213,9 +213,6 @@ class NSXGeneralCommandHandler
 
         if command == 'expose' then
             puts JSON.pretty_generate(object)
-            metadata = NSXMetaDataStore::get(object["uuid"])
-            metadata = NSXMetaDataStore::enrichMetadataObject(object["uuid"], metadata)
-            puts JSON.pretty_generate(metadata)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -244,10 +241,6 @@ class NSXGeneralCommandHandler
             text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
             NSXMiscUtils::setXNote(object["uuid"], text)
             return
-        end
-
-        if command == "metadata" then
-            NSXMetaDataStore::uiEditCatalystObjectMetadata(object)
         end
 
         # ---------------------------------------

@@ -20,7 +20,6 @@ class NSXCatalystObjectsOperator
         NSXBob::agents()
             .map{|agentinterface| Object.const_get(agentinterface["agent-name"]).send("getObjects") }
             .flatten
-            .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
     end
 
 
@@ -29,7 +28,6 @@ class NSXCatalystObjectsOperator
         NSXBob::agents()
             .map{|agentinterface| Object.const_get(agentinterface["agent-name"]).send("getAllObjects") }
             .flatten
-            .map{|object| NSXCatalystObjectsOperator::addObjectDecorations(object) }
     end
 
     # NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(uuid)
@@ -47,12 +45,6 @@ class NSXCatalystObjectsOperator
         return nil if object.nil?
         KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{objectuuid}", object["agentuid"])
         object["agentuid"]
-    end
-
-    # NSXCatalystObjectsOperator::addObjectDecorations(object)
-    def self.addObjectDecorations(object)
-        object["decoration:metadata"] = NSXMetaDataStore::get(object["uuid"])
-        object
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
