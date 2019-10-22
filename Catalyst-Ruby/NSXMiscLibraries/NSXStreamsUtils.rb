@@ -448,7 +448,7 @@ class NSXStreamsUtils
             86400,
             0.7,
             0.6
-        )
+        ) + NSXMiscUtils::traceToMetricShift(streamPrincipal["streamuuid"])
     end
 
     # NSXStreamsUtils::streamPrincipalToCatalystObject(streamPrincipal)
