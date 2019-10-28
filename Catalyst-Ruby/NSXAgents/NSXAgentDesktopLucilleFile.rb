@@ -34,7 +34,7 @@ require 'digest/sha1'
 # -------------------------------------------------------------------------------------
 
 LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt"
-LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
+LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
 LUCILLE_FILE_MARKER = "@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b"
 
 $SECTION_UUID_TO_CATALYST_UUIDS = nil

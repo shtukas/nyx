@@ -21,6 +21,8 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 
 # ----------------------------------------------------------------------
 
+STREAMUUID_INFINITY_STREAM_STREAMUUID = "00010011101100010011101100011001"
+
 $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = nil
 
 def nsx1309_removeItemIdentifiedById(uuid)
@@ -40,7 +42,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::newStreamItemFilepathForFilename(filename)
     def self.newStreamItemFilepathForFilename(filename)
-        folder1 = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
+        folder1 = "#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         filepath = "#{folder2}/#{filename}"
         KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
@@ -53,15 +55,15 @@ class NSXStreamsUtils
     # NSXStreamsUtils::commitStreamPrincipalToDisk(streamPrincipal)
     def self.commitStreamPrincipalToDisk(streamPrincipal)
         filename = "#{streamPrincipal["streamuuid"]}.json"
-        filepath = "#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Streams-Principals/#{filename}"
+        filepath = "#{DATABANK_CATALYST_FOLDERPATH}/Streams-Principals/#{filename}"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(streamPrincipal)) }
     end
 
     # NSXStreamsUtils::streamPrincipals()
     def self.streamPrincipals()
-        Dir.entries("#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Streams-Principals")
+        Dir.entries("#{DATABANK_CATALYST_FOLDERPATH}/Streams-Principals")
             .reject{|filename| filename[0,1]=="." }
-            .map{|filename| "#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Streams-Principals/#{filename}" }
+            .map{|filename| "#{DATABANK_CATALYST_FOLDERPATH}/Streams-Principals/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
@@ -112,7 +114,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
     def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
+        Find.find("#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
@@ -145,7 +147,7 @@ class NSXStreamsUtils
             end
         end
         filepath = nil
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
+        Find.find("#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))
@@ -193,7 +195,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::getStreamItems()
     def self.getStreamItems()
         items = []
-        Find.find("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
+        Find.find("#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))

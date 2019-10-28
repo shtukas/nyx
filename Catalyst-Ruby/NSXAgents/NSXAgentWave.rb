@@ -32,7 +32,7 @@ require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.
 
 # ----------------------------------------------------------------------
 
-WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Wave"
+WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Wave"
 
 # ----------------------------------------------------------------------
 

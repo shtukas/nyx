@@ -10,14 +10,14 @@ require 'fileutils'
 
 require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
 
-MULTIINSTANCE_LOG_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_CATALYST_MULTI_INSTANCE_FOLDERPATH}/Activity-Log"
+ACTIVITY_LOG_FOLDERPATH = "#{DATABANK_CATALYST_FOLDERPATH}/Activity-Log"
 
 class NSXMultiInstancesWrite
     # NSXMultiInstancesWrite::sendEventToDisk(event)
     def self.sendEventToDisk(event)
         #puts JSON.pretty_generate(event)
         filename = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}.json"
-        filepath = "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}"
+        filepath = "#{ACTIVITY_LOG_FOLDERPATH}/#{filename}"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -50,10 +50,10 @@ class NSXMultiInstancesRead
 
     # NSXMultiInstancesRead::eventsFilepaths()
     def self.eventsFilepaths()
-        Dir.entries(MULTIINSTANCE_LOG_FOLDERPATH)
+        Dir.entries(ACTIVITY_LOG_FOLDERPATH)
             .select{|filename| filename[-5, 5] == ".json" }
             .sort
-            .map{|filename| "#{MULTIINSTANCE_LOG_FOLDERPATH}/#{filename}" }
+            .map{|filename| "#{ACTIVITY_LOG_FOLDERPATH}/#{filename}" }
     end
 
     # NSXMultiInstancesRead::processEvents()

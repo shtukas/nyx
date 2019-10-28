@@ -197,7 +197,7 @@ class NSXMiscUtils
     # NSXMiscUtils::newBinArchivesFolderpath()
     def self.newBinArchivesFolderpath()
         time = Time.new
-        folder1 = "#{CATALYST_COMMON_BIN_ARCHIVES_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}"
+        folder1 = "#{CATALYST_BIN_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(folder3)
@@ -313,7 +313,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::getXNote(objectuuid)
     def self.getXNote(objectuuid)
-        KeyValueStore::getOrDefaultValue("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
+        KeyValueStore::getOrDefaultValue("#{CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
     end
 
     # NSXMiscUtils::hasXNote(objectuuid)
@@ -323,7 +323,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::setXNote(objectuuid, text)
     def self.setXNote(objectuuid, text)
-        KeyValueStore::set("#{CATALYST_COMMON_DATABANK_CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
+        KeyValueStore::set("#{CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
     end
 
     # NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
