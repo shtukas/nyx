@@ -40,6 +40,25 @@ class NSXAgentStreamsPrincipal
     def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
         object = NSXAgentStreamsPrincipal::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
+        if command == "time:" then
+            streamuuid = object["metadata"]["streamuuid"]
+            timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+            timespanInSeconds = timeInHours*3600
+            NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
+            if isLocalCommand then
+                NSXMultiInstancesWrite::sendEventToDisk({
+                    "instanceName" => NSXMiscUtils::instanceName(),
+                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
+                    "payload"      => {
+                        "uuid"          => SecureRandom.hex,
+                        "collectionuid" => streamuuid,
+                        "unixtime"      => Time.new.to_i,
+                        "algebraicTimespanInSeconds" => timespanInSeconds
+                    }
+                })
+            end
+            return
+        end
         if command == "start" then
             return if NSXRunner::isRunning?(objectuuid)
             NSXRunner::start(objectuuid)

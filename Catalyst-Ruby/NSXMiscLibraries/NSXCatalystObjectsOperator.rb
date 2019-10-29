@@ -22,7 +22,6 @@ class NSXCatalystObjectsOperator
             .flatten
     end
 
-
     # NSXCatalystObjectsOperator::getAllObjectsFromAgents()
     def self.getAllObjectsFromAgents()
         NSXBob::agents()
