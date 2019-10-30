@@ -94,9 +94,9 @@ class NSXCatalystObjectsOperator
     def self.screenNotificationsForAllDoneObjects()
         NSXCatalystObjectsOperator::getAllObjectsFromAgents()
         .each{|object|
-            if object["isDone"] then
+            if object["isRunning"] and object["isDone"] then
                 sleep 2
-                NSXMiscUtils::onScreenNotification("Catalyst", "[done] #{NSXContentUtils::itemToAnnounce(object['contentItem'])}")
+                NSXMiscUtils::onScreenNotification("Catalyst", "done: #{NSXContentUtils::itemToAnnounce(object['contentItem'])}")
             end
         }
     end

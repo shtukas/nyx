@@ -37,7 +37,7 @@ class NSXRunMetrics1 # TimespanTargetThenCollapseToZero
     def self.core(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
         algebraicTimespanInSeconds = points
             .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
-            .map{|point| point["algebraicTimespanInSeconds"].to_f }
+            .map{|point| point["algebraicTimespanInSeconds"].to_f } # .to_f came up because I accidentally injected a string in there
             .inject(0, :+)
         x1 = 0
         y1 = metricAtZero
