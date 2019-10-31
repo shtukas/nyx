@@ -70,8 +70,8 @@ class NSXGeneralCommandHandler
         puts JSON.pretty_generate(streamItem)
     end
 
-    # NSXGeneralCommandHandler::processCatalystCommandCore(object, command, isLocalCommand)
-    def self.processCatalystCommandCore(object, command, isLocalCommand)
+    # NSXGeneralCommandHandler::processCatalystCommandCore(object, command)
+    def self.processCatalystCommandCore(object, command)
 
         return false if command.nil?
 
@@ -207,7 +207,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == '..' and object["defaultCommand"] then
-            NSXGeneralCommandHandler::processCatalystCommandManager(object, object["defaultCommand"], isLocalCommand)
+            NSXGeneralCommandHandler::processCatalystCommandManager(object, object["defaultCommand"])
             return
         end
 
@@ -218,7 +218,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == "++" then
-            NSXGeneralCommandHandler::processCatalystCommandCore(object, "+1 hour", isLocalCommand)
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "+1 hour")
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
@@ -243,18 +243,18 @@ class NSXGeneralCommandHandler
         return if agentuid.nil?
         agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
         return if agentdata.nil?
-        Object.const_get(agentdata["agent-name"]).send("processObjectAndCommand", objectuuid, command, isLocalCommand)
+        Object.const_get(agentdata["agent-name"]).send("processObjectAndCommand", objectuuid, command)
     end
 
-    # NSXGeneralCommandHandler::processCatalystCommandManager(object, command, isLocalCommand)
-    def self.processCatalystCommandManager(object, command, isLocalCommand)
+    # NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
+    def self.processCatalystCommandManager(object, command)
         if object and command == "open" then
-            NSXGeneralCommandHandler::processCatalystCommandCore(object, "open", true)
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end
         if object and command == "start" then
-            NSXGeneralCommandHandler::processCatalystCommandCore(object, "start", true)
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "start")
             # We need to update the commands (this is important for Stream objects)
             if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
                 object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(object["metadata"]["item"])
@@ -262,7 +262,7 @@ class NSXGeneralCommandHandler
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end
-        NSXGeneralCommandHandler::processCatalystCommandCore(object, command, isLocalCommand)
+        NSXGeneralCommandHandler::processCatalystCommandCore(object, command)
     end
 
 end

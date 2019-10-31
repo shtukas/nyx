@@ -46,16 +46,16 @@ class NSXAgentStreamsItems
             .first
     end
 
-    # NSXAgentStreamsItems::stopItem(objectuuid, item, isLocalCommand)
-    def self.stopItem(objectuuid, item, isLocalCommand)
+    # NSXAgentStreamsItems::stopItem(objectuuid, item)
+    def self.stopItem(objectuuid, item)
         return if !NSXRunner::isRunning?(objectuuid)
         timespanInSeconds = NSXRunner::stop(objectuuid)
         NSXRunTimes::addPoint(item["streamuuid"], Time.new.to_i, timespanInSeconds)
         NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
     end
 
-    # NSXAgentStreamsItems::processObjectAndCommand(objectuuid, command, isLocalCommand)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+    # NSXAgentStreamsItems::processObjectAndCommand(objectuuid, command)
+    def self.processObjectAndCommand(objectuuid, command)
         item = NSXStreamsUtils::getStreamItemByUUIDOrNull(objectuuid)
         return if item.nil?
         if command == "start" then
@@ -65,7 +65,7 @@ class NSXAgentStreamsItems
         end
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
-            NSXAgentStreamsItems::stopItem(objectuuid, item, isLocalCommand)
+            NSXAgentStreamsItems::stopItem(objectuuid, item)
             return
         end
         if command == "open" then
@@ -83,7 +83,7 @@ class NSXAgentStreamsItems
             return
         end
         if command == "done" then
-            NSXAgentStreamsItems::stopItem(objectuuid, item, isLocalCommand)
+            NSXAgentStreamsItems::stopItem(objectuuid, item)
             NSXStreamsUtils::destroyItem(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return

@@ -51,7 +51,7 @@ class NSXCatalystUI
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
-            NSXGeneralCommandHandler::processCatalystCommandManager(nil, command, true)
+            NSXGeneralCommandHandler::processCatalystCommandManager(nil, command)
             return
         end
 
@@ -104,7 +104,7 @@ class NSXCatalystUI
             return
         end
 
-        NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, command, true)
+        NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, command)
     end
 
     # NSXCatalystUI::standardUILoop()

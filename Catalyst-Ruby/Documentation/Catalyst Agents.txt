@@ -8,4 +8,4 @@ getObjects(): Array[CatalystObject]
 
 getAllObjects(): Array[CatalystObject] # All known objects, used for search
 
-processObjectAndCommand(object, command, isLocalCommand = true): Boolean
+processObjectAndCommand(object, command): Boolean

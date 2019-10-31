@@ -36,8 +36,8 @@ class NSXAgentStreamsPrincipal
             .first
     end
 
-    # NSXAgentStreamsPrincipal::processObjectAndCommand(objectuuid, command, isLocalCommand)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+    # NSXAgentStreamsPrincipal::processObjectAndCommand(objectuuid, command)
+    def self.processObjectAndCommand(objectuuid, command)
         object = NSXAgentStreamsPrincipal::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
         if command == "time:" then

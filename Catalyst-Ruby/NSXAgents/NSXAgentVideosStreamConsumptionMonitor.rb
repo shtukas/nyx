@@ -99,8 +99,8 @@ class NSXAgentVideosStreamConsumptionMonitor
         ]
     end
 
-    # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+    # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command)
+    def self.processObjectAndCommand(objectuuid, command)
         if command == "activate" then
             loop {
                 filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first

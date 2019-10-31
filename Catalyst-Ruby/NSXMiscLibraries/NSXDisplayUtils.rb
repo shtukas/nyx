@@ -89,7 +89,7 @@ class NSXDisplayUtils
         puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1)
         print "--> "
         command = STDIN.gets().strip
-        NSXGeneralCommandHandler::processCatalystCommandManager(object, command, true)
+        NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
     end
 
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean

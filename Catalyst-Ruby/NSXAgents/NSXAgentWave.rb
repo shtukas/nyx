@@ -330,7 +330,7 @@ class NSXAgentWave
             .map{|uuid| NSXAgentWaveUtils::makeCatalystObjectOrNull(uuid) }
     end
 
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+    def self.processObjectAndCommand(objectuuid, command)
         object = NSXAgentWaveUtils::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
         schedule = object['schedule']
@@ -375,13 +375,9 @@ class NSXAgentWave
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            if isLocalCommand then
-                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                    NSXAgentWaveUtils::archiveWaveItem(objectuuid)
-                    return
-                end
-            else
+            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 NSXAgentWaveUtils::archiveWaveItem(objectuuid)
+                return
             end
             return
         end

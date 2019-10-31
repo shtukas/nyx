@@ -156,8 +156,8 @@ class NSXAgentDesktopLucilleFile
         objects
     end
 
-    # NSXAgentDesktopLucilleFile::processObjectAndCommand(objectuuid, command, isLocalCommand)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+    # NSXAgentDesktopLucilleFile::processObjectAndCommand(objectuuid, command)
+    def self.processObjectAndCommand(objectuuid, command)
         if command == "done" then
             # The objectuuid is the sectionuuid, so there is not need to look the object up
             # to extract the sectionuuids

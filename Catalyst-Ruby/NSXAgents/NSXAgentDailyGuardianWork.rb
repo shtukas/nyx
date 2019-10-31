@@ -43,8 +43,8 @@ class NSXAgentDailyGuardianWork
         [object]
     end
 
-    # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command, isLocalCommand)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+    # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command)
+    def self.processObjectAndCommand(objectuuid, command)
         if command == "done" then
             KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
             return 

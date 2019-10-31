@@ -44,8 +44,8 @@ class NSXAgentDesktopFilesMonitor
         ]
     end
 
-    # NSXAgentDesktopFilesMonitor::processObjectAndCommand(objectuuid, command, isLocalCommand)
-    def self.processObjectAndCommand(objectuuid, command, isLocalCommand)
+    # NSXAgentDesktopFilesMonitor::processObjectAndCommand(objectuuid, command)
+    def self.processObjectAndCommand(objectuuid, command)
         if command == "done" then
             # The only way to done this item is to clean the Desktop.
         end
