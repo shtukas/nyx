@@ -36,6 +36,12 @@ Event Types
 
     - "test", any payload, use for tests
 
+    - "DoNotShowUntilDateTime"
+        {
+            "objectuuid": String,
+            "datetime"  : DateTime
+        }
+
 =end
 
 class NSXEventsLog
