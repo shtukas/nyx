@@ -52,28 +52,6 @@ class NSXAgentStreamsItems
         timespanInSeconds = NSXRunner::stop(objectuuid)
         NSXRunTimes::addPoint(item["streamuuid"], Time.new.to_i, timespanInSeconds)
         NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
-        if isLocalCommand then
-            NSXMultiInstancesWrite::sendEventToDisk({
-                "instanceName" => NSXMiscUtils::instanceName(),
-                "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                "payload"      => {
-                    "uuid"          => SecureRandom.hex,
-                    "collectionuid" => item["streamuuid"],
-                    "unixtime"      => Time.new.to_i,
-                    "algebraicTimespanInSeconds" => timespanInSeconds
-                }
-            })
-            NSXMultiInstancesWrite::sendEventToDisk({
-                "instanceName" => NSXMiscUtils::instanceName(),
-                "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                "payload"      => {
-                    "uuid"          => SecureRandom.hex,
-                    "collectionuid" => item["uuid"],
-                    "unixtime"      => Time.new.to_i,
-                    "algebraicTimespanInSeconds" => timespanInSeconds
-                }
-            })
-        end
     end
 
     # NSXAgentStreamsItems::processObjectAndCommand(objectuuid, command, isLocalCommand)
@@ -107,16 +85,6 @@ class NSXAgentStreamsItems
         if command == "done" then
             NSXAgentStreamsItems::stopItem(objectuuid, item, isLocalCommand)
             NSXStreamsUtils::destroyItem(item)
-            if isLocalCommand then
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:CatalystObjectUUID+Command",
-                    "payload"      => {
-                        "objectuuid" => objectuuid,
-                        "command"    => "done"
-                    }
-                })
-            end
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return
         end

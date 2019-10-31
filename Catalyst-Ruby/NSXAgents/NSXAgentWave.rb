@@ -342,16 +342,6 @@ class NSXAgentWave
 
         if command=='done' then
             NSXAgentWaveUtils::performDone(object)
-            if isLocalCommand then
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:CatalystObjectUUID+Command",
-                    "payload"      => {
-                        "objectuuid" => objectuuid,
-                        "command"    => "done"
-                    }
-                })
-            end
             return
         end
 
@@ -388,14 +378,6 @@ class NSXAgentWave
             if isLocalCommand then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                     NSXAgentWaveUtils::archiveWaveItem(objectuuid)
-                    NSXMultiInstancesWrite::sendEventToDisk({
-                        "instanceName" => NSXMiscUtils::instanceName(),
-                        "eventType"    => "MultiInstanceEventType:CatalystObjectUUID+Command",
-                        "payload"      => {
-                            "objectuuid" => objectuuid,
-                            "command"    => "done"
-                        }
-                    })
                     return
                 end
             else

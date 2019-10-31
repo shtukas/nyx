@@ -45,18 +45,6 @@ class NSXAgentStreamsPrincipal
             timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
             timespanInSeconds = timeInHours*3600
             NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
-            if isLocalCommand then
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                    "payload"      => {
-                        "uuid"          => SecureRandom.hex,
-                        "collectionuid" => streamuuid,
-                        "unixtime"      => Time.new.to_i,
-                        "algebraicTimespanInSeconds" => timespanInSeconds
-                    }
-                })
-            end
             return
         end
         if command == "start" then
@@ -69,18 +57,6 @@ class NSXAgentStreamsPrincipal
             timespanInSeconds = NSXRunner::stop(objectuuid)
             streamuuid = object["metadata"]["streamuuid"]
             NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
-            if isLocalCommand then
-                NSXMultiInstancesWrite::sendEventToDisk({
-                    "instanceName" => NSXMiscUtils::instanceName(),
-                    "eventType"    => "MultiInstanceEventType:RunTimesPoint",
-                    "payload"      => {
-                        "uuid"          => SecureRandom.hex,
-                        "collectionuid" => streamuuid,
-                        "unixtime"      => Time.new.to_i,
-                        "algebraicTimespanInSeconds" => timespanInSeconds
-                    }
-                })
-            end
             return
         end
     end
