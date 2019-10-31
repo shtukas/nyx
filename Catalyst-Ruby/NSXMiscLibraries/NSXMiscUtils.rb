@@ -65,6 +65,12 @@ class NSXMiscUtils
         NSXMiscUtils::weekDays()[Time.new.wday]
     end
 
+    # NSXMiscUtils::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # NSXMiscUtils::isInteger(str)
     def self.isInteger(str)
         str.to_i.to_s == str
     end
