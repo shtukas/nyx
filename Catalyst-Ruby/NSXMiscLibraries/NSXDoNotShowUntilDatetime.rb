@@ -38,15 +38,17 @@ DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_INSTANCE_FOLDERPATH}/DoNotS
 
 class NSXDoNotShowUntilDatetime
 
-    # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
-    def self.setDatetime(objectuuid, datetime)
+    # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime, isEventLog)
+    def self.setDatetime(objectuuid, datetime, isEventLog)
         KeyValueStore::set(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, "6d3371d3-0600-45d1-93f3-1afa9c3f927f:#{objectuuid}", datetime)
-        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "DoNotShowUntilDateTime",
-            {
-                "objectuuid" => objectuuid,
-                "datetime"   => datetime
-            }
-        )
+        if !isEventLog then
+            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "DoNotShowUntilDateTime",
+                {
+                    "objectuuid" => objectuuid,
+                    "datetime"   => datetime
+                }
+            )
+        end
     end
 
     # NSXDoNotShowUntilDatetime::getStoredDatetimeOrNull(objectuuid)

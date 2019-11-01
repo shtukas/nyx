@@ -223,7 +223,7 @@ class NSXGeneralCommandHandler
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
-            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
+            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime, false)
             return
         end
 

@@ -1,0 +1,26 @@
+"test"
+    any payload # use for tests
+
+"DoNotShowUntilDateTime"
+    {
+        "objectuuid": String,
+        "datetime"  : DateTime
+    }
+
+"NSXAgentWave/CommandProcessor/done"
+    {
+        "objectuuid" : objectuuid
+    }
+
+"NSXAgentWave/CommandProcessor/description:"
+    {
+        "objectuuid" : objectuuid,
+        "description": description
+    }
+
+"NSXAgentWave/CommandProcessor/destroy"
+    {
+        "objectuuid" => objectuuid
+    }
+
+

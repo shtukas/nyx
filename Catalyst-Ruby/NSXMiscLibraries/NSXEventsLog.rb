@@ -5,6 +5,10 @@ require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb
 
 require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
@@ -24,23 +28,13 @@ require "json"
 
 Event (
     "uuid"          : String
-    "l22DateString" : String
+    "timestamp"     : Float
     "instanceName"  : String
     "eventType"     : String
     "payload"       : Value or Object
 )
 
 The event is stored on disk in a file with name <l22DateString>.event
-
-Event Types
-
-    - "test", any payload, use for tests
-
-    - "DoNotShowUntilDateTime"
-        {
-            "objectuuid": String,
-            "datetime"  : DateTime
-        }
 
 =end
 
@@ -61,7 +55,7 @@ class NSXEventsLog
         l22 = NSXStreamsUtils::timeStringL22()
         event = {}
         event["uuid"] = SecureRandom.uuid
-        event["l22DateString"] = l22
+        event["timestamp"] = Time.new.to_f
         event["instanceName"] = instanceName
         event["eventType"] = eventType
         event["payload"] = payload
@@ -79,6 +73,31 @@ class NSXEventsLog
         end
     end
 
+    # NSXEventsLog::eventsOrdered()
+    def self.eventsOrdered()
+        NSXEventsLog::eventEnumerator()
+            .to_a
+            .sort{|e1, e2| e1["timestamp"] <=> e2["timestamp"] }
+    end
+
+    # NSXEventsLog::markEventAsHavingBeenGivenToClient(eventuuid, clientID)
+    def self.markEventAsHavingBeenGivenToClient(eventuuid, clientID)
+        KeyValueStore::setFlagTrue(nil, "#{eventuuid}/#{clientID}")
+    end
+
+    # NSXEventsLog::trueIfEventHasBeenGivenToClient(eventuuid, clientID)
+    def self.trueIfEventHasBeenGivenToClient(eventuuid, clientID)
+        KeyValueStore::flagIsTrue(nil, "#{eventuuid}/#{clientID}")
+    end
+
+    # NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce(eventType, instanceName, clientID)
+    def self.allEventsOfGivenTypeNotByInstanceForClientOnlyOnce(eventType, instanceName, clientID)
+        events = NSXEventsLog::eventsOrdered()
+            .select{|event| event["eventType"] == eventType }
+            .reject{|event| event["instanceName"] == instanceName }
+            .reject{|event| NSXEventsLog::trueIfEventHasBeenGivenToClient(event["uuid"], clientID) }
+        events.each{|event| NSXEventsLog::markEventAsHavingBeenGivenToClient(event["uuid"], clientID) }
+        events
+    end
+
 end
-
-

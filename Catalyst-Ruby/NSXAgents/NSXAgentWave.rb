@@ -300,12 +300,20 @@ class NSXAgentWaveUtils
             .first
     end
 
-    # NSXAgentWaveUtils::performDone(object)
-    def self.performDone(object)
-        uuid = object['uuid']
+    # NSXAgentWaveUtils::performDone2(objectuuid, isEventLog)
+    def self.performDone2(objectuuid, isEventLog)
+        object = NSXAgentWaveUtils::getObjectByUUIDOrNull(objectuuid)
+        return if object.nil?
         schedule = object['schedule']
-        datetime = NSXAgentWaveUtils::scheduleToDoNotShowDatetime(uuid, schedule)
-        NSXDoNotShowUntilDatetime::setDatetime(uuid, datetime)
+        datetime = NSXAgentWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
+        NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime, isEventLog)
+    end
+
+    # NSXAgentWaveUtils::setItemDescription(objectuuid, description)
+    def self.setItemDescription(objectuuid, description)
+        folderpath = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        return if folderpath.nil?
+        File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
     end
 
 end
@@ -331,21 +339,26 @@ class NSXAgentWave
     end
 
     def self.processObjectAndCommand(objectuuid, command)
-        object = NSXAgentWaveUtils::getObjectByUUIDOrNull(objectuuid)
-        return if object.nil?
-        schedule = object['schedule']
-        if command=='open' then
+
+        if command == 'open' then
+            object = NSXAgentWaveUtils::getObjectByUUIDOrNull(objectuuid)
+            return if object.nil?
             metadata = object["item-data"]["folder-probe-metadata"]
             NSXFolderProbe::openActionOnMetadata(metadata)
             return
         end
 
-        if command=='done' then
-            NSXAgentWaveUtils::performDone(object)
+        if command == 'done' then
+            NSXAgentWaveUtils::performDone2(objectuuid, false)
+            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/done",
+                {
+                    "objectuuid" => objectuuid
+                }
+            )
             return
         end
 
-        if command=='recast' then
+        if command == 'recast' then
             schedule = NSXAgentWaveUtils::makeNewSchedule()
             NSXAgentWaveUtils::writeScheduleToDisk(objectuuid, schedule)
             return
@@ -356,20 +369,26 @@ class NSXAgentWave
             if description.nil? then
                 puts "usage: description: <description>"
                 LucilleCore::pressEnterToContinue()
+                return
             end
-            folderpath = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-            File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
+            NSXAgentWaveUtils::setItemDescription(objectuuid, description)
+            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/description:",
+                {
+                    "objectuuid" => objectuuid,
+                    "description" => description
+                }
+            )
             return
         end
 
-        if command=='folder' then
+        if command == 'folder' then
             location = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
             return
         end
 
-        if command=='destroy' then
+        if command == 'destroy' then
             if NSXMiscUtils::hasXNote(objectuuid) then
                 puts "You cannot destroy a wave with an active note"
                 LucilleCore::pressEnterToContinue()
@@ -377,6 +396,11 @@ class NSXAgentWave
             end
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 NSXAgentWaveUtils::archiveWaveItem(objectuuid)
+                NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/destroy",
+                    {
+                        "objectuuid" => objectuuid
+                    }
+                )
                 return
             end
             return
