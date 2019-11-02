@@ -92,8 +92,8 @@ class NSXAgentVideosStreamConsumptionMonitor
                 "agentuid"            => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
                 "contentItem"         => contentItem,
                 "metric"              => NSXAgentVideosStreamConsumptionMonitorHelper::metric(),
-                "commands"            => ["activate"],
-                "defaultCommand"      => "activate",
+                "commands"            => ["view", "activate"],
+                "defaultCommand"      => "view",
                 "agent:meta:filepath" => filepath
             }
         ]
@@ -101,6 +101,21 @@ class NSXAgentVideosStreamConsumptionMonitor
 
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command)
     def self.processObjectAndCommand(objectuuid, command)
+        if command == "view" then
+            filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+            return if filepath.nil?
+            puts filepath
+            if filepath.include?("'") then
+                filepath2 = filepath.gsub("'", ',')
+                FileUtils.mv(filepath, filepath2)
+                filepath = filepath2
+            end
+            system("open '#{filepath}'")
+            LucilleCore::pressEnterToContinue()
+            FileUtils.rm(filepath)
+            NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
+            return
+        end
         if command == "activate" then
             loop {
                 filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
@@ -117,7 +132,7 @@ class NSXAgentVideosStreamConsumptionMonitor
                 NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
                 break if !shouldContinue
             }
-            return 
+            return
         end
     end
 end
