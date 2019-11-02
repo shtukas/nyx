@@ -47,7 +47,10 @@ class NSXAgentDailyGuardianWork
     def self.processObjectAndCommand(objectuuid, command)
         if command == "done" then
             KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
-            return 
+            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentDailyGuardianWork/CommandProcessor/done", {
+                "date" => NSXMiscUtils::currentDay()
+            })
+            return
         end
     end
 end

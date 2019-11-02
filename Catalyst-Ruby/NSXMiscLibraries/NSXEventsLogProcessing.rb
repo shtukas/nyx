@@ -29,29 +29,32 @@ class NSXEventsLogProcessing
     # NSXEventsLogProcessing::threadProcessor()
     def self.threadProcessor()
 
-         # Processing "DoNotShowUntilDateTime"
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("DoNotShowUntilDateTime", NSXMiscUtils::instanceName(), "80256506-8e94-40e5-8209-97d719d3cfcd")
          .each{|event|
             NSXDoNotShowUntilDatetime::setDatetime(event["payload"]["objectuuid"], event["payload"]["datetime"], true)
          }
 
-         # Processing "NSXAgentWave/CommandProcessor/done"
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentWave/CommandProcessor/done", NSXMiscUtils::instanceName(), "3d804ca9-a500-4ec1-89fd-fd537015934d")
          .each{|event|
             NSXAgentWaveUtils::performDone2(event["payload"]["objectuuid"], true)
          }
 
-         # Processing "NSXAgentWave/CommandProcessor/description:"
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentWave/CommandProcessor/description:", NSXMiscUtils::instanceName(), "90c10492-a99f-4e15-9689-51f858884bcd")
          .each{|event|
             NSXAgentWaveUtils::setItemDescription(event["payload"]["objectuuid"], event["payload"]["description"])
          }
 
-         # Processing "NSXAgentWave/CommandProcessor/destroy"
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentWave/CommandProcessor/destroy", NSXMiscUtils::instanceName(), "338f5090-7e41-46a7-87dd-170e7a8929c9")
          .each{|event|
             NSXAgentWaveUtils::archiveWaveItem(event["payload"]["objectuuid"])
          }
+
+         # Processing "NSXAgentWave/CommandProcessor/destroy"
+         NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentDailyGuardianWork/CommandProcessor/done", NSXMiscUtils::instanceName(), "e50d19b4-ac88-41af-8082-b633b8f91e93")
+         .each{|event|
+            KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{event["payload"]["date"]}")
+         }
+
 
     end
 
