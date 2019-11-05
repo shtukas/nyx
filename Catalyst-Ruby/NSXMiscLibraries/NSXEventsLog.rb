@@ -52,7 +52,7 @@ class NSXEventsLog
 
     # NSXEventsLog::issueEvent(instanceName: String, eventType: String, payload: Payload)
     def self.issueEvent(instanceName, eventType, payload)
-        l22 = NSXStreamsUtils::timeStringL22()
+        l22 = NSXMiscUtils::timeStringL22()
         event = {}
         event["uuid"] = SecureRandom.uuid
         event["timestamp"] = Time.new.to_f

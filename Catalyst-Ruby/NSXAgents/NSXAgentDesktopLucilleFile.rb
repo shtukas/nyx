@@ -27,38 +27,104 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 # -------------------------------------------------------------------------------------
 
 # Struct2: [Array[Section], Array[Section]]
 
 # -------------------------------------------------------------------------------------
 
-LUCILLE_DATA_FILE_PATH = "/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt"
 LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
 LUCILLE_FILE_MARKER = "@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b"
 
 $SECTION_UUID_TO_CATALYST_UUIDS = nil
 
-class LucilleFileHelper
+class LucilleLocationUtils
 
-    # LucilleFileHelper::sectionToSectionUUID(section)
+    # LucilleLocationUtils::getThisInstanceLucilleFilename()
+    def self.getThisInstanceLucilleFilename()
+        "#{NSXMiscUtils::instanceName()}-20191104-183028-425057.txt"
+    end
+
+    # LucilleLocationUtils::getThisInstanceLucilleFilepath()
+    def self.getThisInstanceLucilleFilepath()
+        "/Users/pascal/Desktop/#{LucilleLocationUtils::getThisInstanceLucilleFilename()}"
+    end
+
+    # LucilleLocationUtils::makeNewInstanceLucilleFilename(instanceName)
+    def self.makeNewInstanceLucilleFilename(instanceName)
+        "#{instanceName}-#{NSXMiscUtils::timeStringL22()}.txt"
+    end
+
+    # LucilleLocationUtils::makeNewInstanceLucilleFilepath(instanceName)
+    def self.makeNewInstanceLucilleFilepath(instanceName)
+        "/Users/pascal/Desktop/#{LucilleLocationUtils::makeNewInstanceLucilleFilename(instanceName)}"
+    end
+
+    # LucilleLocationUtils::getInstanceLucilleFilenames(instanceName)
+    def self.getInstanceLucilleFilenames(instanceName)
+        Dir.entries("/Users/pascal/Desktop")
+            .reject{|filename| filename[0, 1] == "." }
+            .select{|filename| filename.start_with?(instanceName) }
+            .select{|filename| filename.size==36 }
+            .select{|filename| filename[-4, 4] == ".txt" }
+            .sort
+    end
+
+    # LucilleLocationUtils::getLucilleFilenames()
+    def self.getLucilleFilenames()
+        Dir.entries("/Users/pascal/Desktop")
+            .reject{|filename| filename[0, 1] == "." }
+            .select{|filename| filename.size==36 }
+            .select{|filename| filename[-4, 4] == ".txt" }
+            .sort
+    end
+
+    # LucilleLocationUtils::getLucilleFilepaths()
+    def self.getLucilleFilepaths()
+        LucilleLocationUtils::getLucilleFilenames()
+            .map{|filename| "/Users/pascal/Desktop/#{filename}" }
+    end
+
+    # LucilleLocationUtils::getInstanceLucilleFilepaths(instanceName)
+    def self.getInstanceLucilleFilepaths(instanceName)
+        LucilleLocationUtils::getInstanceLucilleFilenames(instanceName)
+            .map{|filename| "/Users/pascal/Desktop/#{filename}" }
+    end
+
+    # LucilleLocationUtils::getLastInstanceLucilleFilepath(instanceName)
+    def self.getLastInstanceLucilleFilepath(instanceName)
+        LucilleLocationUtils::getInstanceLucilleFilepaths(instanceName).last
+    end
+
+end
+
+class LucilleFileUtils
+
+    # LucilleFileUtils::sectionToSectionUUID(section)
     def self.sectionToSectionUUID(section)
         Digest::SHA1.hexdigest(section.strip)[0, 8]
     end
 
-    # LucilleFileHelper::fileContentsToStruct1(content) : [Part, Part]
+    # LucilleFileUtils::fileContentsToStruct1(content) : [Part, Part]
     def self.fileContentsToStruct1(content)
         content.split(LUCILLE_FILE_MARKER)
     end
 
-    # LucilleFileHelper::fileContentsToStruct2(content) : [Array[Section], Array[Section]]
+    # LucilleFileUtils::fileContentsToStruct2(content) : [Array[Section], Array[Section]]
     def self.fileContentsToStruct2(content)
-        LucilleFileHelper::fileContentsToStruct1(content).map{|part|
+        LucilleFileUtils::fileContentsToStruct1(content).map{|part|
             SectionsType0141::contentToSections(part.lines.to_a)
         }
     end
 
-    # LucilleFileHelper::struct2ToFileContent(struct2)
+    # LucilleFileUtils::struct2ToFileContent(struct2)
     def self.struct2ToFileContent(struct2)
         [
             struct2[0].map{|str| str.strip}.join("\n").strip,
@@ -69,37 +135,79 @@ class LucilleFileHelper
         ].join()
     end
 
-    # LucilleFileHelper::commitStruct2ToDisk(struct2)
-    def self.commitStruct2ToDisk(struct2)
-        File.open(LUCILLE_DATA_FILE_PATH, "w") { |io| io.puts(LucilleFileHelper::struct2ToFileContent(struct2)) }
+    # LucilleFileUtils::commitStruct2ToDiskAtFilepath(filepath, struct2)
+    def self.commitStruct2ToDiskAtFilepath(filepath, struct2)
+        File.open(filepath, "w") { |io| io.puts(LucilleFileUtils::struct2ToFileContent(struct2)) }
     end
 
-    # LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(uuid)
-    def self.reWriteLucilleFileWithoutThisSectionUUID(uuid)
-        NSXMiscUtils::copyLocationToCatalystBin(LUCILLE_DATA_FILE_PATH)
-        content = IO.read(LUCILLE_DATA_FILE_PATH)
-        struct2 = LucilleFileHelper::fileContentsToStruct2(content)
+    # LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID(instanceName, uuid)
+    def self.writeANewLucilleFileForThisInstanceWithoutThisSectionUUID(instanceName, uuid)
+        lastFilepath = LucilleLocationUtils::getLastInstanceLucilleFilepath(instanceName)
+        NSXMiscUtils::copyLocationToCatalystBin(lastFilepath)
+        struct2 = LucilleFileUtils::getStructForInstance(instanceName)
+        hash1 = Digest::SHA1.hexdigest(JSON.generate(struct2))
         struct2 = struct2.map{|sections|
             sections.reject{|section|
-                LucilleFileHelper::sectionToSectionUUID(section) == uuid
+                LucilleFileUtils::sectionToSectionUUID(section) == uuid
             }
         }
-        LucilleFileHelper::commitStruct2ToDisk(struct2)
+        hash2 = Digest::SHA1.hexdigest(JSON.generate(struct2))
+        return if hash1 == hash2
+        newFilepath = LucilleLocationUtils::makeNewInstanceLucilleFilepath(instanceName)
+        LucilleFileUtils::commitStruct2ToDiskAtFilepath(newFilepath, struct2)
     end
 
-    # LucilleFileHelper::applyNextTransformationToStruct2(struct2)
+    # LucilleFileUtils::applyNextTransformationToStruct2(struct2)
     def self.applyNextTransformationToStruct2(struct2)
         return struct2 if struct2[0].empty?
         struct2[0][0] = NSXMiscUtils::applyNextTransformationToContent(struct2[0][0])
         struct2
     end
 
-    # LucilleFileHelper::applyNextTransformationToLucilleFile()
-    def self.applyNextTransformationToLucilleFile()
-        NSXMiscUtils::copyLocationToCatalystBin(LUCILLE_DATA_FILE_PATH)
-        struct2 = LucilleFileHelper::fileContentsToStruct2(IO.read(LUCILLE_DATA_FILE_PATH))
-        struct2 = LucilleFileHelper::applyNextTransformationToStruct2(struct2)
-        LucilleFileHelper::commitStruct2ToDisk(struct2)
+    # LucilleFileUtils::applyNextTransformationToLucilleFile(filepath1, filepath2)
+    def self.applyNextTransformationToLucilleFile(filepath1, filepath2)
+        NSXMiscUtils::copyLocationToCatalystBin(filepath1)
+        struct2 = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath1))
+        struct2 = LucilleFileUtils::applyNextTransformationToStruct2(struct2)
+        LucilleFileUtils::commitStruct2ToDiskAtFilepath(filepath2, struct2)
+    end
+
+    # LucilleFileUtils::getStructForInstance(instanceName)
+    def self.getStructForInstance(instanceName)
+        LucilleLocationUtils::getInstanceLucilleFilepaths(instanceName)
+            .reduce([[], []]){|struct2, filepath|
+                s = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
+                [
+                    (struct2[0] + s[0]).uniq,
+                    (struct2[1] + s[1]).uniq,
+                ]
+            }
+    end
+
+    # LucilleFileUtils::getStructAcrossAllInstances()
+    def self.getStructAcrossAllInstances()
+        LucilleLocationUtils::getLucilleFilepaths()
+            .reduce([[], []]){|struct2, filepath|
+                s = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
+                [
+                    (struct2[0] + s[0]).uniq,
+                    (struct2[1] + s[1]).uniq,
+                ]
+            }
+    end
+
+    # LucilleFileUtils::garbageColletionForThisInstance(instanceName)
+    def self.garbageColletionForThisInstance(instanceName)
+        filepaths = LucilleLocationUtils::getInstanceLucilleFilepaths(instanceName)
+        return if filepaths.size <= 1
+        FileUtils.rm(filepaths.first)
+        LucilleFileUtils::garbageColletionForThisInstance(instanceName)
+    end
+
+    # LucilleFileUtils::garbageColletion()
+    def self.garbageColletion()
+        LucilleFileUtils::garbageColletionForThisInstance("Lucille18")
+        LucilleFileUtils::garbageColletionForThisInstance("Lucille19")
     end
 
 end
@@ -134,10 +242,10 @@ class NSXAgentDesktopLucilleFile
     # NSXAgentDesktopLucilleFile::getAllObjects()
     def self.getAllObjects()
         integers = LucilleCore::integerEnumerator()
-        struct2 = LucilleFileHelper::fileContentsToStruct2(IO.read(LUCILLE_DATA_FILE_PATH))
+        struct2 = LucilleFileUtils::getStructAcrossAllInstances()
         objects = (struct2[0]+struct2[1])
                     .map{|section|
-                        uuid = LucilleFileHelper::sectionToSectionUUID(section)
+                        uuid = LucilleFileUtils::sectionToSectionUUID(section)
                         contentItem = {
                             "type" => "line-and-body",
                             "line" => "Lucille: #{section.strip.lines.first}",
@@ -161,7 +269,9 @@ class NSXAgentDesktopLucilleFile
         if command == "done" then
             # The objectuuid is the sectionuuid, so there is not need to look the object up
             # to extract the sectionuuids
-            LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(objectuuid)
+            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille18", objectuuid)
+            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille19", objectuuid)
+            LucilleFileUtils::garbageColletion()
             return
         end
         if command == ">stream" then
@@ -172,7 +282,8 @@ class NSXAgentDesktopLucilleFile
             streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
-            LucilleFileHelper::reWriteLucilleFileWithoutThisSectionUUID(objectuuid)
+            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID(NSXMiscUtils::instanceName(), objectuuid)
+            LucilleFileUtils::garbageColletion()
             return
         end
     end

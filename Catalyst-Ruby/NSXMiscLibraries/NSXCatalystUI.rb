@@ -21,14 +21,13 @@ class NSXCatalystUI
 
     # NSXCatalystUI::printLucilleInstanceFileAsNext()
     def self.printLucilleInstanceFileAsNext()
-        nextContents = IO.read("/Users/pascal/Desktop/#{NSXMiscUtils::instanceName()}.txt")
-                            .strip
-                            .lines
-                            .select{|line| line.strip.size>0 }
-                            .take_while{|line| !line.start_with?(LUCILLE_FILE_MARKER) }
-                            .first(10)
-                            .join
-        if nextContents.size>0 then
+        filepath = LucilleLocationUtils::getLastInstanceLucilleFilepath(NSXMiscUtils::instanceName())
+        struct2 = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
+        nextContents = struct2[0]
+                        .map{|section| section.strip }
+                        .first(10)
+                        .join("\n")
+        if nextContents.size > 0 then
             puts "-- next " + "-" * (NSXMiscUtils::screenWidth()-9)
             puts nextContents.strip.green
             puts "-" * (NSXMiscUtils::screenWidth()-1)

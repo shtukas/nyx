@@ -181,8 +181,11 @@ class NSXGeneralCommandHandler
         end
 
         if command == "[]" then
-            if IO.read(LUCILLE_DATA_FILE_PATH).split('@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b')[0].strip.size>0 then
-                LucilleFileHelper::applyNextTransformationToLucilleFile()
+            filepath1 = LucilleLocationUtils::getLastInstanceLucilleFilepath(NSXMiscUtils::instanceName())
+            if IO.read(filepath1).split('@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b')[0].strip.size>0 then
+                filepath2 = LucilleLocationUtils::makeNewInstanceLucilleFilepath(NSXMiscUtils::instanceName())
+                LucilleFileUtils::applyNextTransformationToLucilleFile(filepath1, filepath2)
+                LucilleFileUtils::garbageColletion()
                 return
             end
         end

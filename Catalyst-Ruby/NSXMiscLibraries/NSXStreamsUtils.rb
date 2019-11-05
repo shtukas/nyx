@@ -35,11 +35,6 @@ class NSXStreamsUtils
     # ----------------------------------------------------------------
     # Utils
 
-    # NSXStreamsUtils::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
     # NSXStreamsUtils::newStreamItemFilepathForFilename(filename)
     def self.newStreamItemFilepathForFilename(filename)
         folder1 = "#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
@@ -244,7 +239,7 @@ class NSXStreamsUtils
         item["streamuuid"]               = streamUUID
         item["ordinal"]                  = ordinal
         item['generic-content-item']     = genericContentItem
-        item["filename"]                 = "#{NSXStreamsUtils::timeStringL22()}.StreamItem.json"
+        item["filename"]                 = "#{NSXMiscUtils::timeStringL22()}.StreamItem.json"
         NSXStreamsUtils::commitItemToDisk(item)
         item
     end
