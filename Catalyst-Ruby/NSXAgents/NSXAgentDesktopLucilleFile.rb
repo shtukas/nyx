@@ -243,7 +243,7 @@ class NSXAgentDesktopLucilleFile
     def self.getAllObjects()
         integers = LucilleCore::integerEnumerator()
         struct2 = LucilleFileUtils::getStructAcrossAllInstances()
-        objects = (struct2[0]+struct2[1])
+        objects = struct2[1]
                     .map{|section|
                         uuid = LucilleFileUtils::sectionToSectionUUID(section)
                         contentItem = {
