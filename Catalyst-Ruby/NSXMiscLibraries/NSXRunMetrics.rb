@@ -63,6 +63,26 @@ class NSXRunMetrics1 # TimespanTargetThenCollapseToZero
         NSXRunMetrics1::numbers(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget).min
     end
 
+    # NSXRunMetrics1::etaToTargetInSeconds(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget, simulationTimeInSeconds = nil)
+    def self.etaToTargetInSeconds(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget, simulationTimeInSeconds = nil)
+        if simulationTimeInSeconds.nil? then
+            NSXRunMetrics1::etaToTargetInSeconds(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget, 0)
+        else
+            extrapoint = {
+                "uuid"          => "41f28811-3288-4688-b755-92e689fa2e90",
+                "collectionuid" => "fa248822-a1d3-4219-a220-a7f992727f8f",
+                "unixtime"      => Time.new.to_i,
+                "algebraicTimespanInSeconds" => simulationTimeInSeconds
+            }
+            metric = NSXRunMetrics1::metric(points + [extrapoint], targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget)
+            if metric <= metricAtTarget then
+                simulationTimeInSeconds
+            else
+                NSXRunMetrics1::etaToTargetInSeconds(points, targetTimeInSeconds, periodInSeconds, metricAtZero, metricAtTarget, simulationTimeInSeconds + 300)
+            end
+        end
+    end
+
 end
 
 class NSXRunMetrics2 # TimespanTargetStuckAtMetricAtTarget

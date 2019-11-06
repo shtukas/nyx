@@ -417,4 +417,37 @@ class NSXMiscUtils
             .strip
     end
 
+    # NSXMiscUtils::ns2151objectTimeInSeconds(object)
+    def self.ns2151objectTimeInSeconds(object)
+        if object["agentuid"] == "b3e8dccb-77fc-4e13-a895-2d0608bd6abf" then
+            return NSXStreamsUtils::timespanToCompletion(object["metadata"]["streamPrincipal"])
+        end
+        0
+    end
+
+    # NSXMiscUtils::ns2151objectsTimeInSeconds(objects)
+    def self.ns2151objectsTimeInSeconds(objects)
+        objects
+            .map{|object| NSXMiscUtils::ns2151objectTimeInSeconds(object) }
+            .inject(0, :+)
+    end
+
+    # NSXMiscUtils::ns2151publishNumbers(objects)
+    def self.ns2151publishNumbers(objects)
+        totalTimeInSeconds = NSXMiscUtils::ns2151objectsTimeInSeconds(objects)
+        timing = {
+            "unixtime" => Time.new.to_i,
+            "eta" => Time.new.to_i + totalTimeInSeconds
+        }
+        KeyValueStore::set(nil, "be99653f-f065-4330-a76f-079b7f966339", JSON.generate(timing))
+    end
+
+    # NSXMiscUtils::ns2151getUILine()
+    def self.ns2151getUILine()
+        timings = KeyValueStore::getOrNull(nil, "be99653f-f065-4330-a76f-079b7f966339")
+        return "ETA: unknown" if timings.nil?
+        timings = JSON.parse(timings)
+        "ETA: #{Time.at(timings["eta"]).to_s}"
+    end
+
 end

@@ -488,7 +488,20 @@ class NSXStreamsUtils
         object["isDone"]         = NSXStreamsUtils::streamPrincipalToIsDone(streamPrincipal)
         object["metadata"]       = {}
         object["metadata"]["streamuuid"] = streamuuid
+        object["metadata"]["streamPrincipal"] = streamPrincipal
         object
+    end
+
+    # NSXStreamsUtils::timespanToCompletion(streamPrincipal)
+    def self.timespanToCompletion(streamPrincipal)
+        NSXRunMetrics1::etaToTargetInSeconds(
+            NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
+            streamPrincipal["multiplicity"]*1800,
+            86400,
+            0.7,
+            0.6,
+            nil
+        )
     end
 
 end

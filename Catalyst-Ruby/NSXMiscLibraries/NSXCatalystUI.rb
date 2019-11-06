@@ -3,6 +3,18 @@
 # This variable contains the objects of the current display.
 # We use it to speed up display after some operations
 
+require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 class NSXCatalystUI
 
     # NSXCatalystUI::stringOrFirstString(content_type)
@@ -43,6 +55,9 @@ class NSXCatalystUI
         system("clear")
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
+
+        puts NSXMiscUtils::ns2151getUILine().green
+        verticalSpaceLeft = verticalSpaceLeft - 1
 
         focusobject = nil
 
