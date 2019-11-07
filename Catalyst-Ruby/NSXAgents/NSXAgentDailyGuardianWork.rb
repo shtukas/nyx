@@ -10,7 +10,56 @@ require "time"
 
 # -------------------------------------------------------------------------------------
 
+GUARDIAN_WORK_RUNNER_UID = "15af10e1-7063-41c0-9bd6-a7cc9b963ee6:#{NSXMiscUtils::currentDay()}"
+GUARDIAN_WORK_RUN_TIMES_UID = "af26380b-c69b-4484-ba5e-13ecc580b2a9:#{NSXMiscUtils::currentDay()}"
+GUARDIAN_WORK_OBJECT_UUID = "6dfe4e38-415a-43d7-af27-b1ae6d069030"
+
 class NSXAgentDailyGuardianWork
+
+    # NSXAgentDailyGuardianWork::shouldShowObject()
+    def self.shouldShowObject()
+        return false if [0,6].include?(Time.new.wday)
+        return false if Time.new.hour < 8
+        return false if KeyValueStore::flagIsTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
+        true
+    end
+
+    # NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds()
+    def self.timeAlreadyDoneTodayInSeconds()
+        x1 = NSXRunner::runningTimeOrNull(GUARDIAN_WORK_RUNNER_UID) || 0
+        x2 = NSXRunTimes::getPoints(GUARDIAN_WORK_RUN_TIMES_UID).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
+        x1+x2
+    end
+
+    # NSXAgentDailyGuardianWork::start()
+    def self.start()
+        return if NSXRunner::isRunning?(GUARDIAN_WORK_RUNNER_UID)
+        NSXRunner::start(GUARDIAN_WORK_RUNNER_UID)
+    end
+
+    # NSXAgentDailyGuardianWork::stop()
+    def self.stop()
+        return if !NSXRunner::isRunning?(GUARDIAN_WORK_RUNNER_UID)
+        timeInSeconds = NSXRunner::stop(GUARDIAN_WORK_RUNNER_UID)
+        NSXRunTimes::addPoint(GUARDIAN_WORK_RUN_TIMES_UID, Time.new.to_i, timeInSeconds)
+        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+            {
+                "collectionuid" => GUARDIAN_WORK_RUN_TIMES_UID,
+                "unixtime" => Time.new.to_i,
+                "algebraicTimespanInSeconds" => timeInSeconds
+            }
+        )
+    end
+
+    # NSXAgentDailyGuardianWork::proportionDoneToday()
+    def self.proportionDoneToday()
+        NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds().to_f/(3600*6)
+    end
+
+    # NSXAgentDailyGuardianWork::metric()
+    def self.metric()
+        0.80 - NSXAgentDailyGuardianWork::proportionDoneToday()*0.5
+    end
 
     # NSXAgentDailyGuardianWork::agentuid()
     def self.agentuid()
@@ -24,32 +73,31 @@ class NSXAgentDailyGuardianWork
 
     # NSXAgentDailyGuardianWork::getAllObjects()
     def self.getAllObjects()
-        return [] if [0,6].include?(Time.new.wday)
-        return [] if Time.new.hour < 9
-        return [] if KeyValueStore::flagIsTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
-        uuid = "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
-        announce = "Daily Guardian Work"
+        return [] if !NSXAgentDailyGuardianWork::shouldShowObject()
+        announce = "Daily Guardian Work (#{(NSXAgentDailyGuardianWork::proportionDoneToday()*100).round(5)}%)"
         contentItem = {
             "type" => "line",
             "line" => announce
         }
         object = {}
-        object["uuid"]           = uuid
+        object["uuid"]           = GUARDIAN_WORK_OBJECT_UUID
         object["agentuid"]       = "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
         object["contentItem"]    = contentItem
-        object["metric"]         = 0.60
-        object["commands"]       = ["done"]
-        object["defaultCommand"] = nil
+        object["metric"]         = NSXAgentDailyGuardianWork::metric()
+        object["commands"]       = ["start", "stop"]
+        object["defaultCommand"] = NSXRunner::isRunning?(GUARDIAN_WORK_RUNNER_UID) ? "stop" : "start"
+        object["isRunning"]      = NSXRunner::isRunning?(GUARDIAN_WORK_RUNNER_UID)
         [object]
     end
 
     # NSXAgentDailyGuardianWork::processObjectAndCommand(objectuuid, command)
     def self.processObjectAndCommand(objectuuid, command)
-        if command == "done" then
-            KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{NSXMiscUtils::currentDay()}")
-            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentDailyGuardianWork/CommandProcessor/done", {
-                "date" => NSXMiscUtils::currentDay()
-            })
+        if command == "start" then
+            NSXAgentDailyGuardianWork::start()
+            return
+        end
+        if command == "stop" then
+            NSXAgentDailyGuardianWork::stop()
             return
         end
     end

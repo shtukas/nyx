@@ -109,8 +109,8 @@ class NSXCatalystObjectsOperator
         return if Time.new.hour > 18
         objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
         return if objects.empty?
-        return if objects.none?{|object| object["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1" }
-        return if objects.first["uuid"] == "392eb09c-572b-481d-9e8e-894e9fa016d4-so1"
+        return if objects.none?{|object| object["uuid"] == GUARDIAN_WORK_OBJECT_UUID }
+        return if objects.first["uuid"] == GUARDIAN_WORK_OBJECT_UUID
         NSXMiscUtils::onScreenNotification("Catalyst", "Objects above Daily Guardian Work")
     end
 end

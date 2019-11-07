@@ -22,6 +22,8 @@ Point {
 }
 =end
 
+# !! This class shoud not issue LogEvents !!
+
 class NSXRunTimes
 
     # NSXRunTimes::addPoint(collectionuid, unixtime, algebraicTimespanInSeconds)
@@ -34,13 +36,6 @@ class NSXRunTimes
             "unixtime"      => unixtime,
             "algebraicTimespanInSeconds" => algebraicTimespanInSeconds
         }
-        BTreeSets::set(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", uuid, point)
-    end
-
-    # NSXRunTimes::addPoint2(point)
-    def self.addPoint2(point)
-        collectionuid = point["collectionuid"]
-        uuid = point["uuid"]
         BTreeSets::set(nil, "4032a477-81a3-418f-b670-79d099bd5408:#{collectionuid}", uuid, point)
     end
 

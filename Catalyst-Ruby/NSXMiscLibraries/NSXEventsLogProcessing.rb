@@ -49,12 +49,10 @@ class NSXEventsLogProcessing
             NSXAgentWaveUtils::archiveWaveItem(event["payload"]["objectuuid"])
          }
 
-         # Processing "NSXAgentWave/CommandProcessor/destroy"
-         NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentDailyGuardianWork/CommandProcessor/done", NSXMiscUtils::instanceName(), "e50d19b4-ac88-41af-8082-b633b8f91e93")
+         NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXRunTimes/addPoint", NSXMiscUtils::instanceName(), "ea311818-6325-44ae-aa31-cd3617bb35cb")
          .each{|event|
-            KeyValueStore::setFlagTrue(nil, "33319c02-f1cd-4296-a772-43bb5b6ba07f:#{event["payload"]["date"]}")
+            NSXRunTimes::addPoint(event["payload"]["collectionuid"], event["payload"]["unixtime"], event["payload"]["algebraicTimespanInSeconds"])
          }
-
 
     end
 
