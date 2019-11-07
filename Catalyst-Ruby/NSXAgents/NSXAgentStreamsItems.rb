@@ -52,6 +52,20 @@ class NSXAgentStreamsItems
         timespanInSeconds = NSXRunner::stop(objectuuid)
         NSXRunTimes::addPoint(item["streamuuid"], Time.new.to_i, timespanInSeconds)
         NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
+        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+            {
+                "collectionuid" => item["streamuuid"],
+                "unixtime" => Time.new.to_i,
+                "algebraicTimespanInSeconds" => timespanInSeconds
+            }
+        )
+        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+            {
+                "collectionuid" => item["uuid"],
+                "unixtime" => Time.new.to_i,
+                "algebraicTimespanInSeconds" => timespanInSeconds
+            }
+        )
     end
 
     # NSXAgentStreamsItems::processObjectAndCommand(objectuuid, command)
