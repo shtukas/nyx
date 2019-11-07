@@ -282,7 +282,8 @@ class NSXAgentDesktopLucilleFile
             streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
-            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID(NSXMiscUtils::instanceName(), objectuuid)
+            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille18", objectuuid)
+            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille19", objectuuid)
             LucilleFileUtils::garbageColletion()
             return
         end
