@@ -422,6 +422,9 @@ class NSXMiscUtils
         if object["agentuid"] == "b3e8dccb-77fc-4e13-a895-2d0608bd6abf" then
             return NSXStreamsUtils::timespanToCompletion(object["metadata"]["streamPrincipal"])
         end
+        if object["agentuid"] == "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba" then
+            return 6*3600
+        end
         0
     end
 
