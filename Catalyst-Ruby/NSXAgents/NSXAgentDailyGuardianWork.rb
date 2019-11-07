@@ -24,9 +24,9 @@ class NSXAgentDailyGuardianWork
         true
     end
 
-    # NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds()
-    def self.timeAlreadyDoneTodayInSeconds()
-        x1 = NSXRunner::runningTimeOrNull(GUARDIAN_WORK_RUNNER_UID) || 0
+    # NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds(shouldDisplayLiveMeasurement)
+    def self.timeAlreadyDoneTodayInSeconds(shouldDisplayLiveMeasurement)
+        x1 = shouldDisplayLiveMeasurement ? (NSXRunner::runningTimeOrNull(GUARDIAN_WORK_RUNNER_UID) || 0) : 0
         x2 = NSXRunTimes::getPoints(GUARDIAN_WORK_RUN_TIMES_UID).map{|point| point["algebraicTimespanInSeconds"] }.inject(0, :+)
         x1+x2
     end
@@ -51,14 +51,14 @@ class NSXAgentDailyGuardianWork
         )
     end
 
-    # NSXAgentDailyGuardianWork::proportionDoneToday()
-    def self.proportionDoneToday()
-        NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds().to_f/(3600*6)
+    # NSXAgentDailyGuardianWork::proportionDoneToday(shouldDisplayLiveMeasurement)
+    def self.proportionDoneToday(shouldDisplayLiveMeasurement)
+        NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds(shouldDisplayLiveMeasurement).to_f/(3600*6)
     end
 
     # NSXAgentDailyGuardianWork::metric()
     def self.metric()
-        0.80 - NSXAgentDailyGuardianWork::proportionDoneToday()*0.5
+        0.80 - NSXAgentDailyGuardianWork::proportionDoneToday(false)*0.5
     end
 
     # NSXAgentDailyGuardianWork::agentuid()
@@ -74,7 +74,7 @@ class NSXAgentDailyGuardianWork
     # NSXAgentDailyGuardianWork::getAllObjects()
     def self.getAllObjects()
         return [] if !NSXAgentDailyGuardianWork::shouldShowObject()
-        announce = "Daily Guardian Work (#{(NSXAgentDailyGuardianWork::proportionDoneToday()*100).round(5)}%)"
+        announce = "Daily Guardian Work (#{(NSXAgentDailyGuardianWork::proportionDoneToday(true)*100).round(5)}%)"
         contentItem = {
             "type" => "line",
             "line" => announce
