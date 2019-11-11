@@ -41,6 +41,11 @@ class NSXAgentDailyGuardianWork
     def self.stop()
         return if !NSXRunner::isRunning?(GUARDIAN_WORK_RUNNER_UID)
         timeInSeconds = NSXRunner::stop(GUARDIAN_WORK_RUNNER_UID)
+        NSXAgentDailyGuardianWork::addTimeInSeconds(timeInSeconds)
+    end
+
+    # NSXAgentDailyGuardianWork::addTimeInSeconds(timeInSeconds)
+    def self.addTimeInSeconds(timeInSeconds)
         NSXRunTimes::addPoint(GUARDIAN_WORK_RUN_TIMES_UID, Time.new.to_i, timeInSeconds)
         NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
             {
@@ -84,7 +89,7 @@ class NSXAgentDailyGuardianWork
         object["agentuid"]       = "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba"
         object["contentItem"]    = contentItem
         object["metric"]         = NSXAgentDailyGuardianWork::metric()
-        object["commands"]       = ["start", "stop"]
+        object["commands"]       = ["start", "stop", "time:"]
         object["defaultCommand"] = NSXRunner::isRunning?(GUARDIAN_WORK_RUNNER_UID) ? "stop" : "start"
         object["isRunning"]      = NSXRunner::isRunning?(GUARDIAN_WORK_RUNNER_UID)
         [object]
@@ -98,6 +103,11 @@ class NSXAgentDailyGuardianWork
         end
         if command == "stop" then
             NSXAgentDailyGuardianWork::stop()
+            return
+        end
+        if command == "time:" then
+            timeInHours = LucilleCore::askQuestionAnswerAsString("Timespan in hour: ").to_f
+            NSXAgentDailyGuardianWork::addTimeInSeconds(timeInHours*3600)
             return
         end
     end
