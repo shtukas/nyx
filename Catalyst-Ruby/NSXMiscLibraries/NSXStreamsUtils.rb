@@ -469,14 +469,23 @@ class NSXStreamsUtils
         (liveRunningTimeInSeconds + dayRunningTimeInSeconds) > streamPrincipal["multiplicity"]*1800
     end
 
+    # NSXStreamsUtils::streamPrincipalContentItem(streamPrincipal)
+    def self.streamPrincipalContentItem(streamPrincipal)
+        objectCountForStreamPrincipal = lambda{|streamuuid|
+            mapping = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "59E1391D-F236-4C92-8D85-DEC5A657E654", '{}'))
+            mapping[streamuuid] || 0
+        }
+        {
+            "type" => "line",
+            "line" => "Stream Principal: #{streamPrincipal["description"]}",
+        }
+    end
+
     # NSXStreamsUtils::streamPrincipalToCatalystObject(streamPrincipal)
     def self.streamPrincipalToCatalystObject(streamPrincipal)
         streamuuid = streamPrincipal["streamuuid"]
         uuid = "d4165d307783-#{streamuuid}"
-        contentItem = {
-            "type" => "line",
-            "line" => "Stream Principal: #{streamPrincipal["description"]}",
-        }
+        contentItem = NSXStreamsUtils::streamPrincipalContentItem(streamPrincipal)
         object = {}
         object["uuid"]           = uuid
         object["agentuid"]       = NSXAgentStreamsPrincipal::agentuid()
@@ -510,5 +519,20 @@ Thread.new {
     loop {
         sleep 300
         $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfStreamItems()
+    }
+}
+
+Thread.new {
+    # The object that we are cooking here is Map[streamuuid: String, objectCount: Integer]
+    loop {
+        mapping = NSXStreamsUtils::getStreamItems().reduce({}){|mapping, streamItem|
+            streamuuid = streamItem["streamuuid"]
+            if mapping[streamuuid].nil? then
+                mapping[streamuuid] = 0
+            end
+            mapping[streamuuid] = mapping[streamuuid]+1
+            mapping
+        }
+        KeyValueStore::set(nil, "59E1391D-F236-4C92-8D85-DEC5A657E654", JSON.generate(mapping))
     }
 }
