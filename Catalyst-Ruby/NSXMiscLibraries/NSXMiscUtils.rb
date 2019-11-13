@@ -423,7 +423,7 @@ class NSXMiscUtils
             return NSXStreamsUtils::timespanToCompletion(object["metadata"]["streamPrincipal"])
         end
         if object["agentuid"] == "a6d554fd-44bf-4937-8dc6-5c9f1dcdaeba" then
-            return 6*3600
+            return (1-NSXAgentDailyGuardianWork::proportionDoneToday(true))*GUARDIAN_WORK_TIME_EXPECTATION_IN_HOURS*3600
         end
         0
     end
@@ -451,6 +451,11 @@ class NSXMiscUtils
         return "ETA: unknown" if timings.nil?
         timings = JSON.parse(timings)
         "ETA: #{Time.at(timings["eta"]).to_s}"
+    end
+
+    # NSXMiscUtils::speedOfLight()
+    def self.speedOfLight()
+        IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Data/speed-of-light.txt").to_f
     end
 
 end

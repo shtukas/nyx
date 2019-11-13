@@ -13,6 +13,7 @@ require "time"
 GUARDIAN_WORK_RUNNER_UID = "15af10e1-7063-41c0-9bd6-a7cc9b963ee6:#{NSXMiscUtils::currentDay()}"
 GUARDIAN_WORK_RUN_TIMES_UID = "af26380b-c69b-4484-ba5e-13ecc580b2a9:#{NSXMiscUtils::currentDay()}"
 GUARDIAN_WORK_OBJECT_UUID = "6dfe4e38-415a-43d7-af27-b1ae6d069030"
+GUARDIAN_WORK_TIME_EXPECTATION_IN_HOURS = 6
 
 class NSXAgentDailyGuardianWork
 
@@ -58,7 +59,7 @@ class NSXAgentDailyGuardianWork
 
     # NSXAgentDailyGuardianWork::proportionDoneToday(shouldDisplayLiveMeasurement)
     def self.proportionDoneToday(shouldDisplayLiveMeasurement)
-        NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds(shouldDisplayLiveMeasurement).to_f/(3600*6)
+        NSXAgentDailyGuardianWork::timeAlreadyDoneTodayInSeconds(shouldDisplayLiveMeasurement).to_f/(3600*GUARDIAN_WORK_TIME_EXPECTATION_IN_HOURS)
     end
 
     # NSXAgentDailyGuardianWork::metric()
