@@ -26,8 +26,10 @@ require "json"
 
 class NSXEventsLogProcessing
 
-    # NSXEventsLogProcessing::threadProcessor()
-    def self.threadProcessor()
+    # NSXEventsLogProcessing::processEvents()
+    def self.processEvents()
+
+         NSXEventsLog::eventGarbageCollection()
 
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("DoNotShowUntilDateTime", NSXMiscUtils::instanceName(), "80256506-8e94-40e5-8209-97d719d3cfcd")
          .each{|event|

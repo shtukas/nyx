@@ -22,6 +22,13 @@ require 'securerandom'
 
 require "json"
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 # ----------------------------------------------------------------------
 
 =begin
@@ -37,6 +44,8 @@ Event (
 The event is stored on disk in a file with name <l22DateString>.event
 
 =end
+
+NSXEVENTSLOG_FILERETENTION_PERIOD_IN_DAYS = 14
 
 class NSXEventsLog
 
@@ -60,6 +69,29 @@ class NSXEventsLog
         event["eventType"] = eventType
         event["payload"] = payload
         File.open(NSXEventsLog::l22DateStringToFilepath(l22), "w"){|f| f.puts(JSON.pretty_generate(event)) }
+    end
+
+    # NSXEventsLog::deleteEventIdentifiedByUUID(eventuuid)
+    def self.deleteEventIdentifiedByUUID(eventuuid)
+        Find.find("#{DATABANK_CATALYST_FOLDERPATH}/Events-Log/Events") do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-5, 5] != '.json'
+            event = JSON.parse(IO.read(path))
+            if event["uuid"] == eventuuid then
+                FileUtils.rm(path)
+                return
+            end
+        end
+    end
+
+    # NSXEventsLog::eventGarbageCollection()
+    def self.eventGarbageCollection()
+        NSXEventsLog::eventEnumerator()
+        .each{|event|
+            if (Time.new.to_i - event["timestamp"]) > NSXEVENTSLOG_FILERETENTION_PERIOD_IN_DAYS*86400 then
+                NSXEventsLog::deleteEventIdentifiedByUUID(event["uuid"])
+            end
+        }
     end
 
     # NSXEventsLog::eventEnumerator()
