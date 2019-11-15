@@ -71,7 +71,7 @@ class NSXAgentVideosStreamConsumptionMonitor
     def self.getAllObjects()
         return [] if !NSXMiscUtils::isLucille18()
         loop {
-            break if NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 200
+            break if NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 40
             break if NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).size == 0
             filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).first
             filename = File.basename(filepath)
