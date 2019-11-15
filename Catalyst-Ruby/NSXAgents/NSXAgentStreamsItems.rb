@@ -46,26 +46,31 @@ class NSXAgentStreamsItems
             .first
     end
 
+    # NSXAgentStreamsItems::addTime(itemuuid, streamuuid, timespanInSeconds)
+    def self.addTime(itemuuid, streamuuid, timespanInSeconds)
+        NSXRunTimes::addPoint(itemuuid, Time.new.to_i, timespanInSeconds)
+        NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
+        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+            {
+                "collectionuid" => streamuuid,
+                "unixtime" => Time.new.to_i,
+                "algebraicTimespanInSeconds" => timespanInSeconds
+            }
+        )
+        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+            {
+                "collectionuid" => itemuuid,
+                "unixtime" => Time.new.to_i,
+                "algebraicTimespanInSeconds" => timespanInSeconds
+            }
+        )
+    end
+
     # NSXAgentStreamsItems::stopItem(objectuuid, item)
     def self.stopItem(objectuuid, item)
         return if !NSXRunner::isRunning?(objectuuid)
         timespanInSeconds = NSXRunner::stop(objectuuid)
-        NSXRunTimes::addPoint(item["streamuuid"], Time.new.to_i, timespanInSeconds)
-        NSXRunTimes::addPoint(item["uuid"], Time.new.to_i, timespanInSeconds)
-        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
-            {
-                "collectionuid" => item["streamuuid"],
-                "unixtime" => Time.new.to_i,
-                "algebraicTimespanInSeconds" => timespanInSeconds
-            }
-        )
-        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
-            {
-                "collectionuid" => item["uuid"],
-                "unixtime" => Time.new.to_i,
-                "algebraicTimespanInSeconds" => timespanInSeconds
-            }
-        )
+        NSXAgentStreamsItems::addTime(item["uuid"], item["streamuuid"], timespanInSeconds)
     end
 
     # NSXAgentStreamsItems::processObjectAndCommand(objectuuid, command)
@@ -112,6 +117,13 @@ class NSXAgentStreamsItems
             item["ordinal"] = NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
             NSXStreamsUtils::commitItemToDisk(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
+            return
+        end
+        if command == "time:" then
+            streamuuid = object["metadata"]["streamuuid"]
+            timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+            timespanInSeconds = timeInHours*3600
+            NSXAgentStreamsItems::addTime(item["uuid"], item["streamuuid"], timespanInSeconds)
             return
         end
     end

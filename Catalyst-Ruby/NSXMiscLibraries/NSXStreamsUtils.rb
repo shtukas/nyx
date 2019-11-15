@@ -398,7 +398,7 @@ class NSXStreamsUtils
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "folder"]
         else
-            ["start", "recast"]
+            ["start", "time:", "recast"]
         end
     end
 
@@ -491,7 +491,7 @@ class NSXStreamsUtils
         object["agentuid"]       = NSXAgentStreamsPrincipal::agentuid()
         object["contentItem"]    = contentItem
         object["metric"]         = NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
-        object["commands"]       = ["start", "stop", "done"]
+        object["commands"]       = NSXRunner::isRunning?(uuid) ? ["stop", "done"] : ["start", "time:", "done"]
         object["defaultCommand"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
         object["isRunning"]      = NSXRunner::isRunning?(uuid)
         object["isDone"]         = NSXStreamsUtils::streamPrincipalToIsDone(streamPrincipal)
