@@ -477,7 +477,7 @@ class NSXStreamsUtils
         }
         {
             "type" => "line",
-            "line" => "Stream Principal: #{streamPrincipal["description"]}",
+            "line" => "Stream Principal: #{streamPrincipal["description"]} (#{objectCountForStreamPrincipal.call(streamPrincipal["streamuuid"])})",
         }
     end
 
@@ -524,6 +524,7 @@ Thread.new {
 
 Thread.new {
     # The object that we are cooking here is Map[streamuuid: String, objectCount: Integer]
+    sleep 310
     loop {
         mapping = NSXStreamsUtils::getStreamItems().reduce({}){|mapping, streamItem|
             streamuuid = streamItem["streamuuid"]
