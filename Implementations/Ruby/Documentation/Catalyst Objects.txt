@@ -14,14 +14,3 @@ CatalystObject
 [2] When true, triggers the on screen notification. The most common use if this is to alert that a running object is done.
 
 # ------------------------------------------------------------------
-
-contentItem {
-    "type" : "line"
-    "line" : String # carries a single line.
-}
-
-contentItem {
-    "type" : "line-and-body"
-    "line" : String # carries a single line.
-    "body" : String
-}

@@ -36,9 +36,197 @@ WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Wa
 
 # ----------------------------------------------------------------------
 
-class NSXAgentWaveUtils
+class NSXWaveFolderProbe
 
-    # NSXAgentWaveUtils::makeScheduleObjectInteractivelyEnsureChoice()
+    # NSXWaveFolderProbe::nonDotFilespathsAtFolder(folderpath)
+    def self.nonDotFilespathsAtFolder(folderpath)
+        Dir.entries(folderpath)
+            .select{|filename| filename[0,1]!="." }
+            .map{|filename| "#{folderpath}/#{filename}" }
+    end
+
+    # NSXWaveFolderProbe::folderpath2metadata(folderpath)
+    def self.folderpath2metadata(folderpath)
+
+        metadata = {}
+
+        # --------------------------------------------------------------------
+        # Trying to read a description file
+
+        getDescriptionFilepathMaybe = lambda{|folderpath|
+            filepaths = NSXWaveFolderProbe::nonDotFilespathsAtFolder(folderpath)
+            if filepaths.any?{|filepath| File.basename(filepath).include?("description.txt") } then
+                filepaths.select{|filepath| File.basename(filepath).include?("description.txt") }.first
+            else
+                nil
+            end
+        }
+
+        getDescriptionFromDescriptionFileMaybe = lambda{|folderpath|
+            filepathOpt = getDescriptionFilepathMaybe.call(folderpath)
+            if filepathOpt then
+                IO.read(filepathOpt).strip
+            else
+                nil
+            end
+        }
+
+        descriptionOpt = getDescriptionFromDescriptionFileMaybe.call(folderpath)
+        if descriptionOpt then
+            metadata["contents"] = descriptionOpt
+            if descriptionOpt.start_with?("http") then
+                metadata["target-type"] = "url"
+                metadata["url"] = descriptionOpt
+                return metadata
+            end
+        end
+
+        # --------------------------------------------------------------------
+        #
+
+        files = NSXWaveFolderProbe::nonDotFilespathsAtFolder(folderpath)
+                .select{|filepath| !File.basename(filepath).start_with?('wave') }
+                .select{|filepath| !File.basename(filepath).start_with?('catalyst') }
+
+        fileIsOpenable = lambda {|filepath|
+            File.basename(filepath)[-4,4]==".txt" or
+            File.basename(filepath)[-4,4]==".eml" or
+            File.basename(filepath)[-4,4]==".jpg" or
+            File.basename(filepath)[-4,4]==".png" or
+            File.basename(filepath)[-4,4]==".gif" or
+            File.basename(filepath)[-7,7]==".webloc"
+        }
+
+        openableFiles = files
+                .select{|filepath| fileIsOpenable.call(filepath) }
+
+
+        filesWithoutTheDescription = files
+                .select{|filepath| !File.basename(filepath).include?('description.txt') }
+
+        extractURLFromFileMaybe = lambda{|filepath|
+            return nil if filepath[-4,4] != ".txt"
+            contents = IO.read(filepath)
+            return nil if contents.lines.to_a.size != 1
+            line = contents.lines.first.strip
+            line = NSXMiscUtils::simplifyURLCarryingString(line)
+            return nil if !line.start_with?("http")
+            line
+        }
+
+        extractLineFromFileMaybe = lambda{|filepath|
+            return nil if filepath[-4,4] != ".txt"
+            contents = IO.read(filepath)
+            return nil if contents.lines.to_a.size != 1
+            contents.lines.first.strip
+        }
+
+        if files.size==0 then
+            metadata["target-type"] = "virtually-empty-wave-folder"
+            if metadata["contents"].nil? then
+                metadata["contents"] = folderpath
+            end
+            metadata["folderpath2metadata:case"] = "b6e8ac55"
+            return metadata
+        end
+
+        if files.size==1 and ( url = extractURLFromFileMaybe.call(files[0]) ) then
+            filepath = files.first
+            metadata["target-type"] = "url"
+            metadata["url"] = url
+            if metadata["contents"].nil? then
+                metadata["contents"] = url
+            end
+            metadata["folderpath2metadata:case"] = "95e7dd30"
+            return metadata
+        end
+
+        if files.size==1 and ( line = extractLineFromFileMaybe.call(files[0]) ) then
+            filepath = files.first
+            metadata["target-type"] = "line"
+            metadata["text"] = line
+            if metadata["contents"].nil? then
+                metadata["contents"] = line
+            end
+            metadata["folderpath2metadata:case"] = "a888e991"
+            return metadata
+        end
+
+        if files.size==1 and openableFiles.size==1 then
+            filepath = files.first
+            metadata["target-type"] = "openable-file"
+            metadata["target-location"] = filepath
+            if metadata["contents"].nil? then
+                metadata["contents"] = File.basename(filepath)
+            end
+            metadata["folderpath2metadata:case"] = "54b1a4b5"
+            return metadata
+        end
+
+        if files.size==1 and openableFiles.size!=1 then
+            filepath = files.first
+            metadata["target-type"] = "folder"
+            metadata["target-location"] = folderpath
+            if metadata["contents"].nil? then
+                metadata["contents"] = "One non-openable file in #{File.basename(folderpath)}"
+            end
+            metadata["folderpath2metadata:case"] = "439bba64"
+            return metadata
+        end
+
+        if files.size > 1 and filesWithoutTheDescription.size==1 and fileIsOpenable.call(filesWithoutTheDescription.first) then
+            metadata["target-type"] = "openable-file"
+            metadata["target-location"] = filesWithoutTheDescription.first
+            if metadata["contents"].nil? then
+                metadata["contents"] = "Multiple files in #{File.basename(folderpath)}"
+            end
+            metadata["folderpath2metadata:case"] = "29d2dc25"
+            return metadata
+        end
+
+        if files.size > 1 then
+            metadata["target-type"] = "folder"
+            metadata["target-location"] = folderpath
+            if metadata["contents"].nil? then
+                metadata["contents"] = "Multiple files in #{File.basename(folderpath)}"
+            end
+            metadata["folderpath2metadata:case"] = "f6a683b0"
+            return metadata
+        end
+    end
+
+    # NSXWaveFolderProbe::openActionOnMetadata(metadata)
+    def self.openActionOnMetadata(metadata)
+        if metadata["target-type"]=="folder" then
+            if File.exists?(metadata["target-location"]) then
+                system("open '#{metadata["target-location"]}'")
+            else
+                puts "Error: folder #{metadata["target-location"]} doesn't exist."
+                LucilleCore::pressEnterToContinue()
+            end
+        end
+        if metadata["target-type"]=="openable-file" then
+            system("open '#{metadata["target-location"]}'")
+        end
+        if metadata["target-type"]=="line" then
+
+        end
+        if metadata["target-type"]=="url" then
+            if NSXMiscUtils::isLucille18() then
+                system("open '#{metadata["url"]}'")
+            else
+                system("open -na 'Google Chrome' --args --new-window '#{metadata["url"]}'")
+            end
+        end
+        if metadata["target-type"]=="virtually-empty-wave-folder" then
+
+        end
+    end
+end
+
+class NSXWaveUtils
+
+    # NSXWaveUtils::makeScheduleObjectInteractivelyEnsureChoice()
     def self.makeScheduleObjectInteractivelyEnsureChoice()
 
         scheduleTypes = ['sticky', 'date', 'repeat']
@@ -83,7 +271,7 @@ class NSXAgentWaveUtils
         schedule
     end
 
-    # NSXAgentWaveUtils::scheduleToAnnounce(schedule)
+    # NSXWaveUtils::scheduleToAnnounce(schedule)
     def self.scheduleToAnnounce(schedule)
         if schedule['@'] == 'sticky' then
             # Backward compatibility
@@ -107,7 +295,7 @@ class NSXAgentWaveUtils
         JSON.generate(schedule)
     end
 
-    # NSXAgentWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
+    # NSXWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
     def self.scheduleToDoNotShowDatetime(objectuuid, schedule)
         if schedule['@'] == 'sticky' then
             return LucilleCore::datetimeAtComingMidnight()
@@ -135,7 +323,7 @@ class NSXAgentWaveUtils
         end
     end
 
-    # NSXAgentWaveUtils::scheduleToMetric(schedule)
+    # NSXWaveUtils::scheduleToMetric(schedule)
     def self.scheduleToMetric(schedule)
 
         # One Offs
@@ -166,7 +354,7 @@ class NSXAgentWaveUtils
         1
     end
 
-    # NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+    # NSXWaveUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
     def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         Find.find("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") do |path|
             next if !File.file?(path)
@@ -178,7 +366,7 @@ class NSXAgentWaveUtils
         nil
     end
 
-    # NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
+    # NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
     def self.catalystUUIDToItemFolderPathOrNull(uuid)
         storedValue = KeyValueStore::getOrNull(nil, "9f4e1f2e-0bab-4a56-9de7-7976805ca04d:#{uuid}")
         if storedValue then
@@ -190,15 +378,15 @@ class NSXAgentWaveUtils
                 end
             end
         end
-        #puts "NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
-        maybepath = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
+        #puts "NSXWaveUtils::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
+        maybepath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
         if maybepath then
             KeyValueStore::set(nil, "9f4e1f2e-0bab-4a56-9de7-7976805ca04d:#{uuid}", JSON.generate([maybepath]))
         end
         maybepath
     end
 
-    # NSXAgentWaveUtils::catalystUUIDsEnumerator()
+    # NSXWaveUtils::catalystUUIDsEnumerator()
     def self.catalystUUIDsEnumerator()
         Enumerator.new do |uuids|
             Find.find("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") do |path|
@@ -209,23 +397,23 @@ class NSXAgentWaveUtils
         end
     end
 
-    # NSXAgentWaveUtils::timestring22ToFolderpath(timestring22)
+    # NSXWaveUtils::timestring22ToFolderpath(timestring22)
     def self.timestring22ToFolderpath(timestring22) # 20170923-143534-341733
         "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
     end
 
-    # NSXAgentWaveUtils::writeScheduleToDisk(uuid, schedule)
+    # NSXWaveUtils::writeScheduleToDisk(uuid, schedule)
     def self.writeScheduleToDisk(uuid, schedule)
-        folderpath = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         return if !File.exists?(folderpath)
         LucilleCore::removeFileSystemLocation("#{folderpath}/catalyst-schedule.json")
         File.open("#{folderpath}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
     end
 
-    # NSXAgentWaveUtils::readScheduleFromWaveItemOrNull(uuid)
+    # NSXWaveUtils::readScheduleFromWaveItemOrNull(uuid)
     def self.readScheduleFromWaveItemOrNull(uuid)
-        folderpath = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
         return nil if folderpath.nil?
         filepath =
             if File.exists?("#{folderpath}/wave-schedule.json") then
@@ -239,42 +427,42 @@ class NSXAgentWaveUtils
         schedule = JSON.parse(IO.read(filepath))
     end
 
-    # NSXAgentWaveUtils::makeNewSchedule()
+    # NSXWaveUtils::makeNewSchedule()
     def self.makeNewSchedule()
-        NSXAgentWaveUtils::makeScheduleObjectInteractivelyEnsureChoice()
+        NSXWaveUtils::makeScheduleObjectInteractivelyEnsureChoice()
     end
 
-    # NSXAgentWaveUtils::archiveWaveItem(uuid)
+    # NSXWaveUtils::archiveWaveItem(uuid)
     def self.archiveWaveItem(uuid)
         return if uuid.nil?
-        folderpath = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
+        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
         return if folderpath.nil?
         NSXMiscUtils::moveLocationToCatalystBin(folderpath)
     end
 
-    # NSXAgentWaveUtils::extractFirstLineFromText(text)
+    # NSXWaveUtils::extractFirstLineFromText(text)
     def self.extractFirstLineFromText(text)
         return "" if text.size==0
         text.lines.first
     end
 
-    # NSXAgentWaveUtils::objectUUIDToAnnounce(folderProbeMetadata,schedule)
+    # NSXWaveUtils::objectUUIDToAnnounce(folderProbeMetadata,schedule)
     def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
-        "[#{NSXAgentWaveUtils::scheduleToAnnounce(schedule)}] #{NSXAgentWaveUtils::extractFirstLineFromText(folderProbeMetadata["contents"])}"
+        "[#{NSXWaveUtils::scheduleToAnnounce(schedule)}] #{NSXWaveUtils::extractFirstLineFromText(folderProbeMetadata["contents"])}"
     end
 
-    # NSXAgentWaveUtils::makeCatalystObjectOrNull(objectuuid)
+    # NSXWaveUtils::makeCatalystObjectOrNull(objectuuid)
     def self.makeCatalystObjectOrNull(objectuuid)
-        location = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        location = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
         return nil if location.nil?
-        schedule = NSXAgentWaveUtils::readScheduleFromWaveItemOrNull(objectuuid)
+        schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
-            genericItem = NSXGenericContents::issueItemLocationMoveOriginal(location)
+            genericItem = NSX2GenericContentUtils::issueItemLocationMoveOriginal(location)
             NSXStreamsUtils::issueNewStreamItem(CATALYST_INBOX_STREAMUUID, genericItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
             return nil
         end
-        folderProbeMetadata = NSXFolderProbe::folderpath2metadata(location)
-        announce = NSXAgentWaveUtils::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        folderProbeMetadata = NSXWaveFolderProbe::folderpath2metadata(location)
+        announce = NSXWaveUtils::objectUUIDToAnnounce(folderProbeMetadata, schedule)
         contentItem = {
             "type" => "line",
             "line" => announce
@@ -283,7 +471,7 @@ class NSXAgentWaveUtils
         object['uuid'] = objectuuid
         object["agentuid"] = NSXAgentWave::agentuid()
         object["contentItem"] = contentItem
-        object["metric"] = NSXAgentWaveUtils::scheduleToMetric(schedule)
+        object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
         object["commands"] = ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "folder", "destroy"]
         object["defaultCommand"] = "done"
         object['schedule'] = schedule
@@ -293,25 +481,25 @@ class NSXAgentWaveUtils
         object
     end
 
-    # NSXAgentWaveUtils::getObjectByUUIDOrNull(objectuuid)
+    # NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
     def self.getObjectByUUIDOrNull(objectuuid)
         NSXAgentWave::getAllObjects()
             .select{|object| object["uuid"] == objectuuid }
             .first
     end
 
-    # NSXAgentWaveUtils::performDone2(objectuuid, isEventLog)
+    # NSXWaveUtils::performDone2(objectuuid, isEventLog)
     def self.performDone2(objectuuid, isEventLog)
-        object = NSXAgentWaveUtils::getObjectByUUIDOrNull(objectuuid)
+        object = NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
         schedule = object['schedule']
-        datetime = NSXAgentWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
+        datetime = NSXWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
         NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime, isEventLog)
     end
 
-    # NSXAgentWaveUtils::setItemDescription(objectuuid, description)
+    # NSXWaveUtils::setItemDescription(objectuuid, description)
     def self.setItemDescription(objectuuid, description)
-        folderpath = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
         return if folderpath.nil?
         File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
     end
@@ -334,22 +522,22 @@ class NSXAgentWave
 
     # NSXAgentWave::getAllObjects()
     def self.getAllObjects()
-        NSXAgentWaveUtils::catalystUUIDsEnumerator()
-            .map{|uuid| NSXAgentWaveUtils::makeCatalystObjectOrNull(uuid) }
+        NSXWaveUtils::catalystUUIDsEnumerator()
+            .map{|uuid| NSXWaveUtils::makeCatalystObjectOrNull(uuid) }
     end
 
     def self.processObjectAndCommand(objectuuid, command)
 
         if command == 'open' then
-            object = NSXAgentWaveUtils::getObjectByUUIDOrNull(objectuuid)
+            object = NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
             metadata = object["item-data"]["folder-probe-metadata"]
-            NSXFolderProbe::openActionOnMetadata(metadata)
+            NSXWaveFolderProbe::openActionOnMetadata(metadata)
             return
         end
 
         if command == 'done' then
-            NSXAgentWaveUtils::performDone2(objectuuid, false)
+            NSXWaveUtils::performDone2(objectuuid, false)
             NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/done",
                 {
                     "objectuuid" => objectuuid
@@ -359,8 +547,8 @@ class NSXAgentWave
         end
 
         if command == 'recast' then
-            schedule = NSXAgentWaveUtils::makeNewSchedule()
-            NSXAgentWaveUtils::writeScheduleToDisk(objectuuid, schedule)
+            schedule = NSXWaveUtils::makeNewSchedule()
+            NSXWaveUtils::writeScheduleToDisk(objectuuid, schedule)
             return
         end
 
@@ -371,7 +559,7 @@ class NSXAgentWave
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            NSXAgentWaveUtils::setItemDescription(objectuuid, description)
+            NSXWaveUtils::setItemDescription(objectuuid, description)
             NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/description:",
                 {
                     "objectuuid" => objectuuid,
@@ -382,7 +570,7 @@ class NSXAgentWave
         end
 
         if command == 'folder' then
-            location = NSXAgentWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
+            location = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
             puts "Opening folder #{location}"
             system("open '#{location}'")
             return
@@ -395,7 +583,7 @@ class NSXAgentWave
                 return
             end
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                NSXAgentWaveUtils::archiveWaveItem(objectuuid)
+                NSXWaveUtils::archiveWaveItem(objectuuid)
                 NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/destroy",
                     {
                         "objectuuid" => objectuuid

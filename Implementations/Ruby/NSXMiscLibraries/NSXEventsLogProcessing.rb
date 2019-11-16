@@ -38,17 +38,17 @@ class NSXEventsLogProcessing
 
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentWave/CommandProcessor/done", NSXMiscUtils::instanceName(), "3d804ca9-a500-4ec1-89fd-fd537015934d")
          .each{|event|
-            NSXAgentWaveUtils::performDone2(event["payload"]["objectuuid"], true)
+            NSXWaveUtils::performDone2(event["payload"]["objectuuid"], true)
          }
 
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentWave/CommandProcessor/description:", NSXMiscUtils::instanceName(), "90c10492-a99f-4e15-9689-51f858884bcd")
          .each{|event|
-            NSXAgentWaveUtils::setItemDescription(event["payload"]["objectuuid"], event["payload"]["description"])
+            NSXWaveUtils::setItemDescription(event["payload"]["objectuuid"], event["payload"]["description"])
          }
 
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXAgentWave/CommandProcessor/destroy", NSXMiscUtils::instanceName(), "338f5090-7e41-46a7-87dd-170e7a8929c9")
          .each{|event|
-            NSXAgentWaveUtils::archiveWaveItem(event["payload"]["objectuuid"])
+            NSXWaveUtils::archiveWaveItem(event["payload"]["objectuuid"])
          }
 
          NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce("NSXRunTimes/addPoint", NSXMiscUtils::instanceName(), "ea311818-6325-44ae-aa31-cd3617bb35cb")

@@ -70,7 +70,15 @@ class NSXAgentVienna
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
-            NSXStreamsUtils::issueNewStreamItem("38d5658ed46c4daf0ec064e58fb2b97a", NSXGenericContents::issueItemURL(link), NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
+            NSXStreamsUtils::issueNewStreamItem(
+                "38d5658ed46c4daf0ec064e58fb2b97a",
+                {
+                    "uuid" => SecureRandom.hex,
+                    "type" => "url",
+                    "url" => link
+                },
+                NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
+            )
             $viennaLinkFeeder.done(link)
         }
         []

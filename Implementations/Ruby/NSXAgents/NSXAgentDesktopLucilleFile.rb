@@ -277,7 +277,11 @@ class NSXAgentDesktopLucilleFile
         if command == ">stream" then
             object = NSXAgentDesktopLucilleFile::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
-            genericContentsItem = NSXGenericContents::issueItemText(object["section"])
+            genericContentsItem = {
+                "uuid" => SecureRandom.hex,
+                "type" => "text",
+                "text" => object["section"]
+            }
             streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
             streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)

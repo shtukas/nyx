@@ -60,7 +60,7 @@ class NSXCatalystObjectsOperator
         if !NSXMiscUtils::hasInternetCondition1121() then
             objects = objects
                 .select{|object|
-                    b1 = !NSXContentUtils::itemToAnnounce(object['contentItem']).include?("http") 
+                    b1 = !NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']).include?("http") 
                     b2 = object["isRunning"]
                     b1 or b2
                 }
@@ -98,7 +98,7 @@ class NSXCatalystObjectsOperator
         .each{|object|
             if object["isRunning"] and object["isDone"] then
                 sleep 2
-                NSXMiscUtils::onScreenNotification("Catalyst", "done: #{NSXContentUtils::itemToAnnounce(object['contentItem'])}")
+                NSXMiscUtils::onScreenNotification("Catalyst", "done: #{NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem'])}")
             end
         }
     end

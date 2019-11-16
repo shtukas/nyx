@@ -1,0 +1,32 @@
+ContentItem (are carried by Catalyst Objects)
+    {
+        "type" : "line"
+        "line" : String # carries a single line.
+    }
+
+    {
+        "type" : "line-and-body"
+        "line" : String # carries a single line.
+        "body" : String
+    }
+
+
+GenericContent (stand for disk based contents)
+    {
+        "uuid" : UUID
+        "type" : "text"
+        "text" : String
+    }
+
+    {
+        "uuid" : UUID
+        "type" : "url"
+        "url"  : URL
+    }
+
+    {
+        "uuid"              : UUID
+        "type"              : "location" # file or folder
+        "parent-foldername" : 
+    }
+

@@ -88,7 +88,7 @@ class NSXAgentStreamsItems
             return
         end
         if command == "open" then
-            genericContentItem = NSXGenericContents::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
+            genericContentItem = NSX2GenericContentUtils::viewGenericContentItemReturnUpdatedItemOrNull(item["generic-content-item"])
             if genericContentItem then
                 item["generic-content-item"] = genericContentItem
                 NSXStreamsUtils::commitItemToDisk(item)
@@ -96,7 +96,7 @@ class NSXAgentStreamsItems
             return
         end
         if command == "folder" then
-            folderpath = NSXGenericContents::resolveFoldernameToFolderpathOrNull(item["generic-content-item"]["parent-foldername"])
+            folderpath = NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNull(item["generic-content-item"]["parent-foldername"])
             return if folderpath.nil?
             system("open '#{folderpath}'")
             return

@@ -172,7 +172,7 @@ class NSXStreamsUtils
         else
             NSXMiscUtils::moveLocationToCatalystBin(filepath)
         end
-        NSXGenericContents::destroyItem(item["generic-content-item"])
+        NSX2GenericContentUtils::destroyItem(item["generic-content-item"])
     end
 
     # NSXStreamsUtils::commitItemToDisk(item)
@@ -321,13 +321,13 @@ class NSXStreamsUtils
         items
             .first(10)
             .each{|item|
-                puts "#{item["ordinal"]} #{NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
+                puts "#{item["ordinal"]} #{NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
             }
         puts "-> end"
         items
             .last(5)
             .each{|item|
-                puts "#{item["ordinal"]} #{NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
+                puts "#{item["ordinal"]} #{NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
             }
         answer = LucilleCore::askQuestionAnswerAsString("ordinal: ")
         if answer.size==0 then
@@ -365,13 +365,13 @@ class NSXStreamsUtils
         [
             "[#{NSXStreamsUtils::streamuuidToStreamPrincipalDescriptionOrNull(item["streamuuid"])}]",
             " ",
-            NSXGenericContents::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])
+            NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])
         ].join()
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
     def self.streamItemToStreamCatalystObjectBody(item)
-        announce = NSXGenericContents::genericContentsItemToCatalystObjectBody(item["generic-content-item"]).strip
+        announce = NSX2GenericContentUtils::genericContentsItemToCatalystObjectBody(item["generic-content-item"]).strip
         splitChar = announce.lines.size>1 ? "\n" : " "
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(item["uuid"])
         doNotShowString =

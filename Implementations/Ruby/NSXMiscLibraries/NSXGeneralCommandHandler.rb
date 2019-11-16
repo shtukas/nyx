@@ -60,9 +60,17 @@ class NSXGeneralCommandHandler
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
         genericContentsItem = 
             if description.start_with?("http") then
-                NSXGenericContents::issueItemURL(description)
+                {
+                    "uuid" => SecureRandom.hex,
+                    "type" => "url",
+                    "url" => description
+                }
             else
-                NSXGenericContents::issueItemText(description)
+                {
+                    "uuid" => SecureRandom.hex,
+                    "type" => "text",
+                    "text" => description
+                }
             end
         streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
         streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(description)
@@ -100,7 +108,12 @@ class NSXGeneralCommandHandler
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream:Inbox", "Stream", "Wave"])
             catalystobjectuuid = nil
             if type == "Stream:Inbox" then
-                genericContentsItem = NSXGenericContents::issueItemText(text)
+                genericContentsItem = 
+                    {
+                        "uuid" => SecureRandom.hex,
+                        "type" => "text",
+                        "text" => text
+                    }
                 puts JSON.pretty_generate(genericContentsItem)
                 streamItem = NSXStreamsUtils::issueNewStreamItem(CATALYST_INBOX_STREAMUUID, genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
                 puts JSON.pretty_generate(streamItem)
@@ -110,7 +123,12 @@ class NSXGeneralCommandHandler
                 streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
                 streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
                 streamItemOrdinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
-                genericContentsItem = NSXGenericContents::issueItemText(text)
+                genericContentsItem =
+                    {
+                        "uuid" => SecureRandom.hex,
+                        "type" => "text",
+                        "text" => text
+                    }
                 streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, streamItemOrdinal)
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
@@ -126,7 +144,7 @@ class NSXGeneralCommandHandler
             loop {
                 objects = NSXCatalystObjectsOperator::getAllObjectsFromAgents()
                 searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = objects.select{|object| NSXContentUtils::itemToAnnounce(object['contentItem']).downcase.include?(pattern.downcase) }
+                searchobjects2 = objects.select{|object| NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']).downcase.include?(pattern.downcase) }
                 searchobjects = searchobjects1 + searchobjects2
                 status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
                 break if !status

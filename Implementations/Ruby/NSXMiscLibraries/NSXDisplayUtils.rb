@@ -57,8 +57,8 @@ class NSXDisplayUtils
             "\n              " + "note".green + ":\n" + NSXMiscUtils::getXNote(objectuuid).lines.first(10).map{|line| (" " * 22)+line }.join()
         }
 
-        announce = NSXContentUtils::itemToAnnounce(object['contentItem'])
-        body = NSXContentUtils::itemToBody(object['contentItem'])
+        announce = NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem'])
+        body = NSX1ContentsItemUtils::contentItemToBody(object['contentItem'])
         lines = 
         if isFocus then
             [
@@ -95,7 +95,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean
     # Return value specifies if an oject was chosen and processed
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
-        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXContentUtils::itemToAnnounce(object['contentItem']) })
+        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']) })
         return false if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
         true
