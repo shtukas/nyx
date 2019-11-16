@@ -524,8 +524,8 @@ Thread.new {
 
 Thread.new {
     # The object that we are cooking here is Map[streamuuid: String, objectCount: Integer]
-    sleep 310
     loop {
+        sleep 310
         mapping = NSXStreamsUtils::getStreamItems().reduce({}){|mapping, streamItem|
             streamuuid = streamItem["streamuuid"]
             if mapping[streamuuid].nil? then
