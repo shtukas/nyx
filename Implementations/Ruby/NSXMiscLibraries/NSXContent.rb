@@ -65,17 +65,6 @@ class NSX2GenericContentUtils
         item 
     end
 
-    # NSX2GenericContentUtils::newItemFilepathForFilename(filename)
-    def self.newItemFilepathForFilename(filename)
-        frg1 = filename[0,4]
-        frg2 = filename[0,6]
-        frg3 = filename[0,8]
-        folder1 = "#{CATALYST_INSTANCE_FOLDERPATH}/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        filepath = "#{folder2}/#{filename}"
-        filepath
-    end
-
     # NSX2GenericContentUtils::newL22FoldernameToFolderpath(foldername)
     def self.newL22FoldernameToFolderpath(foldername)
         frg1 = foldername[0,4]
