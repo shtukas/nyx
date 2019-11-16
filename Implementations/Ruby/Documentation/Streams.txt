@@ -6,7 +6,7 @@ StreamItem
     uuid                 : UUID
     streamuuid           : UUID
     ordinal              : Float
-    generic-content-item : GenericContentItem
+    generic-content : GenericContent
     filename             : String # (Re)Computed at extraction
     filepath             : String # (Re)Computed at extraction
 }

@@ -152,50 +152,50 @@ class NSX2GenericContentUtils
         end
     end
 
-    # NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(genericContentItem)
-    def self.genericContentsItemToCatalystObjectAnnounce(genericContentItem)
-        if genericContentItem["type"] == "text" then
-            return genericContentItem["text"].lines.first
+    # NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(genericContent)
+    def self.genericContentsItemToCatalystObjectAnnounce(genericContent)
+        if genericContent["type"] == "text" then
+            return genericContent["text"].lines.first
         end
-        if genericContentItem["type"] == "url" then
-            return genericContentItem["url"]
+        if genericContent["type"] == "url" then
+            return genericContent["url"]
         end
-        if genericContentItem["type"] == "location" then
-            folderpath = NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNull(genericContentItem["parent-foldername"])
+        if genericContent["type"] == "location" then
+            folderpath = NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNull(genericContent["parent-foldername"])
             if folderpath then
                 filepath = NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
                 if filepath then
                     return "location: #{File.basename(filepath)}"
                 else
-                    return "location: #{genericContentItem["parent-foldername"]}"
+                    return "location: #{genericContent["parent-foldername"]}"
                 end
             else
-                return "location (not found): #{genericContentItem["parent-foldername"]}"
+                return "location (not found): #{genericContent["parent-foldername"]}"
             end
 
         end
         "Error a561fefa: #{filepath}"
     end
 
-    # NSX2GenericContentUtils::genericContentsItemToCatalystObjectBody(genericContentItem)
-    def self.genericContentsItemToCatalystObjectBody(genericContentItem)
-        if genericContentItem["type"] == "text" then
-            return genericContentItem["text"]
+    # NSX2GenericContentUtils::genericContentsItemToCatalystObjectBody(genericContent)
+    def self.genericContentsItemToCatalystObjectBody(genericContent)
+        if genericContent["type"] == "text" then
+            return genericContent["text"]
         end
-        if genericContentItem["type"] == "url" then
-            return genericContentItem["url"]
+        if genericContent["type"] == "url" then
+            return genericContent["url"]
         end
-        if genericContentItem["type"] == "location" then
-            folderpath = NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNull(genericContentItem["parent-foldername"])
+        if genericContent["type"] == "location" then
+            folderpath = NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNull(genericContent["parent-foldername"])
             if folderpath then
                 filepath = NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
                 if filepath then
                     return "location: #{File.basename(filepath)}"
                 else
-                    return "location: #{genericContentItem["parent-foldername"]}"
+                    return "location: #{genericContent["parent-foldername"]}"
                 end
             else
-                return "location (not found): #{genericContentItem["parent-foldername"]}"
+                return "location (not found): #{genericContent["parent-foldername"]}"
             end
 
         end

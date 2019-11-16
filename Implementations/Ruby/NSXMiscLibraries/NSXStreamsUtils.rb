@@ -45,7 +45,7 @@ class NSXStreamsUtils
     end
 
     # -----------------------------------------------------------------
-    # Streams Metadata
+    # Streams Principals
 
     # NSXStreamsUtils::commitStreamPrincipalToDisk(streamPrincipal)
     def self.commitStreamPrincipalToDisk(streamPrincipal)
@@ -67,11 +67,6 @@ class NSXStreamsUtils
         NSXStreamsUtils::streamPrincipals()
             .select{|streamprincipal| streamprincipal["streamuuid"] == streamuuid }
             .first
-    end
-
-    # NSXStreamsUtils::streamItemsUUIDs()
-    def self.streamItemsUUIDs()
-        NSXStreamsUtils::streamPrincipals().map{|item| item["streamuuid"] }
     end
 
     # NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(description)
@@ -172,7 +167,7 @@ class NSXStreamsUtils
         else
             NSXMiscUtils::moveLocationToCatalystBin(filepath)
         end
-        NSX2GenericContentUtils::destroyItem(item["generic-content-item"])
+        NSX2GenericContentUtils::destroyItem(item["generic-content"])
     end
 
     # NSXStreamsUtils::commitItemToDisk(item)
@@ -232,13 +227,13 @@ class NSXStreamsUtils
             .sort{|i1, i2| i1["ordinal"]<=>i2["ordinal"] }
     end
 
-    # NSXStreamsUtils::issueNewStreamItem(streamUUID, genericContentItem, ordinal)
-    def self.issueNewStreamItem(streamUUID, genericContentItem, ordinal)
+    # NSXStreamsUtils::issueNewStreamItem(streamUUID, genericContent, ordinal)
+    def self.issueNewStreamItem(streamUUID, genericContent, ordinal)
         item = {}
         item["uuid"]                     = SecureRandom.hex
         item["streamuuid"]               = streamUUID
         item["ordinal"]                  = ordinal
-        item['generic-content-item']     = genericContentItem
+        item['generic-content']     = genericContent
         item["filename"]                 = "#{NSXMiscUtils::timeStringL22()}.StreamItem.json"
         NSXStreamsUtils::commitItemToDisk(item)
         item
@@ -321,13 +316,13 @@ class NSXStreamsUtils
         items
             .first(10)
             .each{|item|
-                puts "#{item["ordinal"]} #{NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
+                puts "#{item["ordinal"]} #{NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content"])}"
             }
         puts "-> end"
         items
             .last(5)
             .each{|item|
-                puts "#{item["ordinal"]} #{NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])}"
+                puts "#{item["ordinal"]} #{NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content"])}"
             }
         answer = LucilleCore::askQuestionAnswerAsString("ordinal: ")
         if answer.size==0 then
@@ -365,13 +360,13 @@ class NSXStreamsUtils
         [
             "[#{NSXStreamsUtils::streamuuidToStreamPrincipalDescriptionOrNull(item["streamuuid"])}]",
             " ",
-            NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content-item"])
+            NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content"])
         ].join()
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
     def self.streamItemToStreamCatalystObjectBody(item)
-        announce = NSX2GenericContentUtils::genericContentsItemToCatalystObjectBody(item["generic-content-item"]).strip
+        announce = NSX2GenericContentUtils::genericContentsItemToCatalystObjectBody(item["generic-content"]).strip
         splitChar = announce.lines.size>1 ? "\n" : " "
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(item["uuid"])
         doNotShowString =
@@ -398,7 +393,7 @@ class NSXStreamsUtils
         if NSXRunner::isRunning?(item["uuid"]) then
             ["open", "stop", "done", "recast", "folder"]
         else
-            ["start", "time:", "recast"]
+            ["start", "time:", "recast", "folder"]
         end
     end
 
