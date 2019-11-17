@@ -50,7 +50,8 @@ class NSX1ContentsItemUtils
                 return [
                     item["announce"],
                     "atlas reference: #{item["atlas-reference"]}",
-                    fileContent
+                    "file".green + ":",
+                    fileContent.lines.first(10).map{|line| "        #{line}" }.join("\n")
                 ].join("\n")
             end
         end
