@@ -10,6 +10,12 @@ ContentItem (are carried by Catalyst Objects)
         "body" : String
     }
 
+    {
+        "type"            : "atlas-reference"
+        "announce"        : String
+        "atlas-reference" : String
+    }
+
 
 GenericContent (stand for disk based contents)
     {

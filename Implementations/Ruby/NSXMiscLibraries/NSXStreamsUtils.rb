@@ -470,6 +470,13 @@ class NSXStreamsUtils
             mapping = JSON.parse(KeyValueStore::getOrDefaultValue(nil, "59E1391D-F236-4C92-8D85-DEC5A657E654", '{}'))
             mapping[streamuuid] || 0
         }
+        if streamPrincipal["atlas-reference"] then
+            return {
+                "type"            => "atlas-reference",
+                "announce"        => "Stream Principal: #{streamPrincipal["description"]} [contents: atlas-reference]",
+                "atlas-reference" => streamPrincipal["atlas-reference"]
+            }
+        end
         {
             "type" => "line",
             "line" => "Stream Principal: #{streamPrincipal["description"]} (#{objectCountForStreamPrincipal.call(streamPrincipal["streamuuid"])})",
@@ -486,7 +493,7 @@ class NSXStreamsUtils
         object["agentuid"]       = NSXAgentStreamsPrincipal::agentuid()
         object["contentItem"]    = contentItem
         object["metric"]         = NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
-        object["commands"]       = NSXRunner::isRunning?(uuid) ? ["stop", "done"] : ["start", "time:", "done"]
+        object["commands"]       = NSXRunner::isRunning?(uuid) ? ["open", "stop", "done"] : ["open", "start", "time:", "done"]
         object["defaultCommand"] = NSXRunner::isRunning?(uuid) ? "stop" : "start"
         object["isRunning"]      = NSXRunner::isRunning?(uuid)
         object["isDone"]         = NSXStreamsUtils::streamPrincipalToIsDone(streamPrincipal)

@@ -28,6 +28,9 @@ class NSX1ContentsItemUtils
         if item["type"] == "line-and-body" then
             return item["line"]
         end
+        if item["type"] == "atlas-reference" then
+            return item["announce"]
+        end
         "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
     end
 
@@ -38,6 +41,18 @@ class NSX1ContentsItemUtils
         end
         if item["type"] == "line-and-body" then
             return item["body"]
+        end
+        if item["type"] == "atlas-reference" then
+            fileContent = NSXAtlasReferenceUtils::referenceToFileContentsOrNull(item["atlas-reference"])
+            if fileContent.nil? then
+                return "Could not determine atlas-reference: #{item["atlas-reference"]}, for '#{item["announce"]}'"
+            else
+                return [
+                    item["announce"],
+                    "atlas reference: #{item["atlas-reference"]}",
+                    fileContent
+                ].join("\n")
+            end
         end
         "[09bab884] I don't know how to body: #{JSON.generate(item)}"
     end

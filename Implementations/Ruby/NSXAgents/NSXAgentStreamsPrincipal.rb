@@ -40,6 +40,23 @@ class NSXAgentStreamsPrincipal
     def self.processObjectAndCommand(objectuuid, command)
         object = NSXAgentStreamsPrincipal::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
+        if command == "open" then
+            streamPrincipal = object["metadata"]["streamPrincipal"]
+            if streamPrincipal["atlas-reference"] then
+                filepath = NSXAtlasReferenceUtils::referenceToLocationOrNull(streamPrincipal["atlas-reference"])
+                if filepath then
+                    system("open '#{filepath}'")
+                    LucilleCore::pressEnterToContinue()
+                else
+                    puts "-> Could not determine atlas-reference file for '#{streamPrincipal["description"]}'"
+                    LucilleCore::pressEnterToContinue()
+                end
+            else
+                puts "-> #{streamPrincipal["description"]} has not content"
+                LucilleCore::pressEnterToContinue()
+            end
+            return
+        end
         if command == "time:" then
             streamuuid = object["metadata"]["streamuuid"]
             timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
