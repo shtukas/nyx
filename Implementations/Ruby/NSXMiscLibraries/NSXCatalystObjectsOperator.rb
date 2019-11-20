@@ -87,8 +87,6 @@ class NSXCatalystObjectsOperator
             return NSXStreamsUtils::getAllStreamItemsCatalystObjectsChaseMode()
         end
 
-        NSXMiscUtils::ns2151publishNumbers(objects)
-
         objects
     end
 

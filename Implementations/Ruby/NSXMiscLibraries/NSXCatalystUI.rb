@@ -56,9 +56,6 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
-        puts NSXMiscUtils::ns2151getUILine().green
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
         focusobject = nil
 
         if displayObjects.size==0 then

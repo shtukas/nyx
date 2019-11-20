@@ -447,7 +447,7 @@ class NSXStreamsUtils
     def self.streamPrincipalToMetric(streamPrincipal)
         NSXRunMetrics1::metric(
             NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
-            streamPrincipal["multiplicity"]*NSXMiscUtils::speedOfLight()*1800,
+            streamPrincipal["multiplicity"]*1800,
             86400,
             0.7,
             0.6
@@ -461,7 +461,7 @@ class NSXStreamsUtils
                             .select{|point| (Time.new.to_i - point["unixtime"]) <= 86400 }
                             .map{|point| point["algebraicTimespanInSeconds"].to_f }
                             .inject(0, :+)
-        (liveRunningTimeInSeconds + dayRunningTimeInSeconds) > streamPrincipal["multiplicity"]*NSXMiscUtils::speedOfLight()*1800
+        (liveRunningTimeInSeconds + dayRunningTimeInSeconds) > streamPrincipal["multiplicity"]*1800
     end
 
     # NSXStreamsUtils::streamPrincipalContentItem(streamPrincipal)
@@ -507,7 +507,7 @@ class NSXStreamsUtils
     def self.timespanToCompletion(streamPrincipal)
         NSXRunMetrics1::etaToTargetInSeconds(
             NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
-            streamPrincipal["multiplicity"]*NSXMiscUtils::speedOfLight()*1800,
+            streamPrincipal["multiplicity"]*1800,
             86400,
             0.7,
             0.6,
