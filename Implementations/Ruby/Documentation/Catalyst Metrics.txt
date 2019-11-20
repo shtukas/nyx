@@ -3,11 +3,8 @@
 0.85 -> 0.86
 0.81 -> 0.84 Lucille desktop file
         0.80 Catalyst Inbox
+0.30 -> 0.80 Daily Guardian Work (special object)
         0.75 Wave: every-this-day-of-the-month / every-this-day-of-the-week
         0.73 Wave: every-n-hours / every-n-days
-0.50 -> 0.70 Stream Item & Stream Principal 
-        0.60 Daily Guardian Work (special object)
-        0.30
+0.50 -> 0.70 Stream Item & Stream Principal
 0.20 -> 0.30
-
-In addition of the above Catalyst-Next is displayed in the middle of the listing.

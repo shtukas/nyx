@@ -103,6 +103,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::screenNotificationsForOmega1Condition()
     def self.screenNotificationsForOmega1Condition()
+        # Between 09.00 and 17.59 we flash if there are objects above Daliy Guardian Work.
         return if Time.new.hour < 9
         return if Time.new.hour > 18
         objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
