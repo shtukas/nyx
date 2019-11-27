@@ -28,18 +28,15 @@ class NSXGeneralCommandHandler
             [
                 "help",
                 "new: <line> | 'text'",
-                "next",
                 "search: <pattern>",
-                "[]                  next Lucille file",
+                "[]                  [done] to next lucille file section",
                 "/                   Catalyst menu",
-                "nyx                 nyx-search",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
             "\n",
             [
                 "..                  default command",
-                "[]                  next XNote",
                 "+datetimecode",
                 "++                  +1 hour",
                 "+<weekdayname>",
@@ -49,7 +46,6 @@ class NSXGeneralCommandHandler
                 "+1@23:45",
                 "expose",
                 "note",
-                "||                  agent interface",
             ].map{|command| "        "+command }.join("\n")
         ]
     end
