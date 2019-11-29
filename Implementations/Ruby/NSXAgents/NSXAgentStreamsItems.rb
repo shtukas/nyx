@@ -50,14 +50,14 @@ class NSXAgentStreamsItems
     def self.addTime(itemuuid, streamuuid, timespanInSeconds)
         NSXRunTimes::addPoint(itemuuid, Time.new.to_i, timespanInSeconds)
         NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
-        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+        NSXEventsLog::issueEvent("NSXRunTimes/addPoint",
             {
                 "collectionuid" => streamuuid,
                 "unixtime" => Time.new.to_i,
                 "algebraicTimespanInSeconds" => timespanInSeconds
             }
         )
-        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+        NSXEventsLog::issueEvent("NSXRunTimes/addPoint",
             {
                 "collectionuid" => itemuuid,
                 "unixtime" => Time.new.to_i,

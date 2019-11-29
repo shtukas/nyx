@@ -185,19 +185,19 @@ class NSXMiscUtils
       IO.read(filepath)
     end
 
-    # NSXMiscUtils::instanceName()
-    def self.instanceName()
+    # NSXMiscUtils::thisInstanceName()
+    def self.thisInstanceName()
         ENV["COMPUTERLUCILLENAME"]
+    end
+
+    # NSXMiscUtils::instanceNames()
+    def self.instanceNames()
+        ["Lucille18", "Lucille19"]
     end
 
     # NSXMiscUtils::isLucille18()
     def self.isLucille18()
-        NSXMiscUtils::instanceName() == "Lucille18"
-    end
-
-    # NSXMiscUtils::isLucille19()
-    def self.isLucille19()
-        NSXMiscUtils::instanceName() == "Lucille19"
+        NSXMiscUtils::thisInstanceName() == "Lucille18"
     end
 
     # NSXMiscUtils::newBinArchivesFolderpath()

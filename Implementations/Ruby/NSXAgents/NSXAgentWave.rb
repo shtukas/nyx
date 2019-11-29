@@ -538,7 +538,7 @@ class NSXAgentWave
 
         if command == 'done' then
             NSXWaveUtils::performDone2(objectuuid, false)
-            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/done",
+            NSXEventsLog::issueEvent("NSXAgentWave/CommandProcessor/done",
                 {
                     "objectuuid" => objectuuid
                 }
@@ -560,7 +560,7 @@ class NSXAgentWave
                 return
             end
             NSXWaveUtils::setItemDescription(objectuuid, description)
-            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/description:",
+            NSXEventsLog::issueEvent("NSXAgentWave/CommandProcessor/description:",
                 {
                     "objectuuid" => objectuuid,
                     "description" => description
@@ -584,7 +584,7 @@ class NSXAgentWave
             end
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 NSXWaveUtils::archiveWaveItem(objectuuid)
-                NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXAgentWave/CommandProcessor/destroy",
+                NSXEventsLog::issueEvent("NSXAgentWave/CommandProcessor/destroy",
                     {
                         "objectuuid" => objectuuid
                     }

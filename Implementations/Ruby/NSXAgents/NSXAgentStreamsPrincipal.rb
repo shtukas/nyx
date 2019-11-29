@@ -74,7 +74,7 @@ class NSXAgentStreamsPrincipal
             timespanInSeconds = NSXRunner::stop(objectuuid)
             streamuuid = object["metadata"]["streamuuid"]
             NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
-            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+            NSXEventsLog::issueEvent("NSXRunTimes/addPoint",
                 {
                     "collectionuid" => streamuuid,
                     "unixtime" => Time.new.to_i,

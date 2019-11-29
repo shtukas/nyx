@@ -49,7 +49,7 @@ class LucilleLocationUtils
 
     # LucilleLocationUtils::getThisInstanceLucilleFilename()
     def self.getThisInstanceLucilleFilename()
-        "#{NSXMiscUtils::instanceName()}-20191104-183028-425057.txt"
+        "#{NSXMiscUtils::thisInstanceName()}-20191104-183028-425057.txt"
     end
 
     # LucilleLocationUtils::getThisInstanceLucilleFilepath()

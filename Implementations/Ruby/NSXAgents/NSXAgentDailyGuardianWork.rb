@@ -48,7 +48,7 @@ class NSXAgentDailyGuardianWork
     # NSXAgentDailyGuardianWork::addTimeInSeconds(timeInSeconds)
     def self.addTimeInSeconds(timeInSeconds)
         NSXRunTimes::addPoint(GUARDIAN_WORK_RUN_TIMES_UID, Time.new.to_i, timeInSeconds)
-        NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "NSXRunTimes/addPoint",
+        NSXEventsLog::issueEvent("NSXRunTimes/addPoint",
             {
                 "collectionuid" => GUARDIAN_WORK_RUN_TIMES_UID,
                 "unixtime" => Time.new.to_i,

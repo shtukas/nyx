@@ -34,64 +34,47 @@ require 'fileutils'
 =begin
 
 Event (
-    "uuid"          : String
-    "timestamp"     : Float
-    "instanceName"  : String
-    "eventType"     : String
-    "payload"       : Value or Object
+    "uuid"                : String
+    "timestamp"           : Float
+    "l22"                 : l22DateTimeString
+    "targetInstanceName"  : String
+    "eventType"           : String
+    "payload"             : Value or Object
+    "filepath"            : [ re set at retrieval ]
 )
 
-The event is stored on disk in a file with name <l22DateString>.event
+The event is stored on disk in a file with name <l22DateTimeString>.json
 
 =end
 
-NSXEVENTSLOG_FILERETENTION_PERIOD_IN_DAYS = 14
-
 class NSXEventsLog
 
-    # NSXEventsLog::l22DateStringToFilepath(l22)
-    def self.l22DateStringToFilepath(l22)
+    # NSXEventsLog::l22StringToFilepath(l22)
+    def self.l22StringToFilepath(l22)
         # 20191030-173258-161373
-        folderpath1 = "#{DATABANK_CATALYST_FOLDERPATH}/Events-Log/Events"
-        pathFragment = "#{l22[0,4]}/#{l22[0,6]}/#{l22[0,8]}"
-        folderpath2 = "#{folderpath1}/#{pathFragment}"
-        folderpath3 = LucilleCore::indexsubfolderpath(folderpath2)
-        "#{folderpath3}/#{l22}.json"
+        "#{DATABANK_CATALYST_FOLDERPATH}/Events-Log/Events/#{l22}.json"
     end
 
-    # NSXEventsLog::issueEvent(instanceName: String, eventType: String, payload: Payload)
-    def self.issueEvent(instanceName, eventType, payload)
+    # NSXEventsLog::issueEventForTarget(targetInstanceName: String, eventType: String, payload: Payload)
+    def self.issueEventForTarget(targetInstanceName, eventType, payload)
         l22 = NSXMiscUtils::timeStringL22()
+        filepath = NSXEventsLog::l22StringToFilepath(l22)
         event = {}
         event["uuid"] = SecureRandom.uuid
         event["timestamp"] = Time.new.to_f
-        event["instanceName"] = instanceName
+        event["l22"] = l22
+        event["targetInstanceName"] = targetInstanceName
         event["eventType"] = eventType
         event["payload"] = payload
-        File.open(NSXEventsLog::l22DateStringToFilepath(l22), "w"){|f| f.puts(JSON.pretty_generate(event)) }
+        event["filepath"] = filepath
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
     end
 
-    # NSXEventsLog::deleteEventIdentifiedByUUID(eventuuid)
-    def self.deleteEventIdentifiedByUUID(eventuuid)
-        Find.find("#{DATABANK_CATALYST_FOLDERPATH}/Events-Log/Events") do |path|
-            next if !File.file?(path)
-            next if File.basename(path)[-5, 5] != '.json'
-            event = JSON.parse(IO.read(path))
-            if event["uuid"] == eventuuid then
-                FileUtils.rm(path)
-                return
-            end
-        end
-    end
-
-    # NSXEventsLog::eventGarbageCollection()
-    def self.eventGarbageCollection()
-        NSXEventsLog::eventEnumerator()
-        .each{|event|
-            if (Time.new.to_i - event["timestamp"]) > NSXEVENTSLOG_FILERETENTION_PERIOD_IN_DAYS*86400 then
-                NSXEventsLog::deleteEventIdentifiedByUUID(event["uuid"])
-            end
-        }
+    # NSXEventsLog::issueEvent(eventType: String, payload: Payload)
+    def self.issueEvent(eventType, payload)
+        NSXMiscUtils::instanceNames()
+            .reject{|instanceName| instanceName == NSXMiscUtils::thisInstanceName() }
+            .each{|targetInstanceName| NSXEventsLog::issueEventForTarget(targetInstanceName, eventType, payload) }
     end
 
     # NSXEventsLog::eventEnumerator()
@@ -100,7 +83,9 @@ class NSXEventsLog
             Find.find("#{DATABANK_CATALYST_FOLDERPATH}/Events-Log/Events") do |path|
                 next if !File.file?(path)
                 next if File.basename(path)[-5, 5] != '.json'
-                events << JSON.parse(IO.read(path))
+                event = JSON.parse(IO.read(path))
+                event["filepath"] = path
+                events << event
             end
         end
     end
@@ -112,24 +97,49 @@ class NSXEventsLog
             .sort{|e1, e2| e1["timestamp"] <=> e2["timestamp"] }
     end
 
-    # NSXEventsLog::markEventAsHavingBeenGivenToClient(eventuuid, clientID)
-    def self.markEventAsHavingBeenGivenToClient(eventuuid, clientID)
-        KeyValueStore::setFlagTrue(nil, "#{eventuuid}/#{clientID}")
-    end
+end
 
-    # NSXEventsLog::trueIfEventHasBeenGivenToClient(eventuuid, clientID)
-    def self.trueIfEventHasBeenGivenToClient(eventuuid, clientID)
-        KeyValueStore::flagIsTrue(nil, "#{eventuuid}/#{clientID}")
-    end
+class NSXEventsLogProcessing
 
-    # NSXEventsLog::allEventsOfGivenTypeNotByInstanceForClientOnlyOnce(eventType, instanceName, clientID)
-    def self.allEventsOfGivenTypeNotByInstanceForClientOnlyOnce(eventType, instanceName, clientID)
-        events = NSXEventsLog::eventsOrdered()
-            .select{|event| event["eventType"] == eventType }
-            .reject{|event| event["instanceName"] == instanceName }
-            .reject{|event| NSXEventsLog::trueIfEventHasBeenGivenToClient(event["uuid"], clientID) }
-        events.each{|event| NSXEventsLog::markEventAsHavingBeenGivenToClient(event["uuid"], clientID) }
-        events
+    # NSXEventsLogProcessing::processEvents()
+    def self.processEvents()
+
+        NSXEventsLog::eventsOrdered()
+            .select{|event| event["targetInstanceName"] == NSXMiscUtils::thisInstanceName() }
+            .each{|event|
+
+                if event["eventType"] == "DoNotShowUntilDateTime" then
+                    NSXDoNotShowUntilDatetime::setDatetime(event["payload"]["objectuuid"], event["payload"]["datetime"], true)
+                    FileUtils.rm(event["filepath"])
+                    next
+                end
+
+                if event["eventType"] == "NSXAgentWave/CommandProcessor/done" then
+                    NSXWaveUtils::performDone2(event["payload"]["objectuuid"], true)
+                    FileUtils.rm(event["filepath"])
+                    next
+                end
+
+                if event["eventType"] == "NSXAgentWave/CommandProcessor/description:" then
+                    NSXWaveUtils::setItemDescription(event["payload"]["objectuuid"], event["payload"]["description"])
+                    FileUtils.rm(event["filepath"])
+                    next
+                end
+
+                if event["eventType"] == "NSXAgentWave/CommandProcessor/destroy" then
+                    NSXWaveUtils::archiveWaveItem(event["payload"]["objectuuid"])
+                    FileUtils.rm(event["filepath"])
+                    next
+                end
+
+                if event["eventType"] == "NSXRunTimes/addPoint" then
+                    NSXRunTimes::addPoint(event["payload"]["collectionuid"], event["payload"]["unixtime"], event["payload"]["algebraicTimespanInSeconds"])
+                    FileUtils.rm(event["filepath"])
+                    next
+                end
+
+            }
+
     end
 
 end

@@ -42,7 +42,7 @@ class NSXDoNotShowUntilDatetime
     def self.setDatetime(objectuuid, datetime, isEventLog)
         KeyValueStore::set(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, "6d3371d3-0600-45d1-93f3-1afa9c3f927f:#{objectuuid}", datetime)
         if !isEventLog then
-            NSXEventsLog::issueEvent(NSXMiscUtils::instanceName(), "DoNotShowUntilDateTime",
+            NSXEventsLog::issueEvent("DoNotShowUntilDateTime",
                 {
                     "objectuuid" => objectuuid,
                     "datetime"   => datetime

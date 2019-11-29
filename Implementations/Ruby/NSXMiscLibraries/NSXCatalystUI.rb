@@ -33,7 +33,7 @@ class NSXCatalystUI
 
     # NSXCatalystUI::printLucilleInstanceFileAsNext()
     def self.printLucilleInstanceFileAsNext()
-        filepath = LucilleLocationUtils::getLastInstanceLucilleFilepath(NSXMiscUtils::instanceName())
+        filepath = LucilleLocationUtils::getLastInstanceLucilleFilepath(NSXMiscUtils::thisInstanceName())
         struct2 = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
         nextContents = struct2[0]
                         .map{|section| section.strip }
