@@ -335,26 +335,6 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
-    # NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
-    def self.streamItemToCatalystObjectMetric(item)
-        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
-            m1 = 0.8
-            m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-            return m1+m2
-        end
-        m1 =
-            NSXRunMetrics1::metric(
-                NSXRunTimes::getPoints(item["streamuuid"]),
-                NSXStreamsUtils::streamuuidToStreamPricipalMultiplicityDefault1(item["streamuuid"])*1800,
-                86400,
-                0.7,
-                0.6
-            )
-        m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        m3 = NSXRunMetrics2::metric(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
-        m1 + m2 + m3
-    end
-
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         [
@@ -443,17 +423,6 @@ class NSXStreamsUtils
         object
     end
 
-    # NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
-    def self.streamPrincipalToMetric(streamPrincipal)
-        NSXRunMetrics1::metric(
-            NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
-            streamPrincipal["multiplicity"]*1800,
-            86400,
-            0.7,
-            0.6
-        ) + NSXMiscUtils::traceToMetricShift(streamPrincipal["streamuuid"])
-    end
-
     # NSXStreamsUtils::streamPrincipalToIsDone(streamPrincipal)
     def self.streamPrincipalToIsDone(streamPrincipal)
         liveRunningTimeInSeconds = NSXRunner::runningTimeOrNull("d4165d307783-#{streamPrincipal["streamuuid"]}") || 0
@@ -513,6 +482,40 @@ class NSXStreamsUtils
             0.6,
             nil
         )
+    end
+
+    # ---------------------------------------------------------------------
+    # Metrics
+
+    # NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
+    def self.streamItemToCatalystObjectMetric(item)
+        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
+            m1 = 0.8
+            m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
+            return m1+m2
+        end
+        m1 =
+            NSXRunMetrics1::metric(
+                NSXRunTimes::getPoints(item["streamuuid"]),
+                NSXStreamsUtils::streamuuidToStreamPricipalMultiplicityDefault1(item["streamuuid"])*1800,
+                86400,
+                0.7,
+                0.6
+            )
+        m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
+        m3 = NSXRunMetrics2::metric(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
+        m1 + m2 + m3
+    end
+
+    # NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
+    def self.streamPrincipalToMetric(streamPrincipal)
+        NSXRunMetrics1::metric(
+            NSXRunTimes::getPoints(streamPrincipal["streamuuid"]), 
+            streamPrincipal["multiplicity"]*1800,
+            86400,
+            0.7,
+            0.6
+        ) + NSXMiscUtils::traceToMetricShift(streamPrincipal["streamuuid"])
     end
 
 end
