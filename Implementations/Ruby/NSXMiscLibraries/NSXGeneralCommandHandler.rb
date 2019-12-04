@@ -116,8 +116,8 @@ class NSXGeneralCommandHandler
                 catalystobjectuuid = streamItem["uuid"]
             end
             if type == "Stream" then
-                streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-                streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
+                streamPrincipal = NSXStreamsUtils::interactivelySelectStreamEnsureChoice()
+                streamuuid = streamPrincipal["streamuuid"]
                 streamItemOrdinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
                 genericContentsItem =
                     {

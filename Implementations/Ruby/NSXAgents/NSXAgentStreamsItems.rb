@@ -52,14 +52,14 @@ class NSXAgentStreamsItems
         NSXRunTimes::addPoint(streamuuid, Time.new.to_i, timespanInSeconds)
         NSXEventsLog::issueEvent("NSXRunTimes/addPoint",
             {
-                "collectionuid" => streamuuid,
+                "collectionuid" => itemuuid,
                 "unixtime" => Time.new.to_i,
                 "algebraicTimespanInSeconds" => timespanInSeconds
             }
         )
         NSXEventsLog::issueEvent("NSXRunTimes/addPoint",
             {
-                "collectionuid" => itemuuid,
+                "collectionuid" => streamuuid,
                 "unixtime" => Time.new.to_i,
                 "algebraicTimespanInSeconds" => timespanInSeconds
             }

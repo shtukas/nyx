@@ -62,8 +62,8 @@ class NSXStreamsUtils
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # NSXStreamsUtils::getStreamPrincipalByStreamUUIDOrNull(streamuuid)
-    def self.getStreamPrincipalByStreamUUIDOrNull(streamuuid)
+    # NSXStreamsUtils::getStreamPrincipalByUUIDOrNull(streamuuid)
+    def self.getStreamPrincipalByUUIDOrNull(streamuuid)
         NSXStreamsUtils::streamPrincipals()
             .select{|streamprincipal| streamprincipal["streamuuid"] == streamuuid }
             .first
@@ -307,6 +307,16 @@ class NSXStreamsUtils
         LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", NSXStreamsUtils::streamPrincipals(), lambda{|item| item["description"] })
     end
 
+    # NSXStreamsUtils::interactivelySelectStreamEnsureChoice()
+    def self.interactivelySelectStreamEnsureChoice()
+        streamPrincipal = nil
+        loop {
+            streamPrincipal = LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", NSXStreamsUtils::streamPrincipals(), lambda{|item| item["description"] })
+            break if !streamPrincipal.nil?
+        }
+        streamPrincipal
+    end
+
     # NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
     def self.interactivelySpecifyStreamItemOrdinal(streamuuid)
         # We get the first 20 items, display them, ask for either a number or null for the next ordinal at the end of the queue
@@ -487,25 +497,8 @@ class NSXStreamsUtils
     # ---------------------------------------------------------------------
     # Metrics
 
-    # NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
-    def self.streamItemToCatalystObjectMetric(item)
-        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
-            m1 = 0.8
-            m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-            return m1+m2
-        end
-        m1 =
-            NSXRunMetrics1::metric(
-                NSXRunTimes::getPoints(item["streamuuid"]),
-                NSXStreamsUtils::streamuuidToStreamPricipalMultiplicityDefault1(item["streamuuid"])*1800,
-                86400,
-                0.7,
-                0.6
-            )
-        m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        m3 = NSXRunMetrics2::metric(NSXRunTimes::getPoints(item["uuid"]), 3600, 86400, 0, -0.1) 
-        m1 + m2 + m3
-    end
+    # In the case of a stream item the agent adds the timespan to the itemuuid as well as the streamuuid
+    # In the case of a stream principal the agent adds the timespan to the streamuuid
 
     # NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
     def self.streamPrincipalToMetric(streamPrincipal)
@@ -514,9 +507,47 @@ class NSXStreamsUtils
             streamPrincipal["multiplicity"]*1800,
             86400,
             0.7,
-            0.6
+            0.3
         ) + NSXMiscUtils::traceToMetricShift(streamPrincipal["streamuuid"])
     end
+
+    # NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
+    def self.streamItemToCatalystObjectMetric(item)
+
+        # We perform a special processing of the Inbox
+        if item["streamuuid"] == CATALYST_INBOX_STREAMUUID then
+            m1 = 0.8
+            m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
+            return m1+m2
+        end
+
+        # We start by getting the metrid for the principal
+        streamPrincipal = NSXStreamsUtils::getStreamPrincipalByUUIDOrNull(item["streamuuid"])
+        if streamPrincipal.nil? then
+            puts JSON.pretty_generate(item)
+            streamPrincipal = NSXStreamsUtils::interactivelySelectStreamEnsureChoice()
+            item["streamuuid"] = streamPrincipal["streamuuid"]
+            NSXStreamsUtils::commitItemToDisk(item)
+            return 1
+        end
+
+        m0 = NSXStreamsUtils::streamPrincipalToMetric(streamPrincipal)
+
+        # Then we get the metric for the item itself
+        m1 =
+            NSXRunMetrics2::metric(
+                NSXRunTimes::getPoints(item["uuid"]),
+                streamPrincipal["multiplicity"]*1800,
+                86400,
+                0.0,
+               -0.1
+            )
+        m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
+
+        m0 + m1 + m2
+    end
+
+
 
 end
 
