@@ -1,9 +1,6 @@
 
 # encoding: UTF-8
 
-# This one should come first
-require_relative "NSXConstants.rb"
-
 # Then the others
 require_relative "NSXAtlasReferenceUtils.rb"
 require_relative "NSXBob.rb"

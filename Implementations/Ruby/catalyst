@@ -37,6 +37,7 @@ require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/KeyValueStore.
 
 # -----------------------------------------------------------------
 
+require_relative "NSXConstants.rb"
 require_relative "NSXMiscLibraries/load-library.rb"
 require_relative "NSXAgents/load-library.rb"
 

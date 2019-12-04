@@ -28,7 +28,7 @@ class NSXCatalystUI
 
     # NSXCatalystUI::objectShouldTriggerOnScreenNotification(object)
     def self.objectShouldTriggerOnScreenNotification(object)
-        object["agentuid"] == CATALYST_INBOX_STREAMUUID and object["data"]["stream-item"]["streamuuid"] == "03b79978bcf7a712953c5543a9df9047"
+        object["agentuid"] == CATALYST_INBOX_STREAMUUID and object["data"]["stream-item"]["streamuuid"] == CATALYST_INBOX_STREAMUUID
     end
 
     # NSXCatalystUI::printLucilleInstanceFileAsNext()
