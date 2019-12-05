@@ -539,8 +539,8 @@ class NSXStreamsUtils
                 NSXRunTimes::getPoints(item["uuid"]),
                 streamPrincipal["multiplicity"]*1800,
                 86400,
-                0.10,
-               -0.01
+                0.010,
+               -0.001
             )
         m2 = Math.exp(-item["ordinal"].to_f/100).to_f/100
 
