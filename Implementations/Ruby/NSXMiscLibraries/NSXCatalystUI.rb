@@ -26,11 +26,6 @@ class NSXCatalystUI
         end
     end
 
-    # NSXCatalystUI::objectShouldTriggerOnScreenNotification(object)
-    def self.objectShouldTriggerOnScreenNotification(object)
-        object["agentuid"] == CATALYST_INBOX_STREAMUUID and object["data"]["stream-item"]["streamuuid"] == CATALYST_INBOX_STREAMUUID
-    end
-
     # NSXCatalystUI::printLucilleInstanceFileAsNext()
     def self.printLucilleInstanceFileAsNext()
         filepath = LucilleLocationUtils::getLastInstanceLucilleFilepath(NSXMiscUtils::thisInstanceName())
@@ -118,6 +113,17 @@ class NSXCatalystUI
         NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, command)
     end
 
+    # NSXCatalystUI::performCalendarDisplay()
+    def self.performCalendarDisplay()
+        system("clear")
+        verticalSpace = NSXMiscUtils::screenHeight()-4
+        contents = IO.read("/Users/pascal/Desktop/Calendar.txt").strip
+        contents = contents.lines.first(verticalSpace).join()
+        puts "Calendar:".green
+        puts contents
+        LucilleCore::pressEnterToContinue()
+    end
+
     # NSXCatalystUI::standardUILoop()
     def self.standardUILoop()
         loop {
@@ -127,6 +133,11 @@ class NSXCatalystUI
             end
             NSXEstateServices::collectInboxPackage()
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            if !KeyValueStore::flagIsTrue(nil, "4b07d6f1-c5b3-4309-bdec-1ca488ed8350:#{NSXMiscUtils::currentDay()}") then
+                NSXCatalystUI::performCalendarDisplay()
+                KeyValueStore::setFlagTrue(nil, "4b07d6f1-c5b3-4309-bdec-1ca488ed8350:#{NSXMiscUtils::currentDay()}")
+                return
+            end
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end
