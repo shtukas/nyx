@@ -136,7 +136,7 @@ class NSXCatalystUI
             if !KeyValueStore::flagIsTrue(nil, "4b07d6f1-c5b3-4309-bdec-1ca488ed8350:#{NSXMiscUtils::currentDay()}") then
                 NSXCatalystUI::performCalendarDisplay()
                 KeyValueStore::setFlagTrue(nil, "4b07d6f1-c5b3-4309-bdec-1ca488ed8350:#{NSXMiscUtils::currentDay()}")
-                return
+                next
             end
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
