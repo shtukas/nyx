@@ -70,6 +70,22 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        pathToStore = "/Users/pascal/Desktop/Catalyst-Store"
+        subfoldersPaths = Dir.entries(pathToStore)
+            .select{|filename| filename[0,1] != "." }
+            .map{|filename| "#{pathToStore}/#{filename}" }
+        folderIsEmpty = lambda {|folderpath| Dir.entries(folderpath).select{|filename| filename[0,1] != "." }.empty? }
+        if subfoldersPaths.size==0 or subfoldersPaths.all?{|folderpath| !folderIsEmpty.call(folderpath) } then
+            newfoldername = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+            newfolderpath = "#{pathToStore}/#{newfoldername}"
+            FileUtils.mkdir(newfolderpath)
+        end
+        sleep 10
+    }
+}
+
 NSXCatalystUI::standardUILoop()
 
 # -------------------------------------------------------------------------
