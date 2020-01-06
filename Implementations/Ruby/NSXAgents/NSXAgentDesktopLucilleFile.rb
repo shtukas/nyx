@@ -283,7 +283,9 @@ class NSXAgentDesktopLucilleFile
                 "text" => object["section"]
             }
             streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
+            return if  streamDescription.nil?
             streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
+            return if streamuuid.nil?
             ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
             streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
             LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille18", objectuuid)
