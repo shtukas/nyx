@@ -255,8 +255,8 @@ class NSXAgentDesktopLucilleFile
                             "uuid"           => uuid,
                             "agentuid"       => NSXAgentDesktopLucilleFile::agentuid(),
                             "contentItem"    => contentItem,
-                            "metric"         => NSXRunner::isRunning?(uuid) ? 2 : (0.84 - integers.next().to_f/1000),
-                            "commands"       => ["done", ">stream"],
+                            "metric"         => NSXRunner::isRunning?(uuid) ? 2 : (0.75 - integers.next().to_f/1000),
+                            "commands"       => ["done", ">infinity"],
                             "defaultCommand" => "done",
                             "section"        => section
                         }
@@ -274,7 +274,7 @@ class NSXAgentDesktopLucilleFile
             LucilleFileUtils::garbageColletion()
             return
         end
-        if command == ">stream" then
+        if command == ">infinity" then
             object = NSXAgentDesktopLucilleFile::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
             genericContentsItem = {
@@ -282,12 +282,8 @@ class NSXAgentDesktopLucilleFile
                 "type" => "text",
                 "text" => object["section"]
             }
-            streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-            return if  streamDescription.nil?
-            streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(streamDescription)
-            return if streamuuid.nil?
-            ordinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
-            streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, ordinal)
+            ordinal = NSXStreamsUtils::getNewStreamOrdinal()
+            streamItem = NSXStreamsUtils::issueNewStreamItem(nil, genericContentsItem, ordinal)
             LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille18", objectuuid)
             LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille19", objectuuid)
             LucilleFileUtils::garbageColletion()

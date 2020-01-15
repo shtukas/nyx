@@ -83,10 +83,6 @@ class NSXCatalystObjectsOperator
             KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{object["uuid"]}", object["agentuid"])
         }
 
-        if objects.empty? then
-            return NSXStreamsUtils::getAllStreamItemsCatalystObjectsChaseMode()
-        end
-
         objects
     end
 

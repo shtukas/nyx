@@ -339,13 +339,6 @@ class NSXMiscUtils
         "#{folderpath}/#{filenames.first}"
     end
 
-    # NSXMiscUtils::getNewEndOfQueueStreamOrdinal()
-    def self.getNewEndOfQueueStreamOrdinal()
-        items = NSXStreamsUtils::getStreamItems()
-        return 1 if items.size==0
-        items.map{|item| item["ordinal"] }.max.to_i + 1
-    end
-
     # NSXMiscUtils::agentsSpeedReport()
     def self.agentsSpeedReport()
         NSXBob::agents()

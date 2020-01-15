@@ -51,6 +51,9 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
+        vspace = NSXCatalystUI::printLucilleInstanceFileAsNext()
+        verticalSpaceLeft = verticalSpaceLeft - vspace
+
         focusobject = nil
 
         if displayObjects.size==0 then
@@ -63,9 +66,6 @@ class NSXCatalystUI
 
         displayObjectForListing = displayObjects.map{|object| object.clone }
         # displayObjectForListing is being consumed while displayObjects should remain static
-
-        vspace = NSXCatalystUI::printLucilleInstanceFileAsNext()
-        verticalSpaceLeft = verticalSpaceLeft - vspace
 
         position = 0
 

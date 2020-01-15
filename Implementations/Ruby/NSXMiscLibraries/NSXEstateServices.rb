@@ -113,7 +113,7 @@ class NSXEstateServices
             .map{|filename| "#{CATALYST_INBOX_DROPOFF_FOLDERPATH}/#{filename}" }
             .each{|sourcelocation|
                 genericItem = NSX2GenericContentUtils::issueItemLocationMoveOriginal(sourcelocation)
-                NSXStreamsUtils::issueNewStreamItem(CATALYST_INBOX_STREAMUUID, genericItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
+                NSXStreamsUtils::issueNewStreamItem("inbox", genericItem, NSXStreamsUtils::getNewStreamOrdinal())
             }
     end
 

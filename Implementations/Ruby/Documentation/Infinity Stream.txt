@@ -1,19 +1,10 @@
 
-Streams are implemented as sequences of StreamItem
-
 StreamItem
 {
     uuid                 : UUID
-    streamuuid           : UUID
+    status               : null | "inbox" | "focus"
     ordinal              : Float
     generic-content : GenericContent
     filename             : String # (Re)Computed at extraction
     filepath             : String # (Re)Computed at extraction
-}
-
-StreamPrincipal
-{
-    "streamuuid"           : UUID,
-    "description"          : String,
-    "multiplicity"         : Float # multiple of 30 minutes
 }

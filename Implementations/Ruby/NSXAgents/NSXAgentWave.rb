@@ -339,17 +339,17 @@ class NSXWaveUtils
         # Repeats
 
         if schedule['@'] == 'every-this-day-of-the-month' then
-            return 0.75 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
+            return 0.80 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
 
         if schedule['@'] == 'every-this-day-of-the-week' then
-            return 0.75 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
+            return 0.80 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-hours' then
-            return 0.73 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
+            return 0.78 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
         if schedule['@'] == 'every-n-days' then
-            return 0.73 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
+            return 0.78 + NSXMiscUtils::traceToMetricShift(schedule["uuid"])
         end
         1
     end
@@ -458,7 +458,7 @@ class NSXWaveUtils
         schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
             genericItem = NSX2GenericContentUtils::issueItemLocationMoveOriginal(location)
-            NSXStreamsUtils::issueNewStreamItem(CATALYST_INBOX_STREAMUUID, genericItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
+            NSXStreamsUtils::issueNewStreamItem("inbox", genericItem, NSXStreamsUtils::getNewStreamOrdinal())
             return nil
         end
         folderProbeMetadata = NSXWaveFolderProbe::folderpath2metadata(location)

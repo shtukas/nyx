@@ -68,9 +68,7 @@ class NSXGeneralCommandHandler
                     "text" => description
                 }
             end
-        streamDescription = NSXStreamsUtils::interactivelySelectStreamDescriptionOrNull()
-        streamuuid = NSXStreamsUtils::streamPrincipalDescriptionToStreamPrincipalUUIDOrNull(description)
-        streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
+        streamItem = NSXStreamsUtils::issueNewStreamItem("inbox", genericContentsItem, NSXStreamsUtils::getNewStreamOrdinal())
         puts JSON.pretty_generate(streamItem)
     end
 
@@ -101,31 +99,17 @@ class NSXGeneralCommandHandler
             if text == "text" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Stream:Inbox", "Stream", "Wave"])
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Wave", "Stream"])
             catalystobjectuuid = nil
-            if type == "Stream:Inbox" then
-                genericContentsItem = 
-                    {
-                        "uuid" => SecureRandom.hex,
-                        "type" => "text",
-                        "text" => text
-                    }
-                puts JSON.pretty_generate(genericContentsItem)
-                streamItem = NSXStreamsUtils::issueNewStreamItem(CATALYST_INBOX_STREAMUUID, genericContentsItem, NSXMiscUtils::getNewEndOfQueueStreamOrdinal())
-                puts JSON.pretty_generate(streamItem)
-                catalystobjectuuid = streamItem["uuid"]
-            end
             if type == "Stream" then
-                streamPrincipal = NSXStreamsUtils::interactivelySelectStreamEnsureChoice()
-                streamuuid = streamPrincipal["streamuuid"]
-                streamItemOrdinal = NSXStreamsUtils::interactivelySpecifyStreamItemOrdinal(streamuuid)
                 genericContentsItem =
                     {
                         "uuid" => SecureRandom.hex,
                         "type" => "text",
                         "text" => text
                     }
-                streamItem = NSXStreamsUtils::issueNewStreamItem(streamuuid, genericContentsItem, streamItemOrdinal)
+                puts JSON.pretty_generate(genericContentsItem)
+                streamItem = NSXStreamsUtils::issueNewStreamItem("inbox", genericContentsItem, NSXStreamsUtils::getNewStreamOrdinal())
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
             end
@@ -153,8 +137,7 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "generation-speed",
-                "set no internet for this hour",
-                "make new Stream Principal"
+                "set no internet for this hour"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -179,17 +162,6 @@ class NSXGeneralCommandHandler
             end
             if option == "set no internet for this hour" then
                 NSXMiscUtils::setNoInternetForThisHour()
-            end
-            if option == "make new Stream Principal" then
-                streamuuid = SecureRandom.hex
-                description = LucilleCore::askQuestionAnswerAsString("Description: ")
-                multiplicity = LucilleCore::askQuestionAnswerAsString("Multiplicity (multiple of 30 mins, recommended: 1) : ").to_f
-                streamPrincipal = {
-                    "streamuuid"   => streamuuid,
-                    "description"  => description,
-                    "multiplicity" => multiplicity
-                }
-                NSXStreamsUtils::commitStreamPrincipalToDisk(streamPrincipal)
             end
             return
         end
@@ -272,10 +244,6 @@ class NSXGeneralCommandHandler
         end
         if object and command == "start" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "start")
-            # We need to update the commands (this is important for Stream objects)
-            if object["agentuid"] == "d2de3f8e-6cf2-46f6-b122-58b60b2a96f1" then
-                object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(object["metadata"]["item"])
-            end
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end
