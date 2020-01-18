@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-require "/Users/pascal/Galaxy/Software/Misc-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
@@ -33,7 +33,7 @@ class NSXAgentBackupsMonitor
     end
 
     def self.scriptNameToLastUnixtime(sname)
-        filename = "/Users/pascal/Galaxy/DataBank/Backup-Logs/#{sname}.log"
+        filename = "/Users/pascal/Galaxy/2020-DataBank/Backup-Logs/#{sname}.log"
         IO.read(filename).to_i
     end
 

@@ -70,7 +70,7 @@ class NSXAgentAnniversaries
     end
 
     def self.getEventLines()
-        IO.read("/Users/pascal/Galaxy/DataBank/anniversaries/anniversaries.txt")
+        IO.read("/Users/pascal/Galaxy/2020-DataBank/anniversaries/anniversaries.txt")
             .lines
             .map{|line| line.strip }
             .select{|line| line.size > 0 }
@@ -114,7 +114,7 @@ class NSXAgentAnniversaries
     end
 
     def self.trueIfAnniversaryHasBeenProcessed(event, anniversary)
-        KeyValueStore::flagIsTrue("/Users/pascal/Galaxy/DataBank/anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
+        KeyValueStore::flagIsTrue("/Users/pascal/Galaxy/2020-DataBank/anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
     end
 
     def self.getEventObjects()
@@ -150,7 +150,7 @@ class NSXAgentAnniversaries
     end
 
     def self.markAnniversaryAsProcessed(event, anniversary)
-        KeyValueStore::setFlagTrue("/Users/pascal/Galaxy/DataBank/anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
+        KeyValueStore::setFlagTrue("/Users/pascal/Galaxy/2020-DataBank/anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
     end
 
     # NSXAgentAnniversaries::getAllObjects()
