@@ -117,11 +117,13 @@ class LucilleFileUtils
         content.split(LUCILLE_FILE_MARKER)
     end
 
-    # LucilleFileUtils::fileContentsToStruct2(content) : [Array[Section], Array[Section]]
+    # LucilleFileUtils::fileContentsToStruct2(content) : [Array[Section], Part]
     def self.fileContentsToStruct2(content)
-        LucilleFileUtils::fileContentsToStruct1(content).map{|part|
-            SectionsType0141::contentToSections(part.lines.to_a)
-        }
+        parts = LucilleFileUtils::fileContentsToStruct1(content)
+        [
+            SectionsType0141::contentToSections(parts[0].lines.to_a),
+            parts[1]
+        ]
     end
 
     # LucilleFileUtils::struct2ToFileContent(struct2)
@@ -130,31 +132,25 @@ class LucilleFileUtils
             struct2[0].map{|str| str.strip}.join("\n").strip,
             "\n\n",
             LUCILLE_FILE_MARKER,
-            "\n\n",
-            struct2[1].join().strip
+            struct2[1]
         ].join()
     end
 
-    # LucilleFileUtils::commitStruct2ToDiskAtFilepath(filepath, struct2)
-    def self.commitStruct2ToDiskAtFilepath(filepath, struct2)
+    # LucilleFileUtils::commitStruct2ToDiskAtFilepath(struct2)
+    def self.commitStruct2ToDiskAtFilepath(struct2)
+        filepath = "/Users/pascal/Desktop/Calendar.txt"
         File.open(filepath, "w") { |io| io.puts(LucilleFileUtils::struct2ToFileContent(struct2)) }
     end
 
-    # LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID(instanceName, uuid)
-    def self.writeANewLucilleFileForThisInstanceWithoutThisSectionUUID(instanceName, uuid)
-        lastFilepath = LucilleLocationUtils::getLastInstanceLucilleFilepath(instanceName)
-        NSXMiscUtils::copyLocationToCatalystBin(lastFilepath)
-        struct2 = LucilleFileUtils::getStructForInstance(instanceName)
-        hash1 = Digest::SHA1.hexdigest(JSON.generate(struct2))
-        struct2 = struct2.map{|sections|
-            sections.reject{|section|
-                LucilleFileUtils::sectionToSectionUUID(section) == uuid
-            }
+    # LucilleFileUtils::writeANewLucilleFileWithoutThisSectionUUID(uuid)
+    def self.writeANewLucilleFileWithoutThisSectionUUID(uuid)
+        filepath = "/Users/pascal/Desktop/Calendar.txt"
+        NSXMiscUtils::copyLocationToCatalystBin(filepath)
+        struct2 = LucilleFileUtils::getStruct()
+        struct2[0] = struct2[0].reject{|section|
+            LucilleFileUtils::sectionToSectionUUID(section) == uuid
         }
-        hash2 = Digest::SHA1.hexdigest(JSON.generate(struct2))
-        return if hash1 == hash2
-        newFilepath = LucilleLocationUtils::makeNewInstanceLucilleFilepath(instanceName)
-        LucilleFileUtils::commitStruct2ToDiskAtFilepath(newFilepath, struct2)
+        LucilleFileUtils::commitStruct2ToDiskAtFilepath(struct2)
     end
 
     # LucilleFileUtils::applyNextTransformationToStruct2(struct2)
@@ -164,50 +160,19 @@ class LucilleFileUtils
         struct2
     end
 
-    # LucilleFileUtils::applyNextTransformationToLucilleFile(filepath1, filepath2)
-    def self.applyNextTransformationToLucilleFile(filepath1, filepath2)
-        NSXMiscUtils::copyLocationToCatalystBin(filepath1)
-        struct2 = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath1))
+    # LucilleFileUtils::applyNextTransformationToLucilleFile()
+    def self.applyNextTransformationToLucilleFile()
+        filepath = "/Users/pascal/Desktop/Calendar.txt"
+        NSXMiscUtils::copyLocationToCatalystBin(filepath)
+        struct2 = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
         struct2 = LucilleFileUtils::applyNextTransformationToStruct2(struct2)
-        LucilleFileUtils::commitStruct2ToDiskAtFilepath(filepath2, struct2)
+        LucilleFileUtils::commitStruct2ToDiskAtFilepath(struct2)
     end
 
-    # LucilleFileUtils::getStructForInstance(instanceName)
-    def self.getStructForInstance(instanceName)
-        LucilleLocationUtils::getInstanceLucilleFilepaths(instanceName)
-            .reduce([[], []]){|struct2, filepath|
-                s = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
-                [
-                    (struct2[0] + s[0]).uniq,
-                    (struct2[1] + s[1]).uniq,
-                ]
-            }
-    end
-
-    # LucilleFileUtils::getStructAcrossAllInstances()
-    def self.getStructAcrossAllInstances()
-        LucilleLocationUtils::getLucilleFilepaths()
-            .reduce([[], []]){|struct2, filepath|
-                s = LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
-                [
-                    (struct2[0] + s[0]).uniq,
-                    (struct2[1] + s[1]).uniq,
-                ]
-            }
-    end
-
-    # LucilleFileUtils::garbageColletionForThisInstance(instanceName)
-    def self.garbageColletionForThisInstance(instanceName)
-        filepaths = LucilleLocationUtils::getInstanceLucilleFilepaths(instanceName)
-        return if filepaths.size <= 1
-        FileUtils.rm(filepaths.first)
-        LucilleFileUtils::garbageColletionForThisInstance(instanceName)
-    end
-
-    # LucilleFileUtils::garbageColletion()
-    def self.garbageColletion()
-        LucilleFileUtils::garbageColletionForThisInstance("Lucille18")
-        LucilleFileUtils::garbageColletionForThisInstance("Lucille19")
+    # LucilleFileUtils::getStruct()
+    def self.getStruct()
+        filepath = "/Users/pascal/Desktop/Calendar.txt"
+        LucilleFileUtils::fileContentsToStruct2(IO.read(filepath))
     end
 
 end
@@ -241,8 +206,12 @@ class NSXAgentDesktopLucilleFile
 
     # NSXAgentDesktopLucilleFile::getAllObjects()
     def self.getAllObjects()
+        return []
+            # We are no longer generating Catalyst objects from the Lucille file (currently the Calendar)
+            # The top of the Calendar is used for nexting in Catalyst
+            # We keep the code for reference
         integers = LucilleCore::integerEnumerator()
-        struct2 = LucilleFileUtils::getStructAcrossAllInstances()
+        struct2 = LucilleFileUtils::getStruct()
         objects = struct2[1]
                     .map{|section|
                         uuid = LucilleFileUtils::sectionToSectionUUID(section)
@@ -269,9 +238,7 @@ class NSXAgentDesktopLucilleFile
         if command == "done" then
             # The objectuuid is the sectionuuid, so there is not need to look the object up
             # to extract the sectionuuids
-            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille18", objectuuid)
-            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille19", objectuuid)
-            LucilleFileUtils::garbageColletion()
+            LucilleFileUtils::writeANewLucilleFileWithoutThisSectionUUID(objectuuid)
             return
         end
         if command == ">infinity" then
@@ -284,9 +251,7 @@ class NSXAgentDesktopLucilleFile
             }
             ordinal = NSXStreamsUtils::getNewStreamOrdinal()
             streamItem = NSXStreamsUtils::issueNewStreamItem(nil, genericContentsItem, ordinal)
-            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille18", objectuuid)
-            LucilleFileUtils::writeANewLucilleFileForThisInstanceWithoutThisSectionUUID("Lucille19", objectuuid)
-            LucilleFileUtils::garbageColletion()
+            LucilleFileUtils::writeANewLucilleFileWithoutThisSectionUUID(objectuuid)
             return
         end
     end

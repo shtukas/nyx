@@ -167,13 +167,8 @@ class NSXGeneralCommandHandler
         end
 
         if command == "[]" then
-            filepath1 = LucilleLocationUtils::getLastInstanceLucilleFilepath(NSXMiscUtils::thisInstanceName())
-            if IO.read(filepath1).split('@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b')[0].strip.size>0 then
-                filepath2 = LucilleLocationUtils::makeNewInstanceLucilleFilepath(NSXMiscUtils::thisInstanceName())
-                LucilleFileUtils::applyNextTransformationToLucilleFile(filepath1, filepath2)
-                LucilleFileUtils::garbageColletion()
-                return
-            end
+            LucilleFileUtils::applyNextTransformationToLucilleFile()
+            return
         end
 
         if command == "nyx" then
