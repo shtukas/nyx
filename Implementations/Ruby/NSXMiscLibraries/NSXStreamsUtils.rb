@@ -193,9 +193,9 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         [
-            "[inbox]",
+            item["status"] ? (item["status"] + " ") : "[infinity] ",
             NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content"])
-        ].join(" ")
+        ].join("")
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
