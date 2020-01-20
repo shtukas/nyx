@@ -11,14 +11,12 @@ require "time"
 # -------------------------------------------------------------------------------------
 
 $NSXAgentBackupsMonitorScriptnames = [ # Here we assume that they are all in the Backups-SubSystem folder
-    "lucille18-to-EnergyGrid",
     "EnergyGrid-to-Venus",
     "Earth-to-Jupiter",
     "Saturn-to-Pluto"
 ]
 
 $NSXAgentBackupsMonitorScriptnamesToPeriodInDays = {
-    "lucille18-to-EnergyGrid" => 2,
     "EnergyGrid-to-Venus" => 7,
     "Earth-to-Jupiter" => 8,
     "Saturn-to-Pluto" => 10
