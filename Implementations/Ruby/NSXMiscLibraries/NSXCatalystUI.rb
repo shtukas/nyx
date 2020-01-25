@@ -27,12 +27,16 @@ class NSXCatalystUI
     end
 
     # NSXCatalystUI::printLucilleInstanceFileAsNext()
-    def self.printLucilleInstanceFileAsNext()
+    def self.printLucilleInstanceFileAsNext(verticalSpaceLeft)
+        return 0 if verticalSpaceLeft < 6
         struct2 = LucilleFileUtils::getStruct()
         nextContents = struct2[0]
                         .map{|section| section.strip }
-                        .first(10)
                         .join("\n")
+                        .lines
+                        .to_a
+                        .first(verticalSpaceLeft-3)
+                        .join()
         if nextContents.size > 0 then
             puts "-- [] " + "-" * (NSXMiscUtils::screenWidth()-7)
             puts nextContents.strip.green
@@ -43,6 +47,30 @@ class NSXCatalystUI
         end
     end
 
+    # NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
+    def self.printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
+
+        while displayObjectsForListingPart.size>0 do
+
+            # Position management
+            position = position + 1
+            object = displayObjectsForListingPart.shift
+            if position == 1 then
+                focusobject = object
+            end
+            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
+            verticalSize = NSXDisplayUtils::verticalSize(displayStr)
+            break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectsForListingPart + [object]).none?{|object| object["isRunning"] }
+
+            # Display
+            puts displayStr
+            verticalSpaceLeft = verticalSpaceLeft - verticalSize
+            break if verticalSpaceLeft<=0 and displayObjectsForListingPart.none?{|object| object["isRunning"] }
+        end
+
+        [position, verticalSpaceLeft, focusobject]
+    end
+
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
@@ -50,12 +78,11 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
-        vspace = NSXCatalystUI::printLucilleInstanceFileAsNext()
-        verticalSpaceLeft = verticalSpaceLeft - vspace
-
-        focusobject = nil
-
         if displayObjects.size==0 then
+
+            vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
+            verticalSpaceLeft = verticalSpaceLeft - vspace
+
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
@@ -63,28 +90,21 @@ class NSXCatalystUI
             return
         end
 
-        displayObjectForListing = displayObjects.map{|object| object.clone }
-        # displayObjectForListing is being consumed while displayObjects should remain static
+        focusobject = nil
+
+        displayObjectsForListing = displayObjects.map{|object| object.clone }
+        # displayObjectsForListing is being consumed while displayObjects should remain static
+
+        # TODO: There is a better way to split this array in two parts.
+        displayObjectsForListingPart1, displayObjectsForListingPart2 = displayObjectsForListing.partition { |object| object["metric"] >= 0.750 }
 
         position = 0
+        position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart1, position, focusobject, verticalSpaceLeft)
 
-        while displayObjectForListing.size>0 do
+        vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
+        verticalSpaceLeft = verticalSpaceLeft - vspace
 
-            # Position management
-            position = position + 1
-            object = displayObjectForListing.shift
-            if position == 1 then
-                focusobject = object
-            end
-            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
-            verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-            break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectForListing + [object]).none?{|object| object["isRunning"] }
-
-            # Display
-            puts displayStr
-            verticalSpaceLeft = verticalSpaceLeft - verticalSize
-            break if verticalSpaceLeft<=0 and displayObjectForListing.none?{|object| object["isRunning"] }
-        end
+        position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart2, position, focusobject, verticalSpaceLeft)
 
         if focusobject.nil? then
             puts "Nothing to do for the moment (^_^)"

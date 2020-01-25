@@ -193,7 +193,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         [
-            item["status"] ? (item["status"] + " ") : "[infinity] ",
+            item["status"] ? ("[#{item["status"]}]" + " ") : "[infinity] ",
             NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content"])
         ].join("")
     end
@@ -226,7 +226,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
     def self.streamItemToCatalystObjectMetric(item)
         m0 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        return (0.72 + m0) if (item["status"] == "inbox")
+        return (0.77 + m0) if (item["status"] == "inbox")
         return (0.50 + m0) if (item["status"] == "focus")
         return 0.25
     end
