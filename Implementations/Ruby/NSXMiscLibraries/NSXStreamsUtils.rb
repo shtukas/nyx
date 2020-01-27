@@ -183,7 +183,7 @@ class NSXStreamsUtils
             "focus"    => "focus",
             "infinity" => nil
         }
-        item[status] = mapping[status]
+        item["status"] = mapping[status]
         item
     end
 
