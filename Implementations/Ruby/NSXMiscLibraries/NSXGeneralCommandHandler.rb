@@ -207,7 +207,7 @@ class NSXGeneralCommandHandler
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
-            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime, false)
+            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
             return
         end
 
@@ -235,6 +235,11 @@ class NSXGeneralCommandHandler
         if object and command == "open" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            return
+        end
+        if object and command == "open+done" then
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "done")
             return
         end
         if object and command == "start" then

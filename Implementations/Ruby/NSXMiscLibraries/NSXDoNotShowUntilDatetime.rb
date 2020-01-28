@@ -34,21 +34,13 @@ require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/KeyV
 
 # ----------------------------------------------------------------------
 
-DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_INSTANCE_FOLDERPATH}/DoNotShowUntilDateTime"
+DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_DATA_FOLDERPATH}/DoNotShowUntilDateTime"
 
 class NSXDoNotShowUntilDatetime
 
-    # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime, isEventLog)
-    def self.setDatetime(objectuuid, datetime, isEventLog)
+    # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
+    def self.setDatetime(objectuuid, datetime)
         KeyValueStore::set(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, "6d3371d3-0600-45d1-93f3-1afa9c3f927f:#{objectuuid}", datetime)
-        if !isEventLog then
-            NSXEventsLog::issueEvent("DoNotShowUntilDateTime",
-                {
-                    "objectuuid" => objectuuid,
-                    "datetime"   => datetime
-                }
-            )
-        end
     end
 
     # NSXDoNotShowUntilDatetime::getStoredDatetimeOrNull(objectuuid)

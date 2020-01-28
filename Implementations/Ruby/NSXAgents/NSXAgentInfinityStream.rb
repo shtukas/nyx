@@ -43,12 +43,6 @@ class NSXAgentInfinityStream
             end
             return
         end
-        if command == "folder" then
-            folderpath = NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNull(item["generic-content"]["parent-foldername"])
-            return if folderpath.nil?
-            system("open '#{folderpath}'")
-            return
-        end
         if command == "done" then
             NSXStreamsUtils::destroyItem(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
@@ -58,6 +52,12 @@ class NSXAgentInfinityStream
             item = NSXStreamsUtils::recastStreamItem(item)
             NSXStreamsUtils::commitItemToDisk(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
+            return
+        end
+        if command == "folder" then
+            folderpath = NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNull(item["generic-content"]["parent-foldername"])
+            return if folderpath.nil?
+            system("open '#{folderpath}'")
             return
         end
     end

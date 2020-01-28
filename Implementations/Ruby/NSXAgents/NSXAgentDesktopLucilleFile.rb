@@ -40,7 +40,6 @@ require 'fileutils'
 
 # -------------------------------------------------------------------------------------
 
-LUCILLE_FILE_AGENT_DATA_FOLDERPATH = "#{CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/DesktopLucilleFile"
 LUCILLE_FILE_MARKER = "@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b"
 
 $SECTION_UUID_TO_CATALYST_UUIDS = nil

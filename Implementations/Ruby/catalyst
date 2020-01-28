@@ -54,14 +54,6 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 
 NSXEstateServices::archivesTimelineGarbageCollectionEnvelop(true)
-NSXEventsLogProcessing::processEvents()
-
-Thread.new {
-    loop {
-        sleep 60
-        NSXEventsLogProcessing::processEvents()
-    }
-}
 
 Thread.new {
     loop {

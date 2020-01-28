@@ -37,7 +37,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::newStreamItemFilepathForFilename(filename)
     def self.newStreamItemFilepathForFilename(filename)
-        folder1 = "#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
+        folder1 = "#{CATALYST_DATA_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         filepath = "#{folder2}/#{filename}"
         KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
@@ -46,7 +46,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
     def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
-        Find.find("#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
+        Find.find("#{CATALYST_DATA_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path) != filename
             return path
@@ -79,7 +79,7 @@ class NSXStreamsUtils
             end
         end
         filepath = nil
-        Find.find("#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
+        Find.find("#{CATALYST_DATA_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))
@@ -120,7 +120,7 @@ class NSXStreamsUtils
     # NSXStreamsUtils::getStreamItems()
     def self.getStreamItems()
         items = []
-        Find.find("#{CATALYST_INSTANCE_FOLDERPATH}/Streams-Items") do |path|
+        Find.find("#{CATALYST_DATA_FOLDERPATH}/Streams-Items") do |path|
             next if !File.file?(path)
             next if File.basename(path)[-16, 16] != ".StreamItem.json"
             item = JSON.parse(IO.read(path))
@@ -190,32 +190,30 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
+    # NSXStreamsUtils::itemToStatusString(item)
+    def self.itemToStatusString(item)
+        item["status"] ? "[#{item["status"]}]" : "[infinity]"
+    end
+
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         [
-            item["status"] ? ("[#{item["status"]}]" + " ") : "[infinity] ",
+            NSXStreamsUtils::itemToStatusString(item),
             NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content"])
-        ].join("")
+        ].join(" ")
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
     def self.streamItemToStreamCatalystObjectBody(item)
         announce = NSX2GenericContentUtils::genericContentsItemToCatalystObjectBody(item["generic-content"]).strip
-        splitChar = announce.lines.size>1 ? "\n" : " "
+        splitChar = announce.lines.size>1 ? "\n" : " " 
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(item["uuid"])
-        doNotShowString =
-            if datetime then
-                "#{splitChar}(DoNotShowUntil: #{datetime})"
-            else
-                ""
-            end
-        runtimestring =
-            if NSXRunner::isRunning?(item["uuid"]) then
-                "#{splitChar}(running for #{(NSXRunner::runningTimeOrNull(item["uuid"]).to_f/3600).round(2)} hours)"
-            else
-                ""
-            end
-        "[#{announce}#{doNotShowString}#{runtimestring}"
+        doNotShowString = datetime ? "#{splitChar}(DoNotShowUntil: #{datetime})" : "" 
+        [
+            NSXStreamsUtils::itemToStatusString(item) + " ", 
+            announce,
+            doNotShowString
+        ].join("")
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)

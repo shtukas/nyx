@@ -32,7 +32,7 @@ require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/KeyV
 
 # ----------------------------------------------------------------------
 
-WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_INSTANCE_FOLDERPATH}/Agents-Data/Wave"
+WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_DATA_FOLDERPATH}/Wave-Data"
 
 # ----------------------------------------------------------------------
 
@@ -488,13 +488,13 @@ class NSXWaveUtils
             .first
     end
 
-    # NSXWaveUtils::performDone2(objectuuid, isEventLog)
-    def self.performDone2(objectuuid, isEventLog)
+    # NSXWaveUtils::performDone2(objectuuid)
+    def self.performDone2(objectuuid)
         object = NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
         schedule = object['schedule']
         datetime = NSXWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
-        NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime, isEventLog)
+        NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     end
 
     # NSXWaveUtils::setItemDescription(objectuuid, description)
@@ -537,12 +537,7 @@ class NSXAgentWave
         end
 
         if command == 'done' then
-            NSXWaveUtils::performDone2(objectuuid, false)
-            NSXEventsLog::issueEvent("NSXAgentWave/CommandProcessor/done",
-                {
-                    "objectuuid" => objectuuid
-                }
-            )
+            NSXWaveUtils::performDone2(objectuuid)
             return
         end
 
@@ -560,12 +555,6 @@ class NSXAgentWave
                 return
             end
             NSXWaveUtils::setItemDescription(objectuuid, description)
-            NSXEventsLog::issueEvent("NSXAgentWave/CommandProcessor/description:",
-                {
-                    "objectuuid" => objectuuid,
-                    "description" => description
-                }
-            )
             return
         end
 
@@ -584,11 +573,6 @@ class NSXAgentWave
             end
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
                 NSXWaveUtils::archiveWaveItem(objectuuid)
-                NSXEventsLog::issueEvent("NSXAgentWave/CommandProcessor/destroy",
-                    {
-                        "objectuuid" => objectuuid
-                    }
-                )
                 return
             end
             return

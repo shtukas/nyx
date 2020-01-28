@@ -319,7 +319,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::getXNote(objectuuid)
     def self.getXNote(objectuuid)
-        KeyValueStore::getOrDefaultValue("#{CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
+        KeyValueStore::getOrDefaultValue("#{CATALYST_DATA_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
     end
 
     # NSXMiscUtils::hasXNote(objectuuid)
@@ -329,7 +329,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::setXNote(objectuuid, text)
     def self.setXNote(objectuuid, text)
-        KeyValueStore::set("#{CATALYST_INSTANCE_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
+        KeyValueStore::set("#{CATALYST_DATA_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
     end
 
     # NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)

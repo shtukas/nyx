@@ -86,7 +86,7 @@ class NSX2GenericContentUtils
         frg1 = foldername[0,4]
         frg2 = foldername[0,6]
         frg3 = foldername[0,8]
-        folder1 = "#{CATALYST_INSTANCE_FOLDERPATH}/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
+        folder1 = "#{CATALYST_DATA_FOLDERPATH}/Generic-Contents/#{frg1}/#{frg2}/#{frg3}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{foldername}"
         if !File.exists?(folder3) then
@@ -112,7 +112,7 @@ class NSX2GenericContentUtils
 
     # NSX2GenericContentUtils::resolveFoldernameToFolderpathOrNullUseTheForce(foldername)
     def self.resolveFoldernameToFolderpathOrNullUseTheForce(foldername)
-        Find.find("#{CATALYST_INSTANCE_FOLDERPATH}/Generic-Contents") do |path|
+        Find.find("#{CATALYST_DATA_FOLDERPATH}/Generic-Contents") do |path|
             next if File.file?(path)
             next if File.basename(path) != foldername
             return path
