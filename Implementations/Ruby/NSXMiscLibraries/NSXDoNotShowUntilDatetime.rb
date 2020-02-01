@@ -34,18 +34,38 @@ require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/KeyV
 
 # ----------------------------------------------------------------------
 
-DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_DATA_FOLDERPATH}/DoNotShowUntilDateTime"
+DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_DATA_FOLDERPATH}/DoNotShowUntilDateTime2"
+
+$DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP = {}
 
 class NSXDoNotShowUntilDatetime
 
     # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     def self.setDatetime(objectuuid, datetime)
-        KeyValueStore::set(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, "6d3371d3-0600-45d1-93f3-1afa9c3f927f:#{objectuuid}", datetime)
+        logobject = {
+            "objectuuid" => objectuuid,
+            "datetime"   => datetime
+        }
+        folderpath1 = DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER
+        folderpath2 = LucilleCore::indexsubfolderpath(folderpath1)
+        filepath1 = "#{folderpath2}/#{LucilleCore::timeStringL22()}.json"
+        File.open(filepath1, "w"){|f| f.puts(JSON.pretty_generate(logobject)) }
+        $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[objectuuid] = datetime
     end
 
     # NSXDoNotShowUntilDatetime::getStoredDatetimeOrNull(objectuuid)
     def self.getStoredDatetimeOrNull(objectuuid)
-        KeyValueStore::getOrNull(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER, "6d3371d3-0600-45d1-93f3-1afa9c3f927f:#{objectuuid}")
+        $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[objectuuid]
+    end
+
+    # NSXDoNotShowUntilDatetime::loadDataFromDisk()
+    def self.loadDataFromDisk()
+        Find.find(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER) do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-5, 5] != '.json'
+            item = JSON.parse(IO.read(path))
+            $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[item["objectuuid"]] = DateTime.parse(item["datetime"]).to_time.utc.iso8601
+        end
     end
 
     # NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
@@ -58,3 +78,11 @@ class NSXDoNotShowUntilDatetime
     end
 
 end
+
+NSXDoNotShowUntilDatetime::loadDataFromDisk()
+Thread.new {
+    loop {
+        sleep 300
+        NSXDoNotShowUntilDatetime::loadDataFromDisk()
+    }
+}

@@ -29,7 +29,7 @@ class NSXCatalystUI
     # NSXCatalystUI::printLucilleInstanceFileAsNext()
     def self.printLucilleInstanceFileAsNext(verticalSpaceLeft)
         return 0 if verticalSpaceLeft < 6
-        struct2 = LucilleFileUtils::getStruct()
+        struct2 = NSXLucilleCalendarFileUtils::getStruct()
         nextContents = struct2[0]
                         .map{|section| section.strip }
                         .join("\n")
@@ -96,7 +96,7 @@ class NSXCatalystUI
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
         # TODO: There is a better way to split this array in two parts.
-        displayObjectsForListingPart1, displayObjectsForListingPart2 = displayObjectsForListing.partition { |object| object["metric"] >= 0.750 }
+        displayObjectsForListingPart1, displayObjectsForListingPart2 = displayObjectsForListing.partition { |object| object["metric"] >= 0.60 }
 
         position = 0
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart1, position, focusobject, verticalSpaceLeft)

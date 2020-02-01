@@ -167,7 +167,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == "[]" then
-            LucilleFileUtils::applyNextTransformationToLucilleFile()
+            NSXLucilleCalendarFileUtils::applyNextTransformationToLucilleFile()
             return
         end
 

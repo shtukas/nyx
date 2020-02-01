@@ -2,6 +2,8 @@
 
 # encoding: UTF-8
 require 'json'
+# JSON.pretty_generate(object)
+
 require 'date'
 require 'colorize'
 require 'securerandom'

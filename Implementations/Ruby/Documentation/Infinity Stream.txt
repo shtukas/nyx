@@ -1,10 +1,10 @@
 
 StreamItem
 {
-    uuid                 : UUID
-    status               : null | "inbox" | "focus"
-    ordinal              : Float
+    uuid            : UUID
+    status          : null | "inbox" | "focus"
+    ordinal         : Float
     generic-content : GenericContent
-    filename             : String # (Re)Computed at extraction
-    filepath             : String # (Re)Computed at extraction
+    filename        : String # (Re)Computed at extraction
+    filepath        : String # (Re)Computed at extraction
 }

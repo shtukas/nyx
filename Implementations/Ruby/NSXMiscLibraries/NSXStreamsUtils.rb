@@ -35,38 +35,6 @@ class NSXStreamsUtils
     # -----------------------------------------------------------------
     # IO
 
-    # NSXStreamsUtils::newStreamItemFilepathForFilename(filename)
-    def self.newStreamItemFilepathForFilename(filename)
-        folder1 = "#{CATALYST_DATA_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        filepath = "#{folder2}/#{filename}"
-        KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
-        filepath
-    end
-
-    # NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
-    def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
-        Find.find("#{CATALYST_DATA_FOLDERPATH}/Streams-Items") do |path|
-            next if !File.file?(path)
-            next if File.basename(path) != filename
-            return path
-        end
-        nil
-    end
-
-    # NSXStreamsUtils::filenameToFilepathResolutionOrNull(filename)
-    def self.filenameToFilepathResolutionOrNull(filename)
-        filepath = KeyValueStore::getOrNull(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}")
-        if filepath and File.basename(filepath)==filename and File.exists?(filepath) then
-            return filepath
-        end
-        filepath = NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
-        if filepath then
-            KeyValueStore::set(nil, "53f8f305-38e6-4767-a312-45b2f1b059ec:#{filename}", filepath)
-        end
-        filepath
-    end
-
     # NSXStreamsUtils::streamItemUUIDToFilepathResolutionOrNull(uuid)
     def self.streamItemUUIDToFilepathResolutionOrNull(uuid)
         filepath = KeyValueStore::getOrNull(nil, "437c8725-e862-4031-b6ba-1eddf33c3746:#{uuid}")
@@ -93,6 +61,38 @@ class NSXStreamsUtils
         filepath
     end
 
+    # NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
+    def self.filenameToFilepathResolutionOrNullUseTheForce(filename)
+        Find.find("#{CATALYST_DATA_FOLDERPATH}/Streams-Items") do |path|
+            next if !File.file?(path)
+            next if File.basename(path) != filename
+            return path
+        end
+        nil
+    end
+
+    # NSXStreamsUtils::filenameToFilepathResolutionOrNull(filename)
+    def self.filenameToFilepathResolutionOrNull(filename)
+        filepath = KeyValueStore::getOrNull(nil, "56f6f040-c6f9-4825-ba19-499791da5f67:#{filename}")
+        if filepath and File.basename(filepath)==filename and File.exists?(filepath) then
+            return filepath
+        end
+        filepath = NSXStreamsUtils::filenameToFilepathResolutionOrNullUseTheForce(filename)
+        if filepath then
+            KeyValueStore::set(nil, "56f6f040-c6f9-4825-ba19-499791da5f67:#{filename}", filepath)
+        end
+        filepath
+    end
+
+    # NSXStreamsUtils::newStreamItemFilepathForFilename(filename)
+    def self.newStreamItemFilepathForFilename(filename)
+        folder1 = "#{CATALYST_DATA_FOLDERPATH}/Streams-Items/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d")}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        filepath = "#{folder2}/#{filename}"
+        KeyValueStore::set(nil, "56f6f040-c6f9-4825-ba19-499791da5f67:#{filename}", filepath)
+        filepath
+    end
+
     # NSXStreamsUtils::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filepath = NSXStreamsUtils::filenameToFilepathResolutionOrNull(item["filename"])
@@ -101,9 +101,6 @@ class NSXStreamsUtils
         end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
-
-    # -----------------------------------------------------------------
-    # Core Data
 
     # NSXStreamsUtils::issueNewStreamItem(status, genericContent, ordinal)
     def self.issueNewStreamItem(status, genericContent, ordinal)
@@ -137,6 +134,9 @@ class NSXStreamsUtils
         return nil if filepath.nil?
         JSON.parse(IO.read(filepath))
     end
+
+    # -----------------------------------------------------------------
+    # Core Data
 
     # NSXStreamsUtils::getStreamItemsOrdinalOrdered()
     def self.getStreamItemsOrdinalOrdered()
