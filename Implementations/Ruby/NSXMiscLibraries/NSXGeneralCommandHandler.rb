@@ -68,7 +68,11 @@ class NSXGeneralCommandHandler
                     "text" => description
                 }
             end
-        streamItem = NSXStreamsUtils::issueNewStreamItem("inbox", genericContentsItem, NSXStreamsUtils::getNewStreamOrdinal())
+        streamItem = NSXStreamsUtils::issueNewStreamItem(
+            NSXStreamsUtils::makeSchedule("inbox"), 
+            genericContentsItem, 
+            NSXStreamsUtils::getNewStreamOrdinal()
+        )
         puts JSON.pretty_generate(streamItem)
     end
 
@@ -109,7 +113,11 @@ class NSXGeneralCommandHandler
                         "text" => text
                     }
                 puts JSON.pretty_generate(genericContentsItem)
-                streamItem = NSXStreamsUtils::issueNewStreamItem("inbox", genericContentsItem, NSXStreamsUtils::getNewStreamOrdinal())
+                streamItem = NSXStreamsUtils::issueNewStreamItem(
+                    NSXStreamsUtils::makeSchedule("inbox"), 
+                    genericContentsItem, 
+                    NSXStreamsUtils::getNewStreamOrdinal()
+                )
                 puts JSON.pretty_generate(streamItem)
                 catalystobjectuuid = streamItem["uuid"]
             end

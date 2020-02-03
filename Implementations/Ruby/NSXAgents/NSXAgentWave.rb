@@ -457,8 +457,11 @@ class NSXWaveUtils
         return nil if location.nil?
         schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(objectuuid)
         if schedule.nil? then
-            genericItem = NSX2GenericContentUtils::issueItemLocationMoveOriginal(location)
-            NSXStreamsUtils::issueNewStreamItem("inbox", genericItem, NSXStreamsUtils::getNewStreamOrdinal())
+            NSXStreamsUtils::issueNewStreamItem(
+                NSXStreamsUtils::makeSchedule("inbox"), 
+                NSX2GenericContentUtils::issueItemLocationMoveOriginal(location), 
+                NSXStreamsUtils::getNewStreamOrdinal()
+            )
             return nil
         end
         folderProbeMetadata = NSXWaveFolderProbe::folderpath2metadata(location)

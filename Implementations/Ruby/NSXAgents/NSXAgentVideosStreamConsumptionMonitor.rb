@@ -23,6 +23,39 @@ require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/KeyV
 
 # -----------------------------------------------------------------
 
+class NSXRunMetrics3 # CountTargetThenCollapseToZero
+
+    # NSXRunMetrics3::core(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.core(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+        count = points
+            .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
+            .size
+        # Here, unlike the timespan counterpart, we do not care how long  was spent on that point/hit
+        x1 = 0
+        y1 = metricAtZero
+        x2 = targetCount
+        y2 = metricAtTarget
+        x  = count
+        return y1 if x < x1
+        return metricAtTarget*Math.exp(-(x-x2).to_f/(0.1*targetCount)) if x > x2
+        NSXMiscUtils::linearMap(x1, y1, x2, y2, x)
+    end
+
+    # NSXRunMetrics3::numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+        (1..7).to_a.reverse.map{|indx|
+            NSXRunMetrics3::core(points, targetCount*indx, periodInSeconds*indx, metricAtZero, metricAtTarget)
+        }
+    end
+
+    # NSXRunMetrics3::metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+    def self.metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+        NSXRunMetrics3::numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget).min
+    end
+end
+
+# -----------------------------------------------------------------
+
 XSPACE_VIDEO_REPOSITORY_FOLDERPATH = "/Users/pascal/x-space/YouTube Videos"
 
 ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH = "/Volumes/EnergyGrid/Data/Pascal/YouTube Videos"

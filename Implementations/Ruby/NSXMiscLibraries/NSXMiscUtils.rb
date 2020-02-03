@@ -122,6 +122,17 @@ class NSXMiscUtils
         }
     end
 
+    # NSXMiscUtils::codeDatetimePatterns()
+    def self.codeDatetimePatterns()
+        [
+            "+<weekdayname>",
+            "+<integer>day(s)",
+            "+<integer>hour(s)",
+            "+YYYY-MM-DD",
+            "+1@12:34"
+        ]
+    end
+
     # NSXMiscUtils::codeToDatetimeOrNull(code)
     def self.codeToDatetimeOrNull(code)
 
@@ -172,6 +183,16 @@ class NSXMiscUtils
         end
 
         nil
+    end
+
+    # NSXMiscUtils::interactivelyDetermineDatetimeEnsureChoice()
+    def self.interactivelyDetermineDatetimeEnsureChoice()
+        loop {
+            puts NSXMiscUtils::codeDatetimePatterns().join("\n")
+            code = LucilleCore::askQuestionAnswerAsString("code: ")
+            datetime = NSXMiscUtils::codeToDatetimeOrNull(code)
+            return datetime if datetime
+        }
     end
 
     # NSXMiscUtils::editTextUsingTextmate(text)
@@ -408,6 +429,12 @@ class NSXMiscUtils
             .reject{|line| line == sline }
             .join()
             .strip
+    end
+
+    # NSXMiscUtils::linearMap(x1, y1, x2, y2, x)
+    def self.linearMap(x1, y1, x2, y2, x)
+        slope = (y2-y1).to_f/(x2-x1)
+        (x-x1)*slope + y1
     end
 
 end

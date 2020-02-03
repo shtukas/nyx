@@ -22,8 +22,6 @@ Point {
 }
 =end
 
-# !! This class shoud not issue LogEvents !!
-
 class NSXRunTimes
 
     # NSXRunTimes::addPoint(collectionuid, unixtime, algebraicTimespanInSeconds)

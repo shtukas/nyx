@@ -43,13 +43,24 @@ class NSXAgentInfinityStream
             end
             return
         end
+        if command == "start" then
+            return if NSXRunner::isRunning?(objectuuid)
+            NSXRunner::start(objectuuid)
+            return
+        end
+        if command == "stop" then
+            return if !NSXRunner::isRunning?(objectuuid)
+            timespan = NSXRunner::stop(objectuuid)
+            NSXRunTimes::addPoint(objectuuid, Time.new.to_i, timespan)
+            return
+        end
         if command == "done" then
             NSXStreamsUtils::destroyItem(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return
         end
-        if command == "recast" then
-            item = NSXStreamsUtils::recastStreamItem(item)
+        if command == "push" then
+            item["ordinal"] = NSXStreamsUtils::getNewStreamOrdinal()
             NSXStreamsUtils::commitItemToDisk(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return

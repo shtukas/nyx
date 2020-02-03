@@ -69,47 +69,69 @@ class NSXTodoFolders
     # --------------------------------------------------------------
     # Catalyst Objects
 
-    # NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid, indx)
-    def self.folderUUIDToCatalystObjects(folderuuid, indx)
+    # NSXTodoFolders::folderItemMetric(objectuuid, folderCounter, itemCounter)
+    def self.folderItemMetric(objectuuid, folderCounter, itemCounter)
+        x1 = 0.50 
+        x2 = Math.exp(-folderCounter).to_f/100
+        x3 = Math.exp(-itemCounter).to_f/1000 
+        x4 = NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
+        x1 + x2 + x3 + x4
+    end
+
+    # NSXTodoFolders::folderMetric(objectuuid, folderCounter)
+    def self.folderMetric(objectuuid, folderCounter)
+        x1 = 0.50 
+        x2 = Math.exp(-folderCounter).to_f/100
+        x3 = NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
+        x1 + x2 + x3
+    end
+
+    # NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid, folderCounter)
+    def self.folderUUIDToCatalystObjects(folderuuid, folderCounter)
         foldername = NSXTodoFolders::folderUUIDToFoldernameOrNull(folderuuid)
 
         itemsInFolder = Dir.entries("/Users/pascal/Galaxy/2020-Todo/#{foldername}")
             .select{|filename| filename[0,1] != "." }
             .select{|filename| !filename.start_with?("Icon") }
             .sort
+            .first(1)
 
-        counter = 0
+        itemCounter = 0
 
         objects = itemsInFolder.map{|filename|
-            counter = counter + 1
+            itemCounter = itemCounter + 1
             objectuuid = Digest::SHA1.hexdigest("#{folderuuid}/#{filename}")
+            announce = "2020-Todo / #{foldername} / #{filename}"
             {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
                 "contentItem"    => {
                     "type" => "line",
-                    "line" => "[2020-Todo] #{foldername} / #{filename}"
+                    "line" => announce
                 },
-                "metric"         => 0.70 + Math.exp(-indx).to_f/100 + Math.exp(-counter).to_f/1000,
-                "commands"       => ["reviewed", "inject"],
-                "defaultCommand" => "reviewed",
-                "isDone"         => false
+                "metric"         => NSXTodoFolders::folderItemMetric(objectuuid, folderCounter, itemCounter),
+                "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
+                "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
+                "isRunning"      => NSXRunner::isRunning?(objectuuid),
+                "metric-shift"   => NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
             }
         }
 
         if objects.size == 0 then
             objectuuid = folderuuid
+            announce = "2020-Todo / #{foldername} [folder]"
             objects << {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
                 "contentItem"    => {
                     "type" => "line",
-                    "line" => "[2020-Todo] #{foldername} [folder]"
+                    "line" => announce
                 },
-                "metric"         => 0.70 + Math.exp(-indx).to_f/100,
-                "commands"       => ["reviewed", "inject"],
-                "defaultCommand" => "reviewed",
-                "isDone"         => false
+                "metric"         => NSXTodoFolders::folderMetric(objectuuid, folderCounter),
+                "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
+                "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
+                "isRunning"      => NSXRunner::isRunning?(objectuuid),
+                "metric-shift"   => NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
             }
         end
 
@@ -118,10 +140,10 @@ class NSXTodoFolders
 
     # NSXTodoFolders::catalystObjects()
     def self.catalystObjects()
-        counter = 0
+        folderCounter = 0
         NSXTodoFolders::getFolderuuids().map{|folderuuid|
-            counter = counter + 1
-            NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid, counter)
+            folderCounter = folderCounter + 1
+            NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid, folderCounter)
         }.flatten
     end
 

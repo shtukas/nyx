@@ -33,7 +33,7 @@ end
 class NSXStreamsUtils
 
     # -----------------------------------------------------------------
-    # IO
+    # IO & Core Data
 
     # NSXStreamsUtils::streamItemUUIDToFilepathResolutionOrNull(uuid)
     def self.streamItemUUIDToFilepathResolutionOrNull(uuid)
@@ -102,11 +102,22 @@ class NSXStreamsUtils
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NSXStreamsUtils::issueNewStreamItem(status, genericContent, ordinal)
-    def self.issueNewStreamItem(status, genericContent, ordinal)
+    # NSXStreamsUtils::makeSchedule(type)
+    # type: "inbox"
+    def self.makeSchedule(type)
+        if type == "inbox" then
+            return {
+                "type" => "inbox"
+            }
+        end
+        raise "error 12dcd14ea92b"
+    end
+
+    # NSXStreamsUtils::issueNewStreamItem(schedule, genericContent, ordinal)
+    def self.issueNewStreamItem(schedule, genericContent, ordinal)
         item = {}
         item["uuid"]            = SecureRandom.hex
-        item["status"]          = status
+        item["schedule"]        = schedule
         item["ordinal"]         = ordinal
         item['generic-content'] = genericContent
         item["filename"]        = "#{NSXMiscUtils::timeStringL22()}.StreamItem.json"
@@ -135,9 +146,6 @@ class NSXStreamsUtils
         JSON.parse(IO.read(filepath))
     end
 
-    # -----------------------------------------------------------------
-    # Core Data
-
     # NSXStreamsUtils::getStreamItemsOrdinalOrdered()
     def self.getStreamItemsOrdinalOrdered()
         NSXStreamsUtils::getStreamItems()
@@ -148,7 +156,9 @@ class NSXStreamsUtils
     def self.getSelectionOfStreamItems()
         NSXStreamsUtils::getStreamItemsOrdinalOrdered()
             .reduce([]) { |collection, item|
-                if ["inbox", "focus"].include?(item["status"]) or (collection.size < 5) then
+                b1 = item["schedule"]
+                b2 = collection.size < 10
+                if b1 or b2 then
                     collection + [item]
                 else
                     collection
@@ -172,33 +182,30 @@ class NSXStreamsUtils
     def self.getNewStreamOrdinal()
         items = NSXStreamsUtils::getStreamItems()
         return 1 if items.size==0
-        items.map{|item| item["ordinal"] }.max.to_i + 1
-    end
-
-    # NSXStreamsUtils::recastStreamItem(item): item
-    def self.recastStreamItem(item)
-        status = LucilleCore::selectEntityFromListOfEntitiesOrNull("status:", ["focus", "infinity"])
-        return if status.nil?
-        mapping = {
-            "focus"    => "focus",
-            "infinity" => nil
-        }
-        item["status"] = mapping[status]
-        item
+        (items.map{|item| item["ordinal"] }.max.to_i + 1).floor
     end
 
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
-    # NSXStreamsUtils::itemToStatusString(item)
-    def self.itemToStatusString(item)
-        item["status"] ? "[#{item["status"]}]" : "[infinity]"
+    # NSXStreamsUtils::scheduleToString(schedule)
+    def self.scheduleToString(schedule)
+        if schedule["type"] == "inbox" then
+            return "[stream / inbox]"
+        end
+        raise "43a5-97f15"
+    end
+
+    # NSXStreamsUtils::streamItemToScheduleString(item)
+    def self.streamItemToScheduleString(item)
+        return "[stream / infinity]" if item["schedule"].nil? 
+        NSXStreamsUtils::scheduleToString(item["schedule"])
     end
 
     # NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
     def self.streamItemToStreamCatalystObjectAnnounce(item)
         [
-            NSXStreamsUtils::itemToStatusString(item),
+            NSXStreamsUtils::streamItemToScheduleString(item),
             NSX2GenericContentUtils::genericContentsItemToCatalystObjectAnnounce(item["generic-content"])
         ].join(" ")
     end
@@ -210,27 +217,47 @@ class NSXStreamsUtils
         datetime = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(item["uuid"])
         doNotShowString = datetime ? "#{splitChar}(DoNotShowUntil: #{datetime})" : "" 
         [
-            NSXStreamsUtils::itemToStatusString(item) + " ", 
+            NSXStreamsUtils::streamItemToScheduleString(item) + " ", 
             announce,
             doNotShowString
         ].join("")
     end
 
-    # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
-    def self.streamItemToStreamCatalystObjectCommands(item)
-        ["open", "done", "recast", "folder"]
+    # NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(objectuuid)
+    def self.streamItemToStreamCatalystObjectCommands(objectuuid)
+        if NSXRunner::isRunning?(objectuuid) then
+            ["open", "stop", "done", "push", "folder"]
+        else
+            ["open", "start", "done", "push", "folder"]
+        end
     end
 
-    # NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
-    def self.streamItemToCatalystObjectMetric(item)
-        m0 = Math.exp(-item["ordinal"].to_f/100).to_f/100
-        return (0.77 + m0) if (item["status"] == "inbox")
-        return (0.50 + m0) if (item["status"] == "focus")
-        return 0.25
+    # NSXStreamsUtils::runtimePointsToMetricShift(points)
+    def self.runtimePointsToMetricShift(points)
+        x2 = points
+                .map{|point|
+                    d1 = Time.new.to_i - point["unixtime"]
+                    x1 = (d1 <= 86400) ? 1 : Math.exp(-(d1-86400).to_f/86400)
+                    point["algebraicTimespanInSeconds"] * x1
+                }
+                .inject(0, :+)
+        NSXMiscUtils::linearMap(0, 0, 3600, -0.8, x2)
+    end
+
+    # NSXStreamsUtils::streamItemToCatalystObjectMetric(objectuuid, ordinal, schedule)
+    def self.streamItemToCatalystObjectMetric(objectuuid, ordinal, schedule)
+        m0 = Math.exp(-ordinal.to_f/100).to_f/100
+        m1 = NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
+        return (0.40 + m0 + m1) if schedule.nil?
+        if schedule["type"] == "inbox" then
+            return (0.75 + m0 + m1)
+        end
+        raise "4f2e-43a5"
     end
 
     # NSXStreamsUtils::streamItemToCatalystObject(item)
     def self.streamItemToCatalystObject(item)
+        objectuuid = item["uuid"]
         announce = NSXStreamsUtils::streamItemToStreamCatalystObjectAnnounce(item)
         body = NSXStreamsUtils::streamItemToStreamCatalystObjectBody(item)
         contentItem = {
@@ -239,13 +266,16 @@ class NSXStreamsUtils
             "body" => body
         }
         object = {}
-        object["uuid"] = item["uuid"]
+        object["uuid"] = objectuuid
         object["agentuid"] = NSXAgentInfinityStream::agentuid()
         object["contentItem"] = contentItem
-        object["metric"] = NSXStreamsUtils::streamItemToCatalystObjectMetric(item)
-        object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(item)
+        object["metric"] = NSXStreamsUtils::streamItemToCatalystObjectMetric(objectuuid, item["ordinal"], item["schedule"])
+        object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(objectuuid)
+        object["defaultCommand"] = NSXRunner::isRunning?(objectuuid) ? "stop" : "start"
+        object["isRunning"] = NSXRunner::isRunning?(objectuuid)
         object["metadata"] = {}
         object["metadata"]["item"] = item
+        object["metadata"]["metric-shift"] = NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
         object
     end
 

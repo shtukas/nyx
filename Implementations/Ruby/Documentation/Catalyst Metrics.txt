@@ -2,14 +2,8 @@
         0.90  Wave sticky
         0.80+ Wave: every-this-day-of-the-month / every-this-day-of-the-week
         0.78+ Wave: every-n-hours / every-n-days
-
-        0.77  Infinity Stream [inbox]
-
-        0.70  Todo Reviews
-
+        0.75_ Infinity Stream [inbox]
         0.60  Lucille Next Display
-
-        0.50  Infinity Stream [focus]
-        0.25  Infinity Stream (default)
-
-        0.20  -- water level---------------
+        0.50_ TodoFolders / Items
+        0.40_ Infinity Stream [infinity]
+        0.20  Water level ---------------

@@ -30,12 +30,12 @@ class NSXCatalystUI
     def self.printLucilleInstanceFileAsNext(verticalSpaceLeft)
         return 0 if verticalSpaceLeft < 6
         struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        nextContents = struct2[0]
+        nextContents = struct2[1]
                         .map{|section| section.strip }
                         .join("\n")
                         .lines
                         .to_a
-                        .first(verticalSpaceLeft-3)
+                        .first([verticalSpaceLeft-3, 12].min)
                         .join()
         if nextContents.size > 0 then
             puts "-- [] " + "-" * (NSXMiscUtils::screenWidth()-7)

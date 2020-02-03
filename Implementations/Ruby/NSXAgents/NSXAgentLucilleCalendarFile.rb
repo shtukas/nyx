@@ -40,7 +40,7 @@ require 'fileutils'
 
 # -------------------------------------------------------------------------------------
 
-LUCILLE_FILE_MARKER = "@marker-539d469a-8521-4460-9bc4-5fb65da3cd4b"
+LUCILLE_FILE_MARKER = "@marker-51B5803C-F4B2-4CB3-B26B-6F2E99E2AA44"
 
 class NSXAgentLucilleCalendarFile
 
@@ -101,23 +101,6 @@ class NSXAgentLucilleCalendarFile
     # NSXAgentLucilleCalendarFile::processObjectAndCommand(objectuuid, command)
     def self.processObjectAndCommand(objectuuid, command)
         if command == "done" then
-            # The objectuuid is the sectionuuid, so there is not need to look the object up
-            # to extract the sectionuuids
-            NSXLucilleCalendarFileUtils::writeANewLucilleFileWithoutThisSectionUUID(objectuuid)
-            return
-        end
-        if command == ">infinity" then
-            object = NSXAgentLucilleCalendarFile::getObjectByUUIDOrNull(objectuuid)
-            return if object.nil?
-            genericContentsItem = {
-                "uuid" => SecureRandom.hex,
-                "type" => "text",
-                "text" => object["section"]
-            }
-            ordinal = NSXStreamsUtils::getNewStreamOrdinal()
-            streamItem = NSXStreamsUtils::issueNewStreamItem(nil, genericContentsItem, ordinal)
-            NSXLucilleCalendarFileUtils::writeANewLucilleFileWithoutThisSectionUUID(objectuuid)
-            return
         end
     end
 end

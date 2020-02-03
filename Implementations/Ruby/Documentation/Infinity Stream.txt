@@ -2,9 +2,15 @@
 StreamItem
 {
     uuid            : UUID
-    status          : null | "inbox" | "focus"
+    schedule        : null | StreamItemSchedule
     ordinal         : Float
     generic-content : GenericContent
     filename        : String # (Re)Computed at extraction
     filepath        : String # (Re)Computed at extraction
 }
+
+StreamItemSchedule DataTypeCE9BB947
+{
+    "type" : "inbox"
+}
+

@@ -30,13 +30,16 @@ class NSXAgentTodoFolders
 
     # NSXAgentTodoFolders::processObjectAndCommand(objectuuid, command)
     def self.processObjectAndCommand(objectuuid, command)
-        if command == "reviewed" then
-            NSXTodoFolders::markObjectHasBeenReviewed(objectuuid)
+        if command == "start" then
+            return if NSXRunner::isRunning?(objectuuid)
+            NSXRunner::start(objectuuid)
             return
         end
-        if command == "inject" then
-            NSXTodoFolders::addObjectToCalendarFileTopHalf(objectuuid)
-            NSXTodoFolders::markObjectHasBeenReviewed(objectuuid)
+        if command == "stop" then
+            return if !NSXRunner::isRunning?(objectuuid)
+            timespan = NSXRunner::stop(objectuuid)
+            NSXRunTimes::addPoint(objectuuid, Time.new.to_i, timespan)
+            return
         end
     end
 end

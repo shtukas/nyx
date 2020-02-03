@@ -3,9 +3,18 @@
 
 =begin
 
+Struct1 [
+    Part # Notes           : String
+    Part # Catalyst Items  : String
+    Part # Calendar Future : String
+    Part # Birthdays       : Strimg
+]
+
 Struct2 [
-    Array[String] # Individual strings are sections
-    String
+    Part # Notes            : String
+    Sections                : Array[String] # Individual strings are sections
+    Part # Calendar Future  : String
+    Part # Birthdays        : String
 ]
 
 =end
@@ -17,27 +26,33 @@ class NSXLucilleCalendarFileUtils
         Digest::SHA1.hexdigest(section.strip)[0, 8]
     end
 
-    # NSXLucilleCalendarFileUtils::fileContentsToStruct1(content) : [Part, Part]
+    # NSXLucilleCalendarFileUtils::fileContentsToStruct1(content) : Struct1
     def self.fileContentsToStruct1(content)
         content.split(LUCILLE_FILE_MARKER)
     end
 
-    # NSXLucilleCalendarFileUtils::fileContentsToStruct2(content) : [Array[Section], Part]
+    # NSXLucilleCalendarFileUtils::fileContentsToStruct2(content) : Struct2
     def self.fileContentsToStruct2(content)
-        parts = NSXLucilleCalendarFileUtils::fileContentsToStruct1(content)
+        struct1 = NSXLucilleCalendarFileUtils::fileContentsToStruct1(content)
         [
-            SectionsType0141::contentToSections(parts[0].lines.to_a),
-            parts[1]
+            struct1[0],
+            SectionsType0141::contentToSections(struct1[1].lines.to_a),
+            struct1[2],
+            struct1[3]
         ]
     end
 
     # NSXLucilleCalendarFileUtils::struct2ToFileContent(struct2)
     def self.struct2ToFileContent(struct2)
         [
-            struct2[0].map{|str| str.strip}.join("\n").strip,
+            struct2[0],
+            LUCILLE_FILE_MARKER + "\n\n",
+            struct2[1].map{|str| str.strip}.join("\n").strip,
             "\n\n",
             LUCILLE_FILE_MARKER,
-            struct2[1]
+            struct2[2],
+            LUCILLE_FILE_MARKER,
+            struct2[3]
         ].join()
     end
 
@@ -49,8 +64,8 @@ class NSXLucilleCalendarFileUtils
 
     # NSXLucilleCalendarFileUtils::applyNextTransformationToStruct2(struct2)
     def self.applyNextTransformationToStruct2(struct2)
-        return struct2 if struct2[0].empty?
-        struct2[0][0] = NSXMiscUtils::applyNextTransformationToContent(struct2[0][0])
+        return struct2 if struct2[1].empty?
+        struct2[1][0] = NSXMiscUtils::applyNextTransformationToContent(struct2[1][0])
         struct2
     end
 
@@ -70,7 +85,7 @@ class NSXLucilleCalendarFileUtils
     def self.writeANewLucilleFileWithoutThisSectionUUID(uuid)
         NSXLucilleCalendarFileUtils::commitFileCopyToBin()
         struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        struct2[0] = struct2[0].reject{|section|
+        struct2[1] = struct2[1].reject{|section|
             NSXLucilleCalendarFileUtils::sectionToSectionUUID(section) == uuid
         }
         NSXLucilleCalendarFileUtils::commitStruct2ToDisk(struct2)
@@ -88,9 +103,9 @@ class NSXLucilleCalendarFileUtils
     def self.injectNewLineInPart1OfTheFile(line)
         NSXLucilleCalendarFileUtils::commitFileCopyToBin()
         struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        sections = struct2[0]
+        sections = struct2[1]
         sections << line
-        struct2[0] = sections
+        struct2[1] = sections
         NSXLucilleCalendarFileUtils::commitStruct2ToDisk(struct2)
     end
 
