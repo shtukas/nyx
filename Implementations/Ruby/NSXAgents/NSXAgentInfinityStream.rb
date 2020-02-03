@@ -61,6 +61,7 @@ class NSXAgentInfinityStream
         end
         if command == "push" then
             item["ordinal"] = NSXStreamsUtils::getNewStreamOrdinal()
+            item["schedule"] = nil
             NSXStreamsUtils::commitItemToDisk(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
             return

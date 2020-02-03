@@ -101,7 +101,7 @@ class NSXTodoFolders
         objects = itemsInFolder.map{|filename|
             itemCounter = itemCounter + 1
             objectuuid = Digest::SHA1.hexdigest("#{folderuuid}/#{filename}")
-            announce = "2020-Todo / #{foldername} / #{filename}"
+            announce = "[todo folders] #{foldername} / #{filename}"
             {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
@@ -119,7 +119,7 @@ class NSXTodoFolders
 
         if objects.size == 0 then
             objectuuid = folderuuid
-            announce = "2020-Todo / #{foldername} [folder]"
+            announce = "[todo folders] #{foldername} [folder]"
             objects << {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
