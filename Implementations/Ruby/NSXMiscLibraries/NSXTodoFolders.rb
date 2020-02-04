@@ -86,6 +86,13 @@ class NSXTodoFolders
         x1 + x2 + x3
     end
 
+    # NSXTodoFolders::runningTimeAsString(objectuuid)
+    def self.runningTimeAsString(objectuuid)
+        runningTime = NSXRunner::runningTimeOrNull(objectuuid)
+        return "" if runningTime.nil?
+        "running for #{(runningTime.to_f/60).to_i} minutes"
+    end
+
     # NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid, folderCounter)
     def self.folderUUIDToCatalystObjects(folderuuid, folderCounter)
         foldername = NSXTodoFolders::folderUUIDToFoldernameOrNull(folderuuid)
@@ -107,9 +114,9 @@ class NSXTodoFolders
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
                 "contentItem"    => {
                     "type" => "line",
-                    "line" => announce
+                    "line" => announce + ( NSXRunner::isRunning?(objectuuid) ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
                 },
-                "metric"         => NSXTodoFolders::folderItemMetric(objectuuid, folderCounter, itemCounter),
+                "metric"         => NSXRunner::isRunning?(objectuuid) ? 1 : NSXTodoFolders::folderItemMetric(objectuuid, folderCounter, itemCounter),
                 "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
                 "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
                 "isRunning"      => NSXRunner::isRunning?(objectuuid),
@@ -125,9 +132,9 @@ class NSXTodoFolders
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
                 "contentItem"    => {
                     "type" => "line",
-                    "line" => announce
+                    "line" => announce + ( NSXRunner::isRunning?(objectuuid) ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
                 },
-                "metric"         => NSXTodoFolders::folderMetric(objectuuid, folderCounter),
+                "metric"         => NSXRunner::isRunning?(objectuuid) ? 1 : NSXTodoFolders::folderMetric(objectuuid, folderCounter),
                 "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
                 "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
                 "isRunning"      => NSXRunner::isRunning?(objectuuid),
