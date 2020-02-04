@@ -37,6 +37,7 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "..                  default command",
+                ",,                  open+done",
                 "+datetimecode",
                 "++                  +1 hour",
                 "+<weekdayname>",
@@ -245,7 +246,7 @@ class NSXGeneralCommandHandler
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
             return
         end
-        if object and command == "open+done" then
+        if object and ( command == "open+done" or command == ",," ) then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "done")
             return
