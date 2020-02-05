@@ -185,6 +185,22 @@ class NSXStreamsUtils
         (items.map{|item| item["ordinal"] }.max.to_i + 1).floor
     end
 
+    # NSXStreamsUtils::incrementDoneIndex()
+    def self.incrementDoneIndex()
+        dayDoneIndex = KeyValueStore::getOrDefaultValue(nil, "4a908775-429e-4a03-a7da-2bea0163ca7c:#{NSXMiscUtils::currentDay()}", "0").to_i
+        KeyValueStore::set(nil, "4a908775-429e-4a03-a7da-2bea0163ca7c:#{NSXMiscUtils::currentDay()}", dayDoneIndex+1)
+    end
+
+    # NSXStreamsUtils::getDoneIndex()
+    def self.getDoneIndex()
+        KeyValueStore::getOrDefaultValue(nil, "4a908775-429e-4a03-a7da-2bea0163ca7c:#{NSXMiscUtils::currentDay()}", "0").to_i
+    end
+
+    # NSXStreamsUtils::getDoneIndexMetricShift()
+    def self.getDoneIndexMetricShift()
+        -0.1*NSXStreamsUtils::getDoneIndex().to_f/10
+    end
+
     # -----------------------------------------------------------------
     # Catalyst Objects and Commands
 
@@ -248,9 +264,10 @@ class NSXStreamsUtils
     def self.streamItemToCatalystObjectMetric(objectuuid, ordinal, schedule)
         m0 = Math.exp(-ordinal.to_f/100).to_f/100
         m1 = NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
-        return (0.40 + m0 + m1) if schedule.nil?
+        m2 = NSXStreamsUtils::getDoneIndexMetricShift()
+        return (0.40 + m0 + m1 + m2) if schedule.nil?
         if schedule["type"] == "inbox" then
-            return (0.75 + m0 + m1)
+            return (0.75 + m0 + m1 + m2)
         end
         raise "4f2e-43a5"
     end
