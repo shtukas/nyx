@@ -74,7 +74,7 @@ class NSXTodoFolders
         x1 = 0.50 
         x2 = Math.exp(-folderCounter).to_f/100
         x3 = Math.exp(-itemCounter).to_f/1000 
-        x4 = NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
+        x4 = NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
         x1 + x2 + x3 + x4
     end
 
@@ -82,7 +82,7 @@ class NSXTodoFolders
     def self.folderMetric(objectuuid, folderCounter)
         x1 = 0.50 
         x2 = Math.exp(-folderCounter).to_f/100
-        x3 = NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
+        x3 = NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
         x1 + x2 + x3
     end
 
@@ -120,7 +120,7 @@ class NSXTodoFolders
                 "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
                 "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
                 "isRunning"      => NSXRunner::isRunning?(objectuuid),
-                "metric-shift"   => NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
+                "metric-shift"   => NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
             }
         }
 
@@ -138,7 +138,7 @@ class NSXTodoFolders
                 "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
                 "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
                 "isRunning"      => NSXRunner::isRunning?(objectuuid),
-                "metric-shift"   => NSXStreamsUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid))
+                "metric-shift"   => NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
             }
         end
 

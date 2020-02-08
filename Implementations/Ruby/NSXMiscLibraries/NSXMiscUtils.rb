@@ -437,4 +437,16 @@ class NSXMiscUtils
         (x-x1)*slope + y1
     end
 
+    # NSXMiscUtils::runtimePointsToMetricShift(points, preservationTimeInSeconds, thenTimeToExpMinus1InSeconds)
+    def self.runtimePointsToMetricShift(points, preservationTimeInSeconds, thenTimeToExpMinus1InSeconds)
+        x2 = points
+                .map{|point|
+                    d1 = Time.new.to_i - point["unixtime"]
+                    x1 = (d1 <= preservationTimeInSeconds) ? 1 : Math.exp(-(d1-preservationTimeInSeconds).to_f/thenTimeToExpMinus1InSeconds)
+                    point["algebraicTimespanInSeconds"] * x1
+                }
+                .inject(0, :+)
+        NSXMiscUtils::linearMap(0, 0, 3600, -0.8, x2)
+    end
+
 end

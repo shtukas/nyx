@@ -47,23 +47,32 @@ class NSXAgentInfinityStream
             return
         end
         if command == "start" then
-            return if NSXRunner::isRunning?(objectuuid)
-            NSXRunner::start(objectuuid)
+            if !NSXRunner::isRunning?(objectuuid)
+                NSXRunner::start(objectuuid)
+            end
             return
         end
         if command == "stop" then
-            return if !NSXRunner::isRunning?(objectuuid)
-            timespan = NSXRunner::stop(objectuuid)
-            NSXRunTimes::addPoint(objectuuid, Time.new.to_i, timespan)
+            if NSXRunner::isRunning?(objectuuid) then
+                timespan = NSXRunner::stop(objectuuid)
+                NSXRunTimes::addPoint(STREAM_GENERAL_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
+            end
             return
         end
         if command == "done" then
+            if NSXRunner::isRunning?(objectuuid) then
+                timespan = NSXRunner::stop(objectuuid)
+                NSXRunTimes::addPoint(STREAM_GENERAL_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
+            end
             NSXStreamsUtils::destroyItem(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
-            NSXStreamsUtils::incrementDoneIndex()
             return
         end
         if command == "push" then
+            if NSXRunner::isRunning?(objectuuid) then
+                timespan = NSXRunner::stop(objectuuid)
+                NSXRunTimes::addPoint(STREAM_GENERAL_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
+            end
             item["ordinal"] = NSXStreamsUtils::getNewStreamOrdinal()
             item["schedule"] = nil
             NSXStreamsUtils::commitItemToDisk(item)
