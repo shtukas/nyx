@@ -66,6 +66,21 @@ class NSXTodoFolders
         NSXTodoFolders::getFoldernames().map{|foldername| NSXTodoFolders::foldernameToFolderuuid(foldername) }
     end
 
+    # NSXTodoFolders::getTodoRootFileContents(foldername)
+    def self.getTodoRootFileContents(foldername)
+        folderpath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}"
+        filepaths = [
+            "#{folderpath}/00-TODO-README.txt",
+            "#{folderpath}/000-TODO-README.txt"
+        ]
+        filepaths.each{|filepath|
+            if File.exists?(filepath) then
+                return IO.read(filepath).strip
+            end
+        }
+        raise "70DB9A665245"
+    end
+
     # --------------------------------------------------------------
     # Catalyst Objects
 
@@ -76,14 +91,6 @@ class NSXTodoFolders
         x3 = Math.exp(-itemCounter).to_f/1000 
         x4 = NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
         x1 + x2 + x3 + x4
-    end
-
-    # NSXTodoFolders::folderMetric(objectuuid, folderCounter)
-    def self.folderMetric(objectuuid, folderCounter)
-        x1 = 0.50 
-        x2 = Math.exp(-folderCounter).to_f/100
-        x3 = NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
-        x1 + x2 + x3
     end
 
     # NSXTodoFolders::runningTimeAsString(objectuuid)
@@ -105,16 +112,18 @@ class NSXTodoFolders
 
         itemCounter = 0
 
-        objects = itemsInFolder.map{|filename|
+        itemsInFolder.map{|filename|
             itemCounter = itemCounter + 1
             objectuuid = Digest::SHA1.hexdigest("#{folderuuid}/#{filename}")
-            announce = "[todo folders] #{foldername} / #{filename}"
+            line = "[todo folders] #{foldername}" + ( NSXRunner::isRunning?(objectuuid) ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
+            body = line  + ( NSXTodoFolders::getTodoRootFileContents(foldername) || "\n" + NSXTodoFolders::getTodoRootFileContents(foldername) )
             {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
                 "contentItem"    => {
-                    "type" => "line",
-                    "line" => announce + ( NSXRunner::isRunning?(objectuuid) ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
+                    "type" => "line-and-body",
+                    "line" => line,
+                    "body" => body
                 },
                 "metric"         => NSXRunner::isRunning?(objectuuid) ? 1 : NSXTodoFolders::folderItemMetric(objectuuid, folderCounter, itemCounter),
                 "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
@@ -123,26 +132,6 @@ class NSXTodoFolders
                 "metric-shift"   => NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
             }
         }
-
-        if objects.size == 0 then
-            objectuuid = folderuuid
-            announce = "[todo folders] #{foldername} [folder]"
-            objects << {
-                "uuid"           => objectuuid,
-                "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
-                "contentItem"    => {
-                    "type" => "line",
-                    "line" => announce + ( NSXRunner::isRunning?(objectuuid) ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
-                },
-                "metric"         => NSXRunner::isRunning?(objectuuid) ? 1 : NSXTodoFolders::folderMetric(objectuuid, folderCounter),
-                "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
-                "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
-                "isRunning"      => NSXRunner::isRunning?(objectuuid),
-                "metric-shift"   => NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
-            }
-        end
-
-        objects
     end
 
     # NSXTodoFolders::catalystObjects()
