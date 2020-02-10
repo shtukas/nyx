@@ -116,7 +116,7 @@ class NSXTodoFolders
             itemCounter = itemCounter + 1
             objectuuid = Digest::SHA1.hexdigest("#{folderuuid}/#{filename}")
             line = "[todo folders] #{foldername}" + ( NSXRunner::isRunning?(objectuuid) ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
-            body = line  + ( NSXTodoFolders::getTodoRootFileContents(foldername) || "\n" + NSXTodoFolders::getTodoRootFileContents(foldername) )
+            body = line  + "\n" + NSXTodoFolders::getTodoRootFileContents(foldername)
             {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
