@@ -19,8 +19,7 @@ class NSXAgentTodoFolders
 
     # NSXAgentTodoFolders::getObjects()
     def self.getObjects()
-        NSXAgentTodoFolders::getAllObjects()
-            .select{|object| !NSXTodoFolders::objectHasBeenReviewedToday(object["uuid"]) }
+        NSXTodoFolders::catalystObjectsForListing()
     end
 
     # NSXAgentTodoFolders::getAllObjects()
@@ -38,7 +37,9 @@ class NSXAgentTodoFolders
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
             timespan = NSXRunner::stop(objectuuid)
-            NSXRunTimes::addPoint(objectuuid, Time.new.to_i, timespan)
+            object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
+            return if object.nil?
+            NSXRunTimes::addPoint(object["x-folderuuid"], Time.new.to_i, timespan)
             return
         end
     end

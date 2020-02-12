@@ -82,16 +82,26 @@ class NSXTodoFolders
     end
 
     # --------------------------------------------------------------
-    # Catalyst Objects
+    # Ordinal Base
 
-    # NSXTodoFolders::folderItemMetric(objectuuid, folderCounter, itemCounter)
-    def self.folderItemMetric(objectuuid, folderCounter, itemCounter)
-        x1 = 0.50 
-        x2 = Math.exp(-folderCounter).to_f/100
-        x3 = Math.exp(-itemCounter).to_f/1000 
-        x4 = NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
-        x1 + x2 + x3 + x4
+    # NSXTodoFolders::foldernameToOrdinalBase(foldername)
+    def self.foldernameToOrdinalBase(foldername)
+        folderpath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}"
+        filepath = "#{folderpath}/.ordinal-base-8c9268ed"
+        if !File.exists?(filepath) then
+            File.open(filepath, "w"){|f| f.puts("0") }
+        end
+        IO.read(filepath).strip.to_i
     end
+
+    # NSXTodoFolders::increaseFolderOrdinalBase(foldername)
+    def self.increaseFolderOrdinalBase(foldername)
+        ordinalBase = NSXTodoFolders::foldernameToOrdinalBase(foldername)
+        File.open(filepath, "w"){|f| f.puts(ordinalBase+1) }
+    end
+
+    # --------------------------------------------------------------
+    # Catalyst Objects
 
     # NSXTodoFolders::runningTimeAsString(objectuuid)
     def self.runningTimeAsString(objectuuid)
@@ -100,72 +110,68 @@ class NSXTodoFolders
         "running for #{(runningTime.to_f/60).to_i} minutes"
     end
 
-    # NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid, folderCounter)
-    def self.folderUUIDToCatalystObjects(folderuuid, folderCounter)
+    # NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid)
+    def self.folderUUIDToCatalystObjects(folderuuid)
         foldername = NSXTodoFolders::folderUUIDToFoldernameOrNull(folderuuid)
+
+        ordinalBase = NSXTodoFolders::foldernameToOrdinalBase(foldername)
 
         itemsInFolder = Dir.entries("/Users/pascal/Galaxy/2020-Todo/#{foldername}")
             .select{|filename| filename[0,1] != "." }
             .select{|filename| !filename.start_with?("Icon") }
             .sort
-            .first(1)
 
         itemCounter = 0
 
         itemsInFolder.map{|filename|
             itemCounter = itemCounter + 1
             objectuuid = Digest::SHA1.hexdigest("#{folderuuid}/#{filename}")
-            line = "[todo folders] #{foldername}" + ( NSXRunner::isRunning?(objectuuid) ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
-            body = line  + "\n" + NSXTodoFolders::getTodoRootFileContents(foldername)
+            isRunning = NSXRunner::isRunning?(objectuuid)
+            line = "[ todo ] #{foldername} / #{filename}" + ( isRunning ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
+            contentItem = {
+                "type" => "line",
+                "line" => line
+            }
             {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
-                "contentItem"    => {
-                    "type" => "line-and-body",
-                    "line" => line,
-                    "body" => body
-                },
-                "metric"         => NSXRunner::isRunning?(objectuuid) ? 1 : NSXTodoFolders::folderItemMetric(objectuuid, folderCounter, itemCounter),
-                "commands"       => NSXRunner::isRunning?(objectuuid) ? ["stop"] : ["start"],
-                "defaultCommand" => NSXRunner::isRunning?(objectuuid) ? "stop" : "start",
-                "isRunning"      => NSXRunner::isRunning?(objectuuid),
-                "metric-shift"   => NSXMiscUtils::runtimePointsToMetricShift(NSXRunTimes::getPoints(objectuuid), 86400, 12*3600)
+                "contentItem"    => contentItem,
+                "metric"         => NSXStreamTodoFoldersCommon::metric1(ordinalBase+itemCounter, nil, NSXRunTimes::getPoints(folderuuid), isRunning),
+                "commands"       => isRunning ? ["stop"] : ["start"],
+                "defaultCommand" => isRunning ? "stop" : "start",
+                "isRunning"      => isRunning,
+                "x-folderuuid"   => folderuuid
             }
         }
     end
 
     # NSXTodoFolders::catalystObjects()
     def self.catalystObjects()
-        folderCounter = 0
-        NSXTodoFolders::getFolderuuids().map{|folderuuid|
-            folderCounter = folderCounter + 1
-            NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid, folderCounter)
-        }.flatten
+        NSXTodoFolders::getFolderuuids()
+            .map{|folderuuid| NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid) }
+            .flatten
+    end
+
+    # NSXTodoFolders::catalystObjectsForListing()
+    def self.catalystObjectsForListing()
+        NSXTodoFolders::getFolderuuids()
+            .map{|folderuuid| 
+                NSXTodoFolders::folderUUIDToCatalystObjects(folderuuid) 
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
+                    .select{|object|
+                        b1 = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil?
+                        b2 = object["isRunning"]
+                        b1 or b2
+                    }
+                    .first(1)
+            }
+            .flatten
     end
 
     # NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
     def self.getObjectByUUIDOrNull(objectuuid)
         NSXTodoFolders::catalystObjects().select{|object| object["uuid"] == objectuuid }.first
-    end
-
-    # --------------------------------------------------------------
-    # Catalyst Objects Life Cycles
-
-    # NSXTodoFolders::objectHasBeenReviewedToday(objectuuid)
-    def self.objectHasBeenReviewedToday(objectuuid)
-        KeyValueStore::flagIsTrue("/Users/pascal/Galaxy/2020-DataBank/Catalyst/Data/TodoFolders/KV-Store", "a9de7bc6-e328-4ac6-b44a-3e745c87052f:#{objectuuid}:#{NSXMiscUtils::currentDay()}")
-    end
-
-    # NSXTodoFolders::markObjectHasBeenReviewed(objectuuid)
-    def self.markObjectHasBeenReviewed(objectuuid)
-        KeyValueStore::setFlagTrue("/Users/pascal/Galaxy/2020-DataBank/Catalyst/Data/TodoFolders/KV-Store", "a9de7bc6-e328-4ac6-b44a-3e745c87052f:#{objectuuid}:#{NSXMiscUtils::currentDay()}")
-    end
-
-    # NSXTodoFolders::addObjectToCalendarFileTopHalf(objectuuid)
-    def self.addObjectToCalendarFileTopHalf(objectuuid)
-        object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
-        return if object.nil?
-        NSXLucilleCalendarFileUtils::injectNewLineInPart1OfTheFile("[] #{NSX1ContentsItemUtils::contentItemToBody(object["contentItem"])}")
     end
 
 end

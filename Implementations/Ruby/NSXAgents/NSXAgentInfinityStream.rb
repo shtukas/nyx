@@ -25,7 +25,16 @@ class NSXAgentInfinityStream
         if $STREAM_ITEMS_IN_MEMORY_4B4BFE22.nil? or $STREAM_ITEMS_IN_MEMORY_4B4BFE22.empty? then
             $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = NSXStreamsUtils::getSelectionOfStreamItems()
         end
-        $STREAM_ITEMS_IN_MEMORY_4B4BFE22.map{|item| NSXStreamsUtils::streamItemToCatalystObject(item) }
+        $STREAM_ITEMS_IN_MEMORY_4B4BFE22
+            .map{|item| NSXStreamsUtils::streamItemToCatalystObject(item) }
+            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .reverse
+            .select{|object|
+                b1 = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil?
+                b2 = object["isRunning"]
+                b1 or b2
+            }
+            .first(1)
     end
 
     # NSXAgentInfinityStream::getAllObjects()
@@ -55,14 +64,14 @@ class NSXAgentInfinityStream
         if command == "stop" then
             if NSXRunner::isRunning?(objectuuid) then
                 timespan = NSXRunner::stop(objectuuid)
-                NSXRunTimes::addPoint(STREAM_GENERAL_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
+                NSXRunTimes::addPoint(INFINITY_STREAM_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
             end
             return
         end
         if command == "done" then
             if NSXRunner::isRunning?(objectuuid) then
                 timespan = NSXRunner::stop(objectuuid)
-                NSXRunTimes::addPoint(STREAM_GENERAL_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
+                NSXRunTimes::addPoint(INFINITY_STREAM_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
             end
             NSXStreamsUtils::destroyItem(item)
             nsx1309_removeItemIdentifiedById(item["uuid"])
@@ -71,7 +80,7 @@ class NSXAgentInfinityStream
         if command == "push" then
             if NSXRunner::isRunning?(objectuuid) then
                 timespan = NSXRunner::stop(objectuuid)
-                NSXRunTimes::addPoint(STREAM_GENERAL_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
+                NSXRunTimes::addPoint(INFINITY_STREAM_TIMING_COLLECTIONUUID, Time.new.to_i, timespan)
             end
             item["ordinal"] = NSXStreamsUtils::getNewStreamOrdinal()
             item["schedule"] = nil

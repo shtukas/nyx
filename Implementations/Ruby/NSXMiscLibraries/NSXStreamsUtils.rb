@@ -21,9 +21,9 @@ KeyValueStore::destroy(repositorylocation or nil, key)
 
 # ----------------------------------------------------------------------
 
-STREAMUUID_INFINITY_STREAM_STREAMUUID = "00010011101100010011101100011001"
+INFINITY_STREAM_STREAMUUID = "00010011101100010011101100011001"
 
-STREAM_GENERAL_TIMING_COLLECTIONUUID = "584bfe8e-cc59-43b4-8b35-f62001df9aa9"
+INFINITY_STREAM_TIMING_COLLECTIONUUID = "584bfe8e-cc59-43b4-8b35-f62001df9aa9"
 
 $STREAM_ITEMS_IN_MEMORY_4B4BFE22 = nil
 
@@ -158,7 +158,7 @@ class NSXStreamsUtils
     def self.getSelectionOfStreamItems()
         NSXStreamsUtils::getStreamItemsOrdinalOrdered()
             .reduce([]) { |collection, item|
-                b1 = item["schedule"]
+                b1 = !item["schedule"].nil?
                 b2 = collection.size < 10
                 if b1 or b2 then
                     collection + [item]
@@ -200,7 +200,7 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::streamItemToScheduleString(item)
     def self.streamItemToScheduleString(item)
-        return "[stream / infinity]" if item["schedule"].nil? 
+        return "[stream]" if item["schedule"].nil? 
         NSXStreamsUtils::scheduleToString(item["schedule"])
     end
 
@@ -234,19 +234,6 @@ class NSXStreamsUtils
         end
     end
 
-    # NSXStreamsUtils::streamItemToCatalystObjectMetric(ordinal, schedule, generalRuntimePoints)
-    def self.streamItemToCatalystObjectMetric(ordinal, schedule, generalRuntimePoints)
-        m0 = Math.exp(-ordinal.to_f/100).to_f/100
-        if schedule.nil? then
-            m1 = NSXMiscUtils::runtimePointsToMetricShift(generalRuntimePoints, 86400, 12*3600)
-            return (0.40 + m0 + m1)
-        end
-        if schedule["type"] == "inbox" then
-            return (0.75 + m0)
-        end
-        raise "4f2e-43a5"
-    end
-
     # NSXStreamsUtils::streamItemToCatalystObject(item)
     def self.streamItemToCatalystObject(item)
         objectuuid = item["uuid"]
@@ -257,18 +244,18 @@ class NSXStreamsUtils
             "line" => announce,
             "body" => body
         }
-        generalRuntimePoints = NSXRunTimes::getPoints(STREAM_GENERAL_TIMING_COLLECTIONUUID)
+        generalRuntimePoints = NSXRunTimes::getPoints(INFINITY_STREAM_TIMING_COLLECTIONUUID)
+        isRunning = NSXRunner::isRunning?(objectuuid)
         object = {}
         object["uuid"] = objectuuid
         object["agentuid"] = NSXAgentInfinityStream::agentuid()
         object["contentItem"] = contentItem
-        object["metric"] = NSXRunner::isRunning?(objectuuid) ? 1 : NSXStreamsUtils::streamItemToCatalystObjectMetric(item["ordinal"], item["schedule"], generalRuntimePoints)
+        object["metric"] =  NSXStreamTodoFoldersCommon::metric1(item["ordinal"], item["schedule"], generalRuntimePoints, isRunning)
         object["commands"] = NSXStreamsUtils::streamItemToStreamCatalystObjectCommands(objectuuid)
-        object["defaultCommand"] = NSXRunner::isRunning?(objectuuid) ? "stop" : "start"
-        object["isRunning"] = NSXRunner::isRunning?(objectuuid)
+        object["defaultCommand"] = isRunning ? "stop" : "start"
+        object["isRunning"] = isRunning
         object["metadata"] = {}
         object["metadata"]["item"] = item
-        object["metadata"]["metric-shift"] = NSXMiscUtils::runtimePointsToMetricShift(generalRuntimePoints, 86400, 12*3600)
         object
     end
 
