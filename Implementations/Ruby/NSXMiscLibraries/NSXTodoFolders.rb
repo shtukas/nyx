@@ -58,6 +58,7 @@ class NSXTodoFolders
         Dir.entries("/Users/pascal/Galaxy/2020-Todo")
             .select{|filename| filename[0,1] != "." }
             .select{|filename| !filename.start_with?("Icon") }
+            .select{|filename| filename != "Z-Todo-HowTo.txt" }
             .sort
     end
 
