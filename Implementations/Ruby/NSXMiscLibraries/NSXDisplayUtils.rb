@@ -21,7 +21,6 @@ class NSXDisplayUtils
         defaultCommand = object["defaultCommand"]
         part2 = 
             [
-                NSXMiscUtils::hasXNote(object["uuid"]) ? nil : "note".yellow,
                 object["commands"].join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
                 defaultCommand ? "(#{defaultCommand.green})" : nil
@@ -52,11 +51,7 @@ class NSXDisplayUtils
                 ]
             end
         }
-
-        xnoteForPrint = lambda{|objectuuid|
-            "\n              " + "note".green + ":\n" + NSXMiscUtils::getXNote(objectuuid).lines.first(10).map{|line| (" " * 22)+line }.join()
-        }
-
+        
         announce = NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem'])
         body = NSX1ContentsItemUtils::contentItemToBody(object['contentItem'])
         lines = 
@@ -68,7 +63,6 @@ class NSXDisplayUtils
             ] + 
             announceOrBodyLines.call(object, announce, body) +
             [
-                NSXMiscUtils::hasXNote(object["uuid"]) ? xnoteForPrint.call(object["uuid"]) : "",
                 "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object)
             ]
         else

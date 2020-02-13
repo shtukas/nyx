@@ -338,21 +338,6 @@ class NSXMiscUtils
         Digest::SHA1.hexdigest("66b44d63-0168-4217-9712-2b84ad3e41cb:#{(Time.new.to_f/n).to_i.to_s}")
     end
 
-    # NSXMiscUtils::getXNote(objectuuid)
-    def self.getXNote(objectuuid)
-        KeyValueStore::getOrDefaultValue("#{CATALYST_DATA_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", "").strip
-    end
-
-    # NSXMiscUtils::hasXNote(objectuuid)
-    def self.hasXNote(objectuuid)
-        NSXMiscUtils::getXNote(objectuuid).size>0
-    end
-
-    # NSXMiscUtils::setXNote(objectuuid, text)
-    def self.setXNote(objectuuid, text)
-        KeyValueStore::set("#{CATALYST_DATA_FOLDERPATH}/xnotes", "6ec120de-581e-4704-9fb6-3718cd4f1306:#{objectuuid}", text)
-    end
-
     # NSXMiscUtils::filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
     def self.filepathOfTheOnlyRelevantFileInFolderOrNull(folderpath)
         filenames = Dir.entries(folderpath).select{|filename| filename[0,1] != '.' }

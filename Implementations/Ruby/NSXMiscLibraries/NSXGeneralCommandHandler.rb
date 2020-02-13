@@ -46,8 +46,7 @@ class NSXGeneralCommandHandler
                 "+<integer>hour(s)",
                 "+YYYY-MM-DD",
                 "+1@23:45",
-                "expose",
-                "note",
+                "expose"
             ].map{|command| "        "+command }.join("\n")
         ]
     end
@@ -212,12 +211,6 @@ class NSXGeneralCommandHandler
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
             puts "Pushing to #{datetime}"
             NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
-            return
-        end
-
-        if command == 'note' then
-            text = NSXMiscUtils::editTextUsingTextmate(NSXMiscUtils::getXNote(object["uuid"]))
-            NSXMiscUtils::setXNote(object["uuid"], text)
             return
         end
 
