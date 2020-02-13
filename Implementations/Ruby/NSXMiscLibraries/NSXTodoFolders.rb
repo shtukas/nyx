@@ -82,6 +82,15 @@ class NSXTodoFolders
         raise "70DB9A665245"
     end
 
+    # NSXTodoFolders::getNextFileIndexInFolder(foldername)
+    def self.getNextFileIndexInFolder(foldername)
+        i1 = Dir.entries("/Users/pascal/Galaxy/2020-Todo/#{foldername}")
+            .select{|filename| filename[0,1] != "." }
+            .select{|filename| !filename.start_with?("Icon") }
+            .map{|filename| filename[0,3].to_i }
+        [i1, 100].max
+    end
+
     # --------------------------------------------------------------
     # Ordinal Base
 
