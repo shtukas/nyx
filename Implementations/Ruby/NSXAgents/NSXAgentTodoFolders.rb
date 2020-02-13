@@ -45,8 +45,10 @@ class NSXAgentTodoFolders
             return
         end
         if command == "open" then
-            puts "TODO: implement `open`"
-            LucilleCore::pressEnterToContinue()
+            object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
+            return if object.nil?
+            filepath = "/Users/pascal/Galaxy/2020-Todo/#{object["x-typeProfile"]["foldername"]}/#{object["x-typeProfile"]["itemname"]}"
+            system("open '#{filepath}'")
             return
         end
         if command == "stop" then

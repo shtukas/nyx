@@ -148,7 +148,8 @@ class NSXTodoFolders
                 "commands"       => NSXTodoItemsTypes::typeProfileToCommands(typeProfile, isRunning),
                 "defaultCommand" => isRunning ? "stop" : "start",
                 "isRunning"      => isRunning,
-                "x-folderuuid"   => folderuuid
+                "x-folderuuid"   => folderuuid,
+                "x-typeProfile"  => typeProfile
             }
         }
     end
