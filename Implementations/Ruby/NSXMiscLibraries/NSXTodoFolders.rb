@@ -124,20 +124,18 @@ class NSXTodoFolders
         itemCounter = 0
 
         itemsInFolder.map{|filename|
+            typeProfile = NSXTodoItemsTypes::determineTypeProfile(foldername, filename)
             itemCounter = itemCounter + 1
             objectuuid = Digest::SHA1.hexdigest("#{folderuuid}/#{filename}")
             isRunning = NSXRunner::isRunning?(objectuuid)
-            line = "[ todo ] #{foldername} / #{filename}" + ( isRunning ? " [#{NSXTodoFolders::runningTimeAsString(objectuuid)}]" : "" )
-            contentItem = {
-                "type" => "line",
-                "line" => line
-            }
+            runningAsTimeStringOrNull = isRunning ? NSXTodoFolders::runningTimeAsString(objectuuid) : nil
+            contentItem = NSXTodoItemsTypes::typeProfileToContentItem(typeProfile, runningAsTimeStringOrNull)
             {
                 "uuid"           => objectuuid,
                 "agentuid"       => "09cc9943-1fa0-45a4-8d22-a37e0c4ddf0c",
                 "contentItem"    => contentItem,
                 "metric"         => NSXStreamTodoFoldersCommon::metric1(ordinalBase+itemCounter, nil, NSXRunTimes::getPoints(folderuuid), isRunning),
-                "commands"       => isRunning ? ["stop"] : ["start"],
+                "commands"       => NSXTodoItemsTypes::typeProfileToCommands(typeProfile, isRunning),
                 "defaultCommand" => isRunning ? "stop" : "start",
                 "isRunning"      => isRunning,
                 "x-folderuuid"   => folderuuid

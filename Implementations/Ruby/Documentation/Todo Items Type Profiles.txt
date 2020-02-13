@@ -1,0 +1,12 @@
+
+TodoItemsType:   "todo-text-file" 
+               | "generic-text-file"
+               | "non-text-openeable"
+               | "non-text-non-openeable"
+               | "folder"
+
+TypeProfile = {
+    "foldername": String
+    "itemname"  : String
+    "type"      : TodoItemsType
+}

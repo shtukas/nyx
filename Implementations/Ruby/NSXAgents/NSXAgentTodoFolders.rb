@@ -34,6 +34,21 @@ class NSXAgentTodoFolders
             NSXRunner::start(objectuuid)
             return
         end
+        if command == "[]" then
+            puts "TODO: implement `[]`"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if command == "edit" then
+            puts "TODO: implement `edit`"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if command == "open" then
+            puts "TODO: implement `open`"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         if command == "stop" then
             return if !NSXRunner::isRunning?(objectuuid)
             timespan = NSXRunner::stop(objectuuid)
