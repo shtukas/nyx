@@ -246,11 +246,6 @@ class NSXGeneralCommandHandler
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "done")
             return
         end
-        if object and command == "start" then
-            NSXGeneralCommandHandler::processCatalystCommandCore(object, "start")
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
-            return
-        end
         NSXGeneralCommandHandler::processCatalystCommandCore(object, command)
     end
 

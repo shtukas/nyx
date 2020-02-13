@@ -27,6 +27,15 @@ class NSXAgentTodoFolders
         NSXTodoFolders::catalystObjects()
     end
 
+    # NSXAgentTodoFolders::stop(objectuuid)
+    def self.stop(objectuuid)
+        return if !NSXRunner::isRunning?(objectuuid)
+        timespan = NSXRunner::stop(objectuuid)
+        object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
+        return if object.nil?
+        NSXRunTimes::addPoint(object["x-folderuuid"], Time.new.to_i, timespan)
+    end
+
     # NSXAgentTodoFolders::processObjectAndCommand(objectuuid, command)
     def self.processObjectAndCommand(objectuuid, command)
         if command == "start" then
@@ -39,11 +48,6 @@ class NSXAgentTodoFolders
             LucilleCore::pressEnterToContinue()
             return
         end
-        if command == "edit" then
-            puts "TODO: implement `edit`"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
         if command == "open" then
             object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
@@ -52,11 +56,17 @@ class NSXAgentTodoFolders
             return
         end
         if command == "stop" then
-            return if !NSXRunner::isRunning?(objectuuid)
-            timespan = NSXRunner::stop(objectuuid)
+            NSXAgentTodoFolders::stop(objectuuid)
+            return
+        end
+        if command == "destroy" then
+            NSXAgentTodoFolders::stop(objectuuid)
             object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
-            NSXRunTimes::addPoint(object["x-folderuuid"], Time.new.to_i, timespan)
+            filepath = "/Users/pascal/Galaxy/2020-Todo/#{object["x-typeProfile"]["foldername"]}/#{object["x-typeProfile"]["itemname"]}"
+            if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to remove '#{filepath}' ?") then
+                LucilleCore::removeFileSystemLocation(filepath)
+            end
             return
         end
     end

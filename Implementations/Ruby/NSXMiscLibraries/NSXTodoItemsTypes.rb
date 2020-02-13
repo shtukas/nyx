@@ -95,13 +95,13 @@ class NSXTodoItemsTypes
             return ["start"]
         end
         if typeProfile["type"] == "todo-text-file" then
-            return ["[]", "edit", "stop"]
+            return ["[]", "open", "stop", "destroy"]
         end
         if typeProfile["type"] == "generic-text-file" then
-            return ["edit", "stop"]
+            return ["open", "stop", "destroy"]
         end
         if typeProfile["type"] == "non-text-openeable" then
-            return ["open", "stop"]
+            return ["open", "stop", "destroy"]
         end
         ["stop"]
     end
