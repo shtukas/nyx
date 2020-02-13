@@ -75,6 +75,11 @@ class NSXLucilleCalendarFileUtils
         NSXLucilleCalendarFileUtils::fileContentsToStruct2(IO.read(filepath))
     end
 
+    # NSXLucilleCalendarFileUtils::trueIfTodoItemsInFile()
+    def self.trueIfTodoItemsInFile()
+        (IO.read("/Users/pascal/Desktop/Calendar.txt").split("@marker-51B5803C-F4B2-4CB3-B26B-6F2E99E2AA44"))[1].strip.size > 0
+    end
+
     # NSXLucilleCalendarFileUtils::commitFileCopyToBin()
     def self.commitFileCopyToBin()
         filepath = "/Users/pascal/Desktop/Calendar.txt"

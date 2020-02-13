@@ -30,6 +30,7 @@ class NSXGeneralCommandHandler
                 "new: <line> | 'text'",
                 "search: <pattern>",
                 "[]                  [done] to next lucille file section",
+                "                    also used for some todo items",
                 "/                   Catalyst menu",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
@@ -176,12 +177,10 @@ class NSXGeneralCommandHandler
         end
 
         if command == "[]" then
-            NSXLucilleCalendarFileUtils::applyNextTransformationToLucilleFile()
-            return
-        end
-
-        if command == "nyx" then
-            system("/Users/pascal/Galaxy/LucilleOS/Nyx/nyx-search")
+            if NSXLucilleCalendarFileUtils::trueIfTodoItemsInFile() then
+                NSXLucilleCalendarFileUtils::applyNextTransformationToLucilleFile()
+                return
+            end
         end
 
         # ---------------------------------------
@@ -189,15 +188,6 @@ class NSXGeneralCommandHandler
         # ---------------------------------------
 
         return false if object.nil?
-
-        if command == "[]" then
-            if NSXMiscUtils::hasXNote(object["uuid"]) then
-                contents = NSXMiscUtils::getXNote(object["uuid"])
-                contents = NSXMiscUtils::applyNextTransformationToContent(contents)
-                NSXMiscUtils::setXNote(object["uuid"], contents)
-                return
-            end
-        end
 
         if command == '..' and object["defaultCommand"] then
             NSXGeneralCommandHandler::processCatalystCommandManager(object, object["defaultCommand"])
