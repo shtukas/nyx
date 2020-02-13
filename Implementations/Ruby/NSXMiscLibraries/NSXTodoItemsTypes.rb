@@ -67,14 +67,20 @@ class NSXTodoItemsTypes
             return {
                 "type" => "line-and-body",
                 "line" => line,
-                "body" => IO.read(location).lines.first(10).join()
+                "body" => [
+                              line,
+                              IO.read(location).lines.first(10).join()
+                          ].join("\n")
             }
         end
         if typeProfile["type"] == "generic-text-file" then
             return {
                 "type" => "line-and-body",
                 "line" => line,
-                "body" => IO.read(location).lines.first(10).join()
+                "body" => [
+                              line,
+                              IO.read(location).lines.first(10).join()
+                          ].join("\n")
             }
         end
         if typeProfile["type"] == "non-text-openeable" then
