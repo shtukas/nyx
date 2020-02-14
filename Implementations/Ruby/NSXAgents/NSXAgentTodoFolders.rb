@@ -63,9 +63,12 @@ class NSXAgentTodoFolders
             NSXAgentTodoFolders::stop(objectuuid)
             object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
-            filepath = "/Users/pascal/Galaxy/2020-Todo/#{object["x-typeProfile"]["foldername"]}/#{object["x-typeProfile"]["itemname"]}"
-            if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to remove '#{filepath}' ?") then
+            foldername = object["x-typeProfile"]["foldername"]
+            filepath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}/#{object["x-typeProfile"]["itemname"]}"
+            if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to remove '#{filepath}' ? ") then
+                NSXMiscUtils::copyLocationToCatalystBin(filepath)
                 LucilleCore::removeFileSystemLocation(filepath)
+                NSXTodoFolders::increaseFolderOrdinalBase(foldername)
             end
             return
         end

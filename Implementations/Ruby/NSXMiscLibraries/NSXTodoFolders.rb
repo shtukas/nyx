@@ -107,6 +107,8 @@ class NSXTodoFolders
     # NSXTodoFolders::increaseFolderOrdinalBase(foldername)
     def self.increaseFolderOrdinalBase(foldername)
         ordinalBase = NSXTodoFolders::foldernameToOrdinalBase(foldername)
+        folderpath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}"
+        filepath = "#{folderpath}/.ordinal-base-8c9268ed"
         File.open(filepath, "w"){|f| f.puts(ordinalBase+1) }
     end
 
