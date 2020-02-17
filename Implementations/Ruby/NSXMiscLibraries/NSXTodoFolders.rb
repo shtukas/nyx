@@ -135,7 +135,8 @@ class NSXTodoFolders
 
         itemCounter = 0
 
-        itemsInFolder.map{|filename|
+        itemsInFolder
+        .map{|filename|
             typeProfile = NSXTodoItemsTypes::determineTypeProfile(foldername, filename)
             itemCounter = itemCounter + 1
             objectuuid = Digest::SHA1.hexdigest("#{folderuuid}/#{filename}")

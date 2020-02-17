@@ -31,7 +31,7 @@ class NSXAgentBackupsMonitor
     end
 
     def self.scriptNameToLastUnixtime(sname)
-        filename = "/Users/pascal/Galaxy/2020-DataBank/Backup-Logs/#{sname}.log"
+        filename = "/Users/pascal/Galaxy/2020-DataBank/Backups/Logs/#{sname}.log"
         IO.read(filename).to_i
     end
 
