@@ -49,7 +49,7 @@ class NSXTodoItemsTypes
             typeProfile["type"] = "generic-text-file"
             return typeProfile
         end
-        if [".jpg", ".png"].include?(itemname[-4, 4]) then
+        if [".jpg", ".png", ".eml"].include?(itemname[-4, 4]) then
             typeProfile["type"] = "non-text-openeable"
             return typeProfile
         else
