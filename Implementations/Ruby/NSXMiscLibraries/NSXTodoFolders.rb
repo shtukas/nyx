@@ -136,6 +136,7 @@ class NSXTodoFolders
         itemCounter = 0
 
         itemsInFolder
+        .first(2)
         .map{|filename|
             typeProfile = NSXTodoItemsTypes::determineTypeProfile(foldername, filename)
             itemCounter = itemCounter + 1
