@@ -151,7 +151,6 @@ class NSXGeneralCommandHandler
                 "new Stream Item", 
                 "new wave (repeat item)", 
                 "generation-speed",
-                "set no internet for this hour"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -173,9 +172,6 @@ class NSXGeneralCommandHandler
                 t2 = Time.new.to_f
                 puts "UI generation speed: #{(t2-t1).round(3)} seconds"
                 LucilleCore::pressEnterToContinue()
-            end
-            if option == "set no internet for this hour" then
-                NSXMiscUtils::setNoInternetForThisHour()
             end
             return
         end

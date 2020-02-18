@@ -49,22 +49,19 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
+        # We have all the objects that the agents think should be done
 
+        # Some of those objects might have been pushed to the future (something that happens outside the jurisdiction of the agents)
+        # We remove those but we keep those that are running
+        # Objects in the future which may be running have either
+        # 1. Been incorrectly sent to the future while running
+        # 2. Might have been started while being in the future after a search.
         objects = objects
             .select{|object|
                 b1 = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil?
                 b2 = object["isRunning"]
                 b1 or b2
             }
-
-        if !NSXMiscUtils::hasInternetCondition1121() then
-            objects = objects
-                .select{|object|
-                    b1 = !NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']).include?("http") 
-                    b2 = object["isRunning"]
-                    b1 or b2
-                }
-        end
 
         objects = objects
             .select{|object|
@@ -75,7 +72,13 @@ class NSXCatalystObjectsOperator
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 
-        objects = objects
+        objects = objects.reduce([]){|collection, object|
+                if collection.any?{|o| o["metric"] <= 0.55 } then
+                    collection
+                else 
+                    collection + [object]
+                end
+            }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 
