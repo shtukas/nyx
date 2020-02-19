@@ -176,7 +176,6 @@ class NSXTodoFolders
                         b2 = object["isRunning"]
                         b1 or b2
                     }
-                    .first(1)
             }
             .flatten
     end

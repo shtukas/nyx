@@ -72,16 +72,6 @@ class NSXCatalystObjectsOperator
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 
-        objects = objects.reduce([]){|collection, object|
-                if collection.any?{|o| o["metric"] <= 0.55 } then
-                    collection
-                else 
-                    collection + [object]
-                end
-            }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
-
         objects.each{|object|
             KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{object["uuid"]}", object["agentuid"])
         }
