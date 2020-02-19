@@ -34,7 +34,6 @@ class NSXAgentInfinityStream
                 b2 = object["isRunning"]
                 b1 or b2
             }
-            .first(1)
     end
 
     # NSXAgentInfinityStream::getAllObjects()

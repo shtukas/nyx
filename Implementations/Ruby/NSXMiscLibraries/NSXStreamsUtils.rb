@@ -157,15 +157,19 @@ class NSXStreamsUtils
     # NSXStreamsUtils::getSelectionOfStreamItems()
     def self.getSelectionOfStreamItems()
         NSXStreamsUtils::getStreamItemsOrdinalOrdered()
-            .reduce([]) { |collection, item|
-                b1 = !item["schedule"].nil?
-                b2 = collection.size < 10
-                if b1 or b2 then
-                    collection + [item]
-                else
-                    collection
-                end
+        .map{|item|
+            {
+                "item"   => item,
+                "object" => NSXStreamsUtils::streamItemToCatalystObject(item)
             }
+        }
+        .sort{|p1, p2|
+            p1["object"]["metric"] <=> p2["object"]["metric"]
+        }
+        .reverse
+        .first(10)
+        .map{|p| p["item"] }
+
     end
 
     # NSXStreamsUtils::destroyItem(item)
