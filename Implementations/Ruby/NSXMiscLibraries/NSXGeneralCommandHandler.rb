@@ -148,19 +148,10 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "new Stream Item", 
-                "new wave (repeat item)", 
                 "generation-speed",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
-            if option == "new Stream Item" then
-                NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
-            end
-            if option == "new wave (repeat item)" then
-                description = LucilleCore::askQuestionAnswerAsString("description (can use 'text'): ")
-                NSXMiscUtils::spawnNewWaveItem(description)
-            end
             if option == "generation-speed" then
                 puts "Agent speed report"
                 NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
