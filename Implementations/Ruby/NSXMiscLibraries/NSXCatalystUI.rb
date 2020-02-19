@@ -71,6 +71,12 @@ class NSXCatalystUI
         [position, verticalSpaceLeft, focusobject]
     end
 
+    # NSXCatalystUI::getCutOffMetricForNextDisplay()
+    def self.getCutOffMetricForNextDisplay()
+        struct2 = NSXLucilleCalendarFileUtils::getStruct()
+        struct2[1].size == 0 ? 1 : (struct2[1].first.include?("@low-priority-88e84d15") ? 0.30 : 0.60)
+    end
+
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
@@ -96,7 +102,7 @@ class NSXCatalystUI
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
         # TODO: There is a better way to split this array in two parts.
-        displayObjectsForListingPart1, displayObjectsForListingPart2 = displayObjectsForListing.partition { |object| object["metric"] >= 0.60 }
+        displayObjectsForListingPart1, displayObjectsForListingPart2 = displayObjectsForListing.partition { |object| object["metric"] >= NSXCatalystUI::getCutOffMetricForNextDisplay() }
 
         position = 0
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart1, position, focusobject, verticalSpaceLeft)

@@ -5,9 +5,6 @@
         0.78+        Wave: every-n-hours / every-n-days
         0.75_        Inbox
         0.60         Lucille Next Display
-
-------- 0.55 ------- One object below this line ---------------
-
         0.50 -> 0.00 Todo Folders + Infinity Stream
-
+        0.30         Lucille Next Display (low priority)
 ------- 0.20 ------- Water level ------------------------------
