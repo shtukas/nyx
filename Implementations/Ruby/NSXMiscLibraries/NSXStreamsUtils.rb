@@ -156,20 +156,26 @@ class NSXStreamsUtils
 
     # NSXStreamsUtils::getSelectionOfStreamItems()
     def self.getSelectionOfStreamItems()
+        reduceStep = lambda{|collection, item|
+            if !item["schedule"].nil? then
+                # item needs to be shown
+                return collection + [ item ]
+            end
+            objectuuid = item["uuid"]
+            if NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid) then
+                # item is in the future, so no need to worry about it right now
+                return collection
+            end
+            if collection.size >= 12 then
+                collection
+            else
+                collection + [item]
+            end
+        }
         NSXStreamsUtils::getStreamItemsOrdinalOrdered()
-        .map{|item|
-            {
-                "item"   => item,
-                "object" => NSXStreamsUtils::streamItemToCatalystObject(item)
+            .reduce([]){|collection, item|
+                reduceStep.call(collection, item)
             }
-        }
-        .sort{|p1, p2|
-            p1["object"]["metric"] <=> p2["object"]["metric"]
-        }
-        .reverse
-        .first(10)
-        .map{|p| p["item"] }
-
     end
 
     # NSXStreamsUtils::destroyItem(item)
