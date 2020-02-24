@@ -53,24 +53,26 @@ class NSXDoNotShowUntilDatetime
         $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[objectuuid] = datetime
     end
 
-    # NSXDoNotShowUntilDatetime::getStoredDatetimeOrNull(objectuuid)
-    def self.getStoredDatetimeOrNull(objectuuid)
+    # NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
+    def self.getDatetimeOrNull(objectuuid)
         $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[objectuuid]
     end
 
     # NSXDoNotShowUntilDatetime::loadDataFromDisk()
     def self.loadDataFromDisk()
+        dataset = {}
         Find.find(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER) do |path|
             next if !File.file?(path)
             next if File.basename(path)[-5, 5] != '.json'
             item = JSON.parse(IO.read(path))
-            $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[item["objectuuid"]] = DateTime.parse(item["datetime"]).to_time.utc.iso8601
+            dataset[item["objectuuid"]] = DateTime.parse(item["datetime"]).to_time.utc.iso8601
         end
+        $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP = dataset
     end
 
     # NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
     def self.getFutureDatetimeOrNull(objectuuid)
-        datetime = NSXDoNotShowUntilDatetime::getStoredDatetimeOrNull(objectuuid)
+        datetime = NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
         return nil if datetime.nil?
         datetime = DateTime.parse(datetime).to_time.utc.iso8601
         return nil if Time.new.utc.iso8601 > datetime
