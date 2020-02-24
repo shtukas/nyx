@@ -154,7 +154,7 @@ class NSXMiscUtils
         # 1@12:34
 
         localsuffix = Time.new.to_s[-5,5]
-        morningShowTime = "09:00:00 #{localsuffix}"
+        morningShowTime = "08:00:00 #{localsuffix}"
         weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
 
         if weekdayNames.include?(code) then
