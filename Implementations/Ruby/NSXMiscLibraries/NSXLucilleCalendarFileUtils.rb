@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 =begin
@@ -65,7 +64,10 @@ class NSXLucilleCalendarFileUtils
     # NSXLucilleCalendarFileUtils::applyNextTransformationToStruct2(struct2)
     def self.applyNextTransformationToStruct2(struct2)
         return struct2 if struct2[1].empty?
-        struct2[1][0] = NSXMiscUtils::applyNextTransformationToContent(struct2[1][0])
+        text = NSXMiscUtils::applyNextTransformationToContent(struct2[1][0])
+        text = text.strip
+        text = NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+        struct2[1][0] = text
         struct2
     end
 
@@ -112,6 +114,18 @@ class NSXLucilleCalendarFileUtils
         sections << line
         struct2[1] = sections
         NSXLucilleCalendarFileUtils::commitStruct2ToDisk(struct2)
+    end
+
+    # NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+    def self.recursivelyRemoveEmptyLineIfInSecondPosition(text)
+        lines = text.lines.to_a
+        return text if lines.size <= 2
+        if lines[1].strip.size==0 then
+            lines[1] = nil
+            text = lines.compact.join()
+            return NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+        end
+        text
     end
 
 end
