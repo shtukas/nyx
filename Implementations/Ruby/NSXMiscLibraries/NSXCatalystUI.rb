@@ -74,7 +74,7 @@ class NSXCatalystUI
     # NSXCatalystUI::getCutOffMetricForNextDisplay()
     def self.getCutOffMetricForNextDisplay()
         struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        struct2[1].size == 0 ? 1 : (struct2[1].first.include?("@low-priority-88e84d15") ? 0.30 : 0.60)
+        struct2[1].size == 0 ? 1 : ((struct2[1].first.lines.first and struct2[1].first.lines.first.include?("@low-priority-88e84d15")) ? 0.30 : 0.60)
     end
 
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
