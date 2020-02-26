@@ -29,14 +29,19 @@ class NSXCatalystUI
     # NSXCatalystUI::printLucilleInstanceFileAsNext()
     def self.printLucilleInstanceFileAsNext(verticalSpaceLeft)
         return 0 if verticalSpaceLeft < 6
-        struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        nextContents = struct2[1]
+        # this is the only moment we access NSXLucilleCalendarFileUtils
+        # First we start by making sure there is only one file
+        pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
+        struct3 = pair["struct3"]
+        $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = pair["filepath"]
+        nextContents = struct3["todo"]
                         .map{|section| section.strip }
                         .join("\n")
                         .lines
                         .to_a
                         .first([verticalSpaceLeft-3, 12].min)
                         .join()
+
         if nextContents.size > 0 then
             puts "-- [] " + "-" * (NSXMiscUtils::screenWidth()-7)
             puts nextContents.strip.green
@@ -73,8 +78,9 @@ class NSXCatalystUI
 
     # NSXCatalystUI::getCutOffMetricForNextDisplay()
     def self.getCutOffMetricForNextDisplay()
-        struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        struct2[1].size == 0 ? 1 : ((struct2[1].first.lines.first and struct2[1].first.lines.first.include?("@low-priority-88e84d15")) ? 0.30 : 0.60)
+        pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
+        struct3 = pair["struct3"]
+        struct3["todo"].size == 0 ? 1 : ((struct3["todo"].first.lines.first and struct3["todo"].first.lines.first.include?("@low-priority-88e84d15")) ? 0.30 : 0.60)
     end
 
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
@@ -138,17 +144,6 @@ class NSXCatalystUI
         NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, command)
     end
 
-    # NSXCatalystUI::performCalendarDisplay()
-    def self.performCalendarDisplay()
-        system("clear")
-        verticalSpace = NSXMiscUtils::screenHeight()-4
-        contents = IO.read("/Users/pascal/Desktop/Calendar.txt").strip
-        contents = contents.lines.first(verticalSpace).join()
-        puts "Calendar:".green
-        puts contents
-        LucilleCore::pressEnterToContinue()
-    end
-
     # NSXCatalystUI::standardUILoop()
     def self.standardUILoop()
         loop {
@@ -158,11 +153,6 @@ class NSXCatalystUI
             end
             NSXEstateServices::collectInboxPackage()
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            if !KeyValueStore::flagIsTrue(nil, "4b07d6f1-c5b3-4309-bdec-1ca488ed8350:#{NSXMiscUtils::currentDay()}") then
-                NSXCatalystUI::performCalendarDisplay()
-                KeyValueStore::setFlagTrue(nil, "4b07d6f1-c5b3-4309-bdec-1ca488ed8350:#{NSXMiscUtils::currentDay()}")
-                next
-            end
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end

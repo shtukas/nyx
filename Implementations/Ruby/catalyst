@@ -50,6 +50,8 @@ CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__)
 CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
 STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
+$LUCILLE_CALENDAR_FILEPATH_44AF92E9 = nil
+
 # -------------------------------------------------------------------------
 # nslog
 

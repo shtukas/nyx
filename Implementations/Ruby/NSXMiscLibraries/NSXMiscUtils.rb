@@ -211,6 +211,11 @@ class NSXMiscUtils
         ENV["COMPUTERLUCILLENAME"]
     end
 
+    # NSXMiscUtils::thisInstanceNumberAsString()
+    def self.thisInstanceNumberAsString()
+        ENV["COMPUTERLUCILLENAME"][7, 2]
+    end
+
     # NSXMiscUtils::instanceNames()
     def self.instanceNames()
         ["Lucille18", "Lucille19"]
@@ -224,7 +229,7 @@ class NSXMiscUtils
     # NSXMiscUtils::newBinArchivesFolderpath()
     def self.newBinArchivesFolderpath()
         time = Time.new
-        folder1 = "#{CATALYST_BIN_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y%m")}/#{time.strftime("%Y%m%d")}"
+        folder1 = "#{CATALYST_BIN_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(folder3)

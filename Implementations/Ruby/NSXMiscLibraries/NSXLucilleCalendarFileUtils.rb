@@ -1,131 +1,182 @@
 # encoding: UTF-8
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
+# SectionsType0141::contentToSections(reminaingLines: Array[String])
+
 =begin
 
-Struct1 [
-    Part # Notes           : String
-    Part # Catalyst Items  : String
-    Part # Calendar Future : String
-    Part # Birthdays       : Strimg
-]
+A part is a subset of the file starting with an header of the form:  
+    @F6D5C243FE28-[sectionname]
 
-Struct2 [
-    Part # Notes            : String
-    Sections                : Array[String] # Individual strings are sections
-    Part # Calendar Future  : String
-    Part # Birthdays        : String
-]
+The presence of "@F6D5C243FE28" ensures that the part is detected as such
+The section name allow for differenceiations of the parts
+The part that contains the todo sections we want is called (hardcoded): @F6D5C243FE28-A-TODO
+
+
+Struct3 {
+    "parts" : Array[String] # Different parts of the file, with their headers
+    "todo"  : Array[String] 
+        # The stuff we are interested in
+        # Individual strings are sections
+}
 
 =end
 
+LUCILLE_CALENDAR_FILE_PART_PATTERN = "@F6D5C243FE28"
+LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN = '@F6D5C243FE28-A-TODO------------------------------------------------------------'
+
 class NSXLucilleCalendarFileUtils
 
-    # NSXLucilleCalendarFileUtils::sectionToSectionUUID(section)
-    def self.sectionToSectionUUID(section)
-        Digest::SHA1.hexdigest(section.strip)[0, 8]
+    # NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
+    def self.lucilleCalendarFilenames()
+        Dir.entries("/Users/pascal/Desktop")
+            .select{|filename| filename.start_with?("Calendar") and filename.size == 35 }
+            .sort
     end
 
-    # NSXLucilleCalendarFileUtils::fileContentsToStruct1(content) : Struct1
-    def self.fileContentsToStruct1(content)
-        content.split(LUCILLE_FILE_MARKER)
+    # NSXLucilleCalendarFileUtils::lucilleCalendarFilepaths()
+    def self.lucilleCalendarFilepaths()
+        NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
+            .map{|filename| "/Users/pascal/Desktop/#{filename}" }
     end
 
-    # NSXLucilleCalendarFileUtils::fileContentsToStruct2(content) : Struct2
-    def self.fileContentsToStruct2(content)
-        struct1 = NSXLucilleCalendarFileUtils::fileContentsToStruct1(content)
-        [
-            struct1[0],
-            SectionsType0141::contentToSections(struct1[1].lines.to_a),
-            struct1[2],
-            struct1[3]
-        ]
-    end
-
-    # NSXLucilleCalendarFileUtils::struct2ToFileContent(struct2)
-    def self.struct2ToFileContent(struct2)
-        [
-            struct2[0],
-            LUCILLE_FILE_MARKER + "\n\n",
-            struct2[1].map{|str| str.strip}.join("\n").strip,
-            "\n\n",
-            LUCILLE_FILE_MARKER,
-            struct2[2],
-            LUCILLE_FILE_MARKER,
-            struct2[3]
-        ].join()
-    end
-
-    # NSXLucilleCalendarFileUtils::commitStruct2ToDisk(struct2)
-    def self.commitStruct2ToDisk(struct2)
-        filepath = "/Users/pascal/Desktop/Calendar.txt"
-        File.open(filepath, "w") { |io| io.puts(NSXLucilleCalendarFileUtils::struct2ToFileContent(struct2)) }
-    end
-
-    # NSXLucilleCalendarFileUtils::applyNextTransformationToStruct2(struct2)
-    def self.applyNextTransformationToStruct2(struct2)
-        return struct2 if struct2[1].empty?
-        text = NSXMiscUtils::applyNextTransformationToContent(struct2[1][0])
-        text = text.strip
-        text = NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
-        struct2[1][0] = text
-        struct2
-    end
-
-    # NSXLucilleCalendarFileUtils::getStruct()
-    def self.getStruct()
-        filepath = "/Users/pascal/Desktop/Calendar.txt"
-        NSXLucilleCalendarFileUtils::fileContentsToStruct2(IO.read(filepath))
-    end
-
-    # NSXLucilleCalendarFileUtils::trueIfTodoItemsInFile()
-    def self.trueIfTodoItemsInFile()
-        (IO.read("/Users/pascal/Desktop/Calendar.txt").split("@marker-51B5803C-F4B2-4CB3-B26B-6F2E99E2AA44"))[1].strip.size > 0
-    end
-
-    # NSXLucilleCalendarFileUtils::commitFileCopyToBin()
-    def self.commitFileCopyToBin()
-        filepath = "/Users/pascal/Desktop/Calendar.txt"
-        NSXMiscUtils::copyLocationToCatalystBin(filepath)
-    end
-
-    # NSXLucilleCalendarFileUtils::writeANewLucilleFileWithoutThisSectionUUID(uuid)
-    def self.writeANewLucilleFileWithoutThisSectionUUID(uuid)
-        NSXLucilleCalendarFileUtils::commitFileCopyToBin()
-        struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        struct2[1] = struct2[1].reject{|section|
-            NSXLucilleCalendarFileUtils::sectionToSectionUUID(section) == uuid
+    # NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath)
+    def self.lucilleFilepathToStruct3(filepath)
+        struct3 = {}
+        # We need to map reduce the lines of the files as parts
+        parts = IO.read(filepath)
+                    .strip
+                    .lines
+                    .reduce([]){|parts, line|
+                        if line.include?(LUCILLE_CALENDAR_FILE_PART_PATTERN) then
+                            parts << line
+                        else
+                            if parts.size > 0 then
+                                parts[parts.size-1] = parts[parts.size-1] + line
+                            else
+                                parts = [line]
+                            end
+                        end
+                        parts
+                    }
+                    .map{|part| part.strip }
+        todo = parts
+            .select{|part| part.include?(LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN) }
+            .map{|part| part.lines.drop(1).join() }
+            .map{|part| SectionsType0141::contentToSections(part.lines.to_a) }
+            .flatten
+            .map{|section| section.strip }
+        {
+            "parts" => parts,
+            "todo" => todo
         }
-        NSXLucilleCalendarFileUtils::commitStruct2ToDisk(struct2)
     end
 
-    # NSXLucilleCalendarFileUtils::applyNextTransformationToLucilleFile()
-    def self.applyNextTransformationToLucilleFile()
-        NSXLucilleCalendarFileUtils::commitFileCopyToBin()
-        struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        struct2 = NSXLucilleCalendarFileUtils::applyNextTransformationToStruct2(struct2)
-        NSXLucilleCalendarFileUtils::commitStruct2ToDisk(struct2)
+    # NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
+    def self.struct3TransformUpdatePartsWithTodo(struct3)
+        parts1 = [ LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN + "\n\n" + struct3["todo"].join("\n\n") ]
+        parts2 = struct3["parts"].reject{|part| part.include?(LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN) }
+        {
+            "parts" => parts1 + parts2,
+            "todo" => struct3["todo"]
+        }
     end
 
-    # NSXLucilleCalendarFileUtils::injectNewLineInPart1OfTheFile(line)
-    def self.injectNewLineInPart1OfTheFile(line)
-        NSXLucilleCalendarFileUtils::commitFileCopyToBin()
-        struct2 = NSXLucilleCalendarFileUtils::getStruct()
-        sections = struct2[1]
-        sections << line
-        struct2[1] = sections
-        NSXLucilleCalendarFileUtils::commitStruct2ToDisk(struct2)
-    end
-
-    # NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
-    def self.recursivelyRemoveEmptyLineIfInSecondPosition(text)
-        lines = text.lines.to_a
-        return text if lines.size <= 2
-        if lines[1].strip.size==0 then
-            lines[1] = nil
-            text = lines.compact.join()
-            return NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+    # NSXLucilleCalendarFileUtils::struct3TransformApplyNextTransformationToStruct3(struct3)
+    def self.struct3TransformApplyNextTransformationToStruct3(struct3)
+        if struct3["todo"].size > 0 then
+            struct3["todo"][0] = NSXMiscUtils::applyNextTransformationToContent(struct3["todo"][0])
         end
-        text
+        struct3 = NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
+        struct3
+    end
+
+    # NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, filepath)
+    def self.commitStruct3ToDiskAtFilepath(struct3, filepath)
+        File.open(filepath, "w") {|f| f.puts(struct3["parts"].join("\n\n")) }
+    end
+
+    # NSXLucilleCalendarFileUtils::applyNextTransformationToFilepath(filepath)
+    def self.applyNextTransformationToFilepath(filepath)
+        return if !File.exists?(filepath)
+        NSXMiscUtils::copyLocationToCatalystBin(filepath)
+        struct3 = NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath)
+        struct3 = NSXLucilleCalendarFileUtils::struct3TransformApplyNextTransformationToStruct3(struct3)
+        NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, "/Users/pascal/Desktop/Calendar-#{LucilleCore::timeStringL22()}.txt")
+        FileUtils.rm(filepath)
+    end
+
+    # NSXLucilleCalendarFileUtils::reduceMultipleStruct3s(struct3s)
+    def self.reduceMultipleStruct3s(struct3s)
+        init = {
+            "parts" => [],
+            "todo"  => []
+        }
+        struct3 = struct3s.reduce(init){|struct3acc, struct3item|
+            struct3item["parts"].each{|part|
+                if !struct3acc["parts"].include?(part) then
+                    struct3acc["parts"] << part
+                end
+            }
+            struct3acc
+        }
+        todo = struct3["parts"]
+            .select{|part| part.include?(LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN) }
+            .map{|part| part.lines.drop(1).join() }
+            .map{|part| SectionsType0141::contentToSections(part.lines.to_a) }
+            .flatten
+            .map{|section| section.strip }
+        struct3["todo"] = todo
+        struct3 = NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
+        struct3
+    end
+
+    # NSXLucilleCalendarFileUtils::reduceMultipleFilesIntoOne(filepaths)
+    def self.reduceMultipleFilesIntoOne(filepaths)
+        binArchivesFolderpath = NSXMiscUtils::newBinArchivesFolderpath()
+        filepaths.each{|filepath|
+            FileUtils.cp(filepath, "#{binArchivesFolderpath}/#{File.basename(filepath)}")
+        }
+        struct3s = filepaths.map{|filepath| NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath) }
+        struct3 = NSXLucilleCalendarFileUtils::reduceMultipleStruct3s(struct3s)
+        NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, "/Users/pascal/Desktop/Calendar-#{LucilleCore::timeStringL22()}.txt")
+        filepaths.each{|filepath|
+            FileUtils.rm(filepath)
+        }
+    end
+
+    # NSXLucilleCalendarFileUtils::reduceFilesToOneIfMultiple()
+    def self.reduceFilesToOneIfMultiple()
+        filepaths = NSXLucilleCalendarFileUtils::lucilleCalendarFilepaths()
+        return if filepaths.size < 2
+        NSXLucilleCalendarFileUtils::reduceMultipleFilesIntoOne(filepaths)
+    end
+
+    # NSXLucilleCalendarFileUtils::lucilleCalendarFilename()
+    def self.lucilleCalendarFilename()
+        NSXLucilleCalendarFileUtils::reduceFilesToOneIfMultiple()
+        filenames = NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
+        if filenames.size != 1 then
+            raise "[error 025bbf08] NSXLucilleCalendarFileUtils::lucilleCalendarFilename()"
+        end
+        filenames[0]
+    end
+
+    # NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
+    def self.getUniqueStruct3FilepathPair()
+        filename = NSXLucilleCalendarFileUtils::lucilleCalendarFilename()
+        filepath = "/Users/pascal/Desktop/#{filename}"
+        {
+            "struct3" => NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath),
+            "filepath" => filepath
+        }
     end
 
 end
