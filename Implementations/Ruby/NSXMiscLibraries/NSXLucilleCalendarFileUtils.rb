@@ -93,6 +93,7 @@ class NSXLucilleCalendarFileUtils
     def self.struct3TransformApplyNextTransformationToStruct3(struct3)
         if struct3["todo"].size > 0 then
             struct3["todo"][0] = NSXMiscUtils::applyNextTransformationToContent(struct3["todo"][0])
+            struct3["todo"][0] = NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(struct3["todo"][0])
         end
         struct3 = NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
         struct3
@@ -177,6 +178,18 @@ class NSXLucilleCalendarFileUtils
             "struct3" => NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath),
             "filepath" => filepath
         }
+    end
+
+    # NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+    def self.recursivelyRemoveEmptyLineIfInSecondPosition(text)
+        lines = text.lines.to_a
+        return text if lines.size <= 2
+        if lines[1].strip.size==0 then
+            lines[1] = nil
+            text = lines.compact.join()
+            return NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+        end
+        text
     end
 
 end
