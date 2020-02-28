@@ -30,7 +30,7 @@ Struct3 {
 =end
 
 LUCILLE_CALENDAR_FILE_PART_PATTERN = "@F6D5C243FE28"
-LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN = '@F6D5C243FE28-A-TODO------------------------------------------------------------'
+LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN = '@F6D5C243FE28-TODO--------------------------------------------------------------'
 
 class NSXLucilleCalendarFileUtils
 
