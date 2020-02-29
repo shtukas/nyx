@@ -15,7 +15,7 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
-require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)
@@ -38,7 +38,7 @@ class NSXTodoFolders
 
     # NSXTodoFolders::foldernameToFolderuuid(foldername)
     def self.foldernameToFolderuuid(foldername)
-        folderpath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}"
+        folderpath = "/Users/pascal/Galaxy/Todo/#{foldername}"
         filepath = "#{folderpath}/.uuid-ae79f802"
         if !File.exists?(filepath) then
             File.open(filepath, "w"){|f| f.puts(SecureRandom.hex) }
@@ -55,7 +55,7 @@ class NSXTodoFolders
 
     # NSXTodoFolders::getFoldernames()
     def self.getFoldernames()
-        Dir.entries("/Users/pascal/Galaxy/2020-Todo")
+        Dir.entries("/Users/pascal/Galaxy/Todo")
             .select{|filename| filename[0,1] != "." }
             .select{|filename| !filename.start_with?("Icon") }
             .select{|filename| filename != "Z-Todo-HowTo.txt" }
@@ -69,7 +69,7 @@ class NSXTodoFolders
 
     # NSXTodoFolders::getTodoRootFileContents(foldername)
     def self.getTodoRootFileContents(foldername)
-        folderpath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}"
+        folderpath = "/Users/pascal/Galaxy/Todo/#{foldername}"
         filepaths = [
             "#{folderpath}/00-TODO-README.txt",
             "#{folderpath}/000-TODO-README.txt"
@@ -84,7 +84,7 @@ class NSXTodoFolders
 
     # NSXTodoFolders::getNextFileIndexInFolder(foldername)
     def self.getNextFileIndexInFolder(foldername)
-        i1 = Dir.entries("/Users/pascal/Galaxy/2020-Todo/#{foldername}")
+        i1 = Dir.entries("/Users/pascal/Galaxy/Todo/#{foldername}")
             .select{|filename| filename[0,1] != "." }
             .select{|filename| !filename.start_with?("Icon") }
             .map{|filename| filename[0,3].to_i }
@@ -96,7 +96,7 @@ class NSXTodoFolders
 
     # NSXTodoFolders::foldernameToOrdinalBase(foldername)
     def self.foldernameToOrdinalBase(foldername)
-        folderpath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}"
+        folderpath = "/Users/pascal/Galaxy/Todo/#{foldername}"
         filepath = "#{folderpath}/.ordinal-base-8c9268ed"
         if !File.exists?(filepath) then
             File.open(filepath, "w"){|f| f.puts("0") }
@@ -107,7 +107,7 @@ class NSXTodoFolders
     # NSXTodoFolders::increaseFolderOrdinalBase(foldername)
     def self.increaseFolderOrdinalBase(foldername)
         ordinalBase = NSXTodoFolders::foldernameToOrdinalBase(foldername)
-        folderpath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}"
+        folderpath = "/Users/pascal/Galaxy/Todo/#{foldername}"
         filepath = "#{folderpath}/.ordinal-base-8c9268ed"
         File.open(filepath, "w"){|f| f.puts(ordinalBase+1) }
     end
@@ -128,7 +128,7 @@ class NSXTodoFolders
 
         ordinalBase = NSXTodoFolders::foldernameToOrdinalBase(foldername)
 
-        itemsInFolder = Dir.entries("/Users/pascal/Galaxy/2020-Todo/#{foldername}")
+        itemsInFolder = Dir.entries("/Users/pascal/Galaxy/Todo/#{foldername}")
             .select{|filename| filename[0,1] != "." }
             .select{|filename| !filename.start_with?("Icon") }
             .sort

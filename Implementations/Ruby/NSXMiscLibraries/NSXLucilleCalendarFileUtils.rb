@@ -7,7 +7,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
 # SectionsType0141::contentToSections(reminaingLines: Array[String])
 
 =begin

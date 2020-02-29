@@ -108,7 +108,7 @@ class NSXGeneralCommandHandler
             if type == "Todo" then
                 foldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("foldername:", NSXTodoFolders::getFoldernames())
                 indx = NSXTodoFolders::getNextFileIndexInFolder(foldername)
-                filepath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}/#{indx}.txt"
+                filepath = "/Users/pascal/Galaxy/Todo/#{foldername}/#{indx}.txt"
                 File.open(filepath, 'w'){|f| f.puts(text) }
             end
             if type == "Stream" then

@@ -15,7 +15,7 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
-require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)
@@ -33,7 +33,7 @@ class NSXTodoItemsTypes
 
     # NSXTodoItemsTypes::determineTypeProfile(foldername, itemname): TypeProfile
     def self.determineTypeProfile(foldername, itemname)
-        location = "/Users/pascal/Galaxy/2020-Todo/#{foldername}/#{itemname}"
+        location = "/Users/pascal/Galaxy/Todo/#{foldername}/#{itemname}"
         typeProfile = {}
         typeProfile["foldername"] = foldername
         typeProfile["itemname"] = itemname
@@ -61,7 +61,7 @@ class NSXTodoItemsTypes
 
     # NSXTodoItemsTypes::typeProfileToContentItem(typeProfile, runningAsTimeStringOrNull): ContentItem
     def self.typeProfileToContentItem(typeProfile, runningAsTimeStringOrNull)
-        location = "/Users/pascal/Galaxy/2020-Todo/#{typeProfile["foldername"]}/#{typeProfile["itemname"]}"
+        location = "/Users/pascal/Galaxy/Todo/#{typeProfile["foldername"]}/#{typeProfile["itemname"]}"
         line  = "[todo] #{typeProfile["foldername"]} / #{typeProfile["itemname"]}" + ( runningAsTimeStringOrNull ? " [#{runningAsTimeStringOrNull}]" : "" )
         if typeProfile["type"] == "todo-text-file" then
             return {

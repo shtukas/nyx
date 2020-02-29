@@ -9,7 +9,7 @@ require 'securerandom'
 
 require "time"
 
-require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 # -------------------------------------------------------------------------------------
 

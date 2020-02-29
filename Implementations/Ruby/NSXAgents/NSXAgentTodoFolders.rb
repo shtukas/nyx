@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
-require "/Users/pascal/Galaxy/2020-LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
@@ -51,7 +51,7 @@ class NSXAgentTodoFolders
         if command == "open" then
             object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
-            filepath = "/Users/pascal/Galaxy/2020-Todo/#{object["x-typeProfile"]["foldername"]}/#{object["x-typeProfile"]["itemname"]}"
+            filepath = "/Users/pascal/Galaxy/Todo/#{object["x-typeProfile"]["foldername"]}/#{object["x-typeProfile"]["itemname"]}"
             system("open '#{filepath}'")
             return
         end
@@ -64,7 +64,7 @@ class NSXAgentTodoFolders
             object = NSXTodoFolders::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
             foldername = object["x-typeProfile"]["foldername"]
-            filepath = "/Users/pascal/Galaxy/2020-Todo/#{foldername}/#{object["x-typeProfile"]["itemname"]}"
+            filepath = "/Users/pascal/Galaxy/Todo/#{foldername}/#{object["x-typeProfile"]["itemname"]}"
             if LucilleCore::askQuestionAnswerAsBoolean("Are you sure to want to remove '#{filepath}' ? ") then
                 NSXMiscUtils::copyLocationToCatalystBin(filepath)
                 LucilleCore::removeFileSystemLocation(filepath)
