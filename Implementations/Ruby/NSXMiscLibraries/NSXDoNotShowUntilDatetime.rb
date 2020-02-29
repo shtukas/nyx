@@ -22,52 +22,28 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
     KeyValueStore::destroy(repositorylocation or nil, key)
+
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
 =end
 
 # ----------------------------------------------------------------------
-
-DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER = "#{CATALYST_DATA_FOLDERPATH}/DoNotShowUntilDateTime2"
-
-$DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP = {}
 
 class NSXDoNotShowUntilDatetime
 
     # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     def self.setDatetime(objectuuid, datetime)
-        logobject = {
-            "objectuuid" => objectuuid,
-            "datetime"   => datetime
-        }
-        folderpath1 = DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER
-        folderpath2 = LucilleCore::indexsubfolderpath(folderpath1)
-        filepath1 = "#{folderpath2}/#{LucilleCore::timeStringL22()}.json"
-        File.open(filepath1, "w"){|f| f.puts(JSON.pretty_generate(logobject)) }
-        $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[objectuuid] = datetime
+        KeyValueStore::set("#{DATABANK_FOLDER_PATH}/Catalyst/Data/DoNotShowUntilDateTime4", objectuuid, datetime)
     end
 
     # NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
     def self.getDatetimeOrNull(objectuuid)
-        $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP[objectuuid]
-    end
-
-    # NSXDoNotShowUntilDatetime::loadDataFromDisk()
-    def self.loadDataFromDisk()
-        dataset = {}
-        Find.find(DO_NOT_SHOW_UNTIL_DATETIME_DATA_FOLDER) do |path|
-            next if !File.file?(path)
-            next if File.basename(path)[-5, 5] != '.json'
-            item = JSON.parse(IO.read(path))
-            dataset[item["objectuuid"]] = DateTime.parse(item["datetime"]).to_time.utc.iso8601
-        end
-        $DO_NOT_SHOW_UNTIL_DATETIME_IN_MEMORY_MAP = dataset
+        KeyValueStore::getOrNull("#{DATABANK_FOLDER_PATH}/Catalyst/Data/DoNotShowUntilDateTime4", objectuuid)
     end
 
     # NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
@@ -80,11 +56,3 @@ class NSXDoNotShowUntilDatetime
     end
 
 end
-
-NSXDoNotShowUntilDatetime::loadDataFromDisk()
-Thread.new {
-    loop {
-        sleep 300
-        NSXDoNotShowUntilDatetime::loadDataFromDisk()
-    }
-}
