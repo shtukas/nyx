@@ -88,7 +88,7 @@ class NSXTodoFolders
             .select{|filename| filename[0,1] != "." }
             .select{|filename| !filename.start_with?("Icon") }
             .map{|filename| filename[0,3].to_i }
-        [i1, 100].max
+        [(i1 + [0]).max, 100].max
     end
 
     # --------------------------------------------------------------
