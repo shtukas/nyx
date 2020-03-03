@@ -50,32 +50,6 @@ class NSXGeneralCommandHandler
             ].map{|command| "        "+command }.join("\n")
         ]
     end
-    
-    # NSXGeneralCommandHandler::interactiveMakeNewStreamItem()
-    def self.interactiveMakeNewStreamItem()
-        description = LucilleCore::askQuestionAnswerAsString("description (can use 'text') or url: ")
-        description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        genericContentsItem = 
-            if description.start_with?("http") then
-                {
-                    "uuid" => SecureRandom.hex,
-                    "type" => "url",
-                    "url" => description
-                }
-            else
-                {
-                    "uuid" => SecureRandom.hex,
-                    "type" => "text",
-                    "text" => description
-                }
-            end
-        streamItem = NSXStreamsUtils::issueNewStreamItem(
-            NSXStreamsUtils::makeSchedule("inbox"), 
-            genericContentsItem, 
-            NSXStreamsUtils::getNewStreamOrdinal()
-        )
-        puts JSON.pretty_generate(streamItem)
-    end
 
     # NSXGeneralCommandHandler::processCatalystCommandCore(object, command)
     def self.processCatalystCommandCore(object, command)
@@ -104,27 +78,7 @@ class NSXGeneralCommandHandler
             if text == "text" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
             end
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Wave", "Todo", "Stream"])
-            if type == "Todo" then
-                puts "We have a new app to register todo items"
-                LucilleCore::pressEnterToContinue()
-            end
-            if type == "Stream" then
-                genericContentsItem =
-                    {
-                        "uuid" => SecureRandom.hex,
-                        "type" => "text",
-                        "text" => text
-                    }
-                puts JSON.pretty_generate(genericContentsItem)
-                streamItem = NSXStreamsUtils::issueNewStreamItem(
-                    NSXStreamsUtils::makeSchedule("inbox"), 
-                    genericContentsItem, 
-                    NSXStreamsUtils::getNewStreamOrdinal()
-                )
-                puts JSON.pretty_generate(streamItem)
-                catalystobjectuuid = streamItem["uuid"]
-            end
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Wave"])
             if type == "Wave" then
                 catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)
             end

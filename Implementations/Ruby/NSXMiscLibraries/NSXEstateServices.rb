@@ -112,10 +112,36 @@ class NSXEstateServices
             .select{|filename| filename[0, 1] != '.' }
             .map{|filename| "#{CATALYST_INBOX_DROPOFF_FOLDERPATH}/#{filename}" }
             .each{|sourcelocation|
-                NSXStreamsUtils::issueNewStreamItem(
-                    NSXStreamsUtils::makeSchedule("inbox"), 
-                    NSX2GenericContentUtils::issueItemLocationMoveOriginal(sourcelocation), 
-                    NSXStreamsUtils::getNewStreamOrdinal())
+
+                foldername = NSXMiscUtils::timeStringL22()
+                folderpath = "#{TODO_PATH_TO_DATA_FOLDER}/#{foldername}"
+                FileUtils.mkpath(folderpath)
+                LucilleCore::copyFileSystemLocation(sourcelocation, folderpath)
+                target = {
+                    "uuid"       => SecureRandom.uuid,
+                    "type"       => "perma-dir-AAD08D8B",
+                    "foldername" => foldername
+                }
+
+                classificationItem = {
+                    "uuid"     => SecureRandom.uuid,
+                    "type"     => "timeline-49D07018",
+                    "timeline" => "Catalyst Inbox"
+                }
+
+                uuid = NSXMiscUtils::timeStringL22()
+                description = File.basename(sourcelocation)
+                tnode = {
+                    "uuid"              => uuid,
+                    "creationTimestamp" => Time.new.to_f,
+                    "description"       => description,
+                    "targets"           => [target],
+                    "classification"    => [classificationItem]
+                }
+                puts JSON.pretty_generate(tnode)
+                File.open("#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
+
+                LucilleCore::removeFileSystemLocation(sourcelocation)
             }
     end
 

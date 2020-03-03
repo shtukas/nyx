@@ -71,15 +71,31 @@ class NSXAgentVienna
             link = $viennaLinkFeeder.next()
             break if link.nil?
             puts "vienna: #{link}"
-            NSXStreamsUtils::issueNewStreamItem(
-                nil,
-                {
-                    "uuid" => SecureRandom.hex,
-                    "type" => "url",
-                    "url" => link
-                },
-                NSXStreamsUtils::getNewStreamOrdinal()
-            )
+
+            target = {
+                "uuid" => SecureRandom.uuid,
+                "type" => "url-01EFB604",
+                "url"  => link
+            }
+
+            classificationItem = {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "timeline-49D07018",
+                "timeline" => "Infinity Stream"
+            }
+
+            uuid = NSXMiscUtils::timeStringL22()
+            description = File.basename(sourcelocation)
+            tnode = {
+                "uuid"              => uuid,
+                "creationTimestamp" => Time.new.to_f,
+                "description"       => description,
+                "targets"           => [target],
+                "classification"    => [classificationItem]
+            }
+            puts JSON.pretty_generate(tnode)
+            File.open("#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
+
             $viennaLinkFeeder.done(link)
         }
         []

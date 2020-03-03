@@ -15,24 +15,3 @@ ContentItem (are carried by Catalyst Objects)
         "announce"        : String
         "atlas-reference" : String
     }
-
-
-GenericContent (stand for disk based contents)
-    {
-        "uuid" : UUID
-        "type" : "text"
-        "text" : String
-    }
-
-    {
-        "uuid" : UUID
-        "type" : "url"
-        "url"  : URL
-    }
-
-    {
-        "uuid"              : UUID
-        "type"              : "location" # file or folder
-        "parent-foldername" : 
-    }
-
