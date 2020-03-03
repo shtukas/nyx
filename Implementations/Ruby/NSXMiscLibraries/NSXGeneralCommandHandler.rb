@@ -106,10 +106,8 @@ class NSXGeneralCommandHandler
             end
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Wave", "Todo", "Stream"])
             if type == "Todo" then
-                foldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("foldername:", NSXTodoFolders::getFoldernames())
-                indx = NSXTodoFolders::getNextFileIndexInFolder(foldername)
-                filepath = "/Users/pascal/Galaxy/Todo/#{foldername}/#{indx}.txt"
-                File.open(filepath, 'w'){|f| f.puts(text) }
+                puts "We have a new app to register todo items"
+                LucilleCore::pressEnterToContinue()
             end
             if type == "Stream" then
                 genericContentsItem =
