@@ -1,0 +1,252 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'date'
+require 'colorize'
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'time'
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+require 'drb/drb'
+require 'thread'
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
+# --------------------------------------------------------------------
+
+TODO_PATH_TO_DATA_FOLDER = "/Users/pascal/Galaxy/DataBank/Todo/Data"
+
+class Estate
+
+    # Estate::l22()
+    def self.l22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # Estate::tnodeEnumerator()
+    def self.tnodeEnumerator()
+        Enumerator.new do |tnodes|
+            Find.find(TODO_PATH_TO_DATA_FOLDER) do |path|
+                next if !File.file?(path)
+                next if File.basename(path)[-5, 5] != ".json"
+                tnode = JSON.parse(IO.read(path))
+                tnodes << tnode
+            end
+        end
+    end
+
+    # Estate::tNodeFilepath(uuid)
+    def self.tNodeFilepath(uuid)
+        "#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json"
+    end
+
+end
+
+class TNode
+
+    # TNode::timelines()
+    def self.timelines()
+        Estate::tnodeEnumerator()
+            .map{|tnode| tnode["classification"] }
+            .flatten
+            .select{|item| item["type"] == "timeline-49D07018" }
+            .map{|item| item["timeline"] }
+    end
+
+    # ----------------------------------------------------
+    # Interactive Constructions
+
+    # TNode::makeTNodeTargetInteractivelyOrNull()
+    def self.makeTNodeTargetInteractivelyOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "text", "url", "unique name", "permadir"])
+        return nil if type.nil?
+        if type == "line" then
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "line-2A35BA23",
+                "line" => LucilleCore::askQuestionAnswerAsString("line: ")
+            }
+        end
+        if type == "text" then
+            filename = "#{Estate::l22()}.txt"
+            filecontents = Interface::editTextUsingTextmate("")
+            File.open("#{TODO_PATH_TO_DATA_FOLDER}/#{filename}", "w"){|f| f.puts(filecontents) }
+            return {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "text-A9C3641C",
+                "filename" => filename
+            }
+        end
+        if type == "url" then
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "url-01EFB604",
+                "url"  => LucilleCore::askQuestionAnswerAsString("url: ")
+            }
+        end
+        if type == "unique name" then
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "unique-name-11C4192E",
+                "name" => LucilleCore::askQuestionAnswerAsString("unique name: ")
+            }
+        end
+        if type == "permadir" then
+            foldername = Estate::l22()
+            folderpath = "#{TODO_PATH_TO_DATA_FOLDER}/#{foldername}"
+            FileUtils.mkpath(folderpath)
+            system("open '#{folderpath}'")
+            return {
+                "uuid"       => SecureRandom.uuid,
+                "type"       => "perma-dir-AAD08D8B",
+                "foldername" => foldername
+            }
+        end
+    end
+
+    # TNode::makeTNodeTargetsAtLeastOne()
+    def self.makeTNodeTargetsAtLeastOne()
+        targets = []
+        while targets.size == 0 do
+            targets << TNode::makeTNodeTargetInteractivelyOrNull()
+            targets = targets.compact
+        end
+        loop {
+            if LucilleCore::askQuestionAnswerAsBoolean("Another target? ") then
+                targets << TNode::makeTNodeTargetInteractivelyOrNull()
+                targets = targets.compact
+            else
+                break
+            end
+        }
+        targets
+    end
+
+    # TNode::makeClassificationItemInteractivelyOrNull()
+    def self.makeClassificationItemInteractivelyOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["tag", "timeline"])
+        return nil if type.nil?
+        if type == "tag" then
+            return {
+                "uuid"  => SecureRandom.uuid,
+                "type"  => "tag-8ACC01B9",
+                "tag"   => LucilleCore::askQuestionAnswerAsString("tag: ")
+            }
+        end
+        if type == "timeline" then
+            puts "Timelines:"
+            TNode::timelines().each{|timeline| puts "    - #{timeline}" }
+            return {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "timeline-49D07018",
+                "timeline" => LucilleCore::askQuestionAnswerAsString("timeline: ")
+            }
+        end
+    end
+
+    # TNode::makeClassificationItemsAtLeastOne()
+    def self.makeClassificationItemsAtLeastOne()
+        items = []
+        while items.size == 0 do
+            items << TNode::makeClassificationItemInteractivelyOrNull()
+            items = items.compact
+        end
+        loop {
+            if LucilleCore::askQuestionAnswerAsBoolean("Another item? ") then
+                items << TNode::makeTNodeTargetInteractivelyOrNull()
+                items = items.compact
+            else
+                break
+            end
+        }
+        items
+    end
+
+    # TNode::makeNewTNode()
+    def self.makeNewTNode()
+        uuid = Estate::l22()
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        tnode = {
+            "uuid"              => uuid,
+            "creationTimestamp" => Time.new.to_f,
+            "description"       => description,
+            "targets"           => TNode::makeTNodeTargetsAtLeastOne(),
+            "classification"    => TNode::makeClassificationItemsAtLeastOne()
+        }
+        puts JSON.pretty_generate(tnode)
+        File.open(Estate::tNodeFilepath(uuid), "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
+    end
+
+end
+
+class Interface
+
+    # Interface::editTextUsingTextmate(text)
+    def self.editTextUsingTextmate(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}
+      system("/usr/local/bin/mate \"#{filepath}\"")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)
+    end
+
+    # Interface::ui()
+    def self.ui()
+        loop {
+            operations = [
+                "make new item",
+                "view"
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return if operation.nil?
+            if operation == "make new item" then
+                TNode::makeNewTNode()
+            end
+            if operation == "view" then
+                Estate::tnodeEnumerator().each{|tnode|
+                    puts tnode["description"]
+                }
+            end
+        }
+    end
+
+end
+
+# --------------------------------------------------------------------
+
+Interface::ui()
+
+
