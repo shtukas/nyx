@@ -46,6 +46,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 # --------------------------------------------------------------------
 
 TODO_PATH_TO_DATA_FOLDER = "/Users/pascal/Galaxy/DataBank/Todo/Data"
+TODO_CATALYST_INBOX_TIMELINE_NAME = "Catalyst Inbox"
 
 class Estate
 
@@ -56,13 +57,16 @@ class Estate
 
     # Estate::tnodeEnumerator()
     def self.tnodeEnumerator()
+        # Here we rely on the geometry of the folder. 
+        # If we did our regular Find., we would pickup JSON objects from contents
         Enumerator.new do |tnodes|
-            Find.find(TODO_PATH_TO_DATA_FOLDER) do |path|
-                next if !File.file?(path)
-                next if File.basename(path)[-5, 5] != ".json"
-                tnode = JSON.parse(IO.read(path))
-                tnodes << tnode
-            end
+            Dir.entries(TODO_PATH_TO_DATA_FOLDER)
+                .select{|filename| filename[-5, 5] == ".json" }
+                .map{|filename| "#{TODO_PATH_TO_DATA_FOLDER}/#{filename}" }
+                .each{|filepath|
+                    tnode = JSON.parse(IO.read(filepath))
+                    tnodes << tnode
+                }
         end
     end
 
@@ -74,15 +78,6 @@ class Estate
 end
 
 class TNode
-
-    # TNode::timelines()
-    def self.timelines()
-        Estate::tnodeEnumerator()
-            .map{|tnode| tnode["classification"] }
-            .flatten
-            .select{|item| item["type"] == "timeline-49D07018" }
-            .map{|item| item["timeline"] }
-    end
 
     # ----------------------------------------------------
     # Interactive Constructions
@@ -166,7 +161,7 @@ class TNode
         end
         if type == "timeline" then
             puts "Timelines:"
-            TNode::timelines().each{|timeline| puts "    - #{timeline}" }
+            CoreData::timelines().each{|timeline| puts "    - #{timeline}" }
             return {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-49D07018",
@@ -210,6 +205,55 @@ class TNode
 
 end
 
+class CoreData
+
+    # CoreData::timelines()
+    def self.timelines()
+        Estate::tnodeEnumerator()
+            .map{|tnode| tnode["classification"] }
+            .flatten
+            .select{|item| item["type"] == "timeline-49D07018" }
+            .map{|item| item["timeline"] }
+            .uniq
+    end
+
+    # CoreData::timelinesInIncreasingActivityTime()
+    def self.timelinesInIncreasingActivityTime()
+        extractTimelinesFromTNode = lambda {|tnode|
+            tnode["classification"]
+                .select{|item| item["type"] == "timeline-49D07018" }
+                .map{|item| item["timeline"] }
+        }
+        map1 = Estate::tnodeEnumerator().reduce({}){|map2, tnode|
+            timelines = extractTimelinesFromTNode.call(tnode)
+            timelines.each{|timeline|
+                if map2[timeline].nil? then
+                    map2[timeline] = tnode["creationTimestamp"]
+                else
+                    map2[timeline] = [map2[timeline], tnode["creationTimestamp"]].max
+                end
+            }
+            map2
+        }
+        map1
+            .to_a
+            .sort{|p1, p2| p1[1]<=>p2[1] }
+            .map{|pair| pair[0] }
+    end
+
+    # CoreData::tNodeIsOnThisTimeline(tnode, timeline)
+    def self.tNodeIsOnThisTimeline(tnode, timeline)
+        tnode["classification"].any?{|item| item["type"] == "timeline-49D07018" and item["timeline"] == timeline }
+    end
+
+    # CoreData::getTimelineOrdered(timeline)
+    def self.getTimelineOrdered(timeline)
+        Estate::tnodeEnumerator()
+            .select{|tnode| CoreData::tNodeIsOnThisTimeline(tnode, timeline) }
+            .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
+    end
+end
+
 class Interface
 
     # Interface::editTextUsingTextmate(text)
@@ -223,12 +267,30 @@ class Interface
       IO.read(filepath)
     end
 
+    # Interface::timelineDive(timeline)
+    def self.timelineDive(timeline)
+        puts "Timeline: #{timeline}"
+        CoreData::getTimelineOrdered(TODO_CATALYST_INBOX_TIMELINE_NAME).each{|tnode|
+            puts "    - #{tnode["description"]}"
+        }
+    end
+
+    # Interface::timelinesDive()
+    def self.timelinesDive()
+        timelines = CoreData::timelinesInIncreasingActivityTime().reverse
+        timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline: ", timelines)
+        return if timeline.nil?
+        Interface::timelineDive(timeline)
+    end
+
     # Interface::ui()
     def self.ui()
         loop {
             operations = [
                 "make new item",
-                "view"
+                "view",
+                "view most recent items",
+                "timelines dive"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -240,10 +302,19 @@ class Interface
                     puts tnode["description"]
                 }
             end
+            if operation == "view most recent items" then
+
+            end
+            if operation == "timelines dive" then
+                Interface::timelinesDive()
+            end
         }
     end
 
 end
+
+# --------------------------------------------------------------------
+# nslog
 
 # --------------------------------------------------------------------
 
