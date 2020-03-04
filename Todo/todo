@@ -45,7 +45,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 # --------------------------------------------------------------------
 
-TODO_PATH_TO_DATA_FOLDER = "/Users/pascal/Galaxy/DataBank/Todo/Data"
+TODO_PATH_TO_DATA_FOLDER = "/Users/pascal/Galaxy/DataBank/Todo/Data-Timeline"
 TODO_CATALYST_INBOX_TIMELINE_NAME = "Catalyst Inbox"
 
 class Estate
@@ -73,6 +73,17 @@ class Estate
     # Estate::tNodeFilepath(uuid)
     def self.tNodeFilepath(uuid)
         "#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json"
+    end
+
+    # Estate::destroyTNode(tnode)
+    def self.destroyTNode(tnode)
+        puts "Estate::destroyTNode is not implemented yet"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Estate::locationBasenameToDataTimelineLocation(name)
+    def self.locationBasenameToDataTimelineLocation(name)
+        "#{TODO_PATH_TO_DATA_FOLDER}/#{name}"
     end
 
 end
@@ -267,20 +278,134 @@ class Interface
       IO.read(filepath)
     end
 
+    # Interface::targetToString(target)
+    def self.targetToString(target)
+        if target["type"] == "line-2A35BA23" then
+            return "line: #{target["line"]}"
+        end
+        if target["type"] == "text-A9C3641C" then
+            return "text (#{IO.read(Estate::locationBasenameToDataTimelineLocation(target["filename"])).lines.count} lines)"
+        end
+        if target["type"] == "url-01EFB604" then
+            return "url: #{target["url"]}"
+        end
+        if target["type"] == "unique-name-11C4192E" then
+            return "unique name: #{target["name"]}"
+        end
+        if target["type"] == "perma-dir-AAD08D8B" then
+            return "foldername: #{target["foldername"]}"
+        end
+        raise "[error: 706ce2f5]"
+    end
+
+    # Interface::classificationItemToString(item)
+    def self.classificationItemToString(item)
+        if item["type"] == "tag-8ACC01B9" then
+            return "tag: #{item["tag"]}"
+        end
+        if item["type"] == "timeline-49D07018" then
+            return "timeline: #{item["timeline"]}"
+        end
+        raise "[error: 44ccb03c]"
+    end
+
+    # Interface::diveTarget(tnodeuuid, target)
+    def self.diveTarget(tnodeuuid, target)
+        puts "Target: #{Interface::targetToString(target)}"
+        operations = [
+            "open", 
+            "remove/destroy from permanode"
+        ]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation: ", operations)
+        return if operation.nil?
+        if operation == "open" then
+            puts "operation not implemented yet"
+            LucilleCore::pressEnterToContinue()
+        end
+        if operation == "remove/destroy from permanode" then
+            puts "operation not implemented yet"
+            LucilleCore::pressEnterToContinue()
+        end
+    end
+
+    # Interface::diveClassificationItem(tnodeuuid, item)
+    def self.diveClassificationItem(tnodeuuid, item)
+        puts "Item: #{Interface::classificationItemToString(item)}"
+        operations = [
+            "remove/destroy from permanode"
+        ]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation: ", operations)
+        return if operation.nil?
+        if operation == "remove/destroy from permanode" then
+            puts "operation not implemented yet"
+            LucilleCore::pressEnterToContinue()
+        end
+    end
+
+    # Interface::diveTargets(tnodeuuid, targets)
+    def self.diveTargets(tnodeuuid, targets)
+        puts "Interface::diveTargets is not implemented yet"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Interface::diveClassificationItems(tnodeuuid, items)
+    def self.diveClassificationItems(tnodeuuid, items)
+        puts "Interface::diveClassificationItems is not implemented yet"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Interface::tNodeDive(tnode)
+    def self.tNodeDive(tnode)
+        puts "tnode:"
+        puts "    uuid: #{tnode["uuid"]}"
+        puts "    description: #{tnode["description"]}"
+        puts "    targets:"
+        tnode["targets"].each{|target|
+            puts "        #{Interface::targetToString(target)}"
+        }
+        puts "    classification items:"
+        tnode["classification"].each{|item|
+            puts "        #{Interface::classificationItemToString(item)}"
+        }
+        operations = [
+            "dive targets",
+            "dive classification items",
+            "destroy tnode"
+        ]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+        return if operation.nil?
+        if operation == "dive targets" then
+            Interface::diveTargets(tnodeuuid, tnode["targets"])
+        end
+        if operation == "dive classification items" then
+            Interface::diveClassificationItems(tnodeuuid, tnode["classification"])
+        end
+        if operation == "destroy tnode" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
+                Estate::destroyTNode(tnode)
+            end
+        end
+    end
+
     # Interface::timelineDive(timeline)
     def self.timelineDive(timeline)
-        puts "Timeline: #{timeline}"
-        CoreData::getTimelineOrdered(TODO_CATALYST_INBOX_TIMELINE_NAME).each{|tnode|
-            puts "    - #{tnode["description"]}"
+        loop {
+            puts "Timeline: #{timeline}"
+            tnodes = CoreData::getTimelineOrdered(timeline)
+            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
+            return if tnode.nil?
+            Interface::tNodeDive(tnode)
         }
     end
 
     # Interface::timelinesDive()
     def self.timelinesDive()
-        timelines = CoreData::timelinesInIncreasingActivityTime().reverse
-        timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline: ", timelines)
-        return if timeline.nil?
-        Interface::timelineDive(timeline)
+        loop {
+            timelines = CoreData::timelinesInIncreasingActivityTime().reverse
+            timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline: ", timelines)
+            return if timeline.nil?
+            Interface::timelineDive(timeline)
+        }
     end
 
     # Interface::ui()
