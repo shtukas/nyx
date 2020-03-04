@@ -85,7 +85,7 @@ class NSXAgentVienna
             }
 
             uuid = NSXMiscUtils::timeStringL22()
-            description = File.basename(sourcelocation)
+            description = link
             tnode = {
                 "uuid"              => uuid,
                 "creationTimestamp" => Time.new.to_f,
