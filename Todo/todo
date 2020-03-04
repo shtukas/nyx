@@ -82,6 +82,7 @@ class Estate
         # If we did our regular Find., we would pickup JSON objects from contents
         Enumerator.new do |tnodes|
             Dir.entries(TODO_PATH_TO_DATA_FOLDER)
+                .sort
                 .select{|filename| filename[-5, 5] == ".json" }
                 .map{|filename| "#{TODO_PATH_TO_DATA_FOLDER}/#{filename}" }
                 .each{|filepath|
