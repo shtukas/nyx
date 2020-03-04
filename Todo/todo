@@ -45,6 +45,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 # --------------------------------------------------------------------
 
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
+
 TODO_PATH_TO_DATA_FOLDER = "/Users/pascal/Galaxy/DataBank/Todo/Data-Timeline"
 TODO_CATALYST_INBOX_TIMELINE_NAME = "Catalyst Inbox"
 
@@ -125,6 +127,49 @@ class Estate
         File.open(Estate::tNodeUUIDToFilepath(uuid), "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
     end
 
+    # Estate::destroyTNode(tnode)
+    def self.destroyTNode(tnode)
+        # We try and preserve contents
+
+        destroyTarget = lambda{|target|
+            if target["type"] == "line" then
+                # Nothing
+            end
+            if target["type"] == "text" then
+                textFilepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
+                CatalystCommon::copyLocationToCatalystBin(textFilepath)
+                LucilleCore::removeFileSystemLocation(textFilepath)
+            end
+            if target["type"] == "url" then
+                # Nothing
+            end
+            if target["type"] == "unique name" then
+                # Nothing
+            end
+            if target["type"] == "permadir" then
+                folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
+                CatalystCommon::copyLocationToCatalystBin(folderpath)
+                LucilleCore::removeFileSystemLocation(folderpath)
+            end
+        }
+
+        destroyClassificationItem = lambda{|item|
+            if item["type"] == "tag" then
+                # Nothing
+            end
+            if item["type"] == "timeline" then
+                # Nothing
+            end
+        }
+
+        tnode["targets"].each{|target| destroyTarget.call(target) }
+        tnode["classification"].each{|item| destroyClassificationItem.call(item) }
+
+        tnodelocation = Estate::tNodeUUIDToFilepath(tnode["uuid"])
+        CatalystCommon::copyLocationToCatalystBin(tnodelocation)
+        LucilleCore::removeFileSystemLocation(tnodelocation)
+    end
+
 end
 
 class TNode
@@ -146,7 +191,7 @@ class TNode
         if type == "text" then
             filename = "#{Utils::l22()}.txt"
             filecontents = Utils::editTextUsingTextmate("")
-            File.open("#{TODO_PATH_TO_DATA_FOLDER}/#{filename}", "w"){|f| f.puts(filecontents) }
+            File.open(Estate::locationBasenameToDataTimelineLocation(filename), "w"){|f| f.puts(filecontents) }
             return {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "text-A9C3641C",
@@ -354,35 +399,7 @@ class Interface
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation: ", operations)
         return if operation.nil?
         if operation == "open" then
-            if target["type"] == "line-2A35BA23" then
-                puts "line: #{target["line"]}"
-            end
-            if target["type"] == "text-A9C3641C" then
-                filepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
-                system("open '#{filepath}'")
-                LucilleCore::pressEnterToContinue()
-            end
-            if target["type"] == "url-01EFB604" then
-                system("open '#{target["url"]}'")
-                LucilleCore::pressEnterToContinue()
-            end
-            if target["type"] == "unique-name-11C4192E" then
-                uniquename = target["name"]
-                location = Estate::uniqueNameResolutionLocationPathOrNull(uniquename)
-                if location.nil? then
-                    puts "I could not resolve unique name '#{uniquename}'"
-                    LucilleCore::pressEnterToContinue()
-                else
-                    if LucilleCore::askQuestionAnswerAsBoolean("opening '#{location}' ? ") then
-                        system("open '#{location}'")
-                    end
-                end
-            end
-            if target["type"] == "perma-dir-AAD08D8B" then
-                folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
-                system("open '#{folderpath}'")
-                LucilleCore::pressEnterToContinue()
-            end
+
         end
         if operation == "remove/destroy from tnode" then
             # we get the tnode and just remove the offending target
@@ -422,41 +439,87 @@ class Interface
         LucilleCore::pressEnterToContinue()
     end
 
-    # Interface::tNodeDive(tnode)
-    def self.tNodeDive(tnode)
-        puts "tnode:"
-        puts "    uuid: #{tnode["uuid"]}"
-        puts "    description: #{tnode["description"]}"
-        puts "    targets:"
-        tnode["targets"].each{|target|
-            puts "        #{Interface::targetToString(target)}"
-        }
-        puts "    classification items:"
-        tnode["classification"].each{|item|
-            puts "        #{Interface::classificationItemToString(item)}"
-        }
-        operations = [
-            "quick open",
-            "dive targets",
-            "dive classification items",
-            "destroy tnode"
-        ]
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-        return if operation.nil?
-        if operation == "quick open" then
-            
+    # Interface::openTarget(target)
+    def self.openTarget(target)
+        if target["type"] == "line-2A35BA23" then
+            puts "line: #{target["line"]}"
         end
-        if operation == "dive targets" then
-            Interface::diveTargets(tnode["uuid"], tnode["targets"])
+        if target["type"] == "text-A9C3641C" then
+            filepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
+            system("open '#{filepath}'")
+            LucilleCore::pressEnterToContinue()
         end
-        if operation == "dive classification items" then
-            Interface::diveClassificationItems(tnode["uuid"], tnode["classification"])
+        if target["type"] == "url-01EFB604" then
+            system("open '#{target["url"]}'")
+            LucilleCore::pressEnterToContinue()
         end
-        if operation == "destroy tnode" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
-                Estate::destroyTNode(tnode)
+        if target["type"] == "unique-name-11C4192E" then
+            uniquename = target["name"]
+            location = Estate::uniqueNameResolutionLocationPathOrNull(uniquename)
+            if location.nil? then
+                puts "I could not resolve unique name '#{uniquename}'"
+                LucilleCore::pressEnterToContinue()
+            else
+                if LucilleCore::askQuestionAnswerAsBoolean("opening '#{location}' ? ") then
+                    system("open '#{location}'")
+                end
             end
         end
+        if target["type"] == "perma-dir-AAD08D8B" then
+            folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
+            system("open '#{folderpath}'")
+            LucilleCore::pressEnterToContinue()
+        end
+    end
+
+    # Interface::quickOpenTNodeOrNothing(tnode)
+    def self.quickOpenTNodeOrNothing(tnode)
+        return if tnode["targets"].size != 1
+        Interface::openTarget(tnode["targets"][0])
+    end
+
+    # Interface::tNodeDive(tnodeuuid)
+    def self.tNodeDive(tnodeuuid)
+        loop {
+            tnode = Estate::getTNodeByUUUIDOrNull(tnodeuuid)
+            if tnode.nil? then
+                raise "[error: a151f422] tnodeuuid: #{tnodeuuid}"
+            end
+            puts "tnode:"
+            puts "    uuid: #{tnode["uuid"]}"
+            puts "    description: #{tnode["description"]}"
+            puts "    targets:"
+            tnode["targets"].each{|target|
+                puts "        #{Interface::targetToString(target)}"
+            }
+            puts "    classification items:"
+            tnode["classification"].each{|item|
+                puts "        #{Interface::classificationItemToString(item)}"
+            }
+            operations = [
+                "quick open",
+                "dive targets",
+                "dive classification items",
+                "destroy tnode"
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return if operation.nil?
+            if operation == "quick open" then
+                Interface::quickOpenTNodeOrNothing(tnode)
+            end
+            if operation == "dive targets" then
+                Interface::diveTargets(tnode["uuid"], tnode["targets"])
+            end
+            if operation == "dive classification items" then
+                Interface::diveClassificationItems(tnode["uuid"], tnode["classification"])
+            end
+            if operation == "destroy tnode" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
+                    Estate::destroyTNode(tnode)
+                    return
+                end
+            end
+        }
     end
 
     # Interface::tNodesDive(tnodes)
@@ -464,7 +527,7 @@ class Interface
         loop {
             tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
             return if tnode.nil?
-            Interface::tNodeDive(tnode)
+            Interface::tNodeDive(tnode["uuid"])
         }
     end
 
@@ -475,7 +538,7 @@ class Interface
             tnodes = CoreData::getTimelineOrdered(timeline)
             tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
             return if tnode.nil?
-            Interface::tNodeDive(tnode)
+            Interface::tNodeDive(tnode["uuid"])
         }
     end
 

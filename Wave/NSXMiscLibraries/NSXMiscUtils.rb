@@ -226,16 +226,6 @@ class NSXMiscUtils
         NSXMiscUtils::thisInstanceName() == "Lucille18"
     end
 
-    # NSXMiscUtils::newBinArchivesFolderpath()
-    def self.newBinArchivesFolderpath()
-        time = Time.new
-        folder1 = "#{CATALYST_BIN_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(folder3)
-        folder3
-    end
-
     def self.object2DoNotShowUntilAsString(object)
         ( object["do-not-show-until-datetime"] and ( Time.now.utc.iso8601 < DateTime.parse(object["do-not-show-until-datetime"]).to_time.utc.iso8601 ) ) ? " (do not show until: #{object["do-not-show-until-datetime"]})" : ""
     end
@@ -316,19 +306,11 @@ class NSXMiscUtils
         end
     end
 
-    # NSXMiscUtils::copyLocationToCatalystBin(location)
-    def self.copyLocationToCatalystBin(location)
-        return if location.nil?
-        return if !File.exists?(location)
-        targetFolder = NSXMiscUtils::newBinArchivesFolderpath()
-        FileUtils.cp(location,targetFolder)
-    end
-
     # NSXMiscUtils::moveLocationToCatalystBin(location)
     def self.moveLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
-        targetFolder = NSXMiscUtils::newBinArchivesFolderpath()
+        targetFolder = CatalystCommon::newBinArchivesFolderpath()
         FileUtils.mv(location,targetFolder)
     end
 

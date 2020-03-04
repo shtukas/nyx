@@ -107,7 +107,7 @@ class NSXLucilleCalendarFileUtils
     # NSXLucilleCalendarFileUtils::applyNextTransformationToFilepath(filepath)
     def self.applyNextTransformationToFilepath(filepath)
         return if !File.exists?(filepath)
-        NSXMiscUtils::copyLocationToCatalystBin(filepath)
+        CatalystCommon::copyLocationToCatalystBin(filepath)
         struct3 = NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath)
         struct3 = NSXLucilleCalendarFileUtils::struct3TransformApplyNextTransformationToStruct3(struct3)
         NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, "/Users/pascal/Desktop/Calendar-#{LucilleCore::timeStringL22()}.txt")
@@ -141,7 +141,7 @@ class NSXLucilleCalendarFileUtils
 
     # NSXLucilleCalendarFileUtils::reduceMultipleFilesIntoOne(filepaths)
     def self.reduceMultipleFilesIntoOne(filepaths)
-        binArchivesFolderpath = NSXMiscUtils::newBinArchivesFolderpath()
+        binArchivesFolderpath = CatalystCommon::newBinArchivesFolderpath()
         filepaths.each{|filepath|
             FileUtils.cp(filepath, "#{binArchivesFolderpath}/#{File.basename(filepath)}")
         }
