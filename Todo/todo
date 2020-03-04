@@ -459,7 +459,7 @@ class Interface
     # Interface::timelinesDive()
     def self.timelinesDive()
         loop {
-            timelines = CoreData::timelinesInIncreasingActivityTime().reverse
+            timelines = CoreData::timelinesInIncreasingActivityTime()
             timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline: ", timelines)
             return if timeline.nil?
             Interface::timelineDive(timeline)
