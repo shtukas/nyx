@@ -70,9 +70,16 @@ class Estate
         end
     end
 
-    # Estate::tNodeFilepath(uuid)
-    def self.tNodeFilepath(uuid)
+    # Estate::tNodeUUIDToFilepath(uuid)
+    def self.tNodeUUIDToFilepath(uuid)
         "#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json"
+    end
+
+    # Estate::getTNodeByUUUIDOrNull(uuid)
+    def self.getTNodeByUUUIDOrNull(uuid)
+        filepath = "#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # Estate::destroyTNode(tnode)
@@ -84,6 +91,19 @@ class Estate
     # Estate::locationBasenameToDataTimelineLocation(name)
     def self.locationBasenameToDataTimelineLocation(name)
         "#{TODO_PATH_TO_DATA_FOLDER}/#{name}"
+    end
+
+    # Estate::uniqueNameResolutionLocationPathOrNull(uniquename)
+    def self.uniqueNameResolutionLocationPathOrNull(uniquename)
+        location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
+        return nil if location.nil?
+        location
+    end
+
+    # Estate::commitTNodeToDisk(tnode)
+    def self.commitTNodeToDisk(tnode)
+        uuid = tnode["uuid"]
+        File.open(Estate::tNodeUUIDToFilepath(uuid), "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
     end
 
 end
@@ -172,7 +192,7 @@ class TNode
         end
         if type == "timeline" then
             puts "Timelines:"
-            CoreData::timelines().each{|timeline| puts "    - #{timeline}" }
+            CoreData::getTimelineOrdered(timeline).each{|timeline| puts "    - #{timeline}" }
             return {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-49D07018",
@@ -211,7 +231,7 @@ class TNode
             "classification"    => TNode::makeClassificationItemsAtLeastOne()
         }
         puts JSON.pretty_generate(tnode)
-        File.open(Estate::tNodeFilepath(uuid), "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
+        Estate::commitTNodeToDisk(tnode)
     end
 
 end
@@ -314,17 +334,47 @@ class Interface
         puts "Target: #{Interface::targetToString(target)}"
         operations = [
             "open", 
-            "remove/destroy from permanode"
+            "remove/destroy from tnode"
         ]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation: ", operations)
         return if operation.nil?
         if operation == "open" then
-            puts "operation not implemented yet"
-            LucilleCore::pressEnterToContinue()
+            if target["type"] == "line-2A35BA23" then
+                puts "line: #{target["line"]}"
+            end
+            if target["type"] == "text-A9C3641C" then
+                filepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
+                system("open '#{filepath}'")
+                LucilleCore::pressEnterToContinue()
+            end
+            if target["type"] == "url-01EFB604" then
+                system("open '#{target["url"]}'")
+                LucilleCore::pressEnterToContinue()
+            end
+            if target["type"] == "unique-name-11C4192E" then
+                uniquename = target["name"]
+                location = Estate::uniqueNameResolutionLocationPathOrNull(uniquename)
+                if location.nil? then
+                    puts "I could not resolve unique name '#{uniquename}'"
+                    LucilleCore::pressEnterToContinue()
+                else
+                    if LucilleCore::askQuestionAnswerAsBoolean("opening '#{location}' ? ") then
+                        system("open '#{location}'")
+                    end
+                end
+            end
+            if target["type"] == "perma-dir-AAD08D8B" then
+                folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
+                system("open '#{folderpath}'")
+                LucilleCore::pressEnterToContinue()
+            end
         end
-        if operation == "remove/destroy from permanode" then
-            puts "operation not implemented yet"
-            LucilleCore::pressEnterToContinue()
+        if operation == "remove/destroy from tnode" then
+            # we get the tnode and just remove the offending target
+            tnode = Estate::getTNodeByUUUIDOrNull(tnodeuuid)
+            return if tnode.nil?
+            tnode["targets"] = tnode["targets"].reject{|t| t["uuid"]==target["uuid"] }
+            Estate::commitTNodeToDisk(tnode)
         end
     end
 
@@ -332,20 +382,24 @@ class Interface
     def self.diveClassificationItem(tnodeuuid, item)
         puts "Item: #{Interface::classificationItemToString(item)}"
         operations = [
-            "remove/destroy from permanode"
+            "remove/destroy from tnode"
         ]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation: ", operations)
         return if operation.nil?
-        if operation == "remove/destroy from permanode" then
-            puts "operation not implemented yet"
-            LucilleCore::pressEnterToContinue()
+        if operation == "remove/destroy from tnode" then
+            # we get the tnode and just remove the offending classification item
+            tnode = Estate::getTNodeByUUUIDOrNull(tnodeuuid)
+            return if tnode.nil?
+            tnode["classification"] = tnode["classification"].reject{|i| i["uuid"]==item["uuid"] }
+            Estate::commitTNodeToDisk(tnode)
         end
     end
 
     # Interface::diveTargets(tnodeuuid, targets)
     def self.diveTargets(tnodeuuid, targets)
-        puts "Interface::diveTargets is not implemented yet"
-        LucilleCore::pressEnterToContinue()
+        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target: ", targets, lambda{|target| Interface::targetToString(target) })
+        return if target.nil?
+
     end
 
     # Interface::diveClassificationItems(tnodeuuid, items)
@@ -368,17 +422,21 @@ class Interface
             puts "        #{Interface::classificationItemToString(item)}"
         }
         operations = [
+            "quick open",
             "dive targets",
             "dive classification items",
             "destroy tnode"
         ]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
+        if operation == "quick open" then
+            
+        end
         if operation == "dive targets" then
-            Interface::diveTargets(tnodeuuid, tnode["targets"])
+            Interface::diveTargets(tnode["uuid"], tnode["targets"])
         end
         if operation == "dive classification items" then
-            Interface::diveClassificationItems(tnodeuuid, tnode["classification"])
+            Interface::diveClassificationItems(tnode["uuid"], tnode["classification"])
         end
         if operation == "destroy tnode" then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
