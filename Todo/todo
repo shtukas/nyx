@@ -192,7 +192,7 @@ class TNode
         end
         if type == "timeline" then
             puts "Timelines:"
-            CoreData::getTimelineOrdered(timeline).each{|timeline| puts "    - #{timeline}" }
+            CoreData::timelinesInIncreasingActivityTime().each{|timeline| puts "    - #{timeline}" }
             return {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-49D07018",
