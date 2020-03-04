@@ -302,6 +302,13 @@ class CoreData
             .select{|tnode| CoreData::tNodeIsOnThisTimeline(tnode, timeline) }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
     end
+
+    # CoreData::searchPatternToTNodes(pattern)
+    def self.searchPatternToTNodes(pattern)
+        Estate::tnodeEnumerator()
+            .select{|tnode| tnode["description"].downcase.include?(pattern.downcase) }
+            .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
+    end
 end
 
 class Interface
@@ -452,6 +459,15 @@ class Interface
         end
     end
 
+    # Interface::tNodesDive(tnodes)
+    def self.tNodesDive(tnodes)
+        loop {
+            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
+            return if tnode.nil?
+            Interface::tNodeDive(tnode)
+        }
+    end
+
     # Interface::timelineDive(timeline)
     def self.timelineDive(timeline)
         loop {
@@ -477,6 +493,7 @@ class Interface
         loop {
             operations = [
                 "make new item",
+                "search",
                 "view",
                 "view most recent items",
                 "timelines dive"
@@ -485,6 +502,11 @@ class Interface
             return if operation.nil?
             if operation == "make new item" then
                 TNode::makeNewTNode()
+            end
+            if operation == "search" then
+                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
+                tnodes = CoreData::searchPatternToTNodes(pattern)
+                Interface::tNodesDive(tnodes)
             end
             if operation == "view" then
                 Estate::tnodeEnumerator().each{|tnode|
