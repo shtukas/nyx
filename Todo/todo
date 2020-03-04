@@ -557,7 +557,6 @@ class Interface
             operations = [
                 "make new item",
                 "search",
-                "view",
                 "view most recent items",
                 "timelines dive"
             ]
@@ -571,13 +570,9 @@ class Interface
                 tnodes = CoreData::searchPatternToTNodes(pattern)
                 Interface::tNodesDive(tnodes)
             end
-            if operation == "view" then
-                Estate::tnodeEnumerator().each{|tnode|
-                    puts tnode["description"]
-                }
-            end
             if operation == "view most recent items" then
-
+                tnodes = Estate::tnodeEnumerator().to_a.reverse.take(10)
+                Interface::tNodesDive(tnodes)
             end
             if operation == "timelines dive" then
                 Interface::timelinesDive()
