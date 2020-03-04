@@ -48,12 +48,31 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 TODO_PATH_TO_DATA_FOLDER = "/Users/pascal/Galaxy/DataBank/Todo/Data-Timeline"
 TODO_CATALYST_INBOX_TIMELINE_NAME = "Catalyst Inbox"
 
-class Estate
+class Utils
 
-    # Estate::l22()
+    # Utils::chooseALinePecoStyle(announce: String, strs: Array[String]): String
+    def self.chooseALinePecoStyle(announce, strs)
+        `echo "#{strs.join("\n")}" | peco --prompt "#{announce}"`.strip
+    end
+
+    # Utils::l22()
     def self.l22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
+
+    # Utils::editTextUsingTextmate(text)
+    def self.editTextUsingTextmate(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}
+      system("/usr/local/bin/mate \"#{filepath}\"")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)
+    end
+end
+
+class Estate
 
     # Estate::tnodeEnumerator()
     def self.tnodeEnumerator()
@@ -125,8 +144,8 @@ class TNode
             }
         end
         if type == "text" then
-            filename = "#{Estate::l22()}.txt"
-            filecontents = Interface::editTextUsingTextmate("")
+            filename = "#{Utils::l22()}.txt"
+            filecontents = Utils::editTextUsingTextmate("")
             File.open("#{TODO_PATH_TO_DATA_FOLDER}/#{filename}", "w"){|f| f.puts(filecontents) }
             return {
                 "uuid"     => SecureRandom.uuid,
@@ -149,7 +168,7 @@ class TNode
             }
         end
         if type == "permadir" then
-            foldername = Estate::l22()
+            foldername = Utils::l22()
             folderpath = "#{TODO_PATH_TO_DATA_FOLDER}/#{foldername}"
             FileUtils.mkpath(folderpath)
             system("open '#{folderpath}'")
@@ -191,8 +210,8 @@ class TNode
             }
         end
         if type == "timeline" then
-            puts "Timelines:"
-            CoreData::timelinesInIncreasingActivityTime().each{|timeline| puts "    - #{timeline}" }
+            timeline = Utils::chooseALinePecoStyle("Timeline:", [""] + CoreData::timelinesInIncreasingActivityTime().reverse)
+            return nil if timeline.size == 0
             return {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-49D07018",
@@ -221,7 +240,7 @@ class TNode
 
     # TNode::makeNewTNode()
     def self.makeNewTNode()
-        uuid = Estate::l22()
+        uuid = Utils::l22()
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         tnode = {
             "uuid"              => uuid,
@@ -286,17 +305,6 @@ class CoreData
 end
 
 class Interface
-
-    # Interface::editTextUsingTextmate(text)
-    def self.editTextUsingTextmate(text)
-      filename = SecureRandom.hex
-      filepath = "/tmp/#{filename}"
-      File.open(filepath, 'w') {|f| f.write(text)}
-      system("/usr/local/bin/mate \"#{filepath}\"")
-      print "> press enter when done: "
-      input = STDIN.gets
-      IO.read(filepath)
-    end
 
     # Interface::targetToString(target)
     def self.targetToString(target)
@@ -399,7 +407,6 @@ class Interface
     def self.diveTargets(tnodeuuid, targets)
         target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target: ", targets, lambda{|target| Interface::targetToString(target) })
         return if target.nil?
-
     end
 
     # Interface::diveClassificationItems(tnodeuuid, items)
@@ -459,9 +466,8 @@ class Interface
     # Interface::timelinesDive()
     def self.timelinesDive()
         loop {
-            timelines = CoreData::timelinesInIncreasingActivityTime()
-            timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline: ", timelines)
-            return if timeline.nil?
+            timeline = Utils::chooseALinePecoStyle("Timeline:", [""] + CoreData::timelinesInIncreasingActivityTime().reverse)
+            return nil if timeline.size == 0
             Interface::timelineDive(timeline)
         }
     end
