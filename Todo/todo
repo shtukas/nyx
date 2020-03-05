@@ -509,7 +509,7 @@ class Interface
         if target["type"] == "perma-dir-AAD08D8B" then
             locationCanBeQuickOpened = lambda {|location|
                 # We white list the ones that we want
-                whiteListedExtensions = [".txt", ".jpg", ".png", ".md"]
+                whiteListedExtensions = [".txt", ".jpg", ".png", ".md", ".webloc"]
                 return true if whiteListedExtensions.any?{|extension| location[-extension.size, extension.size] == extension }
                 false
             }
