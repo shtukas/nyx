@@ -49,6 +49,18 @@ require_relative "TodoCore.rb"
 
 # --------------------------------------------------------------------
 
-Interface::ui()
+object = {
+    "uuid"           => "B15015CA-2E04-47F3-B995-3B46E262853F",
+    "agentuid"       => nil,
+    "contentItem"    => {
+        "type" => "line",
+        "line" => "Todo Catalyst Object"
+    },
+    "metric"         => 0.3,
+    "commands"       => [],
+    "defaultCommand" => nil,
+    "isDone"         => nil
+}
 
+puts JSON.generate(object)
 
