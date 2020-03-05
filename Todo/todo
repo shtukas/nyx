@@ -484,10 +484,49 @@ class Interface
         end
     end
 
-    # Interface::quickOpenTNodeOrNothing(tnode)
-    def self.quickOpenTNodeOrNothing(tnode)
+    # Interface::optimizedOpenTarget(target)
+    def self.optimizedOpenTarget(target)
+        if target["type"] == "line-2A35BA23" then
+            puts "line: #{target["line"]}"
+        end
+        if target["type"] == "text-A9C3641C" then
+            filepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
+            system("open '#{filepath}'")
+        end
+        if target["type"] == "url-01EFB604" then
+            system("open '#{target["url"]}'")
+        end
+        if target["type"] == "unique-name-11C4192E" then
+            uniquename = target["name"]
+            location = Estate::uniqueNameResolutionLocationPathOrNull(uniquename)
+            if location.nil? then
+                puts "I could not resolve unique name '#{uniquename}'"
+                LucilleCore::pressEnterToContinue()
+            else
+                system("open '#{location}'")
+            end
+        end
+        if target["type"] == "perma-dir-AAD08D8B" then
+            locationCanBeQuickOpened = lambda {|location|
+                # We white list the ones that we want
+                whiteListedExtensions = [".txt", ".jpg", ".png", ".md"]
+                return true if whiteListedExtensions.any?{|extension| location[-extension.size, extension.size] == extension }
+                false
+            }
+            folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
+            sublocations = LucilleCore::nonDottedLocationsAtFolder(folderpath)
+            if sublocations.size != 0 and locationCanBeQuickOpened.call(sublocations[0]) then
+                system("open '#{sublocations[0]}'")
+            else
+                system("open '#{folderpath}'")
+            end
+        end
+    end
+
+    # Interface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+    def self.optimizedOpenTNodeUniqueTargetOrNothing(tnode)
         return if tnode["targets"].size != 1
-        Interface::openTarget(tnode["targets"][0])
+        Interface::optimizedOpenTarget(tnode["targets"][0])
     end
 
     # Interface::tNodeDive(tnodeuuid)
@@ -518,7 +557,7 @@ class Interface
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "quick open" then
-                Interface::quickOpenTNodeOrNothing(tnode)
+                Interface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
             end
             if operation == "edit description" then
                 tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -580,7 +619,7 @@ class Interface
                     puts "-> [#{counter}/#{tnodes.size}] #{tnode["description"]}"
                     operation = LucilleCore::askQuestionAnswerAsString("operation (open, dive, destroy, exit walk) [nothing for next]: ")
                     if operation == "open" then
-                        Interface::quickOpenTNodeOrNothing(tnode)
+                        Interface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
                     end
                     if operation == "dive" then
                         Interface::tNodeDive(tnode["uuid"])
@@ -595,7 +634,6 @@ class Interface
                         return
                     end
                 }
-
             }
     end
 
