@@ -24,7 +24,7 @@ class NSXAgentTodoDelegate
 
     # NSXAgentTodoDelegate::getAllObjects()
     def self.getAllObjects()
-        [ JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-object`) ]
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects`)
     end
 
     # NSXAgentTodoDelegate::processObjectAndCommand(objectuuid, command)

@@ -49,18 +49,32 @@ require_relative "TodoCore.rb"
 
 # --------------------------------------------------------------------
 
-object = {
-    "uuid"           => "B15015CA-2E04-47F3-B995-3B46E262853F",
-    "agentuid"       => nil,
-    "contentItem"    => {
-        "type" => "line",
-        "line" => "Todo Catalyst Object"
+objects = [
+    {
+        "uuid"           => "B15015CA-2E04-47F3-B995-3B46E262853F",
+        "agentuid"       => nil,
+        "contentItem"    => {
+            "type" => "line",
+            "line" => "Todo [Inbox]"
+        },
+        "metric"         => 0.5,
+        "commands"       => [],
+        "defaultCommand" => nil,
+        "isDone"         => nil
     },
-    "metric"         => 0.3,
-    "commands"       => [],
-    "defaultCommand" => nil,
-    "isDone"         => nil
-}
+    {
+        "uuid"           => "2FF02791-DB34-4CC4-A356-F8CADC2FC7F7",
+        "agentuid"       => nil,
+        "contentItem"    => {
+            "type" => "line",
+            "line" => "Todo [Walks]"
+        },
+        "metric"         => 0.3,
+        "commands"       => [],
+        "defaultCommand" => nil,
+        "isDone"         => nil
+    }
+]
 
-puts JSON.generate(object)
+puts JSON.generate(objects)
 
