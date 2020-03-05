@@ -586,6 +586,7 @@ class Interface
                     if operation == "destroy" then
                         if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
                             Estate::destroyTNode(tnode)
+                            break
                         end
                     end
                 }
