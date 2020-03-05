@@ -133,6 +133,7 @@ class Estate
             end
             if target["type"] == "text-A9C3641C" then
                 textFilepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
+                return if !File.exists?(textFilepath)
                 CatalystCommon::copyLocationToCatalystBin(textFilepath)
                 LucilleCore::removeFileSystemLocation(textFilepath)
                 return
@@ -147,6 +148,7 @@ class Estate
             end
             if target["type"] == "perma-dir-AAD08D8B" then
                 folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
+                return if !File.exists?(folderpath)
                 CatalystCommon::copyLocationToCatalystBin(folderpath)
                 LucilleCore::removeFileSystemLocation(folderpath)
                 return
