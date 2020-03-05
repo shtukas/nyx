@@ -510,6 +510,7 @@ class Interface
             }
             operations = [
                 "quick open",
+                "edit description",
                 "dive targets",
                 "dive classification items",
                 "destroy tnode"
@@ -518,6 +519,10 @@ class Interface
             return if operation.nil?
             if operation == "quick open" then
                 Interface::quickOpenTNodeOrNothing(tnode)
+            end
+            if operation == "edit description" then
+                tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+                Estate::commitTNodeToDisk(tnode)
             end
             if operation == "dive targets" then
                 Interface::diveTargets(tnode["uuid"], tnode["targets"])
