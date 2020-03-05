@@ -567,23 +567,29 @@ class Interface
     def self.timelineWalk(timeline)
         CoreData::getTimelineTNodesOrdered(timeline)
             .each{|tnode|
-                puts ""
-                puts tnode["description"]
-                Interface::quickOpenTNodeOrNothing(tnode)
-                operations = [
-                    "dive in",
-                    "destroy"
-                ]
-                operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-                next if operation.nil?
-                if operation == "dive in" then
-                    Interface::tNodeDive(tnode["uuid"])
-                end
-                if operation == "destroy" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
-                        Estate::destroyTNode(tnode)
+                loop {
+                    puts ""
+                    puts "-> #{tnode["description"]}"
+                    operations = [
+                        "open",
+                        "dive in",
+                        "destroy"
+                    ]
+                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                    break if operation.nil?
+                    if operation == "open" then
+                        Interface::quickOpenTNodeOrNothing(tnode)
                     end
-                end
+                    if operation == "dive in" then
+                        Interface::tNodeDive(tnode["uuid"])
+                    end
+                    if operation == "destroy" then
+                        if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
+                            Estate::destroyTNode(tnode)
+                        end
+                    end
+                }
+
             }
     end
 
