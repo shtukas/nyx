@@ -459,11 +459,9 @@ class Interface
         if target["type"] == "text-A9C3641C" then
             filepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
             system("open '#{filepath}'")
-            LucilleCore::pressEnterToContinue()
         end
         if target["type"] == "url-01EFB604" then
             system("open '#{target["url"]}'")
-            LucilleCore::pressEnterToContinue()
         end
         if target["type"] == "unique-name-11C4192E" then
             uniquename = target["name"]
@@ -480,7 +478,6 @@ class Interface
         if target["type"] == "perma-dir-AAD08D8B" then
             folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
             system("open '#{folderpath}'")
-            LucilleCore::pressEnterToContinue()
         end
     end
 
@@ -565,11 +562,14 @@ class Interface
 
     # Interface::timelineWalk(timeline)
     def self.timelineWalk(timeline)
-        CoreData::getTimelineTNodesOrdered(timeline)
+        tnodes = CoreData::getTimelineTNodesOrdered(timeline)
+        counter = 0
+        tnodes
             .each{|tnode|
+                counter = counter + 1
                 loop {
                     puts ""
-                    puts "-> #{tnode["description"]}"
+                    puts "-> [#{counter}/#{tnodes.size}] #{tnode["description"]}"
                     operations = [
                         "open",
                         "dive in",
