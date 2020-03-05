@@ -342,8 +342,8 @@ class CoreData
         tnode["classification"].any?{|item| item["type"] == "timeline-49D07018" and item["timeline"] == timeline }
     end
 
-    # CoreData::getTimelineOrdered(timeline)
-    def self.getTimelineOrdered(timeline)
+    # CoreData::getTimelineTNodesOrdered(timeline)
+    def self.getTimelineTNodesOrdered(timeline)
         Estate::tnodeEnumerator()
             .select{|tnode| CoreData::tNodeIsOnThisTimeline(tnode, timeline) }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
@@ -536,20 +536,51 @@ class Interface
     def self.timelineDive(timeline)
         loop {
             puts "Timeline: #{timeline}"
-            tnodes = CoreData::getTimelineOrdered(timeline)
+            tnodes = CoreData::getTimelineTNodesOrdered(timeline)
             tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
             return if tnode.nil?
             Interface::tNodeDive(tnode["uuid"])
         }
     end
 
+    # Interface::interactivelySelectTimelineOrNull()
+    def self.interactivelySelectTimelineOrNull()
+        timeline = Utils::chooseALinePecoStyle("Timeline:", [""] + CoreData::timelinesInIncreasingActivityTime().reverse)
+        return nil if timeline.size == 0
+        timeline
+    end
+
     # Interface::timelinesDive()
     def self.timelinesDive()
         loop {
-            timeline = Utils::chooseALinePecoStyle("Timeline:", [""] + CoreData::timelinesInIncreasingActivityTime().reverse)
-            return nil if timeline.size == 0
+            timeline = Interface::interactivelySelectTimelineOrNull()
+            return if timeline.nil?
             Interface::timelineDive(timeline)
         }
+    end
+
+    # Interface::timelineWalk(timeline)
+    def self.timelineWalk(timeline)
+        CoreData::getTimelineTNodesOrdered(timeline)
+            .each{|tnode|
+                puts ""
+                puts tnode["description"]
+                Interface::quickOpenTNodeOrNothing(tnode)
+                operations = [
+                    "dive in",
+                    "destroy"
+                ]
+                operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                next if operation.nil?
+                if operation == "dive in" then
+                    Interface::tNodeDive(tnode["uuid"])
+                end
+                if operation == "destroy" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
+                        Estate::destroyTNode(tnode)
+                    end
+                end
+            }
     end
 
     # Interface::ui()
@@ -559,7 +590,8 @@ class Interface
                 "make new item",
                 "search",
                 "view most recent items",
-                "timelines dive"
+                "timelines dive",
+                "timeline walk"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -577,6 +609,11 @@ class Interface
             end
             if operation == "timelines dive" then
                 Interface::timelinesDive()
+            end
+            if operation == "timeline walk" then
+                timeline = Interface::interactivelySelectTimelineOrNull()
+                next if timeline.nil?
+                Interface::timelineWalk(timeline)
             end
         }
     end
