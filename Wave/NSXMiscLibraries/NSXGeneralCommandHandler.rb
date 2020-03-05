@@ -64,6 +64,11 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == "todo" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
+            return
+        end
+
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
