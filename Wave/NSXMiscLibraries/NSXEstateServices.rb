@@ -126,7 +126,7 @@ class NSXEstateServices
                 classificationItem = {
                     "uuid"     => SecureRandom.uuid,
                     "type"     => "timeline-49D07018",
-                    "timeline" => "Catalyst Inbox"
+                    "timeline" => "[Inbox]"
                 }
 
                 uuid = NSXMiscUtils::timeStringL22()

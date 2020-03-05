@@ -80,7 +80,7 @@ class NSXCatalystUI
     def self.getCutOffMetricForNextDisplay()
         pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
         struct3 = pair["struct3"]
-        struct3["todo"].size == 0 ? 1 : ((struct3["todo"].first.lines.first and struct3["todo"].first.lines.first.include?("@low-priority-88e84d15")) ? 0.30 : 0.60)
+        struct3["todo"].size == 0 ? 1 : ((struct3["todo"].first.lines.first and struct3["todo"].first.lines.first.include?("@low-priority-88e84d15")) ? 0.40 : 0.60)
     end
 
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
