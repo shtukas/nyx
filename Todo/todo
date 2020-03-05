@@ -104,12 +104,6 @@ class Estate
         JSON.parse(IO.read(filepath))
     end
 
-    # Estate::destroyTNode(tnode)
-    def self.destroyTNode(tnode)
-        puts "Estate::destroyTNode is not implemented yet"
-        LucilleCore::pressEnterToContinue()
-    end
-
     # Estate::locationBasenameToDataTimelineLocation(name)
     def self.locationBasenameToDataTimelineLocation(name)
         "#{TODO_PATH_TO_DATA_FOLDER}/#{name}"
@@ -133,34 +127,43 @@ class Estate
         # We try and preserve contents
 
         destroyTarget = lambda{|target|
-            if target["type"] == "line" then
+            if target["type"] == "line-2A35BA23" then
                 # Nothing
+                return
             end
-            if target["type"] == "text" then
+            if target["type"] == "text-A9C3641C" then
                 textFilepath = Estate::locationBasenameToDataTimelineLocation(target["filename"])
                 CatalystCommon::copyLocationToCatalystBin(textFilepath)
                 LucilleCore::removeFileSystemLocation(textFilepath)
+                return
             end
-            if target["type"] == "url" then
+            if target["type"] == "url-01EFB604" then
                 # Nothing
+                return
             end
-            if target["type"] == "unique name" then
+            if target["type"] == "unique-name-11C4192E" then
                 # Nothing
+                return
             end
-            if target["type"] == "permadir" then
+            if target["type"] == "perma-dir-AAD08D8B" then
                 folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
                 CatalystCommon::copyLocationToCatalystBin(folderpath)
                 LucilleCore::removeFileSystemLocation(folderpath)
+                return
             end
+            raise "[error: e838105]"
         }
 
         destroyClassificationItem = lambda{|item|
-            if item["type"] == "tag" then
+            if item["type"] == "tag-8ACC01B9" then
                 # Nothing
+                return
             end
-            if item["type"] == "timeline" then
+            if item["type"] == "timeline-49D07018" then
                 # Nothing
+                return
             end
+            raise "[error: a38375c2]"
         }
 
         tnode["targets"].each{|target| destroyTarget.call(target) }
