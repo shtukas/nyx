@@ -92,9 +92,9 @@ class Estate
         end
     end
 
-    # Estate::tNodeUUIDToFilepath(uuid)
-    def self.tNodeUUIDToFilepath(uuid)
-        "#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json"
+    # Estate::tNodeFilenameToFilepath(filename)
+    def self.tNodeFilenameToFilepath(filename)
+        "#{TODO_PATH_TO_DATA_FOLDER}/#{filename}"
     end
 
     # Estate::getTNodeByUUUIDOrNull(uuid)
@@ -118,8 +118,7 @@ class Estate
 
     # Estate::commitTNodeToDisk(tnode)
     def self.commitTNodeToDisk(tnode)
-        uuid = tnode["uuid"]
-        File.open(Estate::tNodeUUIDToFilepath(uuid), "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
+        File.open(Estate::tNodeFilenameToFilepath(tnode["filename"]), "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
     end
 
     # Estate::destroyTNode(tnode)
@@ -171,7 +170,7 @@ class Estate
         tnode["targets"].each{|target| destroyTarget.call(target) }
         tnode["classification"].each{|item| destroyClassificationItem.call(item) }
 
-        tnodelocation = Estate::tNodeUUIDToFilepath(tnode["uuid"])
+        tnodelocation = Estate::tNodeFilenameToFilepath(tnode["filename"])
         CatalystCommon::copyLocationToCatalystBin(tnodelocation)
         LucilleCore::removeFileSystemLocation(tnodelocation)
     end
@@ -362,6 +361,7 @@ class TMakers
                                     }
         tnode = {
             "uuid"              => uuid,
+            "filename"          => "#{Utils::l22()}.json",
             "creationTimestamp" => Time.new.to_f,
             "description"       => description,
             "targets"           => targets,
@@ -558,6 +558,7 @@ class Interface
             end
             puts "tnode:"
             puts "    uuid: #{tnode["uuid"]}"
+            puts "    filename: #{tnode["filename"]}"
             puts "    description: #{tnode["description"]}"
             puts "    targets:"
             tnode["targets"].each{|target|
