@@ -48,7 +48,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 TODO_PATH_TO_DATA_FOLDER = "/Users/pascal/Galaxy/DataBank/Todo/Data-Timeline"
-TODO_CATALYST_INBOX_TIMELINE_NAME = "Catalyst Inbox"
+TODO_CATALYST_INBOX_TIMELINE_NAME = "[Inbox]"
 
 class Utils
 
@@ -345,11 +345,11 @@ class TMakers
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         targets = TMakers::makeTNodeTargetsAtLeastOne()
         classificationItems1 = TMakers::interactivelySelectAtLeastOneTimelinePossiblyNewOne()
-                                    .map{|tag|
+                                    .map{|timeline|
                                         {
                                             "uuid"     => SecureRandom.uuid,
                                             "type"     => "timeline-49D07018",
-                                            "timeline" => tag
+                                            "timeline" => timeline
                                         }
                                     }
         classificationItems2 = TMakers::interactivelymakeZeroOrMoreTags()
@@ -369,6 +369,23 @@ class TMakers
         }
         puts JSON.pretty_generate(tnode)
         Estate::commitTNodeToDisk(tnode)
+    end
+
+    # TMakers::mutateTNodeRemoveThisTimeline(tnode, timeline)
+    def self.mutateTNodeRemoveThisTimeline(tnode, timeline)
+        tnode["classification"] = tnode["classification"]
+                                        .map{|item|
+                                            if item["type"] == "timeline-49D07018" then 
+                                                if item["timeline"] == timeline then
+                                                    nil
+                                                else
+                                                    item
+                                                end
+                                            else
+                                                item
+                                            end
+                                        }.compact
+        tnode
     end
 
 end
@@ -511,13 +528,14 @@ class Interface
         if target["type"] == "perma-dir-AAD08D8B" then
             locationCanBeQuickOpened = lambda {|location|
                 # We white list the ones that we want
-                whiteListedExtensions = [".txt", ".jpg", ".png", ".md", ".webloc"]
+                whiteListedExtensions = [".txt", ".jpg", ".png", ".md", ".webloc", ".eml"]
                 return true if whiteListedExtensions.any?{|extension| location[-extension.size, extension.size] == extension }
                 false
             }
             folderpath = Estate::locationBasenameToDataTimelineLocation(target["foldername"])
+            return if !File.exists?(folderpath)
             sublocations = LucilleCore::nonDottedLocationsAtFolder(folderpath)
-            if sublocations.size != 0 and locationCanBeQuickOpened.call(sublocations[0]) then
+            if sublocations.size != 0 and locationCanBeQuickOpened.call(sublocations[0]) and !sublocations[0].include?("'") then
                 system("open '#{sublocations[0]}'")
             else
                 system("open '#{folderpath}'")

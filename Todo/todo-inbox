@@ -49,35 +49,28 @@ require_relative "TodoCore.rb"
 
 # --------------------------------------------------------------------
 
-objects = []
+puts "Welcome to todo-inbox"
+puts "Walking and reclassifying elements of the [Inbox] timeline"
 
-if CoreData::getTimelineTNodesOrdered(TODO_CATALYST_INBOX_TIMELINE_NAME).size>0 then
-    objects << {
-        "uuid"           => "B15015CA-2E04-47F3-B995-3B46E262853F",
-        "agentuid"       => nil,
-        "contentItem"    => {
-            "type" => "line",
-            "line" => "Todo [Inbox]"
-        },
-        "metric"         => 0.5,
-        "commands"       => [],
-        "defaultCommand" => nil,
-        "isDone"         => nil
-    }
-end
-
-objects << {
-    "uuid"           => "2FF02791-DB34-4CC4-A356-F8CADC2FC7F7",
-    "agentuid"       => nil,
-    "contentItem"    => {
-        "type" => "line",
-        "line" => "Todo [Walks]"
-    },
-    "metric"         => 0.3,
-    "commands"       => [],
-    "defaultCommand" => nil,
-    "isDone"         => nil
+CoreData::getTimelineTNodesOrdered(TODO_CATALYST_INBOX_TIMELINE_NAME)
+.each{|tnode|
+    Interface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+    operations = ["done", "reclassify"]
+    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+    next if operation.nil?
+    if operation == "done" then
+        Estate::destroyTNode(tnode)
+    end
+    if operation == "reclassify" then
+        tnode = TMakers::mutateTNodeRemoveThisTimeline(tnode, TODO_CATALYST_INBOX_TIMELINE_NAME)
+        TMakers::interactivelySelectAtLeastOneTimelinePossiblyNewOne().each{|timeline|
+            tnode["classification"] << {
+                                            "uuid"     => SecureRandom.uuid,
+                                            "type"     => "timeline-49D07018",
+                                            "timeline" => timeline
+                                       }
+        }
+        Estate::commitTNodeToDisk(tnode)
+    end
 }
-
-puts JSON.generate(objects)
 

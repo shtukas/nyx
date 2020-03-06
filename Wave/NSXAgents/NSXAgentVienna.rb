@@ -81,7 +81,7 @@ class NSXAgentVienna
             classificationItem = {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-49D07018",
-                "timeline" => "Infinity Stream"
+                "timeline" => "[Inbox]"
             }
 
             uuid = NSXMiscUtils::timeStringL22()

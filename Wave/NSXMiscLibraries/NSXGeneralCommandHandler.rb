@@ -32,6 +32,9 @@ class NSXGeneralCommandHandler
                 "[]                  [done] to next lucille file section",
                 "                    also used for some todo items",
                 "/                   Catalyst menu",
+                "todo",
+                "todo-inbox",
+                "nyx",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -66,6 +69,16 @@ class NSXGeneralCommandHandler
 
         if command == "todo" then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
+            return
+        end
+
+        if command == "todo-inbox" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo-inbox")
+            return
+        end
+
+        if command == "nyx" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/Nyx/nyx")
             return
         end
 
