@@ -6,7 +6,8 @@ TNodes are JSON objects of the form
 
 ```
 {
-    "uuid"              : String # L22 # primary part of the filename
+    "uuid"              : String
+    "filename"          : String # Should be unique # Preferred L22
     "creationTimestamp" : Unixtime, with decimals
     "description"       : String
     "targets"           : Array[TNodeTarget]
@@ -40,7 +41,7 @@ TNodes are JSON objects of the form
 	{
 	    "uuid"       : String
 	    "type"       : "perma-dir-AAD08D8B"
-	    "foldername" : String # L22
+	    "foldername" : String # Should be unique # Preferred L22
 	}
 	```
 
