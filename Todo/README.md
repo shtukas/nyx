@@ -26,7 +26,7 @@ TNodes are JSON objects of the form
 	{
 	    "uuid"     : String
 	    "type"     : "text-A9C3641C"
-	    "filename" : String # L22.txt
+	    "filename" : String # Should be unique # Preferred L22
 	}
 	{
 	    "uuid" : String
