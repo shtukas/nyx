@@ -18,8 +18,8 @@ $NSXAgentBackupsMonitorScriptnames = [ # Here we assume that they are all in the
 
 $NSXAgentBackupsMonitorScriptnamesToPeriodInDays = {
     "EnergyGrid-to-Venus" => 7,
-    "Earth-to-Jupiter" => 8,
-    "Saturn-to-Pluto" => 10
+    "Earth-to-Jupiter" => 20,
+    "Saturn-to-Pluto" => 40
 }
 
 
