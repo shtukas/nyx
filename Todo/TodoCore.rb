@@ -76,8 +76,17 @@ end
 
 class E2tate
 
-    # E2tate::getYmirYearMonthFilepathEnumerator(pathToYmir, collection, year, month)
-    def self.getYmirYearMonthFilepathEnumerator(pathToYmir, collection, year, month)
+    # E2tate::makeNewYmirLocationForBasename(basename)
+    def self.makeNewYmirLocationForBasename(basename)
+        location = "#{TODO_PATH_TO_YMIR}/todo/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{basename}"
+        if !File.exists?(File.dirname(location)) then
+            FileUtils.mkpath(File.dirname(location))
+        end
+        location
+    end
+
+    # E2tate::ymirYearMonthFilepathEnumerator(pathToYmir, collection, year, month)
+    def self.ymirYearMonthFilepathEnumerator(pathToYmir, collection, year, month)
         folderpath = "#{pathToYmir}/#{collection}/#{year}/#{month}"
         Enumerator.new do |filepaths|
             Dir.entries(folderpath)
@@ -90,87 +99,78 @@ class E2tate
         end
     end
 
-    # E2tate::getYmirYearFilepathEnumerator(pathToYmir, collection, year)
-    def self.getYmirYearFilepathEnumerator(pathToYmir, collection, year)
+    # E2tate::ymirYearFilepathEnumerator(pathToYmir, collection, year)
+    def self.ymirYearFilepathEnumerator(pathToYmir, collection, year)
         yearFolderpath = "#{pathToYmir}/#{collection}/#{year}"
         months = Dir.entries(yearFolderpath)
                     .select{|filename| filename[0, 1] != "." }
                     .sort
         Enumerator.new do |filepaths|
             months.each{|month|
-                E2tate::getYmirYearMonthFilepathEnumerator(pathToYmir, collection, year, month).each{|filepath|
+                E2tate::ymirYearMonthFilepathEnumerator(pathToYmir, collection, year, month).each{|filepath|
                     filepaths << filepath
                 }
             }
         end
     end
 
-    # E2tate::getYmirFilepathEnumerator(pathToYmir, collection)
-    def self.getYmirFilepathEnumerator(pathToYmir, collection)
+    # E2tate::ymirFilepathEnumerator(pathToYmir, collection)
+    def self.ymirFilepathEnumerator(pathToYmir, collection)
         collectionFolderpath = "#{pathToYmir}/#{collection}"
         years = Dir.entries(collectionFolderpath)
                     .select{|filename| filename[0, 1] != "." }
                     .sort
         Enumerator.new do |filepaths|
             years.each{|year|
-                E2tate::getYmirYearFilepathEnumerator(pathToYmir, collection, year).each{|filepath|
+                E2tate::ymirYearFilepathEnumerator(pathToYmir, collection, year).each{|filepath|
                     filepaths << filepath
                 }
             }
         end
     end
 
-    # E2tate::getTNodesEnumerator(pathToYmir, collection)
-    def self.getTNodesEnumerator(pathToYmir, collection)
-        isFilenameOfTNode = lambda {|filename|
-            filename[-5, 5] == ".json"
+    # E2tate::locationBasenameToYmirLocationOrNull(basename)
+    def self.locationBasenameToYmirLocationOrNull(basename)
+        E2tate::ymirFilepathEnumerator(TODO_PATH_TO_YMIR, "todo").each{|location|
+            return location if ( File.basename(location) == basename )
         }
-        Enumerator.new do |tnodes|
-            E2tate::getYmirFilepathEnumerator(pathToYmir, collection).each{|filepath|
-                next if !isFilenameOfTNode.call(File.basename(filepath))
-                tnodes << JSON.parse(IO.read(filepath))
-            }
-        end
+        nil
     end
 
 end
 
 class Estate
 
+    # Estate::getTNodesEnumerator(pathToYmir, collection)
+    def self.getTNodesEnumerator(pathToYmir, collection)
+        isFilenameOfTNode = lambda {|filename|
+            filename[-5, 5] == ".json"
+        }
+        Enumerator.new do |tnodes|
+            E2tate::ymirFilepathEnumerator(pathToYmir, collection).each{|filepath|
+                next if !isFilenameOfTNode.call(File.basename(filepath))
+                tnodes << JSON.parse(IO.read(filepath))
+            }
+        end
+    end
+
     # Estate::tnodeEnumerator()
     def self.tnodeEnumerator()
-        E2tate::getTNodesEnumerator(TODO_PATH_TO_YMIR, "todo")
+        Estate::getTNodesEnumerator(TODO_PATH_TO_YMIR, "todo")
     end
 
     # Estate::tNodeFilenameToFilepathOrNull(filename)
     def self.tNodeFilenameToFilepathOrNull(filename)
-        E2tate::getYmirFilepathEnumerator(TODO_PATH_TO_YMIR, "todo").each{|filepath|
+        E2tate::ymirFilepathEnumerator(TODO_PATH_TO_YMIR, "todo").each{|filepath|
             return filepath if ( File.basename(filepath) == filename )
         }
         nil
     end
 
-    # Estate::makeNewYmirLocationForBasename(basename)
-    def self.makeNewYmirLocationForBasename(basename)
-        location = "#{TODO_PATH_TO_YMIR}/todo/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{basename}"
-        if !File.exists?(File.dirname(location)) then
-            FileUtils.mkpath(File.dirname(location))
-        end
-        location
-    end
-
     # Estate::getTNodeByUUUIDOrNull(uuid)
     def self.getTNodeByUUUIDOrNull(uuid)
-        E2tate::getTNodesEnumerator(TODO_PATH_TO_YMIR, "todo").each{|tnode|
+        Estate::getTNodesEnumerator(TODO_PATH_TO_YMIR, "todo").each{|tnode|
             return tnode if ( tnode["uuid"] == uuid )
-        }
-        nil
-    end
-
-    # Estate::locationBasenameToYmirLocationOrNull(basename)
-    def self.locationBasenameToYmirLocationOrNull(basename)
-        E2tate::getYmirFilepathEnumerator(TODO_PATH_TO_YMIR, "todo").each{|location|
-            return location if ( File.basename(location) == basename )
         }
         nil
     end
@@ -186,7 +186,7 @@ class Estate
     def self.commitTNodeToDisk(tnode)
         filepath = Estate::tNodeFilenameToFilepathOrNull(tnode["filename"])
         if filepath.nil? then
-            filepath = Estate::makeNewYmirLocationForBasename(tnode["filename"])
+            filepath = E2tate::makeNewYmirLocationForBasename(tnode["filename"])
         end
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
     end
@@ -201,7 +201,7 @@ class Estate
                 return
             end
             if target["type"] == "text-A9C3641C" then
-                textFilepath = Estate::locationBasenameToYmirLocationOrNull(target["filename"])
+                textFilepath = E2tate::locationBasenameToYmirLocationOrNull(target["filename"])
                 return if textFilepath.nil?
                 return if !File.exists?(textFilepath)
                 CatalystCommon::copyLocationToCatalystBin(textFilepath)
@@ -217,7 +217,7 @@ class Estate
                 return
             end
             if target["type"] == "perma-dir-AAD08D8B" then
-                folderpath = Estate::locationBasenameToYmirLocationOrNull(target["foldername"])
+                folderpath = E2tate::locationBasenameToYmirLocationOrNull(target["foldername"])
                 return if folderpath.nil?
                 return if !File.exists?(folderpath)
                 CatalystCommon::copyLocationToCatalystBin(folderpath)
@@ -363,7 +363,7 @@ class TMakers
         if type == "text" then
             filename = "#{Utils::l22()}.txt"
             filecontents = Utils::editTextUsingTextmate("")
-            filepath = Estate::makeNewYmirLocationForBasename(filename)
+            filepath = E2tate::makeNewYmirLocationForBasename(filename)
             File.open(filepath, "w"){|f| f.puts(filecontents) }
             return {
                 "uuid"     => SecureRandom.uuid,
@@ -387,7 +387,7 @@ class TMakers
         end
         if type == "permadir" then
             foldername = Utils::l22()
-            folderpath = Estate::makeNewYmirLocationForBasename(foldername)
+            folderpath = E2tate::makeNewYmirLocationForBasename(foldername)
             FileUtils.mkpath(folderpath)
             system("open '#{folderpath}'")
             return {
@@ -476,7 +476,7 @@ class Interface
             return "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = Estate::locationBasenameToYmirLocationOrNull(target["filename"])
+            filepath = E2tate::locationBasenameToYmirLocationOrNull(target["filename"])
             if filepath.nil? or !File.exists?(filepath) then
                 return "[error: e8703185] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
             else
@@ -562,7 +562,7 @@ class Interface
             puts "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = Estate::locationBasenameToYmirLocationOrNull(target["filename"])
+            filepath = E2tate::locationBasenameToYmirLocationOrNull(target["filename"])
             if filepath.nil? or !File.exists?(filepath) then
                 puts "[error: 359a6c99] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -586,7 +586,7 @@ class Interface
             end
         end
         if target["type"] == "perma-dir-AAD08D8B" then
-            folderpath = Estate::locationBasenameToYmirLocationOrNull(target["foldername"])
+            folderpath = E2tate::locationBasenameToYmirLocationOrNull(target["foldername"])
             if folderpath.nil? or !File.exists?(folderpath) then
                 puts "[error: c87c7b41] There doesn't seem to be a Ymir file for filename '#{target["foldername"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -602,7 +602,7 @@ class Interface
             puts "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = Estate::locationBasenameToYmirLocationOrNull(target["filename"])
+            filepath = E2tate::locationBasenameToYmirLocationOrNull(target["filename"])
             if filepath.nil? or !File.exists?(filepath) then
                 puts "[error: a3a1b7a0] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -630,7 +630,7 @@ class Interface
                 return true if whiteListedExtensions.any?{|extension| location[-extension.size, extension.size] == extension }
                 false
             }
-            folderpath = Estate::locationBasenameToYmirLocationOrNull(target["foldername"])
+            folderpath = E2tate::locationBasenameToYmirLocationOrNull(target["foldername"])
             if folderpath.nil? or !File.exists?(folderpath) then
                 puts "[error: 0916fd87] There doesn't seem to be a Ymir file for filename '#{target["foldername"]}'"
                 LucilleCore::pressEnterToContinue()
