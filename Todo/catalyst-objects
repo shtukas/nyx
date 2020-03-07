@@ -51,7 +51,7 @@ require_relative "TodoCore.rb"
 
 objects = []
 
-if CoreData::getTimelineTNodesOrdered(TODO_CATALYST_INBOX_TIMELINE_NAME).size>0 then
+if CoreData::getTimelineTNodesOrdered(TODO_INBOX_TIMELINE_NAME).size>0 then
     objects << {
         "uuid"           => "B15015CA-2E04-47F3-B995-3B46E262853F",
         "agentuid"       => nil,

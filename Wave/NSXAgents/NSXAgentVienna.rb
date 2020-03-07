@@ -71,31 +71,7 @@ class NSXAgentVienna
             link = $viennaLinkFeeder.next()
             break if link.nil?
             puts "vienna: #{link}"
-
-            target = {
-                "uuid" => SecureRandom.uuid,
-                "type" => "url-01EFB604",
-                "url"  => link
-            }
-
-            classificationItem = {
-                "uuid"     => SecureRandom.uuid,
-                "type"     => "timeline-49D07018",
-                "timeline" => "[Inbox]"
-            }
-
-            uuid = NSXMiscUtils::timeStringL22()
-            description = link
-            tnode = {
-                "uuid"              => uuid,
-                "creationTimestamp" => Time.new.to_f,
-                "description"       => description,
-                "targets"           => [target],
-                "classification"    => [classificationItem]
-            }
-            puts JSON.pretty_generate(tnode)
-            File.open("#{TODO_PATH_TO_DATA_FOLDER}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(tnode)) }
-
+            File.open("/Users/pascal/Galaxy/DataBank/TodoInboxForVienna/#{NSXMiscUtils::timeStringL22()}.link.txt", "w"){|f| f.puts(link) }
             $viennaLinkFeeder.done(link)
         }
         []

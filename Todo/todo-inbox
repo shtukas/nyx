@@ -52,7 +52,7 @@ require_relative "TodoCore.rb"
 puts "Welcome to todo-inbox"
 puts "Walking and reclassifying elements of the [Inbox] timeline"
 
-CoreData::getTimelineTNodesOrdered(TODO_CATALYST_INBOX_TIMELINE_NAME)
+CoreData::getTimelineTNodesOrdered(TODO_INBOX_TIMELINE_NAME)
 .each{|tnode|
     Interface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
     operations = ["done", "reclassify"]
@@ -62,7 +62,7 @@ CoreData::getTimelineTNodesOrdered(TODO_CATALYST_INBOX_TIMELINE_NAME)
         Estate::destroyTNode(tnode)
     end
     if operation == "reclassify" then
-        tnode = TMakers::mutateTNodeRemoveThisTimeline(tnode, TODO_CATALYST_INBOX_TIMELINE_NAME)
+        tnode = TMakers::mutateTNodeRemoveThisTimeline(tnode, TODO_INBOX_TIMELINE_NAME)
         TMakers::interactivelySelectAtLeastOneTimelinePossiblyNewOne().each{|timeline|
             tnode["classification"] << {
                                             "uuid"     => SecureRandom.uuid,

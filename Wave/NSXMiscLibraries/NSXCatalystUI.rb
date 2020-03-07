@@ -151,7 +151,6 @@ class NSXCatalystUI
                 puts "Code change detected. Exiting."
                 return
             end
-            NSXEstateServices::collectInboxPackage()
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }

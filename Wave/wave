@@ -39,7 +39,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 # -----------------------------------------------------------------
 
-require_relative "../Catalyst-Common/Catalyst-Common.rb"
 require_relative "NSXConstants.rb"
 require_relative "NSXMiscLibraries/load-library.rb"
 require_relative "NSXAgents/load-library.rb"
@@ -48,7 +47,6 @@ require_relative "NSXAgents/load-library.rb"
 
 CATALYST_RUN_HASH = SecureRandom.hex
 CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__) 
-CATALYST_INBOX_DROPOFF_FOLDERPATH = "/Users/pascal/Desktop/Catalyst-Inbox"
 STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
 $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = nil
