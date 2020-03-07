@@ -30,17 +30,17 @@ TNodes are JSON objects of the form
 	}
 	{
 	    "uuid" : String
-	    "type" : "url-01EFB604"
+	    "type" : "url-EFB8D55B"
 	    "url"  : <url>
 	}
 	{
 	    "uuid" : String
-	    "type" : "unique-name-11C4192E"
+	    "type" : "unique-name-C2BF46D6"
 	    "name" : String
 	}
 	{
 	    "uuid"       : String
-	    "type"       : "perma-dir-AAD08D8B"
+	    "type"       : "perma-dir-11859659"
 	    "foldername" : String # Should be unique # Preferred L22
 	}
 	```
@@ -50,12 +50,12 @@ TNodes are JSON objects of the form
 	```
 	{
 	    "uuid"     : String
-	    "type"     : "tag-8ACC01B9"
+	    "type"     : "tag-18303A17"
 	    "tag"      : String
 	}
 	{
 	    "uuid"     : String
-	    "type"     : "timeline-49D07018"
+	    "type"     : "timeline-329D3ABD"
 	    "timeline" : String
 	}
 	```

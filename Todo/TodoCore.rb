@@ -145,15 +145,15 @@ class Estate
                 LucilleCore::removeFileSystemLocation(textFilepath)
                 return
             end
-            if target["type"] == "url-01EFB604" then
+            if target["type"] == "url-EFB8D55B" then
                 # Nothing
                 return
             end
-            if target["type"] == "unique-name-11C4192E" then
+            if target["type"] == "unique-name-C2BF46D6" then
                 # Nothing
                 return
             end
-            if target["type"] == "perma-dir-AAD08D8B" then
+            if target["type"] == "perma-dir-11859659" then
                 folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, "todo", target["foldername"])
                 return if folderpath.nil?
                 return if !File.exists?(folderpath)
@@ -165,11 +165,11 @@ class Estate
         }
 
         destroyClassificationItem = lambda{|item|
-            if item["type"] == "tag-8ACC01B9" then
+            if item["type"] == "tag-18303A17" then
                 # Nothing
                 return
             end
-            if item["type"] == "timeline-49D07018" then
+            if item["type"] == "timeline-329D3ABD" then
                 # Nothing
                 return
             end
@@ -198,7 +198,7 @@ class CoreData
         Estate::tnodeEnumerator()
             .map{|tnode| tnode["classification"] }
             .flatten
-            .select{|item| item["type"] == "timeline-49D07018" }
+            .select{|item| item["type"] == "timeline-329D3ABD" }
             .map{|item| item["timeline"] }
             .uniq
     end
@@ -207,7 +207,7 @@ class CoreData
     def self.timelinesInIncreasingActivityTime()
         extractTimelinesFromTNode = lambda {|tnode|
             tnode["classification"]
-                .select{|item| item["type"] == "timeline-49D07018" }
+                .select{|item| item["type"] == "timeline-329D3ABD" }
                 .map{|item| item["timeline"] }
         }
         map1 = Estate::tnodeEnumerator().reduce({}){|map2, tnode|
@@ -229,7 +229,7 @@ class CoreData
 
     # CoreData::tNodeIsOnThisTimeline(tnode, timeline)
     def self.tNodeIsOnThisTimeline(tnode, timeline)
-        tnode["classification"].any?{|item| item["type"] == "timeline-49D07018" and item["timeline"] == timeline }
+        tnode["classification"].any?{|item| item["type"] == "timeline-329D3ABD" and item["timeline"] == timeline }
     end
 
     # CoreData::getTimelineTNodesOrdered(timeline)
@@ -311,14 +311,14 @@ class TMakers
         if type == "url" then
             return {
                 "uuid" => SecureRandom.uuid,
-                "type" => "url-01EFB604",
+                "type" => "url-EFB8D55B",
                 "url"  => LucilleCore::askQuestionAnswerAsString("url: ")
             }
         end
         if type == "unique name" then
             return {
                 "uuid" => SecureRandom.uuid,
-                "type" => "unique-name-11C4192E",
+                "type" => "unique-name-C2BF46D6",
                 "name" => LucilleCore::askQuestionAnswerAsString("unique name: ")
             }
         end
@@ -329,7 +329,7 @@ class TMakers
             system("open '#{folderpath}'")
             return {
                 "uuid"       => SecureRandom.uuid,
-                "type"       => "perma-dir-AAD08D8B",
+                "type"       => "perma-dir-11859659",
                 "foldername" => foldername
             }
         end
@@ -362,7 +362,7 @@ class TMakers
                                     .map{|timeline|
                                         {
                                             "uuid"     => SecureRandom.uuid,
-                                            "type"     => "timeline-49D07018",
+                                            "type"     => "timeline-329D3ABD",
                                             "timeline" => timeline
                                         }
                                     }
@@ -370,7 +370,7 @@ class TMakers
                                     .map{|tag|
                                         {
                                             "uuid" => SecureRandom.uuid,
-                                            "type" => "tag-8ACC01B9",
+                                            "type" => "tag-18303A17",
                                             "tag"  => tag
                                         }
                                     }
@@ -390,7 +390,7 @@ class TMakers
     def self.mutateTNodeRemoveThisTimeline(tnode, timeline)
         tnode["classification"] = tnode["classification"]
                                         .map{|item|
-                                            if item["type"] == "timeline-49D07018" then 
+                                            if item["type"] == "timeline-329D3ABD" then 
                                                 if item["timeline"] == timeline then
                                                     nil
                                                 else
@@ -420,13 +420,13 @@ class Interface
                 return "text (#{IO.read(filepath).lines.count} lines)"
             end
         end
-        if target["type"] == "url-01EFB604" then
+        if target["type"] == "url-EFB8D55B" then
             return "url: #{target["url"]}"
         end
-        if target["type"] == "unique-name-11C4192E" then
+        if target["type"] == "unique-name-C2BF46D6" then
             return "unique name: #{target["name"]}"
         end
-        if target["type"] == "perma-dir-AAD08D8B" then
+        if target["type"] == "perma-dir-11859659" then
             return "foldername: #{target["foldername"]}"
         end
         raise "[error: 706ce2f5]"
@@ -434,10 +434,10 @@ class Interface
 
     # Interface::classificationItemToString(item)
     def self.classificationItemToString(item)
-        if item["type"] == "tag-8ACC01B9" then
+        if item["type"] == "tag-18303A17" then
             return "tag: #{item["tag"]}"
         end
-        if item["type"] == "timeline-49D07018" then
+        if item["type"] == "timeline-329D3ABD" then
             return "timeline: #{item["timeline"]}"
         end
         raise "[error: 44ccb03c]"
@@ -507,10 +507,10 @@ class Interface
             end
             system("open '#{filepath}'")
         end
-        if target["type"] == "url-01EFB604" then
+        if target["type"] == "url-EFB8D55B" then
             system("open '#{target["url"]}'")
         end
-        if target["type"] == "unique-name-11C4192E" then
+        if target["type"] == "unique-name-C2BF46D6" then
             uniquename = target["name"]
             location = Estate::uniqueNameResolutionLocationPathOrNull(uniquename)
             if location.nil? then
@@ -522,7 +522,7 @@ class Interface
                 end
             end
         end
-        if target["type"] == "perma-dir-AAD08D8B" then
+        if target["type"] == "perma-dir-11859659" then
             folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, "todo", target["foldername"])
             if folderpath.nil? or !File.exists?(folderpath) then
                 puts "[error: c87c7b41] There doesn't seem to be a Ymir file for filename '#{target["foldername"]}'"
@@ -547,10 +547,10 @@ class Interface
             end
             system("open '#{filepath}'")
         end
-        if target["type"] == "url-01EFB604" then
+        if target["type"] == "url-EFB8D55B" then
             system("open '#{target["url"]}'")
         end
-        if target["type"] == "unique-name-11C4192E" then
+        if target["type"] == "unique-name-C2BF46D6" then
             uniquename = target["name"]
             location = Estate::uniqueNameResolutionLocationPathOrNull(uniquename)
             if location.nil? then
@@ -560,7 +560,7 @@ class Interface
                 system("open '#{location}'")
             end
         end
-        if target["type"] == "perma-dir-AAD08D8B" then
+        if target["type"] == "perma-dir-11859659" then
             locationCanBeQuickOpened = lambda {|location|
                 # We white list the ones that we want
                 whiteListedExtensions = [".txt", ".jpg", ".png", ".md", ".webloc", ".eml"]

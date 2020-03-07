@@ -66,7 +66,7 @@ CoreData::getTimelineTNodesOrdered(TODO_INBOX_TIMELINE_NAME)
         TMakers::interactivelySelectAtLeastOneTimelinePossiblyNewOne().each{|timeline|
             tnode["classification"] << {
                                             "uuid"     => SecureRandom.uuid,
-                                            "type"     => "timeline-49D07018",
+                                            "type"     => "timeline-329D3ABD",
                                             "timeline" => timeline
                                        }
         }
