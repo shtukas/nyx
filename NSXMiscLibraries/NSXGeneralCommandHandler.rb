@@ -67,6 +67,11 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == "nyx" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx")
+            return
+        end
+
         if command == "todo" then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
             return
@@ -77,8 +82,8 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "nyx" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/Nyx/nyx")
+        if command == "todo-walks" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo-walks")
             return
         end
 
