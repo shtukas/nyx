@@ -355,7 +355,7 @@ class TMakers
 
     # TMakers::makeNewTNode()
     def self.makeNewTNode()
-        uuid = Utils::l22()
+        uuid = SecureRandom.uuid
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         targets = TMakers::makeTNodeTargetsAtLeastOne()
         classificationItems1 = TMakers::interactivelySelectAtLeastOneTimelinePossiblyNewOne()
