@@ -73,17 +73,17 @@ class NSXGeneralCommandHandler
         end
 
         if command == "todo" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo")
             return
         end
 
         if command == "todo-inbox" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo-inbox")
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo-inbox")
             return
         end
 
         if command == "todo-walks" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo-walks")
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo-walks")
             return
         end
 
