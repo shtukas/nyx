@@ -90,6 +90,11 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
+        if [1,2,3,4,5].include?(Time.new.wday) and Time.new.hour >= 10 and Time.new.hour < 16 then
+            puts "-> Core hours, don't be distracted!".yellow
+            verticalSpaceLeft = verticalSpaceLeft - 1
+        end
+
         if displayObjects.size==0 then
 
             vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
