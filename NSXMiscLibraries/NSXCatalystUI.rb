@@ -86,18 +86,9 @@ class NSXCatalystUI
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
-        isCoreHours = lambda{
-            [1,2,3,4,5].include?(Time.new.wday) and Time.new.hour >= 10 and Time.new.hour < 16 
-        }
-
         system("clear")
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
-
-        if isCoreHours.call() then
-            puts "-> Core hours, don't be distracted!".yellow
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        end
 
         if displayObjects.size==0 then
 
@@ -123,10 +114,8 @@ class NSXCatalystUI
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart1, position, focusobject, verticalSpaceLeft)
 
         $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = nil
-        if isCoreHours.call() then
-            vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
-            verticalSpaceLeft = verticalSpaceLeft - vspace
-        end
+        vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
+        verticalSpaceLeft = verticalSpaceLeft - vspace
 
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart2, position, focusobject, verticalSpaceLeft)
 

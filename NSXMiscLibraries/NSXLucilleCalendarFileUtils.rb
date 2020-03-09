@@ -30,9 +30,26 @@ Struct3 {
 =end
 
 LUCILLE_CALENDAR_FILE_PART_PATTERN = "@F6D5C243FE28"
-LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN = '@F6D5C243FE28-TODO--------------------------------------------------------------'
+LUCILLE_CALENDAR_FILE_TODO_WORK_PART_PATTERN = '@F6D5C243FE28-TODO-WORK---------------------------------------------------------'
 
 class NSXLucilleCalendarFileUtils
+
+    # NSXLucilleCalendarFileUtils::getLucilleCalendarPatternForThisPeriodOrNull()
+    def self.getLucilleCalendarPatternForThisPeriodOrNull()
+        isCoreWorkingHours = lambda{
+            [1,2,3,4,5].include?(Time.new.wday) and Time.new.hour >= 10 and Time.new.hour < 16 
+        }
+        isCoreEveningHours = lambda{
+            [0,6].include?(Time.new.wday) or Time.new.hour >= 16
+        }
+        if isCoreWorkingHours.call() then
+            return LUCILLE_CALENDAR_FILE_TODO_WORK_PART_PATTERN
+        end
+        if isCoreEveningHours.call() then
+            return '@F6D5C243FE28-TODO-HOME---------------------------------------------------------'
+        end
+        nil
+    end
 
     # NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
     def self.lucilleCalendarFilenames()
@@ -67,12 +84,16 @@ class NSXLucilleCalendarFileUtils
                         parts
                     }
                     .map{|part| part.strip }
-        todo = parts
-            .select{|part| part.include?(LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN) }
-            .map{|part| part.lines.drop(1).join() }
-            .map{|part| SectionsType0141::contentToSections(part.lines.to_a) }
-            .flatten
-            .map{|section| section.strip }
+        todo = []
+        lucilleCalendarFilePattern = NSXLucilleCalendarFileUtils::getLucilleCalendarPatternForThisPeriodOrNull()
+        if lucilleCalendarFilePattern then
+            todo = parts
+                .select{|part| part.include?(NSXLucilleCalendarFileUtils::getLucilleCalendarPatternForThisPeriodOrNull()) }
+                .map{|part| part.lines.drop(1).join() }
+                .map{|part| SectionsType0141::contentToSections(part.lines.to_a) }
+                .flatten
+                .map{|section| section.strip }
+        end
         {
             "parts" => parts,
             "todo" => todo
@@ -81,8 +102,10 @@ class NSXLucilleCalendarFileUtils
 
     # NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
     def self.struct3TransformUpdatePartsWithTodo(struct3)
-        parts1 = [ LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN + "\n\n" + struct3["todo"].join("\n\n") ]
-        parts2 = struct3["parts"].reject{|part| part.include?(LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN) }
+        lucilleCalendarFilePattern = NSXLucilleCalendarFileUtils::getLucilleCalendarPatternForThisPeriodOrNull()
+        return struct3 if lucilleCalendarFilePattern.nil?
+        parts1 = [ lucilleCalendarFilePattern + "\n\n" + struct3["todo"].join("\n\n") ]
+        parts2 = struct3["parts"].reject{|part| part.include?(lucilleCalendarFilePattern) }
         {
             "parts" => parts1 + parts2,
             "todo" => struct3["todo"]
@@ -129,7 +152,7 @@ class NSXLucilleCalendarFileUtils
             struct3acc
         }
         todo = struct3["parts"]
-            .select{|part| part.include?(LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN) }
+            .select{|part| part.include?(LUCILLE_CALENDAR_FILE_TODO_WORK_PART_PATTERN) }
             .map{|part| part.lines.drop(1).join() }
             .map{|part| SectionsType0141::contentToSections(part.lines.to_a) }
             .flatten
