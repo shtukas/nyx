@@ -143,7 +143,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == "[]" then
-            return if File.basename($LUCILLE_CALENDAR_FILEPATH_44AF92E9) != NSXLucilleCalendarFileUtils::lucilleCalendarFilename()
+            return if ($LUCILLE_CALENDAR_FILEPATH_44AF92E9.nil? or (File.basename($LUCILLE_CALENDAR_FILEPATH_44AF92E9) != NSXLucilleCalendarFileUtils::lucilleCalendarFilename()))
             NSXLucilleCalendarFileUtils::applyNextTransformationToFilepath($LUCILLE_CALENDAR_FILEPATH_44AF92E9)
             return
         end
