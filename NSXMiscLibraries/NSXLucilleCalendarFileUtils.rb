@@ -23,8 +23,7 @@ The part that contains the todo sections we want is called (hardcoded): @F6D5C24
 Struct3 {
     "parts" : Array[String] # Different parts of the file, with their headers
     "todo"  : Array[String] 
-        # The stuff we are interested in
-        # Individual strings are sections
+        # Individual strings are sections # Multiline unique todo item
 }
 
 =end

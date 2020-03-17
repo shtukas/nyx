@@ -74,7 +74,12 @@ class NSXDisplayUtils
                 (object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
             ]
         end
-        lines.join()
+
+        ds = lines.join()
+        if object["agentuid"] == NSXAgentLucilleTodos::agentuid() then
+            ds = ds.green
+        end
+        ds
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)

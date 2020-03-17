@@ -3,6 +3,10 @@
 # This variable contains the objects of the current display.
 # We use it to speed up display after some operations
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
@@ -26,34 +30,8 @@ class NSXCatalystUI
         end
     end
 
-    # NSXCatalystUI::printLucilleInstanceFileAsNext()
-    def self.printLucilleInstanceFileAsNext(verticalSpaceLeft)
-        return 0 if verticalSpaceLeft < 6
-        # this is the only moment we access NSXLucilleCalendarFileUtils
-        # First we start by making sure there is only one file
-        pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
-        struct3 = pair["struct3"]
-        $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = pair["filepath"]
-        nextContents = struct3["todo"]
-                        .map{|section| section.strip }
-                        .join("\n")
-                        .lines
-                        .to_a
-                        .first([verticalSpaceLeft-3, 12].min)
-                        .join()
-
-        if nextContents.size > 0 then
-            puts "-- [] " + "-" * (NSXMiscUtils::screenWidth()-7)
-            puts nextContents.strip.green
-            puts "-" * (NSXMiscUtils::screenWidth()-1)
-            nextContents.lines.to_a.size + 2
-        else
-            0
-        end
-    end
-
-    # NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
-    def self.printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
+    # NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
+    def self.printDisplayObjectsForListing(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
 
         while displayObjectsForListingPart.size>0 do
 
@@ -107,17 +85,8 @@ class NSXCatalystUI
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
-        # TODO: There is a better way to split this array in two parts.
-        displayObjectsForListingPart1, displayObjectsForListingPart2 = displayObjectsForListing.partition { |object| object["metric"] >= NSXCatalystUI::getCutOffMetricForNextDisplay() }
-
         position = 0
-        position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart1, position, focusobject, verticalSpaceLeft)
-
-        $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = nil
-        vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
-        verticalSpaceLeft = verticalSpaceLeft - vspace
-
-        position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListingInTwoParts(displayObjectsForListingPart2, position, focusobject, verticalSpaceLeft)
+        position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
 
         if focusobject.nil? then
             puts "Nothing to do for the moment (^_^)"
