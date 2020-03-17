@@ -1,10 +1,9 @@
 
-
         0.90         Wave: sticky
         0.80+        Wave: every-this-day-of-the-month / every-this-day-of-the-week
         0.78+        Wave: every-n-hours / every-n-days
-        0.70         Todo's [Inbox]
-        0.60         Lucille Next Display
-        0.40         Lucille Next Display (low priority)
-        0.30         Todo Walks
+        0.70         todo-inbox
+        0.70-        Lucille Calendar Todos (work)
+        0.40-        Lucille Calendar Todos (home)
+        0.30         todo-walks
 ------- 0.20 ------- Water level ------------------------------

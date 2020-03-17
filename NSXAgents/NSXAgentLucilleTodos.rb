@@ -18,12 +18,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 # -------------------------------------------------------------------------------------
 
 class LucilleMetric
-    def initialize()
+    def initialize(isWork)
+        @isWork = isWork
         @counter = 0
     end
     def metric()
         @counter = @counter + 1
-        0.70 - @counter.to_f/1000
+        ( @isWork ? 0.70 : 0.40 ) - @counter.to_f/1000
     end
 end
 
@@ -41,10 +42,11 @@ class NSXAgentLucilleTodos
 
     # NSXAgentLucilleTodos::getAllObjects()
     def self.getAllObjects()
-        metric = LucilleMetric.new()
         pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
         $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = pair["filepath"]
         struct3 = pair["struct3"]
+        pattern = struct3["pattern"]
+        metric = LucilleMetric.new(pattern == LUCILLE_CALENDAR_FILE_TODO_WORK_PART_PATTERN)
         todos = struct3["todo"]
         todos.map{|section|
             {

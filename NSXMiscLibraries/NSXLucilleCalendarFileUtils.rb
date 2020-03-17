@@ -21,8 +21,9 @@ The part that contains the todo sections we want is called (hardcoded): @F6D5C24
 
 
 Struct3 {
-    "parts" : Array[String] # Different parts of the file, with their headers
-    "todo"  : Array[String] 
+    "parts"   : Array[String] # Different parts of the file, with their headers
+    "pattern" : String
+    "todo"    : Array[String] 
         # Individual strings are sections # Multiline unique todo item
 }
 
@@ -30,6 +31,7 @@ Struct3 {
 
 LUCILLE_CALENDAR_FILE_PART_PATTERN = "@F6D5C243FE28"
 LUCILLE_CALENDAR_FILE_TODO_WORK_PART_PATTERN = '@F6D5C243FE28-TODO-WORK---------------------------------------------------------'
+LUCILLE_CALENDAR_FILE_TODO_HOME_PART_PATTERN = '@F6D5C243FE28-TODO-HOME---------------------------------------------------------'
 
 class NSXLucilleCalendarFileUtils
 
@@ -45,7 +47,7 @@ class NSXLucilleCalendarFileUtils
             return LUCILLE_CALENDAR_FILE_TODO_WORK_PART_PATTERN
         end
         if isCoreEveningHours.call() then
-            return '@F6D5C243FE28-TODO-HOME---------------------------------------------------------'
+            return LUCILLE_CALENDAR_FILE_TODO_HOME_PART_PATTERN
         end
         nil
     end
@@ -94,8 +96,9 @@ class NSXLucilleCalendarFileUtils
                 .map{|section| section.strip }
         end
         {
-            "parts" => parts,
-            "todo" => todo
+            "parts"   => parts,
+            "pattern" => NSXLucilleCalendarFileUtils::getLucilleCalendarPatternForThisPeriodOrNull(),
+            "todo"    => todo
         }
     end
 
