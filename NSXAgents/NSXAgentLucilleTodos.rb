@@ -52,8 +52,8 @@ class NSXAgentLucilleTodos
                 "agentuid"       => NSXAgentLucilleTodos::agentuid(),
                 "contentItem"    => {
                     "type" => "line-and-body",
-                    "line" => section.lines.to_a.first,
-                    "body" => section
+                    "line" => section.lines.to_a.first.strip,
+                    "body" => section.strip
                 },
                 "metric"         => metric.metric(),
                 "commands"       => [],
