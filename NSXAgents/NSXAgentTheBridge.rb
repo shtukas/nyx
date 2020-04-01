@@ -24,7 +24,7 @@ class NSXAgentTheBridge
 
     # NSXAgentTheBridge::getAllObjects()
     def self.getAllObjects()
-        JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Data/TheBridge/sources.json"))
+        JSON.parse(IO.read("#{CATALYST_FOLDERPATH}/TheBridge/sources.json"))
         .map{|source|
             JSON.parse(`#{source}`)
         }

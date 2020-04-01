@@ -32,7 +32,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 # ----------------------------------------------------------------------
 
-WAVE_DATABANK_WAVE_FOLDER_PATH = "#{CATALYST_DATA_FOLDERPATH}/Wave-Data"
+WAVE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Wave"
 
 # ----------------------------------------------------------------------
 
@@ -356,7 +356,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
     def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        Find.find("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") do |path|
+        Find.find("#{WAVE_FOLDERPATH}/OpsLine-Active") do |path|
             next if !File.file?(path)
             next if File.basename(path)!='catalyst-uuid'
             thisUUID = IO.read(path).strip
@@ -389,7 +389,7 @@ class NSXWaveUtils
     # NSXWaveUtils::catalystUUIDsEnumerator()
     def self.catalystUUIDsEnumerator()
         Enumerator.new do |uuids|
-            Find.find("#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active") do |path|
+            Find.find("#{WAVE_FOLDERPATH}/OpsLine-Active") do |path|
                 next if !File.file?(path)
                 next if File.basename(path) != 'catalyst-uuid'
                 uuids << IO.read(path).strip
@@ -399,7 +399,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::timestring22ToFolderpath(timestring22)
     def self.timestring22ToFolderpath(timestring22) # 20170923-143534-341733
-        "#{WAVE_DATABANK_WAVE_FOLDER_PATH}/OpsLine-Active/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
+        "#{WAVE_FOLDERPATH}/OpsLine-Active/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
     end
 
     # NSXWaveUtils::writeScheduleToDisk(uuid, schedule)

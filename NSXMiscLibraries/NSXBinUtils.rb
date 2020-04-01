@@ -9,7 +9,7 @@ class CatalystCommon
     # CatalystCommon::newBinArchivesFolderpath()
     def self.newBinArchivesFolderpath()
         time = Time.new
-        folder1 = "#{CATALYST_BIN_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}"
+        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(folder3)
