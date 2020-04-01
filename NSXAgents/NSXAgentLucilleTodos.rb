@@ -46,7 +46,7 @@ class NSXAgentLucilleTodos
         $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = pair["filepath"]
         struct3 = pair["struct3"]
         pattern = struct3["pattern"]
-        metric = LucilleMetric.new(pattern == LUCILLE_CALENDAR_FILE_TODO_WORK_PART_PATTERN)
+        metric = LucilleMetric.new(pattern == LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN)
         todos = struct3["todo"]
         todos.map{|section|
             {
