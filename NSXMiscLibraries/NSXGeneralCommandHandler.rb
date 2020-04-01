@@ -190,6 +190,10 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
     def self.processCatalystCommandManager(object, command)
+        if object and object["shell-redirects"] and object["shell-redirects"][command] then
+            system(object["shell-redirects"][command])
+            return
+        end
         if object and command == "open" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
