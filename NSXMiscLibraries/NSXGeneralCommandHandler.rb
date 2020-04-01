@@ -167,6 +167,7 @@ class NSXGeneralCommandHandler
 
         if command == "++" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "+1 hour")
+            return
         end
 
         if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
@@ -191,7 +192,9 @@ class NSXGeneralCommandHandler
     # NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
     def self.processCatalystCommandManager(object, command)
         if object and object["shell-redirects"] and object["shell-redirects"][command] then
-            system(object["shell-redirects"][command])
+            shellpath = object["shell-redirects"][command]
+            puts shellpath
+            system(shellpath)
             return
         end
         if object and command == "open" then
