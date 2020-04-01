@@ -34,19 +34,6 @@ LUCILLE_CALENDAR_FILE_TODO_PART_PATTERN = '@F6D5C243FE28-TODO-------------------
 
 class NSXLucilleCalendarFileUtils
 
-    # NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
-    def self.lucilleCalendarFilenames()
-        Dir.entries("/Users/pascal/Desktop")
-            .select{|filename| filename.start_with?("Calendar") and filename.size == 35 }
-            .sort
-    end
-
-    # NSXLucilleCalendarFileUtils::lucilleCalendarFilepaths()
-    def self.lucilleCalendarFilepaths()
-        NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
-            .map{|filename| "/Users/pascal/Desktop/#{filename}" }
-    end
-
     # NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath)
     def self.lucilleFilepathToStruct3(filepath)
         struct3 = {}
@@ -96,29 +83,9 @@ class NSXLucilleCalendarFileUtils
         }
     end
 
-    # NSXLucilleCalendarFileUtils::struct3TransformApplyNextTransformationToStruct3(struct3)
-    def self.struct3TransformApplyNextTransformationToStruct3(struct3)
-        if struct3["todo"].size > 0 then
-            struct3["todo"][0] = NSXMiscUtils::applyNextTransformationToContent(struct3["todo"][0])
-            struct3["todo"][0] = NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(struct3["todo"][0])
-        end
-        struct3 = NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
-        struct3
-    end
-
     # NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, filepath)
     def self.commitStruct3ToDiskAtFilepath(struct3, filepath)
         File.open(filepath, "w") {|f| f.puts(struct3["parts"].join("\n\n")) }
-    end
-
-    # NSXLucilleCalendarFileUtils::applyNextTransformationToFilepath(filepath)
-    def self.applyNextTransformationToFilepath(filepath)
-        return if !File.exists?(filepath)
-        CatalystCommon::copyLocationToCatalystBin(filepath)
-        struct3 = NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath)
-        struct3 = NSXLucilleCalendarFileUtils::struct3TransformApplyNextTransformationToStruct3(struct3)
-        NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, "/Users/pascal/Desktop/Calendar-#{LucilleCore::timeStringL22()}.txt")
-        FileUtils.rm(filepath)
     end
 
     # NSXLucilleCalendarFileUtils::reduceMultipleStruct3s(struct3s)
@@ -160,6 +127,36 @@ class NSXLucilleCalendarFileUtils
         }
     end
 
+    # NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+    def self.recursivelyRemoveEmptyLineIfInSecondPosition(text)
+        lines = text.lines.to_a
+        return text if lines.size <= 2
+        if lines[1].strip.size==0 then
+            lines[1] = nil
+            text = lines.compact.join()
+            return NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
+        end
+        text
+    end
+
+    # NSXLucilleCalendarFileUtils::sectionToUUID(section)
+    def self.sectionToUUID(section)
+        Digest::SHA1.hexdigest(section)
+    end
+
+    # NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
+    def self.lucilleCalendarFilenames()
+        Dir.entries("/Users/pascal/Desktop")
+            .select{|filename| filename.start_with?("Calendar") and filename.size == 35 }
+            .sort
+    end
+
+    # NSXLucilleCalendarFileUtils::lucilleCalendarFilepaths()
+    def self.lucilleCalendarFilepaths()
+        NSXLucilleCalendarFileUtils::lucilleCalendarFilenames()
+            .map{|filename| "/Users/pascal/Desktop/#{filename}" }
+    end
+
     # NSXLucilleCalendarFileUtils::reduceFilesToOneIfMultiple()
     def self.reduceFilesToOneIfMultiple()
         filepaths = NSXLucilleCalendarFileUtils::lucilleCalendarFilepaths()
@@ -187,16 +184,38 @@ class NSXLucilleCalendarFileUtils
         }
     end
 
-    # NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
-    def self.recursivelyRemoveEmptyLineIfInSecondPosition(text)
-        lines = text.lines.to_a
-        return text if lines.size <= 2
-        if lines[1].strip.size==0 then
-            lines[1] = nil
-            text = lines.compact.join()
-            return NSXLucilleCalendarFileUtils::recursivelyRemoveEmptyLineIfInSecondPosition(text)
-        end
-        text
+    # NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
+    def self.removeSectionIdentifiedBySectionUUID(sectionuuid)
+        NSXLucilleCalendarFileUtils::lucilleCalendarFilepaths()
+            .each{|filepath|
+                next if !File.exists?(filepath)
+                CatalystCommon::copyLocationToCatalystBin(filepath)
+                struct3 = NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath)
+                struct3["todo"] = struct3["todo"].reject{|section| NSXLucilleCalendarFileUtils::sectionToUUID(section) == sectionuuid }
+                struct3 = NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
+                NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, "/Users/pascal/Desktop/Calendar-#{LucilleCore::timeStringL22()}.txt")
+                FileUtils.rm(filepath)
+            }
+    end
+
+    # NSXLucilleCalendarFileUtils::applyNextTransformationToSectionIdentifiedBySectionUUID(sectionuuid)
+    def self.applyNextTransformationToSectionIdentifiedBySectionUUID(sectionuuid)
+        NSXLucilleCalendarFileUtils::lucilleCalendarFilepaths()
+            .each{|filepath|
+                next if !File.exists?(filepath)
+                CatalystCommon::copyLocationToCatalystBin(filepath)
+                struct3 = NSXLucilleCalendarFileUtils::lucilleFilepathToStruct3(filepath)
+                struct3["todo"] = struct3["todo"]
+                                    .map{|section| 
+                                        if NSXLucilleCalendarFileUtils::sectionToUUID(section) == sectionuuid then
+                                            section = NSXMiscUtils::applyNextTransformationToContent(section)
+                                        end
+                                        section
+                                    }
+                struct3 = NSXLucilleCalendarFileUtils::struct3TransformUpdatePartsWithTodo(struct3)
+                NSXLucilleCalendarFileUtils::commitStruct3ToDiskAtFilepath(struct3, "/Users/pascal/Desktop/Calendar-#{LucilleCore::timeStringL22()}.txt")
+                FileUtils.rm(filepath)
+            }
     end
 
 end

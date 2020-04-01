@@ -19,11 +19,15 @@ class NSXDisplayUtils
     # NSXDisplayUtils::objectInferfaceString(object)
     def self.objectInferfaceString(object)
         defaultCommand = object["defaultCommand"]
+        commands = object["commands"]
+        if defaultCommand then
+            commands = commands.reject{|c| c == defaultCommand }
+        end
         part2 = 
             [
-                object["commands"].join(" "),
-                NSXDisplayUtils::defaultCatalystObjectCommands().join(" "),
-                defaultCommand ? "(#{defaultCommand.green})" : nil
+                defaultCommand ? "#{defaultCommand.green}" : nil,
+                commands.join(" "),
+                NSXDisplayUtils::defaultCatalystObjectCommands().join(" ")
             ].compact.reject{|command| command=='' }.join(" ")
         part2.strip
     end
@@ -75,11 +79,7 @@ class NSXDisplayUtils
             ]
         end
 
-        ds = lines.join()
-        if object["agentuid"] == NSXAgentLucilleTodos::agentuid() then
-            ds = ds.green
-        end
-        ds
+        lines.join()
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)

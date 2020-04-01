@@ -3,9 +3,8 @@
 
 require_relative "NSXAgentAnniversaries.rb"
 require_relative "NSXAgentBackupsMonitor.rb"
-require_relative "NSXAgentLucilleTodos.rb"
+require_relative "NSXAgentCalendarTodos.rb"
 require_relative "NSXAgentVideosStreamConsumptionMonitor.rb"
 require_relative "NSXAgentVienna.rb"
 require_relative "NSXAgentWave.rb"
-require_relative "NSXAgentTodoDelegate.rb"
 require_relative "NSXAgentTheBridge.rb"
