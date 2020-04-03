@@ -122,23 +122,40 @@ class NSXGeneralCommandHandler
         end
 
         if command == "/" then
-            options = [
-                "generation-speed",
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            return if option.nil?
-            if option == "generation-speed" then
-                puts "Agent speed report"
-                NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
-                    puts "    - #{object["agent-name"]}: #{"%.3f" % object["retreive-time"]}"
-                }
-                t1 = Time.new.to_f
-                NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                    .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
-                t2 = Time.new.to_f
-                puts "UI generation speed: #{(t2-t1).round(3)} seconds"
-                LucilleCore::pressEnterToContinue()
-            end
+            loop {
+                options = [
+                    "agents generation speed",
+                    "TheBridge generation speed",
+                    "ui generation speed"
+                ]
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+                break if option.nil?
+                if option == "agents generation speed" then
+                    puts "Agent speed report"
+                    NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
+                        puts "    - #{object["agent-name"]}: #{"%.3f" % object["retreive-time"]}"
+                    }
+                    LucilleCore::pressEnterToContinue()
+                end
+                if option == "TheBridge generation speed" then
+                    puts "TheBridge generation speed report"
+                    NSXAgentTheBridge::getGenerationSpeeds()
+                        .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
+                        .reverse
+                        .each{|object|
+                            puts "    - #{object["source"]}: #{"%.3f" % object["timespan"]}"
+                        }
+                    LucilleCore::pressEnterToContinue()
+                end
+                if option == "ui generation speed" then
+                    t1 = Time.new.to_f
+                    NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                        .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
+                    t2 = Time.new.to_f
+                    puts "UI generation speed: #{(t2-t1).round(3)} seconds"
+                    LucilleCore::pressEnterToContinue()
+                end
+            }
             return
         end
 

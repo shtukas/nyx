@@ -22,13 +22,33 @@ class NSXAgentTheBridge
         NSXAgentTheBridge::getAllObjects()
     end
 
+    # NSXAgentTheBridge::sources()
+    def self.sources()
+        JSON.parse(IO.read("#{CATALYST_FOLDERPATH}/TheBridge/sources.json"))
+    end
+
     # NSXAgentTheBridge::getAllObjects()
     def self.getAllObjects()
-        JSON.parse(IO.read("#{CATALYST_FOLDERPATH}/TheBridge/sources.json"))
-        .map{|source|
-            JSON.parse(`#{source}`)
-        }
-        .flatten
+        NSXAgentTheBridge::sources()
+            .map{|source|
+                JSON.parse(`#{source}`)
+            }
+            .flatten
+    end
+
+    # NSXAgentTheBridge::getGenerationSpeeds()
+    def self.getGenerationSpeeds()
+        NSXAgentTheBridge::sources()
+            .map{|source|
+                t1 = Time.new.to_f
+                JSON.parse(`#{source}`)
+                t2 = Time.new.to_f
+                {
+                    "source" => source,
+                    "timespan" => t2-t1 
+                }
+            }
+
     end
 
     # NSXAgentTheBridge::processObjectAndCommand(objectuuid, command)
