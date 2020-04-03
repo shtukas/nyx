@@ -68,6 +68,16 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
+        starburstFoldernames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Starburst/starburst foldernames`)
+        puts "Starburst:"
+        verticalSpaceLeft = verticalSpaceLeft - 1
+        starburstFoldernames.each{|foldername|
+            puts "    -> #{foldername}"
+            verticalSpaceLeft = verticalSpaceLeft - 1
+        }
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
         if displayObjects.size==0 then
 
             vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
