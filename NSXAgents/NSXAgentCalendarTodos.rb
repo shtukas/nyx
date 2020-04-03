@@ -46,6 +46,15 @@ class NSXAgentCalendarTodos
         NSXAgentCalendarTodos::getAllObjects()
     end
 
+    # NSXAgentCalendarTodos::sectionToCommandsAndDefaultCommand(section)
+    def self.sectionToCommandsAndDefaultCommand(section)
+        if section.lines.to_a.size == 1 then
+            [ ["done"], "done" ]
+        else
+            [ ["[]"], "[]" ]
+        end
+    end
+
     # NSXAgentCalendarTodos::getAllObjects()
     def self.getAllObjects()
         pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
@@ -54,17 +63,19 @@ class NSXAgentCalendarTodos
         metric = LucilleMetric.new()
         todos = struct3["todo"]
         todos.map{|section|
+            commanding = NSXAgentCalendarTodos::sectionToCommandsAndDefaultCommand(section)
+            possiblyLineReturn = ( section.lines.to_a.size == 1 ) ? "" : "\n"
             {
                 "uuid"           => NSXLucilleCalendarFileUtils::sectionToUUID(section),
                 "agentuid"       => NSXAgentCalendarTodos::agentuid(),
                 "contentItem"    => {
                     "type" => "line-and-body",
                     "line" => "cal todo: " + section.lines.to_a.first.strip,
-                    "body" => "cal todo: " + section.strip
+                    "body" => "cal todo: #{possiblyLineReturn}" + section.strip
                 },
                 "metric"         => metric.metric(),
-                "commands"       => ["[]"],
-                "defaultCommand" => "[]",
+                "commands"       => commanding[0],
+                "defaultCommand" => commanding[1],
                 "isDone"         => nil,
                 "sectionuuid"    => NSXLucilleCalendarFileUtils::sectionToUUID(section)
             }
