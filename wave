@@ -1,24 +1,29 @@
 #!/usr/bin/ruby
 
 # encoding: UTF-8
+
 require 'json'
 # JSON.pretty_generate(object)
 
 require 'date'
 require 'colorize'
+
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
 # FileUtils.mv 'oldname', 'newname'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
+
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
+
 require 'find'
 require 'drb/drb'
 require 'thread'
@@ -48,8 +53,6 @@ require_relative "NSXAgents/load-library.rb"
 CATALYST_RUN_HASH = SecureRandom.hex
 CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__) 
 STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
-
-$LUCILLE_CALENDAR_FILEPATH_44AF92E9 = nil
 
 # -------------------------------------------------------------------------
 # nslog

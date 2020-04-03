@@ -49,7 +49,6 @@ class NSXAgentCalendarTodos
     # NSXAgentCalendarTodos::getAllObjects()
     def self.getAllObjects()
         pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
-        $LUCILLE_CALENDAR_FILEPATH_44AF92E9 = pair["filepath"]
         struct3 = pair["struct3"]
         pattern = struct3["pattern"]
         metric = LucilleMetric.new()
