@@ -28,13 +28,7 @@ class NSXGeneralCommandHandler
             [
                 "help",
                 "new: <line> | 'text'",
-                "search: <pattern>",
-                "[]                  [done] to next lucille file section",
-                "                    also used for some todo items",
-                "/                   Catalyst menu",
-                "todo",
-                "todo-inbox",
-                "nyx",
+                "/                   General Menu"
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -67,69 +61,40 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "nyx" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx")
-            return
-        end
-
-        if command == "todo" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo")
-            return
-        end
-
-        if command == "todo-inbox" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo-inbox")
-            return
-        end
-
-        if command == "todo-walks" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo-walks")
-            return
-        end
-
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
             return
         end
 
-        if command.start_with?("new:") then
-            text = command[4, command.size].strip
-            if text == "" then
-                text = LucilleCore::askQuestionAnswerAsString("description (use 'text' for editor): ")
-            end
-            if text == "text" then
-                text = NSXMiscUtils::editTextUsingTextmate("")
-            end
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["Wave"])
-            if type == "Wave" then
-                catalystobjectuuid = NSXMiscUtils::spawnNewWaveItem(text)
-            end
-            return
-        end
-
-        if command.start_with?("search:") then
-            pattern = command[7, command.size].strip
-            loop {
-                objects = NSXCatalystObjectsOperator::getAllObjectsFromAgents()
-                searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                searchobjects2 = objects.select{|object| NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']).downcase.include?(pattern.downcase) }
-                searchobjects = searchobjects1 + searchobjects2
-                status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
-                break if !status
-            }
-            return
-        end
-
         if command == "/" then
             loop {
                 options = [
+                    "new wave",
+                    "search",
                     "agents generation speed",
                     "TheBridge generation speed",
-                    "ui generation speed"
+                    "ui generation speed",
+                    "-> nyx",
+                    "-> todo",
                 ]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                 break if option.nil?
+                if option == "new wave" then
+                    line = LucilleCore::askQuestionAnswerAsString("line: ")
+                    NSXMiscUtils::spawnNewWaveItem(line)
+                end
+                if option == "search" then
+                    pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
+                    loop {
+                        objects = NSXCatalystObjectsOperator::getAllObjectsFromAgents()
+                        searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
+                        searchobjects2 = objects.select{|object| NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']).downcase.include?(pattern.downcase) }
+                        searchobjects = searchobjects1 + searchobjects2
+                        status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
+                        break if !status
+                    }
+                end
                 if option == "agents generation speed" then
                     puts "Agent speed report"
                     NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
@@ -154,6 +119,14 @@ class NSXGeneralCommandHandler
                     t2 = Time.new.to_f
                     puts "UI generation speed: #{(t2-t1).round(3)} seconds"
                     LucilleCore::pressEnterToContinue()
+                end
+                if option == "-> nyx" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx")
+                    return
+                end
+                if option == "-> todo" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo")
+                    return
                 end
             }
             return
