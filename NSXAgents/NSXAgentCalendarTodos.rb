@@ -13,6 +13,13 @@ require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 # -------------------------------------------------------------------------------------
@@ -49,9 +56,9 @@ class NSXAgentCalendarTodos
     # NSXAgentCalendarTodos::sectionToCommandsAndDefaultCommand(section)
     def self.sectionToCommandsAndDefaultCommand(section)
         if section.lines.to_a.size == 1 then
-            [ ["done", ">todo"], "done" ]
+            [ ["done", ">todo", ">starburst[new]"], "done" ]
         else
-            [ ["[]", ">todo"], "[]"]
+            [ ["[]", ">todo", ">starburst[new]"], "[]"]
         end
     end
 
@@ -111,6 +118,23 @@ class NSXAgentCalendarTodos
                 text = NSXMiscUtils::editTextUsingTextmate(text)
             end
             File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.text.txt", "w"){|f| f.puts(text) }
+            sectionuuid = object["sectionuuid"]
+            NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
+            return
+        end
+        if command == ">starburst[new]" then
+            object = NSXAgentCalendarTodos::getObjectByUUIDOrNull(objectuuid)
+            return if object.nil?
+            text = object["section"]
+            domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Personal", "The Guardian"])
+            if domain.nil? then
+                domain = LucilleCore::askQuestionAnswerAsString("domain? : ")
+            end
+            foldername = LucilleCore::askQuestionAnswerAsString("Foldername? : ")
+            foldernamexp = "#{NSXMiscUtils::currentDay()} | #{domain} | #{foldername}"
+            folderpathxp = "/Users/pascal/Galaxy/Orbital/Starburst/#{foldernamexp}"
+            FileUtils.mkdir(folderpathxp)
+            File.open("#{folderpathxp}/001.text.txt", "w"){|f| f.puts(text) }
             sectionuuid = object["sectionuuid"]
             NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             return
