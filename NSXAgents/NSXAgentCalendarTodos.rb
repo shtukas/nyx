@@ -49,9 +49,9 @@ class NSXAgentCalendarTodos
     # NSXAgentCalendarTodos::sectionToCommandsAndDefaultCommand(section)
     def self.sectionToCommandsAndDefaultCommand(section)
         if section.lines.to_a.size == 1 then
-            [ ["done", "->todo"], "done" ]
+            [ ["done", ">todo"], "done" ]
         else
-            [ ["[]", "->todo"], "[]"]
+            [ ["[]", ">todo"], "[]"]
         end
     end
 
@@ -99,11 +99,18 @@ class NSXAgentCalendarTodos
             NSXLucilleCalendarFileUtils::applyNextTransformationToSectionIdentifiedBySectionUUID(sectionuuid)
             return
         end
-        if command == "->todo" then
+        if command == ">todo" then
             object = NSXAgentCalendarTodos::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
-            section = object["section"]
-            File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.text.txt", "w"){|f| f.puts(section) }
+            text = object["section"]
+            puts "text:"
+            text.lines.each{|line|
+                puts "    " + line
+            }
+            if LucilleCore::askQuestionAnswerAsBoolean("Edit text? ", false) then
+                text = NSXMiscUtils::editTextUsingTextmate(text)
+            end
+            File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.text.txt", "w"){|f| f.puts(text) }
             sectionuuid = object["sectionuuid"]
             NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             return
