@@ -23,7 +23,7 @@ class LucilleMetric
     end
     def metric()
         @counter = @counter + 1
-        0.70 - @counter.to_f/1000
+        0.75 - @counter.to_f/1000
     end
 end
 
@@ -49,9 +49,9 @@ class NSXAgentCalendarTodos
     # NSXAgentCalendarTodos::sectionToCommandsAndDefaultCommand(section)
     def self.sectionToCommandsAndDefaultCommand(section)
         if section.lines.to_a.size == 1 then
-            [ ["done"], "done" ]
+            [ ["done", "->todo"], "done" ]
         else
-            [ ["[]"], "[]" ]
+            [ ["[]", "->todo"], "[]"]
         end
     end
 
@@ -77,7 +77,8 @@ class NSXAgentCalendarTodos
                 "commands"       => commanding[0],
                 "defaultCommand" => commanding[1],
                 "isDone"         => nil,
-                "sectionuuid"    => NSXLucilleCalendarFileUtils::sectionToUUID(section)
+                "sectionuuid"    => NSXLucilleCalendarFileUtils::sectionToUUID(section),
+                "section"        => section
             }
         }
     end
@@ -96,6 +97,14 @@ class NSXAgentCalendarTodos
             return if object.nil?
             sectionuuid = object["sectionuuid"]
             NSXLucilleCalendarFileUtils::applyNextTransformationToSectionIdentifiedBySectionUUID(sectionuuid)
+            return
+        end
+        if command == "->todo" then
+            object = NSXAgentCalendarTodos::getObjectByUUIDOrNull(objectuuid)
+            return if object.nil?
+            section = object["section"]
+            File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.text.txt", "w"){|f| f.puts(section) }
+            NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             return
         end
     end

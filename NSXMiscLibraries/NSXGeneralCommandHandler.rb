@@ -77,6 +77,7 @@ class NSXGeneralCommandHandler
                     "ui generation speed",
                     "-> nyx",
                     "-> todo",
+                    "-> starburst",
                 ]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                 break if option.nil?
@@ -126,6 +127,10 @@ class NSXGeneralCommandHandler
                 end
                 if option == "-> todo" then
                     system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo")
+                    return
+                end
+                if option == "-> starburst" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Starburst/starburst")
                     return
                 end
             }

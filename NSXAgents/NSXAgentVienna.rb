@@ -71,7 +71,7 @@ class NSXAgentVienna
             link = $viennaLinkFeeder.next()
             break if link.nil?
             puts "vienna: #{link}"
-            File.open("/Users/pascal/Galaxy/DataBank/TodoInboxForVienna/#{NSXMiscUtils::timeStringL22()}.link.txt", "w"){|f| f.puts(link) }
+            File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.url.txt", "w"){|f| f.puts(link) }
             $viennaLinkFeeder.done(link)
         }
         []
