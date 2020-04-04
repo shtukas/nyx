@@ -104,6 +104,7 @@ class NSXAgentCalendarTodos
             return if object.nil?
             section = object["section"]
             File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.text.txt", "w"){|f| f.puts(section) }
+            sectionuuid = object["sectionuuid"]
             NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             return
         end
