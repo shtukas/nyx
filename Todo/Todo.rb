@@ -69,6 +69,11 @@ class Todo
         "/Users/pascal/Galaxy/DataBank/todo/Ymir"
     end
 
+    # Todo::pathToTodoInbox()
+    def self.pathToTodoInbox()
+        "/Users/pascal/Galaxy/DataBank/TodoInbox"
+    end
+
     # Todo::l22()
     def self.l22()
         Time.new.strftime("%Y%m%d-%H%M%S-%6N")

@@ -50,10 +50,10 @@ require_relative "Library.rb"
 # --------------------------------------------------------------------
 
 # We start by collecting the objects in the Inbox
-Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
+Dir.entries(Todo::pathToTodoInbox())
     .select{|filename| filename[-8, 8] == ".url.txt" }
     .each{|filename|
-        filepath = "/Users/pascal/Galaxy/DataBank/TodoInboxUrls/#{filename}"
+        filepath = "#{Todo::pathToTodoInbox()}/#{filename}"
         link = IO.read(filepath).strip
         target = {
             "uuid" => SecureRandom.uuid,
@@ -76,10 +76,10 @@ Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
         Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
         FileUtils.rm(filepath)
     }
-Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
+Dir.entries(Todo::pathToTodoInbox())
     .select{|filename| filename[-9, 9] == ".text.txt" }
     .each{|filename|
-        filepath = "/Users/pascal/Galaxy/DataBank/TodoInbox/#{filename}"
+        filepath = "#{Todo::pathToTodoInbox()}/#{filename}"
         text = IO.read(filepath).strip
         if text == "" then
             FileUtils.rm(filepath)
