@@ -66,8 +66,6 @@ require_relative "BinUtils.rb"
 
 require_relative "Todo.rb"
 
-TODO_INBOX_TIMELINE_NAME = "[Inbox]"
-
 # --------------------------------------------------------------------
 
 class Utils

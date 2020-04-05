@@ -63,7 +63,7 @@ Dir.entries(Todo::pathToTodoInbox())
         classificationItem = {
             "uuid"     => SecureRandom.uuid,
             "type"     => "timeline-329D3ABD",
-            "timeline" => TODO_INBOX_TIMELINE_NAME
+            "timeline" => Todo::todoInboxTimelineName()
         }
         tnode = {
             "uuid"              => SecureRandom.uuid,
@@ -95,7 +95,7 @@ Dir.entries(Todo::pathToTodoInbox())
             classificationItem = {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-329D3ABD",
-                "timeline" => TODO_INBOX_TIMELINE_NAME
+                "timeline" => Todo::todoInboxTimelineName()
             }
             tnode = {
                 "uuid"              => SecureRandom.uuid,
@@ -120,7 +120,7 @@ Dir.entries(Todo::pathToTodoInbox())
             classificationItem = {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-329D3ABD",
-                "timeline" => TODO_INBOX_TIMELINE_NAME
+                "timeline" => Todo::todoInboxTimelineName()
             }
             tnode = {
                 "uuid"              => SecureRandom.uuid,
@@ -145,7 +145,7 @@ Dir.entries(Todo::pathToCatalystInbox())
         classificationItem = {
             "uuid"     => SecureRandom.uuid,
             "type"     => "timeline-329D3ABD",
-            "timeline" => TODO_INBOX_TIMELINE_NAME
+            "timeline" => Todo::todoInboxTimelineName()
         }
         tnode = {
             "uuid"              => SecureRandom.uuid,
@@ -178,7 +178,7 @@ metricHelper = MetricHelper.new(0.70)
 
 objects = []
 
-CoreData::getTimelineTNodesOrdered(TODO_INBOX_TIMELINE_NAME).each{|tnode|
+CoreData::getTimelineTNodesOrdered(Todo::todoInboxTimelineName()).each{|tnode|
     objects << {
         "uuid"            => tnode["uuid"],
         "agentuid"        => nil,
