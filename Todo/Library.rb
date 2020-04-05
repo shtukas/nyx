@@ -754,6 +754,8 @@ class Interface
     # Interface::ui()
     def self.ui()
         loop {
+            system("clear")
+            puts "Todo 🗃️"
             operations = [
                 "make new item",
                 "search",

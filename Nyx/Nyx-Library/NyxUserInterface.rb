@@ -117,6 +117,8 @@ class NyxUserInterface
     # NyxUserInterface::uimainloop()
     def self.uimainloop()
         loop {
+            system("clear")
+            puts "Nyx 🗺️"
             operations = [
                 # Search
                 "search / open",

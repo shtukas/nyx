@@ -66,17 +66,9 @@ class NSXCatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
+        puts "Wave 🌊"
 
-        starburstFoldernames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst foldernames`)
-        puts "Starburst:"
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        starburstFoldernames.each{|foldername|
-            puts "    -> #{foldername}"
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        }
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
         if displayObjects.size==0 then
 

@@ -65,23 +65,30 @@ class FileSystemUtils
 
 end
 
-if ARGV[0] == "foldernames" then
-    puts JSON.pretty_generate(Starburst::foldernames())
-    exit
+def starburstDive(starburstName)
+    operations = ["open folder", ">todo"]
+    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+    return if operation.nil?
+
+    if operation == "open folder" then
+        folderpath = Starburst::starburstNameToFolderpath(starburstName)
+        return if !File.exists?(folderpath)
+        system("open '#{folderpath}'")
+    end
+
+    if operation == ">todo" then
+        folderpath = Starburst::starburstNameToFolderpath(starburstName)
+        return if !File.exists?(folderpath)
+        Todo::starburstFolderPathToTodoItemPreserveSource(folderpath)
+        LucilleCore::removeFileSystemLocation(folderpath)
+    end
+
 end
 
-if ARGV[0] == "starburst-folder-to-todo" and ARGV[1] then
-    foldername1 = ARGV[1]
-    folderpath1 = "#{Starburst::pathToStarburstFolders()}/#{foldername1}"
-    exit if !File.exists?(folderpath1)
-    Todo::starburstFolderPathToTodoItemPreserveSource(folderpath1)
-    LucilleCore::removeFileSystemLocation(folderpath1)
-    exit
-end
-
-puts "Starburst"
-LucilleCore::pressEnterToContinue()
-
-
-
-
+loop {
+    system('clear')
+    puts "Starburst 💫"
+    foldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
+    exit if foldername.nil?
+    starburstDive(foldername)
+}
