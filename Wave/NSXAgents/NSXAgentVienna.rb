@@ -21,9 +21,12 @@ require 'fileutils'
 require 'find'
 require 'json'
 require 'digest/sha1'
+
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
 
 # -------------------------------------------------------------------------------------
 
@@ -71,7 +74,7 @@ class NSXAgentVienna
             link = $viennaLinkFeeder.next()
             break if link.nil?
             puts "vienna: #{link}"
-            File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.url.txt", "w"){|f| f.puts(link) }
+            File.open("#{Todo::pathToTodoInbox()}/#{NSXMiscUtils::timeStringL22()}.url.txt", "w"){|f| f.puts(link) }
             $viennaLinkFeeder.done(link)
         }
         []
