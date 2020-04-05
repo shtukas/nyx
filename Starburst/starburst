@@ -50,6 +50,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/YmirEstat
         # still need to be created. Only the parent is created.
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
+
 # --------------------------------------------------------------------
 
 STARTBURST_PATH_TO_FOLDERS = "/Users/pascal/Galaxy/Orbital/Starburst"
@@ -81,34 +83,10 @@ if ARGV[0] == "foldernames" then
 end
 
 if ARGV[0] == "starburst-folder-to-todo" and ARGV[1] then
-    pathToTodoYmir = "/Users/pascal/Galaxy/DataBank/todo/Ymir"
     foldername1 = ARGV[1]
     folderpath1 = "#{STARTBURST_PATH_TO_FOLDERS}/#{foldername1}"
     exit if !File.exists?(folderpath1)
-    targetfoldername = Estate::l22()
-    targetfolderpath = YmirEstate::makeNewYmirLocationForBasename(pathToTodoYmir, targetfoldername)
-    FileUtils.mkpath(targetfolderpath)
-    LucilleCore::copyContents(folderpath1, targetfolderpath)
-    target = {
-        "uuid"       => SecureRandom.uuid,
-        "type"       => "perma-dir-11859659",
-        "foldername" => targetfoldername
-    }
-    classificationItem = {
-        "uuid"     => SecureRandom.uuid,
-        "type"     => "timeline-329D3ABD",
-        "timeline" => "[Inbox]"
-    }
-    tnode = {
-        "uuid"              => SecureRandom.uuid,
-        "filename"          => "#{Estate::l22()}.json",
-        "creationTimestamp" => Time.new.to_f,
-        "description"       => foldername1,
-        "targets"           => [ target ],
-        "classification"    => [ classificationItem ]
-    }
-    filepath = YmirEstate::makeNewYmirLocationForBasename(pathToTodoYmir, tnode["filename"])
-    File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(tnode)) }
+    Todo::starburstFolderPathToTodoItemPreserveSource(folderpath1)
     LucilleCore::removeFileSystemLocation(folderpath1)
     exit
 end

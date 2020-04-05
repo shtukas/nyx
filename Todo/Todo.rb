@@ -64,4 +64,45 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 class Todo
 
+    # Todo::pathToYmir()
+    def self.pathToYmir()
+        "/Users/pascal/Galaxy/DataBank/todo/Ymir"
+    end
+
+    # Todo::l22()
+    def self.l22()
+        Time.new.strftime("%Y%m%d-%H%M%S-%6N")
+    end
+
+    # Todo::starburstFolderPathToTodoItemPreserveSource(folderpath1)
+    def self.starburstFolderPathToTodoItemPreserveSource(folderpath1)
+        return if !File.exists?(folderpath1)
+        foldername1 = File.basename(folderpath1)
+        targetfoldername = Todo::l22()
+        targetfolderpath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), targetfoldername)
+        FileUtils.mkpath(targetfolderpath)
+        LucilleCore::copyContents(folderpath1, targetfolderpath)
+        target = {
+            "uuid"       => SecureRandom.uuid,
+            "type"       => "perma-dir-11859659",
+            "foldername" => targetfoldername
+        }
+        classificationItem = {
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "timeline-329D3ABD",
+            "timeline" => "[Inbox]"
+        }
+        tnodeFilename = "#{Todo::l22()}.json"
+        tnode = {
+            "uuid"              => SecureRandom.uuid,
+            "filename"          => tnodeFilename,
+            "creationTimestamp" => Time.new.to_f,
+            "description"       => foldername1,
+            "targets"           => [ target ],
+            "classification"    => [ classificationItem ]
+        }
+        filepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), tnodeFilename)
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(tnode)) }
+    end
+
 end
