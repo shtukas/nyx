@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "load-code.rb"
+
+# --------------------------------------------------------------------
+
+NyxUserInterface::uimainloop()
+
