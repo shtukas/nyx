@@ -150,7 +150,7 @@ class NyxMiscUtils
     # NyxMiscUtils::publishIndex2PermanodesAsOneObject()
     def self.publishIndex2PermanodesAsOneObject()
         targetFilepath = "/Users/pascal/Galaxy/DataBank/Nyx/permanodes.json"
-        File.open(targetFilepath, "w"){|f| f.puts(JSON.pretty_generate(NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR).to_a))}
+        File.open(targetFilepath, "w"){|f| f.puts(JSON.pretty_generate(NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir()).to_a))}
     end
 
     # NyxMiscUtils::formatTimeline(timeline)
@@ -170,7 +170,7 @@ class NyxMiscUtils
 
     # NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
     def self.commitPermanodeToDiskWithMaintenance(permanode)
-        NyxPermanodeOperator::commitPermanodeToDisk(PATH_TO_YMIR, permanode)
+        NyxPermanodeOperator::commitPermanodeToDisk(Nyx::pathToYmir(), permanode)
         NyxMiscUtils::publishIndex2PermanodesAsOneObject()
     end
 

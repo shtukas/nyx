@@ -51,6 +51,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
+
 # --------------------------------------------------------------------
 
 require_relative "Library.rb"
@@ -86,10 +88,9 @@ if ARGV[0] == "run" and ARGV[1] then
         Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
     end
     if operation == "transmute to nyx" then
-        pathToNyxYmirFolder = "/Users/pascal/Galaxy/Nyx"
-        nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), pathToNyxYmirFolder)
+        nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
         filename = "#{Utils::l22()}.json"
-        filepath = YmirEstate::makeNewYmirLocationForBasename(pathToNyxYmirFolder, filename)
+        filepath = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename)
         puts JSON.pretty_generate(nyxItem)
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nyxItem)) }
         Estate::destroyTNode(tnode)
@@ -139,10 +140,9 @@ if ARGV[0] == "tonyx" and ARGV[1] then
         exit
     end
     puts Interface::targetToString(tnode["targets"][0])
-    pathToNyxYmirFolder = "/Users/pascal/Galaxy/Nyx"
-    nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), pathToNyxYmirFolder)
+    nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
     filename = "#{Utils::l22()}.json"
-    filepath = YmirEstate::makeNewYmirLocationForBasename(pathToNyxYmirFolder, filename)
+    filepath = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename)
     puts JSON.pretty_generate(nyxItem)
     File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nyxItem)) }
     Estate::destroyTNode(tnode)

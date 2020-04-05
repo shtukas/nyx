@@ -151,7 +151,7 @@ class NyxUserInterface
             end
             if operation == "permanode dive (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, uuid)
+                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), uuid)
                 if permanode then
                     NyxPermanodeOperator::permanodeDive(permanode)
                 else
@@ -160,9 +160,9 @@ class NyxUserInterface
             end
             if operation == "repair permanode (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, uuid)
+                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), uuid)
                 next if permanode.nil?
-                filepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(PATH_TO_YMIR, permanode["filename"])
+                filepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(Nyx::pathToYmir(), permanode["filename"])
                 next if filepath.nil?
                 system("open '#{filepath}'")
                 LucilleCore::pressEnterToContinue()
@@ -175,7 +175,7 @@ class NyxUserInterface
                 NyxMiscUtils::publishIndex2PermanodesAsOneObject()
             end
             if operation == "show newly created permanodes" then
-                permanodes = NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+                permanodes = NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
                 NyxPermanodeOperator::applyReferenceDateTimeOrderToPermanodes(permanodes)
                     .reverse
                     .first(20)
@@ -223,7 +223,7 @@ class NyxUserInterface
                 }
                 oldName = LucilleCore::askQuestionAnswerAsString("old name: ")
                 newName = LucilleCore::askQuestionAnswerAsString("new name: ")
-                NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+                NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
                     .each{|permanode| 
                         permanode2 = transformPermanode.call(permanode.clone, oldName, newName)
                         if permanode.to_s != permanode2.to_s then

@@ -251,7 +251,7 @@ class NyxPermanodeOperator
 
     # NyxPermanodeOperator::timelines()
     def self.timelines()
-        NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+        NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
             .reduce([]){|timelines, permanode|
                 timelines + permanode["classification"].select{|permanodeTarget| permanodeTarget["type"] == "timeline-329D3ABD" }.map{|permanodeTarget| permanodeTarget["timeline"] }
             }
@@ -260,7 +260,7 @@ class NyxPermanodeOperator
     # NyxPermanodeOperator::timelinesInDecreasingActivityDateTime()
     def self.timelinesInDecreasingActivityDateTime()
         # struct1: Map[Timeline, DateTime]
-        struct1 = NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+        struct1 = NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
             .reduce({}){|datedTimelines, permanode|
                 referenceDateTime = permanode["referenceDateTime"]
                 timelines = permanode["classification"]
@@ -288,13 +288,13 @@ class NyxPermanodeOperator
 
     # NyxPermanodeOperator::getTimelinePermanodes(timeline)
     def self.getTimelinePermanodes(timeline)
-        NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+        NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
             .select{|permanode| permanode["classification"].any?{|item| item["type"] == "timeline-329D3ABD" and item["timeline"] == timeline}}
     end
 
     # NyxPermanodeOperator::getPermanodesCarryingThisDirectoryMark(mark)
     def self.getPermanodesCarryingThisDirectoryMark(mark)
-        NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+        NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
             .select{|permanode|
                 permanode["targets"].any?{|target| target["type"] == "lstore-directory-mark-BEE670D0" and target["mark"] == mark }
             }
@@ -421,7 +421,7 @@ class NyxPermanodeOperator
             foldername1 = LucilleCore::askQuestionAnswerAsString("Desktop foldername: ")
             folderpath1 = "/Users/pascal/Desktop/#{foldername1}"
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, foldername2)
+            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), foldername2)
             FileUtils.mkdir(folderpath2)
             puts "Migrating '#{folderpath1}' to '#{folderpath2}'"
             LucilleCore::migrateContents(folderpath1, folderpath2)
@@ -473,7 +473,7 @@ class NyxPermanodeOperator
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             text = NyxMiscUtils::editTextUsingTextmate("")
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, foldername2)
+            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), foldername2)
             FileUtils.mkdir(folderpath2)
             filepath3 = "#{folderpath2}/text.txt"
             File.open(filepath3, "w"){|f| f.puts(text) }
@@ -519,7 +519,7 @@ class NyxPermanodeOperator
             locations = NyxMiscUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
 
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, foldername2)
+            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), foldername2)
             FileUtils.mkdir(folderpath2)
 
             permanodeTarget = {
@@ -550,7 +550,7 @@ class NyxPermanodeOperator
         puts "-> permanodeTarget:"
         puts JSON.pretty_generate(permanodeTarget)
         puts NyxPermanodeOperator::permanodeTargetToString(permanodeTarget)
-        NyxPermanodeOperator::openPermanodeTarget(PATH_TO_YMIR, permanodeTarget)
+        NyxPermanodeOperator::openPermanodeTarget(Nyx::pathToYmir(), permanodeTarget)
     end
 
     # NyxPermanodeOperator::permanodeTargetsDive(permanode)
@@ -581,7 +581,7 @@ class NyxPermanodeOperator
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "edit description" then
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, permanode["uuid"])
+                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), permanode["uuid"])
                 newdescription = NyxMiscUtils::editTextUsingTextmate(permanode["description"]).strip
                 if newdescription == "" or newdescription.lines.to_a.size != 1 then
                     puts "Descriptions should have one non empty line"
@@ -592,7 +592,7 @@ class NyxPermanodeOperator
                 NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
             end
             if operation == "edit reference datetime" then
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, permanode["uuid"])
+                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), permanode["uuid"])
                 referenceDateTime = NyxMiscUtils::editTextUsingTextmate(permanode["referenceDateTime"]).strip
                 if NyxMiscUtils::isProperDateTimeIso8601(referenceDateTime) then
                     permanode["referenceDateTime"] = referenceDateTime
@@ -610,14 +610,14 @@ class NyxPermanodeOperator
                 NyxPermanodeOperator::permanodeTargetsDive(permanode)
             end
             if operation == "targets (add new)" then
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, permanode["uuid"])
+                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), permanode["uuid"])
                 target = NyxPermanodeOperator::makePermanodeTargetInteractiveOrNull(nil)
                 next if target.nil?
                 permanode["targets"] << target
                 NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
             end
             if operation == "targets (select and remove)" then
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, permanode["uuid"])
+                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), permanode["uuid"])
                 toStringLambda = lambda { |permanodeTarget| NyxPermanodeOperator::permanodeTargetToString(permanodeTarget) }
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", permanode["targets"], toStringLambda)
                 next if target.nil?
@@ -655,14 +655,14 @@ class NyxPermanodeOperator
                 NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
             end
             if operation == "classification (select and remove)" then
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, permanode["uuid"])
+                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), permanode["uuid"])
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("classification", permanode["classification"], lambda{|item| NyxPermanodeOperator::permanodeClassificationToString(item) } )
                 next if item.nil?
                 permanode["classification"] = permanode["classification"].reject{|i| i["uuid"]==item["uuid"] }
                 NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
             end
             if operation == "edit permanode.json" then
-                permanodeFilepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(PATH_TO_YMIR, permanode["filename"])
+                permanodeFilepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(Nyx::pathToYmir(), permanode["filename"])
                 if permanodeFilepath.nil? then
                     puts "Strangely I could not find the filepath for this:"
                     puts JSON.pretty_generate(permanode)
@@ -704,7 +704,7 @@ class NyxPermanodeOperator
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", permanode["targets"], lambda{|target| NyxPermanodeOperator::permanodeTargetToString(target) })
         end
         puts JSON.pretty_generate(target)
-        NyxPermanodeOperator::openPermanodeTarget(PATH_TO_YMIR, target)
+        NyxPermanodeOperator::openPermanodeTarget(Nyx::pathToYmir(), target)
     end
 
     # ------------------------------------------------------------------
@@ -736,7 +736,7 @@ class NyxPermanodeOperator
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["foldername"])
+            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Nyx::pathToYmir(), target["foldername"])
             return if folderpath.nil?
             LucilleCore::removeFileSystemLocation(folderpath)
             return
@@ -748,13 +748,13 @@ class NyxPermanodeOperator
     def self.destroyPermanodeAttempt(permanode)
         permanode["targets"].all?{|target| NyxPermanodeOperator::destroyPermanodeTargetAttempt(target) }
         permanode["classification"].all?{|item| NyxPermanodeOperator::destroyClassificationItem(item) }
-        NyxPermanodeOperator::destroyPermanode(PATH_TO_YMIR, permanode)
+        NyxPermanodeOperator::destroyPermanode(Nyx::pathToYmir(), permanode)
         NyxMiscUtils::publishIndex2PermanodesAsOneObject()
     end
 
     # NyxPermanodeOperator::destroyPermanodeContentsAndPermanode(permanodeuuid)
     def self.destroyPermanodeContentsAndPermanode(permanodeuuid)
-        permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(PATH_TO_YMIR, permanodeuuid)
+        permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), permanodeuuid)
         return if permanode.nil?
         NyxPermanodeOperator::destroyPermanodeAttempt(permanode)
         NyxMiscUtils::publishIndex2PermanodesAsOneObject()

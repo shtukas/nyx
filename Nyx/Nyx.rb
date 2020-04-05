@@ -64,4 +64,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 class Nyx
 
+    # Nyx::pathToYmir()
+    def self.pathToYmir()
+        "/Users/pascal/Galaxy/Nyx"
+    end
+
 end

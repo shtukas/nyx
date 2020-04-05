@@ -137,7 +137,7 @@ class NyxSearch
 
     # NyxSearch::searchPatternToScorePacketsInDecreasingScore(searchPattern)
     def self.searchPatternToScorePacketsInDecreasingScore(searchPattern) # Array[ScorePackets]
-        NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+        NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
             .map{|permanode| NyxSearch::permanodeSearchScorePacket(permanode, searchPattern) }
             .sort{|p1, p2| p1["score"]<=>p2["score"] }
             .reverse

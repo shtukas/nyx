@@ -61,7 +61,7 @@ class NyxCuration
 
         # ----------------------------------------------------------------------------------------
         # Remove permanodes with no targets
-        NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+        NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
             .select{|permanode| permanode["targets"].size == 0 }
             .each{|permanode|
                 puts "Destroying permanode '#{permanode["description"]}' (no targets)"
@@ -70,7 +70,7 @@ class NyxCuration
 
         # ----------------------------------------------------------------------------------------
         # Correct permanodes with descriptions with have more than one lines
-        NyxPermanodeOperator::permanodesEnumerator(PATH_TO_YMIR)
+        NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir())
             .select{|permanode|
                 permanode["description"].lines.to_a.size > 1
             }

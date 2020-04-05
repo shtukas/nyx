@@ -82,7 +82,7 @@ end
 
 get '/command/open-perma-dir/:foldername' do
     foldername = params['foldername']
-    location = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, "nyx", foldername)
+    location = YmirEstate::locationBasenameToYmirLocationOrNull(Nyx::pathToYmir(), "nyx", foldername)
     if location and File.exists?(location) then
         system("open '#{location}'")
         "Ok: #{location}"
