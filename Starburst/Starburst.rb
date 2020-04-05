@@ -62,11 +62,53 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 # --------------------------------------------------------------------
 
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/Starburst.rb"
+
 class Starburst
 
     # Starburst::pathToStarburstFolders()
     def self.pathToStarburstFolders()
         "/Users/pascal/Galaxy/Orbital/Starburst"
+    end
+
+    # Starburst::foldernames()
+    def self.foldernames()
+        Dir.entries(Starburst::pathToStarburstFolders())
+            .select{|filename| filename.include?("|") }
+            .sort
+    end
+
+    # Starburst::folderpaths()
+    def self.folderpaths()
+        Starburst::foldernames().map{|filename| "#{Starburst::pathToStarburstFolders()}/#{filename}" }
+    end
+
+    # Starburst::locationnameToIndexInteger(name_)
+    def self.locationnameToIndexInteger(name_)
+        name_[0, 3].to_i
+    end
+
+    # Starburst::locationToIndexInteger(location)
+    def self.locationToIndexInteger(location)
+        Starburst::locationnameToIndexInteger(File.basename(location))
+    end
+
+    # Starburst::maxIndexAtStarBurstFolder(folderpath)
+    def self.maxIndexAtStarBurstFolder(folderpath)
+        indices = LucilleCore::locationsAtFolder(folderpath)
+            .map{|location| Starburst::locationToIndexInteger(location) }
+        indices << 100
+        indices.max
+    end
+
+    # Starburst::starburstNameToFolderpath(sname)
+    def self.starburstNameToFolderpath(sname)
+        "#{Starburst::pathToStarburstFolders()}/#{sname}"
+    end
+
+    # Starburst::maxIndexAtStarburstName(sname)
+    def self.maxIndexAtStarburstName(sname)
+        Starburst::maxIndexAtStarBurstFolder(Starburst::starburstNameToFolderpath(sname))
     end
 
 end

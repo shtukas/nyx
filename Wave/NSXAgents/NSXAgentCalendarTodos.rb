@@ -23,6 +23,7 @@ require 'fileutils'
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/Starburst.rb"
 
 # -------------------------------------------------------------------------------------
 
@@ -58,9 +59,9 @@ class NSXAgentCalendarTodos
     # NSXAgentCalendarTodos::sectionToCommandsAndDefaultCommand(section)
     def self.sectionToCommandsAndDefaultCommand(section)
         if section.lines.to_a.size == 1 then
-            [ ["done", ">todo", ">starburst[new]"], "done" ]
+            [ ["done", ">todo", ">starburst"], "done" ]
         else
-            [ ["[]", ">todo", ">starburst[new]"], "[]"]
+            [ ["[]", ">todo", ">starburst"], "[]"]
         end
     end
 
@@ -124,21 +125,38 @@ class NSXAgentCalendarTodos
             NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             return
         end
-        if command == ">starburst[new]" then
+        if command == ">starburst" then
             object = NSXAgentCalendarTodos::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
-            text = object["section"]
-            domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Personal", "The Guardian"])
-            if domain.nil? then
-                domain = LucilleCore::askQuestionAnswerAsString("domain? : ")
+
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["existing", "new"])
+            return if target.nil?
+
+            if target == "existing" then
+                text = object["section"]
+                starburstFoldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
+                nextIndex = Starburst::maxIndexAtStarburstName(starburstFoldername) + 1
+                starburstFolderpath = Starburst::starburstNameToFolderpath(starburstFoldername)
+                File.open("#{starburstFolderpath}/#{nextIndex}.txt", "w"){|f| f.puts(text) }
+                sectionuuid = object["sectionuuid"]
+                NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             end
-            foldername = LucilleCore::askQuestionAnswerAsString("Foldername? : ")
-            foldernamexp = "#{NSXMiscUtils::currentDay()} | #{domain} | #{foldername}"
-            folderpathxp = "/Users/pascal/Galaxy/Orbital/Starburst/#{foldernamexp}"
-            FileUtils.mkdir(folderpathxp)
-            File.open("#{folderpathxp}/001.text.txt", "w"){|f| f.puts(text) }
-            sectionuuid = object["sectionuuid"]
-            NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
+
+            if target == "new" then
+                text = object["section"]
+                domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Personal", "The Guardian"])
+                if domain.nil? then
+                    domain = LucilleCore::askQuestionAnswerAsString("domain? : ")
+                end
+                foldername = LucilleCore::askQuestionAnswerAsString("Foldername? : ")
+                foldernamexp = "#{NSXMiscUtils::currentDay()} | #{domain} | #{foldername}"
+                folderpathxp = "/Users/pascal/Galaxy/Orbital/Starburst/#{foldernamexp}"
+                FileUtils.mkdir(folderpathxp)
+                File.open("#{folderpathxp}/001.text.txt", "w"){|f| f.puts(text) }
+                sectionuuid = object["sectionuuid"]
+                NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
+            end
+
             return
         end
     end

@@ -63,50 +63,10 @@ class FileSystemUtils
         Time.new.strftime("%Y%m%d-%H%M%S-%6N")
     end
 
-    # FileSystemUtils::foldernames()
-    def self.foldernames()
-        Dir.entries(Starburst::pathToStarburstFolders())
-            .select{|filename| filename.include?("|") }
-            .sort
-    end
-
-    # FileSystemUtils::folderpaths()
-    def self.folderpaths()
-        FileSystemUtils::foldernames().map{|filename| "#{Starburst::pathToStarburstFolders()}/#{filename}" }
-    end
-
-    # FileSystemUtils::locationnameToIndexInteger(name_)
-    def self.locationnameToIndexInteger(name_)
-        name_[0, 3].to_i
-    end
-
-    # FileSystemUtils::locationToIndexInteger(location)
-    def self.locationToIndexInteger(location)
-        FileSystemUtils::locationnameToIndexInteger(File.basename(location))
-    end
-
-    # FileSystemUtils::maxIndexAtStarBurstFolder(folderpath)
-    def self.maxIndexAtStarBurstFolder(folderpath)
-        indices = LucilleCore::locationsAtFolder(folderpath)
-            .map{|location| FileSystemUtils::locationToIndexInteger(location) }
-        indices << 100
-        indices.max
-    end
-
-    # FileSystemUtils::starburstNameToFolderpath(sname)
-    def self.starburstNameToFolderpath(sname)
-        "#{Starburst::pathToStarburstFolders()}/#{sname}"
-    end
-
-    # FileSystemUtils::maxIndexAtStarburstName(sname)
-    def self.maxIndexAtStarburstName(sname)
-        FileSystemUtils::maxIndexAtStarBurstFolder(FileSystemUtils::starburstNameToFolderpath(sname))
-    end
-
 end
 
 if ARGV[0] == "foldernames" then
-    puts JSON.pretty_generate(FileSystemUtils::foldernames())
+    puts JSON.pretty_generate(Starburst::foldernames())
     exit
 end
 
