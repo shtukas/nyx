@@ -68,7 +68,7 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
-        starburstFoldernames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Starburst/starburst foldernames`)
+        starburstFoldernames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst foldernames`)
         puts "Starburst:"
         verticalSpaceLeft = verticalSpaceLeft - 1
         starburstFoldernames.each{|foldername|

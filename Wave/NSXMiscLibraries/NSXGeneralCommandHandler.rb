@@ -122,15 +122,15 @@ class NSXGeneralCommandHandler
                     LucilleCore::pressEnterToContinue()
                 end
                 if option == "-> nyx" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx")
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx")
                     return
                 end
                 if option == "-> todo" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Todo/todo")
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
                     return
                 end
                 if option == "-> starburst" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Starburst/starburst")
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst")
                     return
                 end
             }

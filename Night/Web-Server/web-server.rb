@@ -13,7 +13,7 @@ require 'securerandom'
 # SecureRandom.hex(2) #=> "eb69"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/load-code.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/load-code.rb"
 
 # --  --------------------------------------------------
 
@@ -36,7 +36,7 @@ not_found do
 end
 
 get '/' do
-    IO.read("/Users/pascal/Galaxy/LucilleOS/Applications/Night/Elm-Source/src/index.html")
+    IO.read("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Night/Elm-Source/src/index.html")
 end
 
 get '/data/permanodes' do

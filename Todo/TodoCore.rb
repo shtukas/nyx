@@ -799,7 +799,7 @@ class TodoNyxConverter
 
     # TodoNyxConverter::getNyxTimelines()
     def self.getNyxTimelines()
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-api-timelines`)
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-api-timelines`)
     end
 
     # TodoNyxConverter::transmuteTodoTargetIntoNyxTarget(target, todoYmirFolderPath, nyxYmirFolderPath)
