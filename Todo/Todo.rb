@@ -74,6 +74,11 @@ class Todo
         "/Users/pascal/Galaxy/DataBank/TodoInbox"
     end
 
+    # Todo::pathToCatalystInbox()
+    def self.pathToCatalystInbox()
+        "/Users/pascal/Desktop/Catalyst-Inbox"
+    end
+
     # Todo::l22()
     def self.l22()
         Time.new.strftime("%Y%m%d-%H%M%S-%6N")

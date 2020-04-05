@@ -136,10 +136,10 @@ Dir.entries(Todo::pathToTodoInbox())
     }
 
 # Collection of the objects in the Todo-Inbox for Vienna
-Dir.entries("/Users/pascal/Desktop/Catalyst-Inbox")
+Dir.entries(Todo::pathToCatalystInbox())
     .select{|filename| filename[0, 1] != "." }
     .each{|filename|
-        location1 = "/Users/pascal/Desktop/Catalyst-Inbox/#{filename}"
+        location1 = "#{Todo::pathToCatalystInbox()}/#{filename}"
         target = TMakers::makeNewPermadirOutOfThoseLocationsDestroyGivenLocationsAndReturnPermadirTarget([location1])
         description = Interface::targetToString(target)
         classificationItem = {
