@@ -56,29 +56,34 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
 
 STARTBURST_PATH_TO_FOLDERS = "/Users/pascal/Galaxy/Orbital/Starburst"
 
-class Estate
+class FileSystemUtils
 
-    # Estate::l22()
+    # FileSystemUtils::l22()
     def self.l22()
         Time.new.strftime("%Y%m%d-%H%M%S-%6N")
     end
 
-    # Estate::foldernames()
+    # FileSystemUtils::foldernames()
     def self.foldernames()
         Dir.entries(STARTBURST_PATH_TO_FOLDERS)
             .select{|filename| filename.include?("|") }
             .sort
     end
 
-    # Estate::folderpaths()
+    # FileSystemUtils::folderpaths()
     def self.folderpaths()
-        Estate::foldernames().map{|filename| "#{STARTBURST_PATH_TO_FOLDERS}/#{filename}" }
+        FileSystemUtils::foldernames().map{|filename| "#{STARTBURST_PATH_TO_FOLDERS}/#{filename}" }
+    end
+
+    # FileSystemUtils::locationnameToIndexOrNull(name_)
+    def self.locationnameToIndexOrNull(name_)
+        
     end
 
 end
 
 if ARGV[0] == "foldernames" then
-    puts JSON.pretty_generate(Estate::foldernames())
+    puts JSON.pretty_generate(FileSystemUtils::foldernames())
     exit
 end
 
