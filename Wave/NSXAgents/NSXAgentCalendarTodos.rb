@@ -22,6 +22,8 @@ require 'fileutils'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
+
 # -------------------------------------------------------------------------------------
 
 class LucilleMetric
@@ -117,7 +119,7 @@ class NSXAgentCalendarTodos
             if LucilleCore::askQuestionAnswerAsBoolean("Edit text? ", false) then
                 text = NSXMiscUtils::editTextUsingTextmate(text)
             end
-            File.open("/Users/pascal/Galaxy/DataBank/TodoInbox/#{NSXMiscUtils::timeStringL22()}.text.txt", "w"){|f| f.puts(text) }
+            File.open("#{Todo::pathToTodoInbox()}/#{NSXMiscUtils::timeStringL22()}.text.txt", "w"){|f| f.puts(text) }
             sectionuuid = object["sectionuuid"]
             NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             return
