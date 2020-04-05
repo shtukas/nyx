@@ -1,0 +1,228 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'date'
+require 'colorize'
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'time'
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+require 'drb/drb'
+require 'thread'
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
+# --------------------------------------------------------------------
+
+require_relative "TodoCore.rb"
+
+# --------------------------------------------------------------------
+
+# We start by collecting the objects in the Inbox
+Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
+    .select{|filename| filename[-8, 8] == ".url.txt" }
+    .each{|filename|
+        filepath = "/Users/pascal/Galaxy/DataBank/TodoInboxUrls/#{filename}"
+        link = IO.read(filepath).strip
+        target = {
+            "uuid" => SecureRandom.uuid,
+            "type" => "url-EFB8D55B",
+            "url"  => link
+        }
+        classificationItem = {
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "timeline-329D3ABD",
+            "timeline" => TODO_INBOX_TIMELINE_NAME
+        }
+        tnode = {
+            "uuid"              => SecureRandom.uuid,
+            "filename"          => "#{Utils::l22()}.json",
+            "creationTimestamp" => Time.new.to_f,
+            "description"       => link,
+            "targets"           => [ target ],
+            "classification"    => [ classificationItem ]
+        }
+        Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+        FileUtils.rm(filepath)
+    }
+Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
+    .select{|filename| filename[-9, 9] == ".text.txt" }
+    .each{|filename|
+        filepath = "/Users/pascal/Galaxy/DataBank/TodoInbox/#{filename}"
+        text = IO.read(filepath).strip
+        if text == "" then
+            FileUtils.rm(filepath)
+            next
+        end
+        if text.lines.to_a.size == 1 then
+            line = text
+            target = {
+                "uuid" => SecureRandom.uuid,
+                "type" => "line-2A35BA23",
+                "line" => line
+            }
+            classificationItem = {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "timeline-329D3ABD",
+                "timeline" => TODO_INBOX_TIMELINE_NAME
+            }
+            tnode = {
+                "uuid"              => SecureRandom.uuid,
+                "filename"          => "#{Utils::l22()}.json",
+                "creationTimestamp" => Time.new.to_f,
+                "description"       => text.lines.to_a.first.strip,
+                "targets"           => [ target ],
+                "classification"    => [ classificationItem ]
+            }
+            Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+            FileUtils.rm(filepath)
+        end
+        if text.lines.to_a.size > 1 then
+            textfilename = "#{Utils::l22()}.txt"
+            textfilepath = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, textfilename)
+            File.open(textfilepath, "w"){|f| f.puts(text) }
+            target = {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "text-A9C3641C",
+                "filename" => textfilename
+            }
+            classificationItem = {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "timeline-329D3ABD",
+                "timeline" => TODO_INBOX_TIMELINE_NAME
+            }
+            tnode = {
+                "uuid"              => SecureRandom.uuid,
+                "filename"          => "#{Utils::l22()}.json",
+                "creationTimestamp" => Time.new.to_f,
+                "description"       => text.lines.to_a.first.strip,
+                "targets"           => [ target ],
+                "classification"    => [ classificationItem ]
+            }
+            Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+            FileUtils.rm(filepath)
+        end
+    }
+
+# Collection of the objects in the Todo-Inbox for Vienna
+Dir.entries("/Users/pascal/Desktop/Catalyst-Inbox")
+    .select{|filename| filename[0, 1] != "." }
+    .each{|filename|
+        location1 = "/Users/pascal/Desktop/Catalyst-Inbox/#{filename}"
+        target = TMakers::makeNewPermadirOutOfThoseLocationsDestroyGivenLocationsAndReturnPermadirTarget([location1])
+        description = Interface::targetToString(target)
+        classificationItem = {
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "timeline-329D3ABD",
+            "timeline" => TODO_INBOX_TIMELINE_NAME
+        }
+        tnode = {
+            "uuid"              => SecureRandom.uuid,
+            "filename"          => "#{Utils::l22()}.json",
+            "creationTimestamp" => Time.new.to_f,
+            "description"       => description,
+            "targets"           => [ target ],
+            "classification"    => [ classificationItem ]
+        }
+        Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+    }
+
+WalksCore::remove2FromDataset1ThePointsWithObsoleteTimelines()
+WalksCore::limit2SizeOfDataset1()
+
+# --------------------------------------------------------------------
+
+class MetricHelper
+    def initialize(base)
+        @base = base
+        @counter = 0
+    end
+    def metric()
+        @counter = @counter + 1
+        @base - @counter.to_f/1000
+    end
+end
+
+metricHelper = MetricHelper.new(0.70)
+
+objects = []
+
+CoreData::getTimelineTNodesOrdered(TODO_INBOX_TIMELINE_NAME).each{|tnode|
+    objects << {
+        "uuid"            => tnode["uuid"],
+        "agentuid"        => nil,
+        "contentItem"     => {
+            "type" => "line",
+            "line" => "todo [inbox]: " + tnode["description"] # Interface::targetToString(tnode["targets"][0])
+        },
+        "metric"          => metricHelper.metric(),
+        "commands"        => ["run", "recast", "tonyx"],
+        "defaultCommand"  => "run",
+        "isDone"          => nil,
+        "shell-redirects" => {
+            "run"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Todo/catalyst-objects-processing run '#{tnode["uuid"]}'",
+            "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Todo/catalyst-objects-processing recast '#{tnode["uuid"]}'",
+            "tonyx"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Todo/catalyst-objects-processing tonyx '#{tnode["uuid"]}'"
+        }
+    }
+}
+
+metricHelper = MetricHelper.new(0.30)
+
+timeline = WalksCore::get2TimelineWithLowestTimespan(WalksCore::get2TNodesTimelines(), WalksCore::timeline2TimeMapping())
+
+Estate::tNodesEnumerator(PATH_TO_YMIR)
+    .select{|tnode|
+        tnode["classification"][0]["timeline"] == timeline
+    }
+    .sort{|tnode1, tnode2|
+        tnode1["creationTimestamp"] <=> tnode2["creationTimestamp"]
+    }
+    .each{|tnode|
+        objects << {
+            "uuid"           => tnode["uuid"],
+            "agentuid"       => nil,
+            "contentItem"    => {
+                "type" => "line",
+                "line" => "todo walk (#{timeline}): " + Interface::targetToString(tnode["targets"][0])
+            },
+            "metric"         => metricHelper.metric(),
+            "commands"       => [],
+            "defaultCommand" => nil,
+            "isDone"         => nil
+        }
+    }
+
+puts JSON.generate(objects)
+
