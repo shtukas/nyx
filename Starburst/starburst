@@ -1,0 +1,121 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+# encoding: UTF-8
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'date'
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/YmirEstate.rb"
+=begin
+    YmirEstate::ymirFilepathEnumerator(pathToYmir)
+    YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, basename)
+    YmirEstate::makeNewYmirLocationForBasename(pathToYmir, basename)
+        # If base name is meant to be the name of a folder then folder itself 
+        # still need to be created. Only the parent is created.
+=end
+
+# --------------------------------------------------------------------
+
+STARTBURST_PATH_TO_FOLDERS = "/Users/pascal/Galaxy/Orbital/Starburst"
+
+class Estate
+
+    # Estate::l22()
+    def self.l22()
+        Time.new.strftime("%Y%m%d-%H%M%S-%6N")
+    end
+
+    # Estate::foldernames()
+    def self.foldernames()
+        Dir.entries(STARTBURST_PATH_TO_FOLDERS)
+            .select{|filename| filename.include?("|") }
+            .sort
+    end
+
+    # Estate::folderpaths()
+    def self.folderpaths()
+        Estate::foldernames().map{|filename| "#{STARTBURST_PATH_TO_FOLDERS}/#{filename}" }
+    end
+
+end
+
+if ARGV[0] == "foldernames" then
+    puts JSON.pretty_generate(Estate::foldernames())
+    exit
+end
+
+if ARGV[0] == "starburst-folder-to-todo" and ARGV[1] then
+    pathToTodoYmir = "/Users/pascal/Galaxy/DataBank/todo/Ymir"
+    foldername1 = ARGV[1]
+    folderpath1 = "#{STARTBURST_PATH_TO_FOLDERS}/#{foldername1}"
+    exit if !File.exists?(folderpath1)
+    targetfoldername = Estate::l22()
+    targetfolderpath = YmirEstate::makeNewYmirLocationForBasename(pathToTodoYmir, targetfoldername)
+    FileUtils.mkpath(targetfolderpath)
+    LucilleCore::copyContents(folderpath1, targetfolderpath)
+    target = {
+        "uuid"       => SecureRandom.uuid,
+        "type"       => "perma-dir-11859659",
+        "foldername" => targetfoldername
+    }
+    classificationItem = {
+        "uuid"     => SecureRandom.uuid,
+        "type"     => "timeline-329D3ABD",
+        "timeline" => "[Inbox]"
+    }
+    tnode = {
+        "uuid"              => SecureRandom.uuid,
+        "filename"          => "#{Estate::l22()}.json",
+        "creationTimestamp" => Time.new.to_f,
+        "description"       => foldername1,
+        "targets"           => [ target ],
+        "classification"    => [ classificationItem ]
+    }
+    filepath = YmirEstate::makeNewYmirLocationForBasename(pathToTodoYmir, tnode["filename"])
+    File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(tnode)) }
+    LucilleCore::removeFileSystemLocation(folderpath1)
+    exit
+end
+
+puts "Starburst"
+LucilleCore::pressEnterToContinue()
+
+
+
+
