@@ -64,4 +64,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 class Starburst
 
+    # Starburst::pathToStarburstFolders()
+    def self.pathToStarburstFolders()
+        "/Users/pascal/Galaxy/Orbital/Starburst"
+    end
+
 end

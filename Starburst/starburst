@@ -52,9 +52,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/YmirEstat
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
 
-# --------------------------------------------------------------------
+require_relative "Starburst.rb"
 
-STARTBURST_PATH_TO_FOLDERS = "/Users/pascal/Galaxy/Orbital/Starburst"
+# --------------------------------------------------------------------
 
 class FileSystemUtils
 
@@ -65,19 +65,42 @@ class FileSystemUtils
 
     # FileSystemUtils::foldernames()
     def self.foldernames()
-        Dir.entries(STARTBURST_PATH_TO_FOLDERS)
+        Dir.entries(Starburst::pathToStarburstFolders())
             .select{|filename| filename.include?("|") }
             .sort
     end
 
     # FileSystemUtils::folderpaths()
     def self.folderpaths()
-        FileSystemUtils::foldernames().map{|filename| "#{STARTBURST_PATH_TO_FOLDERS}/#{filename}" }
+        FileSystemUtils::foldernames().map{|filename| "#{Starburst::pathToStarburstFolders()}/#{filename}" }
     end
 
-    # FileSystemUtils::locationnameToIndexOrNull(name_)
-    def self.locationnameToIndexOrNull(name_)
-        
+    # FileSystemUtils::locationnameToIndexInteger(name_)
+    def self.locationnameToIndexInteger(name_)
+        name_[0, 3].to_i
+    end
+
+    # FileSystemUtils::locationToIndexInteger(location)
+    def self.locationToIndexInteger(location)
+        FileSystemUtils::locationnameToIndexInteger(File.basename(location))
+    end
+
+    # FileSystemUtils::maxIndexAtStarBurstFolder(folderpath)
+    def self.maxIndexAtStarBurstFolder(folderpath)
+        indices = LucilleCore::locationsAtFolder(folderpath)
+            .map{|location| FileSystemUtils::locationToIndexInteger(location) }
+        indices << 100
+        indices.max
+    end
+
+    # FileSystemUtils::starburstNameToFolderpath(sname)
+    def self.starburstNameToFolderpath(sname)
+        "#{Starburst::pathToStarburstFolders()}/#{sname}"
+    end
+
+    # FileSystemUtils::maxIndexAtStarburstName(sname)
+    def self.maxIndexAtStarburstName(sname)
+        FileSystemUtils::maxIndexAtStarBurstFolder(FileSystemUtils::starburstNameToFolderpath(sname))
     end
 
 end
@@ -89,7 +112,7 @@ end
 
 if ARGV[0] == "starburst-folder-to-todo" and ARGV[1] then
     foldername1 = ARGV[1]
-    folderpath1 = "#{STARTBURST_PATH_TO_FOLDERS}/#{foldername1}"
+    folderpath1 = "#{Starburst::pathToStarburstFolders()}/#{foldername1}"
     exit if !File.exists?(folderpath1)
     Todo::starburstFolderPathToTodoItemPreserveSource(folderpath1)
     LucilleCore::removeFileSystemLocation(folderpath1)
