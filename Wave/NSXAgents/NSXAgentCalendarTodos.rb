@@ -144,15 +144,8 @@ class NSXAgentCalendarTodos
 
             if target == "new" then
                 text = object["section"]
-                domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Personal", "The Guardian"])
-                if domain.nil? then
-                    domain = LucilleCore::askQuestionAnswerAsString("domain? : ")
-                end
-                foldername = LucilleCore::askQuestionAnswerAsString("Foldername? : ")
-                foldernamexp = "#{NSXMiscUtils::currentDay()} | #{domain} | #{foldername}"
-                folderpathxp = "/Users/pascal/Galaxy/Orbital/Starburst/#{foldernamexp}"
-                FileUtils.mkdir(folderpathxp)
-                File.open("#{folderpathxp}/001.text.txt", "w"){|f| f.puts(text) }
+                folderpathxp = Starburst::interactivelyMakeNewFolderReturnFolderpath()
+                File.open("#{folderpathxp}/101.text.txt", "w"){|f| f.puts(text) }
                 sectionuuid = object["sectionuuid"]
                 NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             end

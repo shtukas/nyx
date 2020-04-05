@@ -111,4 +111,17 @@ class Starburst
         Starburst::maxIndexAtStarBurstFolder(Starburst::starburstNameToFolderpath(sname))
     end
 
+    # Starburst::interactivelyMakeNewFolderReturnFolderpath()
+    def self.interactivelyMakeNewFolderReturnFolderpath()
+        domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["Personal", "The Guardian"])
+        if domain.nil? then
+            domain = LucilleCore::askQuestionAnswerAsString("domain? : ")
+        end
+        foldername = LucilleCore::askQuestionAnswerAsString("Foldername? : ")
+        foldernamexp = "#{Time.now.utc.iso8601[0,10]} | #{domain} | #{foldername}"
+        folderpathxp = "#{Starburst::pathToStarburstFolders()}/#{foldernamexp}"
+        FileUtils.mkdir(folderpathxp)
+        folderpathxp
+    end
+
 end

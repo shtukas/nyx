@@ -88,7 +88,12 @@ end
 loop {
     system('clear')
     puts "Starburst 💫"
-    foldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
-    exit if foldername.nil?
-    starburstDive(foldername)
+    items = Starburst::foldernames() + ["-> new folder"]
+    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", items)
+    exit if item.nil?
+    if item == "-> new folder" then
+        Starburst::interactivelyMakeNewFolderReturnFolderpath()
+        next
+    end
+    starburstDive(item)
 }
