@@ -83,11 +83,11 @@ if ARGV[0] == "run" and ARGV[1] then
             "timeline" => timeline
         }]
         puts JSON.pretty_generate(tnode)
-        Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+        Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
     end
     if operation == "transmute to nyx" then
         pathToNyxYmirFolder = "/Users/pascal/Galaxy/Nyx"
-        nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, PATH_TO_YMIR, pathToNyxYmirFolder)
+        nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), pathToNyxYmirFolder)
         filename = "#{Utils::l22()}.json"
         filepath = YmirEstate::makeNewYmirLocationForBasename(pathToNyxYmirFolder, filename)
         puts JSON.pretty_generate(nyxItem)
@@ -126,7 +126,7 @@ if ARGV[0] == "recast" and ARGV[1] then
         "timeline" => timeline
     }]
     puts JSON.pretty_generate(tnode)
-    Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+    Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
 
 end
 
@@ -140,7 +140,7 @@ if ARGV[0] == "tonyx" and ARGV[1] then
     end
     puts Interface::targetToString(tnode["targets"][0])
     pathToNyxYmirFolder = "/Users/pascal/Galaxy/Nyx"
-    nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, PATH_TO_YMIR, pathToNyxYmirFolder)
+    nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), pathToNyxYmirFolder)
     filename = "#{Utils::l22()}.json"
     filepath = YmirEstate::makeNewYmirLocationForBasename(pathToNyxYmirFolder, filename)
     puts JSON.pretty_generate(nyxItem)

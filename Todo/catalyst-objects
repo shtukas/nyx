@@ -73,7 +73,7 @@ Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
             "targets"           => [ target ],
             "classification"    => [ classificationItem ]
         }
-        Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+        Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
         FileUtils.rm(filepath)
     }
 Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
@@ -105,12 +105,12 @@ Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+            Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
             FileUtils.rm(filepath)
         end
         if text.lines.to_a.size > 1 then
             textfilename = "#{Utils::l22()}.txt"
-            textfilepath = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, textfilename)
+            textfilepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), textfilename)
             File.open(textfilepath, "w"){|f| f.puts(text) }
             target = {
                 "uuid"     => SecureRandom.uuid,
@@ -130,7 +130,7 @@ Dir.entries("/Users/pascal/Galaxy/DataBank/TodoInbox")
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+            Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
             FileUtils.rm(filepath)
         end
     }
@@ -155,7 +155,7 @@ Dir.entries("/Users/pascal/Desktop/Catalyst-Inbox")
             "targets"           => [ target ],
             "classification"    => [ classificationItem ]
         }
-        Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+        Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
     }
 
 WalksCore::remove2FromDataset1ThePointsWithObsoleteTimelines()
@@ -202,7 +202,7 @@ metricHelper = MetricHelper.new(0.30)
 
 timeline = WalksCore::get2TimelineWithLowestTimespan(WalksCore::get2TNodesTimelines(), WalksCore::timeline2TimeMapping())
 
-Estate::tNodesEnumerator(PATH_TO_YMIR)
+Estate::tNodesEnumerator(Todo::pathToYmir())
     .select{|tnode|
         tnode["classification"][0]["timeline"] == timeline
     }

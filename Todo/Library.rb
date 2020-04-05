@@ -64,7 +64,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 require_relative "BinUtils.rb"
 
-PATH_TO_YMIR = "/Users/pascal/Galaxy/DataBank/todo/Ymir"
+require_relative "Todo.rb"
+
 TODO_INBOX_TIMELINE_NAME = "[Inbox]"
 
 # --------------------------------------------------------------------
@@ -112,7 +113,7 @@ class Estate
                 return
             end
             if target["type"] == "text-A9C3641C" then
-                textFilepath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["filename"])
+                textFilepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
                 return if textFilepath.nil?
                 return if !File.exists?(textFilepath)
                 CatalystCommon::copyLocationToCatalystBin(textFilepath)
@@ -128,7 +129,7 @@ class Estate
                 return
             end
             if target["type"] == "perma-dir-11859659" then
-                folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["foldername"])
+                folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
                 return if folderpath.nil?
                 return if !File.exists?(folderpath)
                 CatalystCommon::copyLocationToCatalystBin(folderpath)
@@ -153,7 +154,7 @@ class Estate
         tnode["targets"].each{|target| destroyTarget.call(target) }
         tnode["classification"].each{|item| destroyClassificationItem.call(item) }
 
-        tnodelocation = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR,tnode["filename"])
+        tnodelocation = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), tnode["filename"])
         if tnodelocation.nil? then
             puts "[warning: 82d400d0] Interesting. This should not have hapenned."
             LucilleCore::pressEnterToContinue()
@@ -226,7 +227,7 @@ class CoreData
 
     # CoreData::timelines()
     def self.timelines()
-        Estate::tNodesEnumerator(PATH_TO_YMIR)
+        Estate::tNodesEnumerator(Todo::pathToYmir())
             .map{|tnode| tnode["classification"] }
             .flatten
             .select{|item| item["type"] == "timeline-329D3ABD" }
@@ -241,7 +242,7 @@ class CoreData
                 .select{|item| item["type"] == "timeline-329D3ABD" }
                 .map{|item| item["timeline"] }
         }
-        map1 = Estate::tNodesEnumerator(PATH_TO_YMIR).reduce({}){|map2, tnode|
+        map1 = Estate::tNodesEnumerator(Todo::pathToYmir()).reduce({}){|map2, tnode|
             timelines = extractTimelinesFromTNode.call(tnode)
             timelines.each{|timeline|
                 if map2[timeline].nil? then
@@ -265,14 +266,14 @@ class CoreData
 
     # CoreData::getTimelineTNodesOrdered(timeline)
     def self.getTimelineTNodesOrdered(timeline)
-        Estate::tNodesEnumerator(PATH_TO_YMIR)
+        Estate::tNodesEnumerator(Todo::pathToYmir())
             .select{|tnode| CoreData::tNodeIsOnThisTimeline(tnode, timeline) }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
     end
 
     # CoreData::searchPatternToTNodes(pattern)
     def self.searchPatternToTNodes(pattern)
-        Estate::tNodesEnumerator(PATH_TO_YMIR)
+        Estate::tNodesEnumerator(Todo::pathToYmir())
             .select{|tnode| 
                 b1 = tnode["uuid"].downcase.include?(pattern.downcase)
                 b2 = tnode["description"].downcase.include?(pattern.downcase)
@@ -283,7 +284,7 @@ class CoreData
 
     # CoreData::getTNodeByUUIDOrNull(uuid)
     def self.getTNodeByUUIDOrNull(uuid)
-        Estate::tNodesEnumerator(PATH_TO_YMIR)
+        Estate::tNodesEnumerator(Todo::pathToYmir())
             .select{|tnode| tnode["uuid"] == uuid }
             .first
     end
@@ -350,7 +351,7 @@ class TMakers
         if type == "text" then
             filename = "#{Utils::l22()}.txt"
             filecontents = Utils::editTextUsingTextmate("")
-            filepath = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, filename)
+            filepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), filename)
             File.open(filepath, "w"){|f| f.puts(filecontents) }
             return {
                 "uuid"     => SecureRandom.uuid,
@@ -374,7 +375,7 @@ class TMakers
         end
         if type == "permadir" then
             foldername = Utils::l22()
-            folderpath = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, foldername)
+            folderpath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), foldername)
             FileUtils.mkdir(folderpath)
             system("open '#{folderpath}'")
             return {
@@ -396,7 +397,7 @@ class TMakers
     # TMakers::makeNewPermadirOutOfThoseLocationsDestroyGivenLocationsAndReturnPermadirTarget(locations)
     def self.makeNewPermadirOutOfThoseLocationsDestroyGivenLocationsAndReturnPermadirTarget(locations)
         foldername2 = Utils::l22()
-        folderpath2 = YmirEstate::makeNewYmirLocationForBasename(PATH_TO_YMIR, foldername2)
+        folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), foldername2)
         FileUtils.mkdir(folderpath2)
         locations.each{|location|
             LucilleCore::copyFileSystemLocation(location, folderpath2)
@@ -433,7 +434,7 @@ class TMakers
             "classification"    => classification
         }
         puts JSON.pretty_generate(tnode)
-        Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+        Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
     end
 
 end
@@ -446,7 +447,7 @@ class Interface
             return "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["filename"])
+            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
             if filepath.nil? or !File.exists?(filepath) then
                 return "[error: e8703185] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
             else
@@ -461,7 +462,7 @@ class Interface
         end
         if target["type"] == "perma-dir-11859659" then
             foldername = target["foldername"]
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, foldername)
+            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), foldername)
             locations = LucilleCore::locationsAtFolder(folderpath)
             if locations.size == 0 then
                 return "permadir: #{target["foldername"]} (empty folder)"
@@ -505,7 +506,7 @@ class Interface
             tnode = CoreData::getTNodeByUUIDOrNull(tnodeuuid)
             return if tnode.nil?
             tnode["targets"] = tnode["targets"].reject{|t| t["uuid"]==target["uuid"] }
-            Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+            Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
         end
     end
 
@@ -522,7 +523,7 @@ class Interface
             tnode = CoreData::getTNodeByUUIDOrNull(tnodeuuid)
             return if tnode.nil?
             tnode["classification"] = tnode["classification"].reject{|i| i["uuid"]==item["uuid"] }
-            Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+            Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
         end
     end
 
@@ -544,7 +545,7 @@ class Interface
             puts "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["filename"])
+            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
             if filepath.nil? or !File.exists?(filepath) then
                 puts "[error: 359a6c99] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -568,7 +569,7 @@ class Interface
             end
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["foldername"])
+            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
             if folderpath.nil? or !File.exists?(folderpath) then
                 puts "[error: c87c7b41] There doesn't seem to be a Ymir file for filename '#{target["foldername"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -584,7 +585,7 @@ class Interface
             puts "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["filename"])
+            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
             if filepath.nil? or !File.exists?(filepath) then
                 puts "[error: a3a1b7a0] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -612,7 +613,7 @@ class Interface
                 return true if whiteListedExtensions.any?{|extension| location[-extension.size, extension.size] == extension }
                 false
             }
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(PATH_TO_YMIR, target["foldername"])
+            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
             if folderpath.nil? or !File.exists?(folderpath) then
                 puts "[error: 0916fd87] There doesn't seem to be a Ymir file for filename '#{target["foldername"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -666,7 +667,7 @@ class Interface
             end
             if operation == "edit description" then
                 tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-                Estate::commitTNodeToDisk(PATH_TO_YMIR, tnode)
+                Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
             end
             if operation == "dive targets" then
                 Interface::diveTargets(tnode["uuid"], tnode["targets"])
@@ -778,7 +779,7 @@ class Interface
                 Interface::tNodesDive(tnodes)
             end
             if operation == "view most recent items" then
-                tnodes = Estate::tNodesEnumerator(PATH_TO_YMIR).to_a.reverse.take(10)
+                tnodes = Estate::tNodesEnumerator(Todo::pathToYmir()).to_a.reverse.take(10)
                 Interface::tNodesDive(tnodes)
             end
             if operation == "timelines dive" then
@@ -926,7 +927,7 @@ class WalksCore
 
     # WalksCore::get2TNodesTimelines()
     def self.get2TNodesTimelines() # Array[String]
-        Estate::tNodesEnumerator(PATH_TO_YMIR)
+        Estate::tNodesEnumerator(Todo::pathToYmir())
             .map{|tnode|
                 tnode["classification"]
                     .select{|item| item["type"] == "timeline-329D3ABD" }
