@@ -215,7 +215,7 @@ Estate::tNodesEnumerator(Todo::pathToYmir())
             "agentuid"       => nil,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "todo walk (#{timeline}): " + Interface::targetToString(tnode["targets"][0])
+                "line" => "todo walk @ #{timeline} / " + Interface::targetToString(tnode["targets"][0])
             },
             "metric"         => metricHelper.metric(),
             "commands"        => ["run", "recast", "tonyx"],
