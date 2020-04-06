@@ -128,28 +128,13 @@ class NSXAgentCalendarTodos
         if command == ">starburst" then
             object = NSXAgentCalendarTodos::getObjectByUUIDOrNull(objectuuid)
             return if object.nil?
-
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["existing", "new"])
-            return if target.nil?
-
-            if target == "existing" then
-                text = object["section"]
-                starburstFoldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
-                nextIndex = Starburst::maxIndexAtStarburstName(starburstFoldername) + 1
-                starburstFolderpath = Starburst::starburstNameToFolderpath(starburstFoldername)
-                File.open("#{starburstFolderpath}/#{nextIndex}.txt", "w"){|f| f.puts(text) }
-                sectionuuid = object["sectionuuid"]
-                NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
-            end
-
-            if target == "new" then
-                text = object["section"]
-                folderpathxp = Starburst::interactivelyMakeNewFolderReturnFolderpath()
-                File.open("#{folderpathxp}/101.text.txt", "w"){|f| f.puts(text) }
-                sectionuuid = object["sectionuuid"]
-                NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
-            end
-
+            starburstFoldername = Starburst::selectExistingStarburstNameOrMakeANewOneReturnName()
+            text = object["section"]
+            nextIndex = Starburst::maxIndexAtStarburstName(starburstFoldername) + 1
+            starburstFolderpath = Starburst::starburstNameToFolderpath(starburstFoldername)
+            File.open("#{starburstFolderpath}/#{nextIndex}.txt", "w"){|f| f.puts(text) }
+            sectionuuid = object["sectionuuid"]
+            NSXLucilleCalendarFileUtils::removeSectionIdentifiedBySectionUUID(sectionuuid)
             return
         end
     end

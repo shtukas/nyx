@@ -124,4 +124,18 @@ class Starburst
         folderpathxp
     end
 
+    # Starburst::selectStarburstNameOrNull()
+    def self.selectStarburstNameOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
+    end
+
+    # Starburst::selectExistingStarburstNameOrMakeANewOneReturnName()
+    def self.selectExistingStarburstNameOrMakeANewOneReturnName()
+        puts "Select existing starburst name or make a new one"
+        n = Starburst::selectStarburstNameOrNull()
+        return n if n
+         folderpath = Starburst::interactivelyMakeNewFolderReturnFolderpath()
+         File.basename(folderpath)
+    end
+
 end
