@@ -218,9 +218,14 @@ Estate::tNodesEnumerator(Todo::pathToYmir())
                 "line" => "todo walk (#{timeline}): " + Interface::targetToString(tnode["targets"][0])
             },
             "metric"         => metricHelper.metric(),
-            "commands"       => [],
-            "defaultCommand" => nil,
-            "isDone"         => nil
+            "commands"        => ["run", "recast", "tonyx"],
+            "defaultCommand"  => "run",
+            "isDone"         => nil,
+            "shell-redirects" => {
+                "run"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing run '#{tnode["uuid"]}'",
+                "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing recast '#{tnode["uuid"]}'",
+                "tonyx"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing tonyx '#{tnode["uuid"]}'"
+            }
         }
     }
 
