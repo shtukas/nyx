@@ -61,7 +61,7 @@ class NSXAgentCalendarTodos
         if section.lines.to_a.size == 1 then
             [ ["done", ">todo", ">starburst"], "done" ]
         else
-            [ ["[]", ">todo", ">starburst"], "[]"]
+            [ ["[]", "done", ">todo", ">starburst"], "[]"]
         end
     end
 
