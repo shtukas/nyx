@@ -761,7 +761,8 @@ class Interface
                 "search",
                 "view most recent items",
                 "timelines dive",
-                "timeline walk"
+                "timeline walk",
+                "numbers"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -789,6 +790,22 @@ class Interface
                 timeline = TMakers::interactively2SelectTimelineOrNull(CoreData::timelinesInIncreasingActivityTime().reverse)
                 next if timeline.nil?
                 Interface::timelineWalk(timeline)
+            end
+            if operation == "numbers" then
+                puts "timeline mapping:"
+                timeStruct = WalksCore::timeline2TimeMapping()
+                WalksCore::get2TNodesTimelines().each{|timeline|
+                    if timeStruct[timeline].nil? then
+                        timeStruct[timeline] = 0
+                    end
+                }
+                timeStruct
+                    .to_a
+                    .sort{|p1, p2| p1[1] <=> p2[1] }
+                    .each{|timeline, timespan|
+                        puts "    -> #{timeline}: #{timespan}"
+                    }
+                LucilleCore::pressEnterToContinue()
             end
         }
     end
