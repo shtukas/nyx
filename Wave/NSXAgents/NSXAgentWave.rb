@@ -2,26 +2,35 @@
 
 # encoding: UTF-8
 require 'json'
+
 require 'date'
+
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
+
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
 # FileUtils.mv('oldname', 'newname')
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
+
 require 'find'
+
 require 'drb/drb'
+
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
@@ -30,204 +39,33 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
+=begin
+    Zeta::makeNewFile(filepath)
+    Zeta::set(filepath, key, value)
+    Zeta::getOrNull(filepath, key)
+    Zeta::destroy(filepath, key)
+=end
+
 # ----------------------------------------------------------------------
+
+=begin
+
+(zeta file)
+    uuid     : String
+    schedule : String # Serialised JSON
+    text     : string # description, possibly multi lines
+
+=end
 
 WAVE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Wave"
 
 # ----------------------------------------------------------------------
 
-class NSXWaveFolderProbe
-
-    # NSXWaveFolderProbe::nonDotFilespathsAtFolder(folderpath)
-    def self.nonDotFilespathsAtFolder(folderpath)
-        Dir.entries(folderpath)
-            .select{|filename| filename[0,1]!="." }
-            .map{|filename| "#{folderpath}/#{filename}" }
-    end
-
-    # NSXWaveFolderProbe::folderpath2metadata(folderpath)
-    def self.folderpath2metadata(folderpath)
-
-        metadata = {}
-
-        # --------------------------------------------------------------------
-        # Trying to read a description file
-
-        getDescriptionFilepathMaybe = lambda{|folderpath|
-            filepaths = NSXWaveFolderProbe::nonDotFilespathsAtFolder(folderpath)
-            if filepaths.any?{|filepath| File.basename(filepath).include?("description.txt") } then
-                filepaths.select{|filepath| File.basename(filepath).include?("description.txt") }.first
-            else
-                nil
-            end
-        }
-
-        getDescriptionFromDescriptionFileMaybe = lambda{|folderpath|
-            filepathOpt = getDescriptionFilepathMaybe.call(folderpath)
-            if filepathOpt then
-                IO.read(filepathOpt).strip
-            else
-                nil
-            end
-        }
-
-        descriptionOpt = getDescriptionFromDescriptionFileMaybe.call(folderpath)
-        if descriptionOpt then
-            metadata["contents"] = descriptionOpt
-            if descriptionOpt.start_with?("http") then
-                metadata["target-type"] = "url"
-                metadata["url"] = descriptionOpt
-                return metadata
-            end
-        end
-
-        # --------------------------------------------------------------------
-        #
-
-        files = NSXWaveFolderProbe::nonDotFilespathsAtFolder(folderpath)
-                .select{|filepath| !File.basename(filepath).start_with?('wave') }
-                .select{|filepath| !File.basename(filepath).start_with?('catalyst') }
-
-        fileIsOpenable = lambda {|filepath|
-            File.basename(filepath)[-4,4]==".txt" or
-            File.basename(filepath)[-4,4]==".eml" or
-            File.basename(filepath)[-4,4]==".jpg" or
-            File.basename(filepath)[-4,4]==".png" or
-            File.basename(filepath)[-4,4]==".gif" or
-            File.basename(filepath)[-7,7]==".webloc"
-        }
-
-        openableFiles = files
-                .select{|filepath| fileIsOpenable.call(filepath) }
-
-
-        filesWithoutTheDescription = files
-                .select{|filepath| !File.basename(filepath).include?('description.txt') }
-
-        extractURLFromFileMaybe = lambda{|filepath|
-            return nil if filepath[-4,4] != ".txt"
-            contents = IO.read(filepath)
-            return nil if contents.lines.to_a.size != 1
-            line = contents.lines.first.strip
-            line = NSXMiscUtils::simplifyURLCarryingString(line)
-            return nil if !line.start_with?("http")
-            line
-        }
-
-        extractLineFromFileMaybe = lambda{|filepath|
-            return nil if filepath[-4,4] != ".txt"
-            contents = IO.read(filepath)
-            return nil if contents.lines.to_a.size != 1
-            contents.lines.first.strip
-        }
-
-        if files.size==0 then
-            metadata["target-type"] = "virtually-empty-wave-folder"
-            if metadata["contents"].nil? then
-                metadata["contents"] = folderpath
-            end
-            metadata["folderpath2metadata:case"] = "b6e8ac55"
-            return metadata
-        end
-
-        if files.size==1 and ( url = extractURLFromFileMaybe.call(files[0]) ) then
-            filepath = files.first
-            metadata["target-type"] = "url"
-            metadata["url"] = url
-            if metadata["contents"].nil? then
-                metadata["contents"] = url
-            end
-            metadata["folderpath2metadata:case"] = "95e7dd30"
-            return metadata
-        end
-
-        if files.size==1 and ( line = extractLineFromFileMaybe.call(files[0]) ) then
-            filepath = files.first
-            metadata["target-type"] = "line"
-            metadata["text"] = line
-            if metadata["contents"].nil? then
-                metadata["contents"] = line
-            end
-            metadata["folderpath2metadata:case"] = "a888e991"
-            return metadata
-        end
-
-        if files.size==1 and openableFiles.size==1 then
-            filepath = files.first
-            metadata["target-type"] = "openable-file"
-            metadata["target-location"] = filepath
-            if metadata["contents"].nil? then
-                metadata["contents"] = File.basename(filepath)
-            end
-            metadata["folderpath2metadata:case"] = "54b1a4b5"
-            return metadata
-        end
-
-        if files.size==1 and openableFiles.size!=1 then
-            filepath = files.first
-            metadata["target-type"] = "folder"
-            metadata["target-location"] = folderpath
-            if metadata["contents"].nil? then
-                metadata["contents"] = "One non-openable file in #{File.basename(folderpath)}"
-            end
-            metadata["folderpath2metadata:case"] = "439bba64"
-            return metadata
-        end
-
-        if files.size > 1 and filesWithoutTheDescription.size==1 and fileIsOpenable.call(filesWithoutTheDescription.first) then
-            metadata["target-type"] = "openable-file"
-            metadata["target-location"] = filesWithoutTheDescription.first
-            if metadata["contents"].nil? then
-                metadata["contents"] = "Multiple files in #{File.basename(folderpath)}"
-            end
-            metadata["folderpath2metadata:case"] = "29d2dc25"
-            return metadata
-        end
-
-        if files.size > 1 then
-            metadata["target-type"] = "folder"
-            metadata["target-location"] = folderpath
-            if metadata["contents"].nil? then
-                metadata["contents"] = "Multiple files in #{File.basename(folderpath)}"
-            end
-            metadata["folderpath2metadata:case"] = "f6a683b0"
-            return metadata
-        end
-    end
-
-    # NSXWaveFolderProbe::openActionOnMetadata(metadata)
-    def self.openActionOnMetadata(metadata)
-        if metadata["target-type"]=="folder" then
-            if File.exists?(metadata["target-location"]) then
-                system("open '#{metadata["target-location"]}'")
-            else
-                puts "Error: folder #{metadata["target-location"]} doesn't exist."
-                LucilleCore::pressEnterToContinue()
-            end
-        end
-        if metadata["target-type"]=="openable-file" then
-            system("open '#{metadata["target-location"]}'")
-        end
-        if metadata["target-type"]=="line" then
-
-        end
-        if metadata["target-type"]=="url" then
-            if NSXMiscUtils::isLucille18() then
-                system("open '#{metadata["url"]}'")
-            else
-                system("open -na 'Google Chrome' --args --new-window '#{metadata["url"]}'")
-            end
-        end
-        if metadata["target-type"]=="virtually-empty-wave-folder" then
-
-        end
-    end
-end
-
 class NSXWaveUtils
 
-    # NSXWaveUtils::makeScheduleObjectInteractivelyEnsureChoice()
-    def self.makeScheduleObjectInteractivelyEnsureChoice()
+    # NSXWaveUtils::makeScheduleObjectInteractively()
+    def self.makeScheduleObjectInteractively()
 
         scheduleTypes = ['sticky', 'date', 'repeat']
         scheduleType = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
@@ -354,90 +192,51 @@ class NSXWaveUtils
         1
     end
 
-    # NSXWaveUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-    def self.catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        Find.find("#{WAVE_FOLDERPATH}/OpsLine-Active") do |path|
-            next if !File.file?(path)
-            next if File.basename(path)!='catalyst-uuid'
-            thisUUID = IO.read(path).strip
-            next if thisUUID!=uuid
-            return File.dirname(path)
-        end
-        nil
-    end
-
-    # NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-    def self.catalystUUIDToItemFolderPathOrNull(uuid)
-        storedValue = KeyValueStore::getOrNull(nil, "9f4e1f2e-0bab-4a56-9de7-7976805ca04d:#{uuid}")
-        if storedValue then
-            path = JSON.parse(storedValue)[0]
-            if !path.nil? then
-                uuidFilepath = "#{path}/catalyst-uuid"
-                if File.exist?(uuidFilepath) and IO.read(uuidFilepath).strip == uuid then
-                    return path
-                end
-            end
-        end
-        #puts "NSXWaveUtils::catalystUUIDToItemFolderPathOrNull, looking for #{uuid}"
-        maybepath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNullUseTheForce(uuid)
-        if maybepath then
-            KeyValueStore::set(nil, "9f4e1f2e-0bab-4a56-9de7-7976805ca04d:#{uuid}", JSON.generate([maybepath]))
-        end
-        maybepath
+    # NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+    def self.catalystUUIDToItemFilepathOrNull(uuid)
+        filepath = "#{WAVE_FOLDERPATH}/Items/#{uuid}.zeta"
+        return nil if !File.exists?(filepath)
+        filepath
     end
 
     # NSXWaveUtils::catalystUUIDsEnumerator()
     def self.catalystUUIDsEnumerator()
         Enumerator.new do |uuids|
-            Find.find("#{WAVE_FOLDERPATH}/OpsLine-Active") do |path|
+            Find.find("#{WAVE_FOLDERPATH}/Items") do |path|
                 next if !File.file?(path)
-                next if File.basename(path) != 'catalyst-uuid'
-                uuids << IO.read(path).strip
+                next if File.basename(path)[-5, 5] != '.zeta'
+                uuids << File.basename(path)[0, 8] # marker: 202004082348
             end
         end
     end
 
-    # NSXWaveUtils::timestring22ToFolderpath(timestring22)
-    def self.timestring22ToFolderpath(timestring22) # 20170923-143534-341733
-        "#{WAVE_FOLDERPATH}/OpsLine-Active/#{timestring22[0, 4]}/#{timestring22[0, 6]}/#{timestring22[0, 8]}/#{timestring22}"
-    end
-
     # NSXWaveUtils::writeScheduleToDisk(uuid, schedule)
     def self.writeScheduleToDisk(uuid, schedule)
-        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        return if folderpath.nil?
-        return if !File.exists?(folderpath)
-        LucilleCore::removeFileSystemLocation("#{folderpath}/catalyst-schedule.json")
-        File.open("#{folderpath}/wave-schedule.json", 'w') {|f| f.write(JSON.pretty_generate(schedule)) }
+        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+        return if filepath.nil?
+        Zeta::set(filepath, "schedule", JSON.generate(schedule))
     end
 
     # NSXWaveUtils::readScheduleFromWaveItemOrNull(uuid)
     def self.readScheduleFromWaveItemOrNull(uuid)
-        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        return nil if folderpath.nil?
-        filepath =
-            if File.exists?("#{folderpath}/wave-schedule.json") then
-                "#{folderpath}/wave-schedule.json"
-            elsif File.exists?("#{folderpath}/catalyst-schedule.json") then
-                "#{folderpath}/catalyst-schedule.json"
-            else
-                nil
-            end
+        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
         return nil if filepath.nil?
-        schedule = JSON.parse(IO.read(filepath))
+        schedule = Zeta::getOrNull(filepath, "schedule")
+        return nil if schedule.nil?
+        JSON.parse(schedule)
     end
 
     # NSXWaveUtils::makeNewSchedule()
     def self.makeNewSchedule()
-        NSXWaveUtils::makeScheduleObjectInteractivelyEnsureChoice()
+        NSXWaveUtils::makeScheduleObjectInteractively()
     end
 
-    # NSXWaveUtils::archiveWaveItem(uuid)
-    def self.archiveWaveItem(uuid)
+    # NSXWaveUtils::sendItemToBin(uuid)
+    def self.sendItemToBin(uuid)
         return if uuid.nil?
-        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(uuid)
-        return if folderpath.nil?
-        NSXMiscUtils::moveLocationToCatalystBin(folderpath)
+        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+        return nil if filepath.nil?
+        NSXMiscUtils::moveLocationToCatalystBin(filepath)
     end
 
     # NSXWaveUtils::extractFirstLineFromText(text)
@@ -446,18 +245,18 @@ class NSXWaveUtils
         text.lines.first
     end
 
-    # NSXWaveUtils::objectUUIDToAnnounce(folderProbeMetadata,schedule)
-    def self.objectUUIDToAnnounce(folderProbeMetadata,schedule)
-        "[#{NSXWaveUtils::scheduleToAnnounce(schedule)}] #{NSXWaveUtils::extractFirstLineFromText(folderProbeMetadata["contents"])}"
+    # NSXWaveUtils::announce(text, schedule)
+    def self.announce(text, schedule)
+        "[#{NSXWaveUtils::scheduleToAnnounce(schedule)}] #{NSXWaveUtils::extractFirstLineFromText(text)}"
     end
 
     # NSXWaveUtils::makeCatalystObjectOrNull(objectuuid)
     def self.makeCatalystObjectOrNull(objectuuid)
-        location = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-        return nil if location.nil?
+        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
+        return nil if filepath.nil?
         schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(objectuuid)
-        folderProbeMetadata = NSXWaveFolderProbe::folderpath2metadata(location)
-        announce = NSXWaveUtils::objectUUIDToAnnounce(folderProbeMetadata, schedule)
+        text = Zeta::getOrNull(filepath, "text") || "[default description]"
+        announce = NSXWaveUtils::announce(text, schedule)
         contentItem = {
             "type" => "line",
             "line" => announce
@@ -467,12 +266,9 @@ class NSXWaveUtils
         object["agentuid"] = NSXAgentWave::agentuid()
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
-        object["commands"] = ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "folder", "destroy"]
-        object["defaultCommand"] = "done"
+        object["commands"] = ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "destroy"]
+        object["defaultCommand"] = "open+done"
         object['schedule'] = schedule
-        object["item-data"] = {}
-        object["item-data"]["folderpath"] = location
-        object["item-data"]["folder-probe-metadata"] = folderProbeMetadata
         object
     end
 
@@ -492,11 +288,11 @@ class NSXWaveUtils
         NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     end
 
-    # NSXWaveUtils::setItemDescription(objectuuid, description)
-    def self.setItemDescription(objectuuid, description)
-        folderpath = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-        return if folderpath.nil?
-        File.open("#{folderpath}/description.txt", "w"){|f| f.write(description) }
+    # NSXWaveUtils::setItemDescription(uuid, description)
+    def self.setItemDescription(uuid, description)
+        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+        return if filepath.nil?
+        Zeta::set(filepath, "text", description)
     end
 
 end
@@ -524,10 +320,20 @@ class NSXAgentWave
     def self.processObjectAndCommand(objectuuid, command)
 
         if command == 'open' then
-            object = NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
-            return if object.nil?
-            metadata = object["item-data"]["folder-probe-metadata"]
-            NSXWaveFolderProbe::openActionOnMetadata(metadata)
+            filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
+            return if filepath.nil?
+            text = Zeta::getOrNull(filepath, "text").strip
+            puts text
+            if text.lines.to_a.size == 1 and text.start_with?("http") then
+                url = text
+                if NSXMiscUtils::isLucille18() then
+                    system("open '#{url}'")
+                else
+                    system("open -na 'Google Chrome' --args --new-window '#{url}'")
+                end
+            else
+                LucilleCore::pressEnterToContinue()
+            end
             return
         end
 
@@ -553,16 +359,9 @@ class NSXAgentWave
             return
         end
 
-        if command == 'folder' then
-            location = NSXWaveUtils::catalystUUIDToItemFolderPathOrNull(objectuuid)
-            puts "Opening folder #{location}"
-            system("open '#{location}'")
-            return
-        end
-
         if command == 'destroy' then
             if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-                NSXWaveUtils::archiveWaveItem(objectuuid)
+                NSXWaveUtils::sendItemToBin(objectuuid)
                 return
             end
             return

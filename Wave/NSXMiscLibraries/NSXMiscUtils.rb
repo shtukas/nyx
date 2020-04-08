@@ -254,12 +254,12 @@ class NSXMiscUtils
     # NSXMiscUtils::spawnNewWaveItem(description): String (uuid)
     def self.spawnNewWaveItem(description)
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        uuid = SecureRandom.hex(4)
+        uuid = SecureRandom.hex(4) # Specs dictate length 8 # marker: 202004082348
         folderpath = NSXWaveUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
         FileUtils.mkpath folderpath
         File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
         File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
-        schedule = NSXWaveUtils::makeScheduleObjectInteractivelyEnsureChoice()
+        schedule = NSXWaveUtils::makeScheduleObjectInteractively()
         NSXWaveUtils::writeScheduleToDisk(uuid, schedule)
         uuid
     end
