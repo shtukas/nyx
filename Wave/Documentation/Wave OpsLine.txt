@@ -1,9 +1,0 @@
-
-catalyst-uuid:
-    As it says on the tin.
-
-description.txt:
-    Descriptions that override the name of the folder for the display in Catalyst 
-
-catalyst-schedule.json:
-    Schedule objects go to file

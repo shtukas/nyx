@@ -56,6 +56,26 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
     schedule : String # Serialised JSON
     text     : string # description, possibly multi lines
 
+(schedule) 
+
+{
+    "uuid"      => SecureRandom.hex,
+    "@"         => "sticky",
+    "from-hour" => Integer
+}
+
+{
+    "uuid" => SecureRandom.hex,
+    "@"    => (repeat type),
+    "repeat-value" => value
+}
+
+(repeat type):
+    - every-n-hours               -> value: Float
+    - every-n-days                -> value: Float
+    - every-this-day-of-the-week  -> value: 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
+    - every-this-day-of-the-month -> value: String Length:2
+
 =end
 
 WAVE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Wave"
