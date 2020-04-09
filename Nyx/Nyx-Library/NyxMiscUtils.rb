@@ -149,7 +149,7 @@ class NyxMiscUtils
 
     # NyxMiscUtils::publishIndex2PermanodesAsOneObject()
     def self.publishIndex2PermanodesAsOneObject()
-        targetFilepath = "/Users/pascal/Galaxy/DataBank/Nyx/permanodes.json"
+        targetFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx/permanodes.json"
         File.open(targetFilepath, "w"){|f| f.puts(JSON.pretty_generate(NyxPermanodeOperator::permanodesEnumerator(Nyx::pathToYmir()).to_a))}
     end
 
