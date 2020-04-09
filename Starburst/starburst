@@ -57,12 +57,10 @@ require_relative "Starburst.rb"
 # --------------------------------------------------------------------
 
 class FileSystemUtils
-
     # FileSystemUtils::l22()
     def self.l22()
         Time.new.strftime("%Y%m%d-%H%M%S-%6N")
     end
-
 end
 
 def starburstDive(starburstName)
@@ -85,15 +83,27 @@ def starburstDive(starburstName)
 
 end
 
+def startburstDiveFolders()
+    foldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
+    return if foldername.nil?
+    starburstDive(foldername)
+end
+
 loop {
     system('clear')
     puts "Starburst 💫"
-    items = Starburst::foldernames() + ["-> new folder"]
-    item = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", items)
-    exit if item.nil?
-    if item == "-> new folder" then
+    options = [
+        "Dive Folders",
+        "New Folder"
+    ]
+    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", options)
+    exit if option.nil?
+    if option == "Dive Folders" then
+        startburstDiveFolders()
+        next
+    end
+    if option == "New Folder" then
         Starburst::interactivelyMakeNewFolderReturnFolderpath()
         next
     end
-    starburstDive(item)
 }
