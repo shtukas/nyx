@@ -38,12 +38,12 @@ class NSXDoNotShowUntilDatetime
 
     # NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
     def self.setDatetime(objectuuid, datetime)
-        KeyValueStore::set("#{CATALYST_FOLDERPATH}/DoNotShowUntilDateTime4", objectuuid, datetime)
+        KeyValueStore::set("#{CATALYST_FOLDERPATH}/Wave/DoNotShowUntilDateTime4", objectuuid, datetime)
     end
 
     # NSXDoNotShowUntilDatetime::getDatetimeOrNull(objectuuid)
     def self.getDatetimeOrNull(objectuuid)
-        KeyValueStore::getOrNull("#{CATALYST_FOLDERPATH}/DoNotShowUntilDateTime4", objectuuid)
+        KeyValueStore::getOrNull("#{CATALYST_FOLDERPATH}/Wave/DoNotShowUntilDateTime4", objectuuid)
     end
 
     # NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(objectuuid)
