@@ -66,7 +66,7 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "/" then
+        if command == "WaveGeneralMenu" then
             loop {
                 options = [
                     "new wave",
@@ -74,9 +74,6 @@ class NSXGeneralCommandHandler
                     "agents generation speed",
                     "TheBridge generation speed",
                     "ui generation speed",
-                    "-> nyx",
-                    "-> todo",
-                    "-> starburst",
                 ]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                 break if option.nil?
@@ -120,19 +117,30 @@ class NSXGeneralCommandHandler
                     puts "UI generation speed: #{(t2-t1).round(3)} seconds"
                     LucilleCore::pressEnterToContinue()
                 end
-                if option == "-> nyx" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx")
-                    return
-                end
-                if option == "-> todo" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
-                    return
-                end
-                if option == "-> starburst" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst")
-                    return
-                end
             }
+            return
+        end
+
+        if command == "/" then
+            options = [
+                "Wave",
+                "Nyx",
+                "Todo",
+                "Starburst",
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            if option == "Wave" then
+                NSXGeneralCommandHandler::processCatalystCommandCore(object, "WaveGeneralMenu")
+            end
+            if option == "Nyx" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx")
+            end
+            if option == "Todo" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
+            end
+            if option == "Starburst" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst")
+            end
             return
         end
 
