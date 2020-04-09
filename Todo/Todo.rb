@@ -73,7 +73,7 @@ class Todo
 
     # Todo::pathToTodoInbox()
     def self.pathToTodoInbox()
-        "/Users/pascal/Galaxy/DataBank/TodoInbox"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Inbox"
     end
 
     # Todo::pathToCatalystInbox()
