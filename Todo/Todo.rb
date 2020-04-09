@@ -68,7 +68,7 @@ class Todo
 
     # Todo::pathToYmir()
     def self.pathToYmir()
-        "/Users/pascal/Galaxy/DataBank/todo/Ymir"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Ymir"
     end
 
     # Todo::pathToTodoInbox()

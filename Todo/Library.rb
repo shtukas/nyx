@@ -909,7 +909,7 @@ end
 
 # --------------------------------------------------------------------
 
-WALKS_DATASTORE_FOLDERPATH = "/Users/pascal/Galaxy/DataBank/todo/todo-walks/dataset"
+WALKS_DATASTORE_FOLDERPATH = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/todo-walks/dataset"
 WALKS_SETUUID1 = "CFCD19D8-A904-41C5-AE42-37EFE5ACF733"
 
 =begin
