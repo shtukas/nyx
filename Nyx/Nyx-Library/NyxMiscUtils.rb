@@ -164,7 +164,7 @@ class NyxMiscUtils
                             .select{|filepath| filepath[0,1]!='.' }
                             .sort
         puts "Select files:"
-        locations, _ = LucilleCore::selectZeroOrMore("files:", [], desktopLocations, toStringLambda = lambda{ |location| File.basename(location) })
+        locations, _ = LucilleCore::selectZeroOrMore("files:", [], desktopLocations, lambda{ |location| File.basename(location) })
         locations
     end
 

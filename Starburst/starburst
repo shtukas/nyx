@@ -56,54 +56,38 @@ require_relative "Starburst.rb"
 
 # --------------------------------------------------------------------
 
-class FileSystemUtils
-    # FileSystemUtils::l22()
-    def self.l22()
-        Time.new.strftime("%Y%m%d-%H%M%S-%6N")
-    end
-end
-
-def starburstDive(starburstName)
-    operations = ["open folder", ">todo"]
-    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-    return if operation.nil?
-
-    if operation == "open folder" then
-        folderpath = Starburst::starburstNameToFolderpath(starburstName)
-        return if !File.exists?(folderpath)
-        system("open '#{folderpath}'")
-    end
-
-    if operation == ">todo" then
-        folderpath = Starburst::starburstNameToFolderpath(starburstName)
-        return if !File.exists?(folderpath)
-        Todo::starburstFolderPathToTodoItemPreserveSource(folderpath)
-        LucilleCore::removeFileSystemLocation(folderpath)
-    end
-
-end
-
-def startburstDiveFolders()
-    foldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
-    return if foldername.nil?
-    starburstDive(foldername)
-end
-
 loop {
     system('clear')
     puts "Starburst 💫"
     options = [
         "Dive Folders",
-        "New Folder"
+        "New Folder",
+        "Collect Desktop location into folder (existing or new)"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", options)
-    exit if option.nil?
+    break if option.nil?
     if option == "Dive Folders" then
-        startburstDiveFolders()
-        next
+        Starburst::diveStartburstFolders()
     end
     if option == "New Folder" then
         Starburst::interactivelyMakeNewFolderReturnFolderpath()
-        next
+    end
+    if option == "Collect Desktop location into folder (existing or new)" then
+        starburstname = Starburst::selectExistingStarburstNameOrMakeANewOneReturnName()
+        starburstfolderpath = Starburst::starburstNameToFolderpath(starburstname)
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .sort
+        location1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("location", desktopLocations, lambda{ |location| File.basename(location) })
+        next if location1.nil?
+        name1 = File.basename(location1)
+        name2 = "#{(Starburst::maxIndexAtStarburstName(starburstname)+1)}-#{name1}"
+        location2 = "#{starburstfolderpath}/#{name2}"
+        if File.file?(location1) then
+            FileUtils.mv(location1, location2)
+        else
+            FileUtils.mkdir(location2)
+            LucilleCore::copyContents(location1, location2)
+        end
     end
 }

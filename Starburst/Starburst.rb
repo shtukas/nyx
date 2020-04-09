@@ -68,7 +68,7 @@ class Starburst
 
     # Starburst::pathToStarburstFolders()
     def self.pathToStarburstFolders()
-        "/Users/pascal/Galaxy/Orbital/Starburst"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Starburst"
     end
 
     # Starburst::foldernames()
@@ -136,6 +136,33 @@ class Starburst
         return n if n
          folderpath = Starburst::interactivelyMakeNewFolderReturnFolderpath()
          File.basename(folderpath)
+    end
+
+    # Starburst::diveStartburstFolders()
+    def self.diveStartburstFolders()
+        foldername = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", Starburst::foldernames())
+        return if foldername.nil?
+        Starburst::diveFolder(foldername)
+    end
+
+    # Starburst::diveFolder(starburstName)
+    def self.diveFolder(starburstName)
+        operations = ["open folder", ">todo"]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+        return if operation.nil?
+
+        if operation == "open folder" then
+            folderpath = Starburst::starburstNameToFolderpath(starburstName)
+            return if !File.exists?(folderpath)
+            system("open '#{folderpath}'")
+        end
+
+        if operation == ">todo" then
+            folderpath = Starburst::starburstNameToFolderpath(starburstName)
+            return if !File.exists?(folderpath)
+            Todo::starburstFolderPathToTodoItemPreserveSource(folderpath)
+            LucilleCore::removeFileSystemLocation(folderpath)
+        end
     end
 
 end
