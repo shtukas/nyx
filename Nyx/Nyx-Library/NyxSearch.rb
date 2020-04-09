@@ -58,16 +58,20 @@ class NyxSearch
 
     # NyxSearch::permanodeTargetHasSearchPattern(target, searchPattern)
     def self.permanodeTargetHasSearchPattern(target, searchPattern)
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            return true if target["mark"].downcase == searchPattern.downcase
+        if target["type"] == "url-EFB8D55B" then
+            return true if target["url"].downcase == searchPattern.downcase
+            return false
+        end
+        if target["type"] == "file-3C93365A" then
+            return true if target["filename"].downcase == searchPattern.downcase
             return false
         end
         if target["type"] == "unique-name-C2BF46D6" then
             return true if target["name"].downcase == searchPattern.downcase
             return false
         end
-        if target["type"] == "url-EFB8D55B" then
-            return true if target["url"].downcase == searchPattern.downcase
+        if target["type"] == "lstore-directory-mark-BEE670D0" then
+            return true if target["mark"].downcase == searchPattern.downcase
             return false
         end
         if target["type"] == "perma-dir-11859659" then
@@ -79,16 +83,20 @@ class NyxSearch
 
     # NyxSearch::permanodeTargetIncludeSearchPattern(target, searchPattern)
     def self.permanodeTargetIncludeSearchPattern(target, searchPattern)
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            return true if target["mark"].downcase.include?(searchPattern.downcase)
+        if target["type"] == "url-EFB8D55B" then
+            return true if target["url"].downcase.include?(searchPattern.downcase)
+            return false
+        end
+        if target["type"] == "file-3C93365A" then
+            return true if target["filename"].downcase.include?(searchPattern.downcase)
             return false
         end
         if target["type"] == "unique-name-C2BF46D6" then
             return true if target["name"].downcase.include?(searchPattern.downcase)
             return false
         end
-        if target["type"] == "url-EFB8D55B" then
-            return true if target["url"].downcase.include?(searchPattern.downcase)
+        if target["type"] == "lstore-directory-mark-BEE670D0" then
+            return true if target["mark"].downcase.include?(searchPattern.downcase)
             return false
         end
         if target["type"] == "perma-dir-11859659" then
