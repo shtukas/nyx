@@ -22,6 +22,12 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+# Digest::SHA256.hexdigest 'message'  
+# Digest::SHA256.file(myFile).hexdigest
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 # LucilleCore::askQuestionAnswerAsString(question)
 # LucilleCore::askQuestionAnswerAsBoolean(announce, defaultValue = nil)
@@ -46,11 +52,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-# Digest::SHA256.hexdigest 'message'  
-# Digest::SHA256.file(myFile).hexdigest
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/YmirEstate.rb"
+=begin
+    YmirEstate::makeNewYmirLocationForBasename(pathToYmir, basename)
+        # If base name is meant to be the name of a folder then folder itself 
+        # still need to be created. Only the parent is created.
+    YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, basename)
+    YmirEstate::ymirFilepathEnumerator(pathToYmir)
+=end
 
 # --------------------------------------------------------------------
 
@@ -64,7 +73,13 @@ class NyxPermanodeOperator
         return false if object.nil?
         return false if object["uuid"].nil?
         return false if object["type"].nil?
-        types = ["lstore-directory-mark-BEE670D0", "unique-name-C2BF46D6", "url-EFB8D55B", "perma-dir-11859659"]
+        types = [
+            "url-EFB8D55B",
+            "file-3C93365A",
+            "unique-name-C2BF46D6",
+            "lstore-directory-mark-BEE670D0",
+            "perma-dir-11859659"
+        ]
         return false if !types.include?(object["type"])
         if object["type"] == "perma-dir-11859659" then
             return false if object["foldername"].nil?
@@ -93,14 +108,17 @@ class NyxPermanodeOperator
 
     # NyxPermanodeOperator::permanodeTargetToString(target)
     def self.permanodeTargetToString(target)
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            return "mark      : #{target["mark"]}"
+        if target["type"] == "url-EFB8D55B" then
+            return "url       : #{target["url"]}"
+        end
+        if target["type"] == "file-3C93365A" then
+            return "file      : #{target["filename"]}"
         end
         if target["type"] == "unique-name-C2BF46D6" then
             return "uniquename: #{target["name"]}"
         end
-        if target["type"] == "url-EFB8D55B" then
-            return "url       : #{target["url"]}"
+        if target["type"] == "lstore-directory-mark-BEE670D0" then
+            return "mark      : #{target["mark"]}"
         end
         if target["type"] == "perma-dir-11859659" then
             return "PermaDir  : #{target["uuid"]}"
@@ -122,15 +140,26 @@ class NyxPermanodeOperator
     # ------------------------------------------
     # Opening
 
+    # NyxPermanodeOperator::fileCanBeSafelyOpen(filename)
+    def self.fileCanBeSafelyOpen(filename)
+        true # TODO
+    end
+
     # NyxPermanodeOperator::openPermanodeTarget(pathToYmir, target)
     def self.openPermanodeTarget(pathToYmir, target)
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            location = NyxMiscUtils::lStoreMarkResolutionToMarkFilepathOrNull(target["mark"])
-            if location then
-                puts "opening: #{File.dirname(location)}"
-                system("open '#{File.dirname(location)}'")
+        if target["type"] == "url-EFB8D55B" then
+            url = target["url"]
+            system("open '#{url}'")
+            return
+        end
+        if target["type"] == "file-3C93365A" then
+            filename = target["filename"]
+            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, filename)
+            if NyxPermanodeOperator::fileCanBeSafelyOpen(filename) then
+                system("open '#{filepath}'")
             else
-                puts "I could not determine the location of mark: #{target["mark"]}"
+                puts "Copying file to Desktop: #{File.basename(filepath)}"
+                File.cp(filepath, "/Users/pascal/Desktop/#{File.basename(filepath)}")
                 LucilleCore::pressEnterToContinue()
             end
             return
@@ -147,9 +176,15 @@ class NyxPermanodeOperator
             end
             return
         end
-        if target["type"] == "url-EFB8D55B" then
-            url = target["url"]
-            system("open '#{url}'")
+        if target["type"] == "lstore-directory-mark-BEE670D0" then
+            location = NyxMiscUtils::lStoreMarkResolutionToMarkFilepathOrNull(target["mark"])
+            if location then
+                puts "opening: #{File.dirname(location)}"
+                system("open '#{File.dirname(location)}'")
+            else
+                puts "I could not determine the location of mark: #{target["mark"]}"
+                LucilleCore::pressEnterToContinue()
+            end
             return
         end
         if target["type"] == "perma-dir-11859659" then
@@ -303,6 +338,22 @@ class NyxPermanodeOperator
     # ------------------------------------------------------------------
     # Interactive Makers
 
+    # NyxPermanodeOperator::makePermanodeTargetFileInteractive()
+    def self.makePermanodeTargetFileInteractive()
+        filepath1 = LucilleCore::askQuestionAnswerAsString("Filepath: ")
+        filename1 = File.basename(filepath1)
+        filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
+        filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
+        FileUtils.mv(filepath1, filepath2)
+        filepath3 = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename2)
+        FileUtils.mv(filepath2, filepath3)
+        return {
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "file-3C93365A",
+            "filename" => filename2
+        }
+    end
+
     # NyxPermanodeOperator::makePermanodeTargetLStoreDirectoryMarkInteractiveOrNull()
     def self.makePermanodeTargetLStoreDirectoryMarkInteractiveOrNull()
         options = ["mark file already exists", "mark file should be created"]
@@ -391,18 +442,21 @@ class NyxPermanodeOperator
     end
 
     # NyxPermanodeOperator::makePermanodeTargetInteractiveOrNull(type)
-    # type = nil | "lstore-directory-mark-BEE670D0" | "unique-name-C2BF46D6" | "url-EFB8D55B"
+    # type = nil | "url-EFB8D55B" | "file-3C93365A" | "unique-name-C2BF46D6" | "lstore-directory-mark-BEE670D0" | "perma-dir-11859659"
     def self.makePermanodeTargetInteractiveOrNull(type)
         permanodeTargetType =
             if type.nil? then
-                LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["lstore-directory-mark-BEE670D0", "url-EFB8D55B", "unique-name-C2BF46D6", "perma-dir-11859659"])
+                LucilleCore::selectEntityFromListOfEntitiesOrNull("type", [
+                    "url-EFB8D55B",
+                    "unique-name-C2BF46D6",
+                    "file-3C93365A",
+                    "lstore-directory-mark-BEE670D0",
+                    "perma-dir-11859659"]
+                )
             else
                 type
             end
         return nil if permanodeTargetType.nil?
-        if permanodeTargetType == "lstore-directory-mark-BEE670D0" then
-            return NyxPermanodeOperator::makePermanodeTargetLStoreDirectoryMarkInteractiveOrNull()
-        end
         if permanodeTargetType == "url-EFB8D55B" then
             return {
                 "uuid" => SecureRandom.uuid,
@@ -410,12 +464,18 @@ class NyxPermanodeOperator
                 "url"  => LucilleCore::askQuestionAnswerAsString("url: ").strip
             }
         end
+        if permanodeTargetType == "file-3C93365A" then
+            return NyxPermanodeOperator::makePermanodeTargetFileInteractive()
+        end
         if permanodeTargetType == "unique-name-C2BF46D6" then
             return {
                 "uuid" => SecureRandom.uuid,
                 "type" => "unique-name-C2BF46D6",
                 "name" => LucilleCore::askQuestionAnswerAsString("uniquename: ").strip
             }
+        end
+        if permanodeTargetType == "lstore-directory-mark-BEE670D0" then
+            return NyxPermanodeOperator::makePermanodeTargetLStoreDirectoryMarkInteractiveOrNull()
         end
         if permanodeTargetType == "perma-dir-11859659" then
             foldername1 = LucilleCore::askQuestionAnswerAsString("Desktop foldername: ")
@@ -452,41 +512,14 @@ class NyxPermanodeOperator
     # NyxPermanodeOperator::makePermanodeInteractive()
     def self.makePermanodeInteractive()
         operations = [
-            "Desktop files inside permadir",
             "url",
             "uniquename",
+            "file",
+            "lstore-directory-mark",
             "text file inside permadir",
-            "create lstore-directory-mark"
+            "Desktop files inside permadir"
         ]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-
-        if operation == "create lstore-directory-mark" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            permanodeTarget = NyxPermanodeOperator::makePermanodeTargetLStoreDirectoryMarkInteractiveOrNull()
-            return if permanodeTarget.nil?
-            permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
-            puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-        end
-
-        if operation == "text file inside permadir" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            text = NyxMiscUtils::editTextUsingTextmate("")
-            foldername2 = NyxMiscUtils::l22()
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), foldername2)
-            FileUtils.mkdir(folderpath2)
-            filepath3 = "#{folderpath2}/text.txt"
-            File.open(filepath3, "w"){|f| f.puts(text) }
-            permanodeTarget = {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "perma-dir-11859659",
-                "foldername" => foldername2
-            }
-            permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
-            puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-            system("open '#{folderpath2}'")
-        end
 
         if operation == "url" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -512,6 +545,42 @@ class NyxPermanodeOperator
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
             NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+        end
+
+        if operation == "file" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            permanodeTarget = NyxPermanodeOperator::makePermanodeTargetFileInteractive()
+            permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
+            puts JSON.pretty_generate(permanode)
+            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+        end
+
+        if operation == "lstore-directory-mark" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            permanodeTarget = NyxPermanodeOperator::makePermanodeTargetLStoreDirectoryMarkInteractiveOrNull()
+            return if permanodeTarget.nil?
+            permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
+            puts JSON.pretty_generate(permanode)
+            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+        end
+
+        if operation == "text file inside permadir" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            text = NyxMiscUtils::editTextUsingTextmate("")
+            foldername2 = NyxMiscUtils::l22()
+            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), foldername2)
+            FileUtils.mkdir(folderpath2)
+            filepath3 = "#{folderpath2}/text.txt"
+            File.open(filepath3, "w"){|f| f.puts(text) }
+            permanodeTarget = {
+                "uuid"       => SecureRandom.uuid,
+                "type"       => "perma-dir-11859659",
+                "foldername" => foldername2
+            }
+            permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
+            puts JSON.pretty_generate(permanode)
+            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+            system("open '#{folderpath2}'")
         end
 
         if operation == "Desktop files inside permadir" then
@@ -722,12 +791,15 @@ class NyxPermanodeOperator
 
     # NyxPermanodeOperator::destroyPermanodeTargetAttempt(target)
     def self.destroyPermanodeTargetAttempt(target)
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            location = NyxMiscUtils::lStoreMarkResolutionToMarkFilepathOrNull(target["mark"])
-            return if location.nil?
-            if NyxPermanodeOperator::getPermanodesCarryingThisDirectoryMark(target["mark"]).size == 1 then
-                puts "destroying mark file: #{location}"
-                LucilleCore::removeFileSystemLocation(location)
+        if target["type"] == "url-EFB8D55B" then
+            url = target["url"]
+            return
+        end
+        if target["type"] == "file-3C93365A" then
+            filename = target["filename"]
+            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Nyx::pathToYmir(), filename)
+            if File.exists?(filepath) then
+                FileUtils.rm(filepath)
             end
             return
         end
@@ -735,8 +807,13 @@ class NyxPermanodeOperator
             uniquename = target["name"]
             return
         end
-        if target["type"] == "url-EFB8D55B" then
-            url = target["url"]
+        if target["type"] == "lstore-directory-mark-BEE670D0" then
+            location = NyxMiscUtils::lStoreMarkResolutionToMarkFilepathOrNull(target["mark"])
+            return if location.nil?
+            if NyxPermanodeOperator::getPermanodesCarryingThisDirectoryMark(target["mark"]).size == 1 then
+                puts "destroying mark file: #{location}"
+                LucilleCore::removeFileSystemLocation(location)
+            end
             return
         end
         if target["type"] == "perma-dir-11859659" then

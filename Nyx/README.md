@@ -32,14 +32,14 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
         "url"  : <url>
     }
     {
-        "uuid" : String
-        "type" : "unique-name-C2BF46D6"
-        "name" : String
-    }
-    {
         "uuid"       : String UUID
         "type"       : "file-3C93365A"
         "filename"   : String
+    }
+    {
+        "uuid" : String
+        "type" : "unique-name-C2BF46D6"
+        "name" : String
     }
     {
         "uuid" : String
