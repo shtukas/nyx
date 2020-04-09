@@ -28,11 +28,6 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
     ```
     {
         "uuid" : String
-        "type" : "lstore-directory-mark-BEE670D0"
-        "mark" : String # UUID
-    }
-    {
-        "uuid" : String
         "type" : "url-EFB8D55B"
         "url"  : <url>
     }
@@ -40,6 +35,16 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
         "uuid" : String
         "type" : "unique-name-C2BF46D6"
         "name" : String
+    }
+    {
+        "uuid"       : String UUID
+        "type"       : "file-3C93365A"
+        "filename"   : String
+    }
+    {
+        "uuid" : String
+        "type" : "lstore-directory-mark-BEE670D0"
+        "mark" : String # UUID
     }
     {
         "uuid"       : String UUID
