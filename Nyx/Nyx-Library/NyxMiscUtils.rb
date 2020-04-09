@@ -158,6 +158,14 @@ class NyxMiscUtils
         timeline.split(" ").map{|word| word.downcase.capitalize }.join(" ")
     end
 
+    # NyxMiscUtils::selectOneFilepathOnTheDesktopOrNull()
+    def self.selectOneFilepathOnTheDesktopOrNull()
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .sort
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("location", desktopLocations, lambda{ |location| File.basename(location) })
+    end
+
     # NyxMiscUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
     def self.selectOneOrMoreFilesOnTheDesktopByLocation() # Array[String]
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")

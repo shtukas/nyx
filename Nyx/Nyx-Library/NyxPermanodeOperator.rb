@@ -338,9 +338,10 @@ class NyxPermanodeOperator
     # ------------------------------------------------------------------
     # Interactive Makers
 
-    # NyxPermanodeOperator::makePermanodeTargetFileInteractive()
-    def self.makePermanodeTargetFileInteractive()
-        filepath1 = LucilleCore::askQuestionAnswerAsString("Filepath: ")
+    # NyxPermanodeOperator::makePermanodeTargetFileInteractiveOrNull()
+    def self.makePermanodeTargetFileInteractiveOrNull()
+        filepath1 = NyxMiscUtils::selectOneFilepathOnTheDesktopOrNull()
+        return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
         filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
@@ -465,7 +466,7 @@ class NyxPermanodeOperator
             }
         end
         if permanodeTargetType == "file-3C93365A" then
-            return NyxPermanodeOperator::makePermanodeTargetFileInteractive()
+            return NyxPermanodeOperator::makePermanodeTargetFileInteractiveOrNull()
         end
         if permanodeTargetType == "unique-name-C2BF46D6" then
             return {
@@ -514,9 +515,8 @@ class NyxPermanodeOperator
         operations = [
             "url",
             "uniquename",
-            "file",
+            "file (from desktop)",
             "lstore-directory-mark",
-            "text file inside permadir",
             "Desktop files inside permadir"
         ]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -547,9 +547,10 @@ class NyxPermanodeOperator
             NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
         end
 
-        if operation == "file" then
+        if operation == "file (from desktop)" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            permanodeTarget = NyxPermanodeOperator::makePermanodeTargetFileInteractive()
+            permanodeTarget = NyxPermanodeOperator::makePermanodeTargetFileInteractiveOrNull()
+            return if permanodeTarget.nil?
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
             NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
@@ -562,25 +563,6 @@ class NyxPermanodeOperator
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
             NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-        end
-
-        if operation == "text file inside permadir" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            text = NyxMiscUtils::editTextUsingTextmate("")
-            foldername2 = NyxMiscUtils::l22()
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), foldername2)
-            FileUtils.mkdir(folderpath2)
-            filepath3 = "#{folderpath2}/text.txt"
-            File.open(filepath3, "w"){|f| f.puts(text) }
-            permanodeTarget = {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "perma-dir-11859659",
-                "foldername" => foldername2
-            }
-            permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
-            puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-            system("open '#{folderpath2}'")
         end
 
         if operation == "Desktop files inside permadir" then
