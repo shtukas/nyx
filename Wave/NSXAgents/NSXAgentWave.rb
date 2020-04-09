@@ -78,7 +78,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
 
 =end
 
-WAVE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/NSXAgentWave"
+WAVE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Wave/NSXAgentWave"
 
 # ----------------------------------------------------------------------
 
