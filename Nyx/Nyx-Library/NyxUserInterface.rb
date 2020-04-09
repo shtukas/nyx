@@ -83,7 +83,7 @@ class NyxUserInterface
             scorePackets = NyxSearch::searchPatternToScorePacketsInDecreasingScore(searchPattern).select{|scorePacket| scorePacket["score"] > 0 }
             scorePacket = NyxUserInterface::selectScorePacketOrNull(scorePackets)
             break if scorePacket.nil?
-            NyxPermanodeOperator::permanodeOpen(scorePacket["permanode"])
+            NyxPermanodeOperator::permanodeOptimisticOpen(scorePacket["permanode"])
         }
     end
 
@@ -121,8 +121,7 @@ class NyxUserInterface
             puts "Nyx 🗺️"
             operations = [
                 # Search
-                "search / open",
-                "search / dive",
+                "search",
 
                 # View
                 "permanode dive (uuid)",
@@ -143,11 +142,7 @@ class NyxUserInterface
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "search / open" then
-                searchPattern = LucilleCore::askQuestionAnswerAsString("search: ")
-                NyxUserInterface::searchOpen(searchPattern)
-            end
-            if operation == "search / dive" then
+            if operation == "search" then
                 searchPattern = LucilleCore::askQuestionAnswerAsString("search: ")
                 NyxUserInterface::searchDive(searchPattern)
             end

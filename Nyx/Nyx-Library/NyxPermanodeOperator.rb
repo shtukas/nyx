@@ -566,6 +566,7 @@ class NyxPermanodeOperator
         loop {
             NyxPermanodeOperator::printPermanodeDetails(permanode)
             operations = [
+                "quick open",
                 "edit description",
                 "edit reference datetime",
                 "targets dive",
@@ -580,6 +581,9 @@ class NyxPermanodeOperator
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
+            if operation == "quick open" then
+                NyxPermanodeOperator::permanodeOptimisticOpen(permanode)
+            end
             if operation == "edit description" then
                 permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(Nyx::pathToYmir(), permanode["uuid"])
                 newdescription = NyxMiscUtils::editTextUsingTextmate(permanode["description"]).strip
@@ -687,8 +691,8 @@ class NyxPermanodeOperator
         }
     end
 
-    # NyxPermanodeOperator::permanodeOpen(permanode)
-    def self.permanodeOpen(permanode)
+    # NyxPermanodeOperator::permanodeOptimisticOpen(permanode)
+    def self.permanodeOptimisticOpen(permanode)
         NyxPermanodeOperator::printPermanodeDetails(permanode)
         puts "    -> Opening..."
         if permanode["targets"].size == 0 then
