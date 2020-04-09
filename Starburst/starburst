@@ -88,6 +88,7 @@ loop {
         else
             FileUtils.mkdir(location2)
             LucilleCore::copyContents(location1, location2)
+            LucilleCore::removeFileSystemLocation(location1)
         end
     end
 }
