@@ -97,6 +97,7 @@ if ARGV[0] == "run" and ARGV[1] then
     end
 
     timeline = tnode["classification"][0]["timeline"]
+    exit if timeline == "[Inbox]"
     timespan = Time.new.to_i - startTime
     point = {
         "uuid"     => SecureRandom.uuid,
