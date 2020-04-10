@@ -60,7 +60,7 @@ require_relative "Todo.rb"
 
 if ARGV[0] == "run" and ARGV[1] then
     uuid = ARGV[1]
-    tnode = TodoXCoreData::getTNodeByUUIDOrNull(uuid)
+    tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
     if tnode.nil? then
         puts "Could not find tnode with uuid: '#{uuid}'"
         LucilleCore::pressEnterToContinue()
@@ -84,7 +84,7 @@ if ARGV[0] == "run" and ARGV[1] then
             "timeline" => timeline
         }]
         puts JSON.pretty_generate(tnode)
-        TodoXEstate::commitTNodeToDisk(tnode)
+        TodoXEstate::reCommitTNodeToDisk(tnode)
     end
     if operation == "transmute to nyx" then
         nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
@@ -100,27 +100,12 @@ end
 
 if ARGV[0] == "recast" and ARGV[1] then
     uuid = ARGV[1]
-    tnode = TodoXCoreData::getTNodeByUUIDOrNull(uuid)
-    if tnode.nil? then
-        puts "Could not find tnode with uuid: '#{uuid}'"
-        LucilleCore::pressEnterToContinue()
-        exit
-    end
-    puts TodoXUserInterface::targetToString(tnode["targets"][0])
-
-    timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-    tnode["classification"] = [{
-        "uuid"     => SecureRandom.uuid,
-        "type"     => "timeline-329D3ABD",
-        "timeline" => timeline
-    }]
-    puts JSON.pretty_generate(tnode)
-    TodoXEstate::commitTNodeToDisk(tnode)
+    TodoXUserInterface::recastTNodeIdentifiedByUUID(uuid)
 end
 
 if ARGV[0] == "tonyx" and ARGV[1] then
     uuid = ARGV[1]
-    tnode = TodoXCoreData::getTNodeByUUIDOrNull(uuid)
+    tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
     if tnode.nil? then
         puts "Could not find tnode with uuid: '#{uuid}'"
         LucilleCore::pressEnterToContinue()

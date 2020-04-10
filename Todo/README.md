@@ -39,9 +39,9 @@
         "foldername" : String # Should be unique # Preferred L22
     }
     {
-        "uuid": String,
-        "type": "text-A9C3641C",
-        "filename": String
+        "uuid"        : String,
+        "type"        : "text-A9C3641C",
+        "zetaKey"     : String
     }
     {
         "uuid": String,
@@ -72,3 +72,17 @@ TNodes get their shapes from the general Nyx Permanodes, but we impose limitatio
 - No tags
 - Only one target
 - Only one timelime
+
+
+### Zeta Files
+
+```
+(todo zeta file)
+    uuid              : String
+    filename          : String # filename to the Zeta file
+    creationTimestamp : Float
+    description       : String
+    targets           : JSON String
+    classification    : JSON String
+```
+

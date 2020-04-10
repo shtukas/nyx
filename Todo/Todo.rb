@@ -134,6 +134,9 @@ class TodoXEstate
         if object["type"] == "perma-dir-11859659" then
             return false if object["foldername"].nil?
         end
+        if object["type"] == "text-A9C3641C" then
+            return false if object["zetaKey"].nil?
+        end
         true
     end
 
@@ -154,9 +157,20 @@ class TodoXEstate
     # ------------------------------------------
     # IO Ops (1)
 
-    # TodoXEstate::dumpTNodeIntoZetaFile(tnode)
-    def self.dumpTNodeIntoZetaFile(tnode)
-        puts JSON.pretty_generate(tnode)
+    # TodoXEstate::dumpTNodeIntoNewZetaFile(tnode)
+    def self.dumpTNodeIntoNewZetaFile(tnode)
+        filepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), tnode["filename"])
+        Zeta::makeNewFile(filepath)
+        Zeta::set(filepath, "uuid", tnode["uuid"])
+        Zeta::set(filepath, "filename", tnode["filename"])
+        Zeta::set(filepath, "creationTimestamp", tnode["creationTimestamp"])
+        Zeta::set(filepath, "description", tnode["description"])
+        Zeta::set(filepath, "targets", JSON.generate(tnode["targets"]))
+        Zeta::set(filepath, "classification", JSON.generate(tnode["classification"]))
+    end
+
+    # TodoXEstate::dumpTNodeIntoExistingZetaFile(tnode)
+    def self.dumpTNodeIntoExistingZetaFile(tnode)
         filename = tnode["filename"]
         filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), filename)
         Zeta::set(filepath, "uuid", tnode["uuid"])
@@ -192,12 +206,29 @@ class TodoXEstate
         end
     end
 
+    # TodoXEstate::getTNodeByUUIDOrNullReadZetaFiles(uuid)
+    def self.getTNodeByUUIDOrNullReadZetaFiles(uuid)
+        TodoXEstate::tNodesEnumeratorReadZetaFiles(Todo::pathToYmir())
+            .each{|tnode| 
+                if tnode["uuid"] == uuid then
+                    return tnode
+                end
+            }
+        nil
+    end
+
     # ------------------------------------------
     # IO Ops (2)
 
-    # TodoXEstate::commitTNodeToDisk(tnode)
-    def self.commitTNodeToDisk(tnode)
-        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+    # TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
+    def self.firstTimeCommitTNodeToDisk(tnode)
+        TodoXEstate::dumpTNodeIntoNewZetaFile(tnode)
+        BTreeSets::set(nil, "dc533635-864f-4409-a888-14bfe872bc6d", tnode["uuid"], tnode)
+    end
+
+    # TodoXEstate::reCommitTNodeToDisk(tnode)
+    def self.reCommitTNodeToDisk(tnode)
+        TodoXEstate::dumpTNodeIntoExistingZetaFile(tnode)
         BTreeSets::set(nil, "dc533635-864f-4409-a888-14bfe872bc6d", tnode["uuid"], tnode)
     end
 
@@ -209,6 +240,48 @@ class TodoXEstate
     # TodoXEstate::getTNodes()
     def self.getTNodes()
         BTreeSets::values(nil, "dc533635-864f-4409-a888-14bfe872bc6d")
+    end
+
+    # TodoXEstate::getTNodeByUUIDOrNull(uuid)
+    def self.getTNodeByUUIDOrNull(uuid)
+        BTreeSets::getOrNull(nil, "dc533635-864f-4409-a888-14bfe872bc6d", uuid)
+    end
+
+    # TodoXEstate::rebuildTNodesIndex()
+    def self.rebuildTNodesIndex()
+        BTreeSets::values(nil, "dc533635-864f-4409-a888-14bfe872bc6d")
+        .each{|value|
+            puts "removing: #{value["uuid"]}"
+            BTreeSets::destroy(nil, "dc533635-864f-4409-a888-14bfe872bc6d", value["uuid"])
+        }
+        TodoXEstate::tNodesEnumeratorReadZetaFiles(Todo::pathToYmir())
+        .each{|tnode|
+            puts "adding: #{tnode["uuid"]}"
+            BTreeSets::set(nil, "dc533635-864f-4409-a888-14bfe872bc6d", tnode["uuid"], tnode)
+        }
+    end
+
+    # ------------------------------------------
+    # IO Ops (3)
+
+    # TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(uuid, key, value)
+    def self.setKVAtZetaFileIdentifiedByTNodeUUID(uuid, key, value)
+        tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
+        return if tnode.nil?
+        filename = tnode["filename"]
+        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), filename)
+        return if filepath.nil?
+        Zeta::set(filepath, key, value)
+    end
+
+    # TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(uuid, key)
+    def self.getVAtZetaFileIdentifiedByTNodeUUIDOrNull(uuid, key)
+        tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
+        return nil if tnode.nil?
+        filename = tnode["filename"]
+        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), filename)
+        return nil if filepath.nil?
+        Zeta::getOrNull(filepath, key)
     end
 
     # ------------------------------------------
@@ -224,11 +297,7 @@ class TodoXEstate
                 return
             end
             if target["type"] == "text-A9C3641C" then
-                textFilepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
-                return if textFilepath.nil?
-                return if !File.exists?(textFilepath)
-                TodoXUtils::copyLocationToCatalystBin(textFilepath)
-                LucilleCore::removeFileSystemLocation(textFilepath)
+                # Nothing, the text is carried by the zeta file
                 return
             end
             if target["type"] == "url-EFB8D55B" then
@@ -273,6 +342,8 @@ class TodoXEstate
         end
         TodoXUtils::copyLocationToCatalystBin(tnodelocation)
         LucilleCore::removeFileSystemLocation(tnodelocation)
+
+        BTreeSets::destroy(nil, "dc533635-864f-4409-a888-14bfe872bc6d", tnode["uuid"])
     end
 end
 
@@ -335,12 +406,6 @@ class TodoXCoreData
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
     end
 
-    # TodoXCoreData::getTNodeByUUIDOrNull(uuid)
-    def self.getTNodeByUUIDOrNull(uuid)
-        TodoXEstate::getTNodes()
-            .select{|tnode| tnode["uuid"] == uuid }
-            .first
-    end
 end
 
 class TodoXTMakers
@@ -389,8 +454,8 @@ class TodoXTMakers
         timelines
     end
 
-    # TodoXTMakers::makeTNodeTargetInteractivelyOrNull()
-    def self.makeTNodeTargetInteractivelyOrNull()
+    # TodoXTMakers::makeTNodeTargetInteractivelyOrNull(tnodeuuid)
+    def self.makeTNodeTargetInteractivelyOrNull(tnodeuuid)
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "text", "url", "unique name", "permadir"])
         return nil if type.nil?
         if type == "line" then
@@ -401,14 +466,12 @@ class TodoXTMakers
             }
         end
         if type == "text" then
-            filename = "#{TodoXUtils::l22()}.txt"
-            filecontents = TodoXUtils::editTextUsingTextmate("")
-            filepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), filename)
-            File.open(filepath, "w"){|f| f.puts(filecontents) }
+            text = TodoXUtils::editTextUsingTextmate("")
+            zetaKey = SecureRandom.uuid
             return {
-                "uuid"     => SecureRandom.uuid,
-                "type"     => "text-A9C3641C",
-                "filename" => filename
+                "uuid"    => SecureRandom.uuid,
+                "type"    => "text-A9C3641C",
+                "zetaKey" => zetaKey
             }
         end
         if type == "url" then
@@ -438,10 +501,10 @@ class TodoXTMakers
         end
     end
 
-    # TodoXTMakers::makeOneTNodeTarget()
-    def self.makeOneTNodeTarget()
+    # TodoXTMakers::makeOneTNodeTarget(tnodeuuid)
+    def self.makeOneTNodeTarget(tnodeuuid)
         loop {
-            target = TodoXTMakers::makeTNodeTargetInteractivelyOrNull()
+            target = TodoXTMakers::makeTNodeTargetInteractivelyOrNull(tnodeuuid)
             return target if target
         }
     end
@@ -467,9 +530,6 @@ class TodoXTMakers
     # TodoXTMakers::makeNewTNode()
     def self.makeNewTNode()
         uuid = SecureRandom.uuid
-        target = TodoXTMakers::makeOneTNodeTarget()
-        description = TodoXUserInterface::targetToString(target)
-        targets = [ target ]
         timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
         classification = [{
             "uuid"     => SecureRandom.uuid,
@@ -481,16 +541,42 @@ class TodoXTMakers
             "uuid"              => uuid,
             "filename"          => "#{TodoXUtils::l22()}.zeta",
             "creationTimestamp" => Time.new.to_f,
-            "description"       => description,
-            "targets"           => targets,
+            "description"       => "",
+            "targets"           => [],
             "classification"    => classification
         }
         puts JSON.pretty_generate(tnode)
-        TodoXEstate::commitTNodeToDisk(tnode)
+        TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
+
+        # We can only create the target after the tnode has been commited
+        # to disk because some targets require the zeta file to already
+        # exist in order to be created since the data is stored inside the
+        # zeta file.
+
+        target = TodoXTMakers::makeOneTNodeTarget(tnode["uuid"])
+        tnode["targets"] = [ target ]
+        tnode["description"] = TodoXUserInterface::targetToString(target)
+        TodoXEstate::reCommitTNodeToDisk(tnode)
+
     end
 end
 
 class TodoXUserInterface
+
+    # TodoXUserInterface::recastTNodeIdentifiedByUUID(uuid)
+    def self.recastTNodeIdentifiedByUUID(uuid)
+        tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
+        return if tnode.nil?
+        puts TodoXUserInterface::targetToString(tnode["targets"][0])
+        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
+        tnode["classification"] = [{
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "timeline-329D3ABD",
+            "timeline" => timeline
+        }]
+        puts JSON.pretty_generate(tnode)
+        TodoXEstate::reCommitTNodeToDisk(tnode)
+    end
 
     # TodoXUserInterface::targetToString(target)
     def self.targetToString(target)
@@ -498,12 +584,7 @@ class TodoXUserInterface
             return "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
-            if filepath.nil? or !File.exists?(filepath) then
-                return "[error: e8703185] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
-            else
-                return "text (#{IO.read(filepath).lines.count} lines)"
-            end
+            return "text"
         end
         if target["type"] == "url-EFB8D55B" then
             return "url: #{target["url"]}"
@@ -540,109 +621,14 @@ class TodoXUserInterface
         raise "[error: 44ccb03c]"
     end
 
-    # TodoXUserInterface::diveTarget(tnodeuuid, target)
-    def self.diveTarget(tnodeuuid, target)
-        puts "Target: #{TodoXUserInterface::targetToString(target)}"
-        operations = [
-            "open", 
-            "remove/destroy from tnode"
-        ]
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation: ", operations)
-        return if operation.nil?
-        if operation == "open" then
-
-        end
-        if operation == "remove/destroy from tnode" then
-            # we get the tnode and just remove the offending target
-            tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
-            return if tnode.nil?
-            tnode["targets"] = tnode["targets"].reject{|t| t["uuid"]==target["uuid"] }
-            TodoXEstate::commitTNodeToDisk(tnode)
-        end
-    end
-
-    # TodoXUserInterface::diveClassificationItem(tnodeuuid, item)
-    def self.diveClassificationItem(tnodeuuid, item)
-        puts "Item: #{TodoXUserInterface::classificationItemToString(item)}"
-        operations = [
-            "remove/destroy from tnode"
-        ]
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation: ", operations)
-        return if operation.nil?
-        if operation == "remove/destroy from tnode" then
-            # we get the tnode and just remove the offending classification item
-            tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
-            return if tnode.nil?
-            tnode["classification"] = tnode["classification"].reject{|i| i["uuid"]==item["uuid"] }
-            TodoXEstate::commitTNodeToDisk(tnode)
-        end
-    end
-
-    # TodoXUserInterface::diveTargets(tnodeuuid, targets)
-    def self.diveTargets(tnodeuuid, targets)
-        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target: ", targets, lambda{|target| TodoXUserInterface::targetToString(target) })
-        return if target.nil?
-    end
-
-    # TodoXUserInterface::diveClassificationItems(tnodeuuid, items)
-    def self.diveClassificationItems(tnodeuuid, items)
-        puts "TodoXUserInterface::diveClassificationItems is not implemented yet"
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # TodoXUserInterface::openTarget(target)
-    def self.openTarget(target)
+    # TodoXUserInterface::optimizedOpenTarget(tnodeuuid, target)
+    def self.optimizedOpenTarget(tnodeuuid, target)
         if target["type"] == "line-2A35BA23" then
             puts "line: #{target["line"]}"
         end
         if target["type"] == "text-A9C3641C" then
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
-            if filepath.nil? or !File.exists?(filepath) then
-                puts "[error: 359a6c99] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            system("open '#{filepath}'")
-        end
-        if target["type"] == "url-EFB8D55B" then
-            system("open '#{target["url"]}'")
-        end
-        if target["type"] == "unique-name-C2BF46D6" then
-            uniquename = target["name"]
-            location = TodoXUtils::uniqueNameResolutionLocationPathOrNull(uniquename)
-            if location.nil? then
-                puts "I could not resolve unique name '#{uniquename}'"
-                LucilleCore::pressEnterToContinue()
-            else
-                if LucilleCore::askQuestionAnswerAsBoolean("opening '#{location}' ? ") then
-                    system("open '#{location}'")
-                end
-            end
-        end
-        if target["type"] == "perma-dir-11859659" then
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
-            if folderpath.nil? or !File.exists?(folderpath) then
-                puts "[error: c87c7b41] There doesn't seem to be a Ymir file for filename '#{target["foldername"]}'"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            system("open '#{folderpath}'")
-        end
-    end
-
-    # TodoXUserInterface::optimizedOpenTarget(target)
-    def self.optimizedOpenTarget(target)
-        if target["type"] == "line-2A35BA23" then
-            puts "line: #{target["line"]}"
-        end
-        if target["type"] == "text-A9C3641C" then
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
-            if filepath.nil? or !File.exists?(filepath) then
-                puts "[error: a3a1b7a0] There doesn't seem to be a Ymir file for filename '#{target["filename"]}'"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            system("open '#{filepath}'")
+            text = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
+            text = TodoXUtils::editTextUsingTextmate(text)
         end
         if target["type"] == "url-EFB8D55B" then
             system("open '#{target["url"]}'")
@@ -682,13 +668,13 @@ class TodoXUserInterface
     # TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
     def self.optimizedOpenTNodeUniqueTargetOrNothing(tnode)
         return if tnode["targets"].size != 1
-        TodoXUserInterface::optimizedOpenTarget(tnode["targets"][0])
+        TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["targets"][0])
     end
 
     # TodoXUserInterface::tNodeDive(tnodeuuid)
     def self.tNodeDive(tnodeuuid)
         loop {
-            tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
+            tnode = TodoXEstate::getTNodeByUUIDOrNull(tnodeuuid)
             if tnode.nil? then
                 raise "[error: a151f422] tnodeuuid: #{tnodeuuid}"
             end
@@ -707,9 +693,8 @@ class TodoXUserInterface
             operations = [
                 "quick open",
                 "edit description",
-                "dive targets",
-                "dive classification items",
-                "destroy tnode"
+                "recast",
+                "done"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -718,29 +703,17 @@ class TodoXUserInterface
             end
             if operation == "edit description" then
                 tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-                TodoXEstate::commitTNodeToDisk(tnode)
+                TodoXEstate::reCommitTNodeToDisk(tnode)
             end
-            if operation == "dive targets" then
-                TodoXUserInterface::diveTargets(tnode["uuid"], tnode["targets"])
+            if operation == "recast" then
+                TodoXUserInterface::recastTNodeIdentifiedByUUID(tnodeuuid)
             end
-            if operation == "dive classification items" then
-                TodoXUserInterface::diveClassificationItems(tnode["uuid"], tnode["classification"])
-            end
-            if operation == "destroy tnode" then
+            if operation == "done" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
                     TodoXEstate::destroyTNode(tnode)
                     return
                 end
             end
-        }
-    end
-
-    # TodoXUserInterface::tNodesDive(tnodes)
-    def self.tNodesDive(tnodes)
-        loop {
-            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
-            return if tnode.nil?
-            TodoXUserInterface::tNodeDive(tnode["uuid"])
         }
     end
 
@@ -812,6 +785,21 @@ class TodoXUserInterface
         }
     end
 
+    # TodoXUserInterface::searchDive(pattern)
+    def self.searchDive(pattern)
+        loop {
+           tnodes = TodoXCoreData::searchPatternToTNodes(pattern)
+            if tnodes.size == 0 then
+                puts "Could not find tnodes for this pattern: '#{pattern}'"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
+            return if tnode.nil?
+            TodoXUserInterface::tNodeDive(tnode["uuid"])
+        }
+    end
+
     # TodoXUserInterface::ui()
     def self.ui()
         loop {
@@ -831,13 +819,7 @@ class TodoXUserInterface
             end
             if operation == "search" then
                 pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-                tnodes = TodoXCoreData::searchPatternToTNodes(pattern)
-                if tnodes.size == 0 then
-                    puts "Could not find tnodes for this pattern: '#{pattern}'"
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                TodoXUserInterface::tNodesDive(tnodes)
+                TodoXUserInterface::searchDive(pattern)
             end
             if operation == "timelines dive" then
                 TodoXUserInterface::timelinesDive()
@@ -875,8 +857,8 @@ class TodoXNyxConverter
         JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-api-timelines`)
     end
 
-    # TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(target, todoYmirFolderPath, nyxYmirFolderPath)
-    def self.transmuteTodoTargetIntoNyxTarget(target, todoYmirFolderPath, nyxYmirFolderPath)
+    # TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, todoYmirFolderPath, nyxYmirFolderPath)
+    def self.transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, todoYmirFolderPath, nyxYmirFolderPath)
         if target["type"] == "lstore-directory-mark-BEE670D0" then
             return target
         end
@@ -895,12 +877,11 @@ class TodoXNyxConverter
             return target
         end
         if target["type"] == "text-A9C3641C" then
-            filename1 = target["filename"]
-            filepath1 = YmirEstate::locationBasenameToYmirLocationOrNull(todoYmirFolderPath, filename1)
+            text = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
             foldername2 = TodoXUtils::l22()
             folderpath2 = YmirEstate::makeNewYmirLocationForBasename(nyxYmirFolderPath, foldername2)
             FileUtils.mkdir(folderpath2)
-            FileUtils.cp(filepath1, folderpath2)
+            File.open("#{folderpath2}/text.txt", "w"){|f| f.puts(text) }
             return {
                 "uuid"       => SecureRandom.uuid,
                 "type"       => "perma-dir-11859659",
@@ -940,7 +921,7 @@ class TodoXNyxConverter
         nyx["creationTimestamp"] = todo["creationTimestamp"]
         nyx["referenceDateTime"] = Time.new.utc.iso8601
         nyx["description"] = TodoXUtils::editTextUsingTextmate(todo["description"])
-        nyx["targets"] = todo["targets"].map{|target| TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(target, todoYmirFolderPath, nyxYmirFolderPath) }
+        nyx["targets"] = todo["targets"].map{|target| TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(todo["uuid"], target, todoYmirFolderPath, nyxYmirFolderPath) }
         tagObjects = TodoXNyxConverter::interactivelymakeZeroOrMoreTags()
                         .map{|tag|
                             {
