@@ -206,8 +206,8 @@ class TodoXEstate
         TodoXEstate::readZetaFileIntoTNode(filepath)
     end
 
-    # TodoXEstate::tNodesEnumerator()
-    def self.tNodesEnumerator()
+    # TodoXEstate::getTNodes()
+    def self.getTNodes()
         BTreeSets::values(nil, "dc533635-864f-4409-a888-14bfe872bc6d")
     end
 
@@ -280,7 +280,7 @@ class TodoXCoreData
 
     # TodoXCoreData::timelines()
     def self.timelines()
-        TodoXEstate::tNodesEnumerator()
+        TodoXEstate::getTNodes()
             .map{|tnode| tnode["classification"] }
             .flatten
             .select{|item| item["type"] == "timeline-329D3ABD" }
@@ -295,7 +295,7 @@ class TodoXCoreData
                 .select{|item| item["type"] == "timeline-329D3ABD" }
                 .map{|item| item["timeline"] }
         }
-        map1 = TodoXEstate::tNodesEnumerator().reduce({}){|map2, tnode|
+        map1 = TodoXEstate::getTNodes().reduce({}){|map2, tnode|
             timelines = extractTimelinesFromTNode.call(tnode)
             timelines.each{|timeline|
                 if map2[timeline].nil? then
@@ -317,16 +317,16 @@ class TodoXCoreData
         tnode["classification"].any?{|item| item["type"] == "timeline-329D3ABD" and item["timeline"] == timeline }
     end
 
-    # TodoXCoreData::getTimelineTNodesOrdered(timeline)
-    def self.getTimelineTNodesOrdered(timeline)
-        TodoXEstate::tNodesEnumerator()
+    # TodoXCoreData::get2TimelineTNodesOrdered(tnodes, timeline)
+    def self.get2TimelineTNodesOrdered(tnodes, timeline)
+        tnodes
             .select{|tnode| TodoXCoreData::tNodeIsOnThisTimeline(tnode, timeline) }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
     end
 
     # TodoXCoreData::searchPatternToTNodes(pattern)
     def self.searchPatternToTNodes(pattern)
-        TodoXEstate::tNodesEnumerator()
+        TodoXEstate::getTNodes()
             .select{|tnode| 
                 b1 = tnode["uuid"].downcase.include?(pattern.downcase)
                 b2 = tnode["description"].downcase.include?(pattern.downcase)
@@ -337,7 +337,7 @@ class TodoXCoreData
 
     # TodoXCoreData::getTNodeByUUIDOrNull(uuid)
     def self.getTNodeByUUIDOrNull(uuid)
-        TodoXEstate::tNodesEnumerator()
+        TodoXEstate::getTNodes()
             .select{|tnode| tnode["uuid"] == uuid }
             .first
     end
@@ -748,7 +748,7 @@ class TodoXUserInterface
     def self.timelineDive(timeline)
         loop {
             puts "Timeline: #{timeline}"
-            tnodes = TodoXCoreData::getTimelineTNodesOrdered(timeline)
+            tnodes = TodoXCoreData::get2TimelineTNodesOrdered(TodoXEstate::getTNodes(), timeline)
             tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
             return if tnode.nil?
             TodoXUserInterface::tNodeDive(tnode["uuid"])
@@ -774,7 +774,7 @@ class TodoXUserInterface
                 operation
             end
         }
-        tnodes = TodoXCoreData::getTimelineTNodesOrdered(timeline)
+        tnodes = TodoXCoreData::get2TimelineTNodesOrdered(TodoXEstate::getTNodes(), timeline)
         loop {
             tnode = tnodes.shift
             default = "open"
@@ -833,7 +833,7 @@ class TodoXUserInterface
                 TodoXUserInterface::tNodesDive(tnodes)
             end
             if operation == "view most recent items" then
-                tnodes = TodoXEstate::tNodesEnumerator().to_a.reverse.take(10)
+                tnodes = TodoXEstate::getTNodes().reverse.take(10)
                 TodoXUserInterface::tNodesDive(tnodes)
             end
             if operation == "timelines dive" then
@@ -847,7 +847,7 @@ class TodoXUserInterface
             if operation == "numbers" then
                 puts "timeline mapping:"
                 timeStruct = TodoXWalksCore::timeline2TimeMapping()
-                TodoXWalksCore::get2TNodesTimelines().each{|timeline|
+                TodoXWalksCore::get3TNodesTimelines(TodoXEstate::getTNodes()).each{|timeline|
                     if timeStruct[timeline].nil? then
                         timeStruct[timeline] = 0
                     end
@@ -999,9 +999,9 @@ Dataset1
             }
     end
 
-    # TodoXWalksCore::get2TNodesTimelines()
-    def self.get2TNodesTimelines() # Array[String]
-        TodoXEstate::tNodesEnumerator()
+    # TodoXWalksCore::get3TNodesTimelines(tnodes)
+    def self.get3TNodesTimelines(tnodes) # Array[String]
+        tnodes
             .map{|tnode|
                 tnode["classification"]
                     .select{|item| item["type"] == "timeline-329D3ABD" }
@@ -1014,7 +1014,7 @@ Dataset1
     # TodoXWalksCore::remove2FromDataset1ThePointsWithObsoleteTimelines()
     def self.remove2FromDataset1ThePointsWithObsoleteTimelines()
         datasetTimelines = BTreeSets::values(TodoXWalksCore::walksDataStoreFolderpath(), TodoXWalksCore::walksSetuuid1()).map{|point| point["timeline"] }.uniq
-        aliveTimelines = TodoXWalksCore::get2TNodesTimelines()
+        aliveTimelines = TodoXWalksCore::get3TNodesTimelines(TodoXEstate::getTNodes())
         deadTimelines = datasetTimelines - aliveTimelines
         BTreeSets::values(TodoXWalksCore::walksDataStoreFolderpath(), TodoXWalksCore::walksSetuuid1()).each{|point|
             if deadTimelines.include?(point["timeline"]) then

@@ -156,7 +156,9 @@ metricHelper = MetricHelper.new(0.70)
 
 objects = []
 
-TodoXCoreData::getTimelineTNodesOrdered(Todo::todoInboxTimelineName()).each{|tnode|
+tnodes = TodoXEstate::getTNodes()
+
+TodoXCoreData::get2TimelineTNodesOrdered(tnodes, Todo::todoInboxTimelineName()).each{|tnode|
     objects << {
         "uuid"            => tnode["uuid"],
         "agentuid"        => nil,
@@ -178,9 +180,9 @@ TodoXCoreData::getTimelineTNodesOrdered(Todo::todoInboxTimelineName()).each{|tno
 
 metricHelper = MetricHelper.new(0.30)
 
-timeline = TodoXWalksCore::get2TimelineWithLowestTimespan(TodoXWalksCore::get2TNodesTimelines(), TodoXWalksCore::timeline2TimeMapping())
+timeline = TodoXWalksCore::get2TimelineWithLowestTimespan(TodoXWalksCore::get3TNodesTimelines(tnodes), TodoXWalksCore::timeline2TimeMapping())
 
-TodoXEstate::tNodesEnumerator()
+tnodes
     .select{|tnode|
         tnode["classification"][0]["timeline"] == timeline
     }
