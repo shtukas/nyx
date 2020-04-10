@@ -54,21 +54,23 @@ class NSXCatalystUI
         [position, verticalSpaceLeft, focusobject]
     end
 
-    # NSXCatalystUI::getCutOffMetricForNextDisplay()
-    def self.getCutOffMetricForNextDisplay()
-        pair = NSXLucilleCalendarFileUtils::getUniqueStruct3FilepathPair()
-        struct3 = pair["struct3"]
-        struct3["todo"].size == 0 ? 1 : ((struct3["todo"].first.lines.first and struct3["todo"].first.lines.first.include?("@low-priority-88e84d15")) ? 0.40 : 0.60)
-    end
-
     # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
     def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
 
         system("clear")
 
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+
         puts "Wave 🌊"
 
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+        lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+        if lucille != "" then
+            puts ""
+            puts "lucille:"
+            lucille.lines.each{|line| puts  "    #{line}" }
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - ( lucille.lines.to_a.size + 3 )
+        end
 
         if displayObjects.size==0 then
 
@@ -110,6 +112,13 @@ class NSXCatalystUI
             return if position > displayObjects.size
             object = displayObjects[position-1]
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            return
+        end
+
+        if command == "[]" then
+            lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+            lucille = NSXMiscUtils::applyNextTransformationToContent(lucille)
+            File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(lucille) }
             return
         end
 
