@@ -76,11 +76,6 @@ class Todo
         "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Inbox"
     end
 
-    # Todo::pathToCatalystInbox()
-    def self.pathToCatalystInbox()
-        "/Users/pascal/Desktop/Catalyst-Inbox"
-    end
-
     # Todo::todoInboxTimelineName()
     def self.todoInboxTimelineName()
         "[Inbox]"

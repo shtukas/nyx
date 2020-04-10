@@ -135,29 +135,6 @@ Dir.entries(Todo::pathToTodoInbox())
         end
     }
 
-# Collection of the objects in the Todo-Inbox for Vienna
-Dir.entries(Todo::pathToCatalystInbox())
-    .select{|filename| filename[0, 1] != "." }
-    .each{|filename|
-        location1 = "#{Todo::pathToCatalystInbox()}/#{filename}"
-        target = TMakers::makeNewPermadirOutOfThoseLocationsDestroyGivenLocationsAndReturnPermadirTarget([location1])
-        description = Interface::targetToString(target)
-        classificationItem = {
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => Todo::todoInboxTimelineName()
-        }
-        tnode = {
-            "uuid"              => SecureRandom.uuid,
-            "filename"          => "#{Utils::l22()}.json",
-            "creationTimestamp" => Time.new.to_f,
-            "description"       => description,
-            "targets"           => [ target ],
-            "classification"    => [ classificationItem ]
-        }
-        Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
-    }
-
 WalksCore::remove2FromDataset1ThePointsWithObsoleteTimelines()
 WalksCore::limit2SizeOfDataset1()
 
