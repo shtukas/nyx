@@ -764,43 +764,51 @@ class TodoXUserInterface
         }
     end
 
-    # TodoXUserInterface::timelineWalk(timeline)
-    def self.timelineWalk(timeline)
+    # TodoXUserInterface::runTNode(tnode)
+    def self.runTNode(tnode) # "continue", "exit"
         operationWithSpecifiedDefault = lambda {|default|
-            operation = LucilleCore::askQuestionAnswerAsString("operation: (open, dive, destroy, next, exit) [default: #{default}]: ")
+            operation = LucilleCore::askQuestionAnswerAsString("operation: (open, dive, done, next, exit) [default: #{default}]: ")
             if operation == "" then
                 default
             else
                 operation
             end
         }
+        default = "open"
+        loop {
+            puts ""
+            puts "-> #{tnode["description"]}"
+            operation = operationWithSpecifiedDefault.call(default)
+            if operation == "open" then
+                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+                default = "done"
+            end
+            if operation == "dive" then
+                TodoXUserInterface::tNodeDive(tnode["uuid"])
+                default = "open"
+            end
+            if operation == "next" then
+                return "continue"
+            end
+            if operation == "done" then
+                TodoXEstate::destroyTNode(tnode)
+                return "continue"
+            end
+            if operation == "exit" then
+                return "exit"
+            end
+        }
+    end
+
+    # TodoXUserInterface::timelineWalk(timeline)
+    def self.timelineWalk(timeline)
         tnodes = TodoXCoreData::get2TimelineTNodesOrdered(TodoXEstate::getTNodes(), timeline)
         loop {
             tnode = tnodes.shift
-            default = "open"
-            loop {
-                puts ""
-                puts "-> #{tnode["description"]}"
-                operation = operationWithSpecifiedDefault.call(default)
-                if operation == "open" then
-                    TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-                    default = "destroy"
-                end
-                if operation == "dive" then
-                    TodoXUserInterface::tNodeDive(tnode["uuid"])
-                    default = "open"
-                end
-                if operation == "next" then
-                    break
-                end
-                if operation == "destroy" then
-                    TodoXEstate::destroyTNode(tnode)
-                    break
-                end
-                if operation == "exit" then
-                    return
-                end
-            }
+            startTime = Time.new.to_i
+            status = TodoXUserInterface::runTNode(tnode)
+            TodoXWalksCore::issuePoint(timeline, Time.new.to_i - startTime)
+            return if status == "exit"
         }
     end
 
@@ -812,9 +820,8 @@ class TodoXUserInterface
             operations = [
                 "make new item",
                 "search",
-                "view most recent items",
                 "timelines dive",
-                "timeline walk",
+                "timelines walk",
                 "numbers"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -832,14 +839,10 @@ class TodoXUserInterface
                 end
                 TodoXUserInterface::tNodesDive(tnodes)
             end
-            if operation == "view most recent items" then
-                tnodes = TodoXEstate::getTNodes().reverse.take(10)
-                TodoXUserInterface::tNodesDive(tnodes)
-            end
             if operation == "timelines dive" then
                 TodoXUserInterface::timelinesDive()
             end
-            if operation == "timeline walk" then
+            if operation == "timelines walk" then
                 timeline = TodoXTMakers::interactively2SelectTimelineOrNull(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
                 next if timeline.nil?
                 TodoXUserInterface::timelineWalk(timeline)
@@ -1057,6 +1060,18 @@ Dataset1
 
         }
         selection[0]
+    end
+
+    # TodoXWalksCore::issuePoint(timeline, timespan)
+    def self.issuePoint(timeline, timespan)
+        return if timeline == "[Inbox]"
+        point = {
+            "uuid"     => SecureRandom.uuid,
+            "unixtime" => Time.new.to_i,
+            "timeline" => timeline,
+            "timespan" => timespan
+        }
+        BTreeSets::set(TodoXWalksCore::walksDataStoreFolderpath(), TodoXWalksCore::walksSetuuid1(), point["uuid"], point)
     end
 end
 
