@@ -27,7 +27,6 @@ require 'digest/sha1'
 # Digest::SHA1.file(myFile).hexdigest
 
 require 'find'
-require 'drb/drb'
 require 'thread'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
@@ -90,7 +89,6 @@ class TodoXBinUtils
         targetFolder = TodoBinTodoXUtils::newBinArchivesFolderpath()
         LucilleCore::copyFileSystemLocation(location,targetFolder)
     end
-
 end
 
 class TodoXUtils
@@ -243,7 +241,6 @@ class TodoXEstate
             }
         end
     end
-
 end
 
 class TodoXCoreData
@@ -311,7 +308,6 @@ class TodoXCoreData
             .select{|tnode| tnode["uuid"] == uuid }
             .first
     end
-
 end
 
 class TodoXTMakers
@@ -459,7 +455,6 @@ class TodoXTMakers
         puts JSON.pretty_generate(tnode)
         TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
     end
-
 end
 
 class TodoXInterface
@@ -834,7 +829,6 @@ class TodoXInterface
             end
         }
     end
-
 end
 
 class TodoXNyxConverter
@@ -931,8 +925,6 @@ class TodoXNyxConverter
         nyx
     end
 end
-
-# --------------------------------------------------------------------
 
 =begin
 
@@ -1033,7 +1025,6 @@ class TodoXWalksCore
         }
         selection[0]
     end
-
 end
 
 class Todo
@@ -1088,5 +1079,4 @@ class Todo
         filepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), tnodeFilename)
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(tnode)) }
     end
-
 end
