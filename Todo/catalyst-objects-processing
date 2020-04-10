@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
 
 # encoding: UTF-8
 
@@ -55,45 +55,45 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
 
 # --------------------------------------------------------------------
 
-require_relative "Library.rb"
+require_relative "Todo.rb"
 
 # -----------------------------------------------------------------------------
 
 if ARGV[0] == "run" and ARGV[1] then
     uuid = ARGV[1]
-    tnode = CoreData::getTNodeByUUIDOrNull(uuid)
+    tnode = TodoXCoreData::getTNodeByUUIDOrNull(uuid)
     if tnode.nil? then
         puts "Could not find tnode with uuid: '#{uuid}'"
         LucilleCore::pressEnterToContinue()
         exit
     end
-    puts Interface::targetToString(tnode["targets"][0])
+    puts TodoXInterface::targetToString(tnode["targets"][0])
 
     startTime = Time.new.to_i
 
-    Interface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+    TodoXInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
     operations = ["done", "reclassify", "transmute to nyx"]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
     if operation == "done" then
-        Estate::destroyTNode(tnode)
+        TodoXEstate::destroyTNode(tnode)
     end
     if operation == "reclassify" then
-        timeline = TMakers::interactively2SelectOneTimelinePossiblyNew(CoreData::timelinesInIncreasingActivityTime().reverse)
+        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
         tnode["classification"] = [{
             "uuid"     => SecureRandom.uuid,
             "type"     => "timeline-329D3ABD",
             "timeline" => timeline
         }]
         puts JSON.pretty_generate(tnode)
-        Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+        TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
     end
     if operation == "transmute to nyx" then
-        nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
-        filename = "#{Utils::l22()}.json"
+        nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
+        filename = "#{TodoXUtils::l22()}.json"
         filepath = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename)
         puts JSON.pretty_generate(nyxItem)
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nyxItem)) }
-        Estate::destroyTNode(tnode)
+        TodoXEstate::destroyTNode(tnode)
     end
 
     timeline = tnode["classification"][0]["timeline"]
@@ -107,44 +107,44 @@ if ARGV[0] == "run" and ARGV[1] then
     }
     puts "Timeline activity point:"
     puts JSON.pretty_generate(point)
-    BTreeSets::set(WALKS_DATASTORE_FOLDERPATH, WALKS_SETUUID1, point["uuid"], point)
+    BTreeSets::set(TodoXWalksCore::walksDataStoreFolderpath(), TodoXWalksCore::walksSetuuid1(), point["uuid"], point)
 
 end
 
 if ARGV[0] == "recast" and ARGV[1] then
     uuid = ARGV[1]
-    tnode = CoreData::getTNodeByUUIDOrNull(uuid)
+    tnode = TodoXCoreData::getTNodeByUUIDOrNull(uuid)
     if tnode.nil? then
         puts "Could not find tnode with uuid: '#{uuid}'"
         LucilleCore::pressEnterToContinue()
         exit
     end
-    puts Interface::targetToString(tnode["targets"][0])
+    puts TodoXInterface::targetToString(tnode["targets"][0])
 
-    timeline = TMakers::interactively2SelectOneTimelinePossiblyNew(CoreData::timelinesInIncreasingActivityTime().reverse)
+    timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
     tnode["classification"] = [{
         "uuid"     => SecureRandom.uuid,
         "type"     => "timeline-329D3ABD",
         "timeline" => timeline
     }]
     puts JSON.pretty_generate(tnode)
-    Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+    TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
 
 end
 
 if ARGV[0] == "tonyx" and ARGV[1] then
     uuid = ARGV[1]
-    tnode = CoreData::getTNodeByUUIDOrNull(uuid)
+    tnode = TodoXCoreData::getTNodeByUUIDOrNull(uuid)
     if tnode.nil? then
         puts "Could not find tnode with uuid: '#{uuid}'"
         LucilleCore::pressEnterToContinue()
         exit
     end
-    puts Interface::targetToString(tnode["targets"][0])
-    nyxItem = TodoNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
-    filename = "#{Utils::l22()}.json"
+    puts TodoXInterface::targetToString(tnode["targets"][0])
+    nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
+    filename = "#{TodoXUtils::l22()}.json"
     filepath = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename)
     puts JSON.pretty_generate(nyxItem)
     File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nyxItem)) }
-    Estate::destroyTNode(tnode)
+    TodoXEstate::destroyTNode(tnode)
 end

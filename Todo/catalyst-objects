@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
 
 # encoding: UTF-8
 
@@ -45,7 +45,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 # --------------------------------------------------------------------
 
-require_relative "Library.rb"
+require_relative "Todo.rb"
 
 # --------------------------------------------------------------------
 
@@ -68,13 +68,13 @@ Dir.entries(Todo::pathToTodoInbox())
         }
         tnode = {
             "uuid"              => SecureRandom.uuid,
-            "filename"          => "#{Utils::l22()}.json",
+            "filename"          => "#{TodoXUtils::l22()}.json",
             "creationTimestamp" => Time.new.to_f,
             "description"       => link,
             "targets"           => [ target ],
             "classification"    => [ classificationItem ]
         }
-        Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+        TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
         FileUtils.rm(filepath)
     }
 
@@ -101,17 +101,17 @@ Dir.entries(Todo::pathToTodoInbox())
             }
             tnode = {
                 "uuid"              => SecureRandom.uuid,
-                "filename"          => "#{Utils::l22()}.json",
+                "filename"          => "#{TodoXUtils::l22()}.json",
                 "creationTimestamp" => Time.new.to_f,
                 "description"       => text.lines.to_a.first.strip,
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+            TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
             FileUtils.rm(filepath)
         end
         if text.lines.to_a.size > 1 then
-            textfilename = "#{Utils::l22()}.txt"
+            textfilename = "#{TodoXUtils::l22()}.txt"
             textfilepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), textfilename)
             File.open(textfilepath, "w"){|f| f.puts(text) }
             target = {
@@ -126,19 +126,19 @@ Dir.entries(Todo::pathToTodoInbox())
             }
             tnode = {
                 "uuid"              => SecureRandom.uuid,
-                "filename"          => "#{Utils::l22()}.json",
+                "filename"          => "#{TodoXUtils::l22()}.json",
                 "creationTimestamp" => Time.new.to_f,
                 "description"       => text.lines.to_a.first.strip,
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+            TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
             FileUtils.rm(filepath)
         end
     }
 
-WalksCore::remove2FromDataset1ThePointsWithObsoleteTimelines()
-WalksCore::limit2SizeOfDataset1()
+TodoXWalksCore::remove2FromDataset1ThePointsWithObsoleteTimelines()
+TodoXWalksCore::limit2SizeOfDataset1()
 
 # --------------------------------------------------------------------
 
@@ -157,13 +157,13 @@ metricHelper = MetricHelper.new(0.70)
 
 objects = []
 
-CoreData::getTimelineTNodesOrdered(Todo::todoInboxTimelineName()).each{|tnode|
+TodoXCoreData::getTimelineTNodesOrdered(Todo::todoInboxTimelineName()).each{|tnode|
     objects << {
         "uuid"            => tnode["uuid"],
         "agentuid"        => nil,
         "contentItem"     => {
             "type" => "line",
-            "line" => "todo [inbox]: " + tnode["description"] # Interface::targetToString(tnode["targets"][0])
+            "line" => "todo [inbox]: " + tnode["description"] # TodoXInterface::targetToString(tnode["targets"][0])
         },
         "metric"          => metricHelper.metric(),
         "commands"        => ["run", "recast", "tonyx"],
@@ -179,9 +179,9 @@ CoreData::getTimelineTNodesOrdered(Todo::todoInboxTimelineName()).each{|tnode|
 
 metricHelper = MetricHelper.new(0.30)
 
-timeline = WalksCore::get2TimelineWithLowestTimespan(WalksCore::get2TNodesTimelines(), WalksCore::timeline2TimeMapping())
+timeline = TodoXWalksCore::get2TimelineWithLowestTimespan(TodoXWalksCore::get2TNodesTimelines(), TodoXWalksCore::timeline2TimeMapping())
 
-Estate::tNodesEnumerator(Todo::pathToYmir())
+TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
     .select{|tnode|
         tnode["classification"][0]["timeline"] == timeline
     }
@@ -194,7 +194,7 @@ Estate::tNodesEnumerator(Todo::pathToYmir())
             "agentuid"       => nil,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "todo walk @ #{timeline} / " + Interface::targetToString(tnode["targets"][0])
+                "line" => "todo walk @ #{timeline} / " + TodoXInterface::targetToString(tnode["targets"][0])
             },
             "metric"         => metricHelper.metric(),
             "commands"        => ["run", "recast", "tonyx"],

@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 # encoding: UTF-8
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"

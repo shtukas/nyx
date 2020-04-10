@@ -1,7 +1,5 @@
-#!/usr/bin/ruby
 
 # encoding: UTF-8
-
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
