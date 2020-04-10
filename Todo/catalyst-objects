@@ -50,6 +50,7 @@ require_relative "Library.rb"
 # --------------------------------------------------------------------
 
 # We start by collecting the objects in the Inbox
+
 Dir.entries(Todo::pathToTodoInbox())
     .select{|filename| filename[-8, 8] == ".url.txt" }
     .each{|filename|
@@ -76,6 +77,7 @@ Dir.entries(Todo::pathToTodoInbox())
         Estate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
         FileUtils.rm(filepath)
     }
+
 Dir.entries(Todo::pathToTodoInbox())
     .select{|filename| filename[-9, 9] == ".text.txt" }
     .each{|filename|
