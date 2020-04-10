@@ -73,7 +73,7 @@ Dir.entries(Todo::pathToTodoInbox())
             "targets"           => [ target ],
             "classification"    => [ classificationItem ]
         }
-        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+        TodoXEstate::commitTNodeToDisk(tnode)
         FileUtils.rm(filepath)
     }
 
@@ -106,7 +106,7 @@ Dir.entries(Todo::pathToTodoInbox())
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+            TodoXEstate::commitTNodeToDisk(tnode)
             FileUtils.rm(filepath)
         end
         if text.lines.to_a.size > 1 then
@@ -131,7 +131,7 @@ Dir.entries(Todo::pathToTodoInbox())
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+            TodoXEstate::commitTNodeToDisk(tnode)
             FileUtils.rm(filepath)
         end
     }
@@ -162,7 +162,7 @@ TodoXCoreData::getTimelineTNodesOrdered(Todo::todoInboxTimelineName()).each{|tno
         "agentuid"        => nil,
         "contentItem"     => {
             "type" => "line",
-            "line" => "todo [inbox]: " + tnode["description"] # TodoXInterface::targetToString(tnode["targets"][0])
+            "line" => "todo [inbox]: " + tnode["description"] # TodoXUserInterface::targetToString(tnode["targets"][0])
         },
         "metric"          => metricHelper.metric(),
         "commands"        => ["run", "recast", "tonyx"],
@@ -180,7 +180,7 @@ metricHelper = MetricHelper.new(0.30)
 
 timeline = TodoXWalksCore::get2TimelineWithLowestTimespan(TodoXWalksCore::get2TNodesTimelines(), TodoXWalksCore::timeline2TimeMapping())
 
-TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
+TodoXEstate::tNodesEnumerator()
     .select{|tnode|
         tnode["classification"][0]["timeline"] == timeline
     }
@@ -193,7 +193,7 @@ TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
             "agentuid"       => nil,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "todo walk @ #{timeline} / " + TodoXInterface::targetToString(tnode["targets"][0])
+                "line" => "todo walk @ #{timeline} / " + TodoXUserInterface::targetToString(tnode["targets"][0])
             },
             "metric"         => metricHelper.metric(),
             "commands"        => ["run", "recast", "tonyx"],

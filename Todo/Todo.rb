@@ -70,27 +70,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
 
 # --------------------------------------------------------------------
 
-class TodoXBinUtils
-
-    # TodoBinTodoXUtils::newBinArchivesFolderpath()
-    def self.newBinArchivesFolderpath()
-        time = Time.new
-        folder1 = "/Users/pascal/Galaxy/DataBank/Catalyst/Bin-Timeline/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(folder3)
-        folder3
-    end
-
-    # TodoBinTodoXUtils::copyLocationToCatalystBin(location)
-    def self.copyLocationToCatalystBin(location)
-        return if location.nil?
-        return if !File.exists?(location)
-        targetFolder = TodoBinTodoXUtils::newBinArchivesFolderpath()
-        LucilleCore::copyFileSystemLocation(location,targetFolder)
-    end
-end
-
 class TodoXUtils
 
     # TodoXUtils::chooseALinePecoStyle(announce: String, strs: Array[String]): String
@@ -113,77 +92,34 @@ class TodoXUtils
       input = STDIN.gets
       IO.read(filepath)
     end
-end
 
-class TodoXEstate
-
-    # TodoXEstate::uniqueNameResolutionLocationPathOrNull(uniquename)
+    # TodoXUtils::uniqueNameResolutionLocationPathOrNull(uniquename)
     def self.uniqueNameResolutionLocationPathOrNull(uniquename)
         location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
         return nil if location.nil?
         location
     end
 
-    # TodoXEstate::destroyTNode(tnode)
-    def self.destroyTNode(tnode)
-        # We try and preserve contents
-
-        destroyTarget = lambda{|target|
-            if target["type"] == "line-2A35BA23" then
-                # Nothing
-                return
-            end
-            if target["type"] == "text-A9C3641C" then
-                textFilepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
-                return if textFilepath.nil?
-                return if !File.exists?(textFilepath)
-                TodoBinTodoXUtils::copyLocationToCatalystBin(textFilepath)
-                LucilleCore::removeFileSystemLocation(textFilepath)
-                return
-            end
-            if target["type"] == "url-EFB8D55B" then
-                # Nothing
-                return
-            end
-            if target["type"] == "unique-name-C2BF46D6" then
-                # Nothing
-                return
-            end
-            if target["type"] == "perma-dir-11859659" then
-                folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
-                return if folderpath.nil?
-                return if !File.exists?(folderpath)
-                TodoBinTodoXUtils::copyLocationToCatalystBin(folderpath)
-                LucilleCore::removeFileSystemLocation(folderpath)
-                return
-            end
-            raise "[error: e838105]"
-        }
-
-        destroyClassificationItem = lambda{|item|
-            if item["type"] == "tag-18303A17" then
-                # Nothing
-                return
-            end
-            if item["type"] == "timeline-329D3ABD" then
-                # Nothing
-                return
-            end
-            raise "[error: a38375c2]"
-        }
-
-        tnode["targets"].each{|target| destroyTarget.call(target) }
-        tnode["classification"].each{|item| destroyClassificationItem.call(item) }
-
-        tnodelocation = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), tnode["filename"])
-        if tnodelocation.nil? then
-            puts "[warning: 82d400d0] Interesting. This should not have hapenned."
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        TodoBinTodoXUtils::copyLocationToCatalystBin(tnodelocation)
-        LucilleCore::removeFileSystemLocation(tnodelocation)
+    # TodoXUtils::newBinArchivesFolderpath()
+    def self.newBinArchivesFolderpath()
+        time = Time.new
+        folder1 = "/Users/pascal/Galaxy/DataBank/Catalyst/Bin-Timeline/#{time.strftime("%Y")}/#{time.strftime("%Y-%m")}/#{time.strftime("%Y-%m-%d")}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        folder3 = "#{folder2}/#{time.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(folder3)
+        folder3
     end
+
+    # TodoXUtils::copyLocationToCatalystBin(location)
+    def self.copyLocationToCatalystBin(location)
+        return if location.nil?
+        return if !File.exists?(location)
+        targetFolder = TodoXUtils::newBinArchivesFolderpath()
+        LucilleCore::copyFileSystemLocation(location,targetFolder)
+    end
+end
+
+class TodoXEstate
 
     # ------------------------------------------
     # Integrity
@@ -216,7 +152,7 @@ class TodoXEstate
     end
 
     # ------------------------------------------
-    # IO Ops
+    # IO Ops (1)
 
     # TodoXEstate::dumpTNodeIntoZetaFile(tnode)
     def self.dumpTNodeIntoZetaFile(tnode)
@@ -243,26 +179,108 @@ class TodoXEstate
         tnode
     end
 
-    # TodoXEstate::tNodesEnumerator(pathToYmir)
-    def self.tNodesEnumerator(pathToYmir)
+    # TodoXEstate::tNodesEnumeratorReadZetaFiles(pathToYmir)
+    def self.tNodesEnumeratorReadZetaFiles(pathToYmir)
         isFilenameOfPermanode = lambda {|filename|
             filename[-5, 5] == ".zeta"
         }
         Enumerator.new do |permanodes|
             YmirEstate::ymirFilepathEnumerator(pathToYmir).each{|filepath|
                 next if !isFilenameOfPermanode.call(File.basename(filepath))
-                permanodes << TodoXEstate::readZetaFileIntoTNode(filepath)
+                permanodes << TodoXEstate::readTNodeFromDisk(filepath)
             }
         end
     end
 
+    # ------------------------------------------
+    # IO Ops (2)
+
+    # TodoXEstate::commitTNodeToDisk(tnode)
+    def self.commitTNodeToDisk(tnode)
+        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+        BTreeSets::set(nil, "dc533635-864f-4409-a888-14bfe872bc6d", tnode["uuid"], tnode)
+    end
+
+    # TodoXEstate::readTNodeFromDisk(filepath)
+    def self.readTNodeFromDisk(filepath)
+        TodoXEstate::readZetaFileIntoTNode(filepath)
+    end
+
+    # TodoXEstate::tNodesEnumerator()
+    def self.tNodesEnumerator()
+        BTreeSets::values(nil, "dc533635-864f-4409-a888-14bfe872bc6d")
+    end
+
+    # ------------------------------------------
+    # Destroy TNodes
+
+    # TodoXEstate::destroyTNode(tnode)
+    def self.destroyTNode(tnode)
+        # We try and preserve contents
+
+        destroyTarget = lambda{|target|
+            if target["type"] == "line-2A35BA23" then
+                # Nothing
+                return
+            end
+            if target["type"] == "text-A9C3641C" then
+                textFilepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["filename"])
+                return if textFilepath.nil?
+                return if !File.exists?(textFilepath)
+                TodoXUtils::copyLocationToCatalystBin(textFilepath)
+                LucilleCore::removeFileSystemLocation(textFilepath)
+                return
+            end
+            if target["type"] == "url-EFB8D55B" then
+                # Nothing
+                return
+            end
+            if target["type"] == "unique-name-C2BF46D6" then
+                # Nothing
+                return
+            end
+            if target["type"] == "perma-dir-11859659" then
+                folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
+                return if folderpath.nil?
+                return if !File.exists?(folderpath)
+                TodoXUtils::copyLocationToCatalystBin(folderpath)
+                LucilleCore::removeFileSystemLocation(folderpath)
+                return
+            end
+            raise "[error: e838105]"
+        }
+
+        destroyClassificationItem = lambda{|item|
+            if item["type"] == "tag-18303A17" then
+                # Nothing
+                return
+            end
+            if item["type"] == "timeline-329D3ABD" then
+                # Nothing
+                return
+            end
+            raise "[error: a38375c2]"
+        }
+
+        tnode["targets"].each{|target| destroyTarget.call(target) }
+        tnode["classification"].each{|item| destroyClassificationItem.call(item) }
+
+        tnodelocation = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), tnode["filename"])
+        if tnodelocation.nil? then
+            puts "[warning: 82d400d0] Interesting. This should not have hapenned."
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        TodoXUtils::copyLocationToCatalystBin(tnodelocation)
+        LucilleCore::removeFileSystemLocation(tnodelocation)
+    end
 end
 
 class TodoXCoreData
 
     # TodoXCoreData::timelines()
     def self.timelines()
-        TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
+        TodoXEstate::tNodesEnumerator()
             .map{|tnode| tnode["classification"] }
             .flatten
             .select{|item| item["type"] == "timeline-329D3ABD" }
@@ -277,7 +295,7 @@ class TodoXCoreData
                 .select{|item| item["type"] == "timeline-329D3ABD" }
                 .map{|item| item["timeline"] }
         }
-        map1 = TodoXEstate::tNodesEnumerator(Todo::pathToYmir()).reduce({}){|map2, tnode|
+        map1 = TodoXEstate::tNodesEnumerator().reduce({}){|map2, tnode|
             timelines = extractTimelinesFromTNode.call(tnode)
             timelines.each{|timeline|
                 if map2[timeline].nil? then
@@ -301,14 +319,14 @@ class TodoXCoreData
 
     # TodoXCoreData::getTimelineTNodesOrdered(timeline)
     def self.getTimelineTNodesOrdered(timeline)
-        TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
+        TodoXEstate::tNodesEnumerator()
             .select{|tnode| TodoXCoreData::tNodeIsOnThisTimeline(tnode, timeline) }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
     end
 
     # TodoXCoreData::searchPatternToTNodes(pattern)
     def self.searchPatternToTNodes(pattern)
-        TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
+        TodoXEstate::tNodesEnumerator()
             .select{|tnode| 
                 b1 = tnode["uuid"].downcase.include?(pattern.downcase)
                 b2 = tnode["description"].downcase.include?(pattern.downcase)
@@ -319,7 +337,7 @@ class TodoXCoreData
 
     # TodoXCoreData::getTNodeByUUIDOrNull(uuid)
     def self.getTNodeByUUIDOrNull(uuid)
-        TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
+        TodoXEstate::tNodesEnumerator()
             .select{|tnode| tnode["uuid"] == uuid }
             .first
     end
@@ -450,7 +468,7 @@ class TodoXTMakers
     def self.makeNewTNode()
         uuid = SecureRandom.uuid
         target = TodoXTMakers::makeOneTNodeTarget()
-        description = TodoXInterface::targetToString(target)
+        description = TodoXUserInterface::targetToString(target)
         targets = [ target ]
         timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
         classification = [{
@@ -468,13 +486,13 @@ class TodoXTMakers
             "classification"    => classification
         }
         puts JSON.pretty_generate(tnode)
-        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+        TodoXEstate::commitTNodeToDisk(tnode)
     end
 end
 
-class TodoXInterface
+class TodoXUserInterface
 
-    # TodoXInterface::targetToString(target)
+    # TodoXUserInterface::targetToString(target)
     def self.targetToString(target)
         if target["type"] == "line-2A35BA23" then
             return "line: #{target["line"]}"
@@ -511,7 +529,7 @@ class TodoXInterface
         raise "[error: 706ce2f5]"
     end
 
-    # TodoXInterface::classificationItemToString(item)
+    # TodoXUserInterface::classificationItemToString(item)
     def self.classificationItemToString(item)
         if item["type"] == "tag-18303A17" then
             return "tag: #{item["tag"]}"
@@ -522,9 +540,9 @@ class TodoXInterface
         raise "[error: 44ccb03c]"
     end
 
-    # TodoXInterface::diveTarget(tnodeuuid, target)
+    # TodoXUserInterface::diveTarget(tnodeuuid, target)
     def self.diveTarget(tnodeuuid, target)
-        puts "Target: #{TodoXInterface::targetToString(target)}"
+        puts "Target: #{TodoXUserInterface::targetToString(target)}"
         operations = [
             "open", 
             "remove/destroy from tnode"
@@ -539,13 +557,13 @@ class TodoXInterface
             tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
             return if tnode.nil?
             tnode["targets"] = tnode["targets"].reject{|t| t["uuid"]==target["uuid"] }
-            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+            TodoXEstate::commitTNodeToDisk(tnode)
         end
     end
 
-    # TodoXInterface::diveClassificationItem(tnodeuuid, item)
+    # TodoXUserInterface::diveClassificationItem(tnodeuuid, item)
     def self.diveClassificationItem(tnodeuuid, item)
-        puts "Item: #{TodoXInterface::classificationItemToString(item)}"
+        puts "Item: #{TodoXUserInterface::classificationItemToString(item)}"
         operations = [
             "remove/destroy from tnode"
         ]
@@ -556,23 +574,23 @@ class TodoXInterface
             tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
             return if tnode.nil?
             tnode["classification"] = tnode["classification"].reject{|i| i["uuid"]==item["uuid"] }
-            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+            TodoXEstate::commitTNodeToDisk(tnode)
         end
     end
 
-    # TodoXInterface::diveTargets(tnodeuuid, targets)
+    # TodoXUserInterface::diveTargets(tnodeuuid, targets)
     def self.diveTargets(tnodeuuid, targets)
-        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target: ", targets, lambda{|target| TodoXInterface::targetToString(target) })
+        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target: ", targets, lambda{|target| TodoXUserInterface::targetToString(target) })
         return if target.nil?
     end
 
-    # TodoXInterface::diveClassificationItems(tnodeuuid, items)
+    # TodoXUserInterface::diveClassificationItems(tnodeuuid, items)
     def self.diveClassificationItems(tnodeuuid, items)
-        puts "TodoXInterface::diveClassificationItems is not implemented yet"
+        puts "TodoXUserInterface::diveClassificationItems is not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
 
-    # TodoXInterface::openTarget(target)
+    # TodoXUserInterface::openTarget(target)
     def self.openTarget(target)
         if target["type"] == "line-2A35BA23" then
             puts "line: #{target["line"]}"
@@ -591,7 +609,7 @@ class TodoXInterface
         end
         if target["type"] == "unique-name-C2BF46D6" then
             uniquename = target["name"]
-            location = TodoXEstate::uniqueNameResolutionLocationPathOrNull(uniquename)
+            location = TodoXUtils::uniqueNameResolutionLocationPathOrNull(uniquename)
             if location.nil? then
                 puts "I could not resolve unique name '#{uniquename}'"
                 LucilleCore::pressEnterToContinue()
@@ -612,7 +630,7 @@ class TodoXInterface
         end
     end
 
-    # TodoXInterface::optimizedOpenTarget(target)
+    # TodoXUserInterface::optimizedOpenTarget(target)
     def self.optimizedOpenTarget(target)
         if target["type"] == "line-2A35BA23" then
             puts "line: #{target["line"]}"
@@ -631,7 +649,7 @@ class TodoXInterface
         end
         if target["type"] == "unique-name-C2BF46D6" then
             uniquename = target["name"]
-            location = TodoXEstate::uniqueNameResolutionLocationPathOrNull(uniquename)
+            location = TodoXUtils::uniqueNameResolutionLocationPathOrNull(uniquename)
             if location.nil? then
                 puts "I could not resolve unique name '#{uniquename}'"
                 LucilleCore::pressEnterToContinue()
@@ -661,13 +679,13 @@ class TodoXInterface
         end
     end
 
-    # TodoXInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+    # TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
     def self.optimizedOpenTNodeUniqueTargetOrNothing(tnode)
         return if tnode["targets"].size != 1
-        TodoXInterface::optimizedOpenTarget(tnode["targets"][0])
+        TodoXUserInterface::optimizedOpenTarget(tnode["targets"][0])
     end
 
-    # TodoXInterface::tNodeDive(tnodeuuid)
+    # TodoXUserInterface::tNodeDive(tnodeuuid)
     def self.tNodeDive(tnodeuuid)
         loop {
             tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
@@ -680,11 +698,11 @@ class TodoXInterface
             puts "    description: #{tnode["description"]}"
             puts "    targets:"
             tnode["targets"].each{|target|
-                puts "        #{TodoXInterface::targetToString(target)}"
+                puts "        #{TodoXUserInterface::targetToString(target)}"
             }
             puts "    classification items:"
             tnode["classification"].each{|item|
-                puts "        #{TodoXInterface::classificationItemToString(item)}"
+                puts "        #{TodoXUserInterface::classificationItemToString(item)}"
             }
             operations = [
                 "quick open",
@@ -696,17 +714,17 @@ class TodoXInterface
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "quick open" then
-                TodoXInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
             end
             if operation == "edit description" then
                 tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-                TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+                TodoXEstate::commitTNodeToDisk(tnode)
             end
             if operation == "dive targets" then
-                TodoXInterface::diveTargets(tnode["uuid"], tnode["targets"])
+                TodoXUserInterface::diveTargets(tnode["uuid"], tnode["targets"])
             end
             if operation == "dive classification items" then
-                TodoXInterface::diveClassificationItems(tnode["uuid"], tnode["classification"])
+                TodoXUserInterface::diveClassificationItems(tnode["uuid"], tnode["classification"])
             end
             if operation == "destroy tnode" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
@@ -717,36 +735,36 @@ class TodoXInterface
         }
     end
 
-    # TodoXInterface::tNodesDive(tnodes)
+    # TodoXUserInterface::tNodesDive(tnodes)
     def self.tNodesDive(tnodes)
         loop {
             tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
             return if tnode.nil?
-            TodoXInterface::tNodeDive(tnode["uuid"])
+            TodoXUserInterface::tNodeDive(tnode["uuid"])
         }
     end
 
-    # TodoXInterface::timelineDive(timeline)
+    # TodoXUserInterface::timelineDive(timeline)
     def self.timelineDive(timeline)
         loop {
             puts "Timeline: #{timeline}"
             tnodes = TodoXCoreData::getTimelineTNodesOrdered(timeline)
             tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
             return if tnode.nil?
-            TodoXInterface::tNodeDive(tnode["uuid"])
+            TodoXUserInterface::tNodeDive(tnode["uuid"])
         }
     end
 
-    # TodoXInterface::timelinesDive()
+    # TodoXUserInterface::timelinesDive()
     def self.timelinesDive()
         loop {
             timeline = TodoXTMakers::interactively2SelectTimelineOrNull(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
             return if timeline.nil?
-            TodoXInterface::timelineDive(timeline)
+            TodoXUserInterface::timelineDive(timeline)
         }
     end
 
-    # TodoXInterface::timelineWalk(timeline)
+    # TodoXUserInterface::timelineWalk(timeline)
     def self.timelineWalk(timeline)
         operationWithSpecifiedDefault = lambda {|default|
             operation = LucilleCore::askQuestionAnswerAsString("operation: (open, dive, destroy, next, exit) [default: #{default}]: ")
@@ -765,11 +783,11 @@ class TodoXInterface
                 puts "-> #{tnode["description"]}"
                 operation = operationWithSpecifiedDefault.call(default)
                 if operation == "open" then
-                    TodoXInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+                    TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
                     default = "destroy"
                 end
                 if operation == "dive" then
-                    TodoXInterface::tNodeDive(tnode["uuid"])
+                    TodoXUserInterface::tNodeDive(tnode["uuid"])
                     default = "open"
                 end
                 if operation == "next" then
@@ -786,7 +804,7 @@ class TodoXInterface
         }
     end
 
-    # TodoXInterface::ui()
+    # TodoXUserInterface::ui()
     def self.ui()
         loop {
             system("clear")
@@ -812,19 +830,19 @@ class TodoXInterface
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                TodoXInterface::tNodesDive(tnodes)
+                TodoXUserInterface::tNodesDive(tnodes)
             end
             if operation == "view most recent items" then
-                tnodes = TodoXEstate::tNodesEnumerator(Todo::pathToYmir()).to_a.reverse.take(10)
-                TodoXInterface::tNodesDive(tnodes)
+                tnodes = TodoXEstate::tNodesEnumerator().to_a.reverse.take(10)
+                TodoXUserInterface::tNodesDive(tnodes)
             end
             if operation == "timelines dive" then
-                TodoXInterface::timelinesDive()
+                TodoXUserInterface::timelinesDive()
             end
             if operation == "timeline walk" then
                 timeline = TodoXTMakers::interactively2SelectTimelineOrNull(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
                 next if timeline.nil?
-                TodoXInterface::timelineWalk(timeline)
+                TodoXUserInterface::timelineWalk(timeline)
             end
             if operation == "numbers" then
                 puts "timeline mapping:"
@@ -941,6 +959,8 @@ class TodoXNyxConverter
     end
 end
 
+class TodoXWalksCore
+
 =begin
 
 Dataset1
@@ -956,8 +976,6 @@ Dataset1
     TimeStructure: Map[String # Timeline, Float # Timespan]
 
 =end
-
-class TodoXWalksCore
 
     # TodoXWalksCore::walksDataStoreFolderpath()
     def self.walksDataStoreFolderpath()
@@ -983,7 +1001,7 @@ class TodoXWalksCore
 
     # TodoXWalksCore::get2TNodesTimelines()
     def self.get2TNodesTimelines() # Array[String]
-        TodoXEstate::tNodesEnumerator(Todo::pathToYmir())
+        TodoXEstate::tNodesEnumerator()
             .map{|tnode|
                 tnode["classification"]
                     .select{|item| item["type"] == "timeline-329D3ABD" }

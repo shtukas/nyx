@@ -66,11 +66,11 @@ if ARGV[0] == "run" and ARGV[1] then
         LucilleCore::pressEnterToContinue()
         exit
     end
-    puts TodoXInterface::targetToString(tnode["targets"][0])
+    puts TodoXUserInterface::targetToString(tnode["targets"][0])
 
     startTime = Time.new.to_i
 
-    TodoXInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+    TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
     operations = ["done", "reclassify", "transmute to nyx"]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
     if operation == "done" then
@@ -84,7 +84,7 @@ if ARGV[0] == "run" and ARGV[1] then
             "timeline" => timeline
         }]
         puts JSON.pretty_generate(tnode)
-        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+        TodoXEstate::commitTNodeToDisk(tnode)
     end
     if operation == "transmute to nyx" then
         nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
@@ -118,7 +118,7 @@ if ARGV[0] == "recast" and ARGV[1] then
         LucilleCore::pressEnterToContinue()
         exit
     end
-    puts TodoXInterface::targetToString(tnode["targets"][0])
+    puts TodoXUserInterface::targetToString(tnode["targets"][0])
 
     timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
     tnode["classification"] = [{
@@ -127,7 +127,7 @@ if ARGV[0] == "recast" and ARGV[1] then
         "timeline" => timeline
     }]
     puts JSON.pretty_generate(tnode)
-    TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+    TodoXEstate::commitTNodeToDisk(tnode)
 end
 
 if ARGV[0] == "tonyx" and ARGV[1] then
@@ -138,7 +138,7 @@ if ARGV[0] == "tonyx" and ARGV[1] then
         LucilleCore::pressEnterToContinue()
         exit
     end
-    puts TodoXInterface::targetToString(tnode["targets"][0])
+    puts TodoXUserInterface::targetToString(tnode["targets"][0])
     nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
     filename = "#{TodoXUtils::l22()}.json"
     filepath = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename)
