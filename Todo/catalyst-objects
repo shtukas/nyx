@@ -73,7 +73,7 @@ Dir.entries(Todo::pathToTodoInbox())
             "targets"           => [ target ],
             "classification"    => [ classificationItem ]
         }
-        TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
         FileUtils.rm(filepath)
     }
 
@@ -106,7 +106,7 @@ Dir.entries(Todo::pathToTodoInbox())
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
             FileUtils.rm(filepath)
         end
         if text.lines.to_a.size > 1 then
@@ -131,7 +131,7 @@ Dir.entries(Todo::pathToTodoInbox())
                 "targets"           => [ target ],
                 "classification"    => [ classificationItem ]
             }
-            TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
             FileUtils.rm(filepath)
         end
     }

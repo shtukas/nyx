@@ -84,7 +84,7 @@ if ARGV[0] == "run" and ARGV[1] then
             "timeline" => timeline
         }]
         puts JSON.pretty_generate(tnode)
-        TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
     end
     if operation == "transmute to nyx" then
         nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
@@ -127,8 +127,7 @@ if ARGV[0] == "recast" and ARGV[1] then
         "timeline" => timeline
     }]
     puts JSON.pretty_generate(tnode)
-    TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
-
+    TodoXEstate::dumpTNodeIntoZetaFile(tnode)
 end
 
 if ARGV[0] == "tonyx" and ARGV[1] then

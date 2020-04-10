@@ -25,7 +25,6 @@ require 'digest/sha1'
 # Digest::SHA1.file(myFile).hexdigest
 
 require 'find'
-require 'drb/drb'
 require 'thread'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"

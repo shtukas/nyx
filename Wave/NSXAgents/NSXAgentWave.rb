@@ -22,8 +22,6 @@ require 'fileutils'
 
 require 'find'
 
-require 'drb/drb'
-
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest

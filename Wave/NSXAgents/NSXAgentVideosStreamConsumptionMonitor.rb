@@ -4,8 +4,6 @@ require 'json'
 
 require 'fileutils'
 
-require 'drb/drb'
-
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"

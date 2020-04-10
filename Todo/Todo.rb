@@ -201,7 +201,7 @@ class TodoXEstate
         true
     end
 
-    # Return true if the passed object is a well formed permanode
+    # Return true if the passed object is a well formed TNode
     # TodoXEstate::objectIsTNode(object)
     def self.objectIsTNode(object)
         return false if object.nil?
@@ -218,29 +218,44 @@ class TodoXEstate
     # ------------------------------------------
     # IO Ops
 
-    # TodoXEstate::commitTNodeToDisk(pathToYmir, permanode)
-    def self.commitTNodeToDisk(pathToYmir, permanode)
-        raise "[error: not a permanode]" if !TodoXEstate::objectIsTNode(permanode)
-        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, permanode["filename"])
-        if filepath.nil? then
-            # probably a new permanode 
-            filepath = YmirEstate::makeNewYmirLocationForBasename(pathToYmir, permanode["filename"])
-        end
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(permanode)) }
+    # TodoXEstate::dumpTNodeIntoZetaFile(tnode)
+    def self.dumpTNodeIntoZetaFile(tnode)
+        puts JSON.pretty_generate(tnode)
+        filename = tnode["filename"]
+        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), filename)
+        Zeta::set(filepath, "uuid", tnode["uuid"])
+        Zeta::set(filepath, "filename", tnode["filename"])
+        Zeta::set(filepath, "creationTimestamp", tnode["creationTimestamp"])
+        Zeta::set(filepath, "description", tnode["description"])
+        Zeta::set(filepath, "targets", JSON.generate(tnode["targets"]))
+        Zeta::set(filepath, "classification", JSON.generate(tnode["classification"]))
+    end
+
+    # TodoXEstate::readZetaFileIntoTNode(filepath)
+    def self.readZetaFileIntoTNode(filepath)
+        tnode = {}
+        tnode["uuid"] = Zeta::getOrNull(filepath, "uuid")
+        tnode["filename"] = Zeta::getOrNull(filepath, "filename")
+        tnode["creationTimestamp"] = Zeta::getOrNull(filepath, "creationTimestamp")
+        tnode["description"] = Zeta::getOrNull(filepath, "description")
+        tnode["targets"] = JSON.parse(Zeta::getOrNull(filepath, "targets"))
+        tnode["classification"] = JSON.parse(Zeta::getOrNull(filepath, "classification"))
+        tnode
     end
 
     # TodoXEstate::tNodesEnumerator(pathToYmir)
     def self.tNodesEnumerator(pathToYmir)
         isFilenameOfPermanode = lambda {|filename|
-            filename[-5, 5] == ".json"
+            filename[-5, 5] == ".zeta"
         }
         Enumerator.new do |permanodes|
             YmirEstate::ymirFilepathEnumerator(pathToYmir).each{|filepath|
                 next if !isFilenameOfPermanode.call(File.basename(filepath))
-                permanodes << JSON.parse(IO.read(filepath))
+                permanodes << TodoXEstate::readZetaFileIntoTNode(filepath)
             }
         end
     end
+
 end
 
 class TodoXCoreData
@@ -446,14 +461,14 @@ class TodoXTMakers
         # we are no setting tags for TNodes
         tnode = {
             "uuid"              => uuid,
-            "filename"          => "#{TodoXUtils::l22()}.json",
+            "filename"          => "#{TodoXUtils::l22()}.zeta",
             "creationTimestamp" => Time.new.to_f,
             "description"       => description,
             "targets"           => targets,
             "classification"    => classification
         }
         puts JSON.pretty_generate(tnode)
-        TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+        TodoXEstate::dumpTNodeIntoZetaFile(tnode)
     end
 end
 
@@ -524,7 +539,7 @@ class TodoXInterface
             tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
             return if tnode.nil?
             tnode["targets"] = tnode["targets"].reject{|t| t["uuid"]==target["uuid"] }
-            TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
         end
     end
 
@@ -541,7 +556,7 @@ class TodoXInterface
             tnode = TodoXCoreData::getTNodeByUUIDOrNull(tnodeuuid)
             return if tnode.nil?
             tnode["classification"] = tnode["classification"].reject{|i| i["uuid"]==item["uuid"] }
-            TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+            TodoXEstate::dumpTNodeIntoZetaFile(tnode)
         end
     end
 
@@ -685,7 +700,7 @@ class TodoXInterface
             end
             if operation == "edit description" then
                 tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-                TodoXEstate::commitTNodeToDisk(Todo::pathToYmir(), tnode)
+                TodoXEstate::dumpTNodeIntoZetaFile(tnode)
             end
             if operation == "dive targets" then
                 TodoXInterface::diveTargets(tnode["uuid"], tnode["targets"])

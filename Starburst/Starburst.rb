@@ -25,7 +25,6 @@ require 'digest/sha1'
 # Digest::SHA1.file(myFile).hexdigest
 
 require 'find'
-require 'drb/drb'
 require 'thread'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
@@ -133,8 +132,8 @@ class Starburst
         puts "Select existing starburst name or make a new one"
         n = Starburst::selectStarburstNameOrNull()
         return n if n
-         folderpath = Starburst::interactivelyMakeNewFolderReturnFolderpath()
-         File.basename(folderpath)
+        folderpath = Starburst::interactivelyMakeNewFolderReturnFolderpath()
+        File.basename(folderpath)
     end
 
     # Starburst::diveStartburstFolders()
