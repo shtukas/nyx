@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "load-code.rb"
+require_relative "Nyx.rb"
 
 # --------------------------------------------------------------------
 
