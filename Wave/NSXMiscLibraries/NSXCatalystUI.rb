@@ -67,7 +67,7 @@ class NSXCatalystUI
         if lucille != "" then
             puts ""
             puts "lucille:"
-            lucille.lines.each{|line| puts  "    #{line}" }
+            lucille.lines.first(10).each{|line| puts  "    #{line}" }
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - ( lucille.lines.to_a.size + 3 )
         end

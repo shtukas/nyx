@@ -245,11 +245,19 @@ class TodoXEstate
     end
 
     # ------------------------------------------
+    # IO Ops (0)
+
+    # TodoXEstate::repositoryFilenameToFilepath(filename)
+    def self.repositoryFilenameToFilepath(filename)
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Items/#{filename}"
+    end
+
+    # ------------------------------------------
     # IO Ops (1)
 
     # TodoXEstate::dumpTNodeIntoNewZetaFile(tnode)
     def self.dumpTNodeIntoNewZetaFile(tnode)
-        filepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), tnode["filename"])
+        filepath = TodoXEstate::repositoryFilenameToFilepath(tnode["filename"])
         Zeta::makeNewFile(filepath)
         Zeta::set(filepath, "uuid", tnode["uuid"])
         Zeta::set(filepath, "filename", tnode["filename"])
@@ -261,8 +269,7 @@ class TodoXEstate
 
     # TodoXEstate::dumpTNodeIntoExistingZetaFile(tnode)
     def self.dumpTNodeIntoExistingZetaFile(tnode)
-        filename = tnode["filename"]
-        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), filename)
+        filepath = TodoXEstate::repositoryFilenameToFilepath(tnode["filename"])
         Zeta::set(filepath, "uuid", tnode["uuid"])
         Zeta::set(filepath, "filename", tnode["filename"])
         Zeta::set(filepath, "creationTimestamp", tnode["creationTimestamp"])
@@ -283,22 +290,21 @@ class TodoXEstate
         tnode
     end
 
-    # TodoXEstate::tNodesEnumeratorReadZetaFiles(pathToYmir)
-    def self.tNodesEnumeratorReadZetaFiles(pathToYmir)
-        isFilenameOfPermanode = lambda {|filename|
-            filename[-5, 5] == ".zeta"
-        }
-        Enumerator.new do |permanodes|
-            YmirEstate::ymirFilepathEnumerator(pathToYmir).each{|filepath|
-                next if !isFilenameOfPermanode.call(File.basename(filepath))
-                permanodes << TodoXEstate::readTNodeFromDisk(filepath)
+    # TodoXEstate::tNodesEnumeratorReadZetaFiles()
+    def self.tNodesEnumeratorReadZetaFiles()
+        filepaths = Dir.entries(Todo::pathToItems())
+            .select{|filename| filename[-5, 5] == ".zeta" }
+            .map{|filename| TodoXEstate::repositoryFilenameToFilepath(filename) }
+        Enumerator.new do |tnodes|
+            filepaths.each{|filepath|
+                tnodes << TodoXEstate::readTNodeFromDisk(filepath)
             }
         end
     end
 
     # TodoXEstate::getTNodeByUUIDOrNullReadZetaFiles(uuid)
     def self.getTNodeByUUIDOrNullReadZetaFiles(uuid)
-        TodoXEstate::tNodesEnumeratorReadZetaFiles(Todo::pathToYmir())
+        TodoXEstate::tNodesEnumeratorReadZetaFiles()
             .each{|tnode| 
                 if tnode["uuid"] == uuid then
                     return tnode
@@ -344,7 +350,7 @@ class TodoXEstate
             puts "removing: #{value["uuid"]}"
             BTreeSets::destroy(nil, "dc533635-864f-4409-a888-14bfe872bc6d", value["uuid"])
         }
-        TodoXEstate::tNodesEnumeratorReadZetaFiles(Todo::pathToYmir())
+        TodoXEstate::tNodesEnumeratorReadZetaFiles()
         .each{|tnode|
             puts "adding: #{tnode["uuid"]}"
             BTreeSets::set(nil, "dc533635-864f-4409-a888-14bfe872bc6d", tnode["uuid"], tnode)
@@ -356,7 +362,7 @@ class TodoXEstate
         tnode = TodoXEstate::getTNodeByUUIDOrNull(tnodeuuid)
         return nil if tnode.nil?
         tnodefilename = tnode["filename"]
-        YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), tnodefilename)
+        TodoXEstate::repositoryFilenameToFilepath(tnodefilename)
     end
 
     # ------------------------------------------
@@ -367,7 +373,7 @@ class TodoXEstate
         tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
         return if tnode.nil?
         filename = tnode["filename"]
-        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), filename)
+        filepath = TodoXEstate::repositoryFilenameToFilepath(filename)
         return if filepath.nil?
         Zeta::set(filepath, key, value)
     end
@@ -377,7 +383,7 @@ class TodoXEstate
         tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
         return nil if tnode.nil?
         filename = tnode["filename"]
-        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), filename)
+        filepath = TodoXEstate::repositoryFilenameToFilepath(filename)
         return nil if filepath.nil?
         Zeta::getOrNull(filepath, key)
     end
@@ -428,7 +434,7 @@ class TodoXEstate
         tnode["targets"].each{|target| destroyTarget.call(target) }
         tnode["classification"].each{|item| destroyClassificationItem.call(item) }
 
-        tnodelocation = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), tnode["filename"])
+        tnodelocation = TodoXEstate::repositoryFilenameToFilepath(tnode["filename"])
         if tnodelocation.nil? then
             puts "[warning: 82d400d0] Interesting. This should not have hapenned."
             LucilleCore::pressEnterToContinue()
@@ -924,8 +930,8 @@ class TodoXNyxConverter
         JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-api-timelines`)
     end
 
-    # TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, todoYmirFolderPath, nyxYmirFolderPath)
-    def self.transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, todoYmirFolderPath, nyxYmirFolderPath)
+    # TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, nyxYmirFolderPath)
+    def self.transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, nyxYmirFolderPath)
         if target["type"] == "lstore-directory-mark-BEE670D0" then
             return target
         end
@@ -976,15 +982,15 @@ class TodoXNyxConverter
         TodoXTMakers::interactively2SelectAtLeastOneTimelinePossiblyNewOne(timelines)
     end
 
-    # TodoXNyxConverter::transmuteTodoItemIntoNyxObject(todo, todoYmirFolderPath, nyxYmirFolderPath)
-    def self.transmuteTodoItemIntoNyxObject(todo, todoYmirFolderPath, nyxYmirFolderPath)
+    # TodoXNyxConverter::transmuteTodoItemIntoNyxObject(todo, nyxYmirFolderPath)
+    def self.transmuteTodoItemIntoNyxObject(todo, nyxYmirFolderPath)
         nyx = {}
         nyx["uuid"] = todo["uuid"]
         nyx["filename"] = todo["filename"]
         nyx["creationTimestamp"] = todo["creationTimestamp"]
         nyx["referenceDateTime"] = Time.new.utc.iso8601
         nyx["description"] = TodoXUtils::editTextUsingTextmate(todo["description"])
-        nyx["targets"] = todo["targets"].map{|target| TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(todo["uuid"], target, todoYmirFolderPath, nyxYmirFolderPath) }
+        nyx["targets"] = todo["targets"].map{|target| TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(todo["uuid"], target, nyxYmirFolderPath) }
         tagObjects = TodoXNyxConverter::interactivelymakeZeroOrMoreTags()
                         .map{|tag|
                             {
@@ -1121,9 +1127,9 @@ end
 
 class Todo
 
-    # Todo::pathToYmir()
-    def self.pathToYmir()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Ymir"
+    # Todo::pathToItems()
+    def self.pathToItems()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Items"
     end
 
     # Todo::pathToTodoInbox()

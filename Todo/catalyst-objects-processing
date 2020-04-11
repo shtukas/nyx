@@ -87,7 +87,7 @@ if ARGV[0] == "run" and ARGV[1] then
         TodoXEstate::reCommitTNodeToDisk(tnode)
     end
     if operation == "transmute to nyx" then
-        nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
+        nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Nyx::pathToYmir())
         filename = "#{TodoXUtils::l22()}.json"
         filepath = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename)
         puts JSON.pretty_generate(nyxItem)
@@ -112,7 +112,7 @@ if ARGV[0] == "tonyx" and ARGV[1] then
         exit
     end
     puts TodoXUserInterface::targetToString(tnode["targets"][0])
-    nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Todo::pathToYmir(), Nyx::pathToYmir())
+    nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, Nyx::pathToYmir())
     filename = "#{TodoXUtils::l22()}.json"
     filepath = YmirEstate::makeNewYmirLocationForBasename(Nyx::pathToYmir(), filename)
     puts JSON.pretty_generate(nyxItem)
