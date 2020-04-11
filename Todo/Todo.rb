@@ -68,7 +68,90 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
     Zeta::destroy(filepath, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/AionCore.rb"
+=begin
+
+The operator is an object that has meet the following signatures
+
+    .commitBlob(blob: BinaryData) : Hash
+    .filepathToHash(filepath) : Hash
+    .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
+    .datablobCheck(nhash: Hash): Boolean
+
+class Elizabeth
+
+    def initialize()
+
+    end
+
+    def commitBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        KeyValueStore::set(nil, "SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
+        nhash
+    end
+
+    def filepathToHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = KeyValueStore::getOrNull(nil, nhash)
+        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+        blob
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
+    end
+
+end
+
+AionCore::commitLocationReturnHash(operator, location)
+AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
+
+AionFsck::structureCheckAionHash(operator, nhash)
+
+=end
+
 # --------------------------------------------------------------------
+
+class TodoXSoniaAionOperator
+
+    def initialize(zetafilepath)
+        @zetafilepath = zetafilepath
+    end
+
+    def commitBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        Zeta::set(@zetafilepath, nhash, blob)
+        nhash
+    end
+
+    def filepathToHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = Zeta::getOrNull(@zetafilepath, nhash)
+        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+        blob
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
+    end
+
+end
 
 class TodoXUtils
 
@@ -129,10 +212,17 @@ class TodoXEstate
         return false if object.nil?
         return false if object["uuid"].nil?
         return false if object["type"].nil?
-        types = ["lstore-directory-mark-BEE670D0", "unique-name-C2BF46D6", "url-EFB8D55B", "perma-dir-11859659", "text-A9C3641C", "line-2A35BA23"]
+        types = [
+            "url-EFB8D55B",
+            "line-2A35BA23",
+            "text-A9C3641C",
+            "unique-name-C2BF46D6",
+            "lstore-directory-mark-BEE670D0",
+            "perma-dir-11859659",
+        ]
         return false if !types.include?(object["type"])
         if object["type"] == "perma-dir-11859659" then
-            return false if object["foldername"].nil?
+            return false if object["zetaKey"].nil?
         end
         if object["type"] == "text-A9C3641C" then
             return false if object["zetaKey"].nil?
@@ -261,6 +351,14 @@ class TodoXEstate
         }
     end
 
+    # TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
+    def self.tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
+        tnode = TodoXEstate::getTNodeByUUIDOrNull(tnodeuuid)
+        return nil if tnode.nil?
+        tnodefilename = tnode["filename"]
+        YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), tnodefilename)
+    end
+
     # ------------------------------------------
     # IO Ops (3)
 
@@ -309,11 +407,7 @@ class TodoXEstate
                 return
             end
             if target["type"] == "perma-dir-11859659" then
-                folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
-                return if folderpath.nil?
-                return if !File.exists?(folderpath)
-                TodoXUtils::copyLocationToCatalystBin(folderpath)
-                LucilleCore::removeFileSystemLocation(folderpath)
+                # Nothing, the data is carried by the zeta file
                 return
             end
             raise "[error: e838105]"
@@ -468,6 +562,7 @@ class TodoXTMakers
         if type == "text" then
             text = TodoXUtils::editTextUsingTextmate("")
             zetaKey = SecureRandom.uuid
+            TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnodeuuid, zetaKey, text)
             return {
                 "uuid"    => SecureRandom.uuid,
                 "type"    => "text-A9C3641C",
@@ -489,14 +584,18 @@ class TodoXTMakers
             }
         end
         if type == "permadir" then
-            foldername = TodoXUtils::l22()
-            folderpath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), foldername)
-            FileUtils.mkdir(folderpath)
-            system("open '#{folderpath}'")
+            targetLocation = LucilleCore::askQuestionAnswerAsString("location: ")
+            return nil if !File.exist?(targetLocation)
+            tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
+            return nil if tnodefilepath.nil?
+            operator = TodoXSoniaAionOperator.new(tnodefilepath)
+            nhash = AionCore::commitLocationReturnHash(operator, targetLocation)
+            zetaKey = SecureRandom.uuid
+            TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnodeuuid, zetaKey, nhash)
             return {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "perma-dir-11859659",
-                "foldername" => foldername
+                "uuid"    => SecureRandom.uuid,
+                "type"    => "perma-dir-11859659",
+                "zetaKey" => zetaKey
             }
         end
     end
@@ -506,24 +605,6 @@ class TodoXTMakers
         loop {
             target = TodoXTMakers::makeTNodeTargetInteractivelyOrNull(tnodeuuid)
             return target if target
-        }
-    end
-
-    # TodoXTMakers::makeNewPermadirOutOfThoseLocationsDestroyGivenLocationsAndReturnPermadirTarget(locations)
-    def self.makeNewPermadirOutOfThoseLocationsDestroyGivenLocationsAndReturnPermadirTarget(locations)
-        foldername2 = TodoXUtils::l22()
-        folderpath2 = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), foldername2)
-        FileUtils.mkdir(folderpath2)
-        locations.each{|location|
-            LucilleCore::copyFileSystemLocation(location, folderpath2)
-        }
-        locations.each{|location|
-            LucilleCore::removeFileSystemLocation(location)
-        }
-        {
-            "uuid"       => SecureRandom.uuid,
-            "type"       => "perma-dir-11859659",
-            "foldername" => foldername2
         }
     end
 
@@ -593,19 +674,7 @@ class TodoXUserInterface
             return "unique name: #{target["name"]}"
         end
         if target["type"] == "perma-dir-11859659" then
-            foldername = target["foldername"]
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), foldername)
-            locations = LucilleCore::locationsAtFolder(folderpath)
-            if locations.size == 0 then
-                return "permadir: #{target["foldername"]} (empty folder)"
-            end
-            if locations.size == 1 then
-                return "permadir: contents: #{File.basename(locations[0])}"
-            end
-            if locations.size > 1 then
-                return "permadir: multiple contents"
-            end
-            raise "[error: e4969484]"
+            return "permadir"
         end
         raise "[error: 706ce2f5]"
     end
@@ -644,24 +713,22 @@ class TodoXUserInterface
             end
         end
         if target["type"] == "perma-dir-11859659" then
-            locationCanBeQuickOpened = lambda {|location|
-                # We white list the ones that we want
-                whiteListedExtensions = [".txt", ".jpg", ".png", ".md", ".webloc", ".eml"]
-                return true if whiteListedExtensions.any?{|extension| location[-extension.size, extension.size] == extension }
-                false
-            }
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(Todo::pathToYmir(), target["foldername"])
-            if folderpath.nil? or !File.exists?(folderpath) then
-                puts "[error: 0916fd87] There doesn't seem to be a Ymir file for filename '#{target["foldername"]}'"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            sublocations = LucilleCore::nonDottedLocationsAtFolder(folderpath)
-            if sublocations.size != 0 and locationCanBeQuickOpened.call(sublocations[0]) and !sublocations[0].include?("'") then
-                system("open '#{sublocations[0]}'")
-            else
-                system("open '#{folderpath}'")
-            end
+            nhash = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
+            return if nhash.nil?
+
+            # We need to export the location to the Desktop
+            tmpfilename = TodoXUtils::l22()
+            tmpfoldername = "/Users/pascal/Desktop/#{tmpfilename}"
+            FileUtils.mkdir(tmpfoldername)
+
+            tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
+            operator = TodoXSoniaAionOperator.new(tnodefilepath)
+            AionCore::exportHashAtFolder(operator, nhash, tmpfoldername)
+
+            system("open '#{tmpfoldername}'")
+
+            puts "Exported at #{tmpfoldername}"
+            LucilleCore::pressEnterToContinue()
         end
     end
 
@@ -869,11 +936,7 @@ class TodoXNyxConverter
             return target
         end
         if target["type"] == "perma-dir-11859659" then
-            foldername = target["foldername"]
-            folderpath1 = YmirEstate::locationBasenameToYmirLocationOrNull(todoYmirFolderPath, foldername)
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(nyxYmirFolderPath,  foldername)
-            FileUtils.mkdir(folderpath2)
-            LucilleCore::copyContents(folderpath1, folderpath2)
+            raise "TODO"
             return target
         end
         if target["type"] == "text-A9C3641C" then
@@ -1081,31 +1144,35 @@ class Todo
     # Todo::starburstFolderPathToTodoItemPreserveSource(folderpath1)
     def self.starburstFolderPathToTodoItemPreserveSource(folderpath1)
         return if !File.exists?(folderpath1)
-        foldername1 = File.basename(folderpath1)
-        targetfoldername = Todo::l22()
-        targetfolderpath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), targetfoldername)
-        FileUtils.mkpath(targetfolderpath)
-        LucilleCore::copyContents(folderpath1, targetfolderpath)
-        target = {
-            "uuid"       => SecureRandom.uuid,
-            "type"       => "perma-dir-11859659",
-            "foldername" => targetfoldername
-        }
         classificationItem = {
             "uuid"     => SecureRandom.uuid,
             "type"     => "timeline-329D3ABD",
             "timeline" => "[Inbox]"
         }
-        tnodeFilename = "#{Todo::l22()}.json"
+        tnodeFilename = "#{Todo::l22()}.zeta"
         tnode = {
             "uuid"              => SecureRandom.uuid,
             "filename"          => tnodeFilename,
             "creationTimestamp" => Time.new.to_f,
-            "description"       => foldername1,
-            "targets"           => [ target ],
+            "description"       => File.basename(folderpath1),
+            "targets"           => [],
             "classification"    => [ classificationItem ]
         }
-        filepath = YmirEstate::makeNewYmirLocationForBasename(Todo::pathToYmir(), tnodeFilename)
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(tnode)) }
+        TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
+
+        tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnode["uuid"])
+        operator = TodoXSoniaAionOperator.new(tnodefilepath)
+        nhash = AionCore::commitLocationReturnHash(operator, folderpath1)
+        zetaKey = SecureRandom.uuid
+
+        TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnode["uuid"], zetaKey, nhash)
+
+        target = {
+            "uuid"    => SecureRandom.uuid,
+            "type"    => "perma-dir-11859659",
+            "zetaKey" => zetaKey
+        }
+        tnode["targets"] = [ target ]
+        TodoXEstate::reCommitTNodeToDisk(tnode)
     end
 end

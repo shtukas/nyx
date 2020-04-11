@@ -20,23 +20,13 @@
     ```
     {
         "uuid" : String
-        "type" : "lstore-directory-mark-BEE670D0"
-        "mark" : String # UUID
-    }
-    {
-        "uuid" : String
         "type" : "url-EFB8D55B"
         "url"  : <url>
     }
     {
-        "uuid" : String
-        "type" : "unique-name-C2BF46D6"
-        "name" : String
-    }
-    {
-        "uuid"       : String UUID
-        "type"       : "perma-dir-11859659"
-        "foldername" : String # Should be unique # Preferred L22
+        "uuid": String,
+        "type": "line-2A35BA23",
+        "line": String # Line
     }
     {
         "uuid"        : String,
@@ -44,9 +34,19 @@
         "zetaKey"     : String
     }
     {
-        "uuid": String,
-        "type": "line-2A35BA23",
-        "line": String # Line
+        "uuid" : String
+        "type" : "unique-name-C2BF46D6"
+        "name" : String
+    }
+    {
+        "uuid" : String
+        "type" : "lstore-directory-mark-BEE670D0"
+        "mark" : String # UUID
+    }
+    {
+        "uuid"       : String UUID
+        "type"       : "perma-dir-11859659"
+        "zetaKey"    : String # Contains the key where the Aion root hash is stored
     }
     ```
 
