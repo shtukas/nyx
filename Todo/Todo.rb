@@ -498,8 +498,8 @@ class TodoXCoreData
         tnode["classification"].any?{|item| item["type"] == "timeline-329D3ABD" and item["timeline"] == timeline }
     end
 
-    # TodoXCoreData::get2TimelineTNodesOrdered(tnodes, timeline)
-    def self.get2TimelineTNodesOrdered(tnodes, timeline)
+    # TodoXCoreData::getTimelineTNodesOrdered(tnodes, timeline)
+    def self.getTimelineTNodesOrdered(tnodes, timeline)
         tnodes
             .select{|tnode| TodoXCoreData::tNodeIsOnThisTimeline(tnode, timeline) }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
@@ -678,280 +678,6 @@ class TodoXTMakers
         tnode["targets"] = [ target ]
         tnode["description"] = TodoXUserInterface::targetToString(target)
         TodoXEstate::reCommitTNodeToDisk(tnode)
-    end
-end
-
-class TodoXUserInterface
-
-    # TodoXUserInterface::recastTNodeIdentifiedByUUID(uuid)
-    def self.recastTNodeIdentifiedByUUID(uuid)
-        tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
-        return if tnode.nil?
-        puts TodoXUserInterface::targetToString(tnode["targets"][0])
-        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        tnode["classification"] = [{
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => timeline
-        }]
-        puts JSON.pretty_generate(tnode)
-        TodoXEstate::reCommitTNodeToDisk(tnode)
-    end
-
-    # TodoXUserInterface::targetToString(target)
-    def self.targetToString(target)
-        if target["type"] == "line-2A35BA23" then
-            return "line: #{target["line"]}"
-        end
-        if target["type"] == "text-A9C3641C" then
-            return "text"
-        end
-        if target["type"] == "url-EFB8D55B" then
-            return "url: #{target["url"]}"
-        end
-        if target["type"] == "unique-name-C2BF46D6" then
-            return "unique name: #{target["name"]}"
-        end
-        if target["type"] == "perma-dir-11859659" then
-            return "permadir"
-        end
-        raise "[error: 706ce2f5]"
-    end
-
-    # TodoXUserInterface::classificationItemToString(item)
-    def self.classificationItemToString(item)
-        if item["type"] == "tag-18303A17" then
-            return "tag: #{item["tag"]}"
-        end
-        if item["type"] == "timeline-329D3ABD" then
-            return "timeline: #{item["timeline"]}"
-        end
-        raise "[error: 44ccb03c]"
-    end
-
-    # TodoXUserInterface::optimizedOpenTarget(tnodeuuid, target)
-    def self.optimizedOpenTarget(tnodeuuid, target)
-        if target["type"] == "line-2A35BA23" then
-            puts "line: #{target["line"]}"
-        end
-        if target["type"] == "text-A9C3641C" then
-            text = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
-            text = TodoXUtils::editTextUsingTextmate(text)
-        end
-        if target["type"] == "url-EFB8D55B" then
-            system("open '#{target["url"]}'")
-        end
-        if target["type"] == "unique-name-C2BF46D6" then
-            uniquename = target["name"]
-            location = TodoXUtils::uniqueNameResolutionLocationPathOrNull(uniquename)
-            if location.nil? then
-                puts "I could not resolve unique name '#{uniquename}'"
-                LucilleCore::pressEnterToContinue()
-            else
-                system("open '#{location}'")
-            end
-        end
-        if target["type"] == "perma-dir-11859659" then
-            nhash = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
-            return if nhash.nil?
-
-            # We need to export the location to the Desktop
-            tmpfilename = TodoXUtils::l22()
-            tmpfoldername = "/Users/pascal/Desktop/#{tmpfilename}"
-            FileUtils.mkdir(tmpfoldername)
-
-            tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
-            operator = TodoXSoniaAionOperator.new(tnodefilepath)
-            AionCore::exportHashAtFolder(operator, nhash, tmpfoldername)
-
-            system("open '#{tmpfoldername}'")
-
-            puts "Exported at #{tmpfoldername}"
-            LucilleCore::pressEnterToContinue()
-        end
-    end
-
-    # TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-    def self.optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-        return if tnode["targets"].size != 1
-        TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["targets"][0])
-    end
-
-    # TodoXUserInterface::tNodeDive(tnodeuuid)
-    def self.tNodeDive(tnodeuuid)
-        loop {
-            tnode = TodoXEstate::getTNodeByUUIDOrNull(tnodeuuid)
-            if tnode.nil? then
-                raise "[error: a151f422] tnodeuuid: #{tnodeuuid}"
-            end
-            puts "tnode:"
-            puts "    uuid: #{tnode["uuid"]}"
-            puts "    filename: #{tnode["filename"]}"
-            puts "    description: #{tnode["description"]}"
-            puts "    targets:"
-            tnode["targets"].each{|target|
-                puts "        #{TodoXUserInterface::targetToString(target)}"
-            }
-            puts "    classification items:"
-            tnode["classification"].each{|item|
-                puts "        #{TodoXUserInterface::classificationItemToString(item)}"
-            }
-            operations = [
-                "quick open",
-                "edit description",
-                "recast",
-                "done"
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            return if operation.nil?
-            if operation == "quick open" then
-                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-            end
-            if operation == "edit description" then
-                tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-                TodoXEstate::reCommitTNodeToDisk(tnode)
-            end
-            if operation == "recast" then
-                TodoXUserInterface::recastTNodeIdentifiedByUUID(tnodeuuid)
-            end
-            if operation == "done" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
-                    TodoXEstate::destroyTNode(tnode)
-                    return
-                end
-            end
-        }
-    end
-
-    # TodoXUserInterface::timelineDive(timeline)
-    def self.timelineDive(timeline)
-        loop {
-            puts "Timeline: #{timeline}"
-            tnodes = TodoXCoreData::get2TimelineTNodesOrdered(TodoXEstate::getTNodes(), timeline)
-            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
-            return if tnode.nil?
-            TodoXUserInterface::tNodeDive(tnode["uuid"])
-        }
-    end
-
-    # TodoXUserInterface::timelinesDive()
-    def self.timelinesDive()
-        loop {
-            timeline = TodoXTMakers::interactively2SelectTimelineOrNull(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-            return if timeline.nil?
-            TodoXUserInterface::timelineDive(timeline)
-        }
-    end
-
-    # TodoXUserInterface::runTNode(tnode)
-    def self.runTNode(tnode) # "continue", "exit"
-        operationWithSpecifiedDefault = lambda {|default|
-            operation = LucilleCore::askQuestionAnswerAsString("operation: (open, dive, done, next, exit) [default: #{default}]: ")
-            if operation == "" then
-                default
-            else
-                operation
-            end
-        }
-        default = "open"
-        loop {
-            puts ""
-            puts "-> #{tnode["description"]}"
-            operation = operationWithSpecifiedDefault.call(default)
-            if operation == "open" then
-                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-                default = "done"
-            end
-            if operation == "dive" then
-                TodoXUserInterface::tNodeDive(tnode["uuid"])
-                default = "open"
-            end
-            if operation == "next" then
-                return "continue"
-            end
-            if operation == "done" then
-                TodoXEstate::destroyTNode(tnode)
-                return "continue"
-            end
-            if operation == "exit" then
-                return "exit"
-            end
-        }
-    end
-
-    # TodoXUserInterface::timelineWalk(timeline)
-    def self.timelineWalk(timeline)
-        tnodes = TodoXCoreData::get2TimelineTNodesOrdered(TodoXEstate::getTNodes(), timeline)
-        loop {
-            tnode = tnodes.shift
-            startTime = Time.new.to_i
-            status = TodoXUserInterface::runTNode(tnode)
-            TodoXWalksCore::issuePoint(timeline, Time.new.to_i - startTime)
-            return if status == "exit"
-        }
-    end
-
-    # TodoXUserInterface::searchDive(pattern)
-    def self.searchDive(pattern)
-        loop {
-           tnodes = TodoXCoreData::searchPatternToTNodes(pattern)
-            if tnodes.size == 0 then
-                puts "Could not find tnodes for this pattern: '#{pattern}'"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
-            return if tnode.nil?
-            TodoXUserInterface::tNodeDive(tnode["uuid"])
-        }
-    end
-
-    # TodoXUserInterface::ui()
-    def self.ui()
-        loop {
-            system("clear")
-            puts "Todo 🗃️"
-            operations = [
-                "make new item",
-                "search",
-                "timelines dive",
-                "timelines walk",
-                "numbers"
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            return if operation.nil?
-            if operation == "make new item" then
-                TodoXTMakers::makeNewTNode()
-            end
-            if operation == "search" then
-                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-                TodoXUserInterface::searchDive(pattern)
-            end
-            if operation == "timelines dive" then
-                TodoXUserInterface::timelinesDive()
-            end
-            if operation == "timelines walk" then
-                timeline = TodoXTMakers::interactively2SelectTimelineOrNull(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-                next if timeline.nil?
-                TodoXUserInterface::timelineWalk(timeline)
-            end
-            if operation == "numbers" then
-                puts "timeline mapping:"
-                timeStruct = TodoXWalksCore::timeline2TimeMapping()
-                TodoXWalksCore::get3TNodesTimelines(TodoXEstate::getTNodes()).each{|timeline|
-                    if timeStruct[timeline].nil? then
-                        timeStruct[timeline] = 0
-                    end
-                }
-                timeStruct
-                    .to_a
-                    .sort{|p1, p2| p1[1] <=> p2[1] }
-                    .each{|timeline, timespan|
-                        puts "    -> #{timeline}: #{timespan}"
-                    }
-                LucilleCore::pressEnterToContinue()
-            end
-        }
     end
 end
 
@@ -1213,5 +939,288 @@ class Todo
         }
         tnode["targets"] = [ target ]
         TodoXEstate::reCommitTNodeToDisk(tnode)
+    end
+end
+
+class TodoXUserInterface
+
+    # TodoXUserInterface::recastTNodeIdentifiedByUUID(uuid)
+    def self.recastTNodeIdentifiedByUUID(uuid)
+        tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
+        return if tnode.nil?
+        puts TodoXUserInterface::targetToString(tnode["targets"][0])
+        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
+        tnode["classification"] = [{
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "timeline-329D3ABD",
+            "timeline" => timeline
+        }]
+        puts JSON.pretty_generate(tnode)
+        TodoXEstate::reCommitTNodeToDisk(tnode)
+    end
+
+    # TodoXUserInterface::targetToString(target)
+    def self.targetToString(target)
+        if target["type"] == "line-2A35BA23" then
+            return "line: #{target["line"]}"
+        end
+        if target["type"] == "text-A9C3641C" then
+            return "text"
+        end
+        if target["type"] == "url-EFB8D55B" then
+            return "url: #{target["url"]}"
+        end
+        if target["type"] == "unique-name-C2BF46D6" then
+            return "unique name: #{target["name"]}"
+        end
+        if target["type"] == "perma-dir-11859659" then
+            return "permadir"
+        end
+        raise "[error: 706ce2f5]"
+    end
+
+    # TodoXUserInterface::classificationItemToString(item)
+    def self.classificationItemToString(item)
+        if item["type"] == "tag-18303A17" then
+            return "tag: #{item["tag"]}"
+        end
+        if item["type"] == "timeline-329D3ABD" then
+            return "timeline: #{item["timeline"]}"
+        end
+        raise "[error: 44ccb03c]"
+    end
+
+    # TodoXUserInterface::optimizedOpenTarget(tnodeuuid, target)
+    def self.optimizedOpenTarget(tnodeuuid, target)
+        if target["type"] == "line-2A35BA23" then
+            puts "line: #{target["line"]}"
+        end
+        if target["type"] == "text-A9C3641C" then
+            text = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
+            text = TodoXUtils::editTextUsingTextmate(text)
+        end
+        if target["type"] == "url-EFB8D55B" then
+            system("open '#{target["url"]}'")
+        end
+        if target["type"] == "unique-name-C2BF46D6" then
+            uniquename = target["name"]
+            location = TodoXUtils::uniqueNameResolutionLocationPathOrNull(uniquename)
+            if location.nil? then
+                puts "I could not resolve unique name '#{uniquename}'"
+                LucilleCore::pressEnterToContinue()
+            else
+                system("open '#{location}'")
+            end
+        end
+        if target["type"] == "perma-dir-11859659" then
+            nhash = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
+            return if nhash.nil?
+
+            # We need to export the location to the Desktop
+            tmpfilename = TodoXUtils::l22()
+            tmpfoldername = "/Users/pascal/Desktop/#{tmpfilename}"
+            FileUtils.mkdir(tmpfoldername)
+
+            tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
+            operator = TodoXSoniaAionOperator.new(tnodefilepath)
+            AionCore::exportHashAtFolder(operator, nhash, tmpfoldername)
+
+            system("open '#{tmpfoldername}'")
+
+            puts "Exported at #{tmpfoldername}"
+            LucilleCore::pressEnterToContinue()
+        end
+    end
+
+    # TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+    def self.optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+        return if tnode["targets"].size != 1
+        TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["targets"][0])
+    end
+
+    # TodoXUserInterface::tNodeDive(tnodeuuid)
+    def self.tNodeDive(tnodeuuid)
+        loop {
+            tnode = TodoXEstate::getTNodeByUUIDOrNull(tnodeuuid)
+            if tnode.nil? then
+                raise "[error: a151f422] tnodeuuid: #{tnodeuuid}"
+            end
+            puts "tnode:"
+            puts "    uuid: #{tnode["uuid"]}"
+            puts "    filename: #{tnode["filename"]}"
+            puts "    description: #{tnode["description"]}"
+            puts "    targets:"
+            tnode["targets"].each{|target|
+                puts "        #{TodoXUserInterface::targetToString(target)}"
+            }
+            puts "    classification items:"
+            tnode["classification"].each{|item|
+                puts "        #{TodoXUserInterface::classificationItemToString(item)}"
+            }
+            operations = [
+                "quick open",
+                "edit description",
+                "recast",
+                "done"
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return if operation.nil?
+            if operation == "quick open" then
+                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+            end
+            if operation == "edit description" then
+                tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+                TodoXEstate::reCommitTNodeToDisk(tnode)
+            end
+            if operation == "recast" then
+                TodoXUserInterface::recastTNodeIdentifiedByUUID(tnodeuuid)
+            end
+            if operation == "done" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then
+                    TodoXEstate::destroyTNode(tnode)
+                    return
+                end
+            end
+        }
+    end
+
+    # TodoXUserInterface::tnodesDiveWithNodeSelector(nodeselector)
+    def self.tnodesDiveWithNodeSelector(nodeselector)
+        loop {
+            tnodes = nodeselector.call()
+            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
+            return if tnode.nil?
+            TodoXUserInterface::tNodeDive(tnode["uuid"])
+        }
+    end
+
+    # TodoXUserInterface::timelineDive(timeline)
+    def self.timelineDive(timeline)
+        TodoXUserInterface::tnodesDiveWithNodeSelector(lambda { TodoXCoreData::getTimelineTNodesOrdered(TodoXEstate::getTNodes(), timeline) })
+    end
+
+    # TodoXUserInterface::timelinesDive()
+    def self.timelinesDive()
+        loop {
+            timeline = TodoXTMakers::interactively2SelectTimelineOrNull(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
+            return if timeline.nil?
+            TodoXUserInterface::timelineDive(timeline)
+        }
+    end
+
+    # TodoXUserInterface::runTNode(tnode)
+    def self.runTNode(tnode) # "continue", "exit"
+        operationWithSpecifiedDefault = lambda {|default|
+            operation = LucilleCore::askQuestionAnswerAsString("operation: (open, dive, done, next, exit) [default: #{default}]: ")
+            if operation == "" then
+                default
+            else
+                operation
+            end
+        }
+        default = "open"
+        loop {
+            puts ""
+            puts "-> #{tnode["description"]}"
+            operation = operationWithSpecifiedDefault.call(default)
+            if operation == "open" then
+                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+                default = "done"
+            end
+            if operation == "dive" then
+                TodoXUserInterface::tNodeDive(tnode["uuid"])
+                default = "open"
+            end
+            if operation == "next" then
+                return "continue"
+            end
+            if operation == "done" then
+                TodoXEstate::destroyTNode(tnode)
+                return "continue"
+            end
+            if operation == "exit" then
+                return "exit"
+            end
+        }
+    end
+
+    # TodoXUserInterface::timelineWalk(timeline)
+    def self.timelineWalk(timeline)
+        tnodes = TodoXCoreData::getTimelineTNodesOrdered(TodoXEstate::getTNodes(), timeline)
+        loop {
+            tnode = tnodes.shift
+            startTime = Time.new.to_i
+            status = TodoXUserInterface::runTNode(tnode)
+            TodoXWalksCore::issuePoint(timeline, Time.new.to_i - startTime)
+            return if status == "exit"
+        }
+    end
+
+    # TodoXUserInterface::searchDive(pattern)
+    def self.searchDive(pattern)
+        loop {
+           tnodes = TodoXCoreData::searchPatternToTNodes(pattern)
+            if tnodes.size == 0 then
+                puts "Could not find tnodes for this pattern: '#{pattern}'"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
+            return if tnode.nil?
+            TodoXUserInterface::tNodeDive(tnode["uuid"])
+        }
+    end
+
+    # TodoXUserInterface::ui()
+    def self.ui()
+        loop {
+            system("clear")
+            puts "Todo 🗃️"
+            operations = [
+                "make new item",
+                "search",
+                "latest todos",
+                "timelines dive",
+                "timelines walk",
+                "numbers"
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            return if operation.nil?
+            if operation == "make new item" then
+                TodoXTMakers::makeNewTNode()
+            end
+            if operation == "search" then
+                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
+                TodoXUserInterface::searchDive(pattern)
+            end
+            if operation == "latest todos" then
+                nodeselector = lambda { TodoXEstate::getTNodes().sort{|t1, t2| t1["creationTimestamp"] <=> t2["creationTimestamp"] }.reverse.first(20) }
+                TodoXUserInterface::tnodesDiveWithNodeSelector(nodeselector)
+            end
+            if operation == "timelines dive" then
+                TodoXUserInterface::timelinesDive()
+            end
+            if operation == "timelines walk" then
+                timeline = TodoXTMakers::interactively2SelectTimelineOrNull(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
+                next if timeline.nil?
+                TodoXUserInterface::timelineWalk(timeline)
+            end
+            if operation == "numbers" then
+                puts "timeline mapping:"
+                timeStruct = TodoXWalksCore::timeline2TimeMapping()
+                TodoXWalksCore::get3TNodesTimelines(TodoXEstate::getTNodes()).each{|timeline|
+                    if timeStruct[timeline].nil? then
+                        timeStruct[timeline] = 0
+                    end
+                }
+                timeStruct
+                    .to_a
+                    .sort{|p1, p2| p1[1] <=> p2[1] }
+                    .each{|timeline, timespan|
+                        puts "    -> #{timeline}: #{timespan}"
+                    }
+                LucilleCore::pressEnterToContinue()
+            end
+        }
     end
 end

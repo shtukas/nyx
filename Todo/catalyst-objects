@@ -156,7 +156,7 @@ objects = []
 
 tnodes = TodoXEstate::getTNodes()
 
-TodoXCoreData::get2TimelineTNodesOrdered(tnodes, Todo::todoInboxTimelineName()).each{|tnode|
+TodoXCoreData::getTimelineTNodesOrdered(tnodes, Todo::todoInboxTimelineName()).each{|tnode|
     objects << {
         "uuid"            => tnode["uuid"],
         "agentuid"        => nil,
