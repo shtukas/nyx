@@ -67,6 +67,14 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        sleep 60
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-notification")
+    }
+}
+
+
 NSXCatalystUI::standardUILoop()
 
 # -------------------------------------------------------------------------
