@@ -27,7 +27,8 @@ class NSXGeneralCommandHandler
             [
                 "help",
                 "new: <line> | 'text'",
-                "/                   General Menu"
+                "/                   General Menu",
+                ">> ifcs recommended next"
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -62,6 +63,11 @@ class NSXGeneralCommandHandler
         if command == 'help' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == ">>" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-apply-next")
             return
         end
 
@@ -123,6 +129,7 @@ class NSXGeneralCommandHandler
         if command == "/" then
             options = [
                 "Wave",
+                "In Flight Control System",
                 "Nyx",
                 "Todo",
                 "Starburst",
@@ -130,6 +137,9 @@ class NSXGeneralCommandHandler
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             if option == "Wave" then
                 NSXGeneralCommandHandler::processCatalystCommandCore(object, "WaveGeneralMenu")
+            end
+            if option == "In Flight Control System" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs")
             end
             if option == "Nyx" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx")

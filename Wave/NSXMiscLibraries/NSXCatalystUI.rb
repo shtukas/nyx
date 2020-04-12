@@ -62,6 +62,11 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
         puts "Wave 🌊"
+        puts ""
+
+        ifcs = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-wave-line`.strip
+        puts ifcs
+        verticalSpaceLeft = verticalSpaceLeft - ( ifcs.lines.to_a.size + 1 )
 
         lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
         if lucille != "" then

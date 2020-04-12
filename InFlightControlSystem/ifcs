@@ -1,0 +1,53 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "InFlightControlSystem.rb"
+
+loop {
+    system('clear')
+    puts getReport()
+    puts ""
+    options = [
+        "apply recommended",
+        "make new item",
+        "items dive"
+    ]
+    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", options)
+    break if option.nil?
+    if option == "apply recommended" then
+        nextaction = determineRecommendedNextAction()
+        nextaction[1].call()
+    end
+    if option == "make new item" then
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        break if description == ""
+        item = {
+            "uuid"        => SecureRandom.uuid,
+            "description" => description
+        }
+        saveItem(item)
+    end
+    if option == "items dive" then
+        item = selectItemOrNull()
+        next if item.nil?
+        loop {
+            puts "Focus: #{item["description"]}"
+            puts JSON.pretty_generate(item)
+            puts JSON.pretty_generate(getCompanion(item["uuid"]))
+            oxs = ["start", "stop"]
+            ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
+            break if ox.nil?
+            if ox == "start" then
+                startItem(item["uuid"])
+            end
+            if ox == "stop" then
+                stopItem(item["uuid"])
+            end
+        }
+    end
+}
+
+
+
+
