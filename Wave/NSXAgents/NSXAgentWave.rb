@@ -348,8 +348,11 @@ class NSXAgentWave
                 else
                     system("open -na 'Google Chrome' --args --new-window '#{url}'")
                 end
-            else
+                return
+            end
+            if text.lines.to_a.size > 1 then
                 LucilleCore::pressEnterToContinue()
+                return
             end
             return
         end
