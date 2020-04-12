@@ -58,6 +58,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/YmirEstat
         # still need to be created. Only the parent is created.
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/AtlasCore.rb"
+
 # --------------------------------------------------------------------
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
