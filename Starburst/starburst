@@ -62,7 +62,7 @@ loop {
     options = [
         "Dive Folders",
         "New Folder",
-        "Collect Desktop location into folder (existing or new)"
+        "Collect Desktop locations into starburst (existing or new)"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", options)
     break if option.nil?
@@ -72,23 +72,15 @@ loop {
     if option == "New Folder" then
         Starburst::interactivelyMakeNewFolderReturnFolderpath()
     end
-    if option == "Collect Desktop location into folder (existing or new)" then
+    if option == "Collect Desktop locations into starburst (existing or new)" then
         starburstname = Starburst::selectExistingStarburstNameOrMakeANewOneReturnName()
         starburstfolderpath = Starburst::starburstNameToFolderpath(starburstname)
-        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
-                            .select{|filepath| filepath[0,1] != '.' }
-                            .sort
-        location1 = LucilleCore::selectEntityFromListOfEntitiesOrNull("location", desktopLocations, lambda{ |location| File.basename(location) })
-        next if location1.nil?
-        name1 = File.basename(location1)
-        name2 = "#{(Starburst::maxIndexAtStarburstName(starburstname)+1)}-#{name1}"
-        location2 = "#{starburstfolderpath}/#{name2}"
-        if File.file?(location1) then
-            FileUtils.mv(location1, location2)
-        else
-            FileUtils.mkdir(location2)
-            LucilleCore::copyContents(location1, location2)
-            LucilleCore::removeFileSystemLocation(location1)
-        end
+        desktopLocations = Starburst::selectOneOrMoreFilesOnTheDesktopByLocation()
+        desktopLocations.each{|loc|
+            targetlocationname = "#{(Starburst::maxIndexAtStarburstName(starburstname)+1)}-#{File.basename(loc)}"
+            targetlocationpath = "#{starburstfolderpath}/#{targetlocationname}"
+            FileUtils.mv(loc, targetlocationpath)
+            LucilleCore::removeFileSystemLocation(loc)
+        }
     end
 }
