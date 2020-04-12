@@ -163,4 +163,13 @@ class Starburst
         end
     end
 
+    # Starburst::selectOneOrMoreFilesOnTheDesktopByLocation()
+    def self.selectOneOrMoreFilesOnTheDesktopByLocation() # Array[String]
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1]!='.' }
+                            .sort
+        puts "Select files:"
+        locations, _ = LucilleCore::selectZeroOrMore("files:", [], desktopLocations, lambda{ |location| File.basename(location) })
+        locations
+    end
 end

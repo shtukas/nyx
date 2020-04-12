@@ -200,6 +200,16 @@ class TodoXUtils
         targetFolder = TodoXUtils::newBinArchivesFolderpath()
         LucilleCore::copyFileSystemLocation(location,targetFolder)
     end
+
+    # TodoXUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
+    def self.selectOneOrMoreFilesOnTheDesktopByLocation() # Array[String]
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1]!='.' }
+                            .sort
+        puts "Select files:"
+        locations, _ = LucilleCore::selectZeroOrMore("files:", [], desktopLocations, lambda{ |location| File.basename(location) })
+        locations
+    end
 end
 
 class TodoXEstate
@@ -554,9 +564,31 @@ class TodoXTMakers
         timelines
     end
 
+    # TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, sourcefolderpath)
+    def self.makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, sourcefolderpath)
+        tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
+        return nil if tnodefilepath.nil?
+        operator = TodoXSoniaAionOperator.new(tnodefilepath)
+        nhash = AionCore::commitLocationReturnHash(operator, sourcefolderpath)
+        zetaKey = SecureRandom.uuid
+        TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnodeuuid, zetaKey, nhash)
+        return {
+            "uuid"    => SecureRandom.uuid,
+            "type"    => "perma-dir-11859659",
+            "zetaKey" => zetaKey
+        }
+    end
+
     # TodoXTMakers::makeTNodeTargetInteractivelyOrNull(tnodeuuid)
     def self.makeTNodeTargetInteractivelyOrNull(tnodeuuid)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "text", "url", "unique name", "permadir"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", [
+            "line", 
+            "text", 
+            "url", 
+            "unique name", 
+            "permadir (by copying existing directory)",
+            "permadir (by collecting files on Desktop)"
+        ])
         return nil if type.nil?
         if type == "line" then
             return {
@@ -589,20 +621,22 @@ class TodoXTMakers
                 "name" => LucilleCore::askQuestionAnswerAsString("unique name: ")
             }
         end
-        if type == "permadir" then
-            targetLocation = LucilleCore::askQuestionAnswerAsString("location: ")
-            return nil if !File.exist?(targetLocation)
-            tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
-            return nil if tnodefilepath.nil?
-            operator = TodoXSoniaAionOperator.new(tnodefilepath)
-            nhash = AionCore::commitLocationReturnHash(operator, targetLocation)
-            zetaKey = SecureRandom.uuid
-            TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnodeuuid, zetaKey, nhash)
-            return {
-                "uuid"    => SecureRandom.uuid,
-                "type"    => "perma-dir-11859659",
-                "zetaKey" => zetaKey
+        if type == "permadir (by copying existing directory)" then
+            sourcefolderpath = LucilleCore::askQuestionAnswerAsString("location: ")
+            return nil if !File.exist?(sourcefolderpath)
+            return TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, sourcefolderpath)
+        end
+        if type == "permadir (by collecting files on Desktop)" then
+            desktoplocations = TodoXUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
+            return nil if desktoplocations.empty?
+            temporaryfoldername = "collected-files-#{TodoXUtils::l22()}"
+            temporaryfolderpath = "/Users/pascal/Desktop/#{temporaryfoldername}"
+            FileUtils.mkdir(temporaryfolderpath)
+            desktoplocations.each{|loc|
+                LucilleCore::copyFileSystemLocation(loc, temporaryfolderpath)
+                LucilleCore::removeFileSystemLocation(loc)
             }
+            return TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, temporaryfolderpath)
         end
     end
 
@@ -623,7 +657,7 @@ class TodoXTMakers
             "type"     => "timeline-329D3ABD",
             "timeline" => timeline
         }]
-        # we are no setting tags for TNodes
+        # we are not setting tags for TNodes
         tnode = {
             "uuid"              => uuid,
             "filename"          => "#{TodoXUtils::l22()}.zeta",
@@ -644,7 +678,6 @@ class TodoXTMakers
         tnode["targets"] = [ target ]
         tnode["description"] = TodoXUserInterface::targetToString(target)
         TodoXEstate::reCommitTNodeToDisk(tnode)
-
     end
 end
 
