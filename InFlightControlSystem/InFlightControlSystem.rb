@@ -136,6 +136,13 @@ def determineRecommendedNextAction() # [ String, lambda ]
         return [ "shutdown: #{items[0]["description"]}" , lambda { stopItem(items[0]["uuid"]) } ]
     end
 
+    items = itemsOrderedByTimespan()
+                .select{|item| getCompanion(item["uuid"])["runningState"] }
+    item = itemsOrderedByTimespan()[0]
+    if items.any?{|i| i["uuid"]==item["uuid"] } then
+        return nil
+    end
+
     [ "start: #{item["description"]}".red , lambda { startItem(item["uuid"]) } ]
 end
 
