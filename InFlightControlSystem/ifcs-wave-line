@@ -6,4 +6,4 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
-puts getReport()
+puts getReportLine()

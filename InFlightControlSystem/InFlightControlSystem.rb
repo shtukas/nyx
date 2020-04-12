@@ -131,11 +131,14 @@ def determineRecommendedNextAction() # [ String, lambda ]
     nil
 end
 
-def getReport() 
+def getReportLine() 
     report = [ "In Flight Control System 🛰️ " ]
     itemsOrderedByTimespan()
         .select{|item| getCompanion(item["uuid"])["runningState"] }
-        .each{|item| report << "running: #{item["description"]}".green }
+        .each{|item| 
+            companion = getCompanion(item["uuid"])
+            timepercentage = 100*(Time.new.to_i - companion["runningState"]).to_f/3600
+            report << "running: #{item["description"]} (#{timepercentage.to_i}%)".green }
     nextaction = determineRecommendedNextAction()
     if nextaction then
         report << nextaction[0]

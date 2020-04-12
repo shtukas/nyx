@@ -6,7 +6,7 @@ require_relative "InFlightControlSystem.rb"
 
 loop {
     system('clear')
-    puts getReport()
+    puts getReportLine()
     puts ""
     options = [
         "apply recommended",
