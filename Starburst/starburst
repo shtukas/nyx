@@ -60,16 +60,16 @@ loop {
     system('clear')
     puts "Starburst 💫"
     options = [
-        "Dive Folders",
-        "New Folder",
-        "Collect Desktop locations into starburst (existing or new)"
+        "Collect Desktop locations into starburst (existing or new)",
+        "Spawn new folder",
+        "Dive starburst"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("starburst", options)
     break if option.nil?
-    if option == "Dive Folders" then
+    if option == "Dive starburst" then
         Starburst::diveStartburstFolders()
     end
-    if option == "New Folder" then
+    if option == "Spawn new folder" then
         Starburst::interactivelyMakeNewFolderReturnFolderpath()
     end
     if option == "Collect Desktop locations into starburst (existing or new)" then
