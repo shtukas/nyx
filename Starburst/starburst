@@ -60,7 +60,7 @@ loop {
     system('clear')
     puts "Starburst 💫"
     options = [
-        "Collect Desktop locations into starburst (existing or new)",
+        "Collect Desktop location(s) into starburst (existing or new)",
         "Spawn new folder",
         "Dive starburst"
     ]
@@ -72,7 +72,7 @@ loop {
     if option == "Spawn new folder" then
         Starburst::interactivelyMakeNewFolderReturnFolderpath()
     end
-    if option == "Collect Desktop locations into starburst (existing or new)" then
+    if option == "Collect Desktop location(s) into starburst (existing or new)" then
         starburstname = Starburst::selectExistingStarburstNameOrMakeANewOneReturnName()
         starburstfolderpath = Starburst::starburstNameToFolderpath(starburstname)
         desktopLocations = Starburst::selectOneOrMoreFilesOnTheDesktopByLocation()

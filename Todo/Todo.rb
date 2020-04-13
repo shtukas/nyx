@@ -655,6 +655,22 @@ class TodoXTMakers
         }
     end
 
+    # TodoXTMakers::makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(tnodeuuid)
+    def self.makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(tnodeuuid)
+        desktoplocations = TodoXUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
+        return nil if desktoplocations.empty?
+        temporaryfoldername = "collected-files-#{TodoXUtils::l22()}"
+        temporaryfolderpath = "/Users/pascal/Desktop/#{temporaryfoldername}"
+        FileUtils.mkdir(temporaryfolderpath)
+        desktoplocations.each{|loc|
+            LucilleCore::copyFileSystemLocation(loc, temporaryfolderpath)
+            LucilleCore::removeFileSystemLocation(loc)
+        }
+        target = TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, temporaryfolderpath)
+        LucilleCore::removeFileSystemLocation(temporaryfolderpath)
+        return target
+    end
+
     # TodoXTMakers::makeTNodeTargetInteractivelyOrNull(tnodeuuid)
     def self.makeTNodeTargetInteractivelyOrNull(tnodeuuid)
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", [
@@ -703,18 +719,7 @@ class TodoXTMakers
             return TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, sourcefolderpath)
         end
         if type == "permadir (by collecting files on Desktop)" then
-            desktoplocations = TodoXUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
-            return nil if desktoplocations.empty?
-            temporaryfoldername = "collected-files-#{TodoXUtils::l22()}"
-            temporaryfolderpath = "/Users/pascal/Desktop/#{temporaryfoldername}"
-            FileUtils.mkdir(temporaryfolderpath)
-            desktoplocations.each{|loc|
-                LucilleCore::copyFileSystemLocation(loc, temporaryfolderpath)
-                LucilleCore::removeFileSystemLocation(loc)
-            }
-            target = TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, temporaryfolderpath)
-            LucilleCore::removeFileSystemLocation(temporaryfolderpath)
-            return target
+            return TodoXTMakers::makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(tnodeuuid)
         end
     end
 
@@ -729,12 +734,6 @@ class TodoXTMakers
     # TodoXTMakers::makeNewTNode()
     def self.makeNewTNode()
         uuid = SecureRandom.uuid
-        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        classification = [{
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => timeline
-        }]
         # we are not setting tags for TNodes
         tnode = {
             "uuid"              => uuid,
@@ -742,7 +741,7 @@ class TodoXTMakers
             "creationTimestamp" => Time.new.to_f,
             "description"       => "",
             "targets"           => [],
-            "classification"    => classification
+            "classification"    => []
         }
         puts JSON.pretty_generate(tnode)
         TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
@@ -752,9 +751,21 @@ class TodoXTMakers
         # exist in order to be created since the data is stored inside the
         # zeta file.
 
-        target = TodoXTMakers::makeOneTNodeTarget(tnode["uuid"])
+        # We used to create the classification above, but we are now doing 
+        # it afer for a more natural workflow.
+
+        target = TodoXTMakers::makeOneTNodeTarget(uuid)
         tnode["targets"] = [ target ]
+
         tnode["description"] = TodoXUserInterface::targetToString(target)
+
+        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
+        tnode["classification"] = [{
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "timeline-329D3ABD",
+            "timeline" => timeline
+        }]
+
         TodoXEstate::reCommitTNodeToDisk(tnode)
     end
 end
@@ -1218,6 +1229,7 @@ class TodoXUserInterface
             system("clear")
             puts "Todo 🗃️"
             operations = [
+                "Collect Desktop location(s) into new todo",
                 "make new item",
                 "search",
                 "latest todos",
@@ -1227,6 +1239,39 @@ class TodoXUserInterface
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
+            if operation == "Collect Desktop location(s) into new todo" then
+
+                # This is a copy of TodoXTMakers::makeNewTNode()
+                # with one change
+
+                uuid = SecureRandom.uuid
+                # we are not setting tags for TNodes
+                tnode = {
+                    "uuid"              => uuid,
+                    "filename"          => "#{TodoXUtils::l22()}.zeta",
+                    "creationTimestamp" => Time.new.to_f,
+                    "description"       => "",
+                    "targets"           => [],
+                    "classification"    => []
+                }
+                puts JSON.pretty_generate(tnode)
+                TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
+
+                target = TodoXTMakers::makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(uuid)
+                tnode["targets"] = [ target ]
+
+                tnode["description"] = TodoXUserInterface::targetToString(target)
+
+                timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
+                tnode["classification"] = [{
+                    "uuid"     => SecureRandom.uuid,
+                    "type"     => "timeline-329D3ABD",
+                    "timeline" => timeline
+                }]
+
+                TodoXEstate::reCommitTNodeToDisk(tnode)
+
+            end
             if operation == "make new item" then
                 TodoXTMakers::makeNewTNode()
             end
