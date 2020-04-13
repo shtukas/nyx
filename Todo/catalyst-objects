@@ -157,6 +157,19 @@ objects = []
 tnodes = TodoXEstate::getTNodes()
 
 TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineName()).each{|tnode|
+    isRunning = TodoRunsUtils::isRunning(tnode["uuid"])
+    commands = 
+        if isRunning then
+            ["start", "done", "recast", "tonyx"]
+        else
+            ["stop", "done", "recast", "tonyx"]
+        end
+    defaultCommand = 
+        if isRunning then
+            "start"
+        else
+            "start"
+        end
     objects << {
         "uuid"            => tnode["uuid"],
         "agentuid"        => nil,
@@ -164,12 +177,15 @@ TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineNam
             "type" => "line",
             "line" => "todo [inbox]: " + tnode["description"] # TodoXUserInterface::targetToString(tnode["targets"][0])
         },
-        "metric"          => metricHelper.metric(),
-        "commands"        => ["run", "recast", "tonyx"],
-        "defaultCommand"  => "run",
-        "isDone"          => nil,
+        "metric"         => metricHelper.metric(),
+        "commands"       => commands,
+        "defaultCommand" => defaultCommand,
+        "isDone"         => nil,
+        "isRunning"      => isRunning,
         "shell-redirects" => {
-            "run"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing run '#{tnode["uuid"]}'",
+            "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing start '#{tnode["uuid"]}'",
+            "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing stop '#{tnode["uuid"]}'",
+            "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing done '#{tnode["uuid"]}'",
             "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing recast '#{tnode["uuid"]}'",
             "tonyx"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing tonyx '#{tnode["uuid"]}'"
         }
@@ -188,6 +204,19 @@ tnodes
         tnode1["creationTimestamp"] <=> tnode2["creationTimestamp"]
     }
     .each{|tnode|
+        isRunning = TodoRunsUtils::isRunning(tnode["uuid"])
+        commands = 
+            if isRunning then
+                ["start", "done", "recast", "tonyx"]
+            else
+                ["stop", "done", "recast", "tonyx"]
+            end
+        defaultCommand = 
+            if isRunning then
+                "start"
+            else
+                "start"
+            end
         objects << {
             "uuid"           => tnode["uuid"],
             "agentuid"       => nil,
@@ -196,11 +225,14 @@ tnodes
                 "line" => "todo walk @ #{timeline} / " + TodoXUserInterface::targetToString(tnode["targets"][0])
             },
             "metric"         => metricHelper.metric(),
-            "commands"        => ["run", "recast", "tonyx"],
-            "defaultCommand"  => "run",
+            "commands"       => commands,
+            "defaultCommand" => defaultCommand,
             "isDone"         => nil,
+            "isRunning"      => isRunning,
             "shell-redirects" => {
-                "run"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing run '#{tnode["uuid"]}'",
+                "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing start '#{tnode["uuid"]}'",
+                "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing stop '#{tnode["uuid"]}'",
+                "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing done '#{tnode["uuid"]}'",
                 "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing recast '#{tnode["uuid"]}'",
                 "tonyx"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing tonyx '#{tnode["uuid"]}'"
             }

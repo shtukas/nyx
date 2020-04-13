@@ -56,44 +56,22 @@ require_relative "Todo.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == "run" and ARGV[1] then
-    uuid = ARGV[1]
-    tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
-    if tnode.nil? then
-        puts "Could not find tnode with uuid: '#{uuid}'"
-        LucilleCore::pressEnterToContinue()
-        exit
-    end
-    puts TodoXUserInterface::targetToString(tnode["targets"][0])
+if ARGV[0] == "start" and ARGV[1] then
+    todouuid = ARGV[1]
+    TodoRunsUtils::startTodo(todouuid)
+end
 
-    startTime = Time.new.to_i
+if ARGV[0] == "stop" and ARGV[1] then
+    todouuid = ARGV[1]
+    TodoRunsUtils::stopTodo(todouuid)
+end
 
-    TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-    operations = ["done", "reclassify", "transmute to nyx"]
-    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-    if operation == "done" then
-        TodoXEstate::destroyTNode(tnode)
-    end
-    if operation == "reclassify" then
-        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        tnode["classification"] = [{
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => timeline
-        }]
-        puts JSON.pretty_generate(tnode)
-        TodoXEstate::reCommitTNodeToDisk(tnode)
-    end
-    if operation == "transmute to nyx" then
-        nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, TodoXEstate::pathToNyxYmir())
-        filename = "#{TodoXUtils::l22()}.json"
-        filepath = YmirEstate::makeNewYmirLocationForBasename(TodoXEstate::pathToNyxYmir(), filename)
-        puts JSON.pretty_generate(nyxItem)
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nyxItem)) }
-        TodoXEstate::destroyTNode(tnode)
-    end
-
-    TodoXWalksCore::issuePoint(tnode["classification"][0]["timeline"], Time.new.to_i - startTime)
+if ARGV[0] == "done" and ARGV[1] then
+    todouuid = ARGV[1]
+    TodoRunsUtils::stopTodo(todouuid)
+    tnode = TodoXEstate::getTNodeByUUIDOrNull(todouuid)
+    exit if tnode.nil?
+    TodoXEstate::destroyTNode(tnode)
 end
 
 if ARGV[0] == "recast" and ARGV[1] then

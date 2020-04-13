@@ -134,38 +134,6 @@ Dataset1
 
 # --------------------------------------------------------------------
 
-class TodoXSoniaAionOperator
-
-    def initialize(zetafilepath)
-        @zetafilepath = zetafilepath
-    end
-
-    def commitBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Zeta::set(@zetafilepath, nhash, blob)
-        nhash
-    end
-
-    def filepathToHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = Zeta::getOrNull(@zetafilepath, nhash)
-        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
-        blob
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-end
-
 class TodoXUtils
 
     # TodoXUtils::chooseALinePecoStyle(announce: String, strs: Array[String]): String
@@ -278,6 +246,38 @@ class TodoXUtils
         tnode["targets"] = [ target ]
         TodoXEstate::reCommitTNodeToDisk(tnode)
         tnodefilepath
+    end
+end
+
+class TodoXSoniaAionOperator
+
+    def initialize(zetafilepath)
+        @zetafilepath = zetafilepath
+    end
+
+    def commitBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        Zeta::set(@zetafilepath, nhash, blob)
+        nhash
+    end
+
+    def filepathToHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = Zeta::getOrNull(@zetafilepath, nhash)
+        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+        blob
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
     end
 end
 
@@ -941,6 +941,44 @@ class TodoXWalksCore
             "timespan" => timespan
         }
         BTreeSets::set(TodoXWalksCore::walksDataStoreFolderpath(), TodoXWalksCore::walksSetuuid1(), point["uuid"], point)
+    end
+end
+
+class TodoRunsUtils
+
+    # TodoRunsUtils::getRunStatus(todouuid)
+    def self.getRunStatus(todouuid) # unixtime or null
+        value = KeyValueStore::getOrNull(nil, "3f48e9d0-eb12-45c4-ab63-c1a27863f969:#{todouuid}")
+        return nil if value.nil?
+        value.to_i
+    end
+
+    # TodoRunsUtils::startTodo(todouuid)
+    def self.startTodo(todouuid)
+        status = TodoRunsUtils::getRunStatus(todouuid)
+        return if status # already running
+        KeyValueStore::set(nil, "3f48e9d0-eb12-45c4-ab63-c1a27863f969:#{todouuid}", Time.new.to_i)
+    end
+
+    # TodoRunsUtils::stopTodo(todouuid)
+    def self.stopTodo(todouuid) # nil or unixtime
+        tnode = TodoXEstate::getTNodeByUUIDOrNull(todouuid)
+        return if tnode.nil?
+        status = TodoRunsUtils::getRunStatus(todouuid)
+        return if status.nil? # not running
+        timespan = Time.new.to_i - status.to_i
+        tnode["classification"].each{|item|
+            if item["type"] == "timeline-329D3ABD" then
+                timeline = item["timeline"]
+                TodoXWalksCore::issuePoint(timeline, timespan)
+            end
+        }
+        KeyValueStore::destroy(nil, "3f48e9d0-eb12-45c4-ab63-c1a27863f969:#{todouuid}")
+    end
+
+    # TodoRunsUtils::isRunning(todouuid)
+    def self.isRunning(todouuid)
+        !TodoRunsUtils::getRunStatus(todouuid).nil?
     end
 end
 
