@@ -156,8 +156,11 @@ class Starburst
         if operation == ">todo" then
             folderpath = Starburst::starburstNameToFolderpath(starburstName)
             return if !File.exists?(folderpath)
-            Todo::starburstFolderPathToTodoItemPreserveSource(folderpath)
-            LucilleCore::removeFileSystemLocation(folderpath)
+            tnodefilepath = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/starburst-folder-path-to-todo-item-preserve-source '#{folderpath}'`
+            puts "Answer from Todo: tnodefilepath: #{tnodefilepath}"
+            if File.exists?(tnodefilepath) then
+                LucilleCore::removeFileSystemLocation(folderpath)
+            end
         end
     end
 

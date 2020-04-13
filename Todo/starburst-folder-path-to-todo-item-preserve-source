@@ -48,4 +48,8 @@ require_relative "Todo.rb"
 
 # --------------------------------------------------------------------
 
-puts TodoXUtils::pathToTodoInbox()
+folderpath1 = ARGV[0]
+TodoXUtils::starburstFolderPathToTodoItemPreserveSource(folderpath1)
+puts "true"
+
+

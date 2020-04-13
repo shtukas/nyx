@@ -50,10 +50,10 @@ require_relative "Todo.rb"
 
 # We start by collecting the objects in the Inbox
 
-Dir.entries(Todo::pathToTodoInbox())
+Dir.entries(TodoXUtils::pathToTodoInbox())
     .select{|filename| filename[-8, 8] == ".url.txt" }
     .each{|filename|
-        filepath = "#{Todo::pathToTodoInbox()}/#{filename}"
+        filepath = "#{TodoXUtils::pathToTodoInbox()}/#{filename}"
         link = IO.read(filepath).strip
         target = {
             "uuid" => SecureRandom.uuid,
@@ -63,7 +63,7 @@ Dir.entries(Todo::pathToTodoInbox())
         classificationItem = {
             "uuid"     => SecureRandom.uuid,
             "type"     => "timeline-329D3ABD",
-            "timeline" => Todo::todoInboxTimelineName()
+            "timeline" => TodoXUtils::todoInboxTimelineName()
         }
         tnode = {
             "uuid"              => SecureRandom.uuid,
@@ -77,10 +77,10 @@ Dir.entries(Todo::pathToTodoInbox())
         FileUtils.rm(filepath)
     }
 
-Dir.entries(Todo::pathToTodoInbox())
+Dir.entries(TodoXUtils::pathToTodoInbox())
     .select{|filename| filename[-9, 9] == ".text.txt" }
     .each{|filename|
-        filepath = "#{Todo::pathToTodoInbox()}/#{filename}"
+        filepath = "#{TodoXUtils::pathToTodoInbox()}/#{filename}"
         text = IO.read(filepath).strip
         if text == "" then
             FileUtils.rm(filepath)
@@ -96,7 +96,7 @@ Dir.entries(Todo::pathToTodoInbox())
             classificationItem = {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-329D3ABD",
-                "timeline" => Todo::todoInboxTimelineName()
+                "timeline" => TodoXUtils::todoInboxTimelineName()
             }
             tnode = {
                 "uuid"              => SecureRandom.uuid,
@@ -118,7 +118,7 @@ Dir.entries(Todo::pathToTodoInbox())
             classificationItem = {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "timeline-329D3ABD",
-                "timeline" => Todo::todoInboxTimelineName()
+                "timeline" => TodoXUtils::todoInboxTimelineName()
             }
             tnode = {
                 "uuid"              => SecureRandom.uuid,
@@ -156,7 +156,7 @@ objects = []
 
 tnodes = TodoXEstate::getTNodes()
 
-TodoXCoreData::getTimelineTNodesOrdered(tnodes, Todo::todoInboxTimelineName()).each{|tnode|
+TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineName()).each{|tnode|
     objects << {
         "uuid"            => tnode["uuid"],
         "agentuid"        => nil,

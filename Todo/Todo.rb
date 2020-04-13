@@ -164,7 +164,6 @@ class TodoXSoniaAionOperator
             false
         end
     end
-
 end
 
 class TodoXUtils
@@ -223,6 +222,62 @@ class TodoXUtils
         puts "Select files:"
         locations, _ = LucilleCore::selectZeroOrMore("files:", [], desktopLocations, lambda{ |location| File.basename(location) })
         locations
+    end
+
+    # TodoXUtils::pathToItems()
+    def self.pathToItems()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Items"
+    end
+
+    # TodoXUtils::pathToTodoInbox()
+    def self.pathToTodoInbox()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Inbox"
+    end
+
+    # TodoXUtils::todoInboxTimelineName()
+    def self.todoInboxTimelineName()
+        "[Inbox]"
+    end
+
+    # TodoXUtils::l22()
+    def self.l22()
+        Time.new.strftime("%Y%m%d-%H%M%S-%6N")
+    end
+
+    # TodoXUtils::starburstFolderPathToTodoItemPreserveSource(folderpath1) # returns tnodefilepath
+    def self.starburstFolderPathToTodoItemPreserveSource(folderpath1)
+        return if !File.exists?(folderpath1)
+        classificationItem = {
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "timeline-329D3ABD",
+            "timeline" => "[Inbox]"
+        }
+        tnodeFilename = "#{TodoXUtils::l22()}.zeta"
+        tnode = {
+            "uuid"              => SecureRandom.uuid,
+            "filename"          => tnodeFilename,
+            "creationTimestamp" => Time.new.to_f,
+            "description"       => File.basename(folderpath1),
+            "targets"           => [],
+            "classification"    => [ classificationItem ]
+        }
+        TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
+
+        tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnode["uuid"])
+        operator = TodoXSoniaAionOperator.new(tnodefilepath)
+        nhash = AionCore::commitLocationReturnHash(operator, folderpath1)
+        zetaKey = SecureRandom.uuid
+
+        TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnode["uuid"], zetaKey, nhash)
+
+        target = {
+            "uuid"    => SecureRandom.uuid,
+            "type"    => "perma-dir-11859659",
+            "zetaKey" => zetaKey
+        }
+        tnode["targets"] = [ target ]
+        TodoXEstate::reCommitTNodeToDisk(tnode)
+        tnodefilepath
     end
 end
 
@@ -316,7 +371,7 @@ class TodoXEstate
 
     # TodoXEstate::tNodesEnumeratorReadZetaFiles()
     def self.tNodesEnumeratorReadZetaFiles()
-        filepaths = Dir.entries(Todo::pathToItems())
+        filepaths = Dir.entries(TodoXUtils::pathToItems())
             .select{|filename| filename[-5, 5] == ".zeta" }
             .map{|filename| TodoXEstate::repositoryFilenameToFilepath(filename) }
         Enumerator.new do |tnodes|
@@ -477,7 +532,6 @@ class TodoXEstate
     def self.pathToNyxYmir()
         `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-path-to-Ymir`.strip
     end
-
 end
 
 class TodoXCoreData
@@ -538,7 +592,6 @@ class TodoXCoreData
             }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
     end
-
 end
 
 class TodoXTMakers
@@ -888,64 +941,6 @@ class TodoXWalksCore
             "timespan" => timespan
         }
         BTreeSets::set(TodoXWalksCore::walksDataStoreFolderpath(), TodoXWalksCore::walksSetuuid1(), point["uuid"], point)
-    end
-end
-
-class Todo
-
-    # Todo::pathToItems()
-    def self.pathToItems()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Items"
-    end
-
-    # Todo::pathToTodoInbox()
-    def self.pathToTodoInbox()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Inbox"
-    end
-
-    # Todo::todoInboxTimelineName()
-    def self.todoInboxTimelineName()
-        "[Inbox]"
-    end
-
-    # Todo::l22()
-    def self.l22()
-        Time.new.strftime("%Y%m%d-%H%M%S-%6N")
-    end
-
-    # Todo::starburstFolderPathToTodoItemPreserveSource(folderpath1)
-    def self.starburstFolderPathToTodoItemPreserveSource(folderpath1)
-        return if !File.exists?(folderpath1)
-        classificationItem = {
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => "[Inbox]"
-        }
-        tnodeFilename = "#{Todo::l22()}.zeta"
-        tnode = {
-            "uuid"              => SecureRandom.uuid,
-            "filename"          => tnodeFilename,
-            "creationTimestamp" => Time.new.to_f,
-            "description"       => File.basename(folderpath1),
-            "targets"           => [],
-            "classification"    => [ classificationItem ]
-        }
-        TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
-
-        tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnode["uuid"])
-        operator = TodoXSoniaAionOperator.new(tnodefilepath)
-        nhash = AionCore::commitLocationReturnHash(operator, folderpath1)
-        zetaKey = SecureRandom.uuid
-
-        TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnode["uuid"], zetaKey, nhash)
-
-        target = {
-            "uuid"    => SecureRandom.uuid,
-            "type"    => "perma-dir-11859659",
-            "zetaKey" => zetaKey
-        }
-        tnode["targets"] = [ target ]
-        TodoXEstate::reCommitTNodeToDisk(tnode)
     end
 end
 
