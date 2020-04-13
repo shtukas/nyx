@@ -66,15 +66,15 @@ class NSXCatalystUI
 
         ifcs = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-wave-line`.strip
         puts ifcs
-        verticalSpaceLeft = verticalSpaceLeft - ( ifcs.lines.to_a.size + 1 )
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - ( ifcs.lines.to_a.size + 2 )
 
         lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
         if lucille != "" then
-            puts ""
             puts "lucille:"
             lucille.lines.first(10).each{|line| puts  "    #{line}" }
             puts ""
-            verticalSpaceLeft = verticalSpaceLeft - ( lucille.lines.to_a.size + 3 )
+            verticalSpaceLeft = verticalSpaceLeft - ( lucille.lines.to_a.size + 2 )
         end
 
         if displayObjects.size==0 then
