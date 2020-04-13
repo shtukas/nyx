@@ -150,10 +150,7 @@ def getReportLine()
     report = [ "In Flight Control System 🛰️ " ]
     itemsOrderedByTimespan()
         .select{|item| getCompanion(item["uuid"])["runningState"] }
-        .each{|item| 
-            companion = getCompanion(item["uuid"])
-            timepercentage = 100*(Time.new.to_i - companion["runningState"]).to_f/3600
-            report << "running: #{item["description"]} (#{timepercentage.to_i}%)".green }
+        .each{|item| report << "running: #{item["description"]}".green }
     nextaction = determineRecommendedNextAction()
     if nextaction then
         report << nextaction[0]
