@@ -161,6 +161,16 @@ def getReportLine()
     report.join(" ; ")
 end
 
+def getReportText()
+    nsize = getItems().map{|item| item["description"].size }.max
+    report = itemsOrderedByTimespan()
+                .map{|item| 
+                    companion = getCompanion(item["uuid"])
+                    "#{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemTimestamp(item["uuid"]).to_f/3600)} hours)"
+                }
+    report.join("\n")
+end
+
 def selectItemOrNull()
     LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getItems(), lambda{|item| item["description"] })
 end

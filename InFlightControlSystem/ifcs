@@ -6,6 +6,8 @@ require_relative "InFlightControlSystem.rb"
 
 loop {
     system('clear')
+    puts getReportText()
+    puts ""
     puts getReportLine()
     puts ""
     options = [
@@ -35,7 +37,7 @@ loop {
             puts "Focus: #{item["description"]}"
             puts JSON.pretty_generate(item)
             puts JSON.pretty_generate(getCompanion(item["uuid"]))
-            oxs = ["start", "stop"]
+            oxs = ["start", "stop", "inject 45 mins"]
             ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
             break if ox.nil?
             if ox == "start" then
@@ -43,6 +45,15 @@ loop {
             end
             if ox == "stop" then
                 stopItem(item["uuid"])
+            end
+            if ox == "inject 45 mins" then
+                status = getCompanion(item["uuid"])
+                timespan = 45*60
+                status["timesPoints"] << {
+                    "unixtime" => Time.new.to_i,
+                    "timespan" => timespan
+                } 
+                saveCompanion(status)
             end
         }
     end
