@@ -178,7 +178,7 @@ TodoXCoreData::getTimelineTNodesOrdered(tnodes, Todo::todoInboxTimelineName()).e
 
 metricHelper = MetricHelper.new(0.30)
 
-timeline = TodoXWalksCore::get2TimelineWithLowestTimespan(TodoXWalksCore::get3TNodesTimelines(tnodes), TodoXWalksCore::timeline2TimeMapping())
+timeline = TodoXWalksCore::getTimelineWithLowestTimespan(TodoXWalksCore::get3TNodesTimelines(tnodes), TodoXWalksCore::timeline2TimeMapping())
 
 tnodes
     .select{|tnode|

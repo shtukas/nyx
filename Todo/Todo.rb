@@ -849,8 +849,8 @@ Dataset1
         end
     end
 
-    # TodoXWalksCore::get2TimelineWithLowestTimespan(timelines, timeStruct)
-    def self.get2TimelineWithLowestTimespan(timelines, timeStruct)
+    # TodoXWalksCore::getTimelineWithLowestTimespan(timelines, timeStruct)
+    def self.getTimelineWithLowestTimespan(timelines, timeStruct)
         timelines.each{|timeline|
             if timeStruct[timeline].nil? then
                 timeStruct[timeline] = 0
