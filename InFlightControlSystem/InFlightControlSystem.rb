@@ -90,7 +90,11 @@ end
 
 def getItemTimespan(uuid)
     companion = getCompanion(uuid)
-    companion["timesPoints"].map{|point| point["timespan"] }.inject(0, :+)
+    x1 = 0
+    if companion["runningState"] then
+        x1 = Time.new.to_i - companion["runningState"]
+    end
+    x1 + companion["timesPoints"].map{|point| point["timespan"] }.inject(0, :+)
 end
 
 def getItemTimespanDifferentialInHoursOrNull(uuid)
