@@ -1,6 +1,4 @@
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
-
 # encoding: UTF-8
 
 require 'json'
@@ -115,6 +113,22 @@ AionCore::commitLocationReturnHash(operator, location)
 AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
 
 AionFsck::structureCheckAionHash(operator, nhash)
+
+=end
+
+=begin
+
+Dataset1
+
+    Point:
+    {
+        "uuid"     => String,
+        "unixtime" => Integer,
+        "timeline" => String,
+        "timespan" => Float
+    }
+
+    TimeStructure: Map[String # Timeline, Float # Timespan]
 
 =end
 
@@ -455,6 +469,15 @@ class TodoXEstate
 
         BTreeSets::destroy(nil, "dc533635-864f-4409-a888-14bfe872bc6d", tnode["uuid"])
     end
+
+    # ------------------------------------------
+    # Externals
+
+    # TodoXEstate::pathToNyxYmir()
+    def self.pathToNyxYmir()
+        `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-path-to-Ymir`.strip
+    end
+
 end
 
 class TodoXCoreData
@@ -772,22 +795,6 @@ class TodoXNyxConverter
 end
 
 class TodoXWalksCore
-
-=begin
-
-Dataset1
-
-    Point:
-    {
-        "uuid"     => String,
-        "unixtime" => Integer,
-        "timeline" => String,
-        "timespan" => Float
-    }
-
-    TimeStructure: Map[String # Timeline, Float # Timespan]
-
-=end
 
     # TodoXWalksCore::walksDataStoreFolderpath()
     def self.walksDataStoreFolderpath()

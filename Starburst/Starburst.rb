@@ -60,8 +60,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 # --------------------------------------------------------------------
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/Starburst.rb"
-
 class Starburst
 
     # Starburst::pathToStarburstFolders()

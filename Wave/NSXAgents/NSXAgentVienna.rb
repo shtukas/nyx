@@ -68,12 +68,13 @@ class NSXAgentVienna
     end
 
     def self.getObjects()
+        todoInboxPath = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/path-to-todo-inbox`.strip
         return [] if !NSXMiscUtils::isLucille18()
         loop {
             link = $viennaLinkFeeder.next()
             break if link.nil?
             puts "vienna: #{link}"
-            File.open("#{Todo::pathToTodoInbox()}/#{NSXMiscUtils::timeStringL22()}.url.txt", "w"){|f| f.puts(link) }
+            File.open("#{todoInboxPath}/#{NSXMiscUtils::timeStringL22()}.url.txt", "w"){|f| f.puts(link) }
             $viennaLinkFeeder.done(link)
         }
         []
