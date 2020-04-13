@@ -63,15 +63,15 @@ def saveItem(item)
     BTreeSets::set(nil, "867c6e0d-5c02-4488-b829-8563c140e177", item["uuid"], item)
 end
 
-def collectionCompanionKeyPrefix()
+def companionsKeyPrefix()
     getItems()
         .map{|item| item["uuid"] }
         .sort
         .join("-")
 end
 
-def getCompanion(uuid) # unixtime or null
-    status = KeyValueStore::getOrNull(nil, "#{collectionCompanionKeyPrefix()}:#{uuid}")
+def getCompanion(uuid)
+    status = KeyValueStore::getOrNull(nil, "#{companionsKeyPrefix()}:#{uuid}")
     if status.nil? then
         status = {
             "uuid"         => uuid,
@@ -85,16 +85,16 @@ def getCompanion(uuid) # unixtime or null
 end
 
 def saveCompanion(status)
-    KeyValueStore::set(nil, "#{collectionCompanionKeyPrefix()}:#{status["uuid"]}", JSON.generate(status))
+    KeyValueStore::set(nil, "#{companionsKeyPrefix()}:#{status["uuid"]}", JSON.generate(status))
 end
 
-def getItemTimestamp(uuid)
+def getItemTimespan(uuid)
     status = getCompanion(uuid)
     status["timesPoints"].map{|point| point["timespan"] }.inject(0, :+)
 end
 
 def itemsOrderedByTimespan()
-    getItems().sort{|i1, i2| getItemTimestamp(i1["uuid"]) <=> getItemTimestamp(i2["uuid"]) }
+    getItems().sort{|i1, i2| getItemTimespan(i1["uuid"]) <=> getItemTimespan(i2["uuid"]) }
 end
 
 def startItem(uuid)
@@ -117,19 +117,23 @@ def stopItem(uuid)
     saveCompanion(status)
 end
 
-def getNextAction() # [ String, lambda ]
+def getNextAction() # [ nil | String, lambda ]
 
-    items = itemsOrderedByTimespan()
+    runningitems = itemsOrderedByTimespan()
                 .select{|item| getCompanion(item["uuid"])["runningState"] }
-    
-    if items.size == 0 then
-        item = itemsOrderedByTimespan()[0]
-        return [ "start: #{item["description"]}".red , lambda { startItem(item["uuid"]) } ]
+    lowestitem = itemsOrderedByTimespan()[0]
+
+    if runningitems.size == 0 then
+        return [ "start: #{lowestitem["description"]}".red , lambda { startItem(lowestitem["uuid"]) } ]
     end
 
-    item = items[0]
-    return [ "stop: #{item["description"]}".red , lambda { stopItem(items.first["uuid"]) } ]
+    firstrunningitem = runningitems[0]
 
+    if firstrunningitem["uuid"] == lowestitem["uuid"] then
+        return [ nil , lambda { stopItem(firstrunningitem["uuid"]) } ]
+    else
+        return [ "stop: #{firstrunningitem["description"]}".red , lambda { stopItem(firstrunningitem["uuid"]) } ]
+    end
 end
 
 def getReportLine() 
@@ -139,9 +143,9 @@ def getReportLine()
         .each{|item| report << "running: #{item["description"]}".green }
     nextaction = getNextAction()
     if nextaction then
-        report << nextaction[0]
+        report << nextaction[0] # can be null
     end
-    report.join(" ; ")
+    report.compact.join(" ; ")
 end
 
 def getReportText()
@@ -149,7 +153,7 @@ def getReportText()
     report = itemsOrderedByTimespan()
                 .map{|item| 
                     companion = getCompanion(item["uuid"])
-                    "#{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemTimestamp(item["uuid"]).to_f/3600)} hours)"
+                    "#{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemTimespan(item["uuid"]).to_f/3600)} hours)"
                 }
     report.join("\n")
 end
@@ -157,7 +161,6 @@ end
 def selectItemOrNull()
     LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getItems(), lambda{|item| item["description"] })
 end
-
 
 def onScreenNotification(title, message)
     title = title.gsub("'","")
