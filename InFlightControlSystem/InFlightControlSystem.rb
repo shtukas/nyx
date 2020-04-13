@@ -71,26 +71,35 @@ def companionsKeyPrefix()
 end
 
 def getCompanion(uuid)
-    status = KeyValueStore::getOrNull(nil, "#{companionsKeyPrefix()}:#{uuid}")
-    if status.nil? then
-        status = {
+    companion = KeyValueStore::getOrNull(nil, "#{companionsKeyPrefix()}:#{uuid}")
+    if companion.nil? then
+        companion = {
             "uuid"         => uuid,
             "runningState" => nil,
             "timesPoints"  => []
         }
     else
-        status = JSON.parse(status)
+        companion = JSON.parse(companion)
     end
-    status
+    companion
 end
 
-def saveCompanion(status)
-    KeyValueStore::set(nil, "#{companionsKeyPrefix()}:#{status["uuid"]}", JSON.generate(status))
+def saveCompanion(companion)
+    KeyValueStore::set(nil, "#{companionsKeyPrefix()}:#{companion["uuid"]}", JSON.generate(companion))
 end
 
 def getItemTimespan(uuid)
-    status = getCompanion(uuid)
-    status["timesPoints"].map{|point| point["timespan"] }.inject(0, :+)
+    companion = getCompanion(uuid)
+    companion["timesPoints"].map{|point| point["timespan"] }.inject(0, :+)
+end
+
+def getItemTimespanDifferentialInHoursOrNull(uuid)
+    timespan = getItemTimespan(uuid)
+    differentTimespans = getItems()
+                            .select{|item| item["uuid"] != uuid }
+                            .map {|item| getItemTimespan(item["uuid"]) }
+    return nil if differentTimespans.nil?
+    (timespan - differentTimespans.min).to_f/3600
 end
 
 def itemsOrderedByTimespan()
@@ -98,23 +107,23 @@ def itemsOrderedByTimespan()
 end
 
 def startItem(uuid)
-    status = getCompanion(uuid)
-    return if status["runningState"]
-    status["runningState"] = Time.new.to_i
-    saveCompanion(status)
+    companion = getCompanion(uuid)
+    return if companion["runningState"]
+    companion["runningState"] = Time.new.to_i
+    saveCompanion(companion)
 end
 
 def stopItem(uuid)
-    status = getCompanion(uuid)
-    return if status["runningState"].nil?
-    unixtime = status["runningState"]
+    companion = getCompanion(uuid)
+    return if companion["runningState"].nil?
+    unixtime = companion["runningState"]
     timespan = Time.new.to_i - unixtime
-    status["runningState"] = nil
-    status["timesPoints"] << {
+    companion["runningState"] = nil
+    companion["timesPoints"] << {
         "unixtime" => Time.new.to_i,
         "timespan" => timespan
     } 
-    saveCompanion(status)
+    saveCompanion(companion)
 end
 
 def getNextAction() # [ nil | String, lambda ]
@@ -140,7 +149,11 @@ def getReportLine()
     report = [ "In Flight Control System 🛰️ " ]
     itemsOrderedByTimespan()
         .select{|item| getCompanion(item["uuid"])["runningState"] }
-        .each{|item| report << "running: #{item["description"]}".green }
+        .each{|item| 
+            d1 = getItemTimespanDifferentialInHoursOrNull(item["uuid"])
+            d2 = d1 ? " (#{d1.round(2)} hours)" : ""
+            report << "running: #{item["description"]}#{d2}".green 
+        }
     nextaction = getNextAction()
     if nextaction then
         report << nextaction[0] # can be null
