@@ -712,7 +712,9 @@ class TodoXTMakers
                 LucilleCore::copyFileSystemLocation(loc, temporaryfolderpath)
                 LucilleCore::removeFileSystemLocation(loc)
             }
-            return TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, temporaryfolderpath)
+            target = TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, temporaryfolderpath)
+            LucilleCore::removeFileSystemLocation(temporaryfolderpath)
+            return target
         end
     end
 
