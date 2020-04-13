@@ -777,8 +777,7 @@ class TodoXNyxConverter
             return target
         end
         if target["type"] == "perma-dir-11859659" then
-            raise "TODO"
-            return target
+            raise "[error 1d933f03: not implemented yet]"
         end
         if target["type"] == "text-A9C3641C" then
             text = TodoXEstate::getVAtZetaFileIdentifiedByTNodeUUIDOrNull(tnodeuuid, target["zetaKey"])
