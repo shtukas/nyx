@@ -253,13 +253,13 @@ class NSXMiscUtils
     # NSXMiscUtils::spawnNewWaveItem(description): String (uuid)
     def self.spawnNewWaveItem(description)
         description = NSXMiscUtils::processItemDescriptionPossiblyAsTextEditorInvitation(description)
-        uuid = SecureRandom.hex(4) # Specs dictate length 8 # marker: 202004082348
-        folderpath = NSXWaveUtils::timestring22ToFolderpath(LucilleCore::timeStringL22())
-        FileUtils.mkpath folderpath
-        File.open("#{folderpath}/catalyst-uuid", 'w') {|f| f.write(uuid) }
-        File.open("#{folderpath}/description.txt", 'w') {|f| f.write(description) }
+        uuid = NSXMiscUtils::timeStringL22()
+        filepath = "#{NSXWaveUtils::waveFolderPath()}/Items/#{uuid}.zeta"
+        Zeta::makeNewFile(filepath)
+        Zeta::set(filepath, "uuid", uuid)
         schedule = NSXWaveUtils::makeScheduleObjectInteractively()
-        NSXWaveUtils::writeScheduleToDisk(uuid, schedule)
+        Zeta::set(filepath, "schedule", JSON.generate(schedule))
+        Zeta::set(filepath, "text", description)
         uuid
     end
 
