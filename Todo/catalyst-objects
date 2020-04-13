@@ -160,13 +160,13 @@ TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineNam
     isRunning = TodoRunsUtils::isRunning(tnode["uuid"])
     commands = 
         if isRunning then
-            ["start", "done", "recast", "tonyx"]
-        else
             ["stop", "done", "recast", "tonyx"]
+        else
+            ["start", "done", "recast", "tonyx"]
         end
     defaultCommand = 
         if isRunning then
-            "start"
+            "stop"
         else
             "start"
         end
@@ -177,7 +177,7 @@ TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineNam
             "type" => "line",
             "line" => "todo [inbox]: " + tnode["description"] # TodoXUserInterface::targetToString(tnode["targets"][0])
         },
-        "metric"         => metricHelper.metric(),
+        "metric"         => isRunning ? 1 : metricHelper.metric(),
         "commands"       => commands,
         "defaultCommand" => defaultCommand,
         "isDone"         => nil,
@@ -207,13 +207,13 @@ tnodes
         isRunning = TodoRunsUtils::isRunning(tnode["uuid"])
         commands = 
             if isRunning then
-                ["start", "done", "recast", "tonyx"]
-            else
                 ["stop", "done", "recast", "tonyx"]
+            else
+                ["start", "done", "recast", "tonyx"]
             end
         defaultCommand = 
             if isRunning then
-                "start"
+                "stop"
             else
                 "start"
             end
@@ -224,7 +224,7 @@ tnodes
                 "type" => "line",
                 "line" => "todo walk @ #{timeline} / " + TodoXUserInterface::targetToString(tnode["targets"][0])
             },
-            "metric"         => metricHelper.metric(),
+            "metric"         => isRunning ? 1 : metricHelper.metric(),
             "commands"       => commands,
             "defaultCommand" => defaultCommand,
             "isDone"         => nil,

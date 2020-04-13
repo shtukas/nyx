@@ -59,6 +59,9 @@ require_relative "Todo.rb"
 if ARGV[0] == "start" and ARGV[1] then
     todouuid = ARGV[1]
     TodoRunsUtils::startTodo(todouuid)
+    tnode = TodoXEstate::getTNodeByUUIDOrNull(todouuid)
+    exit if tnode.nil?
+    TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
@@ -76,11 +79,13 @@ end
 
 if ARGV[0] == "recast" and ARGV[1] then
     uuid = ARGV[1]
+    TodoRunsUtils::stopTodo(uuid)
     TodoXUserInterface::recastTNodeIdentifiedByUUID(uuid)
 end
 
 if ARGV[0] == "tonyx" and ARGV[1] then
     uuid = ARGV[1]
+    TodoRunsUtils::stopTodo(uuid)
     tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
     if tnode.nil? then
         puts "Could not find tnode with uuid: '#{uuid}'"
