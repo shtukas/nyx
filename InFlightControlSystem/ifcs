@@ -18,7 +18,7 @@ loop {
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", options)
     break if option.nil?
     if option == "apply recommended" then
-        nextaction = determineRecommendedNextAction()
+        nextaction = getNextAction()
         nextaction[1].call()
     end
     if option == "make new item" then

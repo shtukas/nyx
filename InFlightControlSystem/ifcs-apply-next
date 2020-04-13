@@ -6,5 +6,5 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
-nextaction = determineRecommendedNextAction()
+nextaction = getNextAction()
 nextaction[1].call()

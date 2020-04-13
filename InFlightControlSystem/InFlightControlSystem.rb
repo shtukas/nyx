@@ -117,33 +117,19 @@ def stopItem(uuid)
     saveCompanion(status)
 end
 
-def determineRecommendedNextAction() # [ String, lambda ]
-    items = itemsOrderedByTimespan()
-                .select{|item| getCompanion(item["uuid"])["runningState"] }
-                .select{|item| 
-                    companion = getCompanion(item["uuid"])
-                    timepercentage = 100*(Time.new.to_i - companion["runningState"]).to_f/3600
-                    timepercentage > 100
-                }
-    if !items.empty? then
-        return [ "shutdown: #{items[0]["description"]}" , lambda { stopItem(items[0]["uuid"]) } ]
-    end
+def getNextAction() # [ String, lambda ]
 
     items = itemsOrderedByTimespan()
                 .select{|item| getCompanion(item["uuid"])["runningState"] }
-    item = itemsOrderedByTimespan()[0]
-    if !items.empty? and items.none?{|i| i["uuid"]==item["uuid"] } then
-        return [ "shutdown: #{items[0]["description"]}" , lambda { stopItem(items[0]["uuid"]) } ]
+    
+    if items.size == 0 then
+        item = itemsOrderedByTimespan()[0]
+        return [ "start: #{item["description"]}".red , lambda { startItem(item["uuid"]) } ]
     end
 
-    items = itemsOrderedByTimespan()
-                .select{|item| getCompanion(item["uuid"])["runningState"] }
-    item = itemsOrderedByTimespan()[0]
-    if items.any?{|i| i["uuid"]==item["uuid"] } then
-        return nil
-    end
+    item = items[0]
+    return [ "stop: #{item["description"]}".red , lambda { stopItem(items.first["uuid"]) } ]
 
-    [ "start: #{item["description"]}".red , lambda { startItem(item["uuid"]) } ]
 end
 
 def getReportLine() 
@@ -151,7 +137,7 @@ def getReportLine()
     itemsOrderedByTimespan()
         .select{|item| getCompanion(item["uuid"])["runningState"] }
         .each{|item| report << "running: #{item["description"]}".green }
-    nextaction = determineRecommendedNextAction()
+    nextaction = getNextAction()
     if nextaction then
         report << nextaction[0]
     end
