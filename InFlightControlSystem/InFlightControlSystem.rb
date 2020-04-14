@@ -55,16 +55,24 @@ TimePoint = {
 
 # --------------------------------------------------------------------
 
-def getItems()
-    BTreeSets::values(nil, "867c6e0d-5c02-4488-b829-8563c140e177")
+def itemsFolderpath()
+    "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items"
 end
 
-def saveItem(item)
-    BTreeSets::set(nil, "867c6e0d-5c02-4488-b829-8563c140e177", item["uuid"], item)
+def getItems2()
+    Dir.entries(itemsFolderpath())
+        .select{|filename| filename[-5, 5] == ".json" }
+        .map{|filename| JSON.parse(IO.read("#{itemsFolderpath()}/#{filename}")) }
+end
+
+def saveItem2(item)
+    uuid = item["uuid"]
+    filepath = "#{itemsFolderpath()}/#{uuid}.json"
+    File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
 end
 
 def companionsKeyPrefix()
-    getItems()
+    getItems2()
         .map{|item| item["uuid"] }
         .sort
         .join("-")
@@ -99,7 +107,7 @@ end
 
 def getItemTimespanDifferentialInHoursOrNull(uuid)
     timespan = getItemTimespan(uuid)
-    differentTimespans = getItems()
+    differentTimespans = getItems2()
                             .select{|item| item["uuid"] != uuid }
                             .map {|item| getItemTimespan(item["uuid"]) }
     return nil if differentTimespans.nil?
@@ -107,7 +115,7 @@ def getItemTimespanDifferentialInHoursOrNull(uuid)
 end
 
 def itemsOrderedByTimespan()
-    getItems().sort{|i1, i2| getItemTimespan(i1["uuid"]) <=> getItemTimespan(i2["uuid"]) }
+    getItems2().sort{|i1, i2| getItemTimespan(i1["uuid"]) <=> getItemTimespan(i2["uuid"]) }
 end
 
 def startItem(uuid)
@@ -166,7 +174,7 @@ def getReportLine()
 end
 
 def getReportText()
-    nsize = getItems().map{|item| item["description"].size }.max
+    nsize = getItems2().map{|item| item["description"].size }.max
     report = itemsOrderedByTimespan()
                 .map{|item| 
                     companion = getCompanion(item["uuid"])
@@ -176,7 +184,7 @@ def getReportText()
 end
 
 def selectItemOrNull()
-    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getItems(), lambda{|item| item["description"] })
+    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getItems2(), lambda{|item| item["description"] })
 end
 
 def onScreenNotification(title, message)
