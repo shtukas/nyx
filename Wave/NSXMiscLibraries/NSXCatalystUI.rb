@@ -59,7 +59,7 @@ class NSXCatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-4
 
         puts "Wave 🌊"
         puts ""
@@ -67,9 +67,14 @@ class NSXCatalystUI
         lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
         if lucille != "" then
             puts "lucille:"
-            lucille.lines.first(10).each{|line| puts  "    #{line}" }
+            lines = lucille
+                        .lines
+                        .select{|line| line.strip.size > 0 }
+                        .first(10)
+            lines
+                .each{|line| puts  "    #{line}" }
             puts ""
-            verticalSpaceLeft = verticalSpaceLeft - ( lucille.lines.to_a.size + 3 )
+            verticalSpaceLeft = verticalSpaceLeft - ( lines.size + 2 )
         end
 
         if displayObjects.size==0 then
