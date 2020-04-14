@@ -150,13 +150,7 @@ class MetricHelper
     end
 end
 
-metricHelper = MetricHelper.new(0.70)
-
-objects = []
-
-tnodes = TodoXEstate::getTNodes()
-
-TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineName()).each{|tnode|
+def tnodeToCatalystObject(tnode, announce, metricHelper)
     isRunning = TodoRunsUtils::isRunning(tnode["uuid"])
     commands = 
         if isRunning then
@@ -170,12 +164,12 @@ TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineNam
         else
             "start"
         end
-    objects << {
-        "uuid"            => tnode["uuid"],
-        "agentuid"        => nil,
-        "contentItem"     => {
+    {
+        "uuid"           => tnode["uuid"],
+        "agentuid"       => nil,
+        "contentItem"    => {
             "type" => "line",
-            "line" => "todo [inbox]: " + tnode["description"] # TodoXUserInterface::targetToString(tnode["targets"][0])
+            "line" => announce
         },
         "metric"         => isRunning ? 1 : metricHelper.metric(),
         "commands"       => commands,
@@ -190,12 +184,25 @@ TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineNam
             "tonyx"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing tonyx '#{tnode["uuid"]}'"
         }
     }
+end
+
+# --------------------------------------------------------------------
+
+$objects = []
+
+# --------------------------------------------------------------------
+
+metricHelper = MetricHelper.new(0.70)
+tnodes = TodoXEstate::getTNodes()
+TodoXCoreData::getTimelineTNodesOrdered(tnodes, TodoXUtils::todoInboxTimelineName()).each{|tnode|
+    announce = "todo [inbox]: " + tnode["description"]
+    $objects << tnodeToCatalystObject(tnode, announce, metricHelper)
 }
 
+# --------------------------------------------------------------------
+
 metricHelper = MetricHelper.new(0.30)
-
 timeline = TodoXWalksCore::getTimelineWithLowestTimespan(TodoXWalksCore::get3TNodesTimelines(tnodes), TodoXWalksCore::timeline2TimeMapping())
-
 tnodes
     .select{|tnode|
         tnode["classification"][0]["timeline"] == timeline
@@ -204,40 +211,24 @@ tnodes
         tnode1["creationTimestamp"] <=> tnode2["creationTimestamp"]
     }
     .each{|tnode|
-        isRunning = TodoRunsUtils::isRunning(tnode["uuid"])
-        commands = 
-            if isRunning then
-                ["stop", "done", "recast", "tonyx"]
-            else
-                ["start", "done", "recast", "tonyx"]
-            end
-        defaultCommand = 
-            if isRunning then
-                "stop"
-            else
-                "start"
-            end
-        objects << {
-            "uuid"           => tnode["uuid"],
-            "agentuid"       => nil,
-            "contentItem"    => {
-                "type" => "line",
-                "line" => "todo walk @ #{timeline} / " + TodoXUserInterface::targetToString(tnode["targets"][0])
-            },
-            "metric"         => isRunning ? 1 : metricHelper.metric(),
-            "commands"       => commands,
-            "defaultCommand" => defaultCommand,
-            "isDone"         => nil,
-            "isRunning"      => isRunning,
-            "shell-redirects" => {
-                "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing start '#{tnode["uuid"]}'",
-                "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing stop '#{tnode["uuid"]}'",
-                "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing done '#{tnode["uuid"]}'",
-                "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing recast '#{tnode["uuid"]}'",
-                "tonyx"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/catalyst-objects-processing tonyx '#{tnode["uuid"]}'"
-            }
-        }
+        announce = "todo walk @ #{timeline} / " + TodoXUserInterface::targetToString(tnode["targets"][0])
+        $objects << tnodeToCatalystObject(tnode, announce, metricHelper)
     }
 
-puts JSON.generate(objects)
+# --------------------------------------------------------------------
+
+metricHelper = MetricHelper.new(0.75)
+TodoXUserInterface::getIFCSItems()
+.each{|item|
+    next if item["x-is-todo-item"].nil?
+    tnodeuuid = item["x-is-todo-item"]
+    tnode = TodoXEstate::getTNodeByUUIDOrNull(tnodeuuid)
+    next if tnode.nil?
+    announce = "todo @ ifcs: " + TodoXUserInterface::targetToString(tnode["targets"][0])
+    $objects << tnodeToCatalystObject(tnode, announce, metricHelper)
+}
+
+# --------------------------------------------------------------------
+
+puts JSON.generate($objects)
 
