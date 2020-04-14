@@ -6,7 +6,7 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
-items = itemsOrderedByTimespan()
+items = topItemsOrderedByTimespan()
             .select{|item| 
                 companion = getCompanion(item["uuid"]) 
                 companion["runningState"] and (Time.new.to_i - companion["runningState"]) > 3600

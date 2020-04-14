@@ -1090,6 +1090,11 @@ class TodoXUserInterface
         TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["targets"][0])
     end
 
+    # TodoXUserInterface::getIFCSItems()
+    def self.getIFCSItems()
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
+    end
+
     # TodoXUserInterface::tNodeDive(tnodeuuid)
     def self.tNodeDive(tnodeuuid)
         loop {
@@ -1109,10 +1114,14 @@ class TodoXUserInterface
             tnode["classification"].each{|item|
                 puts "        #{TodoXUserInterface::classificationItemToString(item)}"
             }
+            puts "    isRunning: #{TodoRunsUtils::isRunning(tnodeuuid)}"
             operations = [
                 "quick open",
                 "edit description",
                 "recast",
+                "publish as in flight control system item",
+                "start",
+                "stop",
                 "done"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -1126,6 +1135,33 @@ class TodoXUserInterface
             end
             if operation == "recast" then
                 TodoXUserInterface::recastTNodeIdentifiedByUUID(tnodeuuid)
+            end
+            if operation == "publish as in flight control system item" then
+                puts "Existing In Flight Control System items:"
+                TodoXUserInterface::getIFCSItems()
+                    .sort{|i1, i2| i1["position"] <=> i2["position"] }
+                    .each{|item|
+                        puts "    (#{"%5.3f" % item["position"]}) #{item["description"]}"
+                    }
+                uuid = SecureRandom.uuid
+                position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
+                item = {
+                  "uuid"        => uuid,
+                  "description" => "Todo: #{tnode["description"]}",
+                  "position"    => position,
+                  "activation"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/start-tnode '#{tnode["uuid"]}'"
+                }
+                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json"
+                File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+                puts "Published new ifcs item:"
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+            end
+            if operation == "start" then
+                TodoRunsUtils::startTodo(tnodeuuid)
+            end
+            if operation == "stop" then
+                TodoRunsUtils::stopTodo(tnodeuuid)
             end
             if operation == "done" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item? ") then

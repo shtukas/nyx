@@ -141,9 +141,14 @@ class Starburst
         Starburst::diveFolder(foldername)
     end
 
+    # Starburst::getIFCSItems()
+    def self.getIFCSItems()
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
+    end
+
     # Starburst::diveFolder(starburstName)
     def self.diveFolder(starburstName)
-        operations = ["open folder", ">todo"]
+        operations = ["open folder", "publish as in flight control system item", ">todo"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
 
@@ -151,6 +156,28 @@ class Starburst
             folderpath = Starburst::starburstNameToFolderpath(starburstName)
             return if !File.exists?(folderpath)
             system("open '#{folderpath}'")
+        end
+
+        if operation == "publish as in flight control system item" then
+            puts "Existing In Flight Control System items:"
+            Starburst::getIFCSItems()
+                .sort{|i1, i2| i1["position"] <=> i2["position"] }
+                .each{|item|
+                    puts "    (#{"%5.3f" % item["position"]}) #{item["description"]}"
+                }
+            uuid = SecureRandom.uuid
+            position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
+            item = {
+              "uuid"        => uuid,
+              "description" => "Starburst: #{starburstName}",
+              "position"    => position,
+              "activation"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst-open-folder '#{starburstName}'"
+            }
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json"
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+            puts "Published new ifcs item:"
+            puts JSON.pretty_generate(item)
+            LucilleCore::pressEnterToContinue()
         end
 
         if operation == ">todo" then

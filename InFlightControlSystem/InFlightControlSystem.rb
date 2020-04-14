@@ -38,6 +38,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 Item {
     "uuid"        : String,
     "description" : String
+    "position"    : Float
+    "activation"  : String # optional, path to a shell script to call when the item is started
 }
 
 Companion {
@@ -55,6 +57,9 @@ TimePoint = {
 
 # --------------------------------------------------------------------
 
+# ---------------
+# IO Items
+
 def itemsFolderpath()
     "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items"
 end
@@ -65,14 +70,29 @@ def getItems2()
         .map{|filename| JSON.parse(IO.read("#{itemsFolderpath()}/#{filename}")) }
 end
 
+def getTopItems()
+    getItems2()
+        .sort{|i1, i2| i1["position"] <=> i2["position"] }
+        .first(3)
+end
+
 def saveItem2(item)
     uuid = item["uuid"]
     filepath = "#{itemsFolderpath()}/#{uuid}.json"
     File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
 end
 
+def getItemByUUIDOrNull(uuid)
+    filepath = "#{itemsFolderpath()}/#{uuid}.json"
+    return nil if !File.exists?(filepath)
+    JSON.parse(IO.read(filepath))
+end
+
+# ---------------
+# IO Companions
+
 def companionsKeyPrefix()
-    getItems2()
+    getTopItems()
         .map{|item| item["uuid"] }
         .sort
         .join("-")
@@ -96,29 +116,15 @@ def saveCompanion(companion)
     KeyValueStore::set(nil, "#{companionsKeyPrefix()}:#{companion["uuid"]}", JSON.generate(companion))
 end
 
-def getItemTimespan(uuid)
-    companion = getCompanion(uuid)
-    x1 = 0
-    if companion["runningState"] then
-        x1 = Time.new.to_i - companion["runningState"]
-    end
-    x1 + companion["timesPoints"].map{|point| point["timespan"] }.inject(0, :+)
-end
-
-def getItemTimespanDifferentialInHoursOrNull(uuid)
-    timespan = getItemTimespan(uuid)
-    differentTimespans = getItems2()
-                            .select{|item| item["uuid"] != uuid }
-                            .map {|item| getItemTimespan(item["uuid"]) }
-    return nil if differentTimespans.nil?
-    (timespan - differentTimespans.min).to_f/3600
-end
-
-def itemsOrderedByTimespan()
-    getItems2().sort{|i1, i2| getItemTimespan(i1["uuid"]) <=> getItemTimespan(i2["uuid"]) }
-end
+# ---------------
+# Run Management
 
 def startItem(uuid)
+    item = getItemByUUIDOrNull(uuid)
+    return if item.nil?
+    if item["activation"] then
+        system(item["activation"])
+    end
     companion = getCompanion(uuid)
     return if companion["runningState"]
     companion["runningState"] = Time.new.to_i
@@ -138,11 +144,44 @@ def stopItem(uuid)
     saveCompanion(companion)
 end
 
+# ---------------
+# Operations
+
+def itemIsTopItem(uuid)
+    getTopItems().any?{|i| i["uuid"] == uuid }
+end
+
+def getItemLiveTimespan(uuid)
+    companion = getCompanion(uuid)
+    x1 = 0
+    if companion["runningState"] then
+        x1 = Time.new.to_i - companion["runningState"]
+    end
+    x1 + companion["timesPoints"].map{|point| point["timespan"] }.inject(0, :+)
+end
+
+def getItemLiveTimespanTopItemsDifferentialInHoursOrNull(uuid)
+    timespan = getItemLiveTimespan(uuid)
+    differentTimespans = getTopItems()
+                            .select{|item| item["uuid"] != uuid }
+                            .map {|item| getItemLiveTimespan(item["uuid"]) }
+    return nil if differentTimespans.nil?
+    (timespan - differentTimespans.min).to_f/3600
+end
+
+def topItemsOrderedByTimespan()
+    getTopItems().sort{|i1, i2| getItemLiveTimespan(i1["uuid"]) <=> getItemLiveTimespan(i2["uuid"]) }
+end
+
+def itemsOrderedByPosition()
+    getItems2().sort{|i1, i2| i1["position"] <=> i2["position"] }
+end
+
 def getNextAction() # [ nil | String, lambda ]
 
-    runningitems = itemsOrderedByTimespan()
+    runningitems = topItemsOrderedByTimespan()
                 .select{|item| getCompanion(item["uuid"])["runningState"] }
-    lowestitem = itemsOrderedByTimespan()[0]
+    lowestitem = topItemsOrderedByTimespan()[0]
 
     if runningitems.size == 0 then
         return [ "start: #{lowestitem["description"]}".red , lambda { startItem(lowestitem["uuid"]) } ]
@@ -159,10 +198,10 @@ end
 
 def getReportLine() 
     report = [ "In Flight Control System 🛰️ " ]
-    itemsOrderedByTimespan()
+    topItemsOrderedByTimespan()
         .select{|item| getCompanion(item["uuid"])["runningState"] }
         .each{|item| 
-            d1 = getItemTimespanDifferentialInHoursOrNull(item["uuid"])
+            d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
             d2 = d1 ? " (#{d1.round(2)} hours)" : ""
             report << "running: #{item["description"]}#{d2}".green 
         }
@@ -175,16 +214,20 @@ end
 
 def getReportText()
     nsize = getItems2().map{|item| item["description"].size }.max
-    report = itemsOrderedByTimespan()
-                .map{|item| 
-                    companion = getCompanion(item["uuid"])
-                    "#{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemTimespan(item["uuid"]).to_f/3600)} hours)"
-                }
-    report.join("\n")
+    itemsOrderedByPosition()
+        .map{|item| 
+            if itemIsTopItem(item["uuid"]) then
+                companion = getCompanion(item["uuid"])
+                "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
+            else
+                "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
+            end
+        }
+        .join("\n")
 end
 
 def selectItemOrNull()
-    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", getItems2(), lambda{|item| item["description"] })
+    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", itemsOrderedByPosition(), lambda{|item| item["description"] })
 end
 
 def onScreenNotification(title, message)

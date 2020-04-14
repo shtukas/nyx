@@ -77,6 +77,11 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( lines.size + 2 )
         end
 
+        ifcswaveview = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-wave-view`.strip
+        puts "ifcs focus: #{ifcswaveview}"
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 2
+
         if displayObjects.size==0 then
 
             vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
