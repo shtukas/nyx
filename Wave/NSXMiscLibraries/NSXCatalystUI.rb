@@ -69,7 +69,7 @@ class NSXCatalystUI
             puts "lucille:"
             lucille.lines.first(10).each{|line| puts  "    #{line}" }
             puts ""
-            verticalSpaceLeft = verticalSpaceLeft - ( lucille.lines.to_a.size + 2 )
+            verticalSpaceLeft = verticalSpaceLeft - ( lucille.lines.to_a.size + 3 )
         end
 
         if displayObjects.size==0 then
