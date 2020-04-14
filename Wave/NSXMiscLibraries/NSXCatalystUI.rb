@@ -64,11 +64,6 @@ class NSXCatalystUI
         puts "Wave 🌊"
         puts ""
 
-        ifcs = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-wave-line`.strip
-        puts ifcs
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - ( ifcs.lines.to_a.size + 2 )
-
         lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
         if lucille != "" then
             puts "lucille:"

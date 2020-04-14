@@ -1,0 +1,22 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "InFlightControlSystem.rb"
+
+# --------------------------------------------------------------------
+
+reportLine = getReportLine()
+
+objects = []
+objects << {
+    "uuid"           => SecureRandom.uuid,
+    "agentuid"       => nil,
+    "contentItem"    => {
+        "type" => "line",
+        "line" => reportLine
+    },
+    "metric"         => 0.95,
+    "commands"       => []
+}
+puts JSON.generate(objects)
