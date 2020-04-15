@@ -2,7 +2,7 @@
 
 
 
-Catalyst is a personal management system and is made of the following apps: Calendar, InFlightControlSystem, Lucille, Nyx, Starburst, Todo and Wave.
+Catalyst is a [personal information management system](https://en.wikipedia.org/wiki/Personal_information_management) and is made of a collection of app: Calendar, InFlightControlSystem, Lucille, Nyx, Starburst, Todo and Wave.
 
 
 
