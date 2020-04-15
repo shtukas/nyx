@@ -2,7 +2,7 @@
 
 ## History
 
-The original Nyx was a command line tool and web interface used by Pascal as a [Personal Information Management system](w). In **2015**, I wrote a [detailed entry](http://weblog.alseyn.net/index.php?uuid=40bd59d4-48de-454a-9a50-2c2a1c919e32) about what Nyx fundamentally is, and how it was built at the time.
+The original Nyx was a command line tool and web interface used by Pascal as a [Personal Information Management system](https://en.wikipedia.org/wiki/Personal_information_management). In **2015**, I wrote a [detailed entry](http://weblog.alseyn.net/index.php?uuid=40bd59d4-48de-454a-9a50-2c2a1c919e32) about what Nyx fundamentally is, and how it was built at the time.
 
 ## Permanodes
 
@@ -15,7 +15,7 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
     "referenceDateTime" : DateTime Iso8601
     "description"       : String
     "targets"           : Array[PermanodeTarget]
-    "classification"    : Array[ClassificationItem]
+    "taxonomy"          : Array[String]
 }
 ```
 
@@ -72,14 +72,26 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
 
 **PermaDirs** are just directories, with fixed immutable foldernames. The uuid of the `perma-dir-11859659` object is the name of the corresponding directory. They are a more controlled version of general directories with marks (those that are targets of `lstore-directory-mark-BEE670D0` objects).
 
-nb: The definition of PermaDirs specify that the uuid is a UUID. We shall respect that, but in any case it is important that the first 4 characters of the uuid be random hexadecimal characters.
+## Taxonomy
 
-Note 27th Feb: The intent, for the moment, is to migrate data to PermaDirs without worrying about redundancy or size. Once the migration is done I will maybe make a mirror file file system and perform better data management.
+The overall organization of the Nyx system is that of nodes connected by a directed edges. The direction is meant to represent semantic flows in Pascal's mind. Permanodes belong to one or more nodes. 
+
+For instance a picture of Justin Bieber represented by a permanode will belong to the node (Justin Bieber) and might also belong to the node (Paris) (if, say, the picture was taken in Paris). We will also specify the existence of the node (Canada) and a directed link from (Canada) to (Justin Bieber).
+
+To specify the nodes that a permanode belongs to and the graph, we use the taxonomy key. Element of that array are string interpreted either as node names or directed liks between two nodes. 
+
+Example: 
+
+```
+["Justin Bieber", "Paris", "Canada -> Justin Bieber"]
+```
+
+says that the permanode belongs to the two nodes "Justin Bieber" and "Paris" and that there is a directed link from "Canada" to "Justin Bieber". 
+
+There is no need to "create" nodes, other than mentionning them in a taxonomy.
 
 ## Dependencies
 
 Nyx has a dependency on `peco` [https://github.com/peco/peco](https://github.com/peco/peco), which is used as part of the command line user interface.
 
-## Night 
 
-Night is the graphical user interface, written in [Elm](https://elm-lang.org).

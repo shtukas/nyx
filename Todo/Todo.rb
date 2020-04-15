@@ -773,11 +773,6 @@ end
 class TodoXNyxConverter
     # As it says on the tin, this class has the tools to convert a todo item into a Nyx item
 
-    # TodoXNyxConverter::getNyxTimelines()
-    def self.getNyxTimelines()
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-api-timelines`)
-    end
-
     # TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, nyxYmirFolderPath)
     def self.transmuteTodoTargetIntoNyxTarget(tnodeuuid, target, nyxYmirFolderPath)
         if target["type"] == "lstore-directory-mark-BEE670D0" then
@@ -829,6 +824,17 @@ class TodoXNyxConverter
         TodoXTMakers::interactively2SelectAtLeastOneTimelinePossiblyNewOne(timelines)
     end
 
+    # TodoXNyxConverter::makePermanodeTaxonomyInteractive()
+    def self.makePermanodeTaxonomyInteractive()
+        taxonomy = []
+        loop {
+            item = LucilleCore::askQuestionAnswerAsString("Node or Edge (empty to quit): ")
+            break if item == ""
+            taxonomy << item
+        }
+        taxonomy
+    end
+
     # TodoXNyxConverter::transmuteTodoItemIntoNyxObject(todo, nyxYmirFolderPath)
     def self.transmuteTodoItemIntoNyxObject(todo, nyxYmirFolderPath)
         nyx = {}
@@ -838,23 +844,7 @@ class TodoXNyxConverter
         nyx["referenceDateTime"] = Time.new.utc.iso8601
         nyx["description"] = TodoXUtils::editTextUsingTextmate(todo["description"])
         nyx["targets"] = todo["targets"].map{|target| TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(todo["uuid"], target, nyxYmirFolderPath) }
-        tagObjects = TodoXNyxConverter::interactivelymakeZeroOrMoreTags()
-                        .map{|tag|
-                            {
-                                "uuid" => SecureRandom.uuid,
-                                "type" => "tag-18303A17",
-                                "tag"  => tag
-                            }
-                        }
-        timelineObjects = TodoXNyxConverter::interactivelySelectAtLeastOneTimelinePossiblyNewOne(TodoXNyxConverter::getNyxTimelines())
-                        .map{|timeline|
-                            {
-                                "uuid" => SecureRandom.uuid,
-                                "type" => "timeline-329D3ABD",
-                                "timeline" => timeline
-                            }
-                        }
-        nyx["classification"] = tagObjects + timelineObjects
+        nyx["taxonomy"] = TodoXNyxConverter::makePermanodeTaxonomyInteractive()
         nyx
     end
 end

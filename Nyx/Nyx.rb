@@ -94,7 +94,7 @@ class NyxCuration
             .each{|permanode|
                 puts "Correcting permanode description"
                 permanode["description"] = NyxMiscUtils::editTextUsingTextmate(permanode["description"]).strip
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             }
 
     end
@@ -191,12 +191,6 @@ class NyxMiscUtils
         DateTime.parse(datetime).to_time.utc.iso8601 == datetime
     end
 
-    # NyxMiscUtils::publishIndex2PermanodesAsOneObject()
-    def self.publishIndex2PermanodesAsOneObject()
-        targetFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx/permanodes.json"
-        File.open(targetFilepath, "w"){|f| f.puts(JSON.pretty_generate(NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir()).to_a))}
-    end
-
     # NyxMiscUtils::formatTimeline(timeline)
     def self.formatTimeline(timeline)
         timeline.split(" ").map{|word| word.downcase.capitalize }.join(" ")
@@ -218,12 +212,6 @@ class NyxMiscUtils
         puts "Select files:"
         locations, _ = LucilleCore::selectZeroOrMore("files:", [], desktopLocations, lambda{ |location| File.basename(location) })
         locations
-    end
-
-    # NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-    def self.commitPermanodeToDiskWithMaintenance(permanode)
-        NyxPermanodeOperator::commitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
-        NyxMiscUtils::publishIndex2PermanodesAsOneObject()
     end
 
     # NyxMiscUtils::levenshteinDistance(s, t)
@@ -298,7 +286,7 @@ class NyxPermanodeOperator
         return false if object["description"].lines.to_a.size != 1
         return false if object["targets"].nil?
         return false if object["targets"].any?{|target| !NyxPermanodeOperator::objectIsPermanodeTarget(target) }
-        return false if object["classification"].nil?
+        return false if object["taxonomy"].nil?
         true
     end
 
@@ -407,30 +395,28 @@ class NyxPermanodeOperator
         "#{NyxMiscUtils::l22()}.json"
     end
 
-    # NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(pathToYmir, filename)
-    def self.permanodeFilenameToFilepathOrNull(pathToYmir, filename)
-        YmirEstate::ymirFilepathEnumerator(pathToYmir).each{|filepath|
-            return filepath if ( File.basename(filepath) == filename )
-        }
-        nil
-    end
-
     # NyxPermanodeOperator::destroyPermanode(pathToYmir, permanode)
     def self.destroyPermanode(pathToYmir, permanode)
-        filepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(pathToYmir, permanode["filename"])
+        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, permanode["filename"])
         puts filepath
         return if filepath.nil?
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # NyxPermanodeOperator::commitPermanodeToDisk(pathToYmir, permanode)
-    def self.commitPermanodeToDisk(pathToYmir, permanode)
+    # NyxPermanodeOperator::commitNewPermanodeToDisk(pathToYmir, permanode)
+    def self.commitNewPermanodeToDisk(pathToYmir, permanode)
         raise "[error: not a permanode]" if !NyxPermanodeOperator::objectIsPermanode(permanode)
-        filepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(pathToYmir, permanode["filename"])
+        filepath = YmirEstate::makeNewYmirLocationForBasename(pathToYmir, permanode["filename"])
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(permanode)) }
+    end
+
+    # NyxPermanodeOperator::recommitPermanodeToDisk(pathToYmir, permanode)
+    def self.recommitPermanodeToDisk(pathToYmir, permanode)
+        raise "[error: not a permanode]" if !NyxPermanodeOperator::objectIsPermanode(permanode)
+        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, permanode["filename"])
         if filepath.nil? then
-            # probably a new permanode 
-            filepath = YmirEstate::makeNewYmirLocationForBasename(pathToYmir, permanode["filename"])
+            raise "[error: f1f2252d]"
         end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(permanode)) }
     end
@@ -470,12 +456,12 @@ class NyxPermanodeOperator
         permanode["targets"].each{|permanodeTarget|
             puts "        #{NyxPermanodeOperator::permanodeTargetToString(permanodeTarget)}"
         }
-        if permanode["classification"].empty? then
-            puts "    classification: (empty set)"
+        if permanode["taxonomy"].empty? then
+            puts "    taxonomy: (empty set)"
         else
-            puts "    classification"
-            permanode["classification"].each{|item|
-                puts "        #{NyxPermanodeOperator::permanodeClassificationToString(item)}"
+            puts "    taxonomy"
+            permanode["taxonomy"].each{|item|
+                puts "        #{item}"
             }
         end
     end
@@ -483,47 +469,9 @@ class NyxPermanodeOperator
     # ------------------------------------------------------------------
     # Data Queries and Data Manipulations
 
-    # NyxPermanodeOperator::timelines()
-    def self.timelines()
-        NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-            .reduce([]){|timelines, permanode|
-                timelines + permanode["classification"].select{|permanodeTarget| permanodeTarget["type"] == "timeline-329D3ABD" }.map{|permanodeTarget| permanodeTarget["timeline"] }
-            }
-    end
-
-    # NyxPermanodeOperator::timelinesInDecreasingActivityDateTime()
-    def self.timelinesInDecreasingActivityDateTime()
-        # struct1: Map[Timeline, DateTime]
-        struct1 = NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-            .reduce({}){|datedTimelines, permanode|
-                referenceDateTime = permanode["referenceDateTime"]
-                timelines = permanode["classification"]
-                                .select{|permanodeTarget| permanodeTarget["type"] == "timeline-329D3ABD" }
-                                .map{|permanodeTarget| permanodeTarget["timeline"] }
-                timelines.each{|timeline|
-                    if datedTimelines[timeline].nil? then
-                        datedTimelines[timeline] = referenceDateTime
-                    else
-                        datedTimelines[timeline] = [datedTimelines[timeline], referenceDateTime].max
-                    end
-                }
-                datedTimelines
-            }
-            .map{|timeline, datetime| [timeline, datetime] }
-            .sort{|p1, p2| p1[1]<=>p2[1] }
-            .map{|i| i[0] }
-            .reverse
-    end
-
     # NyxPermanodeOperator::applyReferenceDateTimeOrderToPermanodes(permanodes)
     def self.applyReferenceDateTimeOrderToPermanodes(permanodes)
         permanodes.sort{|p1, p2| p1["referenceDateTime"] <=> p2["referenceDateTime"] }
-    end
-
-    # NyxPermanodeOperator::getTimelinePermanodes(timeline)
-    def self.getTimelinePermanodes(timeline)
-        NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-            .select{|permanode| permanode["classification"].any?{|item| item["type"] == "timeline-329D3ABD" and item["timeline"] == timeline}}
     end
 
     # NyxPermanodeOperator::getPermanodesCarryingThisDirectoryMark(mark)
@@ -589,13 +537,6 @@ class NyxPermanodeOperator
         end
     end
 
-    # NyxPermanodeOperator::selectOneExistingTimelineOrNull()
-    def self.selectOneExistingTimelineOrNull()
-        timeline = NyxMiscUtils::chooseALinePecoStyle("Timeline", [""] + NyxPermanodeOperator::timelinesInDecreasingActivityDateTime())
-        return nil if timeline.size == 0
-        timeline
-    end
-
     # NyxPermanodeOperator::makeZeroOrMoreClassificationItemsTags()
     def self.makeZeroOrMoreClassificationItemsTags()
         items = []
@@ -610,35 +551,6 @@ class NyxPermanodeOperator
             items << item
         }
         items
-    end
-
-    # NyxPermanodeOperator::makeZeroOrMoreClassificationItemsInteractive()
-    def self.makeZeroOrMoreClassificationItemsInteractive()
-        puts "-> specifiying classification: (1) tags, (2) timeline among existing, (3) new timelines"
-        objects = []
-        NyxPermanodeOperator::makeZeroOrMoreClassificationItemsTags()
-            .each{|item| objects << item }
-        loop {
-            timeline = NyxPermanodeOperator::selectOneExistingTimelineOrNull()
-            break if timeline.nil?
-            object = {
-                "uuid" => SecureRandom.uuid,
-                "type" => "timeline-329D3ABD",
-                "timeline"  => timeline
-            }
-            objects << object
-        }
-        loop {
-            timeline = LucilleCore::askQuestionAnswerAsString("timeline (empty for exit): ")
-            break if timeline.size == 0
-            object = {
-                "uuid" => SecureRandom.uuid,
-                "type" => "timeline-329D3ABD",
-                "timeline"  => NyxMiscUtils::formatTimeline(timeline)
-            }
-            objects << object
-        }
-        objects
     end
 
     # NyxPermanodeOperator::makePermanodeTargetInteractiveOrNull(type)
@@ -696,6 +608,17 @@ class NyxPermanodeOperator
         nil
     end
 
+    # NyxPermanodeOperator::makePermanodeTaxonomyInteractive()
+    def self.makePermanodeTaxonomyInteractive()
+        taxonomy = []
+        loop {
+            item = LucilleCore::askQuestionAnswerAsString("Node or Edge (empty to quit): ")
+            break if item == ""
+            taxonomy << item
+        }
+        taxonomy
+    end
+
     # NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
     def self.makePermanode2Interactive(description, permanodeTarget)
         permanode = {}
@@ -705,12 +628,12 @@ class NyxPermanodeOperator
         permanode["referenceDateTime"] = Time.now.utc.iso8601
         permanode["description"] = description
         permanode["targets"] = [ permanodeTarget ]
-        permanode["classification"] = NyxPermanodeOperator::makeZeroOrMoreClassificationItemsInteractive()
+        permanode["taxonomy"] = NyxPermanodeOperator::makePermanodeTaxonomyInteractive()
         permanode
     end
 
-    # NyxPermanodeOperator::makePermanodeInteractive()
-    def self.makePermanodeInteractive()
+    # NyxPermanodeOperator::makePermanode1Interactive()
+    def self.makePermanode1Interactive()
         operations = [
             "url",
             "uniquename",
@@ -730,7 +653,7 @@ class NyxPermanodeOperator
             }
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+            NyxPermanodeOperator::commitNewPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
         end
 
         if operation == "uniquename" then
@@ -743,7 +666,7 @@ class NyxPermanodeOperator
             }
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+            NyxPermanodeOperator::commitNewPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
         end
 
         if operation == "file (from desktop)" then
@@ -752,7 +675,7 @@ class NyxPermanodeOperator
             return if permanodeTarget.nil?
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+            NyxPermanodeOperator::commitNewPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
         end
 
         if operation == "lstore-directory-mark" then
@@ -761,7 +684,7 @@ class NyxPermanodeOperator
             return if permanodeTarget.nil?
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+            NyxPermanodeOperator::commitNewPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
         end
 
         if operation == "Desktop files inside permadir" then
@@ -779,7 +702,7 @@ class NyxPermanodeOperator
             }
             permanode = NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
             puts JSON.pretty_generate(permanode)
-            NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+            NyxPermanodeOperator::commitNewPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
 
             locations.each{|location|
                 puts "Copying '#{location}'"
@@ -822,10 +745,7 @@ class NyxPermanodeOperator
                 "targets dive",
                 "targets (add new)",
                 "targets (select and remove)",
-                "tag (add new)",
-                "timeline (add new as string)",
-                "timeline (add new select from existing)",
-                "classification (select and remove)",
+                "taxonomy (add new)",
                 "edit permanode.json",
                 "destroy permanode"
             ]
@@ -843,14 +763,14 @@ class NyxPermanodeOperator
                     next
                 end
                 permanode["description"] = newdescription
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "edit reference datetime" then
                 permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(NyxEstate::pathToYmir(), permanode["uuid"])
                 referenceDateTime = NyxMiscUtils::editTextUsingTextmate(permanode["referenceDateTime"]).strip
                 if NyxMiscUtils::isProperDateTimeIso8601(referenceDateTime) then
                     permanode["referenceDateTime"] = referenceDateTime
-                    NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+                    NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
                 else
                     puts "I could not validate #{referenceDateTime} as a proper iso8601 datetime"
                     puts "Aborting operation"
@@ -868,7 +788,7 @@ class NyxPermanodeOperator
                 target = NyxPermanodeOperator::makePermanodeTargetInteractiveOrNull(nil)
                 next if target.nil?
                 permanode["targets"] << target
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "targets (select and remove)" then
                 permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(NyxEstate::pathToYmir(), permanode["uuid"])
@@ -876,47 +796,16 @@ class NyxPermanodeOperator
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", permanode["targets"], toStringLambda)
                 next if target.nil?
                 permanode["targets"] = permanode["targets"].reject{|t| t["uuid"]==target["uuid"] }
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
-            if operation == "tag (add new)" then
-                tag = LucilleCore::askQuestionAnswerAsString("tag: ")
-                next if tag.size == 0
-                permanode["classification"] << {
-                    "uuid" => SecureRandom.uuid,
-                    "type" => "tag-18303A17",
-                    "tag"  => tag
-                }
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-            end
-            if operation == "timeline (add new as string)" then
-                timeline = LucilleCore::askQuestionAnswerAsString("timeline: ")
-                next if timeline.size == 0
-                permanode["classification"] << {
-                    "uuid"     => SecureRandom.uuid,
-                    "type"     => "timeline-329D3ABD",
-                    "timeline" => timeline
-                }
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-            end
-            if operation == "timeline (add new select from existing)" then
-                timeline = NyxPermanodeOperator::selectOneExistingTimelineOrNull()
-                next if timeline.nil?
-                permanode["classification"] << {
-                    "uuid"     => SecureRandom.uuid,
-                    "type"     => "timeline-329D3ABD",
-                    "timeline" => timeline
-                }
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
-            end
-            if operation == "classification (select and remove)" then
-                permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(NyxEstate::pathToYmir(), permanode["uuid"])
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("classification", permanode["classification"], lambda{|item| NyxPermanodeOperator::permanodeClassificationToString(item) } )
-                next if item.nil?
-                permanode["classification"] = permanode["classification"].reject{|i| i["uuid"]==item["uuid"] }
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+            if operation == "taxonomy (add new)" then
+                item = LucilleCore::askQuestionAnswerAsString("node or edge: ")
+                next if item.size == 0
+                permanode["taxonomy"] << item
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "edit permanode.json" then
-                permanodeFilepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(NyxEstate::pathToYmir(), permanode["filename"])
+                permanodeFilepath = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), permanode["filename"])
                 if permanodeFilepath.nil? then
                     puts "Strangely I could not find the filepath for this:"
                     puts JSON.pretty_generate(permanode)
@@ -930,7 +819,7 @@ class NyxPermanodeOperator
                     puts "I do not recognise the new object as a permanode. Aborting operation."
                     next
                 end
-                NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode)
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "destroy permanode" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
@@ -963,12 +852,6 @@ class NyxPermanodeOperator
 
     # ------------------------------------------------------------------
     # Destroy
-
-    # NyxPermanodeOperator::destroyClassificationItem(item)
-    def self.destroyClassificationItem(item)
-        # Honorific
-        return
-    end
 
     # NyxPermanodeOperator::destroyPermanodeTargetAttempt(target)
     def self.destroyPermanodeTargetAttempt(target)
@@ -1009,9 +892,7 @@ class NyxPermanodeOperator
     # NyxPermanodeOperator::destroyPermanodeAttempt(permanode)
     def self.destroyPermanodeAttempt(permanode)
         permanode["targets"].all?{|target| NyxPermanodeOperator::destroyPermanodeTargetAttempt(target) }
-        permanode["classification"].all?{|item| NyxPermanodeOperator::destroyClassificationItem(item) }
         NyxPermanodeOperator::destroyPermanode(NyxEstate::pathToYmir(), permanode)
-        NyxMiscUtils::publishIndex2PermanodesAsOneObject()
     end
 
     # NyxPermanodeOperator::destroyPermanodeContentsAndPermanode(permanodeuuid)
@@ -1019,7 +900,6 @@ class NyxPermanodeOperator
         permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(NyxEstate::pathToYmir(), permanodeuuid)
         return if permanode.nil?
         NyxPermanodeOperator::destroyPermanodeAttempt(permanode)
-        NyxMiscUtils::publishIndex2PermanodesAsOneObject()
     end
 
 end
@@ -1087,10 +967,8 @@ class NyxSearch
 
         # 0.75 : target payload is contains to search pattern
         # 0.70 : referenceDateTime contains search pattern
-        # 0.60 : Timeline is identical to search pattern
-        # 0.50 : Tag is identical to search pattern
-        # 0.40 : Timeline contains search pattern
-        # 0.30 : Tag contains search pattern
+        # 0.60 : Taxonomy item is identical to search pattern
+        # 0.40 : Toxonomy item contains search pattern
         return 1.50 if permanode["description"].downcase == searchPattern.downcase
         return 1.00 if permanode["description"].downcase.include?(" #{searchPattern.downcase} ")
         return 0.95 if permanode["targets"].any?{|target| NyxSearch::permanodeTargetHasSearchPattern(target, searchPattern) }
@@ -1098,10 +976,8 @@ class NyxSearch
         return 0.80 if permanode["description"].downcase.include?(searchPattern.downcase)
         return 0.75 if permanode["targets"].any?{|target| NyxSearch::permanodeTargetIncludeSearchPattern(target, searchPattern) }
         return 0.70 if permanode["referenceDateTime"].downcase.include?(searchPattern.downcase)
-        return 0.60 if permanode["classification"].select{|item| item["type"] == "timeline-329D3ABD" }.any?{|item| item["timeline"].downcase == searchPattern.downcase }
-        return 0.50 if permanode["classification"].select{|item| item["type"] == "tag-18303A17"      }.any?{|item| item["tag"].downcase == searchPattern.downcase }
-        return 0.40 if permanode["classification"].select{|item| item["type"] == "timeline-329D3ABD" }.any?{|item| item["timeline"].downcase.include?(searchPattern.downcase) }
-        return 0.30 if permanode["classification"].select{|item| item["type"] == "tag-18303A17"      }.any?{|item| item["tag"].downcase.include?(searchPattern.downcase) }
+        return 0.60 if permanode["taxonomy"].any?{|item| item.downcase == searchPattern.downcase }
+        return 0.40 if permanode["taxonomy"].any?{|item| item.downcase.include?(searchPattern.downcase) }
         0
     end
 
@@ -1196,15 +1072,12 @@ class NyxUserInterface
                 # View
                 "permanode dive (uuid)",
                 "show newly created permanodes",
-                "select and dive timeline",
 
                 # Make or modify
                 "make new permanode",
-                "rename tag or timeline",
                 "repair permanode (uuid)",
 
                 # Special operations
-                "publish dump for Night",
                 "curation",
 
                 # Destroy
@@ -1229,17 +1102,14 @@ class NyxUserInterface
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(NyxEstate::pathToYmir(), uuid)
                 next if permanode.nil?
-                filepath = NyxPermanodeOperator::permanodeFilenameToFilepathOrNull(NyxEstate::pathToYmir(), permanode["filename"])
+                filepath = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), permanode["filename"])
                 next if filepath.nil?
                 system("open '#{filepath}'")
                 LucilleCore::pressEnterToContinue()
             end
 
             if operation == "make new permanode" then
-                NyxPermanodeOperator::makePermanodeInteractive()
-            end
-            if operation == "publish dump for Night" then
-                NyxMiscUtils::publishIndex2PermanodesAsOneObject()
+                NyxPermanodeOperator::makePermanode1Interactive()
             end
             if operation == "show newly created permanodes" then
                 permanodes = NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
@@ -1248,59 +1118,8 @@ class NyxUserInterface
                     .first(20)
                 NyxUserInterface::permanodesDive(permanodes)
             end
-            if operation == "select and dive timeline" then
-                timeline = NyxMiscUtils::chooseALinePecoStyle("timeline:", [""] + NyxPermanodeOperator::timelinesInDecreasingActivityDateTime())
-                next if timeline.size == 0
-                permanodes = NyxPermanodeOperator::getTimelinePermanodes(timeline)
-                NyxUserInterface::permanodesDive(permanodes)
-            end
             if operation == "curation" then
                 NyxCuration::curate()
-            end
-            if operation == "rename tag or timeline" then
-                renameClassificationValue = lambda{|value, oldName, newName|
-                    if value.downcase == oldName.downcase then
-                        value = newName
-                    end
-                    value
-                }
-                transformClassificationTagObject = lambda{|object, oldName, newName|
-                    object["tag"] = renameClassificationValue.call(object["tag"], oldName, newName)
-                    object
-                }
-                transformClassificationTimelineObject = lambda{|object, oldName, newName|
-                    object["timeline"] = renameClassificationValue.call(object["timeline"], oldName, newName)
-                    object
-                }
-                transformClassificationItem = lambda{|item, oldName, newName|
-                    if item["type"] == "tag-18303A17" then
-                        item = transformClassificationTagObject.call(item.clone, oldName, newName)
-                    end
-                    if item["type"] == "timeline-329D3ABD" then
-                        item = transformClassificationTimelineObject.call(item.clone, oldName, newName)
-                    end
-                    item
-                }
-                transformPermanode = lambda{|permanode, oldName, newName|
-                    permanode["classification"] = permanode["classification"]
-                                                    .map{|classificationItem|
-                                                        transformClassificationItem.call(classificationItem.clone, oldName, newName) 
-                                                    }
-                    permanode
-                }
-                oldName = LucilleCore::askQuestionAnswerAsString("old name: ")
-                newName = LucilleCore::askQuestionAnswerAsString("new name: ")
-                NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-                    .each{|permanode| 
-                        permanode2 = transformPermanode.call(permanode.clone, oldName, newName)
-                        if permanode.to_s != permanode2.to_s then
-                            puts JSON.pretty_generate(permanode)
-                            puts "I am running on empty, you need to check visually and uncomment the line"
-                            puts JSON.pretty_generate(permanode2)
-                            #NyxMiscUtils::commitPermanodeToDiskWithMaintenance(permanode2)
-                        end
-                    }
-                NyxMiscUtils::publishIndex2PermanodesAsOneObject()
             end
             if operation == "permanode destroy (uuid)" then
                 permanodeuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
