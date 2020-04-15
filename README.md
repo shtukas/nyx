@@ -1,6 +1,8 @@
 # Catalyst
 
-Catalyst is made of 5 individual apps: Wave, Todo, Nyx, Starburst, and InFlightControlSystem.
+
+
+Catalyst is a personal management system and is made of the following apps: Calendar, InFlightControlSystem, Lucille, Nyx, Starburst, Todo and Wave.
 
 
 
