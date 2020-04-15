@@ -67,7 +67,7 @@ class NSXCatalystUI
         starburstnames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst-names`)
         puts "Starburst"
         starburstnames.each_with_index{|name, i|
-            puts "    [#{i.to_s.rjust(2)}] #{name}"
+            puts "    [s'#{i.to_s.rjust(2)}] #{name}"
         }
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - ( starburstnames.size + 2 )

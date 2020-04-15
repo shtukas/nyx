@@ -71,6 +71,12 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command.start_with?("s'") then
+            indx = command[2,99].strip.to_i
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst-open-folder-identified-by-index #{indx}")
+            return
+        end
+
         if command == "WaveGeneralMenu" then
             loop {
                 options = [
