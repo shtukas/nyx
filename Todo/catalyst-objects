@@ -217,7 +217,7 @@ tnodes
 
 # --------------------------------------------------------------------
 
-metricHelper = MetricHelper.new(0.75)
+metricHelper = MetricHelper.new(0.31)
 TodoXUserInterface::getIFCSItems()
 .each{|item|
     next if item["x-is-todo-item"].nil?
