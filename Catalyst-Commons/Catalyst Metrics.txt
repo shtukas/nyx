@@ -1,10 +1,10 @@
 
         1.00         Running items
         0.97-        Lucille items
-        0.95         In Flight Control System
         0.90         Wave sticky
         0.80+        Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+        Wave every-n-hours / every-n-days
+        0.75         In Flight Control System
         0.70-        Todo Inbox
         0.31-        Todo ifcs items
         0.30-        Todo walks

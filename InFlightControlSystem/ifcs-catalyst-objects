@@ -16,7 +16,7 @@ objects << {
         "type" => "line",
         "line" => reportLine
     },
-    "metric"         => 0.95,
+    "metric"         => 0.75,
     "commands"       => []
 }
 puts JSON.generate(objects)
