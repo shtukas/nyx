@@ -209,7 +209,7 @@ def getReportLine()
     if nextaction then
         report << nextaction[0] # can be null
     end
-    report.compact.join(" ; ")
+    report.compact.join(" >> ")
 end
 
 def getReportText()
