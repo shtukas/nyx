@@ -44,50 +44,11 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-class MetricHelper
-    def initialize(base)
-        @base = base
-        @counter = 0
-    end
-    def metric()
-        @counter = @counter + 1
-        @base - @counter.to_f/1000
-    end
-end
-
-# -------------------------------------------------------------------------
-
 Lucille::garbageCollection()
-
-metricHelper = MetricHelper.new(0.97)
-
-counter = 0
 
 objects = Lucille::itemsFilepaths()
     .map{|filepath|
-        counter = counter + 1
-        uuid = Digest::SHA1.hexdigest("ee2b56b8-39c7-4a58-a466-4e8d59ba5f9d:#{filepath}")
-        content = IO.read(filepath).strip
-        contentItem = 
-            if content.lines.to_a.size == 1 then
-                {
-                    "type" => "line",
-                    "line" => "{l'#{counter.to_s.rjust(2)}} " + content.strip
-                }
-            else
-                {
-                    "type" => "line-and-body",
-                    "line" => "{l'#{counter.to_s.rjust(2)}} " + content.lines.to_a.first.strip,
-                    "body" => "{l'#{counter.to_s.rjust(2)}} \n" + content.strip
-                }
-            end
-        {
-            "uuid"           => uuid,
-            "agentuid"       => nil,
-            "contentItem"    => contentItem,
-            "metric"         => metricHelper.metric(),
-            "commands"       => []
-        }
+        IO.read(filepath).strip
     }
 
 puts JSON.generate(objects)

@@ -28,7 +28,7 @@ class NSXGeneralCommandHandler
                 "help",
                 "new: <line> | 'text'",
                 "/                   General Menu",
-                "l+ spawn new lucille item",
+                "l+ spawn new catalyst item",
                 "[] apply next transformation to Lucille's top item",
                 ">> ifcs recommended next"
             ].map{|command| "        "+command }.join("\n"),

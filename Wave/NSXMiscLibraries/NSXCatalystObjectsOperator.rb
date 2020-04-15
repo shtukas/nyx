@@ -49,8 +49,6 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-catalyst-objects`)
-            .each{|o| objects << o }
         # We have all the objects that the agents think should be done
 
         # Some of those objects might have been pushed to the future (something that happens outside the jurisdiction of the agents)
