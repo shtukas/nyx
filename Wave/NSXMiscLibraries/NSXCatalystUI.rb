@@ -46,7 +46,7 @@ class NSXCatalystUI
             break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectsForListingPart + [object]).none?{|object| object["isRunning"] }
 
             # Display
-            puts displayStr
+            puts "    #{displayStr}"
             verticalSpaceLeft = verticalSpaceLeft - verticalSize
             break if verticalSpaceLeft<=0 and displayObjectsForListingPart.none?{|object| object["isRunning"] }
         end
@@ -65,16 +65,16 @@ class NSXCatalystUI
         puts ""
 
         starburstnames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst-names`)
-        puts "Starburst:"
-        starburstnames.each{|name|
-            puts "    #{name}"
+        puts "Starburst"
+        starburstnames.each_with_index{|name, i|
+            puts "    [#{i.to_s.rjust(2)}] #{name}"
         }
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - ( starburstnames.size + 2 )
 
         lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
         if lucille != "" then
-            puts "lucille:"
+            puts "Lucille"
             lines = lucille
                         .lines
                         .select{|line| line.strip.size > 0 }
@@ -86,15 +86,12 @@ class NSXCatalystUI
         end
 
         ifcswaveview = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-wave-view`.strip
-        puts "ifcs focus: #{ifcswaveview}"
+        puts "IFCS"
+        puts "    focus: #{ifcswaveview}"
         puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 2
+        verticalSpaceLeft = verticalSpaceLeft - 3
 
         if displayObjects.size==0 then
-
-            vspace = NSXCatalystUI::printLucilleInstanceFileAsNext(verticalSpaceLeft)
-            verticalSpaceLeft = verticalSpaceLeft - vspace
-
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
@@ -107,6 +104,7 @@ class NSXCatalystUI
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
+        puts "Wave"
         position = 0
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
 
