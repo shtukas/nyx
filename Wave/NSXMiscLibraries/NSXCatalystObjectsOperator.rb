@@ -77,6 +77,17 @@ class NSXCatalystObjectsOperator
             KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{object["uuid"]}", object["agentuid"])
         }
 
+        loop {
+            break if objects.empty?
+            break if objects.size == 1
+            break if objects[0]["contentItem"]["line"].nil?
+            break if !objects[0]["contentItem"]["line"].include?('running: Wave')
+            objects[0]["metric"] = objects[0]["metric"] - 0.01
+            objects = objects
+                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                .reverse
+        }
+
         objects
     end
 
