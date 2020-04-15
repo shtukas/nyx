@@ -64,6 +64,14 @@ class NSXCatalystUI
         puts "Wave 🌊"
         puts ""
 
+        starburstnames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst-names`)
+        puts "Starburst:"
+        starburstnames.each{|name|
+            puts "    #{name}"
+        }
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - ( starburstnames.size + 2 )
+
         lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
         if lucille != "" then
             puts "lucille:"
@@ -76,14 +84,6 @@ class NSXCatalystUI
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - ( lines.size + 2 )
         end
-
-        starburstnames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst-names`)
-        puts "Starburst:"
-        starburstnames.each{|name|
-            puts "    #{name}"
-        }
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - ( starburstnames.size + 2 )
 
         ifcswaveview = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-wave-view`.strip
         puts "ifcs focus: #{ifcswaveview}"
