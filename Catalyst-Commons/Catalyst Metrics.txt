@@ -1,5 +1,6 @@
 
         1.00         Running items
+        0.97-        Lucille items
         0.95         In Flight Control System
         0.90         Wave sticky
         0.80+        Wave every-this-day-of-the-month / every-this-day-of-the-week

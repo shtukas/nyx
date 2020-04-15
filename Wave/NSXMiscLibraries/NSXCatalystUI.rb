@@ -59,37 +59,15 @@ class NSXCatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-4
-
-        puts "Wave 🌊"
-        puts ""
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-2
 
         starburstnames = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst-names`)
-        puts "Starburst"
+        puts "Starburst 💫"
         starburstnames.each_with_index{|name, i|
-            puts "    [s'#{i.to_s.rjust(2)}] #{name}"
+            puts "    {s'#{i.to_s.rjust(2)}} #{name}"
         }
         puts ""
-        verticalSpaceLeft = verticalSpaceLeft - ( starburstnames.size + 2 )
-
-        lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-        if lucille != "" then
-            puts "Lucille"
-            lines = lucille
-                        .lines
-                        .select{|line| line.strip.size > 0 }
-                        .first(10)
-            lines
-                .each{|line| puts  "    #{line}" }
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - ( lines.size + 2 )
-        end
-
-        ifcswaveview = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-wave-view`.strip
-        puts "IFCS"
-        puts "    focus: #{ifcswaveview}"
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 3
+        verticalSpaceLeft = verticalSpaceLeft - ( starburstnames.size + 3 )
 
         if displayObjects.size==0 then
             puts "No objects found"
@@ -104,7 +82,7 @@ class NSXCatalystUI
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
-        puts "Wave"
+        puts "Wave 🌊"
         position = 0
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
 
@@ -132,9 +110,7 @@ class NSXCatalystUI
         end
 
         if command == "[]" then
-            lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-            lucille = NSXMiscUtils::applyNextTransformationToContent(lucille)
-            File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(lucille) }
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-apply-next-transformation-to-top-item")
             return
         end
 

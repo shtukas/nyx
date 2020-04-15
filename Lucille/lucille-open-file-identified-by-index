@@ -40,22 +40,15 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/YmirEstate.rb"
-=begin
-    YmirEstate::ymirFilepathEnumerator(pathToYmir)
-    YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, basename)
-    YmirEstate::makeNewYmirLocationForBasename(pathToYmir, basename)
-        # If base name is meant to be the name of a folder then folder itself 
-        # still need to be created. Only the parent is created.
-=end
+require_relative "Lucille.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
+# -------------------------------------------------------------------------
 
-require_relative "Starburst.rb"
+indx = ARGV[0].to_i
+filepaths = Lucille::itemsFilepaths()
+exit if filepaths.empty?
+filepath = filepaths[indx-1]
+exit if !File.exist?(filepath)
+system("open '#{filepath}'")
 
-# --------------------------------------------------------------------
 
-foldername = ARGV[0]
-folderpath = Starburst::starburstNameToFolderpath(foldername)
-exit if !File.exists?(folderpath)
-system("open '#{folderpath}'")

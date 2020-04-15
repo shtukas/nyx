@@ -1,0 +1,93 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'date'
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
+require_relative "Lucille.rb"
+
+# -------------------------------------------------------------------------
+
+class MetricHelper
+    def initialize(base)
+        @base = base
+        @counter = 0
+    end
+    def metric()
+        @counter = @counter + 1
+        @base - @counter.to_f/1000
+    end
+end
+
+# -------------------------------------------------------------------------
+
+Lucille::garbageCollection()
+
+metricHelper = MetricHelper.new(0.97)
+
+counter = 0
+
+objects = Lucille::itemsFilepaths()
+    .map{|filepath|
+        counter = counter + 1
+        uuid = Digest::SHA1.hexdigest("ee2b56b8-39c7-4a58-a466-4e8d59ba5f9d:#{filepath}")
+        content = IO.read(filepath).strip
+        contentItem = 
+            if content.lines.to_a.size == 1 then
+                {
+                    "type" => "line",
+                    "line" => "{l'#{counter.to_s.rjust(2)}} " + content.strip
+                }
+            else
+                {
+                    "type" => "line-and-body",
+                    "line" => "{l'#{counter.to_s.rjust(2)}} " + content.lines.to_a.first.strip,
+                    "body" => "{l'#{counter.to_s.rjust(2)}} \n" + content.strip
+                }
+            end
+        {
+            "uuid"           => uuid,
+            "agentuid"       => nil,
+            "contentItem"    => contentItem,
+            "metric"         => metricHelper.metric(),
+            "commands"       => []
+        }
+    }
+
+puts JSON.generate(objects)

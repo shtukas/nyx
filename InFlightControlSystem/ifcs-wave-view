@@ -1,9 +1,0 @@
-#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
-
-# encoding: UTF-8
-
-require_relative "InFlightControlSystem.rb"
-
-# --------------------------------------------------------------------
-
-puts getTopItems().sort{|i1, i2| i1["position"] <=> i2["position"] }.map{|item| item["description"] }.join(" / ")
