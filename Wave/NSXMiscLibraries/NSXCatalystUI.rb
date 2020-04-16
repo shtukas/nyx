@@ -61,30 +61,6 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
-        puts "Lucille 👩‍💻"
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        lucille = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-items`)
-        lucille.first(10).each_with_index{|item, i|
-            if item["type"] == "text" then
-                content = item["content"]
-                if i == 0 and content.lines.to_a.size>1 then
-                    puts "    {l'#{(i+1).to_s.rjust(2)}} [text]\n#{content.lines.map{|line| "           #{line}" }.join()}"
-                    verticalSpaceLeft = verticalSpaceLeft - (1 + content.lines.to_a.size)
-                else
-                    puts "    {l'#{(i+1).to_s.rjust(2)}} [text] #{content.lines.first}"
-                    verticalSpaceLeft = verticalSpaceLeft - 1
-                end
-            end
-            if item["type"] == "location" then
-                location = item["location"]
-                puts "    {l'#{(i+1).to_s.rjust(2)}} [location] #{File.basename(location)}"
-                verticalSpaceLeft = verticalSpaceLeft - 1
-            end
-
-        }
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
         if displayObjects.size==0 then
             puts "No objects found"
             print "--> "

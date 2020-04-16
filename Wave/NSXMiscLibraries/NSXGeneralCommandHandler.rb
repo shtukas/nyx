@@ -73,12 +73,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?("l'") then
-            indx = command[2,99].strip.to_i
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-file-identified-by-index #{indx}")
-            return
-        end
-
         if command == "l+" then
             text = NSXMiscUtils::editTextUsingTextmate("")
             filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
