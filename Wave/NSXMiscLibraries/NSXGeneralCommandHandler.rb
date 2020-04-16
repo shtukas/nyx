@@ -147,7 +147,6 @@ class NSXGeneralCommandHandler
                 "In Flight Control System",
                 "Nyx",
                 "Todo",
-                "Starburst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             if option == "Wave" then
@@ -161,9 +160,6 @@ class NSXGeneralCommandHandler
             end
             if option == "Todo" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
-            end
-            if option == "Starburst" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Starburst/starburst")
             end
             return
         end
