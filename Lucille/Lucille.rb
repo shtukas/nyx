@@ -45,21 +45,52 @@ class Lucille
 
     # Lucille::garbageCollection()
     def self.garbageCollection()
-        Lucille::itemsFilepaths()
-            .each{|filepath|
-                content = IO.read(filepath)
+        Lucille::locations()
+            .each{|location|
+                next if location[-4, 4] != ".txt"
+                content = IO.read(location)
                 next if content.nil?
                 next if content.strip.size > 0
-                FileUtils.rm(filepath)
+                FileUtils.rm(location)
             }
     end
 
-    # Lucille::itemsFilepaths()
-    def self.itemsFilepaths()
+    # Lucille::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # Lucille::ensurel22Filenames()
+    def self.ensurel22Filenames()
+        Lucille::locations()
+            .each{|location|
+                next if File.basename(location)[0, 3] == "202"
+                location2 = "#{File.dirname(location)}/#{Lucille::timeStringL22()} #{File.basename(location)}"
+                FileUtils.mv(location, location2)
+            }
+    end
+
+    # Lucille::locations()
+    def self.locations()
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items")
             .reject{|filename| filename[0, 1] == "." }
             .sort
             .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{filename}" }
+    end
+
+    # Lucille::locationToItem(location)
+    def self.locationToItem(location)
+        if location[-4, 4] == ".txt" then
+            {
+                "type" => "text",
+                "content" => IO.read(location).strip
+            }
+        else
+            {
+                "type" => "location",
+                "location" => location
+            }
+        end
     end
 end
 

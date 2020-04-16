@@ -197,55 +197,9 @@ class TodoXUtils
         "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Items"
     end
 
-    # TodoXUtils::pathToTodoInbox()
-    def self.pathToTodoInbox()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/Inbox"
-    end
-
-    # TodoXUtils::todoInboxTimelineName()
-    def self.todoInboxTimelineName()
-        "[Inbox]"
-    end
-
     # TodoXUtils::l22()
     def self.l22()
         Time.new.strftime("%Y%m%d-%H%M%S-%6N")
-    end
-
-    # TodoXUtils::starburstFolderPathToTodoItemPreserveSource(folderpath1) # returns tnodefilepath
-    def self.starburstFolderPathToTodoItemPreserveSource(folderpath1)
-        return if !File.exists?(folderpath1)
-        classificationItem = {
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => "[Inbox]"
-        }
-        tnodeFilename = "#{TodoXUtils::l22()}.zeta"
-        tnode = {
-            "uuid"              => SecureRandom.uuid,
-            "filename"          => tnodeFilename,
-            "creationTimestamp" => Time.new.to_f,
-            "description"       => File.basename(folderpath1),
-            "targets"           => [],
-            "classification"    => [ classificationItem ]
-        }
-        TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
-
-        tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnode["uuid"])
-        operator = TodoXSoniaAionOperator.new(tnodefilepath)
-        nhash = AionCore::commitLocationReturnHash(operator, folderpath1)
-        zetaKey = SecureRandom.uuid
-
-        TodoXEstate::setKVAtZetaFileIdentifiedByTNodeUUID(tnode["uuid"], zetaKey, nhash)
-
-        target = {
-            "uuid"    => SecureRandom.uuid,
-            "type"    => "perma-dir-11859659",
-            "zetaKey" => zetaKey
-        }
-        tnode["targets"] = [ target ]
-        TodoXEstate::reCommitTNodeToDisk(tnode)
-        tnodefilepath
     end
 end
 
@@ -935,7 +889,6 @@ class TodoXWalksCore
 
     # TodoXWalksCore::issuePoint(timeline, timespan)
     def self.issuePoint(timeline, timespan)
-        return if timeline == "[Inbox]"
         point = {
             "uuid"     => SecureRandom.uuid,
             "unixtime" => Time.new.to_i,

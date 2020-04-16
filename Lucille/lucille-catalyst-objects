@@ -45,10 +45,56 @@ require_relative "Lucille.rb"
 # -------------------------------------------------------------------------
 
 Lucille::garbageCollection()
+Lucille::ensurel22Filenames()
 
-objects = Lucille::itemsFilepaths()
-    .map{|filepath|
-        IO.read(filepath).strip
+def itemToContentItem(item)
+    if item["type"] == "text" then
+        content = item["content"]
+        if content.lines.to_a.size == 1 then
+            {
+                "type" => "line",
+                "line" => "[lucille] #{content.strip}"
+            }
+        else
+            {
+                "type" => "line-and-body",
+                "line" => "[lucille] [text] #{content.lines.first.strip}",
+                "body" => "[lucille] [text] #{content}"
+            }
+        end
+    else
+        location = item["location"]
+        {
+            "type" => "line",
+            "line" => "[lucille] [location] #{File.basename(location)}"
+        }
+    end
+end
+
+class MetricHelper
+    def initialize(base)
+        @base = base
+        @counter = 0
+    end
+    def metric()
+        @counter = @counter + 1
+        @base - @counter.to_f/1000
+    end
+end
+
+metricHelper = MetricHelper.new(0.50)
+
+objects = Lucille::locations()
+    .map{|location|
+        item = Lucille::locationToItem(location)
+        uuid = Digest::SHA1.hexdigest(location)
+        {
+            "uuid"            => uuid,
+            "agentuid"        => nil,
+            "contentItem"     => itemToContentItem(item),
+            "metric"          => metricHelper.metric(),
+            "commands"        => []
+        }
     }
 
 puts JSON.generate(objects)
