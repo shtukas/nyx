@@ -135,7 +135,9 @@ def stopItem(uuid)
     companion = getCompanion(uuid)
     return if companion["runningState"].nil?
     unixtime = companion["runningState"]
-    timespan = Time.new.to_i - unixtime
+    timespan = [Time.new.to_i - unixtime, 3600*4].min
+        # We prevent time spans greater than 4 hours,
+        # to void what happened when I left Wave running an entire night.
     companion["runningState"] = nil
     companion["timesPoints"] << {
         "unixtime" => Time.new.to_i,
