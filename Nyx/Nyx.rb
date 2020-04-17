@@ -286,7 +286,8 @@ class NyxPermanodeOperator
         return false if object["description"].lines.to_a.size != 1
         return false if object["targets"].nil?
         return false if object["targets"].any?{|target| !NyxPermanodeOperator::objectIsPermanodeTarget(target) }
-        return false if object["taxonomy"].nil?
+        return false if object["nodes"].nil?
+        return false if object["arrows"].nil?
         true
     end
 
@@ -456,11 +457,19 @@ class NyxPermanodeOperator
         permanode["targets"].each{|permanodeTarget|
             puts "        #{NyxPermanodeOperator::permanodeTargetToString(permanodeTarget)}"
         }
-        if permanode["taxonomy"].empty? then
-            puts "    taxonomy: (empty set)"
+        if permanode["nodes"].empty? then
+            puts "    nodes: (empty set)"
         else
-            puts "    taxonomy"
-            permanode["taxonomy"].each{|item|
+            puts "    nodes"
+            permanode["nodes"].each{|item|
+                puts "        #{item}"
+            }
+        end
+        if permanode["arrows"].empty? then
+            puts "    arrows: (empty set)"
+        else
+            puts "    arrows"
+            permanode["arrows"].each{|item|
                 puts "        #{item}"
             }
         end
@@ -608,15 +617,26 @@ class NyxPermanodeOperator
         nil
     end
 
-    # NyxPermanodeOperator::makePermanodeTaxonomyInteractive()
-    def self.makePermanodeTaxonomyInteractive()
-        taxonomy = []
+    # NyxPermanodeOperator::makePermanodeNodesInteractive()
+    def self.makePermanodeNodesInteractive()
+        nodes = []
         loop {
-            item = LucilleCore::askQuestionAnswerAsString("Node or Edge (empty to quit): ")
+            item = LucilleCore::askQuestionAnswerAsString("Node (empty to quit): ")
             break if item == ""
-            taxonomy << item
+            nodes << item
         }
-        taxonomy
+        nodes
+    end
+
+    # NyxPermanodeOperator::makePermanodeArrowsInteractive()
+    def self.makePermanodeArrowsInteractive()
+        arrows = []
+        loop {
+            item = LucilleCore::askQuestionAnswerAsString("Arrows (empty to quit): ")
+            break if item == ""
+            arrows << item
+        }
+        arrows
     end
 
     # NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
@@ -628,7 +648,8 @@ class NyxPermanodeOperator
         permanode["referenceDateTime"] = Time.now.utc.iso8601
         permanode["description"] = description
         permanode["targets"] = [ permanodeTarget ]
-        permanode["taxonomy"] = NyxPermanodeOperator::makePermanodeTaxonomyInteractive()
+        permanode["nodes"] = NyxPermanodeOperator::makePermanodeNodesInteractive()
+        permanode["arrows"] = NyxPermanodeOperator::makePermanodeArrowsInteractive()
         permanode
     end
 
@@ -745,7 +766,8 @@ class NyxPermanodeOperator
                 "targets dive",
                 "targets (add new)",
                 "targets (select and remove)",
-                "taxonomy (add new)",
+                "nodes (add new)",
+                "arrows (add new)",
                 "edit permanode.json",
                 "destroy permanode"
             ]
@@ -798,10 +820,16 @@ class NyxPermanodeOperator
                 permanode["targets"] = permanode["targets"].reject{|t| t["uuid"]==target["uuid"] }
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
-            if operation == "taxonomy (add new)" then
-                item = LucilleCore::askQuestionAnswerAsString("node or edge: ")
+            if operation == "nodes (add new)" then
+                item = LucilleCore::askQuestionAnswerAsString("node: ")
                 next if item.size == 0
-                permanode["taxonomy"] << item
+                permanode["nodes"] << item
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
+            end
+            if operation == "arrows (add new)" then
+                item = LucilleCore::askQuestionAnswerAsString("arrow: ")
+                next if item.size == 0
+                permanode["arrows"] << item
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "edit permanode.json" then
@@ -976,8 +1004,10 @@ class NyxSearch
         return 0.80 if permanode["description"].downcase.include?(searchPattern.downcase)
         return 0.75 if permanode["targets"].any?{|target| NyxSearch::permanodeTargetIncludeSearchPattern(target, searchPattern) }
         return 0.70 if permanode["referenceDateTime"].downcase.include?(searchPattern.downcase)
-        return 0.60 if permanode["taxonomy"].any?{|item| item.downcase == searchPattern.downcase }
-        return 0.40 if permanode["taxonomy"].any?{|item| item.downcase.include?(searchPattern.downcase) }
+        return 0.60 if permanode["nodes"].any?{|item| item.downcase == searchPattern.downcase }
+        return 0.60 if permanode["arrows"].any?{|item| item.downcase == searchPattern.downcase }
+        return 0.40 if permanode["nodes"].any?{|item| item.downcase.include?(searchPattern.downcase) }
+        return 0.40 if permanode["arrows"].any?{|item| item.downcase.include?(searchPattern.downcase) }
         0
     end
 
