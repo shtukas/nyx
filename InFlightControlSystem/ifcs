@@ -28,7 +28,7 @@ loop {
             "uuid"        => SecureRandom.uuid,
             "description" => description
         }
-        saveItem(item)
+        saveItem2(item)
     end
     if option == "items dive" then
         item = selectItemOrNull()
