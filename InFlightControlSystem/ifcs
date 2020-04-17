@@ -24,9 +24,11 @@ loop {
     if option == "make new item" then
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         break if description == ""
+        position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
         item = {
             "uuid"        => SecureRandom.uuid,
-            "description" => description
+            "description" => description,
+            "position"    => position
         }
         saveItem2(item)
     end
