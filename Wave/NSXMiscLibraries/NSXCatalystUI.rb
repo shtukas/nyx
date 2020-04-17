@@ -101,11 +101,6 @@ class NSXCatalystUI
             return
         end
 
-        if command == "[]" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-apply-next-transformation-to-top-item-if-text")
-            return
-        end
-
         NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, command)
     end
 

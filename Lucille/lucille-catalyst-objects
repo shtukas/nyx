@@ -93,7 +93,12 @@ objects = Lucille::locations()
             "agentuid"        => nil,
             "contentItem"     => itemToContentItem(item),
             "metric"          => metricHelper.metric(),
-            "commands"        => []
+            "commands"        => ["[]", "open", "done"],
+            "shell-redirects" => {
+                "[]"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing apply-next-to-text '#{location}'",
+                "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing open '#{location}'",
+                "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing done '#{location}'"
+            }
         }
     }
 

@@ -187,6 +187,17 @@ class NSXGeneralCommandHandler
         end
 
         # ---------------------------------------
+        # shell-redirects
+        # ---------------------------------------
+
+        if object and object["shell-redirects"] and object["shell-redirects"][command] then
+            shellpath = object["shell-redirects"][command]
+            puts shellpath
+            system(shellpath)
+            return
+        end
+
+        # ---------------------------------------
         # Agent
         # ---------------------------------------
 
@@ -201,12 +212,6 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
     def self.processCatalystCommandManager(object, command)
-        if object and object["shell-redirects"] and object["shell-redirects"][command] then
-            shellpath = object["shell-redirects"][command]
-            puts shellpath
-            system(shellpath)
-            return
-        end
         if object and command == "open" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
