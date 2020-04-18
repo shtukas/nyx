@@ -283,7 +283,6 @@ class NSXWaveUtils
         }
         object = {}
         object['uuid'] = objectuuid
-        object["agentuid"] = nil
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
         object["commands"] = ["open", "done",  "recast", "destroy"]

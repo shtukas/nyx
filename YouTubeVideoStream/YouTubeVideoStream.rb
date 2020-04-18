@@ -76,7 +76,6 @@ class YouTubeVideoStream
         [
             {
                 "uuid"                => "f7845869-e058-44cd-bfae-3412957c7dba",
-                "agentuid"            => nil,
                 "contentItem"         => {
                     "type" => "line",
                     "line" => "YouTube Video Stream"

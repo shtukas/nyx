@@ -47,7 +47,6 @@ class BackupsMonitor
         uuid = Digest::SHA1.hexdigest("60507ff5-adce-4444-9e57-c533efb01136:#{scriptname}")
         {
             "uuid"         => uuid,
-            "agentuid"     => nil,
             "contentItem"  => {
                 "type" => "line",
                 "line" => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}"

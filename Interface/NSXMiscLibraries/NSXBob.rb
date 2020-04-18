@@ -14,13 +14,6 @@ class NSXBob
         $BOB_AGENTS_IDENTITIES
     end
 
-    # NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
-    def self.getAgentDataByAgentUUIDOrNull(agentuid)
-        NSXBob::agents()
-            .select{|agentinterface| agentinterface["agentuid"]==agentuid }
-            .first
-    end
-
     # NSXBob::getAgentDataByAgentNameOrNull(agentname)
     def self.getAgentDataByAgentNameOrNull(agentname)
         NSXBob::agents()

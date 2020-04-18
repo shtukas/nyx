@@ -3,7 +3,6 @@
 CatalystObject
 {
     "uuid"            : UUID
-    "agentuid"        : String              # Optional
     "contentItem"     : ContentItem
     "metric"          : Float
 

@@ -36,16 +36,6 @@ class NSXCatalystObjectsOperator
             .first
     end
 
-    # NSXCatalystObjectsOperator::getAgentUUIDByObjectUUIDOrNull(objectuuid)
-    def self.getAgentUUIDByObjectUUIDOrNull(objectuuid)
-        agentuid = KeyValueStore::getOrNull(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{objectuuid}")
-        return agentuid if agentuid
-        object = NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(objectuuid)
-        return nil if object.nil?
-        KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{objectuuid}", object["agentuid"])
-        object["agentuid"]
-    end
-
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
@@ -71,11 +61,6 @@ class NSXCatalystObjectsOperator
             }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
-
-        objects.each{|object|
-            next if object["agentuid"].nil?
-            KeyValueStore::set(nil, "86ecf8a5-ea95-4100-b4d4-03229d7f2c22:#{object["uuid"]}", object["agentuid"])
-        }
 
         loop {
             break if objects.empty?

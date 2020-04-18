@@ -73,7 +73,6 @@ objects = Lucille::locations()
         uuid = Digest::SHA1.hexdigest(location)
         {
             "uuid"            => uuid,
-            "agentuid"        => nil,
             "contentItem"     => locationToContentItem(location),
             "metric"          => metricHelper.metric(),
             "commands"        => ["open", "[]", "->", "done"],

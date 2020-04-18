@@ -14,11 +14,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 
 class NSXAgentTheBridge
 
-    # NSXAgentTheBridge::agentuid()
-    def self.agentuid()
-        "a64c458b-e6a1-4d02-a35c-dd4e4a78f139"
-    end
-
     # NSXAgentTheBridge::getObjects()
     def self.getObjects()
         NSXAgentTheBridge::getAllObjects()
@@ -39,7 +34,6 @@ class NSXAgentTheBridge
                     [
                         {
                             "uuid"            => SecureRandom.hex,
-                            "agentuid"        => nil,
                             "contentItem"     => {
                                 "type" => "line",
                                 "line" => "Problems extracting catalyst objects at '#{source}'"
@@ -77,8 +71,7 @@ end
 begin
     NSXBob::registerAgent(
         {
-            "agent-name"  => "NSXAgentTheBridge",
-            "agentuid"    => NSXAgentTheBridge::agentuid(),
+            "agent-name"  => "NSXAgentTheBridge"
         }
     )
 rescue

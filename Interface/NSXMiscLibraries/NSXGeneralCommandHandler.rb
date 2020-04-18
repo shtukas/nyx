@@ -196,18 +196,6 @@ class NSXGeneralCommandHandler
             system(shellpath)
             return
         end
-
-        # ---------------------------------------
-        # Agent
-        # ---------------------------------------
-
-        objectuuid = object["uuid"]
-
-        agentuid = NSXCatalystObjectsOperator::getAgentUUIDByObjectUUIDOrNull(objectuuid)
-        return if agentuid.nil?
-        agentdata = NSXBob::getAgentDataByAgentUUIDOrNull(agentuid)
-        return if agentdata.nil?
-        Object.const_get(agentdata["agent-name"]).send("processObjectAndCommand", objectuuid, command)
     end
 
     # NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
