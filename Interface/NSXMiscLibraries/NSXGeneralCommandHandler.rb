@@ -84,7 +84,6 @@ class NSXGeneralCommandHandler
             loop {
                 options = [
                     "new wave",
-                    "search",
                     "agents generation speed",
                     "TheBridge generation speed",
                     "ui generation speed",
@@ -95,17 +94,6 @@ class NSXGeneralCommandHandler
                     line = LucilleCore::askQuestionAnswerAsString("line: ")
                     NSXMiscUtils::spawnNewWaveItem(line)
                 end
-                if option == "search" then
-                    pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-                    loop {
-                        objects = NSXCatalystObjectsOperator::getAllObjectsFromAgents()
-                        searchobjects1 = objects.select{|object| object["uuid"].downcase.include?(pattern.downcase) }
-                        searchobjects2 = objects.select{|object| NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']).downcase.include?(pattern.downcase) }
-                        searchobjects = searchobjects1 + searchobjects2
-                        status = NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(searchobjects)
-                        break if !status
-                    }
-                end
                 if option == "agents generation speed" then
                     puts "Agent speed report"
                     NSXMiscUtils::agentsSpeedReport().reverse.each{|object|
@@ -115,7 +103,16 @@ class NSXGeneralCommandHandler
                 end
                 if option == "TheBridge generation speed" then
                     puts "TheBridge generation speed report"
-                    NSXAgentTheBridge::getGenerationSpeeds()
+                    JSON.parse(IO.read("#{CATALYST_FOLDERPATH}/TheBridge/sources.json"))
+                        .map{|source|
+                            t1 = Time.new.to_f
+                            JSON.parse(`#{source}`)
+                            t2 = Time.new.to_f
+                            {
+                                "source" => source,
+                                "timespan" => t2-t1 
+                            }
+                        }
                         .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
                         .reverse
                         .each{|object|

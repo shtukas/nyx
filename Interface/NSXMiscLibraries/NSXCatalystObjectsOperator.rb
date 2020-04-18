@@ -15,31 +15,27 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 class NSXCatalystObjectsOperator
 
-    # NSXCatalystObjectsOperator::getListingObjectsFromAgents()
-    def self.getListingObjectsFromAgents()
-        NSXBob::agents()
-            .map{|agentinterface| Object.const_get(agentinterface["agent-name"]).send("getObjects") }
-            .flatten
-    end
-
-    # NSXCatalystObjectsOperator::getAllObjectsFromAgents()
-    def self.getAllObjectsFromAgents()
-        NSXBob::agents()
-            .map{|agentinterface| Object.const_get(agentinterface["agent-name"]).send("getAllObjects") }
-            .flatten
-    end
-
-    # NSXCatalystObjectsOperator::getObjectIdentifiedByUUIDOrNull(uuid)
-    def self.getObjectIdentifiedByUUIDOrNull(uuid)
-        NSXCatalystObjectsOperator::getAllObjectsFromAgents()
-            .select{|object| object["uuid"] == uuid }
-            .first
-    end
-
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = NSXCatalystObjectsOperator::getListingObjectsFromAgents()
-        # We have all the objects that the agents think should be done
+        objects = JSON.parse(IO.read("#{CATALYST_FOLDERPATH}/TheBridge/sources.json"))
+                    .map{|source|
+                        begin
+                            JSON.parse(`#{source}`)
+                        rescue
+                            [
+                                {
+                                    "uuid"            => SecureRandom.hex,
+                                    "contentItem"     => {
+                                        "type" => "line",
+                                        "line" => "Problems extracting catalyst objects at '#{source}'"
+                                    },
+                                    "metric"          => 1,
+                                    "commands"        => []
+                                }
+                            ]
+                        end
+                    }
+                    .flatten
 
         # Some of those objects might have been pushed to the future (something that happens outside the jurisdiction of the agents)
         # We remove those but we keep those that are running
@@ -74,16 +70,5 @@ class NSXCatalystObjectsOperator
         }
 
         objects
-    end
-
-    # NSXCatalystObjectsOperator::screenNotificationsForAllDoneObjects()
-    def self.screenNotificationsForAllDoneObjects()
-        NSXCatalystObjectsOperator::getAllObjectsFromAgents()
-        .each{|object|
-            if object["isRunning"] and object["isDone"] then
-                sleep 2
-                NSXMiscUtils::onScreenNotification("Catalyst", "done: #{NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem'])}")
-            end
-        }
     end
 end

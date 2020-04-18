@@ -132,19 +132,4 @@ class NSXMiscUtils
         command = "terminal-notifier -title '#{title}' -message '#{message}'"
         system(command)
     end
-
-    # NSXMiscUtils::agentsSpeedReport()
-    def self.agentsSpeedReport()
-        NSXBob::agents()
-            .map{|agentinterface|
-                t1 = Time.new.to_f
-                Object.const_get(agentinterface["agent-name"]).send("getObjects")
-                t2 = Time.new.to_f
-                object = {}
-                object["agent-name"] = agentinterface["agent-name"]
-                object["retreive-time"] = t2-t1
-                object
-            }
-            .sort{|o1,o2| o1["retreive-time"]<=>o2["retreive-time"] }
-    end
 end

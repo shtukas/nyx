@@ -1,10 +1,6 @@
 
 # encoding: UTF-8
 
-# Then the others
-require_relative "NSXAtlasReferenceUtils.rb"
-require_relative "NSXBinUtils.rb"
-require_relative "NSXBob.rb"
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXCatalystUI.rb"
 require_relative "NSXContent.rb"

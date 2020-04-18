@@ -55,8 +55,8 @@ class NSXDisplayUtils
             end
         }
         
-        announce = NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem'])
-        body = NSX1ContentsItemUtils::contentItemToBody(object['contentItem'])
+        announce = NSXContents::contentItemToAnnounce(object['contentItem'])
+        body = NSXContents::contentItemToBody(object['contentItem'])
         lines = 
         if isFocus then
             [
@@ -93,7 +93,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean
     # Return value specifies if an oject was chosen and processed
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
-        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSX1ContentsItemUtils::contentItemToAnnounce(object['contentItem']) })
+        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXContents::contentItemToAnnounce(object['contentItem']) })
         return false if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
         true

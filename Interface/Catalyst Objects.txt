@@ -11,15 +11,12 @@ CatalystObject
     "shell-redirects" : Map[String, String] # Optional [1]
 
     "isRunning"       : Boolean             # Optional [2]
-    "isDone"          : Boolean             # Optional [3]
 }
 
 [1] If defined and there is a key for the command that is being processed then this is called as a shell command, this overrides
 and replaces any agent processing.
 
 [2] If present and true, displays in green
-
-[3] When true, triggers the on screen notification. The most common use if this is to alert that a running object is done.
 
 # ------------------------------------------------------------------
 
@@ -33,10 +30,4 @@ ContentItem
     "type" : "line-and-body"
     "line" : String # carries a single line.
     "body" : String
-}
-
-{
-    "type"            : "atlas-reference"
-    "announce"        : String
-    "atlas-reference" : String
 }

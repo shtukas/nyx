@@ -45,7 +45,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 require_relative "NSXConstants.rb"
 require_relative "NSXMiscLibraries/load-library.rb"
-require_relative "NSXAgents/load-library.rb"
 
 # -------------------------------------------------------------------------
 
@@ -59,13 +58,6 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 
 NSXEstateServices::archivesTimelineGarbageCollectionEnvelop(true)
-
-Thread.new {
-    loop {
-        sleep 130
-        NSXCatalystObjectsOperator::screenNotificationsForAllDoneObjects()
-    }
-}
 
 Thread.new {
     loop {
