@@ -6,16 +6,19 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
-reportLine = getReportLine()
-
 objects = []
-objects << {
-    "uuid"           => SecureRandom.uuid,
-    "contentItem"    => {
-        "type" => "line",
-        "line" => reportLine
-    },
-    "metric"         => 0.75,
-    "commands"       => []
-}
+if flightControlIsActive() then
+    reportLine = getReportLine()
+    if reportLine then
+        objects << {
+            "uuid"           => SecureRandom.uuid,
+            "contentItem"    => {
+                "type" => "line",
+                "line" => reportLine
+            },
+            "metric"         => 0.75,
+            "commands"       => []
+        }
+    end
+end
 puts JSON.generate(objects)

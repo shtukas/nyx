@@ -83,9 +83,6 @@ def getItems()
 end
 
 def getTopThreeItems()
-    if Time.new.hour < 9 or Time.new.hour >= 21 then
-        return [ waveItem() ]
-    end
     getItems()
         .sort{|i1, i2| i1["position"] <=> i2["position"] }
         .first(3)
@@ -177,6 +174,12 @@ end
 # ---------------
 # Operations
 
+def flightControlIsActive()
+    b1 = ( Time.new.hour >= 9 and Time.new.hour < 21 )
+    b2 = getTopThreeItems().any?{|item| getItemCompanion(item["uuid"])["startunixtime"] }
+    b1 or b2
+end
+
 def itemIsTopItem(uuid)
     getTopThreeItems().any?{|i| i["uuid"] == uuid }
 end
@@ -222,6 +225,20 @@ def getNextAction() # [ nil | String, lambda ]
     end
 end
 
+def getReportText()
+    nsize = getItems().map{|item| item["lucilleLocationBasename"].size }.max
+    itemsOrderedByPosition()
+        .map{|item| 
+            if itemIsTopItem(item["uuid"]) then
+                companion = getItemCompanion(item["uuid"])
+                "(#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
+            else
+                "(#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"].ljust(nsize)}"
+            end
+        }
+        .join("\n")
+end
+
 def getReportLine() 
     report = [ "In Flight Control System 🛰️ " ]
     topItemsOrderedByTimespan()
@@ -236,20 +253,6 @@ def getReportLine()
         report << nextaction[0] # can be null
     end
     report.compact.join(" >> ")
-end
-
-def getReportText()
-    nsize = getItems().map{|item| item["lucilleLocationBasename"].size }.max
-    itemsOrderedByPosition()
-        .map{|item| 
-            if itemIsTopItem(item["uuid"]) then
-                companion = getItemCompanion(item["uuid"])
-                "(#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
-            else
-                "(#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"].ljust(nsize)}"
-            end
-        }
-        .join("\n")
 end
 
 def selectItemOrNull()

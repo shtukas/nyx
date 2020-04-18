@@ -8,7 +8,7 @@ loop {
     system('clear')
     puts getReportText()
     puts ""
-    puts getReportLine()
+    puts (getReportLine() || "No line report at this moment")
     puts ""
     options = [
         "items dive",
