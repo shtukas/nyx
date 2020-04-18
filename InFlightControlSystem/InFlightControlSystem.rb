@@ -65,7 +65,7 @@ end
 
 def waveItem()
     {
-        "uuid"     => waveuuid(),
+        "uuid" => waveuuid(),
         "lucilleLocationBasename" => nil,
         "position" => 0
     }
@@ -83,7 +83,7 @@ def getItems()
 end
 
 def getTopThreeItems()
-    if Time.new.hour < 9 then
+    if Time.new.hour < 9 or Time.new.hour >= 21 then
         return [ waveItem() ]
     end
     getItems()
@@ -158,8 +158,8 @@ def stopItem(uuid)
     companion = getItemCompanion(uuid)
     return if companion["startunixtime"].nil?
     unixtime = companion["startunixtime"]
-    timespan = [Time.new.to_i - unixtime, 3600*4].min
-        # We prevent time spans greater than 4 hours,
+    timespan = [Time.new.to_i - unixtime, 3600*2].min
+        # We prevent time spans greater than 2 hours,
         # to void what happened when I left Wave running an entire night.
     companion["startunixtime"] = nil
     companion["timePoints"] << {
