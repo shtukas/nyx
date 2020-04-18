@@ -100,12 +100,13 @@ objects = Lucille::locations()
             "uuid"            => uuid,
             "contentItem"     => makeContentItem(location, timeline),
             "metric"          => makeMetric(metricHelper, isRunning, timeline),
-            "commands"        => ["open", "[]", "->", "done"],
+            "commands"        => ["open", "[]", "recast", "done"],
             "isRunning"       => isRunning,
             "shell-redirects" => {
-                "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
-                "[]"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
-                "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
+                "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
+                "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
+                "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
+                "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
             }
         }
     }

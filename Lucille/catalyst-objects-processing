@@ -35,6 +35,25 @@ if ARGV[0] == "apply-next-to-text" and ARGV[1] then
     File.open(filepath, "w"){|f| f.puts(content) }
 end
 
+if ARGV[0] == "recast" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    timeline = nil
+    loop {
+        t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", Lucille::timelines())
+        if t then
+            timeline = t
+            break
+        end
+        t = LucilleCore::askQuestionAnswerAsString("timeline: ")
+        if t.size>0 then
+            timeline = t
+            break
+        end
+    }
+    Lucille::setTimeline(location, timeline)
+end
+
 if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
