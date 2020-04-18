@@ -60,6 +60,10 @@ TimePoint = {
 # ---------------
 # IO Items
 
+def waveuuid()
+    "f1e7bf19-ef85-4e93-a904-6287dbc8ad4e"
+end
+
 def itemsFolderpath()
     "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items"
 end
@@ -71,6 +75,10 @@ def getItems2()
 end
 
 def getTopItems()
+    if Time.new.hour < 9 then
+        return [ getItemByUUIDOrNull(waveuuid()) ]
+    end
+
     getItems2()
         .sort{|i1, i2| i1["position"] <=> i2["position"] }
         .first(3)
@@ -167,7 +175,7 @@ def getItemLiveTimespanTopItemsDifferentialInHoursOrNull(uuid)
     differentTimespans = getTopItems()
                             .select{|item| item["uuid"] != uuid }
                             .map {|item| getItemLiveTimespan(item["uuid"]) }
-    return nil if differentTimespans.nil?
+    return nil if differentTimespans.empty?
     (timespan - differentTimespans.min).to_f/3600
 end
 
