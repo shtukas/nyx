@@ -8,6 +8,18 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+=end
+
 DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
 CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
 BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
@@ -159,6 +171,25 @@ class Lucille
         FileUtils.mkdir(folder3)
         FileUtils.mv(location, folder3)
     end
+
+    # -------------------------------------------------------
+    # Activity Management (driven by In Flight Control System)
+
+    # Lucille::startLocation(location)
+    def self.startLocation(location)
+        KeyValueStore::setFlagTrue(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
+    end
+
+    # Lucille::stopLocation(location)
+    def self.stopLocation(location)
+        KeyValueStore::setFlagFalse(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
+    end
+
+    # Lucille::isLocationRunning(location)
+    def self.isLocationRunning(location)
+        KeyValueStore::flagIsTrue(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
+    end
+
 end
 
 

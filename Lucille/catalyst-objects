@@ -68,14 +68,15 @@ end
 metricHelper = MetricHelper.new(0.50)
 
 objects = Lucille::locations()
-    .first(100)
     .map{|location|
         uuid = Digest::SHA1.hexdigest(location)
+        isRunning = Lucille::isLocationRunning(location)
         {
             "uuid"            => uuid,
             "contentItem"     => locationToContentItem(location),
-            "metric"          => metricHelper.metric(),
+            "metric"          => isRunning ? 0.74 : metricHelper.metric(),
             "commands"        => ["open", "[]", "->", "done"],
+            "isRunning"       => isRunning,
             "shell-redirects" => {
                 "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
                 "[]"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",

@@ -147,9 +147,11 @@ def startItem(uuid)
     companion["startunixtime"] = Time.new.to_i
     saveItemCompanion(companion)
     return if uuid == waveuuid()
+
+    # When we start a ifcs item we also want to start the corresponding lucille item
     item = getItemByUUIDOrNull(uuid)
     return if item.nil?
-    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{item["lucilleLocationBasename"]}'")
+    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-and-start-location-basename '#{item["lucilleLocationBasename"]}'")
 end
 
 def stopItem(uuid)
@@ -165,6 +167,11 @@ def stopItem(uuid)
         "timespan" => timespan
     } 
     saveItemCompanion(companion)
+
+    # When we stop a ifcs item we also want to stop the corresponding lucille item
+    item = getItemByUUIDOrNull(uuid)
+    return if item.nil?
+    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-stop-location-basename '#{item["lucilleLocationBasename"]}'")
 end
 
 # ---------------
