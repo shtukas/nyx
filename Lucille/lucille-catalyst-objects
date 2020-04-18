@@ -47,28 +47,11 @@ require_relative "Lucille.rb"
 Lucille::garbageCollection()
 Lucille::ensurel22Filenames()
 
-def itemToContentItem(item)
-    if item["type"] == "text" then
-        content = item["content"]
-        if content.lines.to_a.size == 1 then
-            {
-                "type" => "line",
-                "line" => "[lucille] #{content.strip}"
-            }
-        else
-            {
-                "type" => "line-and-body",
-                "line" => "[lucille] [text] #{content.lines.first.strip}",
-                "body" => "[lucille] [text] #{content}"
-            }
-        end
-    else
-        location = item["location"]
-        {
-            "type" => "line",
-            "line" => "[lucille] [location] #{File.basename(location)}"
-        }
-    end
+def locationToContentItem(location)
+    {
+        "type" => "line",
+        "line" => "[lucille] #{File.basename(location)}"
+    }
 end
 
 class MetricHelper
@@ -85,13 +68,13 @@ end
 metricHelper = MetricHelper.new(0.50)
 
 objects = Lucille::locations()
+    .first(100)
     .map{|location|
-        item = Lucille::locationToItem(location)
         uuid = Digest::SHA1.hexdigest(location)
         {
             "uuid"            => uuid,
             "agentuid"        => nil,
-            "contentItem"     => itemToContentItem(item),
+            "contentItem"     => locationToContentItem(location),
             "metric"          => metricHelper.metric(),
             "commands"        => ["open", "[]", "->", "done"],
             "shell-redirects" => {
