@@ -512,17 +512,6 @@ class TodoXCoreData
             .select{|tnode| TodoXCoreData::tNodeIsOnThisTimeline(tnode, timeline) }
             .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
     end
-
-    # TodoXCoreData::searchPatternToTNodes(pattern)
-    def self.searchPatternToTNodes(pattern)
-        TodoXEstate::getTNodes()
-            .select{|tnode| 
-                b1 = tnode["uuid"].downcase.include?(pattern.downcase)
-                b2 = tnode["description"].downcase.include?(pattern.downcase)
-                b1 or b2
-            }
-            .sort{|tn1, tn2| tn1["creationTimestamp"] <=> tn2["creationTimestamp"] }
-    end
 end
 
 class TodoXTMakers
@@ -1130,30 +1119,13 @@ class TodoXUserInterface
         }
     end
 
-    # TodoXUserInterface::searchDive(pattern)
-    def self.searchDive(pattern)
-        loop {
-           tnodes = TodoXCoreData::searchPatternToTNodes(pattern)
-            if tnodes.size == 0 then
-                puts "Could not find tnodes for this pattern: '#{pattern}'"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            tnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("tnode: ", tnodes, lambda{|tnode| tnode["description"] })
-            return if tnode.nil?
-            TodoXUserInterface::tNodeDive(tnode["uuid"])
-        }
-    end
-
     # TodoXUserInterface::ui()
     def self.ui()
         loop {
             system("clear")
             puts "Todo 🗃️"
             operations = [
-                "Collect Desktop location(s) into new todo",
                 "make new item",
-                "search",
                 "latest todos",
                 "timelines dive",
                 "timelines walk",
@@ -1162,37 +1134,8 @@ class TodoXUserInterface
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
-            if operation == "Collect Desktop location(s) into new todo" then
-
-                # This is a copy of TodoXTMakers::makeNewTNode()
-                # with one change
-
-                uuid = SecureRandom.uuid
-                # we are not setting tags for TNodes
-                tnode = {
-                    "uuid"              => uuid,
-                    "filename"          => "#{TodoXUtils::l22()}.zeta",
-                    "creationTimestamp" => Time.new.to_f,
-                    "description"       => "",
-                    "target"            => TodoXTMakers::dummyTarget(),
-                    "timeline"          => "[Inbox]"
-                }
-                puts JSON.pretty_generate(tnode)
-                TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
-
-                tnode["target"] = TodoXTMakers::makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(uuid)
-                tnode["description"] = TodoXUserInterface::targetToString(target)
-                tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-
-                TodoXEstate::reCommitTNodeToDisk(tnode)
-
-            end
             if operation == "make new item" then
                 TodoXTMakers::makeNewTNode()
-            end
-            if operation == "search" then
-                pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-                TodoXUserInterface::searchDive(pattern)
             end
             if operation == "latest todos" then
                 nodeselector = lambda { TodoXEstate::getTNodes().sort{|t1, t2| t1["creationTimestamp"] <=> t2["creationTimestamp"] }.reverse.first(20) }
