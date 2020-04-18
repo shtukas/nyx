@@ -20,61 +20,30 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 # -----------------------------------------------------------------
 
-class NSXRunMetrics3 # CountTargetThenCollapseToZero
-
-    # NSXRunMetrics3::core(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.core(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
-        count = points
-            .select{|point| (Time.new.to_i - point["unixtime"]) <= periodInSeconds }
-            .size
-        # Here, unlike the timespan counterpart, we do not care how long  was spent on that point/hit
-        x1 = 0
-        y1 = metricAtZero
-        x2 = targetCount
-        y2 = metricAtTarget
-        x  = count
-        return y1 if x < x1
-        return metricAtTarget*Math.exp(-(x-x2).to_f/(0.1*targetCount)) if x > x2
-        NSXMiscUtils::linearMap(x1, y1, x2, y2, x)
-    end
-
-    # NSXRunMetrics3::numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
-        (1..7).to_a.reverse.map{|indx|
-            NSXRunMetrics3::core(points, targetCount*indx, periodInSeconds*indx, metricAtZero, metricAtTarget)
-        }
-    end
-
-    # NSXRunMetrics3::metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
-    def self.metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
-        NSXRunMetrics3::numbers(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget).min
-    end
-end
-
-# -----------------------------------------------------------------
-
 XSPACE_VIDEO_REPOSITORY_FOLDERPATH = "/Users/pascal/x-space/YouTube Videos"
 
 ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH = "/Volumes/EnergyGrid/Data/Pascal/Galaxy/YouTube Videos"
 
-class NSXAgentVideosStreamConsumptionMonitorHelper
+class NSXAgentVideosStreamConsumptionMonitor
 
-    # NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
+    # NSXAgentVideosStreamConsumptionMonitor::registerHit()
     def self.registerHit()
-        NSXRunTimes::addPoint("7766a7ae-01ff-42f4-84e4-5c27f939f4d7", Time.new.to_i, 0)
+        points = KeyValueStore::getOrDefaultValue(nil, "7766a7ae-11ff-42f4-84e4-5c27f939f4d8:#{Time.new.to_s[0, 10]}", "[]")
+        points = JSON.parse(points)
+        points << Time.new.to_i
+        KeyValueStore::set(nil, "7766a7ae-11ff-42f4-84e4-5c27f939f4d8:#{Time.new.to_s[0, 10]}", JSON.generate(points))
     end
 
-    # NSXAgentVideosStreamConsumptionMonitorHelper::metric()
+    # NSXAgentVideosStreamConsumptionMonitor::metric()
     def self.metric()
-        points = NSXRunTimes::getPoints("7766a7ae-01ff-42f4-84e4-5c27f939f4d7")
-        targetCount = 15
-        periodInSeconds = 86400
-        metricAtZero = 0.8
-        metricAtTarget = 0.5
-        NSXRunMetrics3::metric(points, targetCount, periodInSeconds, metricAtZero, metricAtTarget)
+        points = KeyValueStore::getOrDefaultValue(nil, "7766a7ae-11ff-42f4-84e4-5c27f939f4d8:#{Time.new.to_s[0, 10]}", "[]")
+        points = JSON.parse(points)
+        return 0.8 if points.empty?
+        n = points.select{|point| (Time.new.to_i-point) < 3600*2 }.count
+        0.8*Math.exp(-n.to_f/6)
     end
 
-    # NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(folderpath)
+    # NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(folderpath)
     def self.videoFolderpathsAtFolder(folderpath)
         return [] if !File.exists?(folderpath)
         Dir.entries(folderpath)
@@ -82,10 +51,6 @@ class NSXAgentVideosStreamConsumptionMonitorHelper
             .map{|filename| "#{folderpath}/#{filename}" }
             .sort
     end
-
-end
-
-class NSXAgentVideosStreamConsumptionMonitor
 
     # NSXAgentVideosStreamConsumptionMonitor::agentuid()
     def self.agentuid()
@@ -101,15 +66,15 @@ class NSXAgentVideosStreamConsumptionMonitor
     def self.getAllObjects()
         return [] if !NSXMiscUtils::isLucille18()
         loop {
-            break if NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 40
-            break if NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).size == 0
-            filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).first
+            break if NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).size >= 40
+            break if NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).size == 0
+            filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(ENERGYGRID_VIDEO_REPOSITORY_FOLDERPATH).first
             filename = File.basename(filepath)
             targetFilepath = "#{XSPACE_VIDEO_REPOSITORY_FOLDERPATH}/#{filename}"
             FileUtils.mv(filepath, targetFilepath)
             break if !File.exists?(targetFilepath)
         }
-        filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+        filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
         return [] if filepath.nil?
         uuid = "f7845869-e058-44cd-bfae-3412957c7dba"
         announce = "YouTube Video Stream"
@@ -122,8 +87,8 @@ class NSXAgentVideosStreamConsumptionMonitor
                 "uuid"                => uuid,
                 "agentuid"            => NSXAgentVideosStreamConsumptionMonitor::agentuid(),
                 "contentItem"         => contentItem,
-                "metric"              => NSXAgentVideosStreamConsumptionMonitorHelper::metric(),
-                "commands"            => ["view", "activate"],
+                "metric"              => NSXAgentVideosStreamConsumptionMonitor::metric(),
+                "commands"            => [],
                 "defaultCommand"      => "view",
                 "agent:meta:filepath" => filepath
             }
@@ -133,7 +98,7 @@ class NSXAgentVideosStreamConsumptionMonitor
     # NSXAgentVideosStreamConsumptionMonitor::processObjectAndCommand(objectuuid, command)
     def self.processObjectAndCommand(objectuuid, command)
         if command == "view" then
-            filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
+            filepath = NSXAgentVideosStreamConsumptionMonitor::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
             return if filepath.nil?
             puts filepath
             if filepath.include?("'") then
@@ -144,25 +109,7 @@ class NSXAgentVideosStreamConsumptionMonitor
             system("open '#{filepath}'")
             LucilleCore::pressEnterToContinue()
             FileUtils.rm(filepath)
-            NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
-            return
-        end
-        if command == "activate" then
-            loop {
-                filepath = NSXAgentVideosStreamConsumptionMonitorHelper::videoFolderpathsAtFolder(XSPACE_VIDEO_REPOSITORY_FOLDERPATH).first
-                break if filepath.nil?
-                puts filepath
-                if filepath.include?("'") then
-                    filepath2 = filepath.gsub("'", ',')
-                    FileUtils.mv(filepath, filepath2)
-                    filepath = filepath2
-                end
-                system("open '#{filepath}'")
-                shouldContinue = LucilleCore::askQuestionAnswerAsBoolean("Continue ? : ")
-                FileUtils.rm(filepath)
-                NSXAgentVideosStreamConsumptionMonitorHelper::registerHit()
-                break if !shouldContinue
-            }
+            NSXAgentVideosStreamConsumptionMonitor::registerHit()
             return
         end
     end
