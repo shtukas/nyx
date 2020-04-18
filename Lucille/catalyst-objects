@@ -47,34 +47,59 @@ require_relative "Lucille.rb"
 Lucille::garbageCollection()
 Lucille::ensurel22Filenames()
 
-def locationToContentItem(location)
+# -------------------------------------------------------------------------
+
+class MetricHelper
+    def initialize()
+        @counter = 0
+    end
+    def metric(base)
+        @counter = @counter + 1
+        base - @counter.to_f/100000
+    end
+end
+
+def makeContentItem(location, timeline)
     {
         "type" => "line",
-        "line" => "[lucille] #{File.basename(location)}"
+        "line" => "[lucille] #{File.basename(location)}#{timeline == "[Inbox]" ? " [Inbox]" : " (#{timeline})"}"
     }
 end
 
-class MetricHelper
-    def initialize(base)
-        @base = base
-        @counter = 0
+def makeMetric(metricHelper, isRunning, timeline)
+    if isRunning then
+        return 0.74
     end
-    def metric()
-        @counter = @counter + 1
-        @base - @counter.to_f/1000
+    if timeline == "[Inbox]" then
+        return metricHelper.metric(0.5) # Lucille 'Inbox'
     end
+    metricHelper.metric(0.4) # Lucille (timelines)
 end
 
-metricHelper = MetricHelper.new(0.50)
+def getCurrentTimelineOrNull()
+    timelines = Lucille::timelines()
+    return nil if timelines.empty?
+    return "[Inbox]" if timelines.include?("[Inbox]")
+    indx = ((Time.new.to_f/(3600*2)).to_i) % timelines.size
+    timelines[indx]
+end
+
+# -------------------------------------------------------------------------
+
+timelinecurrent = getCurrentTimelineOrNull()
+
+metricHelper = MetricHelper.new()
 
 objects = Lucille::locations()
+    .select{|location| Lucille::getTimeline(location) == timelinecurrent }
     .map{|location|
+        timeline = Lucille::getTimeline(location)
         uuid = Digest::SHA1.hexdigest(location)
         isRunning = Lucille::isLocationRunning(location)
         {
             "uuid"            => uuid,
-            "contentItem"     => locationToContentItem(location),
-            "metric"          => isRunning ? 0.74 : metricHelper.metric(),
+            "contentItem"     => makeContentItem(location, timeline),
+            "metric"          => makeMetric(metricHelper, isRunning, timeline),
             "commands"        => ["open", "[]", "->", "done"],
             "isRunning"       => isRunning,
             "shell-redirects" => {

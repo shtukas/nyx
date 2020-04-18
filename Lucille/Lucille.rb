@@ -26,6 +26,14 @@ BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
 
 class Lucille
 
+    # Lucille::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # -----------------------------
+    # IO (1)
+
     # Lucille::pathToItems()
     def self.pathToItems()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items"
@@ -35,6 +43,14 @@ class Lucille
     def self.pathToMetadata()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Metadata"
     end
+
+    # Lucille::pathToTimelines()
+    def self.pathToTimelines()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Timelines"
+    end
+
+    # -----------------------------
+    # IO (2)
 
     # Lucille::applyNextTransformationToContent(content)
     def self.applyNextTransformationToContent(content)
@@ -80,11 +96,6 @@ class Lucille
             }
     end
 
-    # Lucille::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
     # Lucille::ensurel22Filenames()
     def self.ensurel22Filenames()
         Lucille::locations()
@@ -95,29 +106,6 @@ class Lucille
             }
     end
 
-    # Lucille::locations()
-    def self.locations()
-        Dir.entries(Lucille::pathToItems())
-            .reject{|filename| filename[0, 1] == "." }
-            .sort
-            .map{|filename| "#{Lucille::pathToItems()}/#{filename}" }
-    end
-
-    # Lucille::locationToItem(location)
-    def self.locationToItem(location)
-        if location[-4, 4] == ".txt" then
-            {
-                "type" => "text",
-                "content" => IO.read(location).strip
-            }
-        else
-            {
-                "type" => "location",
-                "location" => location
-            }
-        end
-    end
-
     # Lucille::deleteLucilleLocation(location)
     def self.deleteLucilleLocation(location)
         Lucille::moveLocationToCatalystBin(location)
@@ -126,14 +114,46 @@ class Lucille
         if File.exists?(location2) then
             LucilleCore::removeFileSystemLocation(location2)
         end
+        location3 = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
+        if File.exists?(location3) then
+            LucilleCore::removeFileSystemLocation(location3)
+        end
     end
 
-    # Lucille::location2MetadataObjectOrNull(location)
-    def self.location2MetadataObjectOrNull(location)
-        filepath = "#{Lucille::pathToMetadata()}/#{File.basename(location)}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
+    # -----------------------------
+    # Data
+
+    # Lucille::locations()
+    def self.locations()
+        Dir.entries(Lucille::pathToItems())
+            .reject{|filename| filename[0, 1] == "." }
+            .sort
+            .map{|filename| "#{Lucille::pathToItems()}/#{filename}" }
     end
+
+    # Lucille::timelines()
+    def self.timelines()
+        Lucille::locations()
+                .map{|location| Lucille::getTimeline(location) }
+                .uniq
+                .sort
+    end
+
+    # Lucille::setTimeline(location, timeline)
+    def self.setTimeline(location, timeline)
+        filepath = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
+        File.open(filepath, "w"){|f| f.puts(timeline) }
+    end
+
+    # Lucille::getTimeline(location)
+    def self.getTimeline(location)
+        filepath = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
+        return "[Inbox]" if !File.exists?(filepath)
+        IO.read(filepath).strip
+    end
+
+    # -----------------------------
+    # Operations
 
     # Lucille::openLocation(location)
     def self.openLocation(location)
