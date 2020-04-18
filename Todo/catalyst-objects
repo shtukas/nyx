@@ -113,9 +113,7 @@ tnodes = TodoXEstate::getTNodes()
 metricHelper = MetricHelper.new(0.30)
 timeline = TodoXWalksCore::getTimelineWithLowestTimespan(TodoXWalksCore::get3TNodesTimelines(tnodes), TodoXWalksCore::timeline2TimeMapping())
 tnodes
-    .select{|tnode|
-        tnode["classification"][0]["timeline"] == timeline
-    }
+    .select{|tnode| tnode["timeline"] == timeline }
     .sort{|tnode1, tnode2|
         tnode1["creationTimestamp"] <=> tnode2["creationTimestamp"]
     }

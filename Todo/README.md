@@ -7,7 +7,7 @@
     "creationTimestamp" : Float
     "description"       : String
     "targets"           : Array[Target]
-    "classification"    : Array[String]
+    "timeline"          : String
 }
 ```
 
@@ -67,6 +67,6 @@ TNodes get their shapes from the general Nyx Permanodes, but we impose limitatio
     creationTimestamp : Float
     description       : String
     targets           : JSON String
-    classification    : JSON String
+    timeline          : String
 ```
 

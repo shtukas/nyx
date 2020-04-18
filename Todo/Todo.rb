@@ -273,7 +273,7 @@ class TodoXEstate
         return false if object["description"].lines.to_a.size != 1
         return false if object["targets"].nil?
         return false if object["targets"].any?{|target| !TodoXEstate::objectIsTNodeTarget(target) }
-        return false if object["classification"].nil?
+        return false if object["timeline"].nil?
         true
     end
 
@@ -297,7 +297,7 @@ class TodoXEstate
         Zeta::set(filepath, "creationTimestamp", tnode["creationTimestamp"])
         Zeta::set(filepath, "description", tnode["description"])
         Zeta::set(filepath, "targets", JSON.generate(tnode["targets"]))
-        Zeta::set(filepath, "classification", JSON.generate(tnode["classification"]))
+        Zeta::set(filepath, "timeline", tnode["timeline"])
     end
 
     # TodoXEstate::dumpTNodeIntoExistingZetaFile(tnode)
@@ -308,7 +308,7 @@ class TodoXEstate
         Zeta::set(filepath, "creationTimestamp", tnode["creationTimestamp"])
         Zeta::set(filepath, "description", tnode["description"])
         Zeta::set(filepath, "targets", JSON.generate(tnode["targets"]))
-        Zeta::set(filepath, "classification", JSON.generate(tnode["classification"]))
+        Zeta::set(filepath, "timeline", tnode["timeline"])
     end
 
     # TodoXEstate::readZetaFileIntoTNode(filepath)
@@ -319,7 +319,7 @@ class TodoXEstate
         tnode["creationTimestamp"] = Zeta::getOrNull(filepath, "creationTimestamp")
         tnode["description"] = Zeta::getOrNull(filepath, "description")
         tnode["targets"] = JSON.parse(Zeta::getOrNull(filepath, "targets"))
-        tnode["classification"] = JSON.parse(Zeta::getOrNull(filepath, "classification"))
+        tnode["timeline"] = Zeta::getOrNull(filepath, "timeline")
         tnode
     end
 
@@ -480,22 +480,20 @@ class TodoXCoreData
     # TodoXCoreData::timelines()
     def self.timelines()
         TodoXEstate::getTNodes()
-            .map{|tnode| tnode["classification"] }
-            .flatten
+            .map{|tnode| tnode["timeline"] }
             .uniq
     end
 
     # TodoXCoreData::timelinesInIncreasingActivityTime()
     def self.timelinesInIncreasingActivityTime()
-        map1 = TodoXEstate::getTNodes().reduce({}){|map2, tnode|
-            tnode["classification"].each{|timeline|
-                if map2[timeline].nil? then
-                    map2[timeline] = tnode["creationTimestamp"]
-                else
-                    map2[timeline] = [map2[timeline], tnode["creationTimestamp"]].max
-                end
-            }
-            map2
+        map1 = TodoXEstate::getTNodes().reduce({}){|acc, tnode|
+            timeline = tnode["timeline"]
+            if acc[timeline].nil? then
+                acc[timeline] = tnode["creationTimestamp"]
+            else
+                acc[timeline] = [acc[timeline], tnode["creationTimestamp"]].max
+            end
+            acc
         }
         map1
             .to_a
@@ -505,7 +503,7 @@ class TodoXCoreData
 
     # TodoXCoreData::tNodeIsOnThisTimeline(tnode, timeline)
     def self.tNodeIsOnThisTimeline(tnode, timeline)
-        tnode["classification"].any?{|t| t == timeline }
+        tnode["timeline"] == timeline
     end
 
     # TodoXCoreData::getTimelineTNodesOrdered(tnodes, timeline)
@@ -674,7 +672,7 @@ class TodoXTMakers
             "creationTimestamp" => Time.new.to_f,
             "description"       => "",
             "targets"           => [],
-            "classification"    => []
+            "timeline"          => "[Inbox]"
         }
         puts JSON.pretty_generate(tnode)
         TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
@@ -685,17 +683,15 @@ class TodoXTMakers
         # exist in order to be created since the data is stored inside the
         # zeta file.
 
-        # We used to create the classification above, but we are now doing 
+        # We used to create the timeline above, but we are now doing 
         # it afer for a more natural workflow.
         # --------------------------------------------------------------
 
         target = TodoXTMakers::makeOneTNodeTarget(uuid)
         tnode["targets"] = [ target ]
 
-        tnode["description"] = TodoXUserInterface::targetToString(target)
-
-        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        tnode["classification"] = [ timeline ]
+        tnode["description"] = TodoXUserInterface::targetToString(target) 
+        tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
 
         TodoXEstate::reCommitTNodeToDisk(tnode)
     end
@@ -807,8 +803,7 @@ class TodoXWalksCore
     # TodoXWalksCore::get3TNodesTimelines(tnodes)
     def self.get3TNodesTimelines(tnodes) # Array[String]
         tnodes
-            .map{|tnode| tnode["classification"] }
-            .flatten
+            .map{|tnode| tnode["timeline"] }
             .uniq
     end
 
@@ -895,7 +890,7 @@ class TodoRunsUtils
         status = TodoRunsUtils::getRunStatus(todouuid)
         return if status.nil? # not running
         timespan = Time.new.to_i - status.to_i
-        tnode["classification"].each{|timeline| TodoXWalksCore::issuePoint(timeline, timespan) }
+        TodoXWalksCore::issuePoint(tnode["timeline"], timespan)
         KeyValueStore::destroy(nil, "3f48e9d0-eb12-45c4-ab63-c1a27863f969:#{todouuid}")
     end
 
@@ -912,8 +907,7 @@ class TodoXUserInterface
         tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
         return if tnode.nil?
         puts TodoXUserInterface::targetToString(tnode["targets"][0])
-        timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        tnode["classification"] = [ timeline ]
+        tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
         puts JSON.pretty_generate(tnode)
         TodoXEstate::reCommitTNodeToDisk(tnode)
     end
@@ -1006,10 +1000,7 @@ class TodoXUserInterface
             tnode["targets"].each{|target|
                 puts "        #{TodoXUserInterface::targetToString(target)}"
             }
-            puts "    timelines:"
-            tnode["classification"].each{|timeline|
-                puts "        #{timeline}"
-            }
+            puts "    timeline: #{tnode["timeline"]}"
             puts "    isRunning: #{TodoRunsUtils::isRunning(tnodeuuid)}"
             operations = [
                 "quick open",
@@ -1167,7 +1158,8 @@ class TodoXUserInterface
                 "latest todos",
                 "timelines dive",
                 "timelines walk",
-                "numbers"
+                "numbers",
+                "rebuild index"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -1184,18 +1176,15 @@ class TodoXUserInterface
                     "creationTimestamp" => Time.new.to_f,
                     "description"       => "",
                     "targets"           => [],
-                    "classification"    => []
+                    "timeline"          => "[Inbox]"
                 }
                 puts JSON.pretty_generate(tnode)
                 TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
 
                 target = TodoXTMakers::makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(uuid)
                 tnode["targets"] = [ target ]
-
                 tnode["description"] = TodoXUserInterface::targetToString(target)
-
-                timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-                tnode["classification"] = [ timeline ]
+                tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
 
                 TodoXEstate::reCommitTNodeToDisk(tnode)
 
@@ -1234,6 +1223,9 @@ class TodoXUserInterface
                         puts "    -> #{timeline}: #{timespan}"
                     }
                 LucilleCore::pressEnterToContinue()
+            end
+            if operation == "rebuild index" then
+                TodoXEstate::rebuildTNodesIndex()
             end
         }
     end

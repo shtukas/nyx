@@ -69,7 +69,7 @@ tnode = {
     "creationTimestamp" => Time.new.to_f,
     "description"       => File.basename(location1),
     "targets"           => [],
-    "classification"    => []
+    "timeline"          => "[Inbox]"
 }
 TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
 
@@ -79,21 +79,20 @@ TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
 # exist in order to be created since the data is stored inside the
 # zeta file.
 
-# We used to create the classification above, but we are now doing 
+# We used to create the timeline above, but we are now doing 
 # it afer for a more natural workflow.
 # --------------------------------------------------------------
 
 target = TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(uuid, folderpath2)
 tnode["targets"] = [ target ]
 
-timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-tnode["classification"] = [ timeline ]
+tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
 
 TodoXEstate::reCommitTNodeToDisk(tnode)
 
 LucilleCore::removeFileSystemLocation(folderpath2)
 
-# Now we need to return the path to the todo zeta file. 
+# Now we need to return the path to the todo zeta file.
 
 puts TodoXEstate::repositoryFilenameToFilepath(todofilename)
 
