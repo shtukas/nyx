@@ -222,7 +222,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::isLucille18()
     def self.isLucille18()
-        NSXMiscUtils::thisInstanceName() == "Lucille18"
+        ENV["COMPUTERLUCILLENAME"] == "Lucille18"
     end
 
     def self.object2DoNotShowUntilAsString(object)

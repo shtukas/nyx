@@ -4,6 +4,7 @@
         0.90  Wave sticky
         0.80+ Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+ Wave every-n-hours / every-n-days
+0.20 -> 0.70  YouTubeVideoStream
         0.53  BackupsMonitor
 0.20 -> 0.50  Lucille
 ------- 0.20 ------- Water level ------------------------------
