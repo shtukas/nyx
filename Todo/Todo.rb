@@ -482,21 +482,13 @@ class TodoXCoreData
         TodoXEstate::getTNodes()
             .map{|tnode| tnode["classification"] }
             .flatten
-            .select{|item| item["type"] == "timeline-329D3ABD" }
-            .map{|item| item["timeline"] }
             .uniq
     end
 
     # TodoXCoreData::timelinesInIncreasingActivityTime()
     def self.timelinesInIncreasingActivityTime()
-        extractTimelinesFromTNode = lambda {|tnode|
-            tnode["classification"]
-                .select{|item| item["type"] == "timeline-329D3ABD" }
-                .map{|item| item["timeline"] }
-        }
         map1 = TodoXEstate::getTNodes().reduce({}){|map2, tnode|
-            timelines = extractTimelinesFromTNode.call(tnode)
-            timelines.each{|timeline|
+            tnode["classification"].each{|timeline|
                 if map2[timeline].nil? then
                     map2[timeline] = tnode["creationTimestamp"]
                 else
@@ -513,7 +505,7 @@ class TodoXCoreData
 
     # TodoXCoreData::tNodeIsOnThisTimeline(tnode, timeline)
     def self.tNodeIsOnThisTimeline(tnode, timeline)
-        tnode["classification"].any?{|item| item["type"] == "timeline-329D3ABD" and item["timeline"] == timeline }
+        tnode["classification"].any?{|t| t == timeline }
     end
 
     # TodoXCoreData::getTimelineTNodesOrdered(tnodes, timeline)
@@ -703,12 +695,7 @@ class TodoXTMakers
         tnode["description"] = TodoXUserInterface::targetToString(target)
 
         timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        item = {
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => timeline
-        }
-        tnode["classification"] = [ item ]
+        tnode["classification"] = [ timeline ]
 
         TodoXEstate::reCommitTNodeToDisk(tnode)
     end
@@ -820,11 +807,7 @@ class TodoXWalksCore
     # TodoXWalksCore::get3TNodesTimelines(tnodes)
     def self.get3TNodesTimelines(tnodes) # Array[String]
         tnodes
-            .map{|tnode|
-                tnode["classification"]
-                    .select{|item| item["type"] == "timeline-329D3ABD" }
-                    .map{|item| item["timeline"] }
-            }
+            .map{|tnode| tnode["classification"] }
             .flatten
             .uniq
     end
@@ -912,12 +895,7 @@ class TodoRunsUtils
         status = TodoRunsUtils::getRunStatus(todouuid)
         return if status.nil? # not running
         timespan = Time.new.to_i - status.to_i
-        tnode["classification"].each{|item|
-            if item["type"] == "timeline-329D3ABD" then
-                timeline = item["timeline"]
-                TodoXWalksCore::issuePoint(timeline, timespan)
-            end
-        }
+        tnode["classification"].each{|timeline| TodoXWalksCore::issuePoint(timeline, timespan) }
         KeyValueStore::destroy(nil, "3f48e9d0-eb12-45c4-ab63-c1a27863f969:#{todouuid}")
     end
 
@@ -935,11 +913,7 @@ class TodoXUserInterface
         return if tnode.nil?
         puts TodoXUserInterface::targetToString(tnode["targets"][0])
         timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        tnode["classification"] = [{
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "timeline-329D3ABD",
-            "timeline" => timeline
-        }]
+        tnode["classification"] = [ timeline ]
         puts JSON.pretty_generate(tnode)
         TodoXEstate::reCommitTNodeToDisk(tnode)
     end
@@ -962,14 +936,6 @@ class TodoXUserInterface
             return "permadir"
         end
         raise "[error: 706ce2f5]"
-    end
-
-    # TodoXUserInterface::classificationItemToString(item)
-    def self.classificationItemToString(item)
-        if item["type"] == "timeline-329D3ABD" then
-            return "timeline: #{item["timeline"]}"
-        end
-        raise "[error: 44ccb03c]"
     end
 
     # TodoXUserInterface::optimizedOpenTarget(tnodeuuid, target)
@@ -1040,9 +1006,9 @@ class TodoXUserInterface
             tnode["targets"].each{|target|
                 puts "        #{TodoXUserInterface::targetToString(target)}"
             }
-            puts "    classification items:"
-            tnode["classification"].each{|item|
-                puts "        #{TodoXUserInterface::classificationItemToString(item)}"
+            puts "    timelines:"
+            tnode["classification"].each{|timeline|
+                puts "        #{timeline}"
             }
             puts "    isRunning: #{TodoRunsUtils::isRunning(tnodeuuid)}"
             operations = [
@@ -1229,11 +1195,7 @@ class TodoXUserInterface
                 tnode["description"] = TodoXUserInterface::targetToString(target)
 
                 timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-                tnode["classification"] = [{
-                    "uuid"     => SecureRandom.uuid,
-                    "type"     => "timeline-329D3ABD",
-                    "timeline" => timeline
-                }]
+                tnode["classification"] = [ timeline ]
 
                 TodoXEstate::reCommitTNodeToDisk(tnode)
 

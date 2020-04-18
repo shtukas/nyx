@@ -87,12 +87,7 @@ target = TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(uuid, folderp
 tnode["targets"] = [ target ]
 
 timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-item = {
-    "uuid"     => SecureRandom.uuid,
-    "type"     => "timeline-329D3ABD",
-    "timeline" => timeline
-}
-tnode["classification"] = [ item ]
+tnode["classification"] = [ timeline ]
 
 TodoXEstate::reCommitTNodeToDisk(tnode)
 

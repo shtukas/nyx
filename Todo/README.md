@@ -7,7 +7,7 @@
     "creationTimestamp" : Float
     "description"       : String
     "targets"           : Array[Target]
-    "classification"    : Array[ClassificationItem]
+    "classification"    : Array[String]
 }
 ```
 
@@ -47,16 +47,6 @@
         "uuid"       : String UUID
         "type"       : "perma-dir-11859659"
         "zetaKey"    : String # Contains the key where the Aion root hash is stored
-    }
-    ```
-
-- `ClassificationItem`:
-
-    ```
-    {
-        "uuid"     : String
-        "type"     : "timeline-329D3ABD"
-        "timeline" : String
     }
     ```
 
