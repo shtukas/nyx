@@ -8,7 +8,6 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-
 class Lucille
 
     # Lucille::applyNextTransformationToContent(content)
@@ -101,6 +100,14 @@ class Lucille
             LucilleCore::removeFileSystemLocation(location2)
         end
     end
+
+    # Lucille::location2MetadataObjectOrNull(location)
+    def self.location2MetadataObjectOrNull(location)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Metadata/#{File.basename(location)}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
 end
 
 

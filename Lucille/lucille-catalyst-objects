@@ -97,7 +97,6 @@ objects = Lucille::locations()
             "shell-redirects" => {
                 "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing open '#{location}'",
                 "[]"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing apply-next-to-text '#{location}'",
-                "->"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing migration '#{location}'",
                 "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing done '#{location}'"
             }
         }

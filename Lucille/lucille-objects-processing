@@ -56,24 +56,6 @@ if ARGV[0] == "apply-next-to-text" and ARGV[1] then
     File.open(filepath, "w"){|f| f.puts(content) }
 end
 
-if ARGV[0] == "migration" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    systems = [
-        "Todo"
-    ]
-    targetsystem = LucilleCore::selectEntityFromListOfEntitiesOrNull("target system", systems)
-    exit if targetsystem.nil?
-    if targetsystem == "Todo" then
-        newtodoitemlocation = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/make-tnode-from-location '#{location}'`.strip
-        if File.exists?(newtodoitemlocation) then
-            # We are fairly confident that the todo process succeeded
-            # We can get rid of the Lucille item
-            Lucille::deleteLucilleLocation(location)
-        end
-    end
-end
-
 if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
