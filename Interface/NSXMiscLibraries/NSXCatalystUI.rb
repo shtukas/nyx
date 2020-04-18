@@ -74,11 +74,13 @@ class NSXCatalystUI
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
-        puts "Lucille.txt"
         contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-        puts contents
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 2)
+        if contents.size>0 then
+            puts "Lucille.txt"
+            puts contents
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 2)
+        end
 
         puts "Wave 🌊"
         position = 0
