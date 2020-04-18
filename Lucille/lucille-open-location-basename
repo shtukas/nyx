@@ -45,11 +45,8 @@ require_relative "Lucille.rb"
 # -------------------------------------------------------------------------
 
 locationname = ARGV[0]
-
-filepaths = Lucille::locations()
-exit if filepaths.empty?
-filepath = filepaths[indx-1]
-exit if !File.exist?(filepath)
-system("open '#{filepath}'")
+location = "#{Lucille::pathToItems()}/#{locationname}"
+exit if !File.exists?(location)
+Lucille::openLocation(location)
 
 
