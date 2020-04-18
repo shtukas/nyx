@@ -92,6 +92,15 @@ class Lucille
             }
         end
     end
+
+    # Lucille::deleteLucilleLocation(location)
+    def self.deleteLucilleLocation(location)
+        LucilleCore::removeFileSystemLocation(location)
+        location2 = "/Users/pascal/Desktop/#{File.basename(location)}"
+        if File.exists?(location2) then
+            LucilleCore::removeFileSystemLocation(location2)
+        end
+    end
 end
 
 

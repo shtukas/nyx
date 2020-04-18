@@ -50,14 +50,9 @@
     }
     ```
 
-- `ClassificationItem` is a union of the following types
+- `ClassificationItem`:
 
     ```
-    {
-        "uuid"     : String
-        "type"     : "tag-18303A17"
-        "tag"      : String
-    }
     {
         "uuid"     : String
         "type"     : "timeline-329D3ABD"
@@ -69,7 +64,6 @@
 
 TNodes get their shapes from the general Nyx Permanodes, but we impose limitations on them
 
-- No tags
 - Only one target
 - Only one timelime
 

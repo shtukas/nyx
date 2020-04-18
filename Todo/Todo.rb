@@ -452,20 +452,7 @@ class TodoXEstate
             raise "[error: e838105]"
         }
 
-        destroyClassificationItem = lambda{|item|
-            if item["type"] == "tag-18303A17" then
-                # Nothing
-                return
-            end
-            if item["type"] == "timeline-329D3ABD" then
-                # Nothing
-                return
-            end
-            raise "[error: a38375c2]"
-        }
-
         tnode["targets"].each{|target| destroyTarget.call(target) }
-        tnode["classification"].each{|item| destroyClassificationItem.call(item) }
 
         tnodelocation = TodoXEstate::repositoryFilenameToFilepath(tnode["filename"])
         if tnodelocation.nil? then
@@ -700,6 +687,7 @@ class TodoXTMakers
         puts JSON.pretty_generate(tnode)
         TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
 
+        # ---------------------------------------------------------------
         # We can only create the target after the tnode has been commited
         # to disk because some targets require the zeta file to already
         # exist in order to be created since the data is stored inside the
@@ -707,6 +695,7 @@ class TodoXTMakers
 
         # We used to create the classification above, but we are now doing 
         # it afer for a more natural workflow.
+        # --------------------------------------------------------------
 
         target = TodoXTMakers::makeOneTNodeTarget(uuid)
         tnode["targets"] = [ target ]
@@ -714,11 +703,12 @@ class TodoXTMakers
         tnode["description"] = TodoXUserInterface::targetToString(target)
 
         timeline = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
-        tnode["classification"] = [{
+        item = {
             "uuid"     => SecureRandom.uuid,
             "type"     => "timeline-329D3ABD",
             "timeline" => timeline
-        }]
+        }
+        tnode["classification"] = [ item ]
 
         TodoXEstate::reCommitTNodeToDisk(tnode)
     end
@@ -976,9 +966,6 @@ class TodoXUserInterface
 
     # TodoXUserInterface::classificationItemToString(item)
     def self.classificationItemToString(item)
-        if item["type"] == "tag-18303A17" then
-            return "tag: #{item["tag"]}"
-        end
         if item["type"] == "timeline-329D3ABD" then
             return "timeline: #{item["timeline"]}"
         end

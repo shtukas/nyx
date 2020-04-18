@@ -31,6 +31,7 @@ openableFileExtensions4 = [
 
 if ARGV[0] == "open" and ARGV[1] then
     location = ARGV[1]
+    exit if !File.exists?(location)
     if File.directory?(location) then
         system("open '#{location}'")
         exit
@@ -48,17 +49,33 @@ end
 
 if ARGV[0] == "apply-next-to-text" and ARGV[1] then
     location = ARGV[1]
+    exit if !File.exists?(location)
     exit if location[-4, 4] != ".txt"
     content = IO.read(location).strip
     content = Lucille::applyNextTransformationToContentIfText(content)
     File.open(filepath, "w"){|f| f.puts(content) }
 end
 
+if ARGV[0] == "migration" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    systems = [
+        "Todo"
+    ]
+    targetsystem = LucilleCore::selectEntityFromListOfEntitiesOrNull("target system", systems)
+    exit if targetsystem.nil?
+    if targetsystem == "Todo" then
+        newtodoitemlocation = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/make-tnode-from-location '#{location}'`.strip
+        if File.exists?(newtodoitemlocation) then
+            # We are fairly confident that the todo process succeeded
+            # We can get rid of the Lucille item
+            Lucille::deleteLucilleLocation(location)
+        end
+    end
+end
+
 if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
-    LucilleCore::removeFileSystemLocation(location)
-    location2 = "/Users/pascal/Desktop/#{File.basename(location)}"
-    if File.exists?(location2) then
-        LucilleCore::removeFileSystemLocation(location2)
-    end
+    exit if !File.exists?(location)
+    Lucille::deleteLucilleLocation(location)
 end
