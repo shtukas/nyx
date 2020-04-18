@@ -83,5 +83,4 @@ loop {
     viennaLinkFeeder.done(link)
 }
 
-
 puts JSON.generate([])

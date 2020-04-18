@@ -1,0 +1,65 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+# --------------------------------------------------------------------
+
+require_relative "Wave.rb"
+
+# -----------------------------------------------------------------------------
+
+if ARGV[0] == 'open' and ARGV[1] then
+    objectuuid = ARGV[1]
+    filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
+    exit if filepath.nil?
+    text = Zeta::getOrNull(filepath, "text").strip
+    puts text
+    if text.lines.to_a.size == 1 and text.start_with?("http") then
+        url = text
+        if NSXMiscUtils::isLucille18() then
+            system("open '#{url}'")
+        else
+            system("open -na 'Google Chrome' --args --new-window '#{url}'")
+        end
+        exit
+    end
+    if text.lines.to_a.size > 1 then
+        LucilleCore::pressEnterToContinue()
+        exit
+    end
+    exit
+end
+
+if ARGV[0] == 'done' and ARGV[1] then
+    objectuuid = ARGV[1]
+    NSXWaveUtils::performDone2(objectuuid)
+    exit
+end
+
+if ARGV[0] == 'recast' and ARGV[1] then
+    objectuuid = ARGV[1]
+    schedule = NSXWaveUtils::makeNewSchedule()
+    NSXWaveUtils::writeScheduleToZetaFile(objectuuid, schedule)
+    exit
+end
+
+if ARGV[0] == 'destroy' and ARGV[1] then
+    objectuuid = ARGV[1]
+    if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
+        NSXWaveUtils::sendItemToBin(objectuuid)
+        exit
+    end
+    exit
+end

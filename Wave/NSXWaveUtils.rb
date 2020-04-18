@@ -81,7 +81,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::waveFolderPath()
     def self.waveFolderPath()
-        "#{CATALYST_FOLDERPATH}/Wave/NSXAgentWave"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Wave"
     end
 
     # NSXWaveUtils::makeScheduleObjectInteractively()
@@ -283,18 +283,24 @@ class NSXWaveUtils
         }
         object = {}
         object['uuid'] = objectuuid
-        object["agentuid"] = NSXAgentWave::agentuid()
+        object["agentuid"] = nil
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
-        object["commands"] = ["open", "done", "<uuid>", "loop", "recast", "description: <description>", "destroy"]
+        object["commands"] = ["open", "done",  "recast", "destroy"]
         object["defaultCommand"] = "open+done"
         object['schedule'] = schedule
+        object["shell-redirects"] = {
+            "open"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/catalyst-objects-processing open '#{objectuuid}'",
+            "done"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/catalyst-objects-processing done '#{objectuuid}'",
+            "recast"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/catalyst-objects-processing recast '#{objectuuid}'",
+            "destroy"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/catalyst-objects-processing destroy '#{objectuuid}'"
+        }
         object
     end
 
     # NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
     def self.getObjectByUUIDOrNull(objectuuid)
-        NSXAgentWave::getAllObjects()
+        NSXWaveUtils::getCatalystObjects()
             .select{|object| object["uuid"] == objectuuid }
             .first
     end
@@ -313,6 +319,12 @@ class NSXWaveUtils
         filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
         return if filepath.nil?
         Zeta::set(filepath, "text", description)
+    end
+
+    # NSXWaveUtils::getCatalystObjects()
+    def self.getCatalystObjects()
+        NSXWaveUtils::catalystUUIDsEnumerator()
+            .map{|uuid| NSXWaveUtils::makeCatalystObjectOrNull(uuid) }
     end
 
 end
