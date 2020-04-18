@@ -46,7 +46,7 @@ class NSXCatalystUI
             break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectsForListingPart + [object]).none?{|object| object["isRunning"] }
 
             # Display
-            puts "    #{displayStr}"
+            puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - verticalSize
             break if verticalSpaceLeft<=0 and displayObjectsForListingPart.none?{|object| object["isRunning"] }
         end
@@ -73,6 +73,12 @@ class NSXCatalystUI
 
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
+
+        puts "Lucille.txt"
+        contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+        puts contents
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 2)
 
         puts "Wave 🌊"
         position = 0
