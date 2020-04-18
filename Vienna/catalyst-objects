@@ -1,31 +1,47 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
 
 # encoding: UTF-8
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 require 'json'
+# JSON.pretty_generate(object)
+
 require 'date'
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
+require 'colorize'
+
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
-# FileUtils.mv('oldname', 'newname')
+# FileUtils.mv 'oldname', 'newname'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
-require 'find'
-require 'json'
-require 'digest/sha1'
 
+require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
-# -------------------------------------------------------------------------------------
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
+# -------------------------------------------------------------------------
+
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
 
@@ -57,45 +73,15 @@ class ViennaLinkFeeder
     end
 end
 
-$viennaLinkFeeder = ViennaLinkFeeder.new()
+viennaLinkFeeder = ViennaLinkFeeder.new()
 
-class NSXAgentVienna
+loop {
+    link = viennaLinkFeeder.next()
+    break if link.nil?
+    puts "vienna: #{link}"
+    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}-vienna-url.txt", "w"){|f| f.puts(link) }
+    viennaLinkFeeder.done(link)
+}
 
-    def self.agentuid()
-        "2ba71d5b-f674-4daf-8106-ce213be2fb0e"
-    end
 
-    def self.getObjects()
-        return [] if !NSXMiscUtils::isLucille18()
-        loop {
-            link = $viennaLinkFeeder.next()
-            break if link.nil?
-            puts "vienna: #{link}"
-            File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}-vienna-url.txt", "w"){|f| f.puts(link) }
-            $viennaLinkFeeder.done(link)
-        }
-        []
-    end
-
-    def self.getAllObjects()
-        []
-    end
-
-    # NSXAgentVienna::processObjectAndCommand(object, command)
-    def self.processObjectAndCommand(objectuuid, command)
-        if command == "open" then
-            return 
-        end
-    end
-end
-
-begin
-    NSXBob::registerAgent(
-        {
-            "agent-name"  => "NSXAgentVienna",
-            "agentuid"    => NSXAgentVienna::agentuid(),
-        }
-    )
-rescue
-end
-
+puts JSON.generate([])
