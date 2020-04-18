@@ -78,9 +78,9 @@ objects = Lucille::locations()
             "metric"          => metricHelper.metric(),
             "commands"        => ["open", "[]", "->", "done"],
             "shell-redirects" => {
-                "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing open '#{location}'",
-                "[]"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing apply-next-to-text '#{location}'",
-                "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-objects-processing done '#{location}'"
+                "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
+                "[]"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
+                "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
             }
         }
     }
