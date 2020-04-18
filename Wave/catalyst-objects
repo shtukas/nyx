@@ -45,6 +45,7 @@ require_relative "Wave.rb"
 # -------------------------------------------------------------------------
 
 objects = NSXWaveUtils::catalystUUIDsEnumerator()
+            .select{|uuid| NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(uuid).nil? }
             .map{|uuid| NSXWaveUtils::makeCatalystObjectOrNull(uuid) }
 
 puts JSON.generate(objects)

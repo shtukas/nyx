@@ -13,6 +13,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+
 class NSXMiscUtils
 
     # NSXMiscUtils::timeStringL22()
@@ -50,7 +52,10 @@ class NSXMiscUtils
     def self.moveLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
-        targetFolder = CatalystCommon::newBinArchivesFolderpath()
-        FileUtils.mv(location,targetFolder)
+        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y%")}/#{Time.new.strftime("%Y-%m-%d")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        folder3 = "#{folder2}/#{NSXMiscUtils::timeStringL22()}"
+        FileUtils.mkdir(folder3)
+        FileUtils.mv(location, folder3)
     end
 end

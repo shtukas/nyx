@@ -5,6 +5,28 @@ NSX0746_StandardPadding = "              "
 
 class NSXDisplayUtils
 
+    # NSXDisplayUtils::contentItemToAnnounce(item)
+    def self.contentItemToAnnounce(item)
+        if item["type"] == "line" then
+            return item["line"]
+        end
+        if item["type"] == "line-and-body" then
+            return item["line"]
+        end
+        "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
+    end
+
+    # NSXDisplayUtils::contentItemToBody(item)
+    def self.contentItemToBody(item)
+        if item["type"] == "line" then
+            return item["line"]
+        end
+        if item["type"] == "line-and-body" then
+            return item["body"]
+        end
+        "[09bab884] I don't know how to body: #{JSON.generate(item)}"
+    end
+
     # NSXDisplayUtils::addLeftPaddingToLinesOfText(text, padding)
     def self.addLeftPaddingToLinesOfText(text, padding)
         text.lines.map{|line| padding+line }.join()
@@ -55,8 +77,8 @@ class NSXDisplayUtils
             end
         }
         
-        announce = NSXContents::contentItemToAnnounce(object['contentItem'])
-        body = NSXContents::contentItemToBody(object['contentItem'])
+        announce = NSXDisplayUtils::contentItemToAnnounce(object['contentItem'])
+        body = NSXDisplayUtils::contentItemToBody(object['contentItem'])
         lines = 
         if isFocus then
             [
@@ -93,7 +115,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects): Boolean
     # Return value specifies if an oject was chosen and processed
     def self.doListCalaystObjectsAndSeLectedOneObjectAndInviteAndExecuteCommand(objects)
-        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXContents::contentItemToAnnounce(object['contentItem']) })
+        object = LucilleCore::selectEntityFromListOfEntitiesOrNull("object", objects, lambda{|object| NSXDisplayUtils::contentItemToAnnounce(object['contentItem']) })
         return false if object.nil?
         NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
         true

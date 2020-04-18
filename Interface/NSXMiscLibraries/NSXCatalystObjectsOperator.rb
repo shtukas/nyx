@@ -37,18 +37,6 @@ class NSXCatalystObjectsOperator
                     }
                     .flatten
 
-        # Some of those objects might have been pushed to the future (something that happens outside the jurisdiction of the agents)
-        # We remove those but we keep those that are running
-        # Objects in the future which may be running have either
-        # 1. Been incorrectly sent to the future while running
-        # 2. Might have been started while being in the future after a search.
-        objects = objects
-            .select{|object|
-                b1 = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object['uuid']).nil?
-                b2 = object["isRunning"]
-                b1 or b2
-            }
-
         objects = objects
             .select{|object|
                 b1 = object['metric'] >= 0.2

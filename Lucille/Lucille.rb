@@ -8,7 +8,21 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
+CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
+BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+
 class Lucille
+
+    # Lucille::pathToItems()
+    def self.pathToItems()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items"
+    end
+
+    # Lucille::pathToMetadata()
+    def self.pathToMetadata()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Metadata"
+    end
 
     # Lucille::applyNextTransformationToContent(content)
     def self.applyNextTransformationToContent(content)
@@ -71,10 +85,10 @@ class Lucille
 
     # Lucille::locations()
     def self.locations()
-        Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items")
+        Dir.entries(Lucille::pathToItems())
             .reject{|filename| filename[0, 1] == "." }
             .sort
-            .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{filename}" }
+            .map{|filename| "#{Lucille::pathToItems()}/#{filename}" }
     end
 
     # Lucille::locationToItem(location)
@@ -94,6 +108,7 @@ class Lucille
 
     # Lucille::deleteLucilleLocation(location)
     def self.deleteLucilleLocation(location)
+        Lucille::moveLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
         location2 = "/Users/pascal/Desktop/#{File.basename(location)}"
         if File.exists?(location2) then
@@ -103,11 +118,47 @@ class Lucille
 
     # Lucille::location2MetadataObjectOrNull(location)
     def self.location2MetadataObjectOrNull(location)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Metadata/#{File.basename(location)}.json"
+        filepath = "#{Lucille::pathToMetadata()}/#{File.basename(location)}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
+    # Lucille::openLocation(location)
+    def self.openLocation(location)
+        openableFileExtensions3 = [
+            ".txt",
+            ".jpg"
+        ]
+
+        openableFileExtensions4 = [
+            ".webm",
+        ]
+        return if !File.exists?(location)
+        if File.directory?(location) then
+            system("open '#{location}'")
+            return
+        end
+        FileUtils.cp(location, "/Users/pascal/Desktop/#{File.basename(location)}")
+        if File.file?(location) and openableFileExtensions3.include?(location[-4, 4]) then
+            system("open '#{location}'")
+            return
+        end
+        if File.file?(location) and openableFileExtensions4.include?(location[-5, 5]) then
+            system("open '#{location}'")
+            return
+        end
+    end
+
+    # Lucille::moveLocationToCatalystBin(location)
+    def self.moveLocationToCatalystBin(location)
+        return if location.nil?
+        return if !File.exists?(location)
+        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y%")}/#{Time.new.strftime("%Y-%m-%d")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        folder3 = "#{folder2}/#{NSXMiscUtils::timeStringL22()}"
+        FileUtils.mkdir(folder3)
+        FileUtils.mv(location, folder3)
+    end
 end
 
 

@@ -1,13 +1,12 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
 
 # encoding: UTF-8
 
 require 'json'
+# JSON.pretty_generate(object)
 
 require 'date'
-
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
+require 'colorize'
 
 require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
@@ -17,39 +16,40 @@ require 'securerandom'
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
-# FileUtils.mv('oldname', 'newname')
+# FileUtils.mv 'oldname', 'newname'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
-
-require 'find'
 
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest
 
+require 'find'
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
-=begin
-    Zeta::makeNewFile(filepath)
-    Zeta::set(filepath, key, value)
-    Zeta::getOrNull(filepath, key)
-    Zeta::destroy(filepath, key)
-=end
+require_relative "Lucille.rb"
 
-# ----------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
-DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
-CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
+locationname = ARGV[0]
 
-require_relative "NSXMiscUtils.rb"
-require_relative "NSXDoNotShowUntilDatetime.rb"
-require_relative "NSXWaveUtils.rb"
+filepaths = Lucille::locations()
+exit if filepaths.empty?
+filepath = filepaths[indx-1]
+exit if !File.exist?(filepath)
+system("open '#{filepath}'")
+
+

@@ -82,7 +82,7 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 2)
         end
 
-        puts "Wave 🌊"
+        puts "Catalyst 👩‍💻"
         position = 0
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
 

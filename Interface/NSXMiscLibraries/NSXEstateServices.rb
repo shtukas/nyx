@@ -1,6 +1,8 @@
 
 # encoding: UTF-8
 
+BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+
 class NSXEstateServices
 
     # NSXEstateServices::today()
@@ -68,7 +70,7 @@ class NSXEstateServices
     end
 
     # -------------------------------------------
-    # Archives
+    # Timeline management
 
     # NSXEstateServices::getArchiveTimelineSizeInMegaBytes()
     def self.getArchiveTimelineSizeInMegaBytes()
@@ -91,8 +93,8 @@ class NSXEstateServices
         NSXEstateServices::archivesTimelineGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
     end
 
-    # NSXEstateServices::archivesTimelineGarbageCollectionEnvelop(verbose)
-    def self.archivesTimelineGarbageCollectionEnvelop(verbose)
+    # NSXEstateServices::binTimelineGarbageCollectionEnvelop(verbose)
+    def self.binTimelineGarbageCollectionEnvelop(verbose)
         return if NSXEstateServices::getArchiveTimelineSizeInMegaBytes() <= 1024
         loop {
             location = NSXEstateServices::getLocationFileBiggerThan10MegaBytesOrNull(BIN_TIMELINE_FOLDERPATH)

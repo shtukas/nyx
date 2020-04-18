@@ -11,35 +11,19 @@ loop {
     puts getReportLine()
     puts ""
     options = [
-        "apply recommended",
-        "make new item",
-        "items dive"
+        "items dive",
+        "apply recommended"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", options)
     break if option.nil?
-    if option == "apply recommended" then
-        nextaction = getNextAction()
-        nextaction[1].call()
-    end
-    if option == "make new item" then
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        break if description == ""
-        position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
-        item = {
-            "uuid"        => SecureRandom.uuid,
-            "description" => description,
-            "position"    => position
-        }
-        saveItem2(item)
-    end
     if option == "items dive" then
         item = selectItemOrNull()
         next if item.nil?
         loop {
-            puts "Focus: #{item["description"]}"
+            puts "Focus: #{item["lucilleLocationBasename"]}"
             puts JSON.pretty_generate(item)
-            puts JSON.pretty_generate(getCompanion(item["uuid"]))
-            oxs = ["start", "stop", "inject 45 mins"]
+            puts JSON.pretty_generate(getItemCompanion(item["uuid"]))
+            oxs = ["start", "stop"]
             ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
             break if ox.nil?
             if ox == "start" then
@@ -48,16 +32,11 @@ loop {
             if ox == "stop" then
                 stopItem(item["uuid"])
             end
-            if ox == "inject 45 mins" then
-                status = getCompanion(item["uuid"])
-                timespan = 45*60
-                status["timesPoints"] << {
-                    "unixtime" => Time.new.to_i,
-                    "timespan" => timespan
-                } 
-                saveCompanion(status)
-            end
         }
+    end
+    if option == "apply recommended" then
+        nextaction = getNextAction()
+        nextaction[1].call()
     end
 }
 

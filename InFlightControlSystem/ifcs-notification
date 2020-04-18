@@ -8,9 +8,9 @@ require_relative "InFlightControlSystem.rb"
 
 items = topItemsOrderedByTimespan()
             .select{|item| 
-                companion = getCompanion(item["uuid"]) 
-                companion["runningState"] and (Time.new.to_i - companion["runningState"]) > 3600
+                companion = getItemCompanion(item["uuid"]) 
+                companion["startunixtime"] and (Time.new.to_i - companion["startunixtime"]) > 3600
             }
 exit if items.empty?
 
-onScreenNotification("ifcs", "#{items[0]["description"]} is running for more than one hour")
+onScreenNotification("ifcs", "#{items[0]["lucilleLocationBasename"]} is running for more than one hour")
