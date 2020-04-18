@@ -271,8 +271,8 @@ class TodoXEstate
         return false if object["filename"].nil?
         return false if object["description"].nil?
         return false if object["description"].lines.to_a.size != 1
-        return false if object["targets"].nil?
-        return false if object["targets"].any?{|target| !TodoXEstate::objectIsTNodeTarget(target) }
+        return false if object["target"].nil?
+        return false if !TodoXEstate::objectIsTNodeTarget(object["target"])
         return false if object["timeline"].nil?
         true
     end
@@ -296,7 +296,7 @@ class TodoXEstate
         Zeta::set(filepath, "filename", tnode["filename"])
         Zeta::set(filepath, "creationTimestamp", tnode["creationTimestamp"])
         Zeta::set(filepath, "description", tnode["description"])
-        Zeta::set(filepath, "targets", JSON.generate(tnode["targets"]))
+        Zeta::set(filepath, "target", JSON.generate(tnode["target"]))
         Zeta::set(filepath, "timeline", tnode["timeline"])
     end
 
@@ -307,7 +307,7 @@ class TodoXEstate
         Zeta::set(filepath, "filename", tnode["filename"])
         Zeta::set(filepath, "creationTimestamp", tnode["creationTimestamp"])
         Zeta::set(filepath, "description", tnode["description"])
-        Zeta::set(filepath, "targets", JSON.generate(tnode["targets"]))
+        Zeta::set(filepath, "target", JSON.generate(tnode["target"]))
         Zeta::set(filepath, "timeline", tnode["timeline"])
     end
 
@@ -318,7 +318,7 @@ class TodoXEstate
         tnode["filename"] = Zeta::getOrNull(filepath, "filename")
         tnode["creationTimestamp"] = Zeta::getOrNull(filepath, "creationTimestamp")
         tnode["description"] = Zeta::getOrNull(filepath, "description")
-        tnode["targets"] = JSON.parse(Zeta::getOrNull(filepath, "targets"))
+        tnode["target"] = JSON.parse(Zeta::getOrNull(filepath, "target"))
         tnode["timeline"] = Zeta::getOrNull(filepath, "timeline")
         tnode
     end
@@ -452,7 +452,7 @@ class TodoXEstate
             raise "[error: e838105]"
         }
 
-        tnode["targets"].each{|target| destroyTarget.call(target) }
+        destroyTarget.call(tnode["target"])
 
         tnodelocation = TodoXEstate::repositoryFilenameToFilepath(tnode["filename"])
         if tnodelocation.nil? then
@@ -571,6 +571,15 @@ class TodoXTMakers
         timelines
     end
 
+    # TodoXTMakers::dummyTarget()
+    def self.dummyTarget()
+        {
+            "uuid" => SecureRandom.uuid,
+            "type" => "line-2A35BA23",
+            "line" => "[dummy]"
+        }
+    end
+
     # TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, sourcefolderpath)
     def self.makeTNodeTargetPermadirUsingSourceDirectory(tnodeuuid, sourcefolderpath)
         tnodefilepath = TodoXEstate::tnodeUUIDToTNodeFilepathOrNull(tnodeuuid)
@@ -671,7 +680,7 @@ class TodoXTMakers
             "filename"          => "#{TodoXUtils::l22()}.zeta",
             "creationTimestamp" => Time.new.to_f,
             "description"       => "",
-            "targets"           => [],
+            "target"            => TodoXEstate::dummyTarget(),
             "timeline"          => "[Inbox]"
         }
         puts JSON.pretty_generate(tnode)
@@ -687,8 +696,7 @@ class TodoXTMakers
         # it afer for a more natural workflow.
         # --------------------------------------------------------------
 
-        target = TodoXTMakers::makeOneTNodeTarget(uuid)
-        tnode["targets"] = [ target ]
+        tnode["target"] = TodoXTMakers::makeOneTNodeTarget(uuid)
 
         tnode["description"] = TodoXUserInterface::targetToString(target) 
         tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
@@ -770,7 +778,7 @@ class TodoXNyxConverter
         nyx["creationTimestamp"] = todo["creationTimestamp"]
         nyx["referenceDateTime"] = Time.new.utc.iso8601
         nyx["description"] = TodoXUtils::editTextUsingTextmate(todo["description"])
-        nyx["targets"] = todo["targets"].map{|target| TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(todo["uuid"], target, nyxYmirFolderPath) }
+        nyx["targets"] = [ TodoXNyxConverter::transmuteTodoTargetIntoNyxTarget(todo["uuid"], todo["target"], nyxYmirFolderPath) ] 
         nyx["taxonomy"] = TodoXNyxConverter::makePermanodeTaxonomyInteractive()
         nyx
     end
@@ -906,7 +914,7 @@ class TodoXUserInterface
     def self.recastTNodeIdentifiedByUUID(uuid)
         tnode = TodoXEstate::getTNodeByUUIDOrNull(uuid)
         return if tnode.nil?
-        puts TodoXUserInterface::targetToString(tnode["targets"][0])
+        puts TodoXUserInterface::targetToString(tnode["target"])
         tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
         puts JSON.pretty_generate(tnode)
         TodoXEstate::reCommitTNodeToDisk(tnode)
@@ -974,12 +982,6 @@ class TodoXUserInterface
         end
     end
 
-    # TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-    def self.optimizedOpenTNodeUniqueTargetOrNothing(tnode)
-        return if tnode["targets"].size != 1
-        TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["targets"][0])
-    end
-
     # TodoXUserInterface::getIFCSItems()
     def self.getIFCSItems()
         JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
@@ -996,10 +998,7 @@ class TodoXUserInterface
             puts "    uuid: #{tnode["uuid"]}"
             puts "    filename: #{tnode["filename"]}"
             puts "    description: #{tnode["description"]}"
-            puts "    targets:"
-            tnode["targets"].each{|target|
-                puts "        #{TodoXUserInterface::targetToString(target)}"
-            }
+            puts "    target: #{TodoXUserInterface::targetToString(target)}"
             puts "    timeline: #{tnode["timeline"]}"
             puts "    isRunning: #{TodoRunsUtils::isRunning(tnodeuuid)}"
             operations = [
@@ -1014,7 +1013,7 @@ class TodoXUserInterface
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "quick open" then
-                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+                TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["target"])
             end
             if operation == "edit description" then
                 tnode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -1099,7 +1098,7 @@ class TodoXUserInterface
             puts "-> #{tnode["description"]}"
             operation = operationWithSpecifiedDefault.call(default)
             if operation == "open" then
-                TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+                TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["target"])
                 default = "done"
             end
             if operation == "dive" then
@@ -1175,14 +1174,13 @@ class TodoXUserInterface
                     "filename"          => "#{TodoXUtils::l22()}.zeta",
                     "creationTimestamp" => Time.new.to_f,
                     "description"       => "",
-                    "targets"           => [],
+                    "target"            => TodoXTMakers::dummyTarget(),
                     "timeline"          => "[Inbox]"
                 }
                 puts JSON.pretty_generate(tnode)
                 TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
 
-                target = TodoXTMakers::makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(uuid)
-                tnode["targets"] = [ target ]
+                tnode["target"] = TodoXTMakers::makeTNodeTargetPermadirByCollectingFilesOnDesktopOrNull(uuid)
                 tnode["description"] = TodoXUserInterface::targetToString(target)
                 tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
 

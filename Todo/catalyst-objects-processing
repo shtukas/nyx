@@ -61,7 +61,7 @@ if ARGV[0] == "start" and ARGV[1] then
     TodoRunsUtils::startTodo(todouuid)
     tnode = TodoXEstate::getTNodeByUUIDOrNull(todouuid)
     exit if tnode.nil?
-    TodoXUserInterface::optimizedOpenTNodeUniqueTargetOrNothing(tnode)
+    TodoXUserInterface::optimizedOpenTarget(tnode["uuid"], tnode["target"])
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
@@ -92,7 +92,7 @@ if ARGV[0] == "tonyx" and ARGV[1] then
         LucilleCore::pressEnterToContinue()
         exit
     end
-    puts TodoXUserInterface::targetToString(tnode["targets"][0])
+    puts TodoXUserInterface::targetToString(tnode["target"])
     nyxItem = TodoXNyxConverter::transmuteTodoItemIntoNyxObject(tnode, TodoXEstate::pathToNyxYmir())
     filename = "#{TodoXUtils::l22()}.json"
     filepath = YmirEstate::makeNewYmirLocationForBasename(TodoXEstate::pathToNyxYmir(), filename)

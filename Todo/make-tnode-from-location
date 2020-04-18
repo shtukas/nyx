@@ -68,7 +68,7 @@ tnode = {
     "filename"          => todofilename,
     "creationTimestamp" => Time.new.to_f,
     "description"       => File.basename(location1),
-    "targets"           => [],
+    "target"            => TodoXEstate::dummyTarget(),
     "timeline"          => "[Inbox]"
 }
 TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
@@ -83,8 +83,7 @@ TodoXEstate::firstTimeCommitTNodeToDisk(tnode)
 # it afer for a more natural workflow.
 # --------------------------------------------------------------
 
-target = TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(uuid, folderpath2)
-tnode["targets"] = [ target ]
+tnode["target"] = TodoXTMakers::makeTNodeTargetPermadirUsingSourceDirectory(uuid, folderpath2)
 
 tnode["timeline"] = TodoXTMakers::interactively2SelectOneTimelinePossiblyNew(TodoXCoreData::timelinesInIncreasingActivityTime().reverse)
 

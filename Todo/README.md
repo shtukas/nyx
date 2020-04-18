@@ -6,7 +6,7 @@
     "filename"          : String # Should be unique # Preferred L22
     "creationTimestamp" : Float
     "description"       : String
-    "targets"           : Array[Target]
+    "target "           : Target
     "timeline"          : String
 }
 ```
@@ -66,7 +66,7 @@ TNodes get their shapes from the general Nyx Permanodes, but we impose limitatio
     filename          : String # filename to the Zeta file
     creationTimestamp : Float
     description       : String
-    targets           : JSON String
+    target            : JSON String
     timeline          : String
 ```
 

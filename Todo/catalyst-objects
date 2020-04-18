@@ -118,7 +118,7 @@ tnodes
         tnode1["creationTimestamp"] <=> tnode2["creationTimestamp"]
     }
     .each{|tnode|
-        announce = "[todo] [walk @ #{timeline}] " + TodoXUserInterface::targetToString(tnode["targets"][0])
+        announce = "[todo] [walk @ #{timeline}] " + TodoXUserInterface::targetToString(tnode["target"])
         $objects << tnodeToCatalystObject(tnode, announce, metricHelper)
     }
 
@@ -131,7 +131,7 @@ TodoXUserInterface::getIFCSItems()
     tnodeuuid = item["x-is-todo-item"]
     tnode = TodoXEstate::getTNodeByUUIDOrNull(tnodeuuid)
     next if tnode.nil?
-    announce = "[todo] [ifcs] " + TodoXUserInterface::targetToString(tnode["targets"][0])
+    announce = "[todo] [ifcs] " + TodoXUserInterface::targetToString(tnode["target"])
     $objects << tnodeToCatalystObject(tnode, announce, metricHelper)
 }
 
