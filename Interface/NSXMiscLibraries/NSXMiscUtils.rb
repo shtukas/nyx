@@ -60,7 +60,7 @@ class NSXMiscUtils
         # +YYYY-MM-DD
         # +1@12:34
 
-        code = code[1,99]
+        code = code[1,99].strip
 
         # <weekdayname>
         # <integer>day(s)
