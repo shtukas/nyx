@@ -91,10 +91,15 @@ class Lucille
             }
     end
 
-    # Lucille::ensurel22Filenames()
-    def self.ensurel22Filenames()
+    # Lucille::ensureStandardFilenames()
+    def self.ensureStandardFilenames()
         Lucille::locations()
             .each{|location|
+                if File.basename(location).include?("'") then
+                    location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", ",")}"
+                    FileUtils.mv(location, location2)
+                    location = location2
+                end
                 next if File.basename(location)[0, 3] == "202"
                 location2 = "#{File.dirname(location)}/#{Lucille::timeStringL22()} #{File.basename(location)}"
                 FileUtils.mv(location, location2)
