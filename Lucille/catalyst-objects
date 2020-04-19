@@ -95,6 +95,12 @@ def getCurrentTimelineOrNull()
     timelines[indx]
 end
 
+def shouldOpenAndDone(location)
+    str1 = "vienna-url.txt"
+    return true if location[-str1.size, str1.size] == str1
+    false
+end
+
 # -------------------------------------------------------------------------
 
 timelinecurrent = getCurrentTimelineOrNull()
@@ -113,12 +119,14 @@ objects = Lucille::locations()
             "metric"          => makeMetric(metricHelper, isRunning, timeline),
             "commands"        => ["open", "[]", "recast", "done"],
             "isRunning"       => isRunning,
+            "defaultCommand"  => shouldOpenAndDone(location) ? "open+done" : nil,
             "shell-redirects" => {
                 "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
                 "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
                 "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
                 "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
-            }
+            },
+            "location"        => location
         }
     }
 
