@@ -170,7 +170,17 @@ class Lucille
             system("open '#{location}'")
             return
         end
-        FileUtils.cp(location, "/Users/pascal/Desktop/#{File.basename(location)}")
+
+        if File.file?(location) and location[-4, 4] == ".txt" and IO.read(location).strip.lines.to_a.size == 1 and IO.read(location).strip.start_with?("http") then
+            url = IO.read(location).strip
+            if ENV["COMPUTERLUCILLENAME"] == "Lucille18" then
+                system("open '#{url}'")
+            else
+                system("open -na 'Google Chrome' --args --new-window '#{url}'")
+            end
+            return
+        end
+
         if File.file?(location) and openableFileExtensions3.include?(location[-4, 4]) then
             system("open '#{location}'")
             return
@@ -185,7 +195,7 @@ class Lucille
     def self.moveLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
-        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y%")}/#{Time.new.strftime("%Y-%m-%d")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m-%d")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{NSXMiscUtils::timeStringL22()}"
         FileUtils.mkdir(folder3)
