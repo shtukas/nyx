@@ -52,7 +52,7 @@ if ARGV[0] == "recast" and ARGV[1] then
             break
         end
     }
-    Lucille::setTimeline(location, timeline)
+    Lucille::setLocationTimeline(location, timeline)
 end
 
 if ARGV[0] == "done" and ARGV[1] then

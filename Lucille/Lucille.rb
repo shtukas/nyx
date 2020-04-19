@@ -108,7 +108,7 @@ class Lucille
 
     # Lucille::doneLucilleLocation(location)
     def self.doneLucilleLocation(location)
-        timeline = Lucille::getTimeline(location)
+        timeline = Lucille::getLocationTimeline(location)
         if timeline == "[Open Cycles]" then
             puts "You are about to delete an [Open Cycle] item"
             return if !LucilleCore::askQuestionAnswerAsBoolean("Proceed? :")
@@ -135,22 +135,55 @@ class Lucille
     # Lucille::timelines()
     def self.timelines()
         Lucille::locations()
-            .map{|location| Lucille::getTimeline(location) }
+            .map{|location| Lucille::getLocationTimeline(location) }
             .uniq
             .sort
     end
 
-    # Lucille::setTimeline(location, timeline)
-    def self.setTimeline(location, timeline)
+    # Lucille::setLocationTimeline(location, timeline)
+    def self.setLocationTimeline(location, timeline)
         filepath = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         File.open(filepath, "w"){|f| f.puts(timeline) }
     end
 
-    # Lucille::getTimeline(location)
-    def self.getTimeline(location)
+    # Lucille::getLocationTimeline(location)
+    def self.getLocationTimeline(location)
         filepath = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         return "[Inbox]" if !File.exists?(filepath)
         IO.read(filepath).strip
+    end
+
+    # Lucille::getTimelineLocations(timeline)
+    def self.getTimelineLocations(timeline)
+        Lucille::locations()
+            .select{|location| Lucille::getLocationTimeline(location) == timeline }
+    end
+
+    # Lucille::getUserFriendlyDescriptionForLocation(location)
+    def self.getUserFriendlyDescriptionForLocation(location)
+        locationIsTextFile = lambda {|location| location[-4, 4] == ".txt" }
+        locationTextFileHasOneLine = lambda {|location| IO.read(location).strip.lines.to_a.size == 1  }
+        locationTextFileStartWithHTTP = lambda {|location| IO.read(location).strip.start_with?("http")  }
+        locationDirectoryOnlySubLocationOrNull = lambda {|location|
+            filenames = Dir.entries(location)
+                            .reject{|filename| filename[0, 1] == "." }
+                            .map{|filename| "#{location}/#{filename}" }
+            return nil if filenames.size != 1
+            filenames[0]
+        }
+        if File.file?(location) and locationIsTextFile.call(location) and locationTextFileHasOneLine.call(location) and locationTextFileStartWithHTTP.call(location) then
+            return IO.read(location).strip
+        end
+        if File.file?(location) then
+            return File.basename(location)
+        end
+        # Directory
+        sublocation = locationDirectoryOnlySubLocationOrNull.call(location)
+        if sublocation then
+            Lucille::getUserFriendlyDescriptionForLocation(sublocation)
+        else
+            File.basename(location)
+        end
     end
 
     # -----------------------------

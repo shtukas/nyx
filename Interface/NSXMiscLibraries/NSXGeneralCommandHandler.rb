@@ -82,6 +82,7 @@ class NSXGeneralCommandHandler
         if command == "/" then
             options = [
                 "Catalyst",
+                "Lucille",
                 "Wave",
                 "In Flight Control System",
             ]
@@ -122,6 +123,9 @@ class NSXGeneralCommandHandler
                         LucilleCore::pressEnterToContinue()
                     end
                 }
+            end
+            if option == "Lucille" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille")
             end
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")

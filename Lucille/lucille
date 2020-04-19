@@ -40,17 +40,32 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Wave.rb"
+require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-puts "Wave 🌊"
+def timelineDive(timeline)
+    puts "-> #{timeline}"
+    loop {
+        locations = Lucille::getTimelineLocations(timeline)
+        location = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| File.basename(location) })
+        break if location.nil?
+        Lucille::openLocation(location)
+    }
+end
+
+puts "Lucille 👩‍💻"
 options = [
-    "new wave",
+    "[Open Cycles] dive",
+    "timelines dive",
 ]
 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
 exit if option.nil?
-if option == "new wave" then
-    line = LucilleCore::askQuestionAnswerAsString("line: ")
-    NSXMiscUtils::spawnNewWaveItem(line)
+if option == "[Open Cycles] dive" then
+    timelineDive("[Open Cycles]")
+end
+if option == "timelines dive" then
+    timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", Lucille::timelines())
+    exit if timeline.nil?
+    timelineDive(timeline)
 end
