@@ -40,7 +40,8 @@ if ARGV[0] == "recast" and ARGV[1] then
     exit if !File.exists?(location)
     timeline = nil
     loop {
-        t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", Lucille::timelines())
+        timelines = Lucille::timelines().reject{|timeline| timeline == "[Inbox]" }
+        t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
         if t then
             timeline = t
             break

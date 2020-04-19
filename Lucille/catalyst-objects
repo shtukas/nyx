@@ -60,9 +60,17 @@ class MetricHelper
 end
 
 def makeContentItem(location, timeline)
+    timelinefragment = timeline == "[Inbox]" ? "[Inbox]" : "(#{timeline})"
+    if location[-4, 4] == ".txt" then
+        return {
+            "type" => "line-and-body",
+            "line" => "[lucille] #{File.basename(location)} #{timelinefragment}",
+            "body" => "[lucille] #{timelinefragment}\n#{IO.read(location).strip}"
+        }
+    end
     {
         "type" => "line",
-        "line" => "[lucille] #{File.basename(location)}#{timeline == "[Inbox]" ? " [Inbox]" : " (#{timeline})"}"
+        "line" => "[lucille] #{File.basename(location)} #{timelinefragment}"
     }
 end
 
