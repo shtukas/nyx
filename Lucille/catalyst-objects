@@ -87,12 +87,11 @@ def makeMetric(metricHelper, isRunning, timeline)
     metricHelper.metric(0.4) # Lucille (timelines)
 end
 
-def getCurrentTimelineOrNull()
-    timelines = Lucille::timelines()
-    return nil if timelines.empty?
-    return "[Inbox]" if timelines.include?("[Inbox]")
+def getFocusTimelines()
+    timelines = Lucille::timelines() - [ "[Open Cycles]" ]
+    return [] if timelines.empty?
     indx = ((Time.new.to_f/(3600*2)).to_i) % timelines.size
-    timelines[indx]
+    [ "[Inbox]" , timelines[indx] ] 
 end
 
 def shouldOpenAndDone(location)
@@ -104,12 +103,12 @@ end
 
 # -------------------------------------------------------------------------
 
-timelinecurrent = getCurrentTimelineOrNull()
+focusTimelines = getFocusTimelines()
 
 metricHelper = MetricHelper.new()
 
 objects = Lucille::locations()
-    .select{|location| Lucille::getTimeline(location) == timelinecurrent }
+    .select{|location|  focusTimelines.include?(Lucille::getTimeline(location)) }
     .map{|location|
         timeline = Lucille::getTimeline(location)
         uuid = Digest::SHA1.hexdigest(location)
