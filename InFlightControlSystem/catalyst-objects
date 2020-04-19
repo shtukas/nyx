@@ -6,6 +6,18 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
+def reportLineToContentItemLine(reportLine)
+    if reportLine.include?("running") then
+        "In Flight Control System 🛰️".green
+    else
+        "In Flight Control System 🛰️"
+    end
+end
+
+def reportLineToContentItemBody(reportLine)
+    reportLine.split(">>").join("\n>>")
+end
+
 objects = []
 if flightControlIsActive() then
     reportLine = getReportLine()
@@ -13,8 +25,9 @@ if flightControlIsActive() then
         objects << {
             "uuid"           => SecureRandom.uuid,
             "contentItem"    => {
-                "type" => "line",
-                "line" => reportLine
+                "type" => "line-and-body",
+                "line" => reportLineToContentItemLine(reportLine),
+                "body" => reportLineToContentItemBody(reportLine)
             },
             "metric"         => 0.75,
             "commands"       => []
