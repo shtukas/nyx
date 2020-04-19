@@ -153,17 +153,16 @@ class Lucille
 
     # Lucille::openLocation(location)
     def self.openLocation(location)
-        openableFileExtensions3 = [
+        openableFileExtensions = [
             ".txt",
             ".jpg",
             ".png",
-            ".eml"
+            ".eml",
+            ".webm",
+            ".jpeg",
+            ".webloc"
         ]
 
-        openableFileExtensions4 = [
-            ".webm",
-            ".jpeg"
-        ]
         return if !File.exists?(location)
         if File.directory?(location) then
             system("open '#{location}'")
@@ -180,11 +179,7 @@ class Lucille
             return
         end
 
-        if File.file?(location) and openableFileExtensions3.include?(location[-4, 4]) then
-            system("open '#{location}'")
-            return
-        end
-        if File.file?(location) and openableFileExtensions4.include?(location[-5, 5]) then
+        if File.file?(location) and openableFileExtensions.any?{|extension| location[-extension.size, extension.size] == extension } then
             system("open '#{location}'")
             return
         end
