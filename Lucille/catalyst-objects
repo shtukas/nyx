@@ -55,12 +55,15 @@ class MetricHelper
     end
     def metric(base)
         @counter = @counter + 1
-        base - @counter.to_f/100000
+        base - @counter.to_f/10000
     end
 end
 
 def makeContentItem(location, timeline)
-    timelinefragment = timeline == "[Inbox]" ? "[Inbox]" : "(#{timeline})"
+    # We have the two special timelines [Inbox] and [Open Cycles],
+    # The rest are just chars without decoration
+    # We also have [Infinity]
+    timelinefragment = timeline[0, 1] == "[" ? timeline : "(#{timeline})"
     if location[-4, 4] == ".txt" then
         return {
             "type" => "line-and-body",

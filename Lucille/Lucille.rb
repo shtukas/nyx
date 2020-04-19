@@ -39,11 +39,6 @@ class Lucille
         "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items"
     end
 
-    # Lucille::pathToMetadata()
-    def self.pathToMetadata()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Metadata"
-    end
-
     # Lucille::pathToTimelines()
     def self.pathToTimelines()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Timelines"
@@ -110,10 +105,6 @@ class Lucille
     def self.deleteLucilleLocation(location)
         Lucille::moveLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
-        location2 = "/Users/pascal/Desktop/#{File.basename(location)}"
-        if File.exists?(location2) then
-            LucilleCore::removeFileSystemLocation(location2)
-        end
         location3 = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         if File.exists?(location3) then
             LucilleCore::removeFileSystemLocation(location3)
@@ -134,9 +125,9 @@ class Lucille
     # Lucille::timelines()
     def self.timelines()
         Lucille::locations()
-                .map{|location| Lucille::getTimeline(location) }
-                .uniq
-                .sort
+            .map{|location| Lucille::getTimeline(location) }
+            .uniq
+            .sort
     end
 
     # Lucille::setTimeline(location, timeline)
@@ -159,11 +150,14 @@ class Lucille
     def self.openLocation(location)
         openableFileExtensions3 = [
             ".txt",
-            ".jpg"
+            ".jpg",
+            ".png",
+            ".eml"
         ]
 
         openableFileExtensions4 = [
             ".webm",
+            ".jpeg"
         ]
         return if !File.exists?(location)
         if File.directory?(location) then

@@ -31,8 +31,8 @@ if ARGV[0] == "apply-next-to-text" and ARGV[1] then
     exit if !File.exists?(location)
     exit if location[-4, 4] != ".txt"
     content = IO.read(location).strip
-    content = Lucille::applyNextTransformationToContentIfText(content)
-    File.open(filepath, "w"){|f| f.puts(content) }
+    content = Lucille::applyNextTransformationToContent(content)
+    File.open(location, "w"){|f| f.puts(content) }
 end
 
 if ARGV[0] == "recast" and ARGV[1] then
@@ -59,7 +59,4 @@ if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
     Lucille::deleteLucilleLocation(location)
-    metadatafilepath = "#{Lucille::pathToMetadata()}/#{File.basename(location)}.json"
-    exit if !File.exists?(metadatafilepath)
-    Lucille::deleteLucilleLocation(metadatafilepath)
 end

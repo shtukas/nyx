@@ -1,5 +1,0 @@
-```
-{
-	"timeline" : String # optional
-}
-```
