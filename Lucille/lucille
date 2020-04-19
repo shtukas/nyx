@@ -48,7 +48,7 @@ def timelineDive(timeline)
     puts "-> #{timeline}"
     loop {
         locations = Lucille::getTimelineLocations(timeline)
-        location = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| File.basename(location) })
+        location = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| Lucille::getUserFriendlyDescriptionForLocation(location) })
         break if location.nil?
         Lucille::openLocation(location)
     }
