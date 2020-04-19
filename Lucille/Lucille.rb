@@ -106,8 +106,13 @@ class Lucille
             }
     end
 
-    # Lucille::deleteLucilleLocation(location)
-    def self.deleteLucilleLocation(location)
+    # Lucille::doneLucilleLocation(location)
+    def self.doneLucilleLocation(location)
+        timeline = Lucille::getTimeline(location)
+        if timeline == "[Open Cycles]" then
+            puts "You are about to delete an [Open Cycle] item"
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Proceed? :")
+        end
         Lucille::moveLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
         location3 = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"

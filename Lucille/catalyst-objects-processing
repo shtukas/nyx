@@ -58,5 +58,5 @@ end
 if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    Lucille::deleteLucilleLocation(location)
+    Lucille::doneLucilleLocation(location)
 end
