@@ -18,6 +18,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
+#    DoNotShowUntil::setUnixtime(uid, unixtime)
+#    DoNotShowUntil::isVisible(uid)
+
 # -----------------------------------------------------------------
 
 class YouTubeVideoStream
@@ -72,10 +76,12 @@ class YouTubeVideoStream
         }
         filepath = YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath()).first
         return [] if filepath.nil?
+        uuid = "f7845869-e058-44cd-bfae-3412957c7dba"
+        return [] if !DoNotShowUntil::isVisible(uuid)
         announce = "YouTube Video Stream"
         [
             {
-                "uuid"                => "f7845869-e058-44cd-bfae-3412957c7dba",
+                "uuid"                => uuid,
                 "contentItem"         => {
                     "type" => "line",
                     "line" => "YouTube Video Stream"
