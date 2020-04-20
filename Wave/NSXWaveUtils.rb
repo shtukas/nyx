@@ -45,6 +45,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
     Zeta::destroy(filepath, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
+#    DoNotShowUntil::setUnixtime(uid, unixtime)
+#    DoNotShowUntil::isVisible(uid)
+
 # ----------------------------------------------------------------------
 =begin
 
@@ -153,23 +157,28 @@ class NSXWaveUtils
         JSON.generate(schedule)
     end
 
-    # NSXWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
-    def self.scheduleToDoNotShowDatetime(objectuuid, schedule)
+    # NSXWaveUtils::unixtimeAtComingMidnight()
+    def self.unixtimeAtComingMidnight()
+        DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00").to_time.to_i
+    end
+
+    # NSXWaveUtils::scheduleToDoNotShowUnixtime(objectuuid, schedule)
+    def self.scheduleToDoNotShowUnixtime(objectuuid, schedule)
         if schedule['@'] == 'sticky' then
-            return LucilleCore::datetimeAtComingMidnight()
+            return NSXWaveUtils::unixtimeAtComingMidnight() + 6*3600
         end
         if schedule['@'] == 'every-n-hours' then
-            return Time.at(Time.new.to_i+3600*schedule['repeat-value'].to_f).to_s
+            return Time.new.to_i+3600*schedule['repeat-value'].to_f
         end
         if schedule['@'] == 'every-n-days' then
-            return Time.at(Time.new.to_i+86400*schedule['repeat-value'].to_f).to_s
+            return Time.new.to_i+86400*schedule['repeat-value'].to_f
         end
         if schedule['@'] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
             while Time.at(cursor).strftime("%d") != schedule['repeat-value'] do
                 cursor = cursor + 3600
             end
-           return Time.at(cursor).to_s
+           return cursor
         end
         if schedule['@'] == 'every-this-day-of-the-week' then
             mapping = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
@@ -177,7 +186,7 @@ class NSXWaveUtils
             while mapping[Time.at(cursor).wday]!=schedule['repeat-value'] do
                 cursor = cursor + 3600
             end
-            return Time.at(cursor).to_s
+            return cursor
         end
     end
 
@@ -309,8 +318,8 @@ class NSXWaveUtils
         object = NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
         return if object.nil?
         schedule = object['schedule']
-        datetime = NSXWaveUtils::scheduleToDoNotShowDatetime(objectuuid, schedule)
-        NSXDoNotShowUntilDatetime::setDatetime(objectuuid, datetime)
+        unixtime = NSXWaveUtils::scheduleToDoNotShowUnixtime(objectuuid, schedule)
+        DoNotShowUntil::setUnixtime(objectuuid, unixtime)
     end
 
     # NSXWaveUtils::setItemDescription(uuid, description)

@@ -51,5 +51,4 @@ DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
 CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
 
 require_relative "NSXMiscUtils.rb"
-require_relative "NSXDoNotShowUntilDatetime.rb"
 require_relative "NSXWaveUtils.rb"
