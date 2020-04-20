@@ -113,6 +113,7 @@ cluster = LXCluster::getClusterOperational()
 displayLocations = (Lucille::getTimelineLocations("[Inbox]") + cluster["locations"]).uniq
 
 objects = displayLocations
+            .select{|location| DoNotShowUntil::isVisible(location) }
             .map{|location|
                 timeline = Lucille::getLocationTimeline(location)
                 uuid = Digest::SHA1.hexdigest(location)

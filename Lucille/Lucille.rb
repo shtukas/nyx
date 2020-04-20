@@ -20,9 +20,17 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::flagIsTrue(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
+#    DoNotShowUntil::setUnixtime(uid, unixtime)
+#    DoNotShowUntil::isVisible(uid)
+
+# -----------------------------------------------------------------
+
 DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
 CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
 BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+
+# -----------------------------------------------------------------
 
 class Lucille
 
