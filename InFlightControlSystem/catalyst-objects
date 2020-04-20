@@ -8,7 +8,7 @@ require_relative "InFlightControlSystem.rb"
 
 def reportLineToContentItemLine(reportLine)
     if reportLine.include?("running") then
-        "In Flight Control System 🛰️".green
+        reportLine.split(">>").first(2).join(">>")
     else
         "In Flight Control System 🛰️"
     end

@@ -210,17 +210,20 @@ def itemsOrderedByPosition()
 end
 
 def getNextAction() # [ nil | String, lambda ]
+    itemToDescription = lambda {|item|
+        item["lucilleLocationBasename"] || "Wave"
+    }
     runningitems = topItemsOrderedByTimespan()
         .select{|item| getItemCompanion(item["uuid"])["startunixtime"] }
     lowestitem = topItemsOrderedByTimespan()[0]
     if runningitems.size == 0 then
-        return [ "start: #{lowestitem["lucilleLocationBasename"]}".red , lambda { startItem(lowestitem["uuid"]) } ]
+        return [ "start: #{itemToDescription.call(lowestitem)}".red , lambda { startItem(lowestitem["uuid"]) } ]
     end
     firstrunningitem = runningitems[0]
     if firstrunningitem["uuid"] == lowestitem["uuid"] then
         return [ nil , lambda { stopItem(firstrunningitem["uuid"]) } ]
     else
-        return [ "stop: #{firstrunningitem["lucilleLocationBasename"]}".red , lambda { stopItem(firstrunningitem["uuid"]) } ]
+        return [ "stop: #{itemToDescription.call(firstrunningitem)}".red , lambda { stopItem(firstrunningitem["uuid"]) } ]
     end
 end
 
@@ -245,13 +248,16 @@ def getReportText()
 end
 
 def getReportLine() 
+    itemToDescription = lambda {|item|
+        item["lucilleLocationBasename"] || "Wave"
+    }
     report = [ "In Flight Control System 🛰️ " ]
     topItemsOrderedByTimespan()
         .select{|item| getItemCompanion(item["uuid"])["startunixtime"] }
         .each{|item| 
             d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
             d2 = d1 ? " (#{d1.round(2)} hours)" : ""
-            report << "running: #{item["lucilleLocationBasename"]}#{d2}".green 
+            report << "running: #{itemToDescription.call(item)}#{d2}".green 
         }
     nextaction = getNextAction()
     if nextaction then
