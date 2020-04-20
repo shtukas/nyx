@@ -68,7 +68,7 @@ def makeContentItem(location, timeline)
         return {
             "type" => "line-and-body",
             "line" => "[lucille] #{Lucille::getUserFriendlyDescriptionForLocation(location)} #{timelinefragment}",
-            "body" => "[lucille] #{timelinefragment}\n#{IO.read(location).strip}"
+            "body" => "[lucille] #{IO.read(location).strip}\n#{timelinefragment}"
         }
     end
     {
@@ -87,8 +87,12 @@ def makeMetric(metricHelper, isRunning, timeline)
     metricHelper.metric(0.4) # Lucille (timelines)
 end
 
-def makeCommands()
-    ["start", "open", "[]", "stop", "recast", "done"]
+def makeCommands(isRunning)
+    if isRunning then
+        ["open", "[]", "stop", "recast", "done"]
+    else
+        ["start"]
+    end
 end
 
 def shouldOpenAndDone(location)
@@ -100,7 +104,7 @@ end
 
 def makeDefaultCommand(location, isRunning)
     if isRunning then
-        shouldOpenAndDone(location) ? "open+done" : nil
+        shouldOpenAndDone(location) ? "open+done" : "stop"
     else
         "start"
     end
@@ -122,7 +126,7 @@ objects = displayLocations
                     "uuid"            => uuid,
                     "contentItem"     => makeContentItem(location, timeline),
                     "metric"          => makeMetric(metricHelper, isRunning, timeline),
-                    "commands"        => makeCommands(),
+                    "commands"        => makeCommands(isRunning),
                     "isRunning"       => isRunning,
                     "defaultCommand"  => makeDefaultCommand(location, isRunning),
                     "shell-redirects" => {
