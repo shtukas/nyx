@@ -110,7 +110,7 @@ end
 
 metricHelper = MetricHelper.new()
 cluster = LXCluster::getClusterOperational()
-displayLocations = (Lucille::getTimelineLocations("[Inbox]") + cluster["locations"]).uniq
+displayLocations = (Lucille::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
 
 objects = displayLocations
             .select{|location| DoNotShowUntil::isVisible(location) }

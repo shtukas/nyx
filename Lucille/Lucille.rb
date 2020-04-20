@@ -8,6 +8,10 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
@@ -280,7 +284,7 @@ Cluster {
     "locations"             : Array[String] # Locations
     "startingLocationCount" : Int
     "timelinesTimePoints"   : Map[Timeline, Array[TimePoint]]
-    "precomputed"           : Map
+    "computed"              : Object
 }
 
 TimePoint {
@@ -291,10 +295,16 @@ TimePoint {
 =end
 
 class LXCluster
-    # LXCluster::selectLocationsForCluster()
+
+    # LXCluster::startingClusterSize()
+    def self.startingClusterSize()
+        100
+    end
+
+    # LXCluster::selectLocationsForCluster(size)
     # TODO
-    def self.selectLocationsForCluster()
-        Lucille::locations().first(100)
+    def self.selectLocationsForCluster(size)
+        Lucille::locations().first(size)
     end
 
     # LXCluster::makeNewCluster(locations)
@@ -316,7 +326,7 @@ class LXCluster
             "locations"             => locations,
             "startingLocationCount" => locations.size,
             "timelinesTimePoints"   => timelinesTimePoints,
-            "precomputed"           => {}
+            "computed"           => {}
         }
     end
 
@@ -341,11 +351,45 @@ class LXCluster
     # LXCluster::getClusterOperational()
     # TODO
     def self.getClusterOperational()
-        # This function gets the cluster from disk and performs some garbage collection to prepare it for display
-        # For instance removing the location that have disappeared 
-        # as ell a precomputing data needed for display.
-        # In some circumstances it discards the current cluster and spawns a new one.
-        LXCluster::getClusterFromDisk()
+        cluster = LXCluster::getClusterFromDisk()
+
+        trace1 = Digest::SHA1.hexdigest(JSON.generate(cluster))
+
+        # Removing location that have disappeared
+        cluster["locations"] = cluster["locations"].select{|location| File.exists?(location) }
+
+        # Removing locations that are DoNotShowUntil hidden
+        cluster["locations"] = cluster["locations"].select{|location| DoNotShowUntil::isVisible(location) }
+
+        if cluster["locations"].size < 0.5*cluster["startingLocationCount"] then
+            cluster = LXCluster::makeNewCluster(LXCluster::selectLocationsForCluster(LXCluster::startingClusterSize()))
+            LXCluster::commitClusterToDisk(cluster)
+        end
+
+        # We want to remove from cluster["timelinesTimePoints"] the timelines that are no longer 
+        # relevant, mostlikely because the corresponding location are gone
+        timelines = cluster["locations"].map{|location| Lucille::getLocationTimeline(location) }
+        cluster["timelinesTimePoints"] = cluster["timelinesTimePoints"].to_a.select{|pair| timelines.include?(pair[0]) }.to_h
+
+        computeTimelineTimespan = lambda {|cluster, timeline|
+            cluster["timelinesTimePoints"][timeline].map{|timepoint| timepoint["timespan"]}.inject(0, :+)
+        }
+
+        cluster["computed"] = {}
+
+        cluster["computed"]["timelinesTimespans"] = timelines.map{|timeline| [ timeline , computeTimelineTimespan.call(cluster, timeline) ] }.to_h
+
+        cluster["computed"]["timelineOrdered"] = cluster["computed"]["timelinesTimespans"].to_a.sort{|p1, p2| p1[1]<=>p2[1] }
+
+        lowertimeline = cluster["computed"]["timelineOrdered"][0][0]
+
+        cluster["computed"]["locationsForDisplay"] = cluster["locations"].select{|location| Lucille::getLocationTimeline(location) == lowertimeline }
+
+        trace2 = Digest::SHA1.hexdigest(JSON.generate(cluster))
+        if trace1 != trace2 then
+            LXCluster::commitClusterToDisk(cluster)
+        end
+        cluster
     end
 
     def self.processIncomingLocationTimespan(location, timespan)
