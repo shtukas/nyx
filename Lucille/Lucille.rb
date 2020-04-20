@@ -233,29 +233,115 @@ class Lucille
         FileUtils.mkdir(folder3)
         FileUtils.mv(location, folder3)
     end
-
-    # -------------------------------------------------------
-    # Activity Management (driven by In Flight Control System)
-
-    # Lucille::startLocation(location)
-    def self.startLocation(location)
-        KeyValueStore::setFlagTrue(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
-    end
-
-    # Lucille::stopLocation(location)
-    def self.stopLocation(location)
-        KeyValueStore::setFlagFalse(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
-    end
-
-    # Lucille::isLocationRunning(location)
-    def self.isLocationRunning(location)
-        KeyValueStore::flagIsTrue(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
-    end
-
 end
 
+class LXRunManagement
+    # LXRunManagement::getRunUnixtimeOrNull(location)
+    def self.getRunUnixtimeOrNull(location)
+        value = KeyValueStore::getOrNull(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
+        return nil if value.nil?
+        value.to_i
+    end
 
+    # LXRunManagement::locationIsRunning(location)
+    def self.locationIsRunning(location)
+        !LXRunManagement::getRunUnixtimeOrNull(location).nil?
+    end
 
+    # LXRunManagement::startLocation(location)
+    def self.startLocation(location)
+        return if LXRunManagement::getRunUnixtimeOrNull(location)
+        KeyValueStore::set(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}", Time.new.to_i)
+    end
 
+    # LXRunManagement::stopLocation(location) # return timespan or null
+    def self.stopLocation(location)
+        unixtime = LXRunManagement::getRunUnixtimeOrNull(location)
+        return nil if unixtime.nil?
+        KeyValueStore::destroy(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
+        Time.new.to_i - unixtime
+    end
+end
 
+=begin
+
+Cluster is a structure that contains a subset of the locations and the time points 
+required for the timeline management. 
+
+Cluster {
+    "locations"             : Array[String] # Locations
+    "startingLocationCount" : Int
+    "timelinesTimePoints"   : Map[Timeline, Array[TimePoint]]
+    "precomputed"           : Map
+}
+
+TimePoint {
+    "unixtime" : Int
+    "timespan" : Float
+}
+
+=end
+
+class LXCluster
+    # LXCluster::selectLocationsForCluster()
+    # TODO
+    def self.selectLocationsForCluster()
+        Lucille::locations().first(100)
+    end
+
+    # LXCluster::makeNewCluster(locations)
+    def self.makeNewCluster(locations)
+
+        dummyTimepoint = lambda {
+            {
+                "unixtime" => Time.new.to_i,
+                "timespan" => 0
+            }
+        }
+
+        timelinesTimePoints = {}
+        locations.each{|location|
+            timeline = Lucille::getLocationTimeline(location)
+            timelinesTimePoints[timeline] = [ dummyTimepoint.call() ]
+        }
+        {
+            "locations"             => locations,
+            "startingLocationCount" => locations.size,
+            "timelinesTimePoints"   => timelinesTimePoints,
+            "precomputed"           => {}
+        }
+    end
+
+    # LXCluster::commitClusterToDisk(cluster)
+    def self.commitClusterToDisk(cluster)
+        filename = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/cluster.json"
+        File.open(filename, "w") {|f| f.puts(JSON.pretty_generate(cluster)) }
+    end
+
+    # LXCluster::issueNewCluster()
+    def self.issueNewCluster()
+        locations = LXCluster::selectLocationsForCluster()
+        cluster = LXCluster::makeNewCluster(locations)
+        LXCluster::commitClusterToDisk(cluster)
+    end
+
+    # LXCluster::getClusterFromDisk()
+    def self.getClusterFromDisk()
+        JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/cluster.json"))
+    end
+
+    # LXCluster::getClusterOperational()
+    # TODO
+    def self.getClusterOperational()
+        # This function gets the cluster from disk and performs some garbage collection to prepare it for display
+        # For instance removing the location that have disappeared 
+        # as ell a precomputing data needed for display.
+        # In some circumstances it discards the current cluster and spawns a new one.
+        LXCluster::getClusterFromDisk()
+    end
+
+    def self.processIncomingLocationTimespan(location, timespan)
+        # We get the cluster and add a timepoint to the relevant timeline
+    end
+end
 

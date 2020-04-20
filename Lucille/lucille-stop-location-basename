@@ -47,6 +47,6 @@ require_relative "Lucille.rb"
 locationname = ARGV[0]
 location = "#{Lucille::pathToItems()}/#{locationname}"
 exit if !File.exists?(location)
-Lucille::stopLocation(location)
+LXRunManagement::stopLocation(location)
 
 

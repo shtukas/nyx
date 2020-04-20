@@ -48,6 +48,6 @@ locationname = ARGV[0]
 location = "#{Lucille::pathToItems()}/#{locationname}"
 exit if !File.exists?(location)
 Lucille::openLocation(location)
-Lucille::startLocation(location)
+LXRunManagement::startLocation(location)
 
 

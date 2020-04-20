@@ -87,11 +87,12 @@ def makeMetric(metricHelper, isRunning, timeline)
     metricHelper.metric(0.4) # Lucille (timelines)
 end
 
-def getFocusTimelines()
-    timelines = Lucille::timelines() - [ "[Open Cycles]" ]
-    return [] if timelines.empty?
-    indx = ((Time.new.to_f/(3600*2)).to_i) % timelines.size
-    [ "[Inbox]" , timelines[indx] ] 
+def makeCommands(isRunning)
+    if isRunning then
+        ["open", "[]", "stop", "recast", "done"]
+    else
+        ["start"]
+    end
 end
 
 def shouldOpenAndDone(location)
@@ -101,33 +102,40 @@ def shouldOpenAndDone(location)
     false
 end
 
+def makeDefaultCommand(location, isRunning)
+    if isRunning then
+        shouldOpenAndDone(location) ? "open+done" : nil
+    else
+        "start"
+    end
+end
+
 # -------------------------------------------------------------------------
 
-focusTimelines = getFocusTimelines()
-
 metricHelper = MetricHelper.new()
+cluster = LXCluster::getClusterOperational()
+displayLocations = (Lucille::getTimelineLocations("[Inbox]") + cluster["locations"]).uniq
 
-objects = Lucille::locations()
-    .select{|location|  focusTimelines.include?(Lucille::getLocationTimeline(location)) }
-    .map{|location|
-        timeline = Lucille::getLocationTimeline(location)
-        uuid = Digest::SHA1.hexdigest(location)
-        isRunning = Lucille::isLocationRunning(location)
-        {
-            "uuid"            => uuid,
-            "contentItem"     => makeContentItem(location, timeline),
-            "metric"          => makeMetric(metricHelper, isRunning, timeline),
-            "commands"        => ["open", "[]", "recast", "done"],
-            "isRunning"       => isRunning,
-            "defaultCommand"  => shouldOpenAndDone(location) ? "open+done" : nil,
-            "shell-redirects" => {
-                "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
-                "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
-                "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
-                "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
-            },
-            "location"        => location
-        }
-    }
+objects = displayLocations
+            .map{|location|
+                timeline = Lucille::getLocationTimeline(location)
+                uuid = Digest::SHA1.hexdigest(location)
+                isRunning = LXRunManagement::locationIsRunning(location)
+                {
+                    "uuid"            => uuid,
+                    "contentItem"     => makeContentItem(location, timeline),
+                    "metric"          => makeMetric(metricHelper, isRunning, timeline),
+                    "commands"        => makeCommands(isRunning),
+                    "isRunning"       => isRunning,
+                    "defaultCommand"  => makeDefaultCommand(location, isRunning),
+                    "shell-redirects" => {
+                        "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
+                        "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
+                        "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
+                        "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
+                    },
+                    "location"        => location
+                }
+            }
 
 puts JSON.generate(objects)
