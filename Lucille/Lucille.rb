@@ -296,15 +296,14 @@ TimePoint {
 
 class LXCluster
 
-    # LXCluster::startingClusterSize()
-    def self.startingClusterSize()
-        100
-    end
-
-    # LXCluster::selectLocationsForCluster(size)
-    # TODO
-    def self.selectLocationsForCluster(size)
-        Lucille::locations().first(size)
+    # LXCluster::selectLocationsForCluster()
+    def self.selectLocationsForCluster()
+        Lucille::timelines()
+            .reject{|timeline| timeline=="[Inbox]" or timeline=="[Open Cycles]" }
+            .map{|timeline|
+                Lucille::getTimelineLocations(timeline).first(20)
+            }
+            .flatten
     end
 
     # LXCluster::makeNewCluster(locations)
@@ -349,7 +348,6 @@ class LXCluster
     end
 
     # LXCluster::getClusterOperational()
-    # TODO
     def self.getClusterOperational()
         cluster = LXCluster::getClusterFromDisk()
 
@@ -362,14 +360,13 @@ class LXCluster
         cluster["locations"] = cluster["locations"].select{|location| DoNotShowUntil::isVisible(location) }
 
         if cluster["locations"].size < 0.5*cluster["startingLocationCount"] then
-            cluster = LXCluster::makeNewCluster(LXCluster::selectLocationsForCluster(LXCluster::startingClusterSize()))
+            cluster = LXCluster::makeNewCluster(LXCluster::selectLocationsForCluster())
             LXCluster::commitClusterToDisk(cluster)
         end
 
         # We want to remove from cluster["timelinesTimePoints"] the timelines that are no longer 
         # relevant, mostlikely because the corresponding location are gone
         timelines = cluster["locations"].map{|location| Lucille::getLocationTimeline(location) }
-        cluster["timelinesTimePoints"] = cluster["timelinesTimePoints"].to_a.select{|pair| timelines.include?(pair[0]) }.to_h
 
         computeTimelineTimespan = lambda {|cluster, timeline|
             cluster["timelinesTimePoints"][timeline].map{|timepoint| timepoint["timespan"]}.inject(0, :+)
@@ -392,8 +389,17 @@ class LXCluster
         cluster
     end
 
+    # LXCluster::processIncomingLocationTimespan(location, timespan)
     def self.processIncomingLocationTimespan(location, timespan)
-        # We get the cluster and add a timepoint to the relevant timeline
+        timeline = Lucille::getLocationTimeline(location)
+        cluster = LXCluster::getClusterFromDisk()
+        return if cluster["timelinesTimePoints"][timeline].nil?
+        point = {
+            "unixtime" => Time.new.to_i,
+            "timespan" => timespan
+        }
+        cluster["timelinesTimePoints"][timeline] << point
+        LXCluster::commitClusterToDisk(cluster)
     end
 end
 
