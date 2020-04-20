@@ -20,6 +20,18 @@ require_relative "Lucille.rb"
 
 # -----------------------------------------------------------------------------
 
+if ARGV[0] == "start" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    LXRunManagement::startLocation(location)
+end
+
+if ARGV[0] == "stop" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    LXRunManagement::stopLocation(location)
+end
+
 if ARGV[0] == "open" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)

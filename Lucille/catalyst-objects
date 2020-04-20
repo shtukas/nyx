@@ -87,12 +87,8 @@ def makeMetric(metricHelper, isRunning, timeline)
     metricHelper.metric(0.4) # Lucille (timelines)
 end
 
-def makeCommands(isRunning)
-    if isRunning then
-        ["open", "[]", "stop", "recast", "done"]
-    else
-        ["start"]
-    end
+def makeCommands()
+    ["start", "open", "[]", "stop", "recast", "done"]
 end
 
 def shouldOpenAndDone(location)
@@ -125,10 +121,12 @@ objects = displayLocations
                     "uuid"            => uuid,
                     "contentItem"     => makeContentItem(location, timeline),
                     "metric"          => makeMetric(metricHelper, isRunning, timeline),
-                    "commands"        => makeCommands(isRunning),
+                    "commands"        => makeCommands(),
                     "isRunning"       => isRunning,
                     "defaultCommand"  => makeDefaultCommand(location, isRunning),
                     "shell-redirects" => {
+                        "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{location}'",
+                        "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{location}'",
                         "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
                         "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
