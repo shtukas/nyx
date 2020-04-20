@@ -37,17 +37,8 @@ class NSXCatalystObjectsOperator
                     }
                     .flatten
 
-        # Wave has its own implementation of NSXDoNotShowUntilDatetime because
-        # that's how it controls its own elements
-        # Catalyst also needs one because it itself sends some elements to the future 
-        # with command ++
-
         objects = objects
-            .select{|object|
-                b1 = NSXDoNotShowUntilDatetime::getFutureDatetimeOrNull(object["uuid"]).nil?
-                b2 = object["isRunning"]
-                b1 or b2
-            }
+            .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 

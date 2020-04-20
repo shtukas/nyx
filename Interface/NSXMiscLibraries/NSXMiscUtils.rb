@@ -48,8 +48,8 @@ class NSXMiscUtils
         }
     end
 
-    # NSXMiscUtils::codeToDatetimeOrNull(code)
-    def self.codeToDatetimeOrNull(code)
+    # NSXMiscUtils::codeToUnixtimeOrNull(code)
+    def self.codeToUnixtimeOrNull(code)
 
         return nil if code.nil?
         return nil if code == ""
@@ -77,24 +77,24 @@ class NSXMiscUtils
             weekdayName = code
             date = NSXMiscUtils::selectDateOfNextNonTodayWeekDay(weekdayName)
             datetime = "#{date} #{morningShowTime}"
-            return datetime
+            return DateTime.parse(datetime).to_time.to_i
         end
 
         if code.include?("hour") then
-            return ( Time.new + code.to_f*3600 ).utc.iso8601
+            return Time.new.to_i + code.to_f*3600
         end
 
         if code.include?("day") then
-            return ( DateTime.now + code.to_f ).to_time.utc.iso8601
+            return Time.new.to_i + code.to_f*86400
         end
 
         if code[4,1]=="-" and code[7,1]=="-" then
-            return DateTime.parse("#{code} #{morningShowTime}").to_time.utc.iso8601
+            return DateTime.parse("#{code} #{morningShowTime}").to_time.to_i
         end
 
         if code.include?('@') then
             p1, p2 = code.split('@') # 1 12:34
-            return "#{NSXMiscUtils::nDaysInTheFuture(p1.to_i)[0, 10]} #{p2}:00 #{localsuffix}"
+            return DateTime.parse("#{NSXMiscUtils::nDaysInTheFuture(p1.to_i)[0, 10]} #{p2}:00 #{localsuffix}").to_time.to_i
         end
 
         nil

@@ -158,9 +158,9 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command.start_with?('+') and (datetime = NSXMiscUtils::codeToDatetimeOrNull(command)) then
-            puts "Pushing to #{datetime}"
-            NSXDoNotShowUntilDatetime::setDatetime(object["uuid"], datetime)
+        if command.start_with?('+') and (unixtime = NSXMiscUtils::codeToUnixtimeOrNull(command)) then
+            puts "Pushing to #{Time.at(unixtime).to_s}"
+            DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
             return
         end
 
