@@ -1,5 +1,4 @@
 #!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
-
 # encoding: UTF-8
 
 require 'colorize'
@@ -226,12 +225,18 @@ def getNextAction() # [ nil | String, lambda ]
 end
 
 def getReportText()
-    nsize = getItems().map{|item| item["lucilleLocationBasename"].size }.max
+    itemToDescription = lambda {|item|
+        item["lucilleLocationBasename"] || "Wave"
+    }
+    nsize = getItems()
+        .select{|item| item["lucilleLocationBasename"] } # This is to avoid the Wave item
+        .map{|item| item["lucilleLocationBasename"].size }
+        .max
     itemsOrderedByPosition()
         .map{|item| 
             if itemIsTopItem(item["uuid"]) then
                 companion = getItemCompanion(item["uuid"])
-                "(#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
+                "(#{"%5.3f" % item["position"]}) #{itemToDescription.call(item).ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
             else
                 "(#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"].ljust(nsize)}"
             end
