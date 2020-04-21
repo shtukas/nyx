@@ -19,19 +19,17 @@ def reportLineToContentItemBody(reportLine)
 end
 
 objects = []
-if flightControlIsActive() then
-    reportLine = getReportLine()
-    if reportLine then
-        objects << {
-            "uuid"           => SecureRandom.uuid,
-            "contentItem"    => {
-                "type" => "line-and-body",
-                "line" => reportLineToContentItemLine(reportLine),
-                "body" => reportLineToContentItemBody(reportLine)
-            },
-            "metric"         => 0.75,
-            "commands"       => []
-        }
-    end
+reportLine = getReportLine()
+if reportLine then
+    objects << {
+        "uuid"           => SecureRandom.uuid,
+        "contentItem"    => {
+            "type" => "line-and-body",
+            "line" => reportLineToContentItemLine(reportLine),
+            "body" => reportLineToContentItemBody(reportLine)
+        },
+        "metric"         => 0.75,
+        "commands"       => []
+    }
 end
 puts JSON.generate(objects)

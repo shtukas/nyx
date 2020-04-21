@@ -218,12 +218,6 @@ end
 # ---------------
 # Operations
 
-def flightControlIsActive()
-    b1 = ( Time.new.hour >= 9 and Time.new.hour < 21 )
-    b2 = getTopThreeActiveItems().any?{|item| itemIsRunning(item) }
-    b1 or b2
-end
-
 def itemIsTopActiveItem(uuid)
     getTopThreeActiveItems().any?{|i| i["uuid"] == uuid }
 end
