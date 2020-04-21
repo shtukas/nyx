@@ -91,7 +91,8 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     options = [
         "done",
         "recast",
-        "ifcs"
+        "ifcs",
+        "do not show until"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     if option == "done" then
@@ -102,6 +103,10 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     end
     if option == "ifcs" then
         ifcsLucilleLocation(location)
+    end
+    if option == "do not show until" then
+        hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
+        DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
     end
 end
 
