@@ -248,6 +248,7 @@ class Lucille
 end
 
 class LXRunManagement
+
     # LXRunManagement::getRunUnixtimeOrNull(location)
     def self.getRunUnixtimeOrNull(location)
         value = KeyValueStore::getOrNull(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
@@ -347,8 +348,8 @@ class LXCluster
         JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/cluster.json"))
     end
 
-    # LXCluster::getClusterOperational()
-    def self.getClusterOperational()
+    # LXCluster::curateOrRespawnCluster()
+    def self.curateOrRespawnCluster()
         cluster = LXCluster::getClusterFromDisk()
 
         trace1 = Digest::SHA1.hexdigest(JSON.generate(cluster))
@@ -378,9 +379,12 @@ class LXCluster
 
         cluster["computed"]["timelineOrdered"] = cluster["computed"]["timelinesTimespans"].to_a.sort{|p1, p2| p1[1]<=>p2[1] }
 
-        lowertimeline = cluster["computed"]["timelineOrdered"][0][0]
-
-        cluster["computed"]["locationsForDisplay"] = cluster["locations"].select{|location| Lucille::getLocationTimeline(location) == lowertimeline }
+        cluster["computed"]["locationsForDisplay"] = cluster["computed"]["timelineOrdered"]
+                                                        .map{|item| item[0] }
+                                                        .map{|timeline|  
+                                                            cluster["locations"].select{|location| Lucille::getLocationTimeline(location) == timeline }
+                                                        }
+                                                        .flatten
 
         trace2 = Digest::SHA1.hexdigest(JSON.generate(cluster))
         if trace1 != trace2 then

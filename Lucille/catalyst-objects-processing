@@ -12,6 +12,11 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 # --------------------------------------------------------------------
@@ -30,7 +35,9 @@ if ARGV[0] == "stop" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
     timespan = LXRunManagement::stopLocation(location)
+    exit if timespan.nil?
     LXCluster::processIncomingLocationTimespan(location, timespan)
+    LXCluster::curateOrRespawnCluster()
 end
 
 if ARGV[0] == "open" and ARGV[1] then
@@ -51,7 +58,10 @@ end
 if ARGV[0] == "recast" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    LXRunManagement::stopLocation(location)
+    timespan = LXRunManagement::stopLocation(location)
+    if timespan then
+        LXCluster::processIncomingLocationTimespan(location, timespan)
+    end
     timeline = nil
     loop {
         timelines = Lucille::timelines().reject{|timeline| timeline == "[Inbox]" }
@@ -67,10 +77,41 @@ if ARGV[0] == "recast" and ARGV[1] then
         end
     }
     Lucille::setLocationTimeline(location, timeline)
+    LXCluster::curateOrRespawnCluster()
+end
+
+if ARGV[0] == "ifcs" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    # First we start my migrating the location to timeline [Open Cycles]
+    Lucille::setLocationTimeline(location, "[Open Cycles]")
+    # Now we need to create a new ifcs item, the only non trivial step if to decide the position
+    makeNewIFCSItemPosition = lambda {
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
+            .sort{|i1, i2| i1["position"] <=> i2["position"]}
+            .each{|item|
+                puts "   - (#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"]}"
+            }
+        LucilleCore::askQuestionAnswerAsString("position: ").to_f
+    }
+    position = makeNewIFCSItemPosition.call()
+    uuid = SecureRandom.uuid
+    item = {
+        "uuid"                    => uuid,
+        "lucilleLocationBasename" => File.basename(location),
+        "description"             => ucille::getUserFriendlyDescriptionForLocation(location),
+        "position"                => position
+    }
+    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
 end
 
 if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
+    timespan = LXRunManagement::stopLocation(location)
+    if timespan then
+        LXCluster::processIncomingLocationTimespan(location, timespan)
+    end
     Lucille::doneLucilleLocation(location)
+    LXCluster::curateOrRespawnCluster()
 end

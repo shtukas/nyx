@@ -20,7 +20,7 @@ loop {
         item = selectItemOrNull()
         next if item.nil?
         loop {
-            puts "Focus: #{item["lucilleLocationBasename"]}"
+            puts "Focus: #{item["description"]}"
             puts JSON.pretty_generate(item)
             puts JSON.pretty_generate(getItemCompanion(item["uuid"]))
             oxs = ["start", "stop"]

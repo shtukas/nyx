@@ -66,6 +66,7 @@ def waveItem()
     {
         "uuid" => waveuuid(),
         "lucilleLocationBasename" => nil,
+        "description" => "Wave",
         "position" => 0
     }
 end
@@ -74,11 +75,14 @@ def itemsFolderpath()
     "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items"
 end
 
-def getItems()
-    items = Dir.entries(itemsFolderpath())
+def getItemsWihtoutWave()
+    Dir.entries(itemsFolderpath())
         .select{|filename| filename[-5, 5] == ".json" }
         .map{|filename| JSON.parse(IO.read("#{itemsFolderpath()}/#{filename}")) }
-    items + [ waveItem() ]
+end
+
+def getItems()
+    getItemsWihtoutWave() + [ waveItem() ]
 end
 
 def getTopThreeItems()
@@ -210,54 +214,45 @@ def itemsOrderedByPosition()
 end
 
 def getNextAction() # [ nil | String, lambda ]
-    itemToDescription = lambda {|item|
-        item["lucilleLocationBasename"] || "Wave"
-    }
     runningitems = topItemsOrderedByTimespan()
         .select{|item| getItemCompanion(item["uuid"])["startunixtime"] }
     lowestitem = topItemsOrderedByTimespan()[0]
     if runningitems.size == 0 then
-        return [ "start: #{itemToDescription.call(lowestitem)}".red , lambda { startItem(lowestitem["uuid"]) } ]
+        return [ "start: #{lowestitem["description"]}".red , lambda { startItem(lowestitem["uuid"]) } ]
     end
     firstrunningitem = runningitems[0]
     if firstrunningitem["uuid"] == lowestitem["uuid"] then
         return [ nil , lambda { stopItem(firstrunningitem["uuid"]) } ]
     else
-        return [ "stop: #{itemToDescription.call(firstrunningitem)}".red , lambda { stopItem(firstrunningitem["uuid"]) } ]
+        return [ "stop: #{firstrunningitem["description"]}".red , lambda { stopItem(firstrunningitem["uuid"]) } ]
     end
 end
 
 def getReportText()
-    itemToDescription = lambda {|item|
-        item["lucilleLocationBasename"] || "Wave"
-    }
     nsize = getItems()
-        .select{|item| item["lucilleLocationBasename"] } # This is to avoid the Wave item
-        .map{|item| item["lucilleLocationBasename"].size }
+        .reject{|item| item["uuid"] == waveuuid() }
+        .map{|item| item["description"].size }
         .max
     itemsOrderedByPosition()
         .map{|item| 
             if itemIsTopItem(item["uuid"]) then
                 companion = getItemCompanion(item["uuid"])
-                "(#{"%5.3f" % item["position"]}) #{itemToDescription.call(item).ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
+                "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
             else
-                "(#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"].ljust(nsize)}"
+                "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
             end
         }
         .join("\n")
 end
 
 def getReportLine() 
-    itemToDescription = lambda {|item|
-        item["lucilleLocationBasename"] || "Wave"
-    }
     report = [ "In Flight Control System 🛰️ " ]
     topItemsOrderedByTimespan()
         .select{|item| getItemCompanion(item["uuid"])["startunixtime"] }
         .each{|item| 
             d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
             d2 = d1 ? " (#{d1.round(2)} hours)" : ""
-            report << "running: #{itemToDescription.call(item)}#{d2}".green 
+            report << "running: #{item["description"]}#{d2}".green 
         }
     nextaction = getNextAction()
     if nextaction then
@@ -267,7 +262,7 @@ def getReportLine()
 end
 
 def selectItemOrNull()
-    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", itemsOrderedByPosition(), lambda{|item| item["lucilleLocationBasename"] })
+    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", itemsOrderedByPosition(), lambda{|item| item["description"] })
 end
 
 def onScreenNotification(title, message)

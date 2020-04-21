@@ -87,12 +87,11 @@ def makeMetric(metricHelper, isRunning, timeline)
     metricHelper.metric(0.4) # Lucille (timelines)
 end
 
-def makeCommands(isRunning)
-    if isRunning then
-        ["open", "[]", "stop", "recast", "done"]
-    else
-        ["start"]
+def makeCommands(timeline)
+    if timeline == "[Inbox]" then
+        return ["open", "[]", "recast", "ifcs", "done"]
     end
+    ["start", "open", "[]", "stop", "recast", "ifcs", "done"]
 end
 
 def shouldOpenAndDone(location)
@@ -113,7 +112,7 @@ end
 # -------------------------------------------------------------------------
 
 metricHelper = MetricHelper.new()
-cluster = LXCluster::getClusterOperational()
+cluster = LXCluster::getClusterFromDisk()
 displayLocations = (Lucille::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
 
 objects = displayLocations
@@ -126,7 +125,7 @@ objects = displayLocations
                     "uuid"            => uuid,
                     "contentItem"     => makeContentItem(location, timeline),
                     "metric"          => makeMetric(metricHelper, isRunning, timeline),
-                    "commands"        => makeCommands(isRunning),
+                    "commands"        => makeCommands(timeline),
                     "isRunning"       => isRunning,
                     "defaultCommand"  => makeDefaultCommand(location, isRunning),
                     "shell-redirects" => {
@@ -135,6 +134,7 @@ objects = displayLocations
                         "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
                         "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
+                        "ifcs"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing ifcs '#{location}'",
                         "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
                     },
                     "location"        => location
