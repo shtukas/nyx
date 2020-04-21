@@ -70,7 +70,7 @@ class NSXCatalystObjectsOperator
         # Make sure that ifcs 'start:' is not first if there are [Inbox] elements
         loop {
             break if objects.size < 2
-            break if !objectIsContentItemLineAndInclude.call(objects[0], 'start:')
+            break if !objectIsContentItemLineAndInclude.call(objects[0], 'In Flight Control System')
             break if objects.none?{|o| objectIsContentItemLineAndInclude.call(o, '[Inbox]') }
             objects[0]["metric"] = objects[0]["metric"] - 0.001
             objects = objects
