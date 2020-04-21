@@ -105,11 +105,13 @@ def makeDefaultCommand(location, isRunning, timeline)
     if timeline == "[Inbox]" then
         return "inbox"
     end
-    if isRunning then
-        shouldOpenAndDone(location) ? "open+done" : "stop"
-    else
-        "start"
+    if isRunning and shouldOpenAndDone(location) then
+        "open+done"
     end
+    if isRunning then
+        "start+open"
+    end
+    "stop"
 end
 
 # -------------------------------------------------------------------------

@@ -214,14 +214,9 @@ class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
     def self.processCatalystCommandManager(object, command)
-        if object and command == "open" then
-            NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
-            return
-        end
-        if object and command == "start" then
+        if object and command == "start+open" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "start")
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            NSXGeneralCommandHandler::processCatalystCommandCore(object, "open")
             return
         end
         if object and ( command == "open+done" ) then
