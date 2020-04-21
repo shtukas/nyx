@@ -239,7 +239,7 @@ class Lucille
     def self.moveLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
-        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m-%d")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m-")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{Lucille::timeStringL22()}"
         FileUtils.mkdir(folder3)
