@@ -42,17 +42,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 =begin
 
 Item {
-    "uuid" : String,
+    "uuid"                    : String,
     "lucilleLocationBasename" : String
-    "description" : String
-    "position" : Float
+    "description"             : String
+    "position"                : Float
+    "DoNotShowUntilUnixtime"  : Unixtime # Optional
 }
 
-Companion {
-    "uuid"          : String
-    "startunixtime" : Float
-    "timePoints"    : Array[TimePoints]
-}
+TimePoints : Array[TimePoint]
 
 TimePoint = {
     "unixtime" : Float
@@ -112,8 +109,13 @@ def getItems()
     getItemsWihtoutWave() + [ waveItem() ]
 end
 
-def getTopThreeItems()
+def getTopThreeActiveItems()
     getItems()
+        .select{|item| 
+            b1 = item["DoNotShowUntilUnixtime"].nil? or ( Time.new.to_i > item["DoNotShowUntilUnixtime"] ) 
+            b2 = itemIsRunning(item)
+            b1 or b2
+        }
         .sort{|i1, i2| i1["position"] <=> i2["position"] }
         .first(3)
 end
@@ -137,63 +139,71 @@ end
 # ---------------
 # IO Companions
 
-def companionsKeyPrefix()
-    getTopThreeItems()
+def timePointsKeyPrefix()
+    s1 = "72a74d9f-a3df-4ec3-b6b2-e6aeb197119e"
+    s2 = getTopThreeActiveItems()
         .map{|item| item["uuid"] }
         .sort
-        .join("-")
+        .join(";")
+    [s1, s2].join(";;")
 end
 
-def getItemCompanion(uuid)
-    companion = KeyValueStore::getOrNull(nil, "#{companionsKeyPrefix()}:#{uuid}")
-    if companion.nil? then
-        companion = {
-            "uuid"          => uuid,
-            "startunixtime" => nil,
-            "timePoints"    => []
-        }
-    else
-        companion = JSON.parse(companion)
-        if companion["timePoints"].nil? then
-            companion["timePoints"] = companion["timesPoints"] # for the old ones
-        end
-    end
-    companion
+def getItemTimePoints(uuid)
+    timepoints = KeyValueStore::getOrDefaultValue(nil, "#{timePointsKeyPrefix()}:#{uuid}", "[]")
+    JSON.parse(timepoints)
 end
 
-def saveItemCompanion(companion)
-    KeyValueStore::set(nil, "#{companionsKeyPrefix()}:#{companion["uuid"]}", JSON.generate(companion))
+def saveItemTimepoints(uuid, timepoints)
+    KeyValueStore::set(nil, "#{timePointsKeyPrefix()}:#{uuid}", JSON.generate(timepoints))
 end
 
 # ---------------
 # Run Management
 
+def setStartUnixtime(uuid, unixtime)
+    KeyValueStore::set(nil, "47d2c99f-cbcc-410a-b3c5-faa681571c7b:#{uuid}", unixtime)
+end
+
+def unsetStartUnixtime(uuid)
+    KeyValueStore::destroy(nil, "47d2c99f-cbcc-410a-b3c5-faa681571c7b:#{uuid}")
+end
+
+def getStartUnixtimeOrNull(uuid)
+    unixtime = KeyValueStore::getOrNull(nil, "47d2c99f-cbcc-410a-b3c5-faa681571c7b:#{uuid}")
+    return nil if unixtime.nil?
+    unixtime.to_i
+end
+
 def startItem(uuid)
-    companion = getItemCompanion(uuid)
-    return if companion["startunixtime"]
-    companion["startunixtime"] = Time.new.to_i
-    saveItemCompanion(companion)
-    return if uuid == waveuuid()
+
+    return if !getStartUnixtimeOrNull(uuid).nil?
+
+    setStartUnixtime(uuid, Time.new.to_i)
 
     # When we start a ifcs item we also want to start the corresponding lucille item
+    # But not if it's the Wave item
+    return if uuid == waveuuid()
     item = getItemByUUIDOrNull(uuid)
     return if item.nil?
     system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-and-start-location-basename '#{item["lucilleLocationBasename"]}'")
 end
 
 def stopItem(uuid)
-    companion = getItemCompanion(uuid)
-    return if companion["startunixtime"].nil?
-    unixtime = companion["startunixtime"]
-    timespan = [Time.new.to_i - unixtime, 3600*2].min
+
+    return if getStartUnixtimeOrNull(uuid).nil?
+
+    timespan = [Time.new.to_i - getStartUnixtimeOrNull(uuid), 3600*2].min
         # We prevent time spans greater than 2 hours,
-        # to void what happened when I left Wave running an entire night.
-    companion["startunixtime"] = nil
-    companion["timePoints"] << {
+        # to avoid what happened when I left Wave running an entire night.
+    
+    timepoints = getItemTimePoints(uuid)
+    timepoints << {
         "unixtime" => Time.new.to_i,
         "timespan" => timespan
     } 
-    saveItemCompanion(companion)
+    saveItemTimepoints(uuid, timepoints)
+
+    unsetStartUnixtime(uuid)
 
     # When we stop a ifcs item we also want to stop the corresponding lucille item
     item = getItemByUUIDOrNull(uuid)
@@ -201,39 +211,43 @@ def stopItem(uuid)
     system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-stop-location-basename '#{item["lucilleLocationBasename"]}'")
 end
 
+def itemIsRunning(item)
+    !getStartUnixtimeOrNull(item["uuid"]).nil?
+end
+
 # ---------------
 # Operations
 
 def flightControlIsActive()
     b1 = ( Time.new.hour >= 9 and Time.new.hour < 21 )
-    b2 = getTopThreeItems().any?{|item| getItemCompanion(item["uuid"])["startunixtime"] }
+    b2 = getTopThreeActiveItems().any?{|item| itemIsRunning(item) }
     b1 or b2
 end
 
-def itemIsTopItem(uuid)
-    getTopThreeItems().any?{|i| i["uuid"] == uuid }
+def itemIsTopActiveItem(uuid)
+    getTopThreeActiveItems().any?{|i| i["uuid"] == uuid }
 end
 
 def getItemLiveTimespan(uuid)
-    companion = getItemCompanion(uuid)
+    unixtime = getStartUnixtimeOrNull(uuid)
     x1 = 0
-    if companion["startunixtime"] then
-        x1 = Time.new.to_i - companion["startunixtime"]
+    if unixtime then
+        x1 = Time.new.to_i - unixtime
     end
-    x1 + companion["timePoints"].map{|point| point["timespan"] }.inject(0, :+)
+    x1 + getItemTimePoints(uuid).map{|point| point["timespan"] }.inject(0, :+)
 end
 
 def getItemLiveTimespanTopItemsDifferentialInHoursOrNull(uuid)
     timespan = getItemLiveTimespan(uuid)
-    differentTimespans = getTopThreeItems()
+    differentTimespans = getTopThreeActiveItems()
                             .select{|item| item["uuid"] != uuid }
                             .map {|item| getItemLiveTimespan(item["uuid"]) }
     return nil if differentTimespans.empty?
     (timespan - differentTimespans.min).to_f/3600
 end
 
-def topItemsOrderedByTimespan()
-    getTopThreeItems().sort{|i1, i2| getItemLiveTimespan(i1["uuid"]) <=> getItemLiveTimespan(i2["uuid"]) }
+def getTopActiveItemsOrderedByTimespan()
+    getTopThreeActiveItems().sort{|i1, i2| getItemLiveTimespan(i1["uuid"]) <=> getItemLiveTimespan(i2["uuid"]) }
 end
 
 def itemsOrderedByPosition()
@@ -241,9 +255,9 @@ def itemsOrderedByPosition()
 end
 
 def getNextAction() # [ nil | String, lambda ]
-    runningitems = topItemsOrderedByTimespan()
-        .select{|item| getItemCompanion(item["uuid"])["startunixtime"] }
-    lowestitem = topItemsOrderedByTimespan()[0]
+    runningitems = getTopActiveItemsOrderedByTimespan()
+        .select{|item| itemIsRunning(item) }
+    lowestitem = getTopActiveItemsOrderedByTimespan()[0]
     if runningitems.size == 0 then
         return [ "start: #{lowestitem["description"]}".red , lambda { startItem(lowestitem["uuid"]) } ]
     end
@@ -262,8 +276,7 @@ def getReportText()
         .max
     itemsOrderedByPosition()
         .map{|item| 
-            if itemIsTopItem(item["uuid"]) then
-                companion = getItemCompanion(item["uuid"])
+            if itemIsTopActiveItem(item["uuid"]) then
                 "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
             else
                 "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
@@ -274,8 +287,8 @@ end
 
 def getReportLine() 
     report = [ "In Flight Control System 🛰️ " ]
-    topItemsOrderedByTimespan()
-        .select{|item| getItemCompanion(item["uuid"])["startunixtime"] }
+    getTopActiveItemsOrderedByTimespan()
+        .select{|item| itemIsRunning(item) }
         .each{|item| 
             d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
             d2 = d1 ? " (#{d1.round(2)} hours)" : ""
@@ -286,10 +299,6 @@ def getReportLine()
         report << nextaction[0] # can be null
     end
     report.compact.join(" >> ")
-end
-
-def selectItemOrNull()
-    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", itemsOrderedByPosition(), lambda{|item| item["description"] })
 end
 
 def onScreenNotification(title, message)

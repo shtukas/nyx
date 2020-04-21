@@ -17,13 +17,11 @@ loop {
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", options)
     break if option.nil?
     if option == "items dive" then
-        item = selectItemOrNull()
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", itemsOrderedByPosition(), lambda{|item| item["description"] })
         next if item.nil?
         loop {
-            puts "Focus: #{item["description"]}"
             puts JSON.pretty_generate(item)
-            puts JSON.pretty_generate(getItemCompanion(item["uuid"]))
-            oxs = ["start", "stop"]
+            oxs = [ "start", "stop", "suspend temporarily" ]
             ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
             break if ox.nil?
             if ox == "start" then
@@ -31,6 +29,11 @@ loop {
             end
             if ox == "stop" then
                 stopItem(item["uuid"])
+            end
+            if ox == "suspend temporarily" then
+                timespanInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                item["DoNotShowUntilUnixtime"] = Time.new.to_i + timespanInHours*3600
+                saveItem(item)
             end
         }
     end
