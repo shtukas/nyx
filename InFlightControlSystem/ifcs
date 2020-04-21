@@ -28,7 +28,7 @@ def itemDive(item)
             "set description",
             "set position",
             "suspend temporarily",
-            "destroy ifcs item"
+            "destroy"
         ]
         ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
         return if ox.nil?
@@ -51,7 +51,7 @@ def itemDive(item)
             item["DoNotShowUntilUnixtime"] = Time.new.to_i + timespanInHours*3600
             saveItem(item)
         end
-        if ox == "destroy ifcs item" then
+        if ox == "destroy" then
             uuid = item["uuid"]
             filepath = "#{itemsFolderpath()}/#{uuid}.json"
             FileUtils.rm(filepath)
