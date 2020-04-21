@@ -25,6 +25,86 @@ require_relative "Lucille.rb"
 
 # -----------------------------------------------------------------------------
 
+def doneLucilleLocation(location)
+    timespan = LXRunManagement::stopLocation(location)
+    if timespan then
+        LXCluster::processIncomingLocationTimespan(location, timespan)
+    end
+    Lucille::destroyLucilleLocation(location)
+    LXCluster::curateOrRespawnCluster()
+end
+
+def recastLucilleLocation(location)
+    timespan = LXRunManagement::stopLocation(location)
+    if timespan then
+        LXCluster::processIncomingLocationTimespan(location, timespan)
+    end
+    timeline = nil
+    loop {
+        timelines = Lucille::timelines().reject{|timeline| timeline == "[Inbox]" }
+        t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
+        if t then
+            timeline = t
+            break
+        end
+        t = LucilleCore::askQuestionAnswerAsString("timeline: ")
+        if t.size>0 then
+            timeline = t
+            break
+        end
+    }
+    Lucille::setLocationTimeline(location, timeline)
+    LXCluster::curateOrRespawnCluster()
+end
+
+def ifcsLucilleLocation(location)
+    # First we start my migrating the location to timeline [Open Cycles]
+    Lucille::setLocationTimeline(location, "[Open Cycles]")
+    # Now we need to create a new ifcs item, the only non trivial step if to decide the position
+    makeNewIFCSItemPosition = lambda {
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
+            .sort{|i1, i2| i1["position"] <=> i2["position"]}
+            .each{|item|
+                puts "   - (#{"%5.3f" % item["position"]}) #{item["description"]}"
+            }
+        LucilleCore::askQuestionAnswerAsString("position: ").to_f
+    }
+    position = makeNewIFCSItemPosition.call()
+    uuid = SecureRandom.uuid
+    item = {
+        "uuid"                    => uuid,
+        "lucilleLocationBasename" => File.basename(location),
+        "description"             => Lucille::getUserFriendlyDescriptionForLocation(location),
+        "position"                => position
+    }
+    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+end
+
+# -----------------------------------------------------------------------------
+
+if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    puts "opening..."
+    Lucille::openLocation(location)
+    LucilleCore::pressEnterToContinue()
+    options = [
+        "done",
+        "recast",
+        "ifcs"
+    ]
+    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+    if option == "done" then
+        doneLucilleLocation(location)
+    end
+    if option == "recast" then
+        recastLucilleLocation(location)
+    end
+    if option == "ifcs" then
+        ifcsLucilleLocation(location)
+    end
+end
+
 if ARGV[0] == "start" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
@@ -58,60 +138,17 @@ end
 if ARGV[0] == "recast" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    timespan = LXRunManagement::stopLocation(location)
-    if timespan then
-        LXCluster::processIncomingLocationTimespan(location, timespan)
-    end
-    timeline = nil
-    loop {
-        timelines = Lucille::timelines().reject{|timeline| timeline == "[Inbox]" }
-        t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
-        if t then
-            timeline = t
-            break
-        end
-        t = LucilleCore::askQuestionAnswerAsString("timeline: ")
-        if t.size>0 then
-            timeline = t
-            break
-        end
-    }
-    Lucille::setLocationTimeline(location, timeline)
-    LXCluster::curateOrRespawnCluster()
+    recastLucilleLocation(location)
 end
 
 if ARGV[0] == "ifcs" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    # First we start my migrating the location to timeline [Open Cycles]
-    Lucille::setLocationTimeline(location, "[Open Cycles]")
-    # Now we need to create a new ifcs item, the only non trivial step if to decide the position
-    makeNewIFCSItemPosition = lambda {
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
-            .sort{|i1, i2| i1["position"] <=> i2["position"]}
-            .each{|item|
-                puts "   - (#{"%5.3f" % item["position"]}) #{item["description"]}"
-            }
-        LucilleCore::askQuestionAnswerAsString("position: ").to_f
-    }
-    position = makeNewIFCSItemPosition.call()
-    uuid = SecureRandom.uuid
-    item = {
-        "uuid"                    => uuid,
-        "lucilleLocationBasename" => File.basename(location),
-        "description"             => Lucille::getUserFriendlyDescriptionForLocation(location),
-        "position"                => position
-    }
-    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    ifcsLucilleLocation(location)
 end
 
 if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    timespan = LXRunManagement::stopLocation(location)
-    if timespan then
-        LXCluster::processIncomingLocationTimespan(location, timespan)
-    end
-    Lucille::doneLucilleLocation(location)
-    LXCluster::curateOrRespawnCluster()
+    doneLucilleLocation(location)
 end

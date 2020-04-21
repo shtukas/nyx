@@ -89,7 +89,7 @@ end
 
 def makeCommands(timeline)
     if timeline == "[Inbox]" then
-        return ["open", "[]", "recast", "ifcs", "done"]
+        return ["inbox"]
     end
     ["start", "open", "[]", "stop", "recast", "ifcs", "done"]
 end
@@ -101,7 +101,10 @@ def shouldOpenAndDone(location)
     false
 end
 
-def makeDefaultCommand(location, isRunning)
+def makeDefaultCommand(location, isRunning, timeline)
+    if timeline == "[Inbox]" then
+        return "inbox"
+    end
     if isRunning then
         shouldOpenAndDone(location) ? "open+done" : "stop"
     else
@@ -127,8 +130,9 @@ objects = displayLocations
                     "metric"          => makeMetric(metricHelper, isRunning, timeline),
                     "commands"        => makeCommands(timeline),
                     "isRunning"       => isRunning,
-                    "defaultCommand"  => makeDefaultCommand(location, isRunning),
+                    "defaultCommand"  => makeDefaultCommand(location, isRunning, timeline),
                     "shell-redirects" => {
+                        "inbox"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing inbox-catalyst-command '#{location}'",
                         "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{location}'",
                         "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{location}'",
                         "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",

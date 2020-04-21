@@ -13,9 +13,9 @@ require_relative "InFlightControlSystem.rb"
 
 def descriptionExended(item, nsize)
     if itemIsTopActiveItem(item["uuid"]) then
-        "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
+        "(#{"%6.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
     else
-        "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
+        "(#{"%6.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
     end
 end
 
@@ -26,6 +26,7 @@ def itemDive(item)
             "start", 
             "stop",
             "set description",
+            "set position",
             "suspend temporarily",
             "destroy ifcs item"
         ]
@@ -39,6 +40,10 @@ def itemDive(item)
         end
         if ox == "set description" then
             item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+            saveItem(item)
+        end
+        if ox == "set position" then
+            item["position"] = LucilleCore::askQuestionAnswerAsString("position: ").to_f
             saveItem(item)
         end
         if ox == "suspend temporarily" then

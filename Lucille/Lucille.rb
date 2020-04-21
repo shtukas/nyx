@@ -118,8 +118,8 @@ class Lucille
             }
     end
 
-    # Lucille::doneLucilleLocation(location)
-    def self.doneLucilleLocation(location)
+    # Lucille::destroyLucilleLocation(location)
+    def self.destroyLucilleLocation(location)
         timeline = Lucille::getLocationTimeline(location)
         if timeline == "[Open Cycles]" then
             puts "You are about to delete an [Open Cycle] item"
@@ -369,7 +369,15 @@ class LXCluster
         # relevant, mostlikely because the corresponding location are gone
         timelines = cluster["locations"].map{|location| Lucille::getLocationTimeline(location) }
 
+        timelines.each{|timeline|
+            if cluster["timelinesTimePoints"][timeline].nil? then
+                # This happens when the location was recast and put on a timeline that wasn't originally in the cluster
+                cluster["timelinesTimePoints"][timeline] = []
+            end
+        }
+
         computeTimelineTimespan = lambda {|cluster, timeline|
+
             cluster["timelinesTimePoints"][timeline].map{|timepoint| timepoint["timespan"]}.inject(0, :+)
         }
 

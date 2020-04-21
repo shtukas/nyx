@@ -277,9 +277,9 @@ def getReportText()
     itemsOrderedByPosition()
         .map{|item| 
             if itemIsTopActiveItem(item["uuid"]) then
-                "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
+                "(#{"%6.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
             else
-                "(#{"%5.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
+                "(#{"%6.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
             end
         }
         .join("\n")
