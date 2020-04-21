@@ -90,6 +90,7 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     LucilleCore::pressEnterToContinue()
     options = [
         "done",
+        "export to desktop",
         "recast",
         "ifcs",
         "do not show until"
@@ -97,6 +98,9 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     if option == "done" then
         doneLucilleLocation(location)
+    end
+    if option == "export to desktop" then
+        LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
     end
     if option == "recast" then
         recastLucilleLocation(location)
