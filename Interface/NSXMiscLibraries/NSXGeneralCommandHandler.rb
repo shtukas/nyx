@@ -68,9 +68,45 @@ class NSXGeneralCommandHandler
         end
 
         if command == "l+" then
-            text = NSXMiscUtils::editTextUsingTextmate("")
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
-            File.open(filepath, "w"){|f| f.puts(text) }
+            options = [
+                "New Lucille item",
+                "New Lucille item + IFCS registration",
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            return if option.nil?
+            if option == "New Lucille item" then
+                text = NSXMiscUtils::editTextUsingTextmate("")
+                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
+                File.open(filepath, "w"){|f| f.puts(text) }
+            end
+            if option == "New Lucille item + IFCS registration" then
+                text = NSXMiscUtils::editTextUsingTextmate("")
+                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
+                File.open(filepath, "w"){|f| f.puts(text) }
+
+                location = filepath
+                # First we start my migrating the location to timeline [Open Cycles]
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-set-location-timeline '#{location}' '[Open Cycles]'")
+                # Now we need to create a new ifcs item, the only non trivial step if to decide the position
+                makeNewIFCSItemPosition = lambda {
+                    JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
+                        .sort{|i1, i2| i1["position"] <=> i2["position"]}
+                        .each{|item|
+                            puts "   - (#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"]}"
+                        }
+                    LucilleCore::askQuestionAnswerAsString("position: ").to_f
+                }
+                position = makeNewIFCSItemPosition.call()
+                uuid = SecureRandom.uuid
+                item = {
+                    "uuid"                    => uuid,
+                    "lucilleLocationBasename" => File.basename(location),
+                    "description"             => LucilleCore::askQuestionAnswerAsString("Description for IFCS item: "),
+                    "position"                => position
+                }
+                File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+
+            end
             return
         end
 

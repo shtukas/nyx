@@ -99,7 +99,7 @@ if ARGV[0] == "ifcs" and ARGV[1] then
     item = {
         "uuid"                    => uuid,
         "lucilleLocationBasename" => File.basename(location),
-        "description"             => ucille::getUserFriendlyDescriptionForLocation(location),
+        "description"             => Lucille::getUserFriendlyDescriptionForLocation(location),
         "position"                => position
     }
     File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
