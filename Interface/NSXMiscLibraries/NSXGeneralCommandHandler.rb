@@ -92,7 +92,7 @@ class NSXGeneralCommandHandler
                     JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
                         .sort{|i1, i2| i1["position"] <=> i2["position"]}
                         .each{|item|
-                            puts "   - (#{"%5.3f" % item["position"]}) #{item["lucilleLocationBasename"]}"
+                            puts "   - (#{"%5.3f" % item["position"]}) #{item["description"]}"
                         }
                     LucilleCore::askQuestionAnswerAsString("position: ").to_f
                 }
