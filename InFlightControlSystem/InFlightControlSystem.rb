@@ -8,6 +8,13 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
@@ -35,8 +42,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 =begin
 
 Item {
-    "uuid"     : String,
+    "uuid" : String,
     "lucilleLocationBasename" : String
+    "description" : String
     "position" : Float
 }
 
@@ -76,6 +84,25 @@ def itemsFolderpath()
 end
 
 def getItemsWihtoutWave()
+
+    # We start by doing some garbage collection
+    # Removing the items which do not have a corresponding Lucille location
+
+    if !File.exists?("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items") then
+        raise "[IFCS error: 97d313e44785] Can't see the Lucille items folder"
+    end
+
+    Dir.entries(itemsFolderpath())
+        .select{|filename| filename[-5, 5] == ".json" }
+        .map{|filename| "#{itemsFolderpath()}/#{filename}"}
+        .each{|filepath|
+            item = JSON.parse(IO.read(filepath))
+            lucilleLocationBasename = item["lucilleLocationBasename"]
+            if !File.exists?("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{lucilleLocationBasename}") then
+                FileUtils.rm(filepath)
+            end
+        }
+
     Dir.entries(itemsFolderpath())
         .select{|filename| filename[-5, 5] == ".json" }
         .map{|filename| JSON.parse(IO.read("#{itemsFolderpath()}/#{filename}")) }
