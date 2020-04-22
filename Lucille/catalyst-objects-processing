@@ -98,6 +98,7 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
             "do not show until"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        exit if option.nil?
         if option == "done" then
             doneLucilleLocation(location)
             exit
