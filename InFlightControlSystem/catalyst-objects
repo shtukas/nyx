@@ -6,30 +6,38 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
-def reportLineToContentItemLine(reportLine)
-    if reportLine.include?("running") then
-        reportLine.split(">>").first(2).join(">>")
-    else
-        "In Flight Control System 🛰️"
-    end
-end
-
-def reportLineToContentItemBody(reportLine)
-    reportLine.split(">>").join("\n>>")
-end
+counter = 0
 
 objects = []
-reportLine = getReportLine()
-if reportLine then
-    objects << {
-        "uuid"           => SecureRandom.uuid,
-        "contentItem"    => {
-            "type" => "line-and-body",
-            "line" => reportLineToContentItemLine(reportLine),
-            "body" => reportLineToContentItemBody(reportLine)
-        },
-        "metric"         => 0.75,
-        "commands"       => []
+
+getTopActiveItemsOrderedByTimespan()
+    .map{|item|
+        counter = counter + 1 
+        isRunning = itemIsRunning(item)
+        metric = isRunning ? 1 : (0.75 - counter.to_f/10000)
+        defaultCommand = isRunning ? "stop" : "start"
+        d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
+        d2 = d1 ? " (#{d1.round(2)} hours)" : ""
+        object = {
+            "uuid" => SecureRandom.uuid,
+            "contentItem" => {
+                "type" => "line",
+                "line" => "[In Flight Control System] (#{"%6.3f" % item["position"]}) #{item["description"]}#{d2}",
+            },
+            "metric" => metric,
+            "commands" => ["open", "set-description", !itemIsWave(item) ? "destroy" : nil].compact,
+            "defaultCommand" => defaultCommand,
+            "isRunning" => isRunning,
+            "shell-redirects" => {
+                "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing set-description '#{item["uuid"]}'",
+                "open"            => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing open '#{item["uuid"]}'",
+                "destroy"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing destroy '#{item["uuid"]}'",
+                "start"           => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{item["uuid"]}'",
+                "stop"            => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{item["uuid"]}'"
+            }
+        }
+        objects << object
     }
-end
+    .compact
+
 puts JSON.generate(objects)

@@ -76,6 +76,10 @@ def waveItem()
     }
 end
 
+def itemIsWave(item)
+    item["uuid"] == waveuuid()
+end
+
 def itemsFolderpath()
     "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items"
 end
@@ -134,6 +138,13 @@ def getItemByUUIDOrNull(uuid)
     filepath = "#{itemsFolderpath()}/#{uuid}.json"
     return nil if !File.exists?(filepath)
     JSON.parse(IO.read(filepath))
+end
+
+def destroyItem(uuid)
+    return if uuid == waveuuid()
+    stopItem(uuid)
+    filepath = "#{itemsFolderpath()}/#{uuid}.json"
+    FileUtils.rm(filepath)
 end
 
 # ---------------
@@ -261,38 +272,6 @@ def getNextAction() # [ nil | String, lambda ]
     else
         return [ "stop: #{firstrunningitem["description"]}".red , lambda { stopItem(firstrunningitem["uuid"]) } ]
     end
-end
-
-def getReportText()
-    nsize = getItems()
-        .reject{|item| item["uuid"] == waveuuid() }
-        .map{|item| item["description"].size }
-        .max
-    itemsOrderedByPosition()
-        .map{|item| 
-            if itemIsTopActiveItem(item["uuid"]) then
-                "(#{"%6.3f" % item["position"]}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
-            else
-                "(#{"%6.3f" % item["position"]}) #{item["description"].ljust(nsize)}"
-            end
-        }
-        .join("\n")
-end
-
-def getReportLine() 
-    report = [ "In Flight Control System 🛰️ " ]
-    getTopActiveItemsOrderedByTimespan()
-        .select{|item| itemIsRunning(item) }
-        .each{|item| 
-            d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
-            d2 = d1 ? " (#{d1.round(2)} hours)" : ""
-            report << "running: #{item["description"]}#{d2}".green 
-        }
-    nextaction = getNextAction()
-    if nextaction then
-        report << nextaction[0] # can be null
-    end
-    report.compact.join(" >> ")
 end
 
 def onScreenNotification(title, message)

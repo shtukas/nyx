@@ -110,11 +110,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == ">>" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-apply-next")
-            return
-        end
-
         if command == "/" then
             options = [
                 "Catalyst",

@@ -29,8 +29,8 @@ def itemDive(item)
             "set description",
             "set position",
             "suspend temporarily",
-            "destroy"
-        ]
+            item["uuid"] == waveuuid() ? "destroy" : nil
+        ].compact
         ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
         return if ox.nil?
         if ox == "start" then
@@ -63,15 +63,13 @@ def itemDive(item)
         end
         if ox == "destroy" then
             uuid = item["uuid"]
-            filepath = "#{itemsFolderpath()}/#{uuid}.json"
-            FileUtils.rm(filepath)
+            destroyItem(uuid)
         end
     }
 end
 
 loop {
     system('clear')
-    puts getReportLine()
     puts ""
 
     itxs = []
@@ -84,11 +82,6 @@ loop {
     itemsOrderedByPosition().each{|item|
         itxs << [ descriptionExended(item, nsize), lambda { itemDive(item) } ]
     }
-
-    itxs << [ "-> apply recommended", lambda {
-        nextaction = getNextAction()
-        nextaction[1].call()
-    }]
 
     status = LucilleCore::menuItemsWithLambdas(itxs)
     break if status.nil?

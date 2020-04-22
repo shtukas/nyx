@@ -4,7 +4,7 @@
         0.90  Wave sticky
         0.80+ Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+ Wave every-n-hours / every-n-days
-        0.75  In Flight Control System (Non Wave)
+        0.75- In Flight Control System
         0.74  Running Lucille Item
 0.20 -> 0.70  YouTubeVideoStream
         0.53  BackupsMonitor

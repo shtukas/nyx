@@ -1,0 +1,64 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+# --------------------------------------------------------------------
+
+require_relative "InFlightControlSystem.rb"
+
+# -----------------------------------------------------------------------------
+
+if ARGV[0] == "set-description" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    exit if uuid == waveuuid()
+    item = getItemByUUIDOrNull(uuid)
+    exit if item.nil?
+    item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+    saveItem(item)
+end
+
+if ARGV[0] == "open" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    exit if uuid == waveuuid()
+    item = getItemByUUIDOrNull(uuid)
+    exit if item.nil?
+    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-and-start-location-basename '#{item["lucilleLocationBasename"]}'")
+end
+
+if ARGV[0] == "start" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    startItem(uuid)
+end
+
+if ARGV[0] == "stop" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    stopItem(uuid)
+end
+
+if ARGV[0] == "destroy" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    exit if uuid == waveuuid()
+    destroyItem(uuid)
+end

@@ -91,7 +91,7 @@ def makeCommands(timeline)
     if timeline == "[Inbox]" then
         return ["inbox"]
     end
-    ["start", "open", "set-description", "[]", "stop", "recast", "ifcs", "done"]
+    ["start", "open", "set-description", "[]", "stop", "recast", "ifcs", "move-to-nyx", "done"]
 end
 
 def shouldOpenAndDone(location)
@@ -142,6 +142,7 @@ objects = displayLocations
                         "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
                         "ifcs"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing ifcs '#{location}'",
+                        "move-to-nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{location}'",
                         "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
                     },
                     "location"        => location

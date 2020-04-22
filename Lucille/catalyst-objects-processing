@@ -95,7 +95,8 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
             "export to desktop",
             "recast",
             "ifcs",
-            "do not show until"
+            "do not show until",
+            "move to Nyx"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         exit if option.nil?
@@ -123,6 +124,10 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
         if option == "do not show until" then
             hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
             DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
+            exit
+        end
+        if option == "move to Nyx" then
+            Lucille::transformIntoNyxItem(location)
             exit
         end
     }
@@ -176,6 +181,13 @@ if ARGV[0] == "ifcs" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
     ifcsLucilleLocation(location)
+end
+
+if ARGV[0] == "move-to-nyx" then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    Lucille::transformIntoNyxItem(location)
+    exit
 end
 
 if ARGV[0] == "done" and ARGV[1] then
