@@ -33,7 +33,27 @@ class NSXCatalystUI
     # NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
     def self.printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
 
+        lucilleHasBeenDisplayed = false
+
         while displayObjectsForListing.size>0 do
+
+            # Injecting Lucille if relevant
+            shouldDisplayLucille = lambda {|objects, lucilleHasBeenDisplayed|
+                return false if lucilleHasBeenDisplayed
+                return true if objects.none?{|object| object["metric"] > 0.45 }
+                false
+            }
+            if shouldDisplayLucille.call(displayObjectsForListing, lucilleHasBeenDisplayed) then
+                contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+                if contents.size>0 then
+                    puts ""
+                    puts "Lucille.txt"
+                    puts contents
+                    puts ""
+                    verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 3)
+                end
+                lucilleHasBeenDisplayed = true
+            end
 
             # Position and Focus Management
             position = position + 1
@@ -50,18 +70,6 @@ class NSXCatalystUI
             # Display
             puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - verticalSize
-
-            # Injecting Lucille if relevant
-            if position == 1 then
-                contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-                if contents.size>0 then
-                    puts ""
-                    puts "Lucille.txt"
-                    puts contents
-                    puts ""
-                    verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 3)
-                end
-            end
 
             break if verticalSpaceLeft<=0 and displayObjectsForListing.none?{|object| object["isRunning"] }
         end
