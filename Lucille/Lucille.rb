@@ -123,7 +123,7 @@ class Lucille
         timeline = Lucille::getLocationTimeline(location)
         if timeline == "[Open Cycles]" then
             puts "You are about to delete an [Open Cycle] item"
-            return if !LucilleCore::askQuestionAnswerAsBoolean("Proceed? :")
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Proceed? ")
         end
         Lucille::moveLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
