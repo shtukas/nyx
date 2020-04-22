@@ -257,6 +257,28 @@ class Lucille
         FileUtils.mkdir(folder3)
         FileUtils.mv(location, folder3)
     end
+
+    # Lucille::transformIntoNyxItem(location)
+    def self.transformIntoNyxItem(location)
+        return if location.nil?
+        puts "Transform as Nyx item: #{location}"
+        foldername2 = Lucille::timeStringL22()
+        folder2 = "/Users/pascal/Galaxy/Nyx/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{foldername2}"
+        FileUtils.mkpath(folder2)
+        LucilleCore::copyFileSystemLocation(location, folder2)
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-make-nyx-permadir-using-this-repository-basename '#{foldername2}'")
+        nyxItems = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-permanodes`)
+        flag1 = nyxItems
+                    .any{|item| 
+                        item["targets"].size == 1 and item["targets"][0]["type"] == "perma-dir-11859659" and item["targets"][0]["foldername"] == foldername2
+                    }
+        if flag1 then
+            puts "Looks like we have confirmation of the creation of that permanode"
+            puts "Removing Lucille location"
+            LucilleCore::removeFileSystemLocation(location)
+        end
+        
+    end
 end
 
 class LXRunManagement

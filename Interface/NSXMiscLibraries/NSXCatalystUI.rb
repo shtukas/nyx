@@ -44,7 +44,7 @@ class NSXCatalystUI
                 false
             }
             if shouldDisplayLucille.call(displayObjectsForListing, lucilleHasBeenDisplayed) then
-                contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip.lines.first(10).join()
+                contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip.lines.first([10, verticalSpaceLeft-3].min).join().strip
                 if contents.size>0 then
                     puts ""
                     puts "Lucille.txt"
