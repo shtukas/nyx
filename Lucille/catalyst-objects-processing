@@ -74,7 +74,7 @@ def ifcsLucilleLocation(location)
     item = {
         "uuid"                    => uuid,
         "lucilleLocationBasename" => File.basename(location),
-        "description"             => Lucille::getUserFriendlyDescriptionForLocation(location),
+        "description"             => Lucille::getBestDescription(location),
         "position"                => position
     }
     File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
@@ -88,30 +88,44 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     puts "opening..."
     Lucille::openLocation(location)
     LucilleCore::pressEnterToContinue()
-    options = [
-        "done",
-        "export to desktop",
-        "recast",
-        "ifcs",
-        "do not show until"
-    ]
-    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-    if option == "done" then
-        doneLucilleLocation(location)
-    end
-    if option == "export to desktop" then
-        LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
-    end
-    if option == "recast" then
-        recastLucilleLocation(location)
-    end
-    if option == "ifcs" then
-        ifcsLucilleLocation(location)
-    end
-    if option == "do not show until" then
-        hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
-        DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
-    end
+    loop {
+        options = [
+            "done",
+            "set description",
+            "export to desktop",
+            "recast",
+            "ifcs",
+            "do not show until"
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        if option == "done" then
+            doneLucilleLocation(location)
+            exit
+        end
+        if option == "set description" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            Lucille::setDescription(location, description)
+            next
+        end
+        if option == "export to desktop" then
+            LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
+            next
+        end
+        if option == "recast" then
+            recastLucilleLocation(location)
+            exit
+        end
+        if option == "ifcs" then
+            ifcsLucilleLocation(location)
+            exit
+        end
+        if option == "do not show until" then
+            hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
+            DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
+            exit
+        end
+    }
+
 end
 
 if ARGV[0] == "start" and ARGV[1] then
@@ -133,6 +147,13 @@ if ARGV[0] == "open" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
     Lucille::openLocation(location)
+end
+
+if ARGV[0] == "set-description" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    description = LucilleCore::askQuestionAnswerAsString("description: ")
+    Lucille::setDescription(location, description)
 end
 
 if ARGV[0] == "apply-next-to-text" and ARGV[1] then

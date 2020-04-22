@@ -67,13 +67,13 @@ def makeContentItem(location, timeline)
     if location[-4, 4] == ".txt" then
         return {
             "type" => "line-and-body",
-            "line" => "[lucille] #{Lucille::getUserFriendlyDescriptionForLocation(location)} #{timelinefragment}",
+            "line" => "[lucille] #{Lucille::getBestDescription(location)} #{timelinefragment}",
             "body" => "[lucille] #{IO.read(location).strip}\n#{timelinefragment}"
         }
     end
     {
         "type" => "line",
-        "line" => "[lucille] #{Lucille::getUserFriendlyDescriptionForLocation(location)} #{timelinefragment}"
+        "line" => "[lucille] #{Lucille::getBestDescription(location)} #{timelinefragment}"
     }
 end
 
@@ -91,7 +91,7 @@ def makeCommands(timeline)
     if timeline == "[Inbox]" then
         return ["inbox"]
     end
-    ["start", "open", "[]", "stop", "recast", "ifcs", "done"]
+    ["start", "open", "set-description", "[]", "stop", "recast", "ifcs", "done"]
 end
 
 def shouldOpenAndDone(location)
@@ -138,6 +138,7 @@ objects = displayLocations
                         "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{location}'",
                         "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{location}'",
                         "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
+                        "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{location}'",
                         "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
                         "ifcs"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing ifcs '#{location}'",

@@ -136,6 +136,45 @@ class Lucille
     # -----------------------------
     # Data
 
+    # Lucille::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
+    def self.getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
+        locationIsTextFile = lambda {|location| location[-4, 4] == ".txt" }
+        locationTextFileHasOneLine = lambda {|location| IO.read(location).strip.lines.to_a.size == 1  }
+        locationTextFileStartWithHTTP = lambda {|location| IO.read(location).strip.start_with?("http")  }
+        locationDirectoryOnlySubLocationOrNull = lambda {|location|
+            filenames = Dir.entries(location)
+                            .reject{|filename| filename[0, 1] == "." }
+                            .map{|filename| "#{location}/#{filename}" }
+            return nil if filenames.size != 1
+            filenames[0]
+        }
+        if File.file?(location) and locationIsTextFile.call(location) and locationTextFileHasOneLine.call(location) and locationTextFileStartWithHTTP.call(location) then
+            return IO.read(location).strip
+        end
+        if File.file?(location) then
+            return File.basename(location)
+        end
+        # Directory
+        sublocation = locationDirectoryOnlySubLocationOrNull.call(location)
+        if sublocation then
+            Lucille::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(sublocation)
+        else
+            File.basename(location)
+        end
+    end
+
+    # Lucille::setDescription(location, description)
+    def self.setDescription(location, description)
+        KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
+    end
+
+    # Lucille::getBestDescription(location)
+    def self.getBestDescription(location)
+        description = KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}")
+        return description if description
+        Lucille::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
+    end
+
     # Lucille::locations()
     def self.locations()
         Dir.entries(Lucille::pathToItems())
@@ -169,33 +208,6 @@ class Lucille
     def self.getTimelineLocations(timeline)
         Lucille::locations()
             .select{|location| Lucille::getLocationTimeline(location) == timeline }
-    end
-
-    # Lucille::getUserFriendlyDescriptionForLocation(location)
-    def self.getUserFriendlyDescriptionForLocation(location)
-        locationIsTextFile = lambda {|location| location[-4, 4] == ".txt" }
-        locationTextFileHasOneLine = lambda {|location| IO.read(location).strip.lines.to_a.size == 1  }
-        locationTextFileStartWithHTTP = lambda {|location| IO.read(location).strip.start_with?("http")  }
-        locationDirectoryOnlySubLocationOrNull = lambda {|location|
-            filenames = Dir.entries(location)
-                            .reject{|filename| filename[0, 1] == "." }
-                            .map{|filename| "#{location}/#{filename}" }
-            return nil if filenames.size != 1
-            filenames[0]
-        }
-        if File.file?(location) and locationIsTextFile.call(location) and locationTextFileHasOneLine.call(location) and locationTextFileStartWithHTTP.call(location) then
-            return IO.read(location).strip
-        end
-        if File.file?(location) then
-            return File.basename(location)
-        end
-        # Directory
-        sublocation = locationDirectoryOnlySubLocationOrNull.call(location)
-        if sublocation then
-            Lucille::getUserFriendlyDescriptionForLocation(sublocation)
-        else
-            File.basename(location)
-        end
     end
 
     # -----------------------------
