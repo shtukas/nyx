@@ -25,6 +25,7 @@ def itemDive(item)
         oxs = [ 
             "start", 
             "stop",
+            "open",
             "set description",
             "set position",
             "suspend temporarily",
@@ -37,6 +38,15 @@ def itemDive(item)
         end
         if ox == "stop" then
             stopItem(item["uuid"])
+        end
+        if ox == "open" then
+            if item["uuid"] == waveuuid() then
+                puts "It's not possible to open Wave"
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+            lucilleLocationBasename = item["lucilleLocationBasename"]
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{lucilleLocationBasename}'")
         end
         if ox == "set description" then
             item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
