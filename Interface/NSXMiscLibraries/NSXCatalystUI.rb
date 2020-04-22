@@ -30,25 +30,40 @@ class NSXCatalystUI
         end
     end
 
-    # NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
-    def self.printDisplayObjectsForListing(displayObjectsForListingPart, position, focusobject, verticalSpaceLeft)
+    # NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
+    def self.printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
 
-        while displayObjectsForListingPart.size>0 do
+        while displayObjectsForListing.size>0 do
 
-            # Position management
+            # Position and Focus Management
             position = position + 1
-            object = displayObjectsForListingPart.shift
+            object = displayObjectsForListing.shift
             if position == 1 then
                 focusobject = object
             end
+
+            # Space and Priorities Management
             displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
             verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-            break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectsForListingPart + [object]).none?{|object| object["isRunning"] }
+            break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectsForListing + [object]).none?{|object| object["isRunning"] }
 
             # Display
             puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - verticalSize
-            break if verticalSpaceLeft<=0 and displayObjectsForListingPart.none?{|object| object["isRunning"] }
+
+            # Injecting Lucille if relevant
+            if position == 1 then
+                contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+                if contents.size>0 then
+                    puts ""
+                    puts "Lucille.txt"
+                    puts contents
+                    puts ""
+                    verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 3)
+                end
+            end
+
+            break if verticalSpaceLeft<=0 and displayObjectsForListing.none?{|object| object["isRunning"] }
         end
 
         [position, verticalSpaceLeft, focusobject]
@@ -59,7 +74,7 @@ class NSXCatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-4
 
         if displayObjects.size==0 then
             puts "No objects found"
@@ -74,14 +89,6 @@ class NSXCatalystUI
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
-        contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-        if contents.size>0 then
-            puts "Lucille.txt"
-            puts contents
-            puts ""
-            verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 2)
-        end
-
         puts "Catalyst 👩‍💻"
         position = 0
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
@@ -92,6 +99,7 @@ class NSXCatalystUI
 
         # -----------------------------------------------------------------------------------
 
+        puts ""
         print "--> "
         command = STDIN.gets().strip
         if command=='' then
