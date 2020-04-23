@@ -47,5 +47,5 @@ require_relative "Lucille.rb"
 locationbasename = ARGV[0]
 exit if locationbasename.nil?
 location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{locationbasename}"
-next if File.exists?(location)
+exit if !File.exists?(location)
 LXUserInterface::locationDive(location)

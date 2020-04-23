@@ -299,20 +299,8 @@ def itemsOrderedByPosition()
     getItems().sort{|i1, i2| i1["position"] <=> i2["position"] }
 end
 
-def getNextAction() # [ nil | String, lambda ]
-    runningitems = getTopActiveItemsOrderedByTimespan()
-        .select{|item| itemIsRunning(item) }
-    lowestitem = getTopActiveItemsOrderedByTimespan()[0]
-    if runningitems.size == 0 then
-        return [ "start: #{lowestitem["description"]}".red , lambda { startItem(lowestitem["uuid"]) } ]
-    end
-    firstrunningitem = runningitems[0]
-    if firstrunningitem["uuid"] == lowestitem["uuid"] then
-        return [ nil , lambda { stopItem(firstrunningitem["uuid"]) } ]
-    else
-        return [ "stop: #{firstrunningitem["description"]}".red , lambda { stopItem(firstrunningitem["uuid"]) } ]
-    end
-end
+# ---------------
+# User Interface
 
 def onScreenNotification(title, message)
     title = title.gsub("'","")
@@ -333,7 +321,7 @@ def itemDive(item)
             "set description",
             "set position",
             "suspend temporarily",
-            "transmute-location-basename",
+            "dive into Lucille item",
             item["uuid"] == waveuuid() ? "destroy" : nil
         ].compact
         ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
@@ -350,8 +338,7 @@ def itemDive(item)
                 LucilleCore::pressEnterToContinue()
                 next
             end
-            lucilleLocationBasename = item["lucilleLocationBasename"]
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{lucilleLocationBasename}'")
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{item["lucilleLocationBasename"]}'")
         end
         if ox == "set description" then
             item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
@@ -366,9 +353,8 @@ def itemDive(item)
             item["DoNotShowUntilUnixtime"] = Time.new.to_i + timespanInHours*3600
             saveItem(item)
         end
-        if ox == "transmute-location-basename" then
-            lucilleLocationBasename = item["lucilleLocationBasename"]
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-transmute-location-basename '#{lucilleLocationBasename}'")
+        if ox == "dive into Lucille item" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-location-basename-dive '#{item["lucilleLocationBasename"]}'")
         end
         if ox == "destroy" then
             uuid = item["uuid"]

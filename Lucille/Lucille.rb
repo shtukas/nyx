@@ -493,23 +493,26 @@ class LXUserInterface
 
     # LXUserInterface::locationDive(location)
     def self.locationDive(location)
-        options = [
-            "open",
-            "set description",
-            "transmute",
-        ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-        return if option.nil?
-        if option == "open" then
-            Lucille::openLocation(location)
-        end
-        if option == "set description" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            Lucille::setDescription(location, description)
-        end
-        if option == "transmute" then
-            Lucille::transformLocationFileIntoLocationFolder(location)
-        end
+        loop {
+            puts "location: '#{location}'"
+            options = [
+                "open",
+                "set description",
+                "transmute",
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            return if option.nil?
+            if option == "open" then
+                Lucille::openLocation(location)
+            end
+            if option == "set description" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                Lucille::setDescription(location, description)
+            end
+            if option == "transmute" then
+                Lucille::transformLocationFileIntoLocationFolder(location)
+            end
+        }
     end
 
     # LXUserInterface::timelineDive(timeline)
