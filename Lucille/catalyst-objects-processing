@@ -87,7 +87,6 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     exit if !File.exists?(location)
     puts "opening..."
     Lucille::openLocation(location)
-    LucilleCore::pressEnterToContinue()
     loop {
         options = [
             "done",
