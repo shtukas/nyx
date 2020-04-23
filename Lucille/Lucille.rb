@@ -316,6 +316,8 @@ Cluster is a structure that contains a subset of the locations and the time poin
 required for the timeline management. 
 
 Cluster {
+    "creationUnixtime"      : Integer
+    "creatinoDatetime"      : String
     "locations"             : Array[String] # Locations
     "startingLocationCount" : Int
     "timelinesTimePoints"   : Map[Timeline, Array[TimePoint]]
@@ -357,6 +359,8 @@ class LXCluster
             timelinesTimePoints[timeline] = [ dummyTimepoint.call() ]
         }
         {
+            "creationUnixtime"      => Time.new.to_i,
+            "creatinoDatetime"      => Time.new.to_s,
             "locations"             => locations,
             "startingLocationCount" => locations.size,
             "timelinesTimePoints"   => timelinesTimePoints,

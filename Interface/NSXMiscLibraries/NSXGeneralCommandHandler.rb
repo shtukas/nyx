@@ -113,9 +113,9 @@ class NSXGeneralCommandHandler
         if command == "/" then
             options = [
                 "Catalyst",
-                "Lucille",
-                "Wave",
                 "In Flight Control System",
+                "Lucille",
+                "Wave"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             if option == "Catalyst" then
