@@ -8,17 +8,15 @@ require_relative "InFlightControlSystem.rb"
 
 objects = []
 
-def metric(item, isRunning, counter)
-    isRunning ? 1 : 0.75-counter.to_f/1000
+def metric(item, isRunning)
+    isRunning ? 1 : 0.75
 end
 
-counter = -1
-
 getTopActiveItemsOrderedByTimespan()
+    .first(1)
     .map{|item|
-        counter = counter + 1
         isRunning = itemIsRunning(item)
-        metric = metric(item, isRunning, counter)
+        metric = metric(item, isRunning)
         defaultCommand = isRunning ? "stop" : "start"
         d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
         d2 = d1 ? " (#{d1.round(2)} hours)" : ""
