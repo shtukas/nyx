@@ -269,13 +269,16 @@ class Lucille
         system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-make-nyx-permadir-using-this-repository-basename '#{foldername2}'")
         nyxItems = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-permanodes`)
         flag1 = nyxItems
-                    .any{|item| 
+                    .any?{|item| 
                         item["targets"].size == 1 and item["targets"][0]["type"] == "perma-dir-11859659" and item["targets"][0]["foldername"] == foldername2
                     }
         if flag1 then
             puts "Looks like we have confirmation of the creation of that permanode"
             puts "Removing Lucille location"
             LucilleCore::removeFileSystemLocation(location)
+        else
+            puts "[error] I did not get confirmation that Nyx item was created!"
+            LucilleCore::pressEnterToContinue()
         end
     end
 
@@ -498,7 +501,8 @@ class LXUserInterface
             options = [
                 "open",
                 "set description",
-                "transmute",
+                "migrate into Nyx item",
+                "transmute into folder",
                 "destroy",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -510,7 +514,11 @@ class LXUserInterface
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 Lucille::setDescription(location, description)
             end
-            if option == "transmute" then
+            if option == "migrate into Nyx item" then
+                Lucille::transformIntoNyxItem(location)
+                return
+            end
+            if option == "transmute into folder" then
                 Lucille::transformLocationFileIntoLocationFolder(location)
             end
             if option == "destroy" then
