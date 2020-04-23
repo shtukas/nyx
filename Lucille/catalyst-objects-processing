@@ -74,7 +74,7 @@ def ifcsLucilleLocation(location)
     item = {
         "uuid"                    => uuid,
         "lucilleLocationBasename" => File.basename(location),
-        "description"             => Lucille::getBestDescription(location),
+        "description"             => LucilleCore::askQuestionAnswerAsString("description: "),
         "position"                => position
     }
     File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
