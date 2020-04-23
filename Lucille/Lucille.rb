@@ -277,7 +277,36 @@ class Lucille
             puts "Removing Lucille location"
             LucilleCore::removeFileSystemLocation(location)
         end
-        
+    end
+
+    # Lucille::transformLocationFileIntoLocationFolder(location)
+    def self.transformLocationFileIntoLocationFolder(location)
+        return File.basename(location) if !File.file?(location)
+        locationbasename = File.basename(location)
+        location2basename = Lucille::timeStringL22()
+
+        location2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{location2basename}" # The new receptacle for the file
+        FileUtils.mkdir(location2)
+        LucilleCore::copyFileSystemLocation(location, location2)
+
+        loop {
+            timelinefilepathbefore = "#{Lucille::pathToTimelines()}/#{locationbasename}.timeline.txt"
+            break if !File.exists?(timelinefilepathbefore)
+            timelinefilepathafter = "#{Lucille::pathToTimelines()}/#{location2basename}.timeline.txt"
+            FileUtils.mv(timelinefilepathbefore, timelinefilepathafter)
+            break
+        }
+
+        loop {
+            description = Lucille::getBestDescription(location)
+            break if description.nil?
+            Lucille::setDescription(location2, description)
+            break
+        }
+
+        LucilleCore::removeFileSystemLocation(location)
+
+        location2basename
     end
 end
 

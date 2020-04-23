@@ -29,6 +29,7 @@ def itemDive(item)
             "set description",
             "set position",
             "suspend temporarily",
+            "transmute-location-basename",
             item["uuid"] == waveuuid() ? "destroy" : nil
         ].compact
         ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
@@ -60,6 +61,10 @@ def itemDive(item)
             timespanInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
             item["DoNotShowUntilUnixtime"] = Time.new.to_i + timespanInHours*3600
             saveItem(item)
+        end
+        if ox == "transmute-location-basename" then
+            lucilleLocationBasename = item["lucilleLocationBasename"]
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-transmute-location-basename '#{lucilleLocationBasename}'")
         end
         if ox == "destroy" then
             uuid = item["uuid"]

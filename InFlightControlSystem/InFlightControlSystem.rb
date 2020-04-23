@@ -37,6 +37,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::dequeueFirstValueOrNull(channel)
+
+    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
+    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
+
+    Mercury::getQueueSize(channel)
+    Mercury::getAllValues(channel)
+
+    Mercury::getFirstValueOrNull(channel)
+    Mercury::deleteFirstValue(channel)
+=end
+
 # --------------------------------------------------------------------
 
 =begin
@@ -93,6 +108,21 @@ def getItemsWihtoutWave()
         raise "[IFCS error: 97d313e44785] Can't see the Lucille items folder"
     end
 
+    # We now rename basenames if we get messages to do so
+    # We have to do this BEFORE the next step
+
+    loop {
+        channel = "0b5b0b54-ea17-40f6-b3f7-d0bfaa641470-lucille-to-ifcs-rebasing"
+        message = Mercury::dequeueFirstValueOrNull(channel)
+        break if message.nil?
+        item = getItemByBasenameOrNull(message["old"])
+        break if item.nil?
+        item["lucilleLocationBasename"] = message["new"]
+        saveItem(item)
+    }
+
+    # Removing the items which do not have a corresponding Lucille location
+
     Dir.entries(itemsFolderpath())
         .select{|filename| filename[-5, 5] == ".json" }
         .map{|filename| "#{itemsFolderpath()}/#{filename}"}
@@ -103,6 +133,8 @@ def getItemsWihtoutWave()
                 FileUtils.rm(filepath)
             end
         }
+
+    # Computing answer
 
     Dir.entries(itemsFolderpath())
         .select{|filename| filename[-5, 5] == ".json" }
@@ -138,6 +170,14 @@ def getItemByUUIDOrNull(uuid)
     filepath = "#{itemsFolderpath()}/#{uuid}.json"
     return nil if !File.exists?(filepath)
     JSON.parse(IO.read(filepath))
+end
+
+def getItemByBasenameOrNull(basename)
+    Dir.entries(itemsFolderpath())
+        .select{|filename| filename[-5, 5] == ".json" }
+        .map{|filename| JSON.parse(IO.read("#{itemsFolderpath()}/#{filename}")) }
+        .select{|item| item["lucilleLocationBasename"] == basename }
+        .first
 end
 
 def destroyItem(uuid)
