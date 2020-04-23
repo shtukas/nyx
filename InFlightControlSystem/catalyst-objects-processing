@@ -25,16 +25,6 @@ require_relative "InFlightControlSystem.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == "set-description" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    exit if uuid == waveuuid()
-    item = getItemByUUIDOrNull(uuid)
-    exit if item.nil?
-    item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-    saveItem(item)
-end
-
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
@@ -54,6 +44,15 @@ if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     stopItem(uuid)
+end
+
+if ARGV[0] == "menu" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    exit if uuid == waveuuid()
+    item = getItemByUUIDOrNull(uuid)
+    exit if item.nil?
+    itemDive(item)
 end
 
 if ARGV[0] == "destroy" and ARGV[1] then

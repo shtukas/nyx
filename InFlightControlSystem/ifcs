@@ -19,60 +19,6 @@ def descriptionExended(item, nsize)
     end
 end
 
-def itemDive(item)
-    loop {
-        puts JSON.pretty_generate(item)
-        oxs = [ 
-            "start", 
-            "stop",
-            "open",
-            "set description",
-            "set position",
-            "suspend temporarily",
-            "transmute-location-basename",
-            item["uuid"] == waveuuid() ? "destroy" : nil
-        ].compact
-        ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
-        return if ox.nil?
-        if ox == "start" then
-            startItem(item["uuid"])
-        end
-        if ox == "stop" then
-            stopItem(item["uuid"])
-        end
-        if ox == "open" then
-            if item["uuid"] == waveuuid() then
-                puts "It's not possible to open Wave"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            lucilleLocationBasename = item["lucilleLocationBasename"]
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{lucilleLocationBasename}'")
-        end
-        if ox == "set description" then
-            item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            saveItem(item)
-        end
-        if ox == "set position" then
-            item["position"] = LucilleCore::askQuestionAnswerAsString("position: ").to_f
-            saveItem(item)
-        end
-        if ox == "suspend temporarily" then
-            timespanInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-            item["DoNotShowUntilUnixtime"] = Time.new.to_i + timespanInHours*3600
-            saveItem(item)
-        end
-        if ox == "transmute-location-basename" then
-            lucilleLocationBasename = item["lucilleLocationBasename"]
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-transmute-location-basename '#{lucilleLocationBasename}'")
-        end
-        if ox == "destroy" then
-            uuid = item["uuid"]
-            destroyItem(uuid)
-        end
-    }
-end
-
 loop {
     system('clear')
     puts ""
