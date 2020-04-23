@@ -30,7 +30,7 @@ def doneLucilleLocation(location)
     if timespan then
         LXCluster::processIncomingLocationTimespan(location, timespan)
     end
-    Lucille::destroyLucilleLocation(location)
+    Lucille::destroyLucilleLocationManaged(location)
     LXCluster::curateOrRespawnCluster()
 end
 

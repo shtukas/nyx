@@ -118,8 +118,8 @@ class Lucille
             }
     end
 
-    # Lucille::destroyLucilleLocation(location)
-    def self.destroyLucilleLocation(location)
+    # Lucille::destroyLucilleLocationManaged(location)
+    def self.destroyLucilleLocationManaged(location)
         timeline = Lucille::getLocationTimeline(location)
         if timeline == "[Open Cycles]" then
             puts "You are about to delete an [Open Cycle] item"
@@ -499,6 +499,7 @@ class LXUserInterface
                 "open",
                 "set description",
                 "transmute",
+                "destroy",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -511,6 +512,10 @@ class LXUserInterface
             end
             if option == "transmute" then
                 Lucille::transformLocationFileIntoLocationFolder(location)
+            end
+            if option == "destroy" then
+                Lucille::destroyLucilleLocationManaged(location)
+                return
             end
         }
     end

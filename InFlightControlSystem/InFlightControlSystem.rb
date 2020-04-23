@@ -322,7 +322,7 @@ def itemDive(item)
             "set position",
             "suspend temporarily",
             "dive into Lucille item",
-            item["uuid"] == waveuuid() ? "destroy" : nil
+            (item["uuid"] != waveuuid()) ? "destroy" : nil
         ].compact
         ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
         return if ox.nil?
