@@ -9,11 +9,12 @@ require_relative "InFlightControlSystem.rb"
 objects = []
 
 def metric(item, isRunning)
-    isRunning ? 1 : 0.75
+    return 1 if isRunning
+    isDeficient = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"]) < 0
+    isDeficient ? 0.75 : 0
 end
 
 getTopActiveItemsOrderedByTimespan()
-    .first(1)
     .map{|item|
         isRunning = itemIsRunning(item)
         metric = metric(item, isRunning)
