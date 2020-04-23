@@ -6,15 +6,19 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
-counter = 0
-
 objects = []
+
+def metric(item, isRunning, counter)
+    isRunning ? 1 : 0.75-counter.to_f/1000
+end
+
+counter = -1
 
 getTopActiveItemsOrderedByTimespan()
     .map{|item|
-        counter = counter + 1 
+        counter = counter + 1
         isRunning = itemIsRunning(item)
-        metric = isRunning ? 1 : (0.75 - counter.to_f/10000)
+        metric = metric(item, isRunning, counter)
         defaultCommand = isRunning ? "stop" : "start"
         d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
         d2 = d1 ? " (#{d1.round(2)} hours)" : ""
@@ -34,7 +38,8 @@ getTopActiveItemsOrderedByTimespan()
                 "destroy"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing destroy '#{item["uuid"]}'",
                 "start"           => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{item["uuid"]}'",
                 "stop"            => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{item["uuid"]}'"
-            }
+            },
+            "meta:ifcs:isWave" => itemIsWave(item)
         }
         objects << object
     }

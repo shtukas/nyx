@@ -79,10 +79,10 @@ end
 
 def makeMetric(metricHelper, isRunning, timeline)
     if isRunning then
-        return 0.74
+        return 1
     end
     if timeline == "[Inbox]" then
-        return metricHelper.metric(0.5) # Lucille 'Inbox'
+        return metricHelper.metric(0.76) # Lucille 'Inbox'
     end
     metricHelper.metric(0.4) # Lucille (timelines)
 end

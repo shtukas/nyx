@@ -52,26 +52,10 @@ class NSXCatalystObjectsOperator
             .reverse
 
 
-        objectIsContentItemLineAndInclude = lambda {|object, str|
-            return false if object["contentItem"]["line"].nil?
-            object["contentItem"]["line"].include?(str)
-        }
-
-        # Make sure that ifcs 'running: Wave' is not first
+        # Make sure that running ifcs Wave is not first
         loop {
             break if objects.size < 2
-            break if !objectIsContentItemLineAndInclude.call(objects[0], 'running: Wave')
-            objects[0]["metric"] = objects[0]["metric"] - 0.001
-            objects = objects
-                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                .reverse
-        }
-
-        # Make sure that ifcs 'start:' is not first if there are [Inbox] elements
-        loop {
-            break if objects.size < 2
-            break if !objectIsContentItemLineAndInclude.call(objects[0], 'In Flight Control System')
-            break if objects.none?{|o| objectIsContentItemLineAndInclude.call(o, '[Inbox]') }
+            break if !objects[0]["meta:ifcs:isWave"]
             objects[0]["metric"] = objects[0]["metric"] - 0.001
             objects = objects
                 .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
