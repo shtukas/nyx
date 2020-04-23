@@ -66,7 +66,7 @@ NSXEstateServices::binTimelineGarbageCollectionEnvelop(true)
 
 Thread.new {
     loop {
-        sleep 60
+        sleep 120
         system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-notification")
     }
 }

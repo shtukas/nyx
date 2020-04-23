@@ -81,12 +81,11 @@ class NSXGeneralCommandHandler
             end
             if option == "New Lucille item + IFCS registration" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
-                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
-                File.open(filepath, "w"){|f| f.puts(text) }
+                location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
+                File.open(location, "w"){|f| f.puts(text) }
 
-                location = filepath
-                # First we start my migrating the location to timeline [Open Cycles]
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-set-location-timeline '#{location}' '[Open Cycles]'")
+                File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Timelines/#{File.basename(location)}.timeline.txt", "w"){|f| f.puts("[Open Cycles]") }
+
                 # Now we need to create a new ifcs item, the only non trivial step if to decide the position
                 makeNewIFCSItemPosition = lambda {
                     JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)

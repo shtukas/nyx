@@ -77,15 +77,13 @@ def timeStringL22()
     "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
 end
 
-lucillePathToItems = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-path-to-items`.strip
-
 viennaLinkFeeder = ViennaLinkFeeder.new()
 
 loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-    File.open("#{lucillePathToItems}/#{timeStringL22()}-vienna-url.txt", "w"){|f| f.puts(link) }
+    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{timeStringL22()}-vienna-url.txt", "w"){|f| f.puts(link) }
     viennaLinkFeeder.done(link)
 }
 
