@@ -306,6 +306,13 @@ class Lucille
 
         LucilleCore::removeFileSystemLocation(location)
 
+        channel = "0b5b0b54-ea17-40f6-b3f7-d0bfaa641470-lucille-to-ifcs-rebasing"
+        message = {
+            "old" => locationbasename,
+            "new" => location2basename
+        }
+        Mercury::postValue(channel, message)
+
         location2basename
     end
 end
@@ -482,3 +489,37 @@ class LXCluster
     end
 end
 
+class LXUserInterface
+
+    # LXUserInterface::locationDive(location)
+    def self.locationDive(location)
+        options = [
+            "open",
+            "set description",
+            "transmute",
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+        return if option.nil?
+        if option == "open" then
+            Lucille::openLocation(location)
+        end
+        if option == "set description" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            Lucille::setDescription(location, description)
+        end
+        if option == "transmute" then
+            Lucille::transformLocationFileIntoLocationFolder(location)
+        end
+    end
+
+    # LXUserInterface::timelineDive(timeline)
+    def self.timelineDive(timeline)
+        puts "-> #{timeline}"
+        loop {
+            locations = Lucille::getTimelineLocations(timeline)
+            location = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| Lucille::getBestDescription(location) })
+            break if location.nil?
+            LXUserInterface::locationDive(location)
+        }
+    end
+end

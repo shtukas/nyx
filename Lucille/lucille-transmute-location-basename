@@ -63,11 +63,3 @@ locationname = ARGV[0]
 location = "#{Lucille::pathToItems()}/#{locationname}"
 exit if !File.exists?(location)
 newbasename = Lucille::transformLocationFileIntoLocationFolder(location)
-
-channel = "0b5b0b54-ea17-40f6-b3f7-d0bfaa641470-lucille-to-ifcs-rebasing"
-message = {
-    "old" => locationname,
-    "new" => newbasename
-}
-puts JSON.pretty_generate(message)
-Mercury::postValue(channel, message)
