@@ -89,6 +89,7 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     Lucille::openLocation(location)
     loop {
         options = [
+            "open",
             "done",
             "set description",
             "export to desktop",
@@ -100,6 +101,10 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         exit if option.nil?
+        if option == "open" then
+            Lucille::openLocation(location)
+            exit
+        end
         if option == "done" then
             doneLucilleLocation(location)
             exit
