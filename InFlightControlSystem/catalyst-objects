@@ -22,7 +22,7 @@ getTopActiveItemsOrderedByTimespan()
         d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
         d2 = d1 ? " (#{d1.round(2)} hours)" : ""
         object = {
-            "uuid" => SecureRandom.uuid,
+            "uuid" => item["uuid"],
             "contentItem" => {
                 "type" => "line",
                 "line" => "[In Flight Control System] (#{"%6.3f" % item["position"]}) #{getItemDescription(item)}#{d2}",

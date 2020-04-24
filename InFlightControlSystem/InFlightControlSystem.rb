@@ -52,6 +52,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
     Mercury::deleteFirstValue(channel)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
+#    DoNotShowUntil::setUnixtime(uid, unixtime)
+#    DoNotShowUntil::isVisible(uid)
+
 # --------------------------------------------------------------------
 
 =begin
@@ -60,7 +64,6 @@ Item {
     "uuid"                    : String,
     "lucilleLocationBasename" : String
     "position"                : Float
-    "DoNotShowUntilUnixtime"  : Unixtime # Optional
 }
 
 TimePoints : Array[TimePoint]
@@ -146,7 +149,7 @@ end
 def getTopThreeActiveItems()
     getItems()
         .select{|item| 
-            b1 = item["DoNotShowUntilUnixtime"].nil? or ( Time.new.to_i > item["DoNotShowUntilUnixtime"] ) 
+            b1 = DoNotShowUntil::isVisible(item["uuid"])
             b2 = itemIsRunning(item)
             b1 or b2
         }
@@ -325,7 +328,6 @@ def itemDive(item)
             "open",
             "set description",
             "set position",
-            "suspend temporarily",
             "dive into Lucille item",
             (item["uuid"] != waveuuid()) ? "destroy" : nil
         ].compact
@@ -352,11 +354,6 @@ def itemDive(item)
         end
         if ox == "set position" then
             item["position"] = LucilleCore::askQuestionAnswerAsString("position: ").to_f
-            saveItem(item)
-        end
-        if ox == "suspend temporarily" then
-            timespanInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-            item["DoNotShowUntilUnixtime"] = Time.new.to_i + timespanInHours*3600
             saveItem(item)
         end
         if ox == "dive into Lucille item" then
