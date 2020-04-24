@@ -75,14 +75,29 @@ class NSXGeneralCommandHandler
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
             if option == "New Lucille item" then
-                text = NSXMiscUtils::editTextUsingTextmate("")
-                filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
-                File.open(filepath, "w"){|f| f.puts(text) }
+                text = NSXMiscUtils::editTextUsingTextmate("").strip
+                location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
+                File.open(location, "w"){|f| f.puts(text) }
+                description = nil
+                if text.lines.to_a.size == 1 then
+                    description = text
+                else
+                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                end
+                KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
+
             end
             if option == "New Lucille item + IFCS registration" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
                 location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
                 File.open(location, "w"){|f| f.puts(text) }
+
+                if text.lines.to_a.size == 1 then
+                    description = text
+                else
+                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                end
+                KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
 
                 File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Timelines/#{File.basename(location)}.timeline.txt", "w"){|f| f.puts("[Open Cycles]") }
 
@@ -100,7 +115,6 @@ class NSXGeneralCommandHandler
                 item = {
                     "uuid"                    => uuid,
                     "lucilleLocationBasename" => File.basename(location),
-                    "description"             => LucilleCore::askQuestionAnswerAsString("Description for IFCS item: "),
                     "position"                => position
                 }
                 File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
