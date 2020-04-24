@@ -333,6 +333,19 @@ class Lucille
 
         location2basename
     end
+
+    # Lucille::selectLocationOrNull()
+    def self.selectLocationOrNull()
+        timelineDiveForSelection = lambda{|timeline|
+            puts "-> #{timeline}"
+            locations = Lucille::getTimelineLocations(timeline)
+            LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| Lucille::getBestDescription(location) })
+        }
+        timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", Lucille::timelines())
+        return nil if timeline.nil?
+        timelineDiveForSelection.call(timeline)
+    end
+
 end
 
 class LXRunManagement
@@ -553,4 +566,5 @@ class LXUserInterface
             LXUserInterface::locationDive(location)
         }
     end
+
 end

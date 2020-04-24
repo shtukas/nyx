@@ -93,8 +93,9 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
             "set description",
             "export to desktop",
             "recast",
-            "ifcs",
             "do not show until",
+            "make as ifcs",
+            "merge with other Lucille location",
             "move to Nyx"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -116,13 +117,24 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
             recastLucilleLocation(location)
             exit
         end
-        if option == "ifcs" then
-            ifcsLucilleLocation(location)
-            exit
-        end
         if option == "do not show until" then
             hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
             DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
+            exit
+        end
+        if option == "make as ifcs" then
+            ifcsLucilleLocation(location)
+            exit
+        end
+        if option == "merge with other Lucille location" then
+            location2 = Lucille::selectLocationOrNull()
+            exit if location2.nil?
+            if File.file?(location2) then
+                locationbasename2 = Lucille::transformLocationFileIntoLocationFolder(location2)
+                location2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{locationbasename2}"
+            end
+            LucilleCore::copyFileSystemLocation(location, location2)
+            LucilleCore::removeFileSystemLocation(location)
             exit
         end
         if option == "move to Nyx" then
@@ -130,7 +142,6 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
             exit
         end
     }
-
 end
 
 if ARGV[0] == "start" and ARGV[1] then
