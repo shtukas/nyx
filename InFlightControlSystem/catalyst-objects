@@ -10,7 +10,7 @@ objects = []
 
 def metric(item, isRunning)
     return 1 if isRunning
-    isDeficient = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"]) <= 0
+    isDeficient = (getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"]) || 0) <= 0
     isDeficient ? 0.75 : 0
 end
 
