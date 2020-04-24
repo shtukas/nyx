@@ -25,7 +25,7 @@ getTopActiveItemsOrderedByTimespan()
             "uuid" => SecureRandom.uuid,
             "contentItem" => {
                 "type" => "line",
-                "line" => "[In Flight Control System] (#{"%6.3f" % item["position"]}) #{item["description"]}#{d2}",
+                "line" => "[In Flight Control System] (#{"%6.3f" % item["position"]}) #{getItemDescription(item)}#{d2}",
             },
             "metric" => metric,
             "commands" => ["open", "menu", !itemIsWave(item) ? "destroy" : nil].compact,

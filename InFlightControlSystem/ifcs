@@ -13,9 +13,9 @@ require_relative "InFlightControlSystem.rb"
 
 def descriptionExended(item, nsize)
     if itemIsTopActiveItem(item["uuid"]) then
-        "(#{"%6.3f" % item["position"]}) (#{(itemIsRunning(item) ? "running" : "").ljust(7)}) #{item["description"].ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
+        "(#{"%6.3f" % item["position"]}) (#{(itemIsRunning(item) ? "running" : "").ljust(7)}) #{getItemDescription(item).ljust(nsize)} (#{"%6.2f" % (getItemLiveTimespan(item["uuid"]).to_f/3600)} hours)"
     else
-        "(#{"%6.3f" % item["position"]}) (#{(itemIsRunning(item) ? "running" : "").ljust(7)}) #{item["description"].ljust(nsize)}"
+        "(#{"%6.3f" % item["position"]}) (#{(itemIsRunning(item) ? "running" : "").ljust(7)}) #{getItemDescription(item).ljust(nsize)}"
     end
 end
 
@@ -27,7 +27,7 @@ loop {
 
     nsize = getItems()
             .reject{|item| item["uuid"] == waveuuid() }
-            .map{|item| item["description"].size }
+            .map{|item| getItemDescription(item).size }
             .max
 
     itemsOrderedByPosition().each{|item|

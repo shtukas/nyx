@@ -59,7 +59,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
 Item {
     "uuid"                    : String,
     "lucilleLocationBasename" : String
-    "description"             : String
     "position"                : Float
     "DoNotShowUntilUnixtime"  : Unixtime # Optional
 }
@@ -86,7 +85,6 @@ def waveItem()
     {
         "uuid" => waveuuid(),
         "lucilleLocationBasename" => nil,
-        "description" => "Wave",
         "position" => 0
     }
 end
@@ -188,7 +186,7 @@ def destroyItem(uuid)
 end
 
 # ---------------
-# IO Companions
+# Time Points
 
 def timePointsKeyPrefix()
     s1 = "72a74d9f-a3df-4ec3-b6b2-e6aeb197119e"
@@ -303,6 +301,12 @@ end
 # ---------------
 # User Interface
 
+def getItemDescription(item)
+    return "Wave" if (item["uuid"] == waveuuid())
+    location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{item["lucilleLocationBasename"]}"
+    KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}") || "[unkown description]"
+end
+
 def onScreenNotification(title, message)
     title = title.gsub("'","")
     message = message.gsub("'","")
@@ -342,8 +346,9 @@ def itemDive(item)
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{item["lucilleLocationBasename"]}'")
         end
         if ox == "set description" then
-            item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-            saveItem(item)
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{item["lucilleLocationBasename"]}"
+            KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
         end
         if ox == "set position" then
             item["position"] = LucilleCore::askQuestionAnswerAsString("position: ").to_f
