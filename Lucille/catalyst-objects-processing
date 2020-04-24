@@ -89,8 +89,8 @@ if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     Lucille::openLocation(location)
     loop {
         options = [
-            "open",
             "done",
+            "open",
             "set description",
             "export to desktop",
             "recast",
