@@ -8,6 +8,6 @@
         0.75  In Flight Control System
 0.20 -> 0.70  YouTubeVideoStream
         0.53  BackupsMonitor
-        0.45  Lucille.txt
+        0.45- DesktopFile
         0.40- Lucille (cluster)
 ------- 0.20 ------- Water level ------------------------------

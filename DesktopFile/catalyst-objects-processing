@@ -1,0 +1,52 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
+# SectionsType0141::contentToSections(text)
+
+# --------------------------------------------------------------------
+
+DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
+CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
+BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+
+def sectionToUUID(section)
+    "#{Time.new.to_s[0,10]}-#{Digest::SHA1.hexdigest(section)}"
+end
+
+def moveLocationToCatalystBin(location)
+    return if location.nil?
+    return if !File.exists?(location)
+    folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+    folder2 = LucilleCore::indexsubfolderpath(folder1)
+    folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
+    FileUtils.mkdir(folder3)
+    FileUtils.mv(location, folder3)
+end
+
+pathToDesktopFile = "/Users/pascal/Desktop/Lucille.txt"
+
+# -----------------------------------------------------------------------------
+
+if ARGV[0] == "done" and ARGV[1] then
+    moveLocationToCatalystBin(pathToDesktopFile)
+    sectionuuid = ARGV[1]
+    sections = SectionsType0141::contentToSections(IO.read(pathToDesktopFile))
+        .reject{|section|
+            sectionToUUID(section) == sectionuuid
+        }
+    File.open(pathToDesktopFile, "w"){|f| f.puts(sections.map{|section| section.strip }.join("\n\n")) }
+end

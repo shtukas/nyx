@@ -37,24 +37,6 @@ class NSXCatalystUI
 
         while displayObjectsForListing.size>0 do
 
-            # Injecting Lucille if relevant
-            shouldDisplayLucille = lambda {|objects, lucilleHasBeenDisplayed|
-                return false if lucilleHasBeenDisplayed
-                return true if objects.none?{|object| object["metric"] > 0.45 }
-                false
-            }
-            if shouldDisplayLucille.call(displayObjectsForListing, lucilleHasBeenDisplayed) then
-                contents = IO.read("/Users/pascal/Desktop/Lucille.txt").strip.lines.first([[10, verticalSpaceLeft-3].min, 0].max).join().strip
-                if contents.size>0 then
-                    puts ""
-                    puts "Lucille.txt"
-                    puts contents
-                    puts ""
-                    verticalSpaceLeft = verticalSpaceLeft - (contents.lines.to_a.size + 3)
-                end
-                lucilleHasBeenDisplayed = true
-            end
-
             # Position and Focus Management
             position = position + 1
             object = displayObjectsForListing.shift
