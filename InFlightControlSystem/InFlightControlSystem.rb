@@ -236,7 +236,8 @@ def startItem(uuid)
     return if uuid == waveuuid()
     item = getItemByUUIDOrNull(uuid)
     return if item.nil?
-    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-and-start-location-basename '#{item["lucilleLocationBasename"]}'")
+    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{item["lucilleLocationBasename"]}'")
+    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-start-location-basename '#{item["lucilleLocationBasename"]}'")
 end
 
 def stopItem(uuid)
@@ -354,7 +355,7 @@ def itemDive(item)
             saveItem(item)
         end
         if ox == "dive into Lucille item" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-location-basename-dive '#{item["lucilleLocationBasename"]}'")
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-dive-location-basename '#{item["lucilleLocationBasename"]}'")
         end
         if ox == "destroy" then
             uuid = item["uuid"]
