@@ -365,6 +365,7 @@ def itemDive(item)
         if ox == "destroy" then
             uuid = item["uuid"]
             destroyItem(uuid)
+            return
         end
     }
 end
