@@ -63,9 +63,10 @@ objects = SectionsType0141::contentToSections(IO.read("/Users/pascal/Desktop/Luc
                 "body" => "[Desktop] " + section.strip
             },
             "metric"          => 0.45 - indx.to_f/10000,
-            "commands"        => [],
+            "commands"        => [">lucille"],
             "defaultCommand"  => "done",
             "shell-redirects" => {
+                ">lucille" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing tolucille #{sectionuuid}",
                 "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing done #{sectionuuid}"
             }
         }

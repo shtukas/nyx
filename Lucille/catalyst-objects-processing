@@ -25,128 +25,12 @@ require_relative "Lucille.rb"
 
 # -----------------------------------------------------------------------------
 
-def doneLucilleLocation(location)
-    timespan = LXRunManagement::stopLocation(location)
-    if timespan then
-        LXCluster::processIncomingLocationTimespan(location, timespan)
-    end
-    Lucille::destroyLucilleLocationManaged(location)
-    LXCluster::curateOrRespawnCluster()
-end
-
-def recastLucilleLocation(location)
-    timespan = LXRunManagement::stopLocation(location)
-    if timespan then
-        LXCluster::processIncomingLocationTimespan(location, timespan)
-    end
-    timeline = nil
-    loop {
-        timelines = Lucille::timelines().reject{|timeline| timeline == "[Inbox]" }
-        t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
-        if t then
-            timeline = t
-            break
-        end
-        t = LucilleCore::askQuestionAnswerAsString("timeline: ")
-        if t.size>0 then
-            timeline = t
-            break
-        end
-    }
-    Lucille::setLocationTimeline(location, timeline)
-    LXCluster::curateOrRespawnCluster()
-end
-
-def ifcsLucilleLocation(location)
-    # First we start my migrating the location to timeline [Open Cycles]
-    Lucille::setLocationTimeline(location, "[Open Cycles]")
-    # Now we need to create a new ifcs item, the only non trivial step if to decide the position
-    makeNewIFCSItemPosition = lambda {
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
-            .sort{|i1, i2| i1["position"] <=> i2["position"]}
-            .each{|item|
-                puts "   - (#{"%5.3f" % item["position"]}) #{item["description"]}"
-            }
-        LucilleCore::askQuestionAnswerAsString("position: ").to_f
-    }
-    position = makeNewIFCSItemPosition.call()
-    uuid = SecureRandom.uuid
-    item = {
-        "uuid"                    => uuid,
-        "lucilleLocationBasename" => File.basename(location),
-        "description"             => LucilleCore::askQuestionAnswerAsString("description: "),
-        "position"                => position
-    }
-    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
-end
-
-# -----------------------------------------------------------------------------
-
 if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
     puts "opening..."
     Lucille::openLocation(location)
-    loop {
-        options = [
-            "done",
-            "open",
-            "set description",
-            "export to desktop",
-            "recast",
-            "do not show until",
-            "make as ifcs",
-            "merge with other Lucille location",
-            "move to Nyx"
-        ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        exit if option.nil?
-        if option == "open" then
-            Lucille::openLocation(location)
-            exit
-        end
-        if option == "done" then
-            doneLucilleLocation(location)
-            exit
-        end
-        if option == "set description" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            Lucille::setDescription(location, description)
-            next
-        end
-        if option == "export to desktop" then
-            LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
-            next
-        end
-        if option == "recast" then
-            recastLucilleLocation(location)
-            exit
-        end
-        if option == "do not show until" then
-            hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
-            DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
-            exit
-        end
-        if option == "make as ifcs" then
-            ifcsLucilleLocation(location)
-            exit
-        end
-        if option == "merge with other Lucille location" then
-            location2 = Lucille::selectLocationOrNull()
-            exit if location2.nil?
-            if File.file?(location2) then
-                locationbasename2 = Lucille::transformLocationFileIntoLocationFolder(location2)
-                location2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{locationbasename2}"
-            end
-            LucilleCore::copyFileSystemLocation(location, location2)
-            LucilleCore::removeFileSystemLocation(location)
-            exit
-        end
-        if option == "move to Nyx" then
-            Lucille::transformIntoNyxItem(location)
-            exit
-        end
-    }
+    LXUserInterface::locationDive(location)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
@@ -189,13 +73,13 @@ end
 if ARGV[0] == "recast" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    recastLucilleLocation(location)
+    LXUserInterface::recastLucilleLocation(location)
 end
 
 if ARGV[0] == "ifcs" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    ifcsLucilleLocation(location)
+    LXUserInterface::ifcsLucilleLocation(location)
 end
 
 if ARGV[0] == "move-to-nyx" then
@@ -208,5 +92,5 @@ end
 if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    doneLucilleLocation(location)
+    LXUserInterface::doneLucilleLocation(location)
 end

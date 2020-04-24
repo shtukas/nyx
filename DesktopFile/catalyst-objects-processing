@@ -23,30 +23,57 @@ DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
 CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
 BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
 
+PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
+
 def sectionToUUID(section)
     "#{Time.new.to_s[0,10]}-#{Digest::SHA1.hexdigest(section)}"
 end
 
-def moveLocationToCatalystBin(location)
+def copyLocationToCatalystBin(location)
     return if location.nil?
     return if !File.exists?(location)
     folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
     folder2 = LucilleCore::indexsubfolderpath(folder1)
     folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
     FileUtils.mkdir(folder3)
-    FileUtils.mv(location, folder3)
+    LucilleCore::copyFileSystemLocation(location, folder3)
 end
 
-pathToDesktopFile = "/Users/pascal/Desktop/Lucille.txt"
+def rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+    copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
+    sections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
+        .reject{|section|
+            sectionToUUID(section) == sectionuuid
+        }
+    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts(sections.map{|section| section.strip }.join("\n\n")) }
+end
+
+def getSectionFromFileBySectionUUIDOrNull(sectionuuid)
+    SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
+        .select{|section|
+            sectionToUUID(section) == sectionuuid
+        }
+        .first
+end
+
+def timeStringL22()
+    "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+end
 
 # -----------------------------------------------------------------------------
 
 if ARGV[0] == "done" and ARGV[1] then
-    moveLocationToCatalystBin(pathToDesktopFile)
     sectionuuid = ARGV[1]
-    sections = SectionsType0141::contentToSections(IO.read(pathToDesktopFile))
-        .reject{|section|
-            sectionToUUID(section) == sectionuuid
-        }
-    File.open(pathToDesktopFile, "w"){|f| f.puts(sections.map{|section| section.strip }.join("\n\n")) }
+    rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+end
+
+if ARGV[0] == "tolucille" and ARGV[1] then
+    sectionuuid = ARGV[1]
+    section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
+    exit if section.nil?
+    basename = "#{timeStringL22()}.txt"
+    location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{basename}"
+    File.open(location, "w"){|f| f.puts(section) }
+    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-dive-location-basename '#{basename}'")
+    rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end

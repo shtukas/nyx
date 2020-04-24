@@ -522,36 +522,123 @@ end
 
 class LXUserInterface
 
+    # LXUserInterface::doneLucilleLocation(location)
+    def self.doneLucilleLocation(location)
+        timespan = LXRunManagement::stopLocation(location)
+        if timespan then
+            LXCluster::processIncomingLocationTimespan(location, timespan)
+        end
+        Lucille::destroyLucilleLocationManaged(location)
+        LXCluster::curateOrRespawnCluster()
+    end
+
+    # LXUserInterface::recastLucilleLocation(location)
+    def self.recastLucilleLocation(location)
+        timespan = LXRunManagement::stopLocation(location)
+        if timespan then
+            LXCluster::processIncomingLocationTimespan(location, timespan)
+        end
+        timeline = nil
+        loop {
+            timelines = Lucille::timelines().reject{|timeline| timeline == "[Inbox]" }
+            t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
+            if t then
+                timeline = t
+                break
+            end
+            t = LucilleCore::askQuestionAnswerAsString("timeline: ")
+            if t.size>0 then
+                timeline = t
+                break
+            end
+        }
+        Lucille::setLocationTimeline(location, timeline)
+        LXCluster::curateOrRespawnCluster()
+    end
+
+    # LXUserInterface::ifcsLucilleLocation(location)
+    def self.ifcsLucilleLocation(location)
+        # First we start my migrating the location to timeline [Open Cycles]
+        Lucille::setLocationTimeline(location, "[Open Cycles]")
+        # Now we need to create a new ifcs item, the only non trivial step if to decide the position
+        makeNewIFCSItemPosition = lambda {
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
+                .sort{|i1, i2| i1["position"] <=> i2["position"]}
+                .each{|item|
+                    puts "   - (#{"%5.3f" % item["position"]}) #{item["description"]}"
+                }
+            LucilleCore::askQuestionAnswerAsString("position: ").to_f
+        }
+        position = makeNewIFCSItemPosition.call()
+        uuid = SecureRandom.uuid
+        item = {
+            "uuid"                    => uuid,
+            "lucilleLocationBasename" => File.basename(location),
+            "description"             => LucilleCore::askQuestionAnswerAsString("description: "),
+            "position"                => position
+        }
+        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
     # LXUserInterface::locationDive(location)
     def self.locationDive(location)
         loop {
-            puts "location: '#{location}'"
+            system("clear")
+            puts "location: #{location}"
+            puts "description: #{Lucille::getBestDescription(location)}"
             options = [
                 "open",
+                "done",
                 "set description",
-                "migrate into Nyx item",
+                "export to desktop",
+                "recast",
                 "transmute into folder",
-                "destroy",
+                "do not show until",
+                "merge with other Lucille location",
+                ">ifcs",
+                ">nyx"
             ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
                 Lucille::openLocation(location)
+            end
+            if option == "done" then
+                LXUserInterface::doneLucilleLocation(location)
+                return
             end
             if option == "set description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 Lucille::setDescription(location, description)
             end
-            if option == "migrate into Nyx item" then
+            if option == "export to desktop" then
+                LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
+            end
+            if option == "recast" then
+                LXUserInterface::recastLucilleLocation(location)
+            end
+            if option == "do not show until" then
+                hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
+                DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
+            end
+            if option == ">ifcs" then
+                LXUserInterface::ifcsLucilleLocation(location)
+            end
+            if option == "merge with other Lucille location" then
+                location2 = Lucille::selectLocationOrNull()
+                exit if location2.nil?
+                if File.file?(location2) then
+                    locationbasename2 = Lucille::transformLocationFileIntoLocationFolder(location2)
+                    location2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{locationbasename2}"
+                end
+                LucilleCore::copyFileSystemLocation(location, location2)
+                LucilleCore::removeFileSystemLocation(location)
+            end
+            if option == ">nyx" then
                 Lucille::transformIntoNyxItem(location)
-                return
             end
             if option == "transmute into folder" then
                 Lucille::transformLocationFileIntoLocationFolder(location)
-            end
-            if option == "destroy" then
-                Lucille::destroyLucilleLocationManaged(location)
-                return
             end
         }
     end

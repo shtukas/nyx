@@ -46,6 +46,10 @@ require_relative "Lucille.rb"
 
 puts "Lucille 👩‍💻"
 puts "cluster age: #{((Time.new.to_i - LXCluster::getClusterFromDisk()["creationUnixtime"]).to_f/86400).round(3)} days"
-timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", Lucille::timelines())
-exit if timeline.nil?
-LXUserInterface::timelineDive(timeline)
+loop {
+    system("clear")
+    timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", Lucille::timelines())
+    break if timeline.nil?
+    LXUserInterface::timelineDive(timeline)
+}
+
