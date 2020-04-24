@@ -281,7 +281,7 @@ class Lucille
         folder2 = "/Users/pascal/Galaxy/Nyx/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{foldername2}"
         FileUtils.mkpath(folder2)
         LucilleCore::copyFileSystemLocation(location, folder2)
-        system("/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-make-nyx-permadir-using-this-repository-basename '#{foldername2}'")
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-make-nyx-permadir-using-this-repository-basename '#{foldername2}'")
         nyxItems = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-permanodes`)
         flag1 = nyxItems
                     .any?{|item| 

@@ -1,0 +1,36 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Nyx.rb"
+
+# --------------------------------------------------------------------
+
+basename = ARGV[0]
+exit if basename.nil?
+exit if basename.size == 0
+location = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), basename)
+puts location
+exit if location.nil?
+
+permanodeTarget = {
+    "uuid"       => SecureRandom.uuid,
+    "type"       => "perma-dir-11859659",
+    "foldername" => basename
+}
+
+permanode = {}
+permanode["uuid"] = SecureRandom.uuid
+permanode["filename"] = "#{NyxMiscUtils::l22()}.json"
+permanode["creationTimestamp"] = Time.new.to_f
+permanode["referenceDateTime"] = Time.now.utc.iso8601
+permanode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+permanode["targets"] = [ permanodeTarget ]
+permanode["nodes"] = NyxPermanodeOperator::makePermanodeNodesInteractive()
+permanode["arrows"] = NyxPermanodeOperator::makePermanodeArrowsInteractive()
+
+NyxPermanodeOperator::commitNewPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
+
+permanodeFilename = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), permanode["filename"])
+
+puts permanodeFilename

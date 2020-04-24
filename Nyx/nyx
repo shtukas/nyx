@@ -1,0 +1,10 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Nyx.rb"
+
+# --------------------------------------------------------------------
+
+NyxUserInterface::uimainloop()
+
