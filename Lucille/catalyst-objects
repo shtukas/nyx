@@ -44,8 +44,8 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-Lucille::garbageCollection()
-Lucille::ensureStandardFilenames()
+LucilleCore::garbageCollection()
+LucilleCore::ensureStandardFilenames()
 
 # -------------------------------------------------------------------------
 
@@ -67,13 +67,13 @@ def makeContentItem(location, timeline)
     if location[-4, 4] == ".txt" then
         return {
             "type" => "line-and-body",
-            "line" => "[lucille] #{Lucille::getBestDescription(location)} #{timelinefragment}",
+            "line" => "[lucille] #{LucilleCore::getBestDescription(location)} #{timelinefragment}",
             "body" => "[lucille] #{IO.read(location).strip}\n#{timelinefragment}"
         }
     end
     {
         "type" => "line",
-        "line" => "[lucille] #{Lucille::getBestDescription(location)} #{timelinefragment}"
+        "line" => "[lucille] #{LucilleCore::getBestDescription(location)} #{timelinefragment}"
     }
 end
 
@@ -118,12 +118,12 @@ end
 
 metricHelper = MetricHelper.new()
 cluster = LXCluster::getClusterFromDisk()
-displayLocations = (Lucille::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
+displayLocations = (LucilleCore::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
 
 objects = displayLocations
             .select{|location| DoNotShowUntil::isVisible(location) }
             .map{|location|
-                timeline = Lucille::getLocationTimeline(location)
+                timeline = LucilleCore::getLocationTimeline(location)
                 uuid = Digest::SHA1.hexdigest(location)
                 isRunning = LXRunManagement::locationIsRunning(location)
                 {

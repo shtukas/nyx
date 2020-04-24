@@ -51,9 +51,9 @@ BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
 
 # -----------------------------------------------------------------
 
-class Lucille
+class LucilleCore
 
-    # Lucille::timeStringL22()
+    # LucilleCore::timeStringL22()
     def self.timeStringL22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
@@ -61,12 +61,12 @@ class Lucille
     # -----------------------------
     # IO (1)
 
-    # Lucille::pathToItems()
+    # LucilleCore::pathToItems()
     def self.pathToItems()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items"
     end
 
-    # Lucille::pathToTimelines()
+    # LucilleCore::pathToTimelines()
     def self.pathToTimelines()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Timelines"
     end
@@ -74,7 +74,7 @@ class Lucille
     # -----------------------------
     # IO (2)
 
-    # Lucille::applyNextTransformationToContent(content)
+    # LucilleCore::applyNextTransformationToContent(content)
     def self.applyNextTransformationToContent(content)
 
         positionOfFirstNonSpaceCharacter = lambda{|line, size|
@@ -106,9 +106,9 @@ class Lucille
             .strip
     end
 
-    # Lucille::garbageCollection()
+    # LucilleCore::garbageCollection()
     def self.garbageCollection()
-        Lucille::locations()
+        LucilleCore::locations()
             .each{|location|
                 next if location[-4, 4] != ".txt"
                 content = IO.read(location)
@@ -118,9 +118,9 @@ class Lucille
             }
     end
 
-    # Lucille::ensureStandardFilenames()
+    # LucilleCore::ensureStandardFilenames()
     def self.ensureStandardFilenames()
-        Lucille::locations()
+        LucilleCore::locations()
             .each{|location|
                 if File.basename(location).include?("'") then
                     location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", ",")}"
@@ -128,21 +128,21 @@ class Lucille
                     location = location2
                 end
                 next if File.basename(location)[0, 3] == "202"
-                location2 = "#{File.dirname(location)}/#{Lucille::timeStringL22()} #{File.basename(location)}"
+                location2 = "#{File.dirname(location)}/#{LucilleCore::timeStringL22()} #{File.basename(location)}"
                 FileUtils.mv(location, location2)
             }
     end
 
-    # Lucille::destroyLucilleLocationManaged(location)
+    # LucilleCore::destroyLucilleLocationManaged(location)
     def self.destroyLucilleLocationManaged(location)
-        timeline = Lucille::getLocationTimeline(location)
+        timeline = LucilleCore::getLocationTimeline(location)
         if timeline == "[Open Cycles]" then
             puts "You are about to delete an [Open Cycle] item"
             return if !LucilleCore::askQuestionAnswerAsBoolean("Proceed? ")
         end
-        Lucille::moveLocationToCatalystBin(location)
+        LucilleCore::moveLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
-        location3 = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
+        location3 = "#{LucilleCore::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         if File.exists?(location3) then
             LucilleCore::removeFileSystemLocation(location3)
         end
@@ -151,7 +151,7 @@ class Lucille
     # -----------------------------
     # Data
 
-    # Lucille::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
+    # LucilleCore::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
     def self.getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
         locationIsTextFile = lambda {|location| location[-4, 4] == ".txt" }
         locationTextFileHasOneLine = lambda {|location| IO.read(location).strip.lines.to_a.size == 1  }
@@ -172,63 +172,63 @@ class Lucille
         # Directory
         sublocation = locationDirectoryOnlySubLocationOrNull.call(location)
         if sublocation then
-            Lucille::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(sublocation)
+            LucilleCore::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(sublocation)
         else
-            File.basename(location)
+            location
         end
     end
 
-    # Lucille::setDescription(location, description)
+    # LucilleCore::setDescription(location, description)
     def self.setDescription(location, description)
         KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
     end
 
-    # Lucille::getBestDescription(location)
+    # LucilleCore::getBestDescription(location)
     def self.getBestDescription(location)
         description = KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}")
         return description if description
-        Lucille::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
+        LucilleCore::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(location)
     end
 
-    # Lucille::locations()
+    # LucilleCore::locations()
     def self.locations()
-        Dir.entries(Lucille::pathToItems())
+        Dir.entries(LucilleCore::pathToItems())
             .reject{|filename| filename[0, 1] == "." }
             .sort
-            .map{|filename| "#{Lucille::pathToItems()}/#{filename}" }
+            .map{|filename| "#{LucilleCore::pathToItems()}/#{filename}" }
     end
 
-    # Lucille::timelines()
+    # LucilleCore::timelines()
     def self.timelines()
-        Lucille::locations()
-            .map{|location| Lucille::getLocationTimeline(location) }
+        LucilleCore::locations()
+            .map{|location| LucilleCore::getLocationTimeline(location) }
             .uniq
             .sort
     end
 
-    # Lucille::setLocationTimeline(location, timeline)
+    # LucilleCore::setLocationTimeline(location, timeline)
     def self.setLocationTimeline(location, timeline)
-        filepath = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
+        filepath = "#{LucilleCore::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         File.open(filepath, "w"){|f| f.puts(timeline) }
     end
 
-    # Lucille::getLocationTimeline(location)
+    # LucilleCore::getLocationTimeline(location)
     def self.getLocationTimeline(location)
-        filepath = "#{Lucille::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
+        filepath = "#{LucilleCore::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         return "[Inbox]" if !File.exists?(filepath)
         IO.read(filepath).strip
     end
 
-    # Lucille::getTimelineLocations(timeline)
+    # LucilleCore::getTimelineLocations(timeline)
     def self.getTimelineLocations(timeline)
-        Lucille::locations()
-            .select{|location| Lucille::getLocationTimeline(location) == timeline }
+        LucilleCore::locations()
+            .select{|location| LucilleCore::getLocationTimeline(location) == timeline }
     end
 
     # -----------------------------
     # Operations
 
-    # Lucille::openLocation(location)
+    # LucilleCore::openLocation(location)
     def self.openLocation(location)
         openableFileExtensions = [
             ".txt",
@@ -262,22 +262,22 @@ class Lucille
         end
     end
 
-    # Lucille::moveLocationToCatalystBin(location)
+    # LucilleCore::moveLocationToCatalystBin(location)
     def self.moveLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
         folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{Lucille::timeStringL22()}"
+        folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkdir(folder3)
         FileUtils.mv(location, folder3)
     end
 
-    # Lucille::transformIntoNyxItem(location)
+    # LucilleCore::transformIntoNyxItem(location)
     def self.transformIntoNyxItem(location)
         return if location.nil?
         puts "Transform as Nyx item: #{location}"
-        foldername2 = Lucille::timeStringL22()
+        foldername2 = LucilleCore::timeStringL22()
         folder2 = "/Users/pascal/Galaxy/Nyx/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{foldername2}"
         FileUtils.mkpath(folder2)
         LucilleCore::copyFileSystemLocation(location, folder2)
@@ -297,28 +297,28 @@ class Lucille
         end
     end
 
-    # Lucille::transformLocationFileIntoLocationFolder(location)
+    # LucilleCore::transformLocationFileIntoLocationFolder(location)
     def self.transformLocationFileIntoLocationFolder(location)
         return File.basename(location) if !File.file?(location)
         locationbasename = File.basename(location)
-        location2basename = Lucille::timeStringL22()
+        location2basename = LucilleCore::timeStringL22()
 
         location2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{location2basename}" # The new receptacle for the file
         FileUtils.mkdir(location2)
         LucilleCore::copyFileSystemLocation(location, location2)
 
         loop {
-            timelinefilepathbefore = "#{Lucille::pathToTimelines()}/#{locationbasename}.timeline.txt"
+            timelinefilepathbefore = "#{LucilleCore::pathToTimelines()}/#{locationbasename}.timeline.txt"
             break if !File.exists?(timelinefilepathbefore)
-            timelinefilepathafter = "#{Lucille::pathToTimelines()}/#{location2basename}.timeline.txt"
+            timelinefilepathafter = "#{LucilleCore::pathToTimelines()}/#{location2basename}.timeline.txt"
             FileUtils.mv(timelinefilepathbefore, timelinefilepathafter)
             break
         }
 
         loop {
-            description = Lucille::getBestDescription(location)
+            description = LucilleCore::getBestDescription(location)
             break if description.nil?
-            Lucille::setDescription(location2, description)
+            LucilleCore::setDescription(location2, description)
             break
         }
 
@@ -331,19 +331,22 @@ class Lucille
         }
         Mercury::postValue(channel, message)
 
-        location2basename
+        location2
     end
 
-    # Lucille::selectLocationOrNull()
+    # LucilleCore::selectLocationOrNull()
     def self.selectLocationOrNull()
-        timelineDiveForSelection = lambda{|timeline|
-            puts "-> #{timeline}"
-            locations = Lucille::getTimelineLocations(timeline)
-            LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| Lucille::getBestDescription(location) })
+        loop {
+            timelineDiveForSelection = lambda{|timeline|
+                puts "-> #{timeline}"
+                locations = LucilleCore::getTimelineLocations(timeline)
+                LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| LucilleCore::getBestDescription(location) })
+            }
+            timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", LucilleCore::timelines())
+            return nil if timeline.nil?
+            location = timelineDiveForSelection.call(timeline)
+            return location if location
         }
-        timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", Lucille::timelines())
-        return nil if timeline.nil?
-        timelineDiveForSelection.call(timeline)
     end
 
 end
@@ -402,10 +405,10 @@ class LXCluster
 
     # LXCluster::selectLocationsForCluster()
     def self.selectLocationsForCluster()
-        Lucille::timelines()
+        LucilleCore::timelines()
             .reject{|timeline| timeline=="[Inbox]" or timeline=="[Open Cycles]" }
             .map{|timeline|
-                Lucille::getTimelineLocations(timeline).first(20)
+                LucilleCore::getTimelineLocations(timeline).first(20)
             }
             .flatten
     end
@@ -422,7 +425,7 @@ class LXCluster
 
         timelinesTimePoints = {}
         locations.each{|location|
-            timeline = Lucille::getLocationTimeline(location)
+            timeline = LucilleCore::getLocationTimeline(location)
             timelinesTimePoints[timeline] = [ dummyTimepoint.call() ]
         }
         {
@@ -472,7 +475,7 @@ class LXCluster
 
         # We want to remove from cluster["timelinesTimePoints"] the timelines that are no longer 
         # relevant, mostlikely because the corresponding location are gone
-        timelines = cluster["locations"].map{|location| Lucille::getLocationTimeline(location) }
+        timelines = cluster["locations"].map{|location| LucilleCore::getLocationTimeline(location) }
 
         timelines.each{|timeline|
             if cluster["timelinesTimePoints"][timeline].nil? then
@@ -495,7 +498,7 @@ class LXCluster
         cluster["computed"]["locationsForDisplay"] = cluster["computed"]["timelineOrdered"]
                                                         .map{|item| item[0] }
                                                         .map{|timeline|  
-                                                            cluster["locations"].select{|location| Lucille::getLocationTimeline(location) == timeline }
+                                                            cluster["locations"].select{|location| LucilleCore::getLocationTimeline(location) == timeline }
                                                         }
                                                         .flatten
 
@@ -508,7 +511,7 @@ class LXCluster
 
     # LXCluster::processIncomingLocationTimespan(location, timespan)
     def self.processIncomingLocationTimespan(location, timespan)
-        timeline = Lucille::getLocationTimeline(location)
+        timeline = LucilleCore::getLocationTimeline(location)
         cluster = LXCluster::getClusterFromDisk()
         return if cluster["timelinesTimePoints"][timeline].nil?
         point = {
@@ -528,7 +531,7 @@ class LXUserInterface
         if timespan then
             LXCluster::processIncomingLocationTimespan(location, timespan)
         end
-        Lucille::destroyLucilleLocationManaged(location)
+        LucilleCore::destroyLucilleLocationManaged(location)
         LXCluster::curateOrRespawnCluster()
     end
 
@@ -540,7 +543,7 @@ class LXUserInterface
         end
         timeline = nil
         loop {
-            timelines = Lucille::timelines().reject{|timeline| timeline == "[Inbox]" }
+            timelines = LucilleCore::timelines().reject{|timeline| timeline == "[Inbox]" }
             t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
             if t then
                 timeline = t
@@ -552,14 +555,14 @@ class LXUserInterface
                 break
             end
         }
-        Lucille::setLocationTimeline(location, timeline)
+        LucilleCore::setLocationTimeline(location, timeline)
         LXCluster::curateOrRespawnCluster()
     end
 
     # LXUserInterface::ifcsLucilleLocation(location)
     def self.ifcsLucilleLocation(location)
         # First we start my migrating the location to timeline [Open Cycles]
-        Lucille::setLocationTimeline(location, "[Open Cycles]")
+        LucilleCore::setLocationTimeline(location, "[Open Cycles]")
         # Now we need to create a new ifcs item, the only non trivial step if to decide the position
         makeNewIFCSItemPosition = lambda {
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
@@ -585,7 +588,7 @@ class LXUserInterface
         loop {
             system("clear")
             puts "location: #{location}"
-            puts "description: #{Lucille::getBestDescription(location)}"
+            puts "description: #{LucilleCore::getBestDescription(location)}"
             options = [
                 "open",
                 "done",
@@ -601,7 +604,7 @@ class LXUserInterface
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                Lucille::openLocation(location)
+                LucilleCore::openLocation(location)
             end
             if option == "done" then
                 LXUserInterface::doneLucilleLocation(location)
@@ -609,7 +612,7 @@ class LXUserInterface
             end
             if option == "set description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
-                Lucille::setDescription(location, description)
+                LucilleCore::setDescription(location, description)
             end
             if option == "export to desktop" then
                 LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
@@ -625,20 +628,20 @@ class LXUserInterface
                 LXUserInterface::ifcsLucilleLocation(location)
             end
             if option == "merge with other Lucille location" then
-                location2 = Lucille::selectLocationOrNull()
-                exit if location2.nil?
+                location2 = LucilleCore::selectLocationOrNull()
+                return if location2.nil?
                 if File.file?(location2) then
-                    locationbasename2 = Lucille::transformLocationFileIntoLocationFolder(location2)
-                    location2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{locationbasename2}"
+                    location2 = LucilleCore::transformLocationFileIntoLocationFolder(location2)
                 end
                 LucilleCore::copyFileSystemLocation(location, location2)
                 LucilleCore::removeFileSystemLocation(location)
+                return
             end
             if option == ">nyx" then
-                Lucille::transformIntoNyxItem(location)
+                LucilleCore::transformIntoNyxItem(location)
             end
             if option == "transmute into folder" then
-                Lucille::transformLocationFileIntoLocationFolder(location)
+                LucilleCore::transformLocationFileIntoLocationFolder(location)
             end
         }
     end
@@ -647,8 +650,8 @@ class LXUserInterface
     def self.timelineDive(timeline)
         puts "-> #{timeline}"
         loop {
-            locations = Lucille::getTimelineLocations(timeline)
-            location = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| Lucille::getBestDescription(location) })
+            locations = LucilleCore::getTimelineLocations(timeline)
+            location = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| LucilleCore::getBestDescription(location) })
             break if location.nil?
             LXUserInterface::locationDive(location)
         }
