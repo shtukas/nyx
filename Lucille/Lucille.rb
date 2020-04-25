@@ -275,26 +275,61 @@ class LucilleCore
 
     # LucilleCore::transformIntoNyxItem(location)
     def self.transformIntoNyxItem(location)
+
+        makePermanodeTags = lambda {
+            tags = []
+            loop {
+                tag = LucilleCore::askQuestionAnswerAsString("tag (empty to quit): ")
+                break if tag == ""
+                tags << tag
+            }
+            tags
+        }
+
+        makePermanodeArrows = lambda {
+            arrows = []
+            loop {
+                item = LucilleCore::askQuestionAnswerAsString("Arrows (empty to quit): ")
+                break if item == ""
+                arrows << item
+            }
+            arrows
+        }
+
         return if location.nil?
-        puts "Transform as Nyx item: #{location}"
-        foldername2 = LucilleCore::timeStringL22()
-        folder2 = "/Users/pascal/Galaxy/Nyx/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{foldername2}"
-        FileUtils.mkpath(folder2)
-        LucilleCore::copyFileSystemLocation(location, folder2)
-        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-make-nyx-permadir-using-this-repository-basename '#{foldername2}'")
-        nyxItems = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Nyx/nyx-permanodes`)
-        flag1 = nyxItems
-                    .any?{|item| 
-                        item["targets"].size == 1 and item["targets"][0]["type"] == "perma-dir-11859659" and item["targets"][0]["foldername"] == foldername2
-                    }
-        if flag1 then
-            puts "Looks like we have confirmation of the creation of that permanode"
-            puts "Removing Lucille location"
-            LucilleCore::removeFileSystemLocation(location)
-        else
-            puts "[error] I did not get confirmation that Nyx item was created!"
-            LucilleCore::pressEnterToContinue()
+
+        nyxfoldername = LucilleCore::timeStringL22()
+        monthFolderpath = "/Users/pascal/Galaxy/Nyx/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}"
+        if !File.exists?(monthFolderpath) then
+            FileUtils.mkpath(monthFolderpath)
         end
+        nyxfolderpath = "#{monthFolderpath}/#{nyxfoldername}"
+        FileUtils.mkdir(nyxfolderpath)
+
+        LucilleCore::copyFileSystemLocation(location, nyxfolderpath)
+
+        permanodeTarget = {
+            "uuid"       => SecureRandom.uuid,
+            "type"       => "perma-dir-11859659",
+            "foldername" => nyxfoldername
+        }
+
+        permanodeFilename = "#{LucilleCore::timeStringL22()}.json"
+        permanodeFilePath = "#{monthFolderpath}/#{permanodeFilename}"
+
+        permanode = {}
+        permanode["uuid"] = SecureRandom.uuid
+        permanode["filename"] = permanodeFilename
+        permanode["creationTimestamp"] = Time.new.to_f
+        permanode["referenceDateTime"] = Time.now.utc.iso8601
+        permanode["description"] = LucilleCore::askQuestionAnswerAsString("permanode description: ")
+        permanode["targets"] = [ permanodeTarget ]
+        permanode["tags"] = makePermanodeTags.call()
+        permanode["arrows"] = makePermanodeArrows.call()
+
+        File.open(permanodeFilePath, "w"){|f| f.puts(JSON.pretty_generate(permanode)) }
+
+        LucilleCore::removeFileSystemLocation(location)
     end
 
     # LucilleCore::transformLocationFileIntoLocationFolder(location)
@@ -639,6 +674,7 @@ class LXUserInterface
             end
             if option == ">nyx" then
                 LucilleCore::transformIntoNyxItem(location)
+                return
             end
             if option == "transmute into folder" then
                 LucilleCore::transformLocationFileIntoLocationFolder(location)
