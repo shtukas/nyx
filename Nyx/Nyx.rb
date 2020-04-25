@@ -406,6 +406,26 @@ class NyxPermanodeOperator
         raise "[error: 15c46fdd]"
     end
 
+    # NyxPermanodeOperator::permanodeOptimisticOpen(permanode)
+    def self.permanodeOptimisticOpen(permanode)
+        NyxPermanodeOperator::printPermanodeDetails(permanode)
+        puts "    -> Opening..."
+        if permanode["targets"].size == 0 then
+            if LucilleCore::askQuestionAnswerAsBoolean("I could not find target for this permanode. Dive? ") then
+                NyxUserInterface::permanodeDive(permanode)
+            end
+            return
+        end
+        target = nil
+        if permanode["targets"].size == 1 then
+            target = permanode["targets"].first
+        else
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", permanode["targets"], lambda{|target| NyxPermanodeOperator::permanodeTargetToString(target) })
+        end
+        puts JSON.pretty_generate(target)
+        NyxPermanodeOperator::openPermanodeTarget(NyxEstate::pathToYmir(), target)
+    end
+
     # ------------------------------------------
     # IO Ops
 
@@ -465,6 +485,19 @@ class NyxPermanodeOperator
     # ------------------------------------------------------------------
     # Data Queries and Data Manipulations
 
+    # NyxPermanodeOperator::selectPermanodeOrNull(permanodes)
+    def self.selectPermanodeOrNull(permanodes)
+        descriptionXp = lambda { |permanode|
+            "#{permanode["description"]} (#{permanode["uuid"][0,4]})"
+        }
+        descriptionsxp = permanodes.map{|permanode| descriptionXp.call(permanode) }
+        selectedDescriptionxp = NyxMiscUtils::chooseALinePecoStyle("select permanode (empty for null)", [""] + descriptionsxp)
+        return nil if selectedDescriptionxp == ""
+        permanode = permanodes.select{|permanode| descriptionXp.call(permanode) == selectedDescriptionxp }.first
+        return nil if permanode.nil?
+        permanode
+    end
+
     # NyxPermanodeOperator::getPermanodesCarryingThisDirectoryMark(mark)
     def self.getPermanodesCarryingThisDirectoryMark(mark)
         NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
@@ -512,13 +545,13 @@ class NyxPermanodeOperator
     # NyxPermanodeOperator::arrowsObjectsWithGivenStart(start)
     def self.arrowsObjectsWithGivenStart(start)
         NyxPermanodeOperator::arrowsAsObjects()
-            .select{|object| object["start"] == start }
+            .select{|object| object["start"].downcase == start.downcase }
     end
 
     # NyxPermanodeOperator::arrowsObjectsWithGivenEnd(end1)
     def self.arrowsObjectsWithGivenEnd(end1)
         NyxPermanodeOperator::arrowsAsObjects()
-            .select{|object| object["end"] == end1 }
+            .select{|object| object["end"].downcase == end1.downcase }
     end
 
     # NyxPermanodeOperator::permanodeBelongsToTag(permanode, tag)
@@ -842,69 +875,87 @@ end
 
 class NyxSearch
 
-    # NyxSearch::permanodeTargetHasSearchPattern(target, searchPattern)
-    def self.permanodeTargetHasSearchPattern(target, searchPattern)
-        if target["type"] == "url-EFB8D55B" then
-            return true if target["url"].downcase == searchPattern.downcase
-            return false
-        end
-        if target["type"] == "file-3C93365A" then
-            return true if target["filename"].downcase == searchPattern.downcase
-            return false
-        end
-        if target["type"] == "unique-name-C2BF46D6" then
-            return true if target["name"].downcase == searchPattern.downcase
-            return false
-        end
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            return true if target["mark"].downcase == searchPattern.downcase
-            return false
-        end
-        if target["type"] == "perma-dir-11859659" then
-            return true if target["foldername"].downcase == searchPattern.downcase
-            return false
-        end
-        raise "[error: ab44ef72]"
-    end
-
-    # NyxSearch::permanodeTargetIncludeSearchPattern(target, searchPattern)
-    def self.permanodeTargetIncludeSearchPattern(target, searchPattern)
-        if target["type"] == "url-EFB8D55B" then
-            return true if target["url"].downcase.include?(searchPattern.downcase)
-            return false
-        end
-        if target["type"] == "file-3C93365A" then
-            return true if target["filename"].downcase.include?(searchPattern.downcase)
-            return false
-        end
-        if target["type"] == "unique-name-C2BF46D6" then
-            return true if target["name"].downcase.include?(searchPattern.downcase)
-            return false
-        end
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            return true if target["mark"].downcase.include?(searchPattern.downcase)
-            return false
-        end
-        if target["type"] == "perma-dir-11859659" then
-            return true if target["foldername"].downcase.include?(searchPattern.downcase)
-            return false
-        end
-        raise "[error: 1113716b]"
-    end
-
     # NyxSearch::searchPatternToTags(searchPattern)
     def self.searchPatternToTags(searchPattern)
         NyxPermanodeOperator::tags()
             .select{|tag| tag.downcase.include?(searchPattern.downcase) }
     end
 
+    # NyxSearch::searchPatternToPermanodes(searchPattern)
+    def self.searchPatternToPermanodes(searchPattern)
+        NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
+            .select{|permanode| permanode["description"].downcase.include?(searchPattern.downcase) }
+    end
+
     # NyxSearch::searchPatternToPermanodeDescriptions(searchPattern)
     def self.searchPatternToPermanodeDescriptions(searchPattern)
-        NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
+        NyxSearch::searchPatternToPermanodes(searchPattern)
             .map{|permanode| permanode["description"] }
-            .select{|description| description.downcase.include?(searchPattern.downcase) }
             .uniq
             .sort
+    end
+
+    # NyxSearch::nextGenGetSearchFragmentOrNull()
+    def self.nextGenGetSearchFragmentOrNull() # () -> String
+        inputToTextDisplay = lambda { |input|
+            return "" if input.size < 3 
+            str1 = NyxSearch::searchPatternToPermanodeDescriptions(input)
+                    .map{|description| "permanode: #{description}" }
+                    .join("\n")
+            str2 = NyxSearch::searchPatternToTags(input)
+                    .map{|tag| "tag: #{tag}" }
+                    .join("\n")
+            [ str1, str2 ].join("\n\n")
+        }
+        fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
+        return nil if fragment == ";"
+        if fragment[-1, 1] == ";" then
+            fragment = fragment[0, fragment.size-1]
+        end
+        return nil if fragment.size == 0
+        fragment
+    end
+
+    # NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+    def self.nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        objs1 = NyxSearch::searchPatternToPermanodes(fragment)
+                    .map{|permanode| 
+                        {
+                            "type" => "permanode",
+                            "permanode" => permanode
+                        }
+                    }
+        objs2 = NyxSearch::searchPatternToTags(fragment)
+                    .map{|tag|
+                        {
+                            "type" => "tag",
+                            "tag" => tag
+                        }
+                    }
+        objs1 + objs2
+    end
+
+    # NyxSearch::globalSearchStructureDive(globalss)
+    def self.globalSearchStructureDive(globalss)
+        loop {
+            system("clear")
+            globalssObjectToMenuItemOrNull = lambda {|object|
+                if object["type"] == "permanode" then
+                    permanode = object["permanode"]
+                    return [ "permanode: #{permanode["description"]}" , lambda { NyxUserInterface::permanodeDive(permanode) } ]
+                end
+                if object["type"] == "tag" then
+                    tag = object["tag"]
+                    return [ "tag: #{tag}" , lambda { NyxUserInterface::nextGenTagDive(tag) } ]
+                end
+                nil
+            }
+            items = globalss
+                .map{|object| globalssObjectToMenuItemOrNull.call(object) }
+                .compact
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
     end
 end
 
@@ -945,7 +996,7 @@ class NyxUserInterface
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "quick open" then
-                NyxUserInterface::permanodeOptimisticOpen(permanode)
+                NyxPermanodeOperator::permanodeOptimisticOpen(permanode)
             end
             if operation == "edit description" then
                 permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(NyxEstate::pathToYmir(), permanode["uuid"])
@@ -1032,125 +1083,38 @@ class NyxUserInterface
     # NyxUserInterface::permanodesDive(permanodes)
     def self.permanodesDive(permanodes)
         loop {
-            permanode = NyxUserInterface::selectPermanodeOrNull(permanodes)
+            permanode = NyxPermanodeOperator::selectPermanodeOrNull(permanodes)
             break if permanode.nil?
             NyxUserInterface::permanodeDive(permanode)
         }
     end
 
-    # NyxUserInterface::permanodeOptimisticOpen(permanode)
-    def self.permanodeOptimisticOpen(permanode)
-        NyxPermanodeOperator::printPermanodeDetails(permanode)
-        puts "    -> Opening..."
-        if permanode["targets"].size == 0 then
-            if LucilleCore::askQuestionAnswerAsBoolean("I could not find target for this permanode. Dive? ") then
-                NyxUserInterface::permanodeDive(permanode)
-            end
-            return
-        end
-        target = nil
-        if permanode["targets"].size == 1 then
-            target = permanode["targets"].first
-        else
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", permanode["targets"], lambda{|target| NyxPermanodeOperator::permanodeTargetToString(target) })
-        end
-        puts JSON.pretty_generate(target)
-        NyxPermanodeOperator::openPermanodeTarget(NyxEstate::pathToYmir(), target)
+    # NyxUserInterface::nextGenTagDive(tag)
+    def self.nextGenTagDive(tag)
+        loop {
+            system('clear')
+            puts "Tag diving: #{tag}"
+            items = []
+            NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
+                .select{|permanode| NyxPermanodeOperator::permanodeBelongsToTag(permanode, tag) }
+                .each{|permanode|
+                    items << [ permanode["description"] , lambda { NyxUserInterface::permanodeDive(permanode) } ]
+                }
+            NyxPermanodeOperator::arrowsObjectsWithGivenStart(tag)
+                .each{|object|
+                    items << [ "[] -> #{object["end"]}" , lambda { NyxUserInterface::nextGenTagDive(object["end"]) } ]
+                }
+            NyxPermanodeOperator::arrowsObjectsWithGivenEnd(tag)
+                .each{|object|
+                    items << [ "#{object["start"]} -> []" , lambda { NyxUserInterface::nextGenTagDive(object["start"]) } ]
+                }
+            break if items.empty?
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
     end
 
     # ------------------------------------------
-    # Workflows
-
-    # NyxUserInterface::selectPermanodeOrNull(permanodes)
-    def self.selectPermanodeOrNull(permanodes)
-        descriptionXp = lambda { |permanode|
-            "#{permanode["description"]} (#{permanode["uuid"][0,4]})"
-        }
-        descriptionsxp = permanodes.map{|permanode| descriptionXp.call(permanode) }
-        selectedDescriptionxp = NyxMiscUtils::chooseALinePecoStyle("select permanode (empty for null)", [""] + descriptionsxp)
-        return nil if selectedDescriptionxp == ""
-        permanode = permanodes.select{|permanode| descriptionXp.call(permanode) == selectedDescriptionxp }.first
-        return nil if permanode.nil?
-        permanode
-    end
-
-    # NyxUserInterface::searchNextGenPermanodeDescriptions()
-    def self.searchNextGenPermanodeDescriptions()
-        loop {
-            inputToTextDisplay = lambda { |input|
-                return "" if input.size < 3
-                NyxSearch::searchPatternToPermanodeDescriptions(input).map.with_index{|description, ind| "[#{(ind+1).to_s.rjust(3)}] #{description}" }.join("\n")
-            }
-            fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
-            break if fragment == ";"
-            if fragment[-1, 1] == ";" then
-                fragment = fragment[0, fragment.size-1]
-            end
-            break if fragment.size == 0
-            permanodes = NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-                            .select{|permanode| permanode["description"].downcase.include?(fragment.downcase) }
-            next if permanodes.empty?
-            if permanodes.size == 1 then
-                NyxUserInterface::permanodeDive(permanodes[0])
-                next
-            end
-            NyxUserInterface::permanodesDive(permanodes)
-        }
-    end
-
-    # NyxUserInterface::searchNextTagAndDive()
-    def self.searchNextTagAndDive()
-        inputToTextDisplay = lambda { |input|
-            return "" if input.size < 3
-            NyxSearch::searchPatternToTags(input).join("\n")
-        }
-        diveIntoThisTag = lambda {|tag|
-            loop {
-                items = []
-                NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-                    .select{|permanode| NyxPermanodeOperator::permanodeBelongsToTag(permanode, tag) }
-                    .each{|permanode|
-                        items << [ permanode["description"] , lambda { NyxUserInterface::permanodeDive(permanode) } ]
-                    }
-                NyxPermanodeOperator::arrowsObjectsWithGivenStart(tag)
-                    .each{|object|
-                        items << [ "[] -> #{object["end"]}" , lambda { diveIntoThisTag.call(object["end"]) } ]
-                    }
-                NyxPermanodeOperator::arrowsObjectsWithGivenEnd(tag)
-                    .each{|object|
-                        items << [ "#{object["start"]} -> []" , lambda { diveIntoThisTag.call(object["start"]) } ]
-                    }
-                if items.empty? then
-
-                end
-                status = LucilleCore::menuItemsWithLambdas(items)
-                break if !status
-            }
-        }
-        diveIntoTheseTags = lambda{|tags|
-            loop {
-                tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", tags)
-                break if tag.nil?
-                diveIntoThisTag.call(tag)
-            }
-        }
-        loop {
-            fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
-            break if fragment == ";"
-            if fragment[-1, 1] == ";" then
-                fragment = fragment[0, fragment.size-1]
-            end
-            break if fragment.size == 0
-            tags = NyxPermanodeOperator::tags()
-                    .map{|tag| tag.downcase }
-                    .uniq
-                    .select{|t| t.downcase.include?(fragment.downcase) }
-            break if tags.empty?
-            diveIntoTheseTags.call(tags)
-        }
-
-        NyxPermanodeOperator::arrowsAsObjects()
-    end
 
     # NyxUserInterface::uimainloop()
     def self.uimainloop()
@@ -1159,8 +1123,7 @@ class NyxUserInterface
             puts "Nyx 🗺️"
             operations = [
                 # Search
-                "search (permanode description)",
-                "search (tag + dive)",
+                "search",
 
                 # View
                 "show newly created permanodes",
@@ -1179,11 +1142,13 @@ class NyxUserInterface
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "search (permanode description)" then
-                NyxUserInterface::searchNextGenPermanodeDescriptions()
-            end
-            if operation == "search (tag + dive)" then
-                NyxUserInterface::searchNextTagAndDive()
+            if operation == "search" then
+                loop {
+                    fragment = NyxSearch::nextGenGetSearchFragmentOrNull()
+                    break if fragment.nil?
+                    globalss = NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+                    NyxSearch::globalSearchStructureDive(globalss)
+                }
             end
             if operation == "rename tag" then
                 oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
