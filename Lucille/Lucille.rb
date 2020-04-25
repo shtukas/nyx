@@ -136,7 +136,7 @@ class LucilleCore
             puts "You are about to delete an [Open Cycle] item"
             return if !LucilleCore::askQuestionAnswerAsBoolean("Proceed? ")
         end
-        LucilleCore::copyLocationToCatalystBin(location)
+        CatalystCommon::copyLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
         location3 = "#{LucilleCore::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         if File.exists?(location3) then

@@ -117,6 +117,7 @@ class NSXCatalystUI
                 puts "Code change detected. Exiting."
                 return
             end
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-review")
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
