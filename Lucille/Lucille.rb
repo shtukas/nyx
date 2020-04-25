@@ -597,7 +597,6 @@ class LXUserInterface
         item = {
             "uuid"                    => uuid,
             "lucilleLocationBasename" => File.basename(location),
-            "description"             => LucilleCore::askQuestionAnswerAsString("description: "),
             "position"                => position
         }
         File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
