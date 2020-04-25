@@ -284,7 +284,7 @@ class NyxPermanodeOperator
         return false if object["description"].lines.to_a.size != 1
         return false if object["targets"].nil?
         return false if object["targets"].any?{|target| !NyxPermanodeOperator::objectIsPermanodeTarget(target) }
-        return false if object["nodes"].nil?
+        return false if object["tags"].nil?
         return false if object["arrows"].nil?
         true
     end
@@ -436,7 +436,8 @@ class NyxPermanodeOperator
         Enumerator.new do |permanodes|
             YmirEstate::ymirFilepathEnumerator(pathToYmir).each{|filepath|
                 next if !isFilenameOfPermanode.call(File.basename(filepath))
-                permanodes << JSON.parse(IO.read(filepath))
+                permanode = JSON.parse(IO.read(filepath))
+                permanodes << permanode
             }
         end
     end
@@ -455,11 +456,11 @@ class NyxPermanodeOperator
         permanode["targets"].each{|permanodeTarget|
             puts "        #{NyxPermanodeOperator::permanodeTargetToString(permanodeTarget)}"
         }
-        if permanode["nodes"].empty? then
-            puts "    nodes: (empty set)"
+        if permanode["tags"].empty? then
+            puts "    tags: (empty set)"
         else
-            puts "    nodes"
-            permanode["nodes"].each{|item|
+            puts "    tags"
+            permanode["tags"].each{|item|
                 puts "        #{item}"
             }
         end
@@ -615,15 +616,15 @@ class NyxPermanodeOperator
         nil
     end
 
-    # NyxPermanodeOperator::makePermanodeNodesInteractive()
-    def self.makePermanodeNodesInteractive()
-        nodes = []
+    # NyxPermanodeOperator::makePermanodeTagsInteractive()
+    def self.makePermanodeTagsInteractive()
+        tags = []
         loop {
-            item = LucilleCore::askQuestionAnswerAsString("Node (empty to quit): ")
-            break if item == ""
-            nodes << item
+            tag = LucilleCore::askQuestionAnswerAsString("tag (empty to quit): ")
+            break if tag == ""
+            tags << tag
         }
-        nodes
+        tags
     end
 
     # NyxPermanodeOperator::makePermanodeArrowsInteractive()
@@ -646,7 +647,7 @@ class NyxPermanodeOperator
         permanode["referenceDateTime"] = Time.now.utc.iso8601
         permanode["description"] = description
         permanode["targets"] = [ permanodeTarget ]
-        permanode["nodes"] = NyxPermanodeOperator::makePermanodeNodesInteractive()
+        permanode["tags"] = NyxPermanodeOperator::makePermanodeTagsInteractive()
         permanode["arrows"] = NyxPermanodeOperator::makePermanodeArrowsInteractive()
         permanode
     end
@@ -819,9 +820,9 @@ class NyxPermanodeOperator
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "nodes (add new)" then
-                item = LucilleCore::askQuestionAnswerAsString("node: ")
+                item = LucilleCore::askQuestionAnswerAsString("tag: ")
                 next if item.size == 0
-                permanode["nodes"] << item
+                permanode["tags"] << item
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "arrows (add new)" then
@@ -1001,9 +1002,9 @@ class NyxSearch
         return 0.80 if permanode["description"].downcase.include?(searchPattern.downcase)
         return 0.75 if permanode["targets"].any?{|target| NyxSearch::permanodeTargetIncludeSearchPattern(target, searchPattern) }
         return 0.70 if permanode["referenceDateTime"].downcase.include?(searchPattern.downcase)
-        return 0.60 if permanode["nodes"].any?{|item| item.downcase == searchPattern.downcase }
+        return 0.60 if permanode["tags"].any?{|item| item.downcase == searchPattern.downcase }
         return 0.60 if permanode["arrows"].any?{|item| item.downcase == searchPattern.downcase }
-        return 0.40 if permanode["nodes"].any?{|item| item.downcase.include?(searchPattern.downcase) }
+        return 0.40 if permanode["tags"].any?{|item| item.downcase.include?(searchPattern.downcase) }
         return 0.40 if permanode["arrows"].any?{|item| item.downcase.include?(searchPattern.downcase) }
         0
     end

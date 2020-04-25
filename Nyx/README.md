@@ -15,7 +15,7 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
     "referenceDateTime" : DateTime Iso8601
     "description"       : String
     "targets"           : Array[PermanodeTarget]
-    "nodes"             : Array[String]
+    "tags"              : Array[String]
     "arrows"            : Array[String]
 }
 ```
@@ -58,11 +58,11 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
 
 **PermaDirs** are just directories, with fixed immutable foldernames. The uuid of the `perma-dir-11859659` object is the name of the corresponding directory. They are a more controlled version of general directories with marks (those that are targets of `lstore-directory-mark-BEE670D0` objects).
 
-## Nodes and Arrows
+## Tags and Arrows
 
-The overall organization of the Nyx system is that of nodes connected by arrows. The direction is meant to represent semantic flows in Pascal's mind. Permanodes belong to one or more nodes. 
+The overall organization of the Nyx system is that of tags connected by arrows. The direction is meant to represent semantic flows in Pascal's mind.
 
-For instance a picture of Justin Bieber represented by a permanode will belong to the node (Justin Bieber) and might also belong to the node (Paris) (if, say, the picture was taken in Paris). We will also specify the existence of the node (Canada) and an arrow from (Canada) to (Justin Bieber).
+For instance a picture of Justin Bieber represented by a permanode might come with tags "Justin Bieber" and might also come with tag "Paris" (if, say, the picture was taken in Paris). We might also have a tag "Canada" and an arrow from "Canada" to "Justin Bieber".
 
 
 Example: 
@@ -71,9 +71,7 @@ Example:
 ["Justin Bieber", "Paris", "Canada -> Justin Bieber"]
 ```
 
-says that the permanode belongs to the two nodes "Justin Bieber" and "Paris" and that there is a directed link from "Canada" to "Justin Bieber". 
-
-There is no need to "create" nodes, other than mentionning them.
+says that the permanode has two tags "Justin Bieber" and "Paris" and that there is a directed link from "Canada" to "Justin Bieber".
 
 ## Dependencies
 

@@ -26,7 +26,7 @@ permanode["creationTimestamp"] = Time.new.to_f
 permanode["referenceDateTime"] = Time.now.utc.iso8601
 permanode["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
 permanode["targets"] = [ permanodeTarget ]
-permanode["nodes"] = NyxPermanodeOperator::makePermanodeNodesInteractive()
+permanode["tags"] = NyxPermanodeOperator::makePermanodeTagsInteractive()
 permanode["arrows"] = NyxPermanodeOperator::makePermanodeArrowsInteractive()
 
 NyxPermanodeOperator::commitNewPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
