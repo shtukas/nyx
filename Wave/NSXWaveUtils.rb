@@ -85,7 +85,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::waveFolderPath()
     def self.waveFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Wave"
+        "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Wave"
     end
 
     # NSXWaveUtils::makeScheduleObjectInteractively()
@@ -265,7 +265,8 @@ class NSXWaveUtils
         return if uuid.nil?
         filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
         return nil if filepath.nil?
-        NSXMiscUtils::moveLocationToCatalystBin(filepath)
+        CatalystCommon::copyLocationToCatalystBin(filepath)
+        LucilleCore::removeFileSystemLocation(filepath)
     end
 
     # NSXWaveUtils::extractFirstLineFromText(text)

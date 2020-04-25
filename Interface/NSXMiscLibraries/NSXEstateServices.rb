@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+require_relative "../../Catalyst-Common/Catalyst-Common.rb"
 
 class NSXEstateServices
 
@@ -74,7 +74,7 @@ class NSXEstateServices
 
     # NSXEstateServices::getArchiveTimelineSizeInMegaBytes()
     def self.getArchiveTimelineSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(BIN_TIMELINE_FOLDERPATH).to_f/(1024*1024)
+        LucilleCore::locationRecursiveSize(CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH).to_f/(1024*1024)
     end
 
     # NSXEstateServices::archivesTimelineGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
@@ -83,8 +83,8 @@ class NSXEstateServices
             sizeEstimationInMegaBytes = NSXEstateServices::getArchiveTimelineSizeInMegaBytes()
         end
         return if sizeEstimationInMegaBytes <= 1024
-        location = NSXEstateServices::getFirstDiveFirstLocationAtLocation(BIN_TIMELINE_FOLDERPATH)
-        return if location == BIN_TIMELINE_FOLDERPATH
+        location = NSXEstateServices::getFirstDiveFirstLocationAtLocation(CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH)
+        return if location == CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH
         if File.file?(location) then
             sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
         end
@@ -97,7 +97,7 @@ class NSXEstateServices
     def self.binTimelineGarbageCollectionEnvelop(verbose)
         return if NSXEstateServices::getArchiveTimelineSizeInMegaBytes() <= 1024
         loop {
-            location = NSXEstateServices::getLocationFileBiggerThan10MegaBytesOrNull(BIN_TIMELINE_FOLDERPATH)
+            location = NSXEstateServices::getLocationFileBiggerThan10MegaBytesOrNull(CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH)
             break if location.nil?
             puts "garbage collection (big file): #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)

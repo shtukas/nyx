@@ -13,7 +13,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 class NSXMiscUtils
 
@@ -46,16 +46,5 @@ class NSXMiscUtils
         Zeta::set(filepath, "schedule", JSON.generate(schedule))
         Zeta::set(filepath, "text", description)
         uuid
-    end
-
-    # NSXMiscUtils::moveLocationToCatalystBin(location)
-    def self.moveLocationToCatalystBin(location)
-        return if location.nil?
-        return if !File.exists?(location)
-        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m-%d")}/#{Time.new.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{NSXMiscUtils::timeStringL22()}"
-        FileUtils.mkdir(folder3)
-        FileUtils.mv(location, folder3)
     end
 end

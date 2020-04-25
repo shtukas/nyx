@@ -43,11 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
     Mercury::deleteFirstValue(channel)
 =end
 
-# -----------------------------------------------------------------
-
-DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
-CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
-BIN_TIMELINE_FOLDERPATH = "#{CATALYST_FOLDERPATH}/Bin-Timeline"
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 # -----------------------------------------------------------------
 
@@ -63,12 +59,12 @@ class LucilleCore
 
     # LucilleCore::pathToItems()
     def self.pathToItems()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items"
+        "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items"
     end
 
     # LucilleCore::pathToTimelines()
     def self.pathToTimelines()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Timelines"
+        "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Timelines"
     end
 
     # -----------------------------
@@ -140,7 +136,7 @@ class LucilleCore
             puts "You are about to delete an [Open Cycle] item"
             return if !LucilleCore::askQuestionAnswerAsBoolean("Proceed? ")
         end
-        LucilleCore::moveLocationToCatalystBin(location)
+        LucilleCore::copyLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
         location3 = "#{LucilleCore::pathToTimelines()}/#{File.basename(location)}.timeline.txt"
         if File.exists?(location3) then
@@ -262,17 +258,6 @@ class LucilleCore
         end
     end
 
-    # LucilleCore::moveLocationToCatalystBin(location)
-    def self.moveLocationToCatalystBin(location)
-        return if location.nil?
-        return if !File.exists?(location)
-        folder1 = "#{BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
-        FileUtils.mkdir(folder3)
-        FileUtils.mv(location, folder3)
-    end
-
     # LucilleCore::transformIntoNyxItem(location)
     def self.transformIntoNyxItem(location)
 
@@ -338,7 +323,7 @@ class LucilleCore
         locationbasename = File.basename(location)
         location2basename = LucilleCore::timeStringL22()
 
-        location2 = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{location2basename}" # The new receptacle for the file
+        location2 = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{location2basename}" # The new receptacle for the file
         FileUtils.mkdir(location2)
         LucilleCore::copyFileSystemLocation(location, location2)
 
@@ -475,7 +460,7 @@ class LXCluster
 
     # LXCluster::commitClusterToDisk(cluster)
     def self.commitClusterToDisk(cluster)
-        filename = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/cluster.json"
+        filename = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/cluster.json"
         File.open(filename, "w") {|f| f.puts(JSON.pretty_generate(cluster)) }
     end
 
@@ -488,7 +473,7 @@ class LXCluster
 
     # LXCluster::getClusterFromDisk()
     def self.getClusterFromDisk()
-        JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/cluster.json"))
+        JSON.parse(IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/cluster.json"))
     end
 
     # LXCluster::curateOrRespawnCluster()
@@ -615,7 +600,7 @@ class LXUserInterface
             "description"             => LucilleCore::askQuestionAnswerAsString("description: "),
             "position"                => position
         }
-        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # LXUserInterface::locationDive(location)

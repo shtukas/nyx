@@ -56,6 +56,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShow
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
+
 # --------------------------------------------------------------------
 
 =begin
@@ -97,7 +99,7 @@ def itemIsWave(item)
 end
 
 def itemsFolderpath()
-    "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items"
+    "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/items"
 end
 
 def getItemsWihtoutWave()
@@ -105,7 +107,7 @@ def getItemsWihtoutWave()
     # We start by doing some garbage collection
     # Removing the items which do not have a corresponding Lucille location
 
-    if !File.exists?("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items") then
+    if !File.exists?("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items") then
         raise "[IFCS error: 97d313e44785] Can't see the Lucille items folder"
     end
 
@@ -130,7 +132,7 @@ def getItemsWihtoutWave()
         .each{|filepath|
             item = JSON.parse(IO.read(filepath))
             lucilleLocationBasename = item["lucilleLocationBasename"]
-            if !File.exists?("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{lucilleLocationBasename}") then
+            if !File.exists?("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{lucilleLocationBasename}") then
                 FileUtils.rm(filepath)
             end
         }
@@ -305,8 +307,8 @@ end
 # User Interface
 
 def getItemDescription(item)
-    return "Wave" if (item["uuid"] == waveuuid())
-    location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{item["lucilleLocationBasename"]}"
+    return "Catalyst Dive" if (item["uuid"] == waveuuid())
+    location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}"
     KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}") || "[unkown description]"
 end
 
@@ -349,7 +351,7 @@ def itemDive(item)
         end
         if ox == "set description" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{item["lucilleLocationBasename"]}"
+            location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}"
             KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
         end
         if ox == "set position" then

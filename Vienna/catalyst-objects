@@ -40,6 +40,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
+
 # -------------------------------------------------------------------------
 
 
@@ -83,7 +85,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{timeStringL22()}-vienna-url.txt", "w"){|f| f.puts(link) }
+    File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{timeStringL22()}-vienna-url.txt", "w"){|f| f.puts(link) }
     viennaLinkFeeder.done(link)
 }
 

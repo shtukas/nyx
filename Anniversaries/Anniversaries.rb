@@ -2,6 +2,8 @@
 # encoding: UTF-8
 require 'json'
 
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
+
 # -------------------------------------------------------------------------------------
 
 =begin
@@ -60,7 +62,7 @@ class Anniversaries
     end
 
     def self.getEventLines()
-        IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Anniversaries/anniversaries.txt")
+        IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Anniversaries/anniversaries.txt")
             .lines
             .map{|line| line.strip }
             .select{|line| line.size > 0 }
@@ -104,7 +106,7 @@ class Anniversaries
     end
 
     def self.trueIfAnniversaryHasBeenProcessed(event, anniversary)
-        KeyValueStore::flagIsTrue("/Users/pascal/Galaxy/DataBank/Catalyst/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
+        KeyValueStore::flagIsTrue("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
     end
 
     def self.getEventObjects()
@@ -140,6 +142,6 @@ class Anniversaries
     end
 
     def self.markAnniversaryAsProcessed(event, anniversary)
-        KeyValueStore::setFlagTrue("/Users/pascal/Galaxy/DataBank/Catalyst/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
+        KeyValueStore::setFlagTrue("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Anniversaries/kvstore-data", "b05b9dae-93d5-40f0-b68c-8cec95804b89:#{event["description"]}:#{JSON.generate(anniversary)}")
     end
 end

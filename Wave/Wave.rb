@@ -45,10 +45,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
     Zeta::destroy(filepath, key)
 =end
 
-# ----------------------------------------------------------------------
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
-DATABANK_FOLDER_PATH = "/Users/pascal/Galaxy/DataBank"
-CATALYST_FOLDERPATH = "#{DATABANK_FOLDER_PATH}/Catalyst"
+# ----------------------------------------------------------------------
 
 require_relative "NSXMiscUtils.rb"
 require_relative "NSXWaveUtils.rb"

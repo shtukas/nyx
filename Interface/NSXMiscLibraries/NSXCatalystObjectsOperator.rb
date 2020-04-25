@@ -13,11 +13,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require_relative "../../Catalyst-Common/Catalyst-Common.rb"
+
 class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = JSON.parse(IO.read("#{CATALYST_FOLDERPATH}/TheBridge/sources.json"))
+        objects = JSON.parse(IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/TheBridge/sources.json"))
                     .map{|source|
                         begin
                             JSON.parse(`#{source}`)
@@ -55,7 +57,8 @@ class NSXCatalystObjectsOperator
         # Make sure that running ifcs Wave is not first
         loop {
             break if objects.size < 2
-            break if !objects[0]["meta:ifcs:isWave"]
+            break if !objects[0]["meta:ifcs:isCatalystDive"]
+            break if !objects[0]["isRunning"]
             objects[0]["metric"] = objects[0]["metric"] - 0.001
             objects = objects
                 .sort{|o1, o2| o1["metric"]<=>o2["metric"] }

@@ -17,6 +17,8 @@ require 'securerandom'
 	# The command is "special" and going to be captured and executed at some point along the code
 	# The command is handled by an agent and the signal forwarded to the NSXCatalystObjectsOperator
 
+require_relative "../../Catalyst-Common/Catalyst-Common.rb"
+
 class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::helpLines()
@@ -76,7 +78,7 @@ class NSXGeneralCommandHandler
             return if option.nil?
             if option == "New Lucille item" then
                 text = NSXMiscUtils::editTextUsingTextmate("").strip
-                location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
+                location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
                 File.open(location, "w"){|f| f.puts(text) }
                 description = nil
                 if text.lines.to_a.size == 1 then
@@ -89,7 +91,7 @@ class NSXGeneralCommandHandler
             end
             if option == "New Lucille item + IFCS registration" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
-                location = "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
+                location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
                 File.open(location, "w"){|f| f.puts(text) }
 
                 if text.lines.to_a.size == 1 then
@@ -99,7 +101,7 @@ class NSXGeneralCommandHandler
                 end
                 KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
 
-                File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Timelines/#{File.basename(location)}.timeline.txt", "w"){|f| f.puts("[Open Cycles]") }
+                File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Timelines/#{File.basename(location)}.timeline.txt", "w"){|f| f.puts("[Open Cycles]") }
 
                 # Now we need to create a new ifcs item, the only non trivial step if to decide the position
                 makeNewIFCSItemPosition = lambda {
@@ -117,7 +119,7 @@ class NSXGeneralCommandHandler
                     "lucilleLocationBasename" => File.basename(location),
                     "position"                => position
                 }
-                File.open("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+                File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
 
             end
             return
@@ -141,7 +143,7 @@ class NSXGeneralCommandHandler
                     break if option.nil?
                     if option == "TheBridge generation speed" then
                         puts "TheBridge generation speed report"
-                        JSON.parse(IO.read("#{CATALYST_FOLDERPATH}/TheBridge/sources.json"))
+                        JSON.parse(IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/TheBridge/sources.json"))
                             .map{|source|
                                 t1 = Time.new.to_f
                                 JSON.parse(`#{source}`)
