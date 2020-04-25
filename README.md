@@ -1,6 +1,6 @@
 # Catalyst
 
-Catalyst is a Todo management system.
+Catalyst is a data management system.
 
 
 
