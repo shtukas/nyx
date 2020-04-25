@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-require_relative "../../Catalyst-Common/Catalyst-Common.rb"
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 class NSXEstateServices
 

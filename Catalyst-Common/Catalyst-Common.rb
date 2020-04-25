@@ -8,40 +8,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require 'digest/sha1'
-# Digest::SHA1.hexdigest 'foo'
-# Digest::SHA1.file(myFile).hexdigest
-
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-=end
-
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
-#    DoNotShowUntil::setUnixtime(uid, unixtime)
-#    DoNotShowUntil::isVisible(uid)
-
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-    Mercury::dequeueFirstValueOrNull(channel)
-
-    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
-    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
-
-    Mercury::getQueueSize(channel)
-    Mercury::getAllValues(channel)
-
-    Mercury::getFirstValueOrNull(channel)
-    Mercury::deleteFirstValue(channel)
-=end
+require 'io/console'
 
 # -----------------------------------------------------------------
 
@@ -72,6 +39,44 @@ class CatalystCommon
         FileUtils.mkdir(folder3)
         File.open("#{folder3}/#{filename}", "w"){|f| f.puts(text) }
     end
+
+    # CatalystCommon::interactiveVisualisation(inputToTextDisplay)
+    def self.interactiveVisualisation(inputToTextDisplay)
+        # Input:
+        #     inputToTextDisplay: StringLine -> StringMultiline
+        # Output:
+        #     StringLine # The last one
+
+        shouldStop = lambda {|inputline, character|
+            ords = [
+                4     # CRTL+D
+            ]
+            ords.include?(character.ord) or (inputline[-1, 1] == ";")
+        }
+
+        inputline = ""
+
+        system("clear")
+        puts "exit with ctrl+d"
+        print "> "
+
+        loop {
+            c = STDIN.getch
+            if c.ord == 127 then # DELETE
+                if inputline.size > 0 then
+                    inputline = inputline[0, inputline.size-1]
+                end
+            else
+                inputline += c
+            end
+            inputline = inputline.gsub(/[^[:print:]]/i, '')
+            system("clear")
+            puts "exit with ctrl+d"
+            puts "> #{inputline}"
+            puts inputToTextDisplay.call(inputline)
+            break if shouldStop.call(inputline, c)
+        }
+        inputline
+    end
+
 end
-
-

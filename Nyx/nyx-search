@@ -1,0 +1,25 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Nyx.rb"
+
+# --------------------------------------------------------------------
+
+loop {
+    system("clear")
+    puts "Nyx 🗺️"
+    operations = [
+        # Search
+        "search (permanode description)",
+        "search (tag + dive)",
+    ]
+    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+    break if operation.nil?
+    if operation == "search (permanode description)" then
+        NyxUserInterface::searchNextGenPermanodeDescriptions()
+    end
+    if operation == "search (tag + dive)" then
+        NyxUserInterface::searchNextTagAndDive()
+    end
+}

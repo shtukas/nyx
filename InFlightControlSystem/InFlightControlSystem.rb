@@ -307,7 +307,7 @@ end
 # User Interface
 
 def getItemDescription(item)
-    return "Catalyst Dive" if (item["uuid"] == waveuuid())
+    return "Deep Dive" if (item["uuid"] == waveuuid())
     location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}"
     KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}") || "[unkown description]"
 end

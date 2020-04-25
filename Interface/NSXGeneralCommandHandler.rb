@@ -17,7 +17,7 @@ require 'securerandom'
 	# The command is "special" and going to be captured and executed at some point along the code
 	# The command is handled by an agent and the signal forwarded to the NSXCatalystObjectsOperator
 
-require_relative "../../Catalyst-Common/Catalyst-Common.rb"
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 class NSXGeneralCommandHandler
 
@@ -28,18 +28,16 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "help",
-                "new: <line> | 'text'",
-                "/                   General Menu",
-                "l+ spawn new catalyst item",
-                ">> ifcs recommended next"
+                "/                    General Menu",
+                "l+                   spawn new catalyst item",
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
             "\n",
             [
-                "..                  default command",
+                "..                   default command",
                 "+datetimecode",
-                "++                  +1 hour",
+                "++                   +1 hour",
                 "+<weekdayname>",
                 "+<integer>day(s)",
                 "+<integer>hour(s)",
@@ -127,10 +125,12 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "Catalyst",
+                "Nyx Search",
+                "Nyx",
                 "In Flight Control System",
                 "Lucille",
-                "Wave"
+                "Wave",
+                "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             if option == "Catalyst" then
@@ -172,6 +172,12 @@ class NSXGeneralCommandHandler
             end
             if option == "Lucille" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille")
+            end
+            if option == "Nyx" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx")
+            end
+            if option == "Nyx Search" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-search")
             end
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")

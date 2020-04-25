@@ -170,7 +170,7 @@ class LucilleCore
         if sublocation then
             LucilleCore::getAutomaticallyDeterminedUserFriendlyDescriptionForLocation(sublocation)
         else
-            location
+            File.basename(location)
         end
     end
 

@@ -60,18 +60,18 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
 
 ## Tags and Arrows
 
-The overall organization of the Nyx system is that of tags connected by arrows. The direction is meant to represent semantic flows in Pascal's mind.
+The overall organization of the Nyx system is that of tags, and tags connected by arrows. The direction is meant to represent semantic flows in Pascal's mind.
 
-For instance a picture of Justin Bieber represented by a permanode might come with tags "Justin Bieber" and might also come with tag "Paris" (if, say, the picture was taken in Paris). We might also have a tag "Canada" and an arrow from "Canada" to "Justin Bieber".
-
+For instance a picture of Justin Bieber represented by a permanode might come with tag "Paris" (if, say, the picture was taken in Paris) and we might also have an arrow from "Canada" to "Justin Bieber".
 
 Example: 
 
 ```
-["Justin Bieber", "Paris", "Canada -> Justin Bieber"]
+tags: ["Paris"]
+arrows: ["Canada -> Justin Bieber"]
 ```
 
-says that the permanode has two tags "Justin Bieber" and "Paris" and that there is a directed link from "Canada" to "Justin Bieber".
+For searching the permanode will show up when searching for "Paris" and searching for "Justin Bieber". If one search for "Canada", then the arrow will show up. In other words the permanode belongs to its tags and the end of its arrows.
 
 ## Dependencies
 
