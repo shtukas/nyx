@@ -45,9 +45,7 @@ require_relative "BackupsMonitor.rb"
 # -------------------------------------------------------------------------
 
 objects = BackupsMonitor::scriptnames()
-            .map{|scriptname|
-                BackupsMonitor::scriptNameToCatalystObjectOrNull(scriptname)
-            }
+            .map{|scriptname| BackupsMonitor::scriptNameToCatalystObjectOrNull(scriptname) }
             .compact
 
 puts JSON.generate(objects)
