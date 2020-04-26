@@ -33,12 +33,11 @@ getTopActiveItemsOrderedByTimespan()
                 "line" => "[In Flight Control System] (#{"%6.3f" % item["position"]}) #{getItemDescription(item)}#{d2}",
             },
             "metric" => metric,
-            "commands" => ["open", "menu", !itemIsWave(item) ? "destroy" : nil].compact,
+            "commands" => ["menu", !itemIsWave(item) ? "destroy" : nil].compact,
             "defaultCommand" => defaultCommand,
             "isRunning" => isRunning,
             "shell-redirects" => {
                 "menu"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing menu '#{item["uuid"]}'",
-                "open"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing open '#{item["uuid"]}'",
                 "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing destroy '#{item["uuid"]}'",
                 "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{item["uuid"]}'",
                 "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{item["uuid"]}'"

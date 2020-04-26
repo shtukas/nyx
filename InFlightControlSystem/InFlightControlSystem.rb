@@ -115,7 +115,7 @@ def getItemsWihtoutWave()
     # We have to do this BEFORE the next step
 
     loop {
-        channel = "0b5b0b54-ea17-40f6-b3f7-d0bfaa641470-lucille-to-ifcs-rebasing"
+        channel = "0b5b0b54-ea17-40f6-b3f7-d0bfaa641470-open-cycles-to-ifcs-renaming"
         message = Mercury::dequeueFirstValueOrNull(channel)
         break if message.nil?
         item = getItemByBasenameOrNull(message["old"])
@@ -132,8 +132,8 @@ def getItemsWihtoutWave()
         .each{|filepath|
             item = JSON.parse(IO.read(filepath))
             lucilleLocationBasename = item["lucilleLocationBasename"]
-            if !File.exists?("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{lucilleLocationBasename}") then
-                FileUtils.rm(filepath)
+            if !File.exists?("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/OpenCycles/Items/#{lucilleLocationBasename}") then
+                raise "[IFCS] Could not find: #{JSON.pretty_generate(item)}"
             end
         }
 
@@ -229,41 +229,22 @@ def getStartUnixtimeOrNull(uuid)
 end
 
 def startItem(uuid)
-
     return if !getStartUnixtimeOrNull(uuid).nil?
-
     setStartUnixtime(uuid, Time.new.to_i)
-
-    # When we start a ifcs item we also want to start the corresponding lucille item
-    # But not if it's the Wave item
-    return if uuid == waveuuid()
-    item = getItemByUUIDOrNull(uuid)
-    return if item.nil?
-    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{item["lucilleLocationBasename"]}'")
-    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-start-location-basename '#{item["lucilleLocationBasename"]}'")
 end
 
 def stopItem(uuid)
-
     return if getStartUnixtimeOrNull(uuid).nil?
-
     timespan = [Time.new.to_i - getStartUnixtimeOrNull(uuid), 3600*2].min
         # We prevent time spans greater than 2 hours,
         # to avoid what happened when I left Wave running an entire night.
-    
     timepoints = getItemTimePoints(uuid)
     timepoints << {
         "unixtime" => Time.new.to_i,
         "timespan" => timespan
     } 
     saveItemTimepoints(uuid, timepoints)
-
     unsetStartUnixtime(uuid)
-
-    # When we stop a ifcs item we also want to stop the corresponding lucille item
-    item = getItemByUUIDOrNull(uuid)
-    return if item.nil?
-    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-stop-location-basename '#{item["lucilleLocationBasename"]}'")
 end
 
 def itemIsRunning(item)
@@ -308,8 +289,8 @@ end
 
 def getItemDescription(item)
     return "Lucille Deep Dive" if (item["uuid"] == waveuuid())
-    location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}"
-    KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}") || "[unkown description]"
+    descriptionKeySuffix = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}" # We cannot migrate this string as we would lose the descriptions
+    KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{descriptionKeySuffix}") || "[unkown description]"
 end
 
 def onScreenNotification(title, message)
@@ -327,10 +308,8 @@ def itemDive(item)
         oxs = [ 
             "start", 
             "stop",
-            "open",
             "set description",
             "set position",
-            "dive into Lucille item",
             (item["uuid"] != waveuuid()) ? "destroy" : nil
         ].compact
         ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
@@ -341,25 +320,14 @@ def itemDive(item)
         if ox == "stop" then
             stopItem(item["uuid"])
         end
-        if ox == "open" then
-            if item["uuid"] == waveuuid() then
-                puts "It's not possible to open Wave"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-open-location-basename '#{item["lucilleLocationBasename"]}'")
-        end
         if ox == "set description" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}"
-            KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
+            descriptionKeySuffix = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}" # We cannot migrate this string as we would lose the descriptions
+            KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{descriptionKeySuffix}", description)
         end
         if ox == "set position" then
             item["position"] = LucilleCore::askQuestionAnswerAsString("position: ").to_f
             saveItem(item)
-        end
-        if ox == "dive into Lucille item" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-dive-location-basename '#{item["lucilleLocationBasename"]}'")
         end
         if ox == "destroy" then
             uuid = item["uuid"]

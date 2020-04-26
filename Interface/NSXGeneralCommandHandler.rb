@@ -128,6 +128,7 @@ class NSXGeneralCommandHandler
                 "Nyx Search",
                 "Nyx",
                 "In Flight Control System",
+                "Open Cycles",
                 "Lucille",
                 "Wave",
                 "Catalyst",
@@ -184,6 +185,9 @@ class NSXGeneralCommandHandler
             end
             if option == "In Flight Control System" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs")
+            end
+            if option == "open Cycles" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
             end
             return
         end

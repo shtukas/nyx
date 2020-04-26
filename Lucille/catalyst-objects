@@ -44,8 +44,7 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-LucilleCore::garbageCollection()
-LucilleCore::ensureStandardFilenames()
+LucilleThisCore::ensureStandardFilenames()
 
 # -------------------------------------------------------------------------
 
@@ -60,20 +59,18 @@ class MetricHelper
 end
 
 def makeContentItem(location, timeline)
-    # We have the two special timelines [Inbox] and [Open Cycles],
-    # The rest are just chars without decoration
-    # We also have [Infinity]
+    # We have the two special timelines [Inbox] and [Infinity]
     timelinefragment = timeline[0, 1] == "[" ? timeline : "(#{timeline})"
     if location[-4, 4] == ".txt" then
         return {
             "type" => "line-and-body",
-            "line" => "[lucille] #{LucilleCore::getBestDescription(location)} #{timelinefragment}",
+            "line" => "[lucille] #{LucilleThisCore::getBestDescription(location)} #{timelinefragment}",
             "body" => "[lucille] #{IO.read(location).strip}\n#{timelinefragment}"
         }
     end
     {
         "type" => "line",
-        "line" => "[lucille] #{LucilleCore::getBestDescription(location)} #{timelinefragment}"
+        "line" => "[lucille] #{LucilleThisCore::getBestDescription(location)} #{timelinefragment}"
     }
 end
 
@@ -91,7 +88,7 @@ def makeCommands(timeline)
     if timeline == "[Inbox]" then
         return ["inbox"]
     end
-    ["start", "open", "set-description", "[]", "stop", "recast", "ifcs", "move-to-nyx", "done"]
+    ["start", "open", "set-description", "stop", "recast", "ifcs", "move-to-nyx", "done"]
 end
 
 def shouldOpenAndDone(location)
@@ -117,13 +114,13 @@ end
 # -------------------------------------------------------------------------
 
 metricHelper = MetricHelper.new()
-cluster = LXCluster::getClusterFromDisk()
-displayLocations = (LucilleCore::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
+cluster = LXCluster::getWorkingCluster()
+displayLocations = (LucilleThisCore::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
 
 objects = displayLocations
             .select{|location| DoNotShowUntil::isVisible(location) }
             .map{|location|
-                timeline = LucilleCore::getLocationTimeline(location)
+                timeline = LucilleThisCore::getLocationTimeline(location)
                 uuid = Digest::SHA1.hexdigest(location)
                 isRunning = LXRunManagement::locationIsRunning(location)
                 {
@@ -139,7 +136,6 @@ objects = displayLocations
                         "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{location}'",
                         "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
                         "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{location}'",
-                        "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing apply-next-to-text '#{location}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
                         "ifcs"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing ifcs '#{location}'",
                         "move-to-nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{location}'",

@@ -40,13 +40,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Lucille.rb"
+require_relative "OpenCyles.rb"
 
 # -------------------------------------------------------------------------
-
-locationname = ARGV[0]
-location = "#{LucilleCore::pathToItems()}/#{locationname}"
-exit if !File.exists?(location)
-LucilleCore::openLocation(location)
 
 
