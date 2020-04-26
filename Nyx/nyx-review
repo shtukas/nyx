@@ -35,9 +35,11 @@ require_relative "Nyx.rb"
 
 Mercury::discardFirstElementsToEnforceTimeHorizon("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b", Time.new.to_i - 86400)
 
-size24HoursSize = Mercury::getQueueSize("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b").size
+def get24HoursSize()
+    Mercury::getQueueSize("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b").size
+end
 
-shouldrun = (rand <= Math.exp(-size24HoursSize.to_f/50))
+shouldrun = (rand <= Math.exp(-get24HoursSize().to_f/50))
 
 exit if !shouldrun
 
@@ -48,7 +50,7 @@ NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
     .first(5)
     .each{ |permanode|
         system("clear")
-        puts "Nyx Review (size24HoursSize: #{size24HoursSize})"
+        puts "Nyx Review (size24HoursSize: #{get24HoursSize()})"
         LucilleCore::pressEnterToContinue()
         NyxUserInterface::permanodeDive(permanode)
         KeyValueStore::setFlagTrue(nil, permanode["uuid"]+"E59EC819-693C-4E85-88F5-A3B1B83F7021")
