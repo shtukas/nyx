@@ -8,7 +8,7 @@ require_relative "InFlightControlSystem.rb"
 
 objects = []
 
-if (Time.new.hour < 9 or Time.new.hour > 20) and !getItems().any?{|item| itemIsRunning(item) } then
+if Time.new.hour < 9 and !getItems().any?{|item| itemIsRunning(item) } then
     puts '[]'
     exit
 end
