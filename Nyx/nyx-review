@@ -39,7 +39,9 @@ def get24HoursSize()
     Mercury::getQueueSize("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b")
 end
 
-shouldrun = (rand <= Math.exp(-get24HoursSize().to_f/50))
+threshold = Math.exp(-get24HoursSize().to_f/50)
+
+shouldrun = rand <= threshold
 
 exit if !shouldrun
 
@@ -50,7 +52,7 @@ NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
     .first(1)
     .each{ |permanode|
         system("clear")
-        puts "Nyx Review (size24HoursSize: #{get24HoursSize()})"
+        puts "Nyx Review (size24HoursSize: #{get24HoursSize()}, threshold: #{threshold})"
         LucilleCore::pressEnterToContinue()
         NyxUserInterface::permanodeDive(permanode)
         KeyValueStore::setFlagTrue(nil, permanode["uuid"]+"E59EC819-693C-4E85-88F5-A3B1B83F7021")
