@@ -26,11 +26,12 @@ getTopActiveItemsOrderedByTimespan()
         defaultCommand = isRunning ? "stop" : "start"
         d1 = getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"])
         d2 = d1 ? " (#{d1.round(2)} hours)" : ""
+        d3 = isRunning ? " (running for #{((Time.new.to_i - getStartUnixtimeOrNull(item["uuid"])).to_f/3600).round(2)} hours)": ""
         object = {
             "uuid" => item["uuid"],
             "contentItem" => {
                 "type" => "line",
-                "line" => "[In Flight Control System] (#{"%6.3f" % item["position"]}) #{getItemDescription(item)}#{d2}",
+                "line" => "[In Flight Control System] (#{"%6.3f" % item["position"]}) #{getItemDescription(item)}#{d2}#{d3}",
             },
             "metric" => metric,
             "commands" => ["menu", !itemIsWave(item) ? "destroy" : nil].compact,
