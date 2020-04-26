@@ -319,26 +319,26 @@ class NyxPermanodeOperator
         puts "Permanode:"
         puts "    uuid: #{permanode["uuid"]}"
         puts "    filename: #{permanode["filename"]}"
-        puts "    description: #{permanode["description"]}"
+        puts "    description: #{permanode["description"].green}"
         puts "    datetime: #{permanode["referenceDateTime"]}"
         puts "    targets:"
         permanode["targets"].each{|permanodeTarget|
             puts "        #{NyxPermanodeOperator::permanodeTargetToString(permanodeTarget)}"
         }
         if permanode["tags"].empty? then
-            puts "    tags: (empty set)"
+            puts "    tags: (empty set)".green
         else
             puts "    tags"
             permanode["tags"].each{|item|
-                puts "        #{item}"
+                puts "        #{item}".green
             }
         end
         if permanode["arrows"].empty? then
-            puts "    arrows: (empty set)"
+            puts "    arrows: (empty set)".green
         else
             puts "    arrows"
             permanode["arrows"].each{|item|
-                puts "        #{item}"
+                puts "        #{item}".green
             }
         end
     end
