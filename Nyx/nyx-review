@@ -36,7 +36,7 @@ require_relative "Nyx.rb"
 Mercury::discardFirstElementsToEnforceTimeHorizon("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b", Time.new.to_i - 86400)
 
 def get24HoursSize()
-    Mercury::getQueueSize("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b").size
+    Mercury::getQueueSize("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b")
 end
 
 shouldrun = (rand <= Math.exp(-get24HoursSize().to_f/50))
