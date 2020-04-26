@@ -39,7 +39,7 @@ def get24HoursSize()
     Mercury::getQueueSize("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b")
 end
 
-threshold = Math.exp(-get24HoursSize().to_f/50)
+threshold = Math.exp(-get24HoursSize().to_f/25)
 
 shouldrun = rand <= threshold
 
