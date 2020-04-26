@@ -18,6 +18,8 @@ require_relative "Nyx.rb"
 
 # --------------------------------------------------------------------
 
+exit
+
 NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
 .each{|permanode|
     next if KeyValueStore::flagIsTrue(nil, permanode["uuid"]+"E59EC819-693C-4E85-88F5-A3B1B83F7021")
