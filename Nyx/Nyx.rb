@@ -989,6 +989,7 @@ class NyxUserInterface
                 "targets (add new)",
                 "targets (select and remove)",
                 "tags (add new)",
+                "tags (remove)",
                 "arrows (add new)",
                 "edit permanode.json",
                 "destroy permanode"
@@ -1046,6 +1047,12 @@ class NyxUserInterface
                 tag = NyxPermanodeOperator::makeOnePermanodeTagInteractiveOrNull()
                 next if tag.nil?
                 permanode["tags"] << tag
+                NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
+            end
+            if operation == "tags (remove)" then
+                tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", permanode["tags"])
+                next if tag.nil?
+                permanode["tags"] = permanode["tags"].reject{|t| t == tag }
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "arrows (add new)" then
