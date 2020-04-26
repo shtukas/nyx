@@ -962,6 +962,14 @@ class NyxSearch
             break if !status
         }
     end
+
+    # NyxSearch::search()
+    def self.search()
+        fragment = NyxSearch::nextGenGetSearchFragmentOrNull()
+        return if fragment.nil?
+        globalss = NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        NyxSearch::globalSearchStructureDive(globalss)
+    end
 end
 
 class NyxUserInterface
@@ -1156,12 +1164,7 @@ class NyxUserInterface
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "search" then
-                loop {
-                    fragment = NyxSearch::nextGenGetSearchFragmentOrNull()
-                    break if fragment.nil?
-                    globalss = NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(fragment)
-                    NyxSearch::globalSearchStructureDive(globalss)
-                }
+                NyxSearch::search()
             end
             if operation == "rename tag" then
                 oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
