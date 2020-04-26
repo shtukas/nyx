@@ -653,15 +653,20 @@ class NyxPermanodeOperator
             return NyxPermanodeOperator::makePermanodeTargetLStoreDirectoryMarkInteractiveOrNull()
         end
         if permanodeTargetType == "perma-dir-11859659" then
-            foldername1 = LucilleCore::askQuestionAnswerAsString("Desktop foldername: ")
-            folderpath1 = "/Users/pascal/Desktop/#{foldername1}"
+            desktopLocationnames = Dir.entries("/Users/pascal/Desktop")
+                                    .reject{|filename| filename[0, 1] == '.' }
+                                    .reject{|filename| ["pascal.png", "Lucille-Inbox", "Lucille.txt"].include?(filename) }
+            selecteddesktopLocationnames, _ = LucilleCore::selectZeroOrMore("file", [], desktopLocationnames)
+            return nil if selecteddesktopLocationnames.empty?
             foldername2 = NyxMiscUtils::l22()
             folderpath2 = YmirEstate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), foldername2)
             FileUtils.mkdir(folderpath2)
-            puts "Migrating '#{folderpath1}' to '#{folderpath2}'"
-            LucilleCore::migrateContents(folderpath1, folderpath2)
-            puts "'#{folderpath1}' has been emptied"
-            LucilleCore::pressEnterToContinue()
+            selecteddesktopLocations = selecteddesktopLocationnames.map{|filename| "/Users/pascal/Desktop/#{filename}" }
+            selecteddesktopLocations.each{|desktoplocation|
+                puts "Migrating '#{desktoplocation}' to '#{folderpath2}'"
+                LucilleCore::copyFileSystemLocation(desktoplocation, folderpath2)
+                LucilleCore::removeFileSystemLocation(desktoplocation)
+            }
             return {
                 "uuid"       => SecureRandom.uuid,
                 "type"       => "perma-dir-11859659",
@@ -1041,6 +1046,7 @@ class NyxUserInterface
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", permanode["targets"], toStringLambda)
                 next if target.nil?
                 permanode["targets"] = permanode["targets"].reject{|t| t["uuid"]==target["uuid"] }
+                NyxPermanodeOperator::destroyPermanodeTargetAttempt(target)
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "tags (add new)" then
