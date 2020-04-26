@@ -69,12 +69,12 @@ class NSXGeneralCommandHandler
 
         if command == "l+" then
             options = [
-                "New Lucille item",
-                "New Lucille item + IFCS registration",
+                "New Lucille text item",
+                "New Open Cycles text item + IFCS registration",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
-            if option == "New Lucille item" then
+            if option == "New Lucille text item" then
                 text = NSXMiscUtils::editTextUsingTextmate("").strip
                 location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
                 File.open(location, "w"){|f| f.puts(text) }
@@ -87,9 +87,9 @@ class NSXGeneralCommandHandler
                 KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
 
             end
-            if option == "New Lucille item + IFCS registration" then
+            if option == "New Open Cycles text item + IFCS registration" then
                 text = NSXMiscUtils::editTextUsingTextmate("")
-                location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
+                location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/OpenCycles/Items/#{NSXMiscUtils::timeStringL22()}.txt"
                 File.open(location, "w"){|f| f.puts(text) }
 
                 if text.lines.to_a.size == 1 then
@@ -97,9 +97,8 @@ class NSXGeneralCommandHandler
                 else
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
                 end
-                KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
-
-                File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Timelines/#{File.basename(location)}.timeline.txt", "w"){|f| f.puts("[Open Cycles]") }
+                descriptionKeySuffix = location.gsub("OpenCycles", "Lucille")
+                KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{descriptionKeySuffix}", description)
 
                 # Now we need to create a new ifcs item, the only non trivial step if to decide the position
                 makeNewIFCSItemPosition = lambda {
