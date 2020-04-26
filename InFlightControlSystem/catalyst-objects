@@ -8,6 +8,11 @@ require_relative "InFlightControlSystem.rb"
 
 objects = []
 
+if (Time.new.hour < 9 or Time.new.hour > 20) and !getItems().any?{|item| itemIsRunning(item) } then
+    puts '[]'
+    exit
+end
+
 def metric(item, isRunning)
     return 1 if isRunning
     isDeficient = (getItemLiveTimespanTopItemsDifferentialInHoursOrNull(item["uuid"]) || 0) <= 0
