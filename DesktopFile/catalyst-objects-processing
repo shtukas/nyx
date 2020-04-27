@@ -66,6 +66,5 @@ if ARGV[0] == "tolucille" and ARGV[1] then
     basename = "#{timeStringL22()}.txt"
     location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{basename}"
     File.open(location, "w"){|f| f.puts(section) }
-    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-dive-location-basename '#{basename}'")
     rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end

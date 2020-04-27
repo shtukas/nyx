@@ -25,14 +25,6 @@ require_relative "Lucille.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == "inbox-catalyst-command" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    puts "opening..."
-    LucilleThisCore::openLocation(location)
-    LXUserInterface::locationDive(location)
-end
-
 if ARGV[0] == "start" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
@@ -67,10 +59,10 @@ if ARGV[0] == "recast" and ARGV[1] then
     LXUserInterface::recastLucilleLocation(location)
 end
 
-if ARGV[0] == "ifcs" and ARGV[1] then
+if ARGV[0] == "ifcs-registration" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    LXUserInterface::ifcsLucilleLocation(location)
+    LXUserInterface::ifcsRegistration(location)
 end
 
 if ARGV[0] == "move-to-nyx" then
@@ -84,4 +76,22 @@ if ARGV[0] == "done" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
     LXUserInterface::doneLucilleLocation(location)
+end
+
+if ARGV[0] == "export-to-desktop" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
+end
+
+if ARGV[0] == "merge-with-other-Lucille-location" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    location2 = LucilleThisCore::selectLocationOrNull()
+    exit if location2.nil?
+    if File.file?(location2) then
+        location2 = LucilleThisCore::transformLocationFileIntoLocationFolder(location2)
+    end
+    LucilleCore::copyFileSystemLocation(location, location2)
+    LucilleCore::removeFileSystemLocation(location)
 end

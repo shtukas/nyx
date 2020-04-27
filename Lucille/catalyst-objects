@@ -64,13 +64,13 @@ def makeContentItem(location, timeline)
     if location[-4, 4] == ".txt" then
         return {
             "type" => "line-and-body",
-            "line" => "[lucille] #{LucilleThisCore::getBestDescription(location)} #{timelinefragment}",
-            "body" => "[lucille] #{IO.read(location).strip}\n#{timelinefragment}"
+            "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}",
+            "body" => "[lucille] #{timelinefragment} #{(IO.read(location).strip.lines.to_a.size > 1 ? "\n" : "")}#{IO.read(location).strip}"
         }
     end
     {
         "type" => "line",
-        "line" => "[lucille] #{LucilleThisCore::getBestDescription(location)} #{timelinefragment}"
+        "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}"
     }
 end
 
@@ -85,10 +85,7 @@ def makeMetric(metricHelper, isRunning, timeline)
 end
 
 def makeCommands(timeline)
-    if timeline == "[Inbox]" then
-        return ["inbox"]
-    end
-    ["start", "open", "set-description", "stop", "recast", "ifcs", "move-to-nyx", "done"]
+    ["start", "open", "stop", "done", "set-description", "export-to-desktop", "recast", ">ifcs", ">lucille-other", ">nyx"]
 end
 
 def shouldOpenAndDone(location)
@@ -99,9 +96,6 @@ def shouldOpenAndDone(location)
 end
 
 def makeDefaultCommand(location, isRunning, timeline)
-    if timeline == "[Inbox]" then
-        return "inbox"
-    end
     if !isRunning and shouldOpenAndDone(location) then
         return "open+done"
     end
@@ -131,15 +125,16 @@ objects = displayLocations
                     "isRunning"       => isRunning,
                     "defaultCommand"  => makeDefaultCommand(location, isRunning, timeline),
                     "shell-redirects" => {
-                        "inbox"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing inbox-catalyst-command '#{location}'",
                         "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{location}'",
                         "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{location}'",
                         "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
                         "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{location}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
-                        "ifcs"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing ifcs '#{location}'",
-                        "move-to-nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{location}'",
-                        "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'"
+                        ">ifcs"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing ifcs-registration '#{location}'",
+                        ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{location}'",
+                        "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'",
+                        "export-to-desktop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing export-to-desktop '#{location}'",
+                        ">lucille-other" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing merge-with-other-Lucille-location '#{location}'"
                     },
                     "location"        => location
                 }

@@ -536,8 +536,8 @@ class LXUserInterface
         LXCluster::curateOrRespawnCluster()
     end
 
-    # LXUserInterface::ifcsLucilleLocation(location)
-    def self.ifcsLucilleLocation(location)
+    # LXUserInterface::ifcsRegistration(location)
+    def self.ifcsRegistration(location)
         # First we start my migrating the location to OpenCycles
         LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/Items")
         # Now we need to create a new ifcs item, the only non trivial step if to decide the position
@@ -568,19 +568,29 @@ class LXUserInterface
             puts "location: #{location}"
             puts "description: #{LucilleThisCore::getBestDescription(location)}"
             options = [
+                "start",
                 "open",
+                "stop",
                 "done",
-                "set description",
-                "export to desktop",
+                "set-description",
+                "export-to-desktop",
                 "recast",
-                "transmute into folder",
-                "do not show until",
-                "merge with other Lucille location",
                 ">ifcs",
-                ">nyx"
+                ">lucille-other",
+                ">nyx",
+                "transmute into folder"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
+            if option == "start" then
+                LXRunManagement::startLocation(location)
+            end
+            if option == "stop" then
+                timespan = LXRunManagement::stopLocation(location)
+                next if timespan.nil?
+                LXCluster::processIncomingLocationTimespan(location, timespan)
+                LXCluster::curateOrRespawnCluster()
+            end
             if option == "open" then
                 LucilleThisCore::openLocation(location)
             end
@@ -588,24 +598,20 @@ class LXUserInterface
                 LXUserInterface::doneLucilleLocation(location)
                 return
             end
-            if option == "set description" then
+            if option == "set-description" then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 LucilleThisCore::setDescription(location, description)
             end
-            if option == "export to desktop" then
+            if option == "export-to-desktop" then
                 LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
             end
             if option == "recast" then
                 LXUserInterface::recastLucilleLocation(location)
             end
-            if option == "do not show until" then
-                hours = LucilleCore::askQuestionAnswerAsString("Postpone for (in hours): ").to_f
-                DoNotShowUntil::setUnixtime(location, Time.new.to_i + hours*3600)
-            end
             if option == ">ifcs" then
-                LXUserInterface::ifcsLucilleLocation(location)
+                LXUserInterface::ifcsRegistration(location)
             end
-            if option == "merge with other Lucille location" then
+            if option == ">lucille-other" then
                 location2 = LucilleThisCore::selectLocationOrNull()
                 return if location2.nil?
                 if File.file?(location2) then
