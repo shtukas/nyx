@@ -243,11 +243,9 @@ class LucilleThisCore
         return if location.nil?
 
         nyxfoldername = LucilleThisCore::timeStringL22()
-        monthFolderpath = "/Users/pascal/Galaxy/Nyx/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}"
-        if !File.exists?(monthFolderpath) then
-            FileUtils.mkpath(monthFolderpath)
-        end
-        nyxfolderpath = "#{monthFolderpath}/#{nyxfoldername}"
+        folder1 = "/Users/pascal/Galaxy/Nyx/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        nyxfolderpath = "#{folder2}/#{nyxfoldername}"
         FileUtils.mkdir(nyxfolderpath)
 
         LucilleCore::copyFileSystemLocation(location, nyxfolderpath)
@@ -259,7 +257,7 @@ class LucilleThisCore
         }
 
         permanodeFilename = "#{LucilleThisCore::timeStringL22()}.json"
-        permanodeFilePath = "#{monthFolderpath}/#{permanodeFilename}"
+        permanodeFilePath = "#{folder2}/#{permanodeFilename}"
 
         permanode = {}
         permanode["uuid"] = SecureRandom.uuid
