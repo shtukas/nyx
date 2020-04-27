@@ -74,6 +74,7 @@ objects = []
 metricHelper = MetricHelper.new()
 
 YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath())
+.first(5)
 .map{|filepath|
     uuid = YouTubeVideoStream::filepathToVideoUUID(filepath)
     objects << {
