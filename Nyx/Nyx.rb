@@ -49,13 +49,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/YmirEstate.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Ymir2Estate.rb"
 =begin
-    YmirEstate::ymirFilepathEnumerator(pathToYmir)
-    YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, basename)
-    YmirEstate::makeNewYmirLocationForBasename(pathToYmir, basename)
+    Ymir2Estate::makeNewYmirLocationForBasename(pathToYmir, basename)
         # If base name is meant to be the name of a folder then folder itself 
         # still need to be created. Only the parent is created.
+    Ymir2Estate::locationBasenameToYmirLocationOrNull(pathToYmir, basename)
+    Ymir2Estate::ymirLocationEnumerator(pathToYmir)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/AtlasCore.rb"
@@ -360,7 +360,7 @@ class NyxPermanodeOperator
         end
         if target["type"] == "file-3C93365A" then
             filename = target["filename"]
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, filename)
+            filepath = Ymir2Estate::locationBasenameToYmirLocationOrNull(pathToYmir, filename)
             if NyxPermanodeOperator::fileCanBeSafelyOpen(filename) then
                 system("open '#{filepath}'")
             else
@@ -394,7 +394,7 @@ class NyxPermanodeOperator
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, target["foldername"])
+            folderpath = Ymir2Estate::locationBasenameToYmirLocationOrNull(pathToYmir, target["foldername"])
             if folderpath.nil? then
                 puts "[error: dbd35b00] This should not have happened. Cannot find folder for permadir foldername '#{target["foldername"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -436,7 +436,7 @@ class NyxPermanodeOperator
 
     # NyxPermanodeOperator::destroyPermanode(pathToYmir, permanode)
     def self.destroyPermanode(pathToYmir, permanode)
-        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, permanode["filename"])
+        filepath = Ymir2Estate::locationBasenameToYmirLocationOrNull(pathToYmir, permanode["filename"])
         puts filepath
         return if filepath.nil?
         return if !File.exists?(filepath)
@@ -446,14 +446,14 @@ class NyxPermanodeOperator
     # NyxPermanodeOperator::commitNewPermanodeToDisk(pathToYmir, permanode)
     def self.commitNewPermanodeToDisk(pathToYmir, permanode)
         raise "[error: not a permanode]" if !NyxPermanodeOperator::objectIsPermanode(permanode)
-        filepath = YmirEstate::makeNewYmirLocationForBasename(pathToYmir, permanode["filename"])
+        filepath = Ymir2Estate::makeNewYmirLocationForBasename(pathToYmir, permanode["filename"])
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(permanode)) }
     end
 
     # NyxPermanodeOperator::recommitPermanodeToDisk(pathToYmir, permanode)
     def self.recommitPermanodeToDisk(pathToYmir, permanode)
         raise "[error: not a permanode]" if !NyxPermanodeOperator::objectIsPermanode(permanode)
-        filepath = YmirEstate::locationBasenameToYmirLocationOrNull(pathToYmir, permanode["filename"])
+        filepath = Ymir2Estate::locationBasenameToYmirLocationOrNull(pathToYmir, permanode["filename"])
         if filepath.nil? then
             raise "[error: f1f2252d]"
         end
@@ -474,8 +474,9 @@ class NyxPermanodeOperator
             filename[-5, 5] == ".json"
         }
         Enumerator.new do |permanodes|
-            YmirEstate::ymirFilepathEnumerator(pathToYmir).each{|filepath|
-                next if !isFilenameOfPermanode.call(File.basename(filepath))
+            Ymir2Estate::ymirLocationEnumerator(pathToYmir).each{|location|
+                next if !isFilenameOfPermanode.call(File.basename(location))
+                filepath = location
                 permanode = JSON.parse(IO.read(filepath))
                 permanodes << permanode
             }
@@ -572,7 +573,7 @@ class NyxPermanodeOperator
         filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
-        filepath3 = YmirEstate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), filename2)
+        filepath3 = Ymir2Estate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), filename2)
         FileUtils.mv(filepath2, filepath3)
         return {
             "uuid"     => SecureRandom.uuid,
@@ -659,7 +660,7 @@ class NyxPermanodeOperator
             selecteddesktopLocationnames, _ = LucilleCore::selectZeroOrMore("file", [], desktopLocationnames)
             return nil if selecteddesktopLocationnames.empty?
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), foldername2)
+            folderpath2 = Ymir2Estate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), foldername2)
             FileUtils.mkdir(folderpath2)
             selecteddesktopLocations = selecteddesktopLocationnames.map{|filename| "/Users/pascal/Desktop/#{filename}" }
             selecteddesktopLocations.each{|desktoplocation|
@@ -802,7 +803,7 @@ class NyxPermanodeOperator
             locations = NyxMiscUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
 
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = YmirEstate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), foldername2)
+            folderpath2 = Ymir2Estate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), foldername2)
             FileUtils.mkdir(folderpath2)
 
             permanodeTarget = {
@@ -836,7 +837,7 @@ class NyxPermanodeOperator
         end
         if target["type"] == "file-3C93365A" then
             filename = target["filename"]
-            filepath = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), filename)
+            filepath = Ymir2Estate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), filename)
             if File.exists?(filepath) then
                 FileUtils.rm(filepath)
             end
@@ -856,7 +857,7 @@ class NyxPermanodeOperator
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), target["foldername"])
+            folderpath = Ymir2Estate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), target["foldername"])
             return if folderpath.nil?
             LucilleCore::removeFileSystemLocation(folderpath)
             return
@@ -1083,7 +1084,7 @@ class NyxUserInterface
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "edit permanode.json" then
-                permanodeFilepath = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), permanode["filename"])
+                permanodeFilepath = Ymir2Estate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), permanode["filename"])
                 if permanodeFilepath.nil? then
                     puts "Strangely I could not find the filepath for this:"
                     puts JSON.pretty_generate(permanode)
@@ -1216,7 +1217,7 @@ class NyxUserInterface
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 permanode = NyxPermanodeOperator::getPermanodeByUUIDOrNull(NyxEstate::pathToYmir(), uuid)
                 next if permanode.nil?
-                filepath = YmirEstate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), permanode["filename"])
+                filepath = Ymir2Estate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), permanode["filename"])
                 next if filepath.nil?
                 system("open '#{filepath}'")
                 LucilleCore::pressEnterToContinue()
