@@ -20,9 +20,11 @@ require_relative "YouTubeVideoStream.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == "view" then
-    filepath = YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath()).first
-    return if filepath.nil?
+if ARGV[0] == "play" then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    filepath = YouTubeVideoStream::getVideoFilepathByUUIDOrNull(uuid)
+    exit if filepath.nil?
     puts filepath
     if filepath.include?("'") then
         filepath2 = filepath.gsub("'", ',')
@@ -30,7 +32,14 @@ if ARGV[0] == "view" then
         filepath = filepath2
     end
     system("open '#{filepath}'")
-    LucilleCore::pressEnterToContinue()
+end
+
+if ARGV[0] == "delete" then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    filepath = YouTubeVideoStream::getVideoFilepathByUUIDOrNull(uuid)
+    exit if filepath.nil?
+    puts filepath
     FileUtils.rm(filepath)
     YouTubeVideoStream::registerHit()
 end

@@ -44,4 +44,53 @@ require_relative "YouTubeVideoStream.rb"
 
 # -------------------------------------------------------------------------
 
-puts JSON.generate(YouTubeVideoStream::calalystObjects())
+loop {
+    break if YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath()).size >= 40
+    break if YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::energyGridFolderpath()).size == 0
+    filepath = YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::energyGridFolderpath()).first
+    filename = File.basename(filepath)
+    targetFilepath = "#{YouTubeVideoStream::spaceFolderpath()}/#{filename}"
+    FileUtils.mv(filepath, targetFilepath)
+    break if !File.exists?(targetFilepath)
+}
+
+if !File.exists?(YouTubeVideoStream::spaceFolderpath()) then
+    puts "[]"
+    exit
+end
+
+class MetricHelper
+    def initialize()
+        @counter = 0
+    end
+    def metric(base)
+        @counter = @counter + 1
+        base - @counter.to_f/10000
+    end
+end
+
+objects = []
+
+metricHelper = MetricHelper.new()
+
+YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath())
+.map{|filepath|
+    uuid = YouTubeVideoStream::filepathToVideoUUID(filepath)
+    objects << {
+        "uuid"           => uuid,
+        "contentItem"    => {
+            "type" => "line",
+            "line" => File.basename(filepath)
+        },
+        "metric"         => metricHelper.metric(YouTubeVideoStream::metric()),
+        "commands"       => ["delete"],
+        "defaultCommand" => "play",
+        "shell-redirects" => {
+            "play"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/catalyst-objects-processing play '#{uuid}'",
+            "delete" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/catalyst-objects-processing delete '#{uuid}'"
+        }
+    }
+}
+
+puts JSON.generate(objects)
+

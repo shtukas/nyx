@@ -64,16 +64,7 @@ class YouTubeVideoStream
 
     # YouTubeVideoStream::calalystObjects()
     def self.calalystObjects()
-        return [] if ENV["COMPUTERLUCILLENAME"] != "Lucille18"
-        loop {
-            break if YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath()).size >= 40
-            break if YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::energyGridFolderpath()).size == 0
-            filepath = YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::energyGridFolderpath()).first
-            filename = File.basename(filepath)
-            targetFilepath = "#{YouTubeVideoStream::spaceFolderpath()}/#{filename}"
-            FileUtils.mv(filepath, targetFilepath)
-            break if !File.exists?(targetFilepath)
-        }
+
         filepath = YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath()).first
         return [] if filepath.nil?
         uuid = "f7845869-e058-44cd-bfae-3412957c7dba"
@@ -94,6 +85,18 @@ class YouTubeVideoStream
                 }
             }
         ]
+    end
+
+    # YouTubeVideoStream::filepathToVideoUUID(filepath)
+    def self.filepathToVideoUUID(filepath)
+        Digest::SHA1.hexdigest("cec985f2-3287-4d3a-b4f8-a05f30a6cc52:#{filepath}")
+    end
+
+    # YouTubeVideoStream::getVideoFilepathByUUIDOrNull(uuid)
+    def self.getVideoFilepathByUUIDOrNull(uuid)
+        YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath())
+            .select{|filepath| YouTubeVideoStream::filepathToVideoUUID(filepath) == uuid }
+            .first
     end
 end
 
