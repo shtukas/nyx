@@ -45,7 +45,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
-require_relative "../InFlightControlSystem/InFlightControlSystem.rb"
+require_relative "../Catalyst-Common/InFlightControlSystem/InFlightControlSystem.rb"
 
 # -----------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-# require_relative "../InFlightControlSystem/InFlightControlSystem.rb"
+# require_relative "../Catalyst-Common/InFlightControlSystem/InFlightControlSystem.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -51,7 +51,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
     Mercury::deleteFirstValue(channel)
 =end
 
-require_relative "../Catalyst-Common/Catalyst-Common.rb"
+require_relative "../Catalyst-Common.rb"
 
 # -----------------------------------------------------------------
 
