@@ -97,18 +97,14 @@ end
 def shouldOpenAndDone(location)
     str1 = "vienna-url.txt"
     return true if location[-str1.size, str1.size] == str1
-    return true if ( location[-4, 4] == ".txt" and IO.read(location).strip.lines.to_a.size==1 and IO.read(location).strip.start_with?("http") )
     false
 end
 
 def makeDefaultCommand(location, isRunning, timeline)
-    if !isRunning and shouldOpenAndDone(location) then
-        return "open+done"
+    if InFlightControlSystem::isRegistered(location) then
+        return ( isRunning ? "stop" : "start+open" )
     end
-    if !isRunning then
-        return "start+open"
-    end
-    "stop"
+    shouldOpenAndDone(location) ? "open+done" : "open"
 end
 
 # -------------------------------------------------------------------------
