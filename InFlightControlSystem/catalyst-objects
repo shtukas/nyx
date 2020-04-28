@@ -51,12 +51,12 @@ def itemToCatalystItem(item)
     uuid = item["targetuuid"]
     isRunning = InFlightControlSystem::isRunning(uuid)
     runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
-    runTimeAsString = runTime ? " (running for #{runTime.to_s} seconds)" : "" 
+    runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
     {
         "uuid"            => uuid,
         "contentItem"     => {
             "type" => "line",
-            "line" => "#{item["description"]}  (#{InFlightControlSystem::targetLiveTotalTimespan(uuid)} seconds)#{runTimeAsString}"
+            "line" => "#{item["description"]}  (#{(InFlightControlSystem::targetLiveTotalTimespan(uuid).to_f/3600).round(2)} hours)#{runTimeAsString}"
         },
         "metric"          => InFlightControlSystem::metricOrNull(uuid),
         "commands"        => [],
