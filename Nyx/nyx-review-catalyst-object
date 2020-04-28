@@ -37,30 +37,22 @@ def get24HoursSize()
     Mercury::getQueueSize("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b")
 end
 
+Mercury::discardFirstElementsToEnforceTimeHorizon("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b", Time.new.to_i - 86400)
 
-def makeARunOrNothing()
+metric = Math.exp(-get24HoursSize().to_f/50)
 
-    Mercury::discardFirstElementsToEnforceTimeHorizon("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b", Time.new.to_i - 86400)
+object = {
+    "uuid"           => "EF4A84FB-558E-43FA-B300-D02476783433",
+    "contentItem"    => {
+        "type" => "line",
+        "line" => "Nyx Review"
+    },
+    "metric"         => metric,
+    "commands"       => [],
+    "defaultCommand" => "run",
+    "shell-redirects" => {
+        "run"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-review-run"
+    }
+}
 
-    threshold = Math.exp(-get24HoursSize().to_f/25)
-
-    shouldrun = rand <= threshold
-
-    return if !shouldrun
-
-    NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-        .select{|permanode|
-            !KeyValueStore::flagIsTrue(nil, permanode["uuid"]+"E59EC819-693C-4E85-88F5-A3B1B83F7021")
-        }
-        .first(1)
-        .each{ |permanode|
-            system("clear")
-            puts "Nyx Review (size24HoursSize: #{get24HoursSize()}, threshold: #{threshold})"
-            LucilleCore::pressEnterToContinue()
-            NyxUserInterface::permanodeDive(permanode)
-            KeyValueStore::setFlagTrue(nil, permanode["uuid"]+"E59EC819-693C-4E85-88F5-A3B1B83F7021")
-            Mercury::postValue("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b", true) # For throtteling
-        }
-    makeARunOrNothing()
-
-end
+puts JSON.generate([object])
