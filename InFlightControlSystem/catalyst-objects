@@ -45,6 +45,11 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
+if Time.new.hour < 9 or Time.new.hour >= 21 then
+    puts "[]"
+    exit
+end
+
 objects = []
 
 def itemToCatalystItem(item)

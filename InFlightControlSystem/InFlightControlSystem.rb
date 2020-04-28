@@ -155,7 +155,7 @@ class InFlightControlSystem
           "description" => "Guardian General Work",
           "position"    => 1
         }
-        shouldIssueItem = [1, 2, 3, 4, 5].include?(Time.new.wday) and ( Time.new.hour >= 9 and Time.new.hour < 19 )
+        shouldIssueItem = [1, 2, 3, 4, 5].include?(Time.new.wday) and ( Time.new.hour >= 9 and Time.new.hour < 18 )
         shouldIssueItem ? item : nil
     end
 
