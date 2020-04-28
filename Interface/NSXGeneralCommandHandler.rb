@@ -88,6 +88,16 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == "[]" then
+            CatalystCommon::copyLocationToCatalystBin("/Users/pascal/Desktop/Lucille.txt")
+            parts = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')
+            part1 = parts[0].strip
+            part2 = parts[1].strip
+            part1 = NSXMiscUtils::applyNextTransformationToContent(part1)
+            content = [part1, part2].join("\n\n@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b\n\n")
+            File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(content) }
+        end
+
         if command == "/" then
             options = [
                 "Nyx Search",

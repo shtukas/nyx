@@ -19,6 +19,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require_relative "../InFlightControlSystem/InFlightControlSystem.rb"
+
+# ------------------------------------------------------------------------
+
 class NSXCatalystUI
 
     # NSXCatalystUI::stringOrFirstString(content_type)
@@ -79,6 +83,14 @@ class NSXCatalystUI
             puts ""
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
         end
+
+        ifcsItems = InFlightControlSystem::getTopThree()
+        puts "In Flight Control System [top items]"
+        ifcsItems.each{|item|
+            puts "    - #{item["description"]}"
+        }
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - ( ifcsItems.size + 2 )
 
         if displayObjects.size==0 then
             puts "No objects found"

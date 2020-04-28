@@ -132,4 +132,36 @@ class NSXMiscUtils
         command = "terminal-notifier -title '#{title}' -message '#{message}'"
         system(command)
     end
+
+    # NSXMiscUtils::applyNextTransformationToContent(content)
+    def self.applyNextTransformationToContent(content)
+
+        positionOfFirstNonSpaceCharacter = lambda{|line, size|
+            return (size-1) if !line.start_with?(" " * size)
+            positionOfFirstNonSpaceCharacter.call(line, size+1)
+        }
+
+        lines = content.strip.lines.to_a
+        return content if lines.empty?
+        slineWithIndex = lines
+            .reject{|line| line.strip == "" }
+            .each_with_index
+            .map{|line, i| [line, i] }
+            .reduce(nil) {|selectedLineWithIndex, cursorLineWithIndex|
+                if selectedLineWithIndex.nil? then
+                    cursorLineWithIndex
+                else
+                    if (positionOfFirstNonSpaceCharacter.call(selectedLineWithIndex.first, 1) < positionOfFirstNonSpaceCharacter.call(cursorLineWithIndex.first, 1)) and (selectedLineWithIndex[1] == cursorLineWithIndex[1]-1) then
+                        cursorLineWithIndex
+                    else
+                        selectedLineWithIndex
+                    end
+                end
+            }
+        sline = slineWithIndex.first
+        lines
+            .reject{|line| line == sline }
+            .join()
+            .strip
+    end
 end
