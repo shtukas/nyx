@@ -219,8 +219,8 @@ class InFlightControlSystem
     #
 
     # null if not registered or not top three
-    # InFlightControlSystem::mostLateDifferentialInSecondsOrNull(targetuuid)
-    def self.mostLateDifferentialInSecondsOrNull(targetuuid)
+    # InFlightControlSystem::differentialInSecondsOrNull(targetuuid)
+    def self.differentialInSecondsOrNull(targetuuid)
         # First, we get the top three
         topThree = InFlightControlSystem::itemsOrderedByPosition()
             .first(3)
@@ -234,7 +234,7 @@ class InFlightControlSystem
     # InFlightControlSystem::isMostLate(targetuuid)
     def self.isMostLate(targetuuid) # Boolean
         return false if !InFlightControlSystem::isTopThree(targetuuid)
-        return false if InFlightControlSystem::mostLateDifferentialInSecondsOrNull(targetuuid) > 0
+        return false if InFlightControlSystem::differentialInSecondsOrNull(targetuuid) > 0
         true
     end
 
@@ -244,8 +244,10 @@ class InFlightControlSystem
     # InFlightControlSystem::metricOrNull(targetuuid)
     def self.metricOrNull(targetuuid)
         return 1 if InFlightControlSystem::isRunning(targetuuid)
-        return nil if !InFlightControlSystem::isTopThree(targetuuid)
-        InFlightControlSystem::isMostLate(targetuuid) ? 0.75 : 0.30 # See Catalyst Metrics
+        return 0.75 if ( InFlightControlSystem::isTopThree(targetuuid) and InFlightControlSystem::isMostLate(targetuuid) )
+        return 0.30 if ( InFlightControlSystem::isTopThree(targetuuid) and !InFlightControlSystem::isMostLate(targetuuid) )
+        return 0.25 if ( InFlightControlSystem::isRegistered(targetuuid) and !InFlightControlSystem::isTopThree(targetuuid) )
+        nil
     end
 
 end

@@ -16,6 +16,7 @@
         0.53  BackupsMonitor
         0.45- DesktopFile
         0.40- Lucille (cluster)
-        0.30  In Flight Control System (positive differential)
+        0.30  In Flight Control System # TopThree positive differential
+        0.25  In Flight Control System # Registered non TopThree
 
 ------- 0.20 ------- Water level ------------------------------
