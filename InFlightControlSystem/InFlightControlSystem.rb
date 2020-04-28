@@ -162,6 +162,12 @@ class InFlightControlSystem
     # -----------------------------------------------------------
     #
 
+    # InFlightControlSystem::getTopThree()
+    def self.getTopThree()
+        InFlightControlSystem::itemsOrderedByPosition()
+            .first(3)
+    end
+
     # InFlightControlSystem::getTopThreeTrace()
     def self.getTopThreeTrace()
         InFlightControlSystem::itemsOrderedByPosition()
@@ -226,8 +232,7 @@ class InFlightControlSystem
     # InFlightControlSystem::differentialInSecondsOrNull(targetuuid)
     def self.differentialInSecondsOrNull(targetuuid)
         # First, we get the top three
-        topThree = InFlightControlSystem::itemsOrderedByPosition()
-            .first(3)
+        topThree = InFlightControlSystem::getTopThree()
         return nil if topThree.none?{|item| item["targetuuid"] == targetuuid }
         theFocus    = topThree.select{|item| item["targetuuid"] == targetuuid }
         theOtherTwo = topThree.reject{|item| item["targetuuid"] == targetuuid }
@@ -238,7 +243,8 @@ class InFlightControlSystem
     # InFlightControlSystem::isMostLate(targetuuid)
     def self.isMostLate(targetuuid) # Boolean
         return false if !InFlightControlSystem::isTopThree(targetuuid)
-        return false if (InFlightControlSystem::differentialInSecondsOrNull(targetuuid) || 1) > 0
+        return true  if InFlightControlSystem::isTopThree(targetuuid) and InFlightControlSystem::getTopThree().size == 1 # We only have the dive item
+        return false if InFlightControlSystem::differentialInSecondsOrNull(targetuuid) > 0
         true
     end
 
