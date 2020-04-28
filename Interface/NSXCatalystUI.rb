@@ -67,7 +67,7 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-4
 
         filepath = "/Users/pascal/Desktop/Lucille.txt"
-        content = IO.read(filepath)
+        content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
                     .strip
                     .lines
                     .first(10)

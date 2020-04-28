@@ -51,7 +51,9 @@ end
 
 # -----------------------------------------------------------------------------
 
-objects = SectionsType0141::contentToSections(IO.read("/Users/pascal/Desktop/Lucille.txt"))
+content = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b').map{|part| part.strip }[1]
+
+objects = SectionsType0141::contentToSections(content)
     .map
     .with_index{|section, indx|
         sectionuuid = sectionToUUID(section)

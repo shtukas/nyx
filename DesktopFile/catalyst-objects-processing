@@ -29,15 +29,27 @@ end
 
 def rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
     CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
-    sections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
+
+    parts = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')
+    part1 = parts[0].strip
+    part2 = parts[1].strip
+
+    sections = SectionsType0141::contentToSections(part2)
         .reject{|section|
             sectionToUUID(section) == sectionuuid
         }
-    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts(sections.map{|section| section.strip }.join("\n\n")) }
+
+    part2 = sections.map{|section| section.strip }.join("\n\n")
+    content = [part1, part2].join("\n\n@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b\n\n")
+    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts(content) }
 end
 
 def getSectionFromFileBySectionUUIDOrNull(sectionuuid)
-    SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
+    parts = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')
+    part1 = parts[0].strip
+    part2 = parts[1].strip
+
+    SectionsType0141::contentToSections(part2)
         .select{|section|
             sectionToUUID(section) == sectionuuid
         }
