@@ -69,6 +69,14 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 # -------------------------------------------------------------------------
 
 NSXEstateServices::binTimelineGarbageCollectionEnvelop(true)
+
+Thread.new {
+    loop {
+        sleep 120
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/running-time-overflow-notification")
+    }
+}
+
 NSXCatalystUI::standardUILoop()
 
 # -------------------------------------------------------------------------

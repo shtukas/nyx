@@ -304,4 +304,13 @@ class InFlightControlSystem
         nil
     end
 
+    # InFlightControlSystem::onScreenNotification(title, message)
+    def self.onScreenNotification(title, message)
+        title = title.gsub("'","")
+        message = message.gsub("'","")
+        message = message.gsub("[","|")
+        message = message.gsub("]","|")
+        command = "terminal-notifier -title '#{title}' -message '#{message}'"
+        system(command)
+    end
 end
