@@ -287,12 +287,13 @@ class InFlightControlSystem
     #
 
     # InFlightControlSystem::metricOrNull(targetuuid)
-    def self.metricOrNull(targetuuid)
+    def self.metricOrNull(targetuuid) # Null is important, as it indicates to the caller that the targetuuid is not registered and therefore they need to provide their own metric
         return 1 if InFlightControlSystem::isRunning(targetuuid)
         return 0.92 if ( (targetuuid == InFlightControlSystem::diveItemTargetUUID()) and !InFlightControlSystem::isRunning(targetuuid) and InFlightControlSystem::isMostLate(targetuuid))
-        return 0.75 if ( InFlightControlSystem::isTopThree(targetuuid) and InFlightControlSystem::isMostLate(targetuuid) )
-        return 0.30 if ( InFlightControlSystem::isTopThree(targetuuid) and !InFlightControlSystem::isMostLate(targetuuid) )
-        return 0.25 if ( InFlightControlSystem::isRegistered(targetuuid) and !InFlightControlSystem::isTopThree(targetuuid) )
+        if InFlightControlSystem::isTopThree(targetuuid) then
+            return (InFlightControlSystem::isMostLate(targetuuid) ? 0.75 : 0.30)
+        end
+        return 0.25 if InFlightControlSystem::isRegistered(targetuuid)
         nil
     end
 
