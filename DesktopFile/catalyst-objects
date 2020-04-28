@@ -49,6 +49,10 @@ def sectionToUUID(section)
     "#{Time.new.to_s[0,10]}-#{Digest::SHA1.hexdigest(section)}"
 end
 
+def metric(indx)
+    0.45 - indx.to_f/10000
+end
+
 # -----------------------------------------------------------------------------
 
 content = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b').map{|part| part.strip }[1]

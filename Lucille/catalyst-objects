@@ -48,16 +48,6 @@ LucilleThisCore::ensureStandardFilenames()
 
 # -------------------------------------------------------------------------
 
-class MetricHelper
-    def initialize()
-        @counter = 0
-    end
-    def metric(base)
-        @counter = @counter + 1
-        base - @counter.to_f/10000
-    end
-end
-
 def makeContentItem(location, timeline)
     # We have the two special timelines [Inbox] and [Infinity]
     timelinefragment = timeline[0, 1] == "[" ? timeline : "(#{timeline})"
@@ -77,16 +67,32 @@ def makeContentItem(location, timeline)
     }
 end
 
-def makeMetric(location, metricHelper, isRunning, timeline)
+def makeMetric(location, indx, isRunning, timeline)
     metric = InFlightControlSystem::metricOrNull(location)
     return metric if metric
     if isRunning then
         return 1
     end
+
     if timeline == "[Inbox]" then
-        return metricHelper.metric(0.72) # Lucille 'Inbox'
+        metric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}")
+        if metric then
+            return metric.to_f
+        else
+            metric = 0.72 - indx.to_f/1000 # Lucille 'Inbox'
+            KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}", metric)
+            return metric
+        end
     end
-    metricHelper.metric(0.4) # Lucille (cluster)
+
+    metric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}")
+    if metric then
+        return metric.to_f
+    else
+        metric = 0.40 - indx.to_f/1000 # Lucille (cluster)
+        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}", metric)
+        return metric
+    end
 end
 
 def makeCommands(location, timeline)
@@ -109,20 +115,20 @@ end
 
 # -------------------------------------------------------------------------
 
-metricHelper = MetricHelper.new()
 cluster = LXCluster::getWorkingCluster()
 displayLocations = (LucilleThisCore::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
 
 objects = displayLocations
             .select{|location| DoNotShowUntil::isVisible(location) }
-            .map{|location|
+            .map
+            .with_index{|location, indx|
                 timeline = LucilleThisCore::getLocationTimeline(location)
                 uuid = Digest::SHA1.hexdigest(location)
                 isRunning = InFlightControlSystem::isRunning(location)
                 {
                     "uuid"            => uuid,
                     "contentItem"     => makeContentItem(location, timeline),
-                    "metric"          => makeMetric(location, metricHelper, isRunning, timeline),
+                    "metric"          => makeMetric(location, indx, isRunning, timeline),
                     "commands"        => makeCommands(location, timeline),
                     "isRunning"       => isRunning,
                     "defaultCommand"  => makeDefaultCommand(location, isRunning, timeline),

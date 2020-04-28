@@ -41,5 +41,4 @@ if ARGV[0] == "delete" then
     exit if filepath.nil?
     puts filepath
     FileUtils.rm(filepath)
-    YouTubeVideoStream::registerHit()
 end
