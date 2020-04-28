@@ -16,7 +16,7 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
     "description"       : String
     "targets"           : Array[PermanodeTarget]
     "tags"              : Array[String]
-    "arrows"            : Array[String]
+    "streams"           : Array[String]
 }
 ```
 
@@ -58,20 +58,9 @@ The original Nyx was a command line tool and web interface used by Pascal as a [
 
 **PermaDirs** are just directories, with fixed immutable foldernames. The uuid of the `perma-dir-11859659` object is the name of the corresponding directory. They are a more controlled version of general directories with marks (those that are targets of `lstore-directory-mark-BEE670D0` objects).
 
-## Tags and Arrows
+## Tags and Streams
 
-The overall organization of the Nyx system is that of tags, and tags connected by arrows. The direction is meant to represent semantic flows in Pascal's mind.
-
-For instance a picture of Justin Bieber represented by a permanode might come with tag "Paris" (if, say, the picture was taken in Paris) and we might also have an arrow from "Canada" to "Justin Bieber".
-
-Example: 
-
-```
-tags: ["Paris"]
-arrows: ["Canada -> Justin Bieber"]
-```
-
-For searching the permanode will show up when searching for "Paris" and searching for "Justin Bieber". If one search for "Canada", then the arrow will show up. In other words the permanode belongs to its tags and the end of its arrows.
+The overall organization of the Nyx system is that of tags and streams. Tags have the regular meaning of attributes of the permanode itself and streams are time ordered collections of permanodes about a given subject.
 
 ## Dependencies
 

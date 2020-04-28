@@ -287,7 +287,7 @@ class NyxPermanodeOperator
         return false if object["targets"].nil?
         return false if object["targets"].any?{|target| !NyxPermanodeOperator::objectIsPermanodeTarget(target) }
         return false if object["tags"].nil?
-        return false if object["arrows"].nil?
+        return false if object["streams"].nil?
         true
     end
 
@@ -333,11 +333,11 @@ class NyxPermanodeOperator
                 puts "        #{item}".green
             }
         end
-        if permanode["arrows"].empty? then
-            puts "    arrows: (empty set)".green
+        if permanode["streams"].empty? then
+            puts "    streams: (empty set)".green
         else
-            puts "    arrows"
-            permanode["arrows"].each{|item|
+            puts "    streams"
+            permanode["streams"].each{|item|
                 puts "        #{item}".green
             }
         end
@@ -509,57 +509,25 @@ class NyxPermanodeOperator
 
     # NyxPermanodeOperator::tags()
     def self.tags()
-        t1 = NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-            .map{|permanode| permanode["tags"].map{|tag| tag }}
-            .flatten
-
-        t2 = NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-            .map{|permanode| permanode["arrows"].map{|arrow| arrow.split('->').map{|tag| tag.strip } } }
-            .flatten
-
-        (t1 + t2)
-            .uniq
-            .sort
-    end
-
-    # NyxPermanodeOperator::arrows()
-    def self.arrows()
         NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
-            .map{|permanode| permanode["arrows"] }
+            .map{|permanode| permanode["tags"]}
             .flatten
-            .map{|tag| tag.downcase }
             .uniq
             .sort
     end
 
-    # NyxPermanodeOperator::arrowsAsObjects()
-    def self.arrowsAsObjects()
-        NyxPermanodeOperator::arrows()
-            .map{|arrow|
-                {
-                    "start" => arrow.split("->")[0].strip.downcase,
-                    "end"   => arrow.split("->")[1].strip.downcase
-                }
-            }
-    end
-
-    # NyxPermanodeOperator::arrowsObjectsWithGivenStart(start)
-    def self.arrowsObjectsWithGivenStart(start)
-        NyxPermanodeOperator::arrowsAsObjects()
-            .select{|object| object["start"].downcase == start.downcase }
-    end
-
-    # NyxPermanodeOperator::arrowsObjectsWithGivenEnd(end1)
-    def self.arrowsObjectsWithGivenEnd(end1)
-        NyxPermanodeOperator::arrowsAsObjects()
-            .select{|object| object["end"].downcase == end1.downcase }
+    # NyxPermanodeOperator::streams()
+    def self.streams()
+        NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
+            .map{|permanode| permanode["streams"] }
+            .flatten
+            .uniq
+            .sort
     end
 
     # NyxPermanodeOperator::permanodeBelongsToTag(permanode, tag)
     def self.permanodeBelongsToTag(permanode, tag)
-        return true if permanode["tags"].map{|t| t.downcase }.include?(tag.downcase)
-        return true if permanode["arrows"].map{|arrow| arrow.split('->')[1].strip.downcase }.include?(tag.downcase)
-        false
+        permanode["tags"].map{|t| t.downcase }.include?(tag.downcase)
     end
 
     # ------------------------------------------------------------------
@@ -705,28 +673,30 @@ class NyxPermanodeOperator
         tags
     end
 
-    # NyxPermanodeOperator::makeOnePermanodeArrowInteractiveOrNull()
-    def self.makeOnePermanodeArrowInteractiveOrNull()
-        puts "Making tag1 for arrow"
-        LucilleCore::pressEnterToContinue()
-        tag1 = NyxPermanodeOperator::makeOnePermanodeTagInteractiveOrNull()
-        return nil if tag1.nil?
-        puts "Making tag2 for arrow"
-        LucilleCore::pressEnterToContinue()
-        tag2 = NyxPermanodeOperator::makeOnePermanodeTagInteractiveOrNull()
-        return nil if tag2.nil?
-        [tag1, tag2].join(' -> ')
+    # NyxPermanodeOperator::makeOnePermanodeStreamInteractiveOrNull()
+    def self.makeOnePermanodeStreamInteractiveOrNull()
+        inputToTextDisplay = lambda { |input|
+            return "" if input.size < 3
+            NyxSearch::searchPatternToStreams(input).join("\n")
+        }
+        fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
+        return nil if fragment == ";"
+        if fragment[-1, 1] == ";" then
+            fragment = fragment[0, fragment.size-1]
+        end
+        return nil if fragment.size == 0
+        fragment
     end
 
-    # NyxPermanodeOperator::makePermanodeArrowsInteractive()
-    def self.makePermanodeArrowsInteractive()
-        arrows = []
+    # NyxPermanodeOperator::makePermanodeStreamsInteractive()
+    def self.makePermanodeStreamsInteractive()
+        streams = []
         loop {
-            arrow = NyxPermanodeOperator::makeOnePermanodeArrowInteractiveOrNull()
-            break if arrow.nil?
-            arrows << arrow
+            stream = NyxPermanodeOperator::makeOnePermanodeStreamInteractiveOrNull()
+            break if stream.nil?
+            streams << stream
         }
-        arrows
+        streams
     end
 
     # NyxPermanodeOperator::makePermanode2Interactive(description, permanodeTarget)
@@ -739,7 +709,7 @@ class NyxPermanodeOperator
         permanode["description"] = description
         permanode["targets"] = [ permanodeTarget ]
         permanode["tags"] = NyxPermanodeOperator::makePermanodeTagsInteractive()
-        permanode["arrows"] = NyxPermanodeOperator::makePermanodeArrowsInteractive()
+        permanode["streams"] = NyxPermanodeOperator::makePermanodeStreamsInteractive()
         permanode
     end
 
@@ -886,6 +856,11 @@ class NyxSearch
         NyxPermanodeOperator::tags()
             .select{|tag| tag.downcase.include?(searchPattern.downcase) }
     end
+    # NyxSearch::searchPatternToStreams(searchPattern)
+    def self.searchPatternToStreams(searchPattern)
+        NyxPermanodeOperator::streams()
+            .select{|stream| stream.downcase.include?(searchPattern.downcase) }
+    end
 
     # NyxSearch::searchPatternToPermanodes(searchPattern)
     def self.searchPatternToPermanodes(searchPattern)
@@ -911,7 +886,10 @@ class NyxSearch
             str2 = NyxSearch::searchPatternToTags(input)
                     .map{|tag| "tag: #{tag}" }
                     .join("\n")
-            [ str1, str2 ].join("\n\n")
+            str3 = NyxSearch::searchPatternToStreams(input)
+                    .map{|stream| "stream #{stream}" }
+                    .join("\n")
+            [ str1, str2, str3 ].join("\n\n")
         }
         fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
         return nil if fragment == ";"
@@ -1004,8 +982,8 @@ class NyxUserInterface
                 "targets (select and remove)",
                 "tags (add new)",
                 "tags (remove)",
-                "arrows (add new)",
-                "arrows (remove)",
+                "streams (add new)",
+                "streams (remove)",
                 "edit permanode.json",
                 "destroy permanode"
             ]
@@ -1071,16 +1049,16 @@ class NyxUserInterface
                 permanode["tags"] = permanode["tags"].reject{|t| t == tag }
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
-            if operation == "arrows (add new)" then
-                arrow = NyxPermanodeOperator::makeOnePermanodeArrowInteractiveOrNull()
-                next if arrow.nil?
-                permanode["arrows"] << arrow
+            if operation == "streams (add new)" then
+                stream = NyxPermanodeOperator::makeOnePermanodeStreamInteractiveOrNull()
+                next if stream.nil?
+                permanode["streams"] << stream
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
-            if operation == "arrows (remove)" then
-                arrow = LucilleCore::selectEntityFromListOfEntitiesOrNull("arrow", permanode["arrows"])
-                next if arrow.nil?
-                permanode["arrows"] = permanode["arrows"].reject{|x| x == arrow }
+            if operation == "streams (remove)" then
+                stream = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream", permanode["streams"])
+                next if stream.nil?
+                permanode["streams"] = permanode["streams"].reject{|x| x == stream }
                 NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
             end
             if operation == "edit permanode.json" then
@@ -1129,14 +1107,6 @@ class NyxUserInterface
                 .each{|permanode|
                     items << [ permanode["description"] , lambda { NyxUserInterface::permanodeDive(permanode) } ]
                 }
-            NyxPermanodeOperator::arrowsObjectsWithGivenStart(tag)
-                .each{|object|
-                    items << [ "[] -> #{object["end"]}" , lambda { NyxUserInterface::nextGenTagDive(object["end"]) } ]
-                }
-            NyxPermanodeOperator::arrowsObjectsWithGivenEnd(tag)
-                .each{|object|
-                    items << [ "#{object["start"]} -> []" , lambda { NyxUserInterface::nextGenTagDive(object["start"]) } ]
-                }
             break if items.empty?
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status
@@ -1164,6 +1134,7 @@ class NyxUserInterface
 
                 # Special operations
                 "rename tag",
+                "rename stream",
                 "curation",
 
                 # Destroy
@@ -1189,14 +1160,28 @@ class NyxUserInterface
                     .each{|permanode|
                         h1 = permanode.to_s
                         permanode["tags"] = permanode["tags"].map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
-                        permanode["arrows"] = permanode["arrows"]
-                                                .map{|arrow|
-                                                    tags = arrow
-                                                            .split('->')
-                                                            .map{|tag| tag.strip }
-                                                            .map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
-                                                    tags.join(" -> ")
-                                                }
+                        h2 = permanode.to_s
+                        if h1 != h2 then
+                            puts JSON.pretty_generate(permanode)
+                            NyxPermanodeOperator::recommitPermanodeToDisk(NyxEstate::pathToYmir(), permanode)
+                        end
+                    }
+            end
+            if operation == "rename stream" then
+                oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
+                next if oldname.size == 0
+                newname = LucilleCore::askQuestionAnswerAsString("new name: ")
+                next if newname.size == 0
+                renameStreamIfNeeded = lambda {|stream, oldname, newname|
+                    if stream.downcase == oldname.downcase then
+                        stream = newname
+                    end
+                    stream
+                }
+                NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
+                    .each{|permanode|
+                        h1 = permanode.to_s
+                        permanode["streams"] = permanode["streams"].map{|stream| renameStreamIfNeeded.call(stream, oldname, newname) }
                         h2 = permanode.to_s
                         if h1 != h2 then
                             puts JSON.pretty_generate(permanode)
