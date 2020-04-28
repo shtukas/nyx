@@ -129,7 +129,11 @@ class InFlightControlSystem
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
             .select{|filename| filename[-5, 5] == ".json" }
             .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .map{|filepath| 
+                item = JSON.parse(IO.read(filepath))
+                item["filepath"] = filepath
+                item
+            }
             .sort{|i1, i2| i1["position"] <=> i2["position"] }
     end
 
@@ -234,7 +238,7 @@ class InFlightControlSystem
     # InFlightControlSystem::isMostLate(targetuuid)
     def self.isMostLate(targetuuid) # Boolean
         return false if !InFlightControlSystem::isTopThree(targetuuid)
-        return false if InFlightControlSystem::differentialInSecondsOrNull(targetuuid) > 0
+        return false if (InFlightControlSystem::differentialInSecondsOrNull(targetuuid) || 1) > 0
         true
     end
 
