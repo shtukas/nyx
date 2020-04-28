@@ -58,20 +58,26 @@ require_relative "../Catalyst-Common/Catalyst-Common.rb"
 =begin
 
 {
-    "uuid"            : String
     "targetuuid"      : String
     "description"     : String
     "position"        : Float
-    "filepath"        : String # automatically computed at retrieval time, helps with the deletion of the item
+    "filepath"        : String 
+        # Automatically computed at retrieval time, helps with the deletion of the item
+        # Not set for managed items: dive and ggw items
 }
 
-The item that stands for doing down the todo list
+Special Purpose Items:
 
 {
-  "uuid": "0cd815de-b65b-44de-a130-149db5c260b6",
-  "targetuuid": null,
+  "targetuuid": "8D80531C-E98F-4553-A815-6D3284DE0FF8",
   "description": "🛩️",
   "position": 0
+}
+
+{
+  "targetuuid": "6705C595-3B8A-437C-B351-9D9304B162AD",
+  "description": "Guardian General Work",
+  "position": 1
 }
 
 
@@ -106,7 +112,6 @@ class InFlightControlSystem
     # InFlightControlSystem::newItem(targetuuid, description, position)
     def self.newItem(targetuuid, description, position)
         item = {
-            "uuid"            => SecureRandom.uuid,
             "targetuuid"      => targetuuid,
             "description"     => description,
             "position"        => position
@@ -124,17 +129,49 @@ class InFlightControlSystem
     # -----------------------------------------------------------
     # 
 
+    # InFlightControlSystem::diveItemUUID()
+    def self.diveItemUUID()
+        "8D80531C-E98F-4553-A815-6D3284DE0FF8"
+    end
+
+    # InFlightControlSystem::getDiveItem()
+    def self.getDiveItem()
+        {
+          "targetuuid"  => InFlightControlSystem::diveItemUUID(),
+          "description" => "🛩️",
+          "position"    => 0
+        }
+    end
+
+    # InFlightControlSystem::ggwItemUUID()
+    def self.ggwItemUUID()
+        "6705C595-3B8A-437C-B351-9D9304B162AD"
+    end
+
+    # InFlightControlSystem::getGGWItem()
+    def self.getGGWItem()
+        item = {
+          "targetuuid"  => InFlightControlSystem::ggwItemUUID(),
+          "description" => "Guardian General Work",
+          "position"    => 1
+        }
+        shouldIssueItem = [1, 2, 3, 4, 5].include?(Time.new.wday) and ( Time.new.hour >= 9 and Time.new.hour < 19 )
+        shouldIssueItem ? item : nil
+    end
+
     # InFlightControlSystem::itemsOrderedByPosition()
     def self.itemsOrderedByPosition()
-        Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
-            .map{|filepath| 
-                item = JSON.parse(IO.read(filepath))
-                item["filepath"] = filepath
-                item
-            }
-            .sort{|i1, i2| i1["position"] <=> i2["position"] }
+        items1 = [ InFlightControlSystem::getDiveItem(), InFlightControlSystem::getGGWItem() ].compact
+        items2 = Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
+                    .select{|filename| filename[-5, 5] == ".json" }
+                    .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
+                    .map{|filepath| 
+                        item = JSON.parse(IO.read(filepath))
+                        item["filepath"] = filepath
+                        item
+                    }
+                    .sort{|i1, i2| i1["position"] <=> i2["position"] }
+        items1 + items2
     end
 
     # InFlightControlSystem::isTopThree(targetuuid)
@@ -172,7 +209,7 @@ class InFlightControlSystem
     def self.getTopThreeTrace()
         InFlightControlSystem::itemsOrderedByPosition()
             .first(3)
-            .map{|item| item["uuid"] }
+            .map{|item| item["targetuuid"] }
             .join("/")
     end
 

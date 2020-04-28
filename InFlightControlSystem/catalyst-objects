@@ -47,25 +47,29 @@ require_relative "InFlightControlSystem.rb"
 
 objects = []
 
-uuid = "8D80531C-E98F-4553-A815-6D3284DE0FF8"
-isRunning = InFlightControlSystem::isRunning(uuid)
-runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
-runTimeAsString = runTime ? " (running for #{runTime.to_s} seconds)" : "" 
-
-objects << {
-    "uuid"            => uuid,
-    "contentItem"     => {
-        "type" => "line",
-        "line" => "🛩️  (acc: #{InFlightControlSystem::targetLiveTotalTimespan(uuid)} seconds)#{runTimeAsString}"
-    },
-    "metric"          => InFlightControlSystem::metricOrNull(uuid),
-    "commands"        => [],
-    "isRunning"       => InFlightControlSystem::isRunning(uuid),
-    "defaultCommand"  => isRunning ? "stop" : "start",
-    "shell-redirects" => {
-        "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{uuid}'",
-        "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{uuid}'",
+def itemToCatalystItem(item)
+    uuid = item["targetuuid"]
+    isRunning = InFlightControlSystem::isRunning(uuid)
+    runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
+    runTimeAsString = runTime ? " (running for #{runTime.to_s} seconds)" : "" 
+    {
+        "uuid"            => uuid,
+        "contentItem"     => {
+            "type" => "line",
+            "line" => "#{item["description"]}  (#{InFlightControlSystem::targetLiveTotalTimespan(uuid)} seconds)#{runTimeAsString}"
+        },
+        "metric"          => InFlightControlSystem::metricOrNull(uuid),
+        "commands"        => [],
+        "isRunning"       => InFlightControlSystem::isRunning(uuid),
+        "defaultCommand"  => isRunning ? "stop" : "start",
+        "shell-redirects" => {
+            "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{uuid}'",
+            "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{uuid}'",
+        }
     }
-}
+end
+
+objects << InFlightControlSystem::getTopThree()
+            .map{|item| itemToCatalystItem(item) }
 
 puts JSON.generate(objects)
