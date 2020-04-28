@@ -61,8 +61,7 @@ end
 def makeContentItem(location, timeline)
     # We have the two special timelines [Inbox] and [Infinity]
     timelinefragment = timeline[0, 1] == "[" ? timeline : "(#{timeline})"
-    isifcs = InFlightControlSystem::isRegistered(location)
-    isifcsAsString = isifcs ? " [ifcs]" : ""
+    isifcsAsString = InFlightControlSystem::isRegistered(location) ? " [#{"ifcs".yellow}]" : ""
     runTime = InFlightControlSystem::runTimeInSecondsOrNull(location)
     runTimeAsString = runTime ? " (running for #{runTime.to_s} seconds)" : "" 
     if location[-4, 4] == ".txt" then
@@ -74,7 +73,7 @@ def makeContentItem(location, timeline)
     end
     {
         "type" => "line",
-        "line" => "[lucille] #{timelinefragment}#{runTimeAsString} #{LucilleThisCore::getBestDescription(location)}"
+        "line" => "[lucille]#{isifcsAsString}#{runTimeAsString} #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}"
     }
 end
 
@@ -90,8 +89,9 @@ def makeMetric(location, metricHelper, isRunning, timeline)
     metricHelper.metric(0.4) # Lucille (cluster)
 end
 
-def makeCommands(timeline)
-    ["start", "open", "stop", "done", "set-description", "export-to-desktop", "recast", ">ifcs", ">lucille-other", ">nyx"]
+def makeCommands(location, timeline)
+    runCommands = InFlightControlSystem::isRegistered(location) ? ["start", "stop"] : []
+    runCommands + ["open", "done", "set-description", "export-to-desktop", "recast", ">ifcs", ">lucille-other", ">nyx"]
 end
 
 def shouldOpenAndDone(location)
@@ -127,7 +127,7 @@ objects = displayLocations
                     "uuid"            => uuid,
                     "contentItem"     => makeContentItem(location, timeline),
                     "metric"          => makeMetric(location, metricHelper, isRunning, timeline),
-                    "commands"        => makeCommands(timeline),
+                    "commands"        => makeCommands(location, timeline),
                     "isRunning"       => isRunning,
                     "defaultCommand"  => makeDefaultCommand(location, isRunning, timeline),
                     "shell-redirects" => {

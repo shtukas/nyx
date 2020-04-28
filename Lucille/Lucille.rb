@@ -97,7 +97,7 @@ class LucilleThisCore
 
     # LucilleThisCore::destroyLucilleLocationManaged(location)
     def self.destroyLucilleLocationManaged(location)
-        timeline = LucilleThisCore::getLocationTimeline(location)
+        InFlightControlSystem::destroyItem(location)
         CatalystCommon::copyLocationToCatalystBin(location)
         LucilleCore::removeFileSystemLocation(location)
         LucilleThisCore::deleteTimeLineFileIfExistsForThisLocation(location)

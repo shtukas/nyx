@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 # require_relative "../InFlightControlSystem/InFlightControlSystem.rb"
@@ -85,56 +84,8 @@ class InFlightControlSystem
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # InFlightControlSystem::itemsOrderedByPosition()
-    def self.itemsOrderedByPosition()
-        Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|i1, i2| i1["position"] <=> i2["position"] }
-    end
-
-    # InFlightControlSystem::getTopThreeTrace()
-    def self.getTopThreeTrace()
-        InFlightControlSystem::itemsOrderedByPosition()
-            .first(3)
-            .map{|item| item["uuid"] }
-            .join("/")
-    end
-
-    # InFlightControlSystem::targetTimePoints(targetuuid)
-    def self.targetTimePoints(targetuuid)
-        Mercury::getAllValues("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}")
-    end
-
-    # InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
-    def self.targetStoredTotalTimespan(targetuuid)
-        InFlightControlSystem::targetTimePoints(targetuuid).inject(0, :+)
-    end
-
-    # InFlightControlSystem::targetLiveTotalTimespan(targetuuid)
-    def self.targetLiveTotalTimespan(targetuuid)
-        x0 = InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
-        x1 = 0
-        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
-        if unixtime then
-            x1 = Time.new.to_i - unixtime.to_i
-        end
-        x0 + x1
-    end
-
-    # Creates a new entry in the tracking repository
-    # InFlightControlSystem::newItem(targetuuid, description, position)
-    def self.newItem(targetuuid, description, position)
-        item = {
-            "uuid"            => SecureRandom.uuid,
-            "targetuuid"      => targetuuid,
-            "description"     => description,
-            "position"        => position
-        }
-        filename = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{InFlightControlSystem::timeStringL22()}.json"
-        File.open(filename, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
+    # -----------------------------------------------------------
+    # Making
 
     # Presents the current priority list of the caller and let them enter a number that is then returned
     # InFlightControlSystem::interactiveChoiceOfPosition()
@@ -151,18 +102,17 @@ class InFlightControlSystem
         position
     end
 
-    # InFlightControlSystem::isTopThree(targetuuid)
-    def self.isTopThree(targetuuid) # Boolean
-        InFlightControlSystem::itemsOrderedByPosition()
-            .first(3)
-            .any?{|item| item["targetuuid"] == targetuuid }
-    end
-
-    # InFlightControlSystem::isMostLate(targetuuid)
-    def self.isMostLate(targetuuid) # Boolean
-        return false if !InFlightControlSystem::isTopThree(targetuuid)
-        return false if InFlightControlSystem::mostLateDifferentialInSecondsOrNull(targetuuid) > 0
-        true
+    # Creates a new entry in the tracking repository
+    # InFlightControlSystem::newItem(targetuuid, description, position)
+    def self.newItem(targetuuid, description, position)
+        item = {
+            "uuid"            => SecureRandom.uuid,
+            "targetuuid"      => targetuuid,
+            "description"     => description,
+            "position"        => position
+        }
+        filename = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{InFlightControlSystem::timeStringL22()}.json"
+        File.open(filename, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
     # InFlightControlSystem::newItemInteractive(targetuuid, description)
@@ -171,10 +121,49 @@ class InFlightControlSystem
         InFlightControlSystem::newItem(targetuuid, description, position)
     end
 
+    # -----------------------------------------------------------
+    # 
+
+    # InFlightControlSystem::itemsOrderedByPosition()
+    def self.itemsOrderedByPosition()
+        Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|i1, i2| i1["position"] <=> i2["position"] }
+    end
+
+    # InFlightControlSystem::isTopThree(targetuuid)
+    def self.isTopThree(targetuuid) # Boolean
+        InFlightControlSystem::itemsOrderedByPosition()
+            .first(3)
+            .any?{|item| item["targetuuid"] == targetuuid }
+    end
+
     # InFlightControlSystem::isRegistered(targetuuid)
     def self.isRegistered(targetuuid) # Boolean
         InFlightControlSystem::itemsOrderedByPosition()
             .any?{|item| item["targetuuid"] == targetuuid }
+    end
+
+    # InFlightControlSystem::destroyItem(targetuuid)
+    def self.destroyItem(targetuuid)
+        InFlightControlSystem::itemsOrderedByPosition()
+            .select{|item| item["targetuuid"] == targetuuid }
+            .each{|item|
+                FileUtils.rm(item["filepath"])
+            }
+    end
+
+    # -----------------------------------------------------------
+    #
+
+    # InFlightControlSystem::getTopThreeTrace()
+    def self.getTopThreeTrace()
+        InFlightControlSystem::itemsOrderedByPosition()
+            .first(3)
+            .map{|item| item["uuid"] }
+            .join("/")
     end
 
     # InFlightControlSystem::isRunning(targetuuid)
@@ -205,6 +194,30 @@ class InFlightControlSystem
         Time.new.to_i - unixtime.to_i
     end
 
+    # InFlightControlSystem::targetTimePoints(targetuuid)
+    def self.targetTimePoints(targetuuid)
+        Mercury::getAllValues("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}")
+    end
+
+    # InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
+    def self.targetStoredTotalTimespan(targetuuid)
+        InFlightControlSystem::targetTimePoints(targetuuid).inject(0, :+)
+    end
+
+    # InFlightControlSystem::targetLiveTotalTimespan(targetuuid)
+    def self.targetLiveTotalTimespan(targetuuid)
+        x0 = InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
+        x1 = 0
+        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+        if unixtime then
+            x1 = Time.new.to_i - unixtime.to_i
+        end
+        x0 + x1
+    end
+
+    # -----------------------------------------------------------
+    #
+
     # null if not registered or not top three
     # InFlightControlSystem::mostLateDifferentialInSecondsOrNull(targetuuid)
     def self.mostLateDifferentialInSecondsOrNull(targetuuid)
@@ -217,6 +230,16 @@ class InFlightControlSystem
         return nil if theOtherTwo.empty?
         InFlightControlSystem::targetLiveTotalTimespan(theFocus) - theOtherTwo.map{|item| InFlightControlSystem::targetLiveTotalTimespan(item) }.min
     end
+
+    # InFlightControlSystem::isMostLate(targetuuid)
+    def self.isMostLate(targetuuid) # Boolean
+        return false if !InFlightControlSystem::isTopThree(targetuuid)
+        return false if InFlightControlSystem::mostLateDifferentialInSecondsOrNull(targetuuid) > 0
+        true
+    end
+
+    # -----------------------------------------------------------
+    #
 
     # InFlightControlSystem::metricOrNull(targetuuid)
     def self.metricOrNull(targetuuid)
