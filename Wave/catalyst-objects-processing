@@ -22,7 +22,7 @@ require_relative "Wave.rb"
 
 def openItem(objectuuid)
     filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
-    exit if filepath.nil?
+    return if filepath.nil?
     text = Zeta::getOrNull(filepath, "text").strip
     puts text
     if text.lines.to_a.size == 1 and text.start_with?("http") then
@@ -32,11 +32,11 @@ def openItem(objectuuid)
         else
             system("open -na 'Google Chrome' --args --new-window '#{url}'")
         end
-        exit
+        return
     end
     if text.lines.to_a.size > 1 then
         LucilleCore::pressEnterToContinue()
-        exit
+        return
     end
 end
 
