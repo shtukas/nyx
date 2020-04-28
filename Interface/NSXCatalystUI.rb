@@ -66,6 +66,11 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-4
 
+        filepath = "/Users/pascal/Desktop/Lucille.txt"
+        content = IO.read(filepath)
+        puts content
+        puts ""
+
         if displayObjects.size==0 then
             puts "No objects found"
             print "--> "

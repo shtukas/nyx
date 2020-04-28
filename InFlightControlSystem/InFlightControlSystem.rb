@@ -129,29 +129,29 @@ class InFlightControlSystem
     # -----------------------------------------------------------
     # 
 
-    # InFlightControlSystem::diveItemUUID()
-    def self.diveItemUUID()
+    # InFlightControlSystem::diveItemTargetUUID()
+    def self.diveItemTargetUUID()
         "8D80531C-E98F-4553-A815-6D3284DE0FF8"
     end
 
     # InFlightControlSystem::getDiveItem()
     def self.getDiveItem()
         {
-          "targetuuid"  => InFlightControlSystem::diveItemUUID(),
+          "targetuuid"  => InFlightControlSystem::diveItemTargetUUID(),
           "description" => "🛩️",
           "position"    => 0
         }
     end
 
-    # InFlightControlSystem::ggwItemUUID()
-    def self.ggwItemUUID()
+    # InFlightControlSystem::ggwItemTargetUUID()
+    def self.ggwItemTargetUUID()
         "6705C595-3B8A-437C-B351-9D9304B162AD"
     end
 
     # InFlightControlSystem::getGGWItem()
     def self.getGGWItem()
         item = {
-          "targetuuid"  => InFlightControlSystem::ggwItemUUID(),
+          "targetuuid"  => InFlightControlSystem::ggwItemTargetUUID(),
           "description" => "Guardian General Work",
           "position"    => 1
         }
@@ -291,6 +291,7 @@ class InFlightControlSystem
     # InFlightControlSystem::metricOrNull(targetuuid)
     def self.metricOrNull(targetuuid)
         return 1 if InFlightControlSystem::isRunning(targetuuid)
+        return 0.92 if ( (targetuuid == InFlightControlSystem::diveItemTargetUUID()) and !InFlightControlSystem::isRunning(targetuuid) )
         return 0.75 if ( InFlightControlSystem::isTopThree(targetuuid) and InFlightControlSystem::isMostLate(targetuuid) )
         return 0.30 if ( InFlightControlSystem::isTopThree(targetuuid) and !InFlightControlSystem::isMostLate(targetuuid) )
         return 0.25 if ( InFlightControlSystem::isRegistered(targetuuid) and !InFlightControlSystem::isTopThree(targetuuid) )

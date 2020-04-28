@@ -1,13 +1,16 @@
 
         1.00  Running items
         0.95  Anniversaries
+
+        0.92  In Flight Control System
+              Dive item 🛩️ at rest, it will be pushed back by the interface, when running
+
         0.90  Wave sticky
         0.80+ Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+ Wave every-n-hours / every-n-days
 
         0.75  In Flight Control System
               The item with negative differential
-              In the case of the 🛩️ item, it will be pushed back by the interface
 
         0.72  Lucille 'Inbox'
 
