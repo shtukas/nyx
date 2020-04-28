@@ -68,8 +68,16 @@ class NSXCatalystUI
 
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath)
-        puts content
-        puts ""
+                    .lines
+                    .first(10)
+                    .map{|line| "    " + line }
+                    .join()
+        if content.size > 0 then
+            puts "Lucille.txt 👩‍💻"
+            puts content
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
+        end
 
         if displayObjects.size==0 then
             puts "No objects found"
