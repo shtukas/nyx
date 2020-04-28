@@ -45,32 +45,7 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-objects = []
-
-def itemToCatalystItem(item)
-    uuid = item["targetuuid"]
-    isRunning = InFlightControlSystem::isRunning(uuid)
-    runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
-    runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
-    {
-        "uuid"            => uuid,
-        "contentItem"     => {
-            "type" => "line",
-            "line" => "#{item["description"]}  (#{(InFlightControlSystem::targetLiveTotalTimespan(uuid).to_f/3600).round(2)}) [#{(InFlightControlSystem::differentialInSecondsOrNull(uuid).to_f/3600).round(2)}]#{runTimeAsString}"
-        },
-        "metric"          => InFlightControlSystem::metricOrNull(uuid),
-        "commands"        => [],
-        "isRunning"       => InFlightControlSystem::isRunning(uuid),
-        "defaultCommand"  => isRunning ? "stop" : "start",
-        "shell-redirects" => {
-            "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{uuid}'",
-            "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{uuid}'",
-        },
-        "item" => item
-    }
-end
-
-objects << InFlightControlSystem::getTopThree()
-            .map{|item| itemToCatalystItem(item) }
-
-puts JSON.generate(objects)
+puts "Select item to start"
+item = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("item", InFlightControlSystem::itemsOrderedByPosition(), lambda{|item| item["description"] })
+exit if item.nil?
+InFlightControlSystem::start(item["targetuuid"])
