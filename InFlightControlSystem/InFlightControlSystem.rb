@@ -127,7 +127,7 @@ class InFlightControlSystem
     end
 
     # -----------------------------------------------------------
-    # 
+    # Querying Items
 
     # InFlightControlSystem::diveItemTargetUUID()
     def self.diveItemTargetUUID()
@@ -197,7 +197,7 @@ class InFlightControlSystem
     end
 
     # -----------------------------------------------------------
-    #
+    # Data Operations
 
     # InFlightControlSystem::getTopThree()
     def self.getTopThree()
@@ -229,8 +229,9 @@ class InFlightControlSystem
     def self.stop(targetuuid) # Float or Null # latter if it wasn't running.
         return if !InFlightControlSystem::isRunning(targetuuid)
         unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}").to_i
+        unixtime = unixtime.to_i
         KeyValueStore::destroy(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
-        timespan = Time.new.to_i - unixtime
+        timespan = InFlightControlSystem::timeMultiplier(targetuuid)*(Time.new.to_i - unixtime)
         Mercury::postValue("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}", timespan)
     end
 
@@ -257,13 +258,19 @@ class InFlightControlSystem
         x1 = 0
         unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
         if unixtime then
-            x1 = Time.new.to_i - unixtime.to_i
+            x1 = InFlightControlSystem::timeMultiplier(targetuuid)*(Time.new.to_i - unixtime.to_i)
         end
         x0 + x1
     end
 
+    # InFlightControlSystem::timeMultiplier(targetuuid)
+    def self.timeMultiplier(targetuuid) # Float multiplier applied to recorded timing. This allows gww to have a higher importance
+        return 0.5 if targetuuid == InFlightControlSystem::ggwItemTargetUUID()
+        1
+    end
+
     # -----------------------------------------------------------
-    #
+    # How is that thing doing ?
 
     # null if not registered or not top three
     # InFlightControlSystem::differentialInSecondsOrNull(targetuuid)
@@ -282,9 +289,6 @@ class InFlightControlSystem
         return false if InFlightControlSystem::differentialInSecondsOrNull(targetuuid).nil?
         InFlightControlSystem::differentialInSecondsOrNull(targetuuid) <= 0
     end
-
-    # -----------------------------------------------------------
-    #
 
     # InFlightControlSystem::metricOrNull(targetuuid)
     def self.metricOrNull(targetuuid) # Null is important, as it indicates to the caller that the targetuuid is not registered and therefore they need to provide their own metric
