@@ -268,21 +268,19 @@ class InFlightControlSystem
     # null if not registered or not top three
     # InFlightControlSystem::differentialInSecondsOrNull(targetuuid)
     def self.differentialInSecondsOrNull(targetuuid)
-        # First, we get the top three
         topThree = InFlightControlSystem::getTopThree()
-        return nil if topThree.none?{|item| item["targetuuid"] == targetuuid }
-        theFocus    = topThree.select{|item| item["targetuuid"] == targetuuid }
-        theOtherTwo = topThree.reject{|item| item["targetuuid"] == targetuuid }
-        return nil if theOtherTwo.empty?
-        InFlightControlSystem::targetLiveTotalTimespan(theFocus) - theOtherTwo.map{|item| InFlightControlSystem::targetLiveTotalTimespan(item) }.min
+        theFocus    = topThree.select{|item| item["targetuuid"] == targetuuid }.first
+        return nil if theFocus.nil?
+        theOthers = topThree.reject{|item| item["targetuuid"] == targetuuid }
+        return nil if theOthers.empty?
+        InFlightControlSystem::targetLiveTotalTimespan(theFocus["targetuuid"]) - theOthers.map{|item| InFlightControlSystem::targetLiveTotalTimespan(item["targetuuid"]) }.min
     end
 
     # InFlightControlSystem::isMostLate(targetuuid)
     def self.isMostLate(targetuuid) # Boolean
         return false if !InFlightControlSystem::isTopThree(targetuuid)
-        return true  if InFlightControlSystem::isTopThree(targetuuid) and InFlightControlSystem::getTopThree().size == 1 # We only have the dive item
-        return false if InFlightControlSystem::differentialInSecondsOrNull(targetuuid) > 0
-        true
+        return false if InFlightControlSystem::differentialInSecondsOrNull(targetuuid).nil?
+        InFlightControlSystem::differentialInSecondsOrNull(targetuuid) <= 0
     end
 
     # -----------------------------------------------------------
@@ -291,7 +289,7 @@ class InFlightControlSystem
     # InFlightControlSystem::metricOrNull(targetuuid)
     def self.metricOrNull(targetuuid)
         return 1 if InFlightControlSystem::isRunning(targetuuid)
-        return 0.92 if ( (targetuuid == InFlightControlSystem::diveItemTargetUUID()) and !InFlightControlSystem::isRunning(targetuuid) )
+        return 0.92 if ( (targetuuid == InFlightControlSystem::diveItemTargetUUID()) and !InFlightControlSystem::isRunning(targetuuid) and InFlightControlSystem::isMostLate(targetuuid))
         return 0.75 if ( InFlightControlSystem::isTopThree(targetuuid) and InFlightControlSystem::isMostLate(targetuuid) )
         return 0.30 if ( InFlightControlSystem::isTopThree(targetuuid) and !InFlightControlSystem::isMostLate(targetuuid) )
         return 0.25 if ( InFlightControlSystem::isRegistered(targetuuid) and !InFlightControlSystem::isTopThree(targetuuid) )

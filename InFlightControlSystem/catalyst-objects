@@ -65,7 +65,8 @@ def itemToCatalystItem(item)
         "shell-redirects" => {
             "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{uuid}'",
             "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{uuid}'",
-        }
+        },
+        "item" => item
     }
 end
 
