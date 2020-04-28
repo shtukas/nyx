@@ -20,8 +20,7 @@ require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == 'open' and ARGV[1] then
-    objectuuid = ARGV[1]
+def openItem(objectuuid)
     filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
     exit if filepath.nil?
     text = Zeta::getOrNull(filepath, "text").strip
@@ -39,6 +38,18 @@ if ARGV[0] == 'open' and ARGV[1] then
         LucilleCore::pressEnterToContinue()
         exit
     end
+end
+
+if ARGV[0] == 'open' and ARGV[1] then
+    objectuuid = ARGV[1]
+    openItem(objectuuid)
+    exit
+end
+
+if ARGV[0] == 'open+done' and ARGV[1] then
+    objectuuid = ARGV[1]
+    openItem(objectuuid)
+    NSXWaveUtils::performDone2(objectuuid)
     exit
 end
 

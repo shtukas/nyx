@@ -299,10 +299,11 @@ class NSXWaveUtils
         object["defaultCommand"] = "open+done"
         object['schedule'] = schedule
         object["shell-redirects"] = {
-            "open"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{objectuuid}'",
-            "done"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{objectuuid}'",
-            "recast"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{objectuuid}'",
-            "destroy"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{objectuuid}'"
+            "open"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{objectuuid}'",
+            "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{objectuuid}'",
+            "done"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{objectuuid}'",
+            "recast"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{objectuuid}'",
+            "destroy"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{objectuuid}'"
         }
         object
     end
