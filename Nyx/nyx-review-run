@@ -47,4 +47,5 @@ NyxPermanodeOperator::permanodesEnumerator(NyxEstate::pathToYmir())
         NyxUserInterface::permanodeDive(permanode)
         KeyValueStore::setFlagTrue(nil, permanode["uuid"]+"E59EC819-693C-4E85-88F5-A3B1B83F7021")
         Mercury::postValue("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b", true) # For throtteling
+        LucilleCore::pressEnterToContinue()
     }
