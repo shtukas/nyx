@@ -93,7 +93,7 @@ class NSXCatalystUI
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
 
-        puts "Catalyst 👩‍💻"
+        puts "Catalyst 💫"
         position = 0
         position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
 
