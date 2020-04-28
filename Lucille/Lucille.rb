@@ -323,27 +323,6 @@ class LucilleThisCore
 
 end
 
-=begin
-
-Cluster is a structure that contains a subset of the locations and the time points 
-required for the timeline management. 
-
-Cluster {
-    "creationUnixtime"      : Integer
-    "creatinoDatetime"      : String
-    "locations"             : Array[String] # Locations
-    "startingLocationCount" : Int
-    "timelinesTimePoints"   : Map[Timeline, Array[TimePoint]]
-    "computed"              : Object
-}
-
-TimePoint {
-    "unixtime" : Int
-    "timespan" : Float
-}
-
-=end
-
 class LXCluster
 
     # LXCluster::selectLocationsForCluster()
@@ -351,34 +330,9 @@ class LXCluster
         LucilleThisCore::timelines()
             .reject{|timeline| timeline=="[Inbox]"}
             .map{|timeline|
-                LucilleThisCore::getTimelineLocations(timeline).first(20)
+                LucilleThisCore::getTimelineLocations(timeline).sort.first(100)
             }
             .flatten
-    end
-
-    # LXCluster::makeNewCluster(locations)
-    def self.makeNewCluster(locations)
-
-        dummyTimepoint = lambda {
-            {
-                "unixtime" => Time.new.to_i,
-                "timespan" => 0
-            }
-        }
-
-        timelinesTimePoints = {}
-        locations.each{|location|
-            timeline = LucilleThisCore::getLocationTimeline(location)
-            timelinesTimePoints[timeline] = [ dummyTimepoint.call() ]
-        }
-        {
-            "creationUnixtime"      => Time.new.to_i,
-            "creatinoDatetime"      => Time.new.to_s,
-            "locations"             => locations,
-            "startingLocationCount" => locations.size,
-            "timelinesTimePoints"   => timelinesTimePoints,
-            "computed"           => {}
-        }
     end
 
     # LXCluster::commitClusterToDisk(cluster)
@@ -387,87 +341,33 @@ class LXCluster
         File.open(filename, "w") {|f| f.puts(JSON.pretty_generate(cluster)) }
     end
 
-    # LXCluster::issueNewCluster()
-    def self.issueNewCluster()
-        locations = LXCluster::selectLocationsForCluster()
-        cluster = LXCluster::makeNewCluster(locations)
-        LXCluster::commitClusterToDisk(cluster)
-    end
-
     # LXCluster::getClusterFromDisk()
     def self.getClusterFromDisk()
         JSON.parse(IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/cluster.json"))
     end
 
-    # LXCluster::curateOrRespawnCluster()
-    def self.curateOrRespawnCluster()
+    # LXCluster::getWorkingCluster()
+    def self.getWorkingCluster()
         cluster = LXCluster::getClusterFromDisk()
 
         trace1 = Digest::SHA1.hexdigest(JSON.generate(cluster))
 
         # Removing location that have disappeared
-        cluster["locations"] = cluster["locations"].select{|location| File.exists?(location) }
+        cluster = cluster.select{|location| File.exists?(location) }
 
         # Removing locations that are DoNotShowUntil hidden
-        cluster["locations"] = cluster["locations"].select{|location| DoNotShowUntil::isVisible(location) }
+        cluster = cluster.select{|location| DoNotShowUntil::isVisible(location) }
 
-        if cluster["locations"].size < 0.5*cluster["startingLocationCount"] then
-            cluster = LXCluster::makeNewCluster(LXCluster::selectLocationsForCluster())
+        if cluster.size < 50 then
+            cluster = LXCluster::selectLocationsForCluster()
             LXCluster::commitClusterToDisk(cluster)
         end
-
-        # We want to remove from cluster["timelinesTimePoints"] the timelines that are no longer 
-        # relevant, mostlikely because the corresponding location are gone
-        timelines = cluster["locations"].map{|location| LucilleThisCore::getLocationTimeline(location) }
-
-        timelines.each{|timeline|
-            if cluster["timelinesTimePoints"][timeline].nil? then
-                # This happens when the location was recast and put on a timeline that wasn't originally in the cluster
-                cluster["timelinesTimePoints"][timeline] = []
-            end
-        }
-
-        computeTimelineTimespan = lambda {|cluster, timeline|
-
-            cluster["timelinesTimePoints"][timeline].map{|timepoint| timepoint["timespan"]}.inject(0, :+)
-        }
-
-        cluster["computed"] = {}
-
-        cluster["computed"]["timelinesTimespans"] = timelines.map{|timeline| [ timeline , computeTimelineTimespan.call(cluster, timeline) ] }.to_h
-
-        cluster["computed"]["timelineOrdered"] = cluster["computed"]["timelinesTimespans"].to_a.sort{|p1, p2| p1[1]<=>p2[1] }
-
-        cluster["computed"]["locationsForDisplay"] = cluster["computed"]["timelineOrdered"]
-                                                        .map{|item| item[0] }
-                                                        .map{|timeline|  
-                                                            cluster["locations"].select{|location| LucilleThisCore::getLocationTimeline(location) == timeline }
-                                                        }
-                                                        .flatten
 
         trace2 = Digest::SHA1.hexdigest(JSON.generate(cluster))
         if trace1 != trace2 then
             LXCluster::commitClusterToDisk(cluster)
         end
         cluster
-    end
-
-    # LXCluster::getWorkingCluster()
-    def self.getWorkingCluster()
-        LXCluster::curateOrRespawnCluster()
-    end
-
-    # LXCluster::processIncomingLocationTimespan(location, timespan)
-    def self.processIncomingLocationTimespan(location, timespan)
-        timeline = LucilleThisCore::getLocationTimeline(location)
-        cluster = LXCluster::getClusterFromDisk()
-        return if cluster["timelinesTimePoints"][timeline].nil?
-        point = {
-            "unixtime" => Time.new.to_i,
-            "timespan" => timespan
-        }
-        cluster["timelinesTimePoints"][timeline] << point
-        LXCluster::commitClusterToDisk(cluster)
     end
 end
 
@@ -477,23 +377,20 @@ class LXUserInterface
 
     # LXUserInterface::stopLocation(location)
     def self.stopLocation(location)
-        timespan = InFlightControlSystem::stop(location)
-        return if timespan.nil?
-        LXCluster::processIncomingLocationTimespan(location, timespan)
+        InFlightControlSystem::stop(location)
     end
 
     # LXUserInterface::doneLucilleLocation(location)
     def self.doneLucilleLocation(location)
         LXUserInterface::stopLocation(location)
         LucilleThisCore::destroyLucilleLocationManaged(location)
-        LXCluster::curateOrRespawnCluster()
     end
 
     # LXUserInterface::recastLucilleLocation(location)
     def self.recastLucilleLocation(location)
         timespan = LXRunManagement::stopLocation(location)
         if timespan then
-            LXCluster::processIncomingLocationTimespan(location, timespan)
+
         end
         timeline = nil
         loop {
@@ -510,7 +407,6 @@ class LXUserInterface
             end
         }
         LucilleThisCore::setLocationTimeline(location, timeline)
-        LXCluster::curateOrRespawnCluster()
     end
 
     # LXUserInterface::locationDive(location)
@@ -538,8 +434,6 @@ class LXUserInterface
             end
             if option == "stop" then
                 LXUserInterface::stopLocation(location)
-                LXCluster::processIncomingLocationTimespan(location, timespan)
-                LXCluster::curateOrRespawnCluster()
             end
             if option == "open" then
                 LucilleThisCore::openLocation(location)

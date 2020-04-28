@@ -49,8 +49,15 @@ def sectionToUUID(section)
     "#{Time.new.to_s[0,10]}-#{Digest::SHA1.hexdigest(section)}"
 end
 
-def metric(indx)
-    0.45 - indx.to_f/10000
+def metric(uuid, indx)
+    metric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:950e862e-21db-419a-ae60-5b3ff050987a:#{uuid}")
+    if metric then
+        return metric.to_f
+    else
+        metric = 0.71 - indx.to_f/1000
+        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:950e862e-21db-419a-ae60-5b3ff050987a:#{uuid}", metric)
+        return metric
+    end
 end
 
 # -----------------------------------------------------------------------------
@@ -68,7 +75,7 @@ objects = SectionsType0141::contentToSections(content)
                 "line" => "[Desktop] " + section.strip.lines.to_a.first,
                 "body" => "[Desktop] " + section.strip
             },
-            "metric"          => 0.45 - indx.to_f/10000,
+            "metric"          => metric(sectionuuid, indx),
             "commands"        => [">lucille"],
             "defaultCommand"  => "done",
             "shell-redirects" => {

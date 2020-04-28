@@ -14,11 +14,13 @@
 
         0.72  Lucille 'Inbox'
 
-0.20 -> 0.70  YouTubeVideoStream
+0.20 -> 0.71  DesktopFile # Day Locked
+
+0.20 -> 0.70  YouTubeVideoStream # Day Locked
 
         0.53  BackupsMonitor
-        0.45- DesktopFile
-0.20 -> 0.40 Lucille (cluster)
+
+0.20 -> 0.40  Lucille (cluster) # Day Locked
         0.30  In Flight Control System # TopThree positive differential
         0.25  In Flight Control System # Registered non TopThree
 

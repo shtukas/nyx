@@ -115,10 +115,9 @@ end
 
 # -------------------------------------------------------------------------
 
-cluster = LXCluster::getWorkingCluster()
-displayLocations = (LucilleThisCore::getTimelineLocations("[Inbox]") + cluster["computed"]["locationsForDisplay"]).uniq
+locations = LucilleThisCore::getTimelineLocations("[Inbox]") + LXCluster::getWorkingCluster()
 
-objects = displayLocations
+objects = locations
             .select{|location| DoNotShowUntil::isVisible(location) }
             .map
             .with_index{|location, indx|

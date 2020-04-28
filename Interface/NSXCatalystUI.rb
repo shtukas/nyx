@@ -84,13 +84,19 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
         end
 
-        ifcsItems = InFlightControlSystem::getTopThree()
-        puts "In Flight Control System [top items]"
-        ifcsItems.each{|item|
-            puts "    - #{item["description"]}"
-        }
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - ( ifcsItems.size + 2 )
+        if Time.new.hour >= 9 and Time.new.hour < 21 then
+            ifcsItems = InFlightControlSystem::getTopThree()
+            puts "In Flight Control System [top items]"
+            ifcsItems.each{|item|
+                puts "    - #{item["description"]}"
+            }
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - ( ifcsItems.size + 2 )
+        else
+            puts "In Flight Control System 😴"
+            puts ""
+            verticalSpaceLeft = verticalSpaceLeft - 2
+        end
 
         if displayObjects.size==0 then
             puts "No objects found"

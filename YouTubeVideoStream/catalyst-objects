@@ -82,7 +82,7 @@ YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath
         "uuid"           => uuid,
         "contentItem"    => {
             "type" => "line",
-            "line" => File.basename(filepath)
+            "line" => "[VideoStream] #{File.basename(filepath)}"
         },
         "metric"         => metric(uuid, indx),
         "commands"       => ["delete"],
