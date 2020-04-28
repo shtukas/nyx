@@ -232,6 +232,9 @@ class InFlightControlSystem
         unixtime = unixtime.to_i
         KeyValueStore::destroy(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
         timespan = InFlightControlSystem::timeMultiplier(targetuuid)*(Time.new.to_i - unixtime)
+        timespan = [timespan, 3600*2].min 
+            # To avoid problems after leaving things running 
+            # or when we create a new top three item while something was running.
         Mercury::postValue("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}", timespan)
     end
 
