@@ -101,11 +101,7 @@ class InFlightControlSystem
             .each{|item|
                 puts "    - #{item["position"]} #{item["description"]}"
             }
-        position = LucilleCore::askQuestionAnswerAsString("position (must be at least 1): ").to_f
-        if position < 1 then
-            return InFlightControlSystem::interactiveChoiceOfPosition()
-        end
-        position
+        LucilleCore::askQuestionAnswerAsString("position: ").to_f
     end
 
     # Creates a new entry in the tracking repository
