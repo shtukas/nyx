@@ -68,6 +68,7 @@ class NSXCatalystUI
 
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath)
+                    .strip
                     .lines
                     .first(10)
                     .map{|line| "    " + line }
