@@ -4,10 +4,18 @@
         0.90  Wave sticky
         0.80+ Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+ Wave every-n-hours / every-n-days
-        0.76  Lucille 'Inbox'
+
         0.75  In Flight Control System
+              The item with negative differential
+              In the case of the 🛩️ item, it will be pushed back by the interface
+
+        0.72  Lucille 'Inbox'
+
 0.20 -> 0.70  YouTubeVideoStream
+
         0.53  BackupsMonitor
         0.45- DesktopFile
         0.40- Lucille (cluster)
+        0.30  In Flight Control System (positive differential)
+
 ------- 0.20 ------- Water level ------------------------------

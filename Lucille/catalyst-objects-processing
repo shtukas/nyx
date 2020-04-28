@@ -28,15 +28,13 @@ require_relative "Lucille.rb"
 if ARGV[0] == "start" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    LXRunManagement::startLocation(location)
+    InFlightControlSystem::start(location)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
-    timespan = LXRunManagement::stopLocation(location)
-    exit if timespan.nil?
-    LXCluster::processIncomingLocationTimespan(location, timespan)
+    LXUserInterface::stopLocation(location)
     LXCluster::curateOrRespawnCluster()
 end
 
@@ -57,12 +55,6 @@ if ARGV[0] == "recast" and ARGV[1] then
     location = ARGV[1]
     exit if !File.exists?(location)
     LXUserInterface::recastLucilleLocation(location)
-end
-
-if ARGV[0] == "ifcs-registration" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LXUserInterface::ifcsRegistration(location)
 end
 
 if ARGV[0] == "move-to-nyx" then
@@ -94,4 +86,11 @@ if ARGV[0] == "merge-with-other-Lucille-location" and ARGV[1] then
     end
     LucilleCore::copyFileSystemLocation(location, location2)
     LucilleCore::removeFileSystemLocation(location)
+end
+
+if ARGV[0] == "throttle" and ARGV[1] then
+    location = ARGV[1]
+    exit if !File.exists?(location)
+    description = LucilleCore::askQuestionAnswerAsString("description: ")
+    InFlightControlSystem::newItemInteractive(location, description)
 end

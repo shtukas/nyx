@@ -45,6 +45,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
+require_relative "../InFlightControlSystem/InFlightControlSystem.rb"
+
 # -----------------------------------------------------------------
 
 class LucilleThisCore
@@ -321,35 +323,6 @@ class LucilleThisCore
 
 end
 
-class LXRunManagement
-
-    # LXRunManagement::getRunUnixtimeOrNull(location)
-    def self.getRunUnixtimeOrNull(location)
-        value = KeyValueStore::getOrNull(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
-        return nil if value.nil?
-        value.to_i
-    end
-
-    # LXRunManagement::locationIsRunning(location)
-    def self.locationIsRunning(location)
-        !LXRunManagement::getRunUnixtimeOrNull(location).nil?
-    end
-
-    # LXRunManagement::startLocation(location)
-    def self.startLocation(location)
-        return if LXRunManagement::getRunUnixtimeOrNull(location)
-        KeyValueStore::set(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}", Time.new.to_i)
-    end
-
-    # LXRunManagement::stopLocation(location) # return timespan or null
-    def self.stopLocation(location)
-        unixtime = LXRunManagement::getRunUnixtimeOrNull(location)
-        return nil if unixtime.nil?
-        KeyValueStore::destroy(nil, "50e4fe12-de3d-4def-915b-8924c9195a51:#{location}")
-        Time.new.to_i - unixtime
-    end
-end
-
 =begin
 
 Cluster is a structure that contains a subset of the locations and the time points 
@@ -500,12 +473,18 @@ end
 
 class LXUserInterface
 
+    
+
+    # LXUserInterface::stopLocation(location)
+    def self.stopLocation(location)
+        timespan = InFlightControlSystem::stop(location)
+        return if timespan.nil?
+        LXCluster::processIncomingLocationTimespan(location, timespan)
+    end
+
     # LXUserInterface::doneLucilleLocation(location)
     def self.doneLucilleLocation(location)
-        timespan = LXRunManagement::stopLocation(location)
-        if timespan then
-            LXCluster::processIncomingLocationTimespan(location, timespan)
-        end
+        LXUserInterface::stopLocation(location)
         LucilleThisCore::destroyLucilleLocationManaged(location)
         LXCluster::curateOrRespawnCluster()
     end
@@ -534,31 +513,6 @@ class LXUserInterface
         LXCluster::curateOrRespawnCluster()
     end
 
-    # LXUserInterface::ifcsRegistration(location)
-    def self.ifcsRegistration(location)
-        # First we start my migrating the location to OpenCycles
-        LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/Items")
-        # Now we need to create a new ifcs item, the only non trivial step if to decide the position
-        makeNewIFCSItemPosition = lambda {
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
-                .sort{|i1, i2| i1["position"] <=> i2["position"]}
-                .each{|item|
-                    puts "   - (#{"%5.3f" % item["position"]}) #{item["description"]}"
-                }
-            LucilleCore::askQuestionAnswerAsString("position: ").to_f
-        }
-        position = makeNewIFCSItemPosition.call()
-        uuid = SecureRandom.uuid
-        item = {
-            "uuid"                    => uuid,
-            "lucilleLocationBasename" => File.basename(location),
-            "position"                => position
-        }
-        File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
-        LucilleCore::removeFileSystemLocation(location)
-        LucilleThisCore::deleteTimeLineFileIfExistsForThisLocation(location)
-    end
-
     # LXUserInterface::locationDive(location)
     def self.locationDive(location)
         loop {
@@ -573,7 +527,6 @@ class LXUserInterface
                 "set-description",
                 "export-to-desktop",
                 "recast",
-                ">ifcs",
                 ">lucille-other",
                 ">nyx",
                 "transmute into folder"
@@ -581,11 +534,10 @@ class LXUserInterface
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "start" then
-                LXRunManagement::startLocation(location)
+                InFlightControlSystem::start(location)
             end
             if option == "stop" then
-                timespan = LXRunManagement::stopLocation(location)
-                next if timespan.nil?
+                LXUserInterface::stopLocation(location)
                 LXCluster::processIncomingLocationTimespan(location, timespan)
                 LXCluster::curateOrRespawnCluster()
             end
@@ -605,9 +557,6 @@ class LXUserInterface
             end
             if option == "recast" then
                 LXUserInterface::recastLucilleLocation(location)
-            end
-            if option == ">ifcs" then
-                LXUserInterface::ifcsRegistration(location)
             end
             if option == ">lucille-other" then
                 location2 = LucilleThisCore::selectLocationOrNull()

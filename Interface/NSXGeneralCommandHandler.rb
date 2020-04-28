@@ -70,7 +70,6 @@ class NSXGeneralCommandHandler
         if command == "l+" then
             options = [
                 "New Lucille text item",
-                "New Open Cycles text item + IFCS registration",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
@@ -85,39 +84,6 @@ class NSXGeneralCommandHandler
                     description = LucilleCore::askQuestionAnswerAsString("description: ")
                 end
                 KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
-
-            end
-            if option == "New Open Cycles text item + IFCS registration" then
-                text = NSXMiscUtils::editTextUsingTextmate("")
-                location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/OpenCycles/Items/#{NSXMiscUtils::timeStringL22()}.txt"
-                File.open(location, "w"){|f| f.puts(text) }
-
-                if text.lines.to_a.size == 1 then
-                    description = text
-                else
-                    description = LucilleCore::askQuestionAnswerAsString("description: ")
-                end
-                descriptionKeySuffix = location.gsub("OpenCycles", "Lucille")
-                KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{descriptionKeySuffix}", description)
-
-                # Now we need to create a new ifcs item, the only non trivial step if to decide the position
-                makeNewIFCSItemPosition = lambda {
-                    JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items`)
-                        .sort{|i1, i2| i1["position"] <=> i2["position"]}
-                        .each{|item|
-                            puts "   - (#{"%5.3f" % item["position"]}) #{item["description"]}"
-                        }
-                    LucilleCore::askQuestionAnswerAsString("position: ").to_f
-                }
-                position = makeNewIFCSItemPosition.call()
-                uuid = SecureRandom.uuid
-                item = {
-                    "uuid"                    => uuid,
-                    "lucilleLocationBasename" => File.basename(location),
-                    "position"                => position
-                }
-                File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/items/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
-
             end
             return
         end
@@ -126,7 +92,6 @@ class NSXGeneralCommandHandler
             options = [
                 "Nyx Search",
                 "Nyx",
-                "In Flight Control System",
                 "Open Cycles",
                 "Lucille",
                 "Wave",
@@ -181,9 +146,6 @@ class NSXGeneralCommandHandler
             end
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")
-            end
-            if option == "In Flight Control System" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs")
             end
             if option == "open Cycles" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")

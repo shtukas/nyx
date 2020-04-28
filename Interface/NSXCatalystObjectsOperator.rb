@@ -57,7 +57,7 @@ class NSXCatalystObjectsOperator
         # Make sure that running ifcs Wave is not first
         loop {
             break if objects.size < 2
-            break if !objects[0]["meta:ifcs:isCatalystDive"]
+            break if objects[0]["uuid"] != "8D80531C-E98F-4553-A815-6D3284DE0FF8"
             break if !objects[0]["isRunning"]
             objects[0]["metric"] = objects[0]["metric"] - 0.001
             objects = objects

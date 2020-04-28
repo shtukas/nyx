@@ -1,12 +1,7 @@
-#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
 # encoding: UTF-8
 
-require 'colorize'
-
-require 'securerandom'
-# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
-# SecureRandom.hex(4) #=> "eb693123"
-# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+# require_relative "../InFlightControlSystem/InFlightControlSystem.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -15,27 +10,32 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
     KeyValueStore::destroy(repositorylocation or nil, key)
+
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets.rb"
-=begin
-    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
-    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
-    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
-=end
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
+#    DoNotShowUntil::setUnixtime(uid, unixtime)
+#    DoNotShowUntil::isVisible(uid)
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
 =begin
@@ -52,287 +52,177 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
     Mercury::deleteFirstValue(channel)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
-#    DoNotShowUntil::setUnixtime(uid, unixtime)
-#    DoNotShowUntil::isVisible(uid)
-
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
-# --------------------------------------------------------------------
+# -----------------------------------------------------------------
 
 =begin
 
-Item {
-    "uuid"                    : String,
-    "lucilleLocationBasename" : String
-    "position"                : Float
+{
+    "uuid"            : String
+    "targetuuid"      : String
+    "description"     : String
+    "position"        : Float
+    "filepath"        : String # automatically computed at retrieval time, helps with the deletion of the item
 }
 
-TimePoints : Array[TimePoint]
+The item that stands for doing down the todo list
 
-TimePoint = {
-    "unixtime" : Float
-    "timespan" : Float
+{
+  "uuid": "0cd815de-b65b-44de-a130-149db5c260b6",
+  "targetuuid": null,
+  "description": "🛩️",
+  "position": 0
 }
+
 
 =end
 
-# --------------------------------------------------------------------
+class InFlightControlSystem
 
-# ---------------
-# IO Items
-
-def waveuuid()
-    "f1e7bf19-ef85-4e93-a904-6287dbc8ad4e"
-end
-
-def waveItem()
-    {
-        "uuid" => waveuuid(),
-        "lucilleLocationBasename" => nil,
-        "position" => 0
-    }
-end
-
-def itemIsWave(item)
-    item["uuid"] == waveuuid()
-end
-
-def itemsFolderpath()
-    "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/items"
-end
-
-def getItemsWihtoutWave()
-
-    # We start by doing some garbage collection
-    # Removing the items which do not have a corresponding Lucille location
-
-    if !File.exists?("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items") then
-        raise "[IFCS error: 97d313e44785] Can't see the Lucille items folder"
+    # InFlightControlSystem::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # We now rename basenames if we get messages to do so
-    # We have to do this BEFORE the next step
+    # InFlightControlSystem::itemsOrderedByPosition()
+    def self.itemsOrderedByPosition()
+        Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|i1, i2| i1["position"] <=> i2["position"] }
+    end
 
-    loop {
-        channel = "0b5b0b54-ea17-40f6-b3f7-d0bfaa641470-open-cycles-to-ifcs-renaming"
-        message = Mercury::dequeueFirstValueOrNull(channel)
-        break if message.nil?
-        item = getItemByBasenameOrNull(message["old"])
-        break if item.nil?
-        item["lucilleLocationBasename"] = message["new"]
-        saveItem(item)
-    }
+    # InFlightControlSystem::getTopThreeTrace()
+    def self.getTopThreeTrace()
+        InFlightControlSystem::itemsOrderedByPosition()
+            .first(3)
+            .map{|item| item["uuid"] }
+            .join("/")
+    end
 
-    # Removing the items which do not have a corresponding Lucille location
+    # InFlightControlSystem::targetTimePoints(targetuuid)
+    def self.targetTimePoints(targetuuid)
+        Mercury::getAllValues("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}")
+    end
 
-    Dir.entries(itemsFolderpath())
-        .select{|filename| filename[-5, 5] == ".json" }
-        .map{|filename| "#{itemsFolderpath()}/#{filename}"}
-        .each{|filepath|
-            item = JSON.parse(IO.read(filepath))
-            lucilleLocationBasename = item["lucilleLocationBasename"]
-            if !File.exists?("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/OpenCycles/Items/#{lucilleLocationBasename}") then
-                raise "[IFCS] Could not find: #{JSON.pretty_generate(item)}"
-            end
+    # InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
+    def self.targetStoredTotalTimespan(targetuuid)
+        InFlightControlSystem::targetTimePoints(targetuuid).inject(0, :+)
+    end
+
+    # InFlightControlSystem::targetLiveTotalTimespan(targetuuid)
+    def self.targetLiveTotalTimespan(targetuuid)
+        x0 = InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
+        x1 = 0
+        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+        if unixtime then
+            x1 = Time.new.to_i - unixtime.to_i
+        end
+        x0 + x1
+    end
+
+    # Creates a new entry in the tracking repository
+    # InFlightControlSystem::newItem(targetuuid, description, position)
+    def self.newItem(targetuuid, description, position)
+        item = {
+            "uuid"            => SecureRandom.uuid,
+            "targetuuid"      => targetuuid,
+            "description"     => description,
+            "position"        => position
         }
-
-    # Computing answer
-
-    Dir.entries(itemsFolderpath())
-        .select{|filename| filename[-5, 5] == ".json" }
-        .map{|filename| JSON.parse(IO.read("#{itemsFolderpath()}/#{filename}")) }
-end
-
-def getItems()
-    getItemsWihtoutWave() + [ waveItem() ]
-end
-
-def getTopThreeActiveItems()
-    getItems()
-        .select{|item| 
-            b1 = DoNotShowUntil::isVisible(item["uuid"])
-            b2 = itemIsRunning(item)
-            b1 or b2
-        }
-        .sort{|i1, i2| i1["position"] <=> i2["position"] }
-        .first(3)
-end
-
-def saveItem(item)
-    return if item["uuid"] == waveuuid()
-    uuid = item["uuid"]
-    filepath = "#{itemsFolderpath()}/#{uuid}.json"
-    File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-end
-
-def getItemByUUIDOrNull(uuid)
-    if uuid == waveuuid() then
-        return waveItem()
+        filename = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{InFlightControlSystem::timeStringL22()}.json"
+        File.open(filename, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
-    filepath = "#{itemsFolderpath()}/#{uuid}.json"
-    return nil if !File.exists?(filepath)
-    JSON.parse(IO.read(filepath))
-end
 
-def getItemByBasenameOrNull(basename)
-    Dir.entries(itemsFolderpath())
-        .select{|filename| filename[-5, 5] == ".json" }
-        .map{|filename| JSON.parse(IO.read("#{itemsFolderpath()}/#{filename}")) }
-        .select{|item| item["lucilleLocationBasename"] == basename }
-        .first
-end
-
-def destroyItem(uuid)
-    return if uuid == waveuuid()
-    stopItem(uuid)
-    filepath = "#{itemsFolderpath()}/#{uuid}.json"
-    FileUtils.rm(filepath)
-end
-
-# ---------------
-# Time Points
-
-def timePointsKeyPrefix()
-    s1 = "72a74d9f-a3df-4ec3-b6b2-e6aeb197119e"
-    s2 = getTopThreeActiveItems()
-        .map{|item| item["uuid"] }
-        .sort
-        .join(";")
-    [s1, s2].join(";;")
-end
-
-def getItemTimePoints(uuid)
-    timepoints = KeyValueStore::getOrDefaultValue(nil, "#{timePointsKeyPrefix()}:#{uuid}", "[]")
-    JSON.parse(timepoints)
-end
-
-def saveItemTimepoints(uuid, timepoints)
-    KeyValueStore::set(nil, "#{timePointsKeyPrefix()}:#{uuid}", JSON.generate(timepoints))
-end
-
-# ---------------
-# Run Management
-
-def setStartUnixtime(uuid, unixtime)
-    KeyValueStore::set(nil, "47d2c99f-cbcc-410a-b3c5-faa681571c7b:#{uuid}", unixtime)
-end
-
-def unsetStartUnixtime(uuid)
-    KeyValueStore::destroy(nil, "47d2c99f-cbcc-410a-b3c5-faa681571c7b:#{uuid}")
-end
-
-def getStartUnixtimeOrNull(uuid)
-    unixtime = KeyValueStore::getOrNull(nil, "47d2c99f-cbcc-410a-b3c5-faa681571c7b:#{uuid}")
-    return nil if unixtime.nil?
-    unixtime.to_i
-end
-
-def startItem(uuid)
-    return if !getStartUnixtimeOrNull(uuid).nil?
-    setStartUnixtime(uuid, Time.new.to_i)
-end
-
-def stopItem(uuid)
-    return if getStartUnixtimeOrNull(uuid).nil?
-    timespan = [Time.new.to_i - getStartUnixtimeOrNull(uuid), 3600*2].min
-        # We prevent time spans greater than 2 hours,
-        # to avoid what happened when I left Wave running an entire night.
-    timepoints = getItemTimePoints(uuid)
-    timepoints << {
-        "unixtime" => Time.new.to_i,
-        "timespan" => timespan
-    } 
-    saveItemTimepoints(uuid, timepoints)
-    unsetStartUnixtime(uuid)
-end
-
-def itemIsRunning(item)
-    !getStartUnixtimeOrNull(item["uuid"]).nil?
-end
-
-# ---------------
-# Operations
-
-def itemIsTopActiveItem(uuid)
-    getTopThreeActiveItems().any?{|i| i["uuid"] == uuid }
-end
-
-def getItemLiveTimespan(uuid)
-    unixtime = getStartUnixtimeOrNull(uuid)
-    x1 = 0
-    if unixtime then
-        x1 = Time.new.to_i - unixtime
+    # Presents the current priority list of the caller and let them enter a number that is then returned
+    # InFlightControlSystem::interactiveChoiceOfPosition()
+    def self.interactiveChoiceOfPosition() # Float
+        puts "Items"
+        InFlightControlSystem::itemsOrderedByPosition()
+            .each{|item|
+                puts "    - #{item["position"]} #{item["description"]}"
+            }
+        position = LucilleCore::askQuestionAnswerAsString("position (must be at least 1): ").to_f
+        if position < 1 then
+            return InFlightControlSystem::interactiveChoiceOfPosition()
+        end
+        position
     end
-    x1 + getItemTimePoints(uuid).map{|point| point["timespan"] }.inject(0, :+)
-end
 
-def getItemLiveTimespanTopItemsDifferentialInHoursOrNull(uuid)
-    timespan = getItemLiveTimespan(uuid)
-    differentTimespans = getTopThreeActiveItems()
-                            .select{|item| item["uuid"] != uuid }
-                            .map {|item| getItemLiveTimespan(item["uuid"]) }
-    return nil if differentTimespans.empty?
-    (timespan - differentTimespans.min).to_f/3600
-end
+    # InFlightControlSystem::isTopThree(targetuuid)
+    def self.isTopThree(targetuuid) # Boolean
+        InFlightControlSystem::itemsOrderedByPosition()
+            .first(3)
+            .any?{|item| item["targetuuid"] == targetuuid }
+    end
 
-def getTopActiveItemsOrderedByTimespan()
-    getTopThreeActiveItems().sort{|i1, i2| getItemLiveTimespan(i1["uuid"]) <=> getItemLiveTimespan(i2["uuid"]) }
-end
+    # InFlightControlSystem::isMostLate(targetuuid)
+    def self.isMostLate(targetuuid) # Boolean
+        return false if !InFlightControlSystem::isTopThree(targetuuid)
+        return false if InFlightControlSystem::mostLateDifferentialInSecondsOrNull(targetuuid) > 0
+        true
+    end
 
-def itemsOrderedByPosition()
-    getItems().sort{|i1, i2| i1["position"] <=> i2["position"] }
-end
+    # InFlightControlSystem::newItemInteractive(targetuuid, description)
+    def self.newItemInteractive(targetuuid, description)
+        position = InFlightControlSystem::interactiveChoiceOfPosition()
+        InFlightControlSystem::newItem(targetuuid, description, position)
+    end
 
-# ---------------
-# User Interface
+    # InFlightControlSystem::isRegistered(targetuuid)
+    def self.isRegistered(targetuuid) # Boolean
+        InFlightControlSystem::itemsOrderedByPosition()
+            .any?{|item| item["targetuuid"] == targetuuid }
+    end
 
-def getItemDescription(item)
-    return "Lucille Deep Dive" if (item["uuid"] == waveuuid())
-    descriptionKeySuffix = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}" # We cannot migrate this string as we would lose the descriptions
-    KeyValueStore::getOrNull(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{descriptionKeySuffix}") || "[unkown description]"
-end
+    # InFlightControlSystem::isRunning(targetuuid)
+    def self.isRunning(targetuuid)
+        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+        !unixtime.nil?
+    end
 
-def onScreenNotification(title, message)
-    title = title.gsub("'","")
-    message = message.gsub("'","")
-    message = message.gsub("[","|")
-    message = message.gsub("]","|")
-    command = "terminal-notifier -title '#{title}' -message '#{message}'"
-    system(command)
-end
+    # InFlightControlSystem::start(targetuuid)
+    def self.start(targetuuid)
+        return if InFlightControlSystem::isRunning(targetuuid)
+        KeyValueStore::set(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}", Time.new.to_i)
+    end
 
-def itemDive(item)
-    loop {
-        puts JSON.pretty_generate(item)
-        oxs = [ 
-            "start", 
-            "stop",
-            "set description",
-            "set position",
-            (item["uuid"] != waveuuid()) ? "destroy" : nil
-        ].compact
-        ox = LucilleCore::selectEntityFromListOfEntitiesOrNull("ifcs", oxs)
-        return if ox.nil?
-        if ox == "start" then
-            startItem(item["uuid"])
-        end
-        if ox == "stop" then
-            stopItem(item["uuid"])
-        end
-        if ox == "set description" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            descriptionKeySuffix = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{item["lucilleLocationBasename"]}" # We cannot migrate this string as we would lose the descriptions
-            KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{descriptionKeySuffix}", description)
-        end
-        if ox == "set position" then
-            item["position"] = LucilleCore::askQuestionAnswerAsString("position: ").to_f
-            saveItem(item)
-        end
-        if ox == "destroy" then
-            uuid = item["uuid"]
-            destroyItem(uuid)
-            return
-        end
-    }
+    # InFlightControlSystem::stop(targetuuid)
+    def self.stop(targetuuid) # Float or Null # latter if it wasn't running.
+        return if !InFlightControlSystem::isRunning(targetuuid)
+        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}").to_i
+        KeyValueStore::destroy(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+        timespan = Time.new.to_i - unixtime
+        Mercury::postValue("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}", timespan)
+    end
+
+    # InFlightControlSystem::runTimeInSecondsOrNull(targetuuid)
+    def self.runTimeInSecondsOrNull(targetuuid)
+        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+        return nil if unixtime.nil?
+        Time.new.to_i - unixtime.to_i
+    end
+
+    # null if not registered or not top three
+    # InFlightControlSystem::mostLateDifferentialInSecondsOrNull(targetuuid)
+    def self.mostLateDifferentialInSecondsOrNull(targetuuid)
+        # First, we get the top three
+        topThree = InFlightControlSystem::itemsOrderedByPosition()
+            .first(3)
+        return nil if topThree.none?{|item| item["targetuuid"] == targetuuid }
+        theFocus    = topThree.select{|item| item["targetuuid"] == targetuuid }
+        theOtherTwo = topThree.reject{|item| item["targetuuid"] == targetuuid }
+        return nil if theOtherTwo.empty?
+        InFlightControlSystem::targetLiveTotalTimespan(theFocus) - theOtherTwo.map{|item| InFlightControlSystem::targetLiveTotalTimespan(item) }.min
+    end
+
+    # InFlightControlSystem::metricOrNull(targetuuid)
+    def self.metricOrNull(targetuuid)
+        return 1 if InFlightControlSystem::isRunning(targetuuid)
+        return nil if !InFlightControlSystem::isTopThree(targetuuid)
+        InFlightControlSystem::isMostLate(targetuuid) ? 0.75 : 0.30 # See Catalyst Metrics
+    end
+
 end

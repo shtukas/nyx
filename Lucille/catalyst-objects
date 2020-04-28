@@ -61,27 +61,33 @@ end
 def makeContentItem(location, timeline)
     # We have the two special timelines [Inbox] and [Infinity]
     timelinefragment = timeline[0, 1] == "[" ? timeline : "(#{timeline})"
+    isifcs = InFlightControlSystem::isRegistered(location)
+    isifcsAsString = isifcs ? " [ifcs]" : ""
+    runTime = InFlightControlSystem::runTimeInSecondsOrNull(location)
+    runTimeAsString = runTime ? " (running for #{runTime.to_s} seconds)" : "" 
     if location[-4, 4] == ".txt" then
         return {
             "type" => "line-and-body",
-            "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}",
-            "body" => "[lucille] #{timelinefragment} #{(IO.read(location).strip.lines.to_a.size > 1 ? "\n" : "")}#{IO.read(location).strip}"
+            "line" => "[lucille]#{isifcsAsString}#{runTimeAsString} #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}",
+            "body" => "[lucille]#{isifcsAsString}#{runTimeAsString} #{timelinefragment} #{(IO.read(location).strip.lines.to_a.size > 1 ? "\n" : "")}#{IO.read(location).strip}"
         }
     end
     {
         "type" => "line",
-        "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}"
+        "line" => "[lucille] #{timelinefragment}#{runTimeAsString} #{LucilleThisCore::getBestDescription(location)}"
     }
 end
 
-def makeMetric(metricHelper, isRunning, timeline)
+def makeMetric(location, metricHelper, isRunning, timeline)
+    metric = InFlightControlSystem::metricOrNull(location)
+    return metric if metric
     if isRunning then
         return 1
     end
     if timeline == "[Inbox]" then
-        return metricHelper.metric(0.76) # Lucille 'Inbox'
+        return metricHelper.metric(0.72) # Lucille 'Inbox'
     end
-    metricHelper.metric(0.4) # Lucille (timelines)
+    metricHelper.metric(0.4) # Lucille (cluster)
 end
 
 def makeCommands(timeline)
@@ -116,11 +122,11 @@ objects = displayLocations
             .map{|location|
                 timeline = LucilleThisCore::getLocationTimeline(location)
                 uuid = Digest::SHA1.hexdigest(location)
-                isRunning = LXRunManagement::locationIsRunning(location)
+                isRunning = InFlightControlSystem::isRunning(location)
                 {
                     "uuid"            => uuid,
                     "contentItem"     => makeContentItem(location, timeline),
-                    "metric"          => makeMetric(metricHelper, isRunning, timeline),
+                    "metric"          => makeMetric(location, metricHelper, isRunning, timeline),
                     "commands"        => makeCommands(timeline),
                     "isRunning"       => isRunning,
                     "defaultCommand"  => makeDefaultCommand(location, isRunning, timeline),
@@ -130,11 +136,11 @@ objects = displayLocations
                         "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
                         "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{location}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
-                        ">ifcs"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing ifcs-registration '#{location}'",
                         ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{location}'",
                         "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'",
                         "export-to-desktop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing export-to-desktop '#{location}'",
-                        ">lucille-other" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing merge-with-other-Lucille-location '#{location}'"
+                        ">lucille-other" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing merge-with-other-Lucille-location '#{location}'",
+                        ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing throttle '#{location}'"
                     },
                     "location"        => location
                 }

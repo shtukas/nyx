@@ -24,30 +24,15 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 require_relative "InFlightControlSystem.rb"
 
 # -----------------------------------------------------------------------------
+
 if ARGV[0] == "start" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    startItem(uuid)
+    targetuuid = ARGV[1]
+    exit if targetuuid.nil?
+    InFlightControlSystem::start(targetuuid)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    stopItem(uuid)
-end
-
-if ARGV[0] == "menu" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    exit if uuid == waveuuid()
-    item = getItemByUUIDOrNull(uuid)
-    exit if item.nil?
-    itemDive(item)
-end
-
-if ARGV[0] == "destroy" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    exit if uuid == waveuuid()
-    destroyItem(uuid)
+    targetuuid = ARGV[1]
+    exit if targetuuid.nil?
+    InFlightControlSystem::stop(targetuuid)
 end
