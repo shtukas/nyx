@@ -170,8 +170,7 @@ class InFlightControlSystem
                         item["filepath"] = filepath
                         item
                     }
-                    .sort{|i1, i2| i1["position"] <=> i2["position"] }
-        items1 + items2
+        (items1 + items2).sort{|i1, i2| i1["position"] <=> i2["position"] }
     end
 
     # InFlightControlSystem::isRegistered(targetuid)
@@ -264,21 +263,21 @@ class InFlightControlSystem
         x0 + x1
     end
 
-    # InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectation(targetuid, ordinal)
-    def self.targetuidWithOrdinalTo24HoursTimeExpectation(targetuid, ordinal)
-        6 * (1.to_f / 2**ordinal)
+    # InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
+    def self.targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
+        3600*(6 *(1.to_f / 2**ordinal))
     end
 
-    # InFlightControlSystem::targetWithOrdinalTimeDifferential(targetuid, ordinal)
-    def self.targetWithOrdinalTimeDifferential(targetuid, ordinal)
-        InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid) - InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectation(targetuid, ordinal)
+    # InFlightControlSystem::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
+    def self.targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
+        InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid) - InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
     end
 
-    # InFlightControlSystem::targetTimeDifferentialOrNull(targetuid)
-    def self.targetTimeDifferentialOrNull(targetuid)
+    # InFlightControlSystem::targetTimeDifferentialInSecondsOrNull(targetuid)
+    def self.targetTimeDifferentialInSecondsOrNull(targetuid)
         ordinal = InFlightControlSystem::getCurrentOrdinalForTargetOrNull(targetuid)
         return nil if ordinal.nil?
-        InFlightControlSystem::targetWithOrdinalTimeDifferential(targetuid, ordinal)
+        InFlightControlSystem::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
     end
 
     # InFlightControlSystem::timeDifferentialToMetric(timedifferential)
@@ -295,7 +294,7 @@ class InFlightControlSystem
 
     # InFlightControlSystem::targetToMetricOrNull(targetuid)
     def self.targetToMetricOrNull(targetuid)
-        timedifferential = InFlightControlSystem::targetTimeDifferentialOrNull(targetuid)
+        timedifferential = InFlightControlSystem::targetTimeDifferentialInSecondsOrNull(targetuid)
         return nil if timedifferential
         InFlightControlSystem::timeDifferentialToMetric(timedifferential)
     end

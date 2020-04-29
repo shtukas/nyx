@@ -61,7 +61,7 @@ def itemToCatalystItem(item)
         "uuid"            => targetuid,
         "contentItem"     => {
             "type" => "line",
-            "line" => "[IFCS] #{item["description"]}  (#{(InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid).to_f/3600).round(2)}) [#{(InFlightControlSystem::targetTimeDifferentialOrNull(targetuid).to_f/3600).round(2)}]#{runTimeAsString}"
+            "line" => "[IFCS] #{item["description"]}  (#{(InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid).to_f/3600).round(2)}) [#{(InFlightControlSystem::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)}]#{runTimeAsString}"
         },
         "metric"          => (InFlightControlSystem::targetToMetricOrNull(targetuid) || 2.71828),
         "commands"        => [],
