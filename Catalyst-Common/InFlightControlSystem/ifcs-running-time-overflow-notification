@@ -8,9 +8,9 @@ require_relative "InFlightControlSystem.rb"
 
 InFlightControlSystem::itemsOrderedByPosition()
 .each{|item|
-    next if !InFlightControlSystem::isRunning(item["targetuuid"])
+    next if !InFlightControlSystem::isRunning(item["targetuid"])
     # The item is running
-    next if !InFlightControlSystem::runTimeInSecondsOrNull(item["targetuuid"])
+    next if !InFlightControlSystem::runTimeInSecondsOrNull(item["targetuid"])
     InFlightControlSystem::onScreenNotification("In Flight Control System", "#{item["description"]} is running for more than an hour")
     sleep 1
     exit

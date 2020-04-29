@@ -68,7 +68,7 @@ def makeContentItem(location, timeline)
 end
 
 def makeMetric(location, indx, isRunning, timeline)
-    metric = InFlightControlSystem::metricOrNull(location)
+    metric = InFlightControlSystem::targetToMetricOrNull(location)
     return metric if metric
     if isRunning then
         return 1

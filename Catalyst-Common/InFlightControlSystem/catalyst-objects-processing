@@ -26,13 +26,13 @@ require_relative "InFlightControlSystem.rb"
 # -----------------------------------------------------------------------------
 
 if ARGV[0] == "start" and ARGV[1] then
-    targetuuid = ARGV[1]
-    exit if targetuuid.nil?
-    InFlightControlSystem::start(targetuuid)
+    targetuid = ARGV[1]
+    exit if targetuid.nil?
+    InFlightControlSystem::start(targetuid)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
-    targetuuid = ARGV[1]
-    exit if targetuuid.nil?
-    InFlightControlSystem::stop(targetuuid)
+    targetuid = ARGV[1]
+    exit if targetuid.nil?
+    InFlightControlSystem::stop(targetuid)
 end

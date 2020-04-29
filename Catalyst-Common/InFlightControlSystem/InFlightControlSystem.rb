@@ -58,10 +58,11 @@ require_relative "../Catalyst-Common.rb"
 =begin
 
 {
-    "targetuuid"      : String
-    "description"     : String
-    "position"        : Float
-    "filepath"        : String 
+    "targetuid"   : String
+    "description" : String
+    "position"    : Float
+
+    "filepath"    : String 
         # Automatically computed at retrieval time, helps with the deletion of the item
         # Not set for managed items: dive and ggw items
 }
@@ -69,17 +70,30 @@ require_relative "../Catalyst-Common.rb"
 Special Purpose Items:
 
 {
-  "targetuuid": "8D80531C-E98F-4553-A815-6D3284DE0FF8",
+  "targetuid": "8D80531C-E98F-4553-A815-6D3284DE0FF8",
   "description": "🛩️",
   "position": 0
 }
 
 {
-  "targetuuid": "6705C595-3B8A-437C-B351-9D9304B162AD",
+  "targetuid": "6705C595-3B8A-437C-B351-9D9304B162AD",
   "description": "Guardian General Work",
   "position": 1
 }
 
+
+Time provisioning:
+
+    InFlightControlSystem operates From 9am to 9pm.
+
+    At any point of time 
+        1. We collect the active items (not hidden by DoNotShow)
+        2. Each has an index (starting from zero).
+
+    The time per day we expect from each is
+        6 * (1 / 2^{index})
+
+    The items which are late are shown, those which are not are not shown
 
 =end
 
@@ -105,10 +119,10 @@ class InFlightControlSystem
     end
 
     # Creates a new entry in the tracking repository
-    # InFlightControlSystem::newItem(targetuuid, description, position)
-    def self.newItem(targetuuid, description, position)
+    # InFlightControlSystem::newItem(targetuid, description, position)
+    def self.newItem(targetuid, description, position)
         item = {
-            "targetuuid"      => targetuuid,
+            "targetuid"       => targetuid,
             "description"     => description,
             "position"        => position
         }
@@ -116,42 +130,32 @@ class InFlightControlSystem
         File.open(filename, "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # InFlightControlSystem::newItemInteractive(targetuuid, description)
-    def self.newItemInteractive(targetuuid, description)
+    # InFlightControlSystem::newItemInteractive(targetuid, description)
+    def self.newItemInteractive(targetuid, description)
         position = InFlightControlSystem::interactiveChoiceOfPosition()
-        InFlightControlSystem::newItem(targetuuid, description, position)
+        InFlightControlSystem::newItem(targetuid, description, position)
     end
 
     # -----------------------------------------------------------
     # Querying Items
 
-    # InFlightControlSystem::diveItemTargetUUID()
-    def self.diveItemTargetUUID()
-        "8D80531C-E98F-4553-A815-6D3284DE0FF8"
-    end
-
     # InFlightControlSystem::getDiveItem()
     def self.getDiveItem()
         {
-          "targetuuid"  => InFlightControlSystem::diveItemTargetUUID(),
+          "targetuid"   => "8D80531C-E98F-4553-A815-6D3284DE0FF8",
           "description" => "🛩️",
-          "position"    => 0
+          "position"    => 2
         }
-    end
-
-    # InFlightControlSystem::ggwItemTargetUUID()
-    def self.ggwItemTargetUUID()
-        "6705C595-3B8A-437C-B351-9D9304B162AD"
     end
 
     # InFlightControlSystem::getGGWItem()
     def self.getGGWItem()
         item = {
-          "targetuuid"  => InFlightControlSystem::ggwItemTargetUUID(),
+          "targetuid"   => "6705C595-3B8A-437C-B351-9D9304B162AD",
           "description" => "Guardian General Work",
           "position"    => 1
         }
-        shouldIssueItem = [1, 2, 3, 4, 5].include?(Time.new.wday) and ( Time.new.hour >= 9 and Time.new.hour < 18 )
+        shouldIssueItem = [1, 2, 3, 4, 5].include?(Time.new.wday)
         shouldIssueItem ? item : nil
     end
 
@@ -170,30 +174,20 @@ class InFlightControlSystem
         items1 + items2
     end
 
-    # InFlightControlSystem::isTopThree(targetuuid)
-    def self.isTopThree(targetuuid) # Boolean
+    # InFlightControlSystem::isRegistered(targetuid)
+    def self.isRegistered(targetuid) # Boolean
         InFlightControlSystem::itemsOrderedByPosition()
-            .first(3)
-            .any?{|item| item["targetuuid"] == targetuuid }
+            .any?{|item| item["targetuid"] == targetuid }
     end
 
-    # InFlightControlSystem::isRegistered(targetuuid)
-    def self.isRegistered(targetuuid) # Boolean
+    # InFlightControlSystem::destroyItem(targetuid)
+    def self.destroyItem(targetuid)
         InFlightControlSystem::itemsOrderedByPosition()
-            .any?{|item| item["targetuuid"] == targetuuid }
-    end
-
-    # InFlightControlSystem::destroyItem(targetuuid)
-    def self.destroyItem(targetuuid)
-        InFlightControlSystem::itemsOrderedByPosition()
-            .select{|item| item["targetuuid"] == targetuuid }
+            .select{|item| item["targetuid"] == targetuid }
             .each{|item|
                 FileUtils.rm(item["filepath"])
             }
     end
-
-    # -----------------------------------------------------------
-    # Data Operations
 
     # InFlightControlSystem::getTopThree()
     def self.getTopThree()
@@ -201,104 +195,119 @@ class InFlightControlSystem
             .first(3)
     end
 
-    # InFlightControlSystem::getTopThreeTrace()
-    def self.getTopThreeTrace()
+    # InFlightControlSystem::getAllActiveItemsOrderedWithComputedOrdinal()
+    def self.getAllActiveItemsOrderedWithComputedOrdinal() # Array[ (item: Item, ordinal: Int) ]
+        # Todo: Take account of DoNotShowUntil...
         InFlightControlSystem::itemsOrderedByPosition()
-            .first(3)
-            .map{|item| item["targetuuid"] }
-            .join("/")
+            .map
+            .with_index
+            .to_a
     end
 
-    # InFlightControlSystem::isRunning(targetuuid)
-    def self.isRunning(targetuuid)
-        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+    # InFlightControlSystem::getCurrentOrdinalForTargetOrNull(targetuid)
+    def self.getCurrentOrdinalForTargetOrNull(targetuid)
+        InFlightControlSystem::getAllActiveItemsOrderedWithComputedOrdinal()
+            .select{|pair| pair[0]['targetuid'] == targetuid }
+            .map{|pair| pair[1] }
+            .first
+    end
+
+    # -----------------------------------------------------------
+    # Data Operations
+
+    # InFlightControlSystem::isRunning(targetuid)
+    def self.isRunning(targetuid)
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
         !unixtime.nil?
     end
 
-    # InFlightControlSystem::start(targetuuid)
-    def self.start(targetuuid)
-        return if InFlightControlSystem::isRunning(targetuuid)
-        KeyValueStore::set(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}", Time.new.to_i)
+    # InFlightControlSystem::start(targetuid)
+    def self.start(targetuid)
+        return if InFlightControlSystem::isRunning(targetuid)
+        KeyValueStore::set(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}", Time.new.to_i)
     end
 
-    # InFlightControlSystem::stop(targetuuid)
-    def self.stop(targetuuid) # Float or Null # latter if it wasn't running.
-        return if !InFlightControlSystem::isRunning(targetuuid)
-        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}").to_i
+    # InFlightControlSystem::stop(targetuid)
+    def self.stop(targetuid) # Float or Null # latter if it wasn't running.
+        return if !InFlightControlSystem::isRunning(targetuid)
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}").to_i
         unixtime = unixtime.to_i
-        KeyValueStore::destroy(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
-        timespan = InFlightControlSystem::timeMultiplier(targetuuid)*(Time.new.to_i - unixtime)
+        KeyValueStore::destroy(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
+        timespan = Time.new.to_i - unixtime
         timespan = [timespan, 3600*2].min 
             # To avoid problems after leaving things running 
             # or when we create a new top three item while something was running.
-        Mercury::postValue("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}", timespan)
+        Mercury::postValue("7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuid}", timespan)
     end
 
-    # InFlightControlSystem::runTimeInSecondsOrNull(targetuuid)
-    def self.runTimeInSecondsOrNull(targetuuid)
-        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+    # InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
+    def self.runTimeInSecondsOrNull(targetuid)
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
         return nil if unixtime.nil?
         Time.new.to_i - unixtime.to_i
     end
 
-    # InFlightControlSystem::targetTimePoints(targetuuid)
-    def self.targetTimePoints(targetuuid)
-        Mercury::getAllValues("#{InFlightControlSystem::getTopThreeTrace()}:7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuuid}")
+    # InFlightControlSystem::targetTimePointsLast24Hours(targetuid)
+    def self.targetTimePointsLast24Hours(targetuid)
+        channel = "7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuid}"
+        Mercury::discardFirstElementsToEnforceTimeHorizon(channel, Time.new.to_i - 86400)
+        Mercury::getAllValues(channel)
     end
 
-    # InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
-    def self.targetStoredTotalTimespan(targetuuid)
-        InFlightControlSystem::targetTimePoints(targetuuid).inject(0, :+)
+    # InFlightControlSystem::targetStoredTotalTimespanLast24Hours(targetuid)
+    def self.targetStoredTotalTimespanLast24Hours(targetuid)
+        InFlightControlSystem::targetTimePointsLast24Hours(targetuid).inject(0, :+)
     end
 
-    # InFlightControlSystem::targetLiveTotalTimespan(targetuuid)
-    def self.targetLiveTotalTimespan(targetuuid)
-        x0 = InFlightControlSystem::targetStoredTotalTimespan(targetuuid)
+    # InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid)
+    def self.targetLiveTotalTimespanLast24Hours(targetuid)
+        x0 = InFlightControlSystem::targetStoredTotalTimespanLast24Hours(targetuid)
         x1 = 0
-        unixtime = KeyValueStore::getOrNull(nil, "#{InFlightControlSystem::getTopThreeTrace()}:b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuuid}")
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
         if unixtime then
-            x1 = InFlightControlSystem::timeMultiplier(targetuuid)*(Time.new.to_i - unixtime.to_i)
+            x1 = Time.new.to_i - unixtime.to_i
         end
         x0 + x1
     end
 
-    # InFlightControlSystem::timeMultiplier(targetuuid)
-    def self.timeMultiplier(targetuuid) # Float multiplier applied to recorded timing. This allows gww to have a higher importance
-        return 0.5 if targetuuid == InFlightControlSystem::ggwItemTargetUUID()
-        1
+    # InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectation(targetuid, ordinal)
+    def self.targetuidWithOrdinalTo24HoursTimeExpectation(targetuid, ordinal)
+        6 * (1.to_f / 2**ordinal)
+    end
+
+    # InFlightControlSystem::targetWithOrdinalTimeDifferential(targetuid, ordinal)
+    def self.targetWithOrdinalTimeDifferential(targetuid, ordinal)
+        InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid) - InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectation(targetuid, ordinal)
+    end
+
+    # InFlightControlSystem::targetTimeDifferentialOrNull(targetuid)
+    def self.targetTimeDifferentialOrNull(targetuid)
+        ordinal = InFlightControlSystem::getCurrentOrdinalForTargetOrNull(targetuid)
+        return nil if ordinal.nil?
+        InFlightControlSystem::targetWithOrdinalTimeDifferential(targetuid, ordinal)
+    end
+
+    # InFlightControlSystem::timeDifferentialToMetric(timedifferential)
+    def self.timeDifferentialToMetric(timedifferential)
+        timeInHours = timedifferential.to_f/3600
+        return 0.75 if timeInHours < -1
+        0.75*Math.exp(-timeInHours-1)
+
+        # puts InFlightControlSystem::timeDifferentialToMetric(-3600*2) -> 0.75
+        # puts InFlightControlSystem::timeDifferentialToMetric(-3600)   -> 0.75
+        # puts InFlightControlSystem::timeDifferentialToMetric(-300)    -> 0.29988724075863554
+        # puts InFlightControlSystem::timeDifferentialToMetric(0)       -> 0.27590958087858175
+    end
+
+    # InFlightControlSystem::targetToMetricOrNull(targetuid)
+    def self.targetToMetricOrNull(targetuid)
+        timedifferential = InFlightControlSystem::targetTimeDifferentialOrNull(targetuid)
+        return nil if timedifferential
+        InFlightControlSystem::timeDifferentialToMetric(timedifferential)
     end
 
     # -----------------------------------------------------------
-    # How is that thing doing ?
-
-    # null if not registered or not top three
-    # InFlightControlSystem::differentialInSecondsOrNull(targetuuid)
-    def self.differentialInSecondsOrNull(targetuuid)
-        topThree = InFlightControlSystem::getTopThree()
-        theFocus    = topThree.select{|item| item["targetuuid"] == targetuuid }.first
-        return nil if theFocus.nil?
-        theOthers = topThree.reject{|item| item["targetuuid"] == targetuuid }
-        return nil if theOthers.empty?
-        InFlightControlSystem::targetLiveTotalTimespan(theFocus["targetuuid"]) - theOthers.map{|item| InFlightControlSystem::targetLiveTotalTimespan(item["targetuuid"]) }.min
-    end
-
-    # InFlightControlSystem::isMostLate(targetuuid)
-    def self.isMostLate(targetuuid) # Boolean
-        return false if !InFlightControlSystem::isTopThree(targetuuid)
-        return false if InFlightControlSystem::differentialInSecondsOrNull(targetuuid).nil?
-        InFlightControlSystem::differentialInSecondsOrNull(targetuuid) <= 0
-    end
-
-    # InFlightControlSystem::metricOrNull(targetuuid)
-    def self.metricOrNull(targetuuid) # Null is important, as it indicates to the caller that the targetuuid is not registered and therefore they need to provide their own metric
-        return 1 if InFlightControlSystem::isRunning(targetuuid)
-        return 0.92 if ( (targetuuid == InFlightControlSystem::diveItemTargetUUID()) and !InFlightControlSystem::isRunning(targetuuid) and InFlightControlSystem::isMostLate(targetuuid))
-        if InFlightControlSystem::isTopThree(targetuuid) then
-            return (InFlightControlSystem::isMostLate(targetuuid) ? 0.75 : 0.30)
-        end
-        return 0.25 if InFlightControlSystem::isRegistered(targetuuid)
-        nil
-    end
+    # User Interface
 
     # InFlightControlSystem::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
