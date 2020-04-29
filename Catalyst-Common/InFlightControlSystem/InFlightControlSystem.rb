@@ -294,23 +294,24 @@ class IFCS
         IFCS::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
     end
 
-    # IFCS::timeDifferentialToMetric(timedifferential)
-    def self.timeDifferentialToMetric(timedifferential)
+    # IFCS::timeDifferentialToMetric(targetuid, timedifferential)
+    def self.timeDifferentialToMetric(targetuid, timedifferential)
+        return 1 if InFlightControlSystem::isRunning(targetuid)
         timeInHours = timedifferential.to_f/3600
         return (0.75 + Math.atan(-timeInHours).to_f/1000) if timeInHours < -1
         0.75*Math.exp(-timeInHours-1)
 
-        # puts IFCS::timeDifferentialToMetric(-3600*2) -> 0.75
-        # puts IFCS::timeDifferentialToMetric(-3600)   -> 0.75
-        # puts IFCS::timeDifferentialToMetric(-300)    -> 0.29988724075863554
-        # puts IFCS::timeDifferentialToMetric(0)       -> 0.27590958087858175
+        # -3600*2 -> 0.75
+        # -3600   -> 0.75
+        # -300    -> 0.29988724075863554
+        #  0      -> 0.27590958087858175
     end
 
     # IFCS::targetToMetricOrNull(targetuid)
     def self.targetToMetricOrNull(targetuid)
         timedifferential = IFCS::targetTimeDifferentialInSecondsOrNull(targetuid)
         return nil if timedifferential.nil?
-        IFCS::timeDifferentialToMetric(timedifferential)
+        IFCS::timeDifferentialToMetric(targetuid, timedifferential)
     end
 
     # -----------------------------------------------------------

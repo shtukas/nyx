@@ -41,7 +41,10 @@ class NSXCatalystObjectsOperator
 
         objects = objects
             .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+            .sort{|o1, o2| 
+                puts o1
+                puts o2
+                o1["metric"]<=>o2["metric"] }
             .reverse
 
         objects = objects
