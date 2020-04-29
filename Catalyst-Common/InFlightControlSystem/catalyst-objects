@@ -68,8 +68,8 @@ def itemToCatalystItem(item)
         "isRunning"       => InFlightControlSystem::isRunning(targetuid),
         "defaultCommand"  => isRunning ? "stop" : "start",
         "shell-redirects" => {
-            "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{targetuid}'",
-            "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{targetuid}'",
+            "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst-Common/InFlightControlSystem/catalyst-objects-processing start '#{targetuid}'",
+            "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst-Common/InFlightControlSystem/catalyst-objects-processing stop '#{targetuid}'",
         },
         "item" => item
     }
