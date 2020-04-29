@@ -51,19 +51,16 @@ LucilleThisCore::ensureStandardFilenames()
 def makeContentItem(location, timeline)
     # We have the two special timelines [Inbox] and [Infinity]
     timelinefragment = timeline[0, 1] == "[" ? timeline : "(#{timeline})"
-    isifcsAsString = InFlightControlSystem::isRegistered(location) ? " [#{"ifcs".yellow}]" : ""
-    runTime = InFlightControlSystem::runTimeInSecondsOrNull(location)
-    runTimeAsString = runTime ? " (running for #{runTime.to_s} seconds)" : "" 
     if location[-4, 4] == ".txt" then
         return {
             "type" => "line-and-body",
-            "line" => "[lucille]#{isifcsAsString}#{runTimeAsString} #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}",
-            "body" => "[lucille]#{isifcsAsString}#{runTimeAsString} #{timelinefragment} #{(IO.read(location).strip.lines.to_a.size > 1 ? "\n" : "")}#{IO.read(location).strip}"
+            "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}",
+            "body" => "[lucille] #{timelinefragment} #{(IO.read(location).strip.lines.to_a.size > 1 ? "\n" : "")}#{IO.read(location).strip}"
         }
     end
     {
         "type" => "line",
-        "line" => "[lucille]#{isifcsAsString}#{runTimeAsString} #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}"
+        "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}"
     }
 end
 

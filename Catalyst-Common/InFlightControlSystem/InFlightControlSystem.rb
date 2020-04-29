@@ -1,4 +1,3 @@
-# encoding: UTF-8
 
 # require_relative "../Catalyst-Common/InFlightControlSystem/InFlightControlSystem.rb"
 
@@ -132,18 +131,6 @@ class InFlightControlSystem
         IFCS::newItem(targetuid, description, position)
     end
 
-    # InFlightControlSystem::catalistItemIFCSTransmutation(targetuid, object)
-    def self.catalistItemIFCSTransmutation(targetuid, object)
-        # This function helps clients of IFCS to implement the logic around overriding the metric 
-        # if that items was registered in IFCS.
-        return object if !InFlightControlSystem::isRegistered(targetuid)
-        # The object is registered. We first need to override the metric
-        object["metric"] = (IFCS::targetToMetricOrNull(targetuid) || 2.718)
-        object["contentItem"]["line"] = "[ifcs #{(IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)}] #{object["contentItem"]["line"]}"
-        object["isRunning"] = InFlightControlSystem::isRunning(targetuid)
-        object
-    end
-
     # InFlightControlSystem::isRunning(targetuid)
     def self.isRunning(targetuid)
         unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
@@ -161,6 +148,30 @@ class InFlightControlSystem
         unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
         return nil if unixtime.nil?
         Time.new.to_i - unixtime.to_i
+    end
+
+    # InFlightControlSystem::catalistItemIFCSTransmutation(targetuid, object)
+    def self.catalistItemIFCSTransmutation(targetuid, object)
+        # This function helps clients of IFCS to implement the logic around overriding the metric 
+        # if that items was registered in IFCS.
+        return object if !InFlightControlSystem::isRegistered(targetuid)
+        # The object is registered. We first need to override the metric
+
+
+        timeDifferentialAsString = (IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)
+        runTime = InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
+        runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
+
+        if object["contentItem"]["type"] == "line" then
+            object["contentItem"]["line"] = "[ifcs #{timeDifferentialAsString}#{runTimeAsString}] #{object["contentItem"]["line"]}"
+        end
+        if object["contentItem"]["type"] == "line-and-body" then
+            object["contentItem"]["line"] = "[ifcs #{timeDifferentialAsString}#{runTimeAsString}] #{object["contentItem"]["line"]}"
+            object["contentItem"]["body"] = "[ifcs #{timeDifferentialAsString}#{runTimeAsString}]\n#{object["contentItem"]["body"]}"
+        end
+        object["metric"] = (IFCS::targetToMetricOrNull(targetuid) || 2.718)
+        object["isRunning"] = InFlightControlSystem::isRunning(targetuid)
+        object
     end
 end
 
