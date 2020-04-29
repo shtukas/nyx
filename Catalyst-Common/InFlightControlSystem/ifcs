@@ -45,7 +45,17 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
+toString = lambda{|item| 
+    targetuid = item["targetuid"]
+    timeDifferentialAsString = (IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)
+    runTime = InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
+    runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
+    ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
+    expectation = IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
+    "position: #{"%6.3f" % item["position"]} | ordinal: #{ordinal} | expectation: #{"%6.3f" % (expectation.to_f/3600)} hours | #{item["description"]} (#{timeDifferentialAsString})#{runTimeAsString}" 
+}
+
 puts "Select item to start"
-item = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("item", IFCS::itemsOrderedByPosition(), lambda{|item| item["description"] })
+item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", IFCS::itemsOrderedByPosition(), toString)
 exit if item.nil?
 InFlightControlSystem::start(item["targetuid"])

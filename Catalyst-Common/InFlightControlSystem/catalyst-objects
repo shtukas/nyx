@@ -45,7 +45,7 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-if Time.new.hour < 9 or Time.new.hour >= 21 then
+if !IFCS::isOperating() then
     puts "[]"
     exit
 end

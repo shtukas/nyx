@@ -182,6 +182,16 @@ class IFCS
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
+    # IFCS::isOperating()
+    def self.isOperating()
+        Time.new.hour >= 9 and Time.new.hour < 21
+    end
+
+    # IFCS::operatingTimespanInHours()
+    def self.operatingTimespanInHours()
+        12
+    end
+
     # -----------------------------------------------------------
     # Making
 
@@ -254,6 +264,9 @@ class IFCS
             .to_a
     end
 
+    # -----------------------------------------------------------
+    # Data Operations
+
     # IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
     def self.getCurrentOrdinalForTargetOrNull(targetuid)
         IFCS::getAllActiveItemsOrderedWithComputedOrdinal()
@@ -261,9 +274,6 @@ class IFCS
             .map{|pair| pair[1] }
             .first
     end
-
-    # -----------------------------------------------------------
-    # Data Operations
 
     # IFCS::targetTimePointsLast24Hours(targetuid)
     def self.targetTimePointsLast24Hours(targetuid)
@@ -290,7 +300,7 @@ class IFCS
 
     # IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
     def self.targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
-        3600*(6 *(1.to_f / 2**ordinal))
+        3600 * IFCS::operatingTimespanInHours() * (1.to_f / 2**(ordinal+1))
     end
 
     # IFCS::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
