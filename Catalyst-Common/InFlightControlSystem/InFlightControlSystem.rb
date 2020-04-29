@@ -189,12 +189,6 @@ class InFlightControlSystem
             }
     end
 
-    # InFlightControlSystem::getTopThree()
-    def self.getTopThree()
-        InFlightControlSystem::itemsOrderedByPosition()
-            .first(3)
-    end
-
     # InFlightControlSystem::getAllActiveItemsOrderedWithComputedOrdinal()
     def self.getAllActiveItemsOrderedWithComputedOrdinal() # Array[ (item: Item, ordinal: Int) ]
         # Todo: Take account of DoNotShowUntil...
