@@ -46,6 +46,6 @@ require_relative "InFlightControlSystem.rb"
 # -------------------------------------------------------------------------
 
 puts "Select item to start"
-item = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("item", InFlightControlSystem::itemsOrderedByPosition(), lambda{|item| item["description"] })
+item = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("item", IFCS::itemsOrderedByPosition(), lambda{|item| item["description"] })
 exit if item.nil?
 InFlightControlSystem::start(item["targetuid"])

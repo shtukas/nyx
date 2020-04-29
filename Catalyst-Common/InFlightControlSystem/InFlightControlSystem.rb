@@ -98,122 +98,6 @@ Time provisioning:
 =end
 
 class InFlightControlSystem
-
-    # InFlightControlSystem::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
-    # -----------------------------------------------------------
-    # Making
-
-    # Presents the current priority list of the caller and let them enter a number that is then returned
-    # InFlightControlSystem::interactiveChoiceOfPosition()
-    def self.interactiveChoiceOfPosition() # Float
-        puts "Items"
-        InFlightControlSystem::itemsOrderedByPosition()
-            .each{|item|
-                puts "    - #{item["position"]} #{item["description"]}"
-            }
-        LucilleCore::askQuestionAnswerAsString("position: ").to_f
-    end
-
-    # Creates a new entry in the tracking repository
-    # InFlightControlSystem::newItem(targetuid, description, position)
-    def self.newItem(targetuid, description, position)
-        item = {
-            "targetuid"       => targetuid,
-            "description"     => description,
-            "position"        => position
-        }
-        filename = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{InFlightControlSystem::timeStringL22()}.json"
-        File.open(filename, "w"){|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # InFlightControlSystem::newItemInteractive(targetuid, description)
-    def self.newItemInteractive(targetuid, description)
-        position = InFlightControlSystem::interactiveChoiceOfPosition()
-        InFlightControlSystem::newItem(targetuid, description, position)
-    end
-
-    # -----------------------------------------------------------
-    # Querying Items
-
-    # InFlightControlSystem::getDiveItem()
-    def self.getDiveItem()
-        {
-          "targetuid"   => "8D80531C-E98F-4553-A815-6D3284DE0FF8",
-          "description" => "🛩️",
-          "position"    => 2
-        }
-    end
-
-    # InFlightControlSystem::getGGWItem()
-    def self.getGGWItem()
-        item = {
-          "targetuid"   => "6705C595-3B8A-437C-B351-9D9304B162AD",
-          "description" => "Guardian General Work",
-          "position"    => 1
-        }
-        shouldIssueItem = [1, 2, 3, 4, 5].include?(Time.new.wday)
-        shouldIssueItem ? item : nil
-    end
-
-    # InFlightControlSystem::itemsOrderedByPosition()
-    def self.itemsOrderedByPosition()
-        items1 = [ InFlightControlSystem::getDiveItem(), InFlightControlSystem::getGGWItem() ].compact
-        items2 = Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
-                    .select{|filename| filename[-5, 5] == ".json" }
-                    .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
-                    .map{|filepath| 
-                        item = JSON.parse(IO.read(filepath))
-                        item["filepath"] = filepath
-                        item
-                    }
-        (items1 + items2).sort{|i1, i2| i1["position"] <=> i2["position"] }
-    end
-
-    # InFlightControlSystem::isRegistered(targetuid)
-    def self.isRegistered(targetuid) # Boolean
-        InFlightControlSystem::itemsOrderedByPosition()
-            .any?{|item| item["targetuid"] == targetuid }
-    end
-
-    # InFlightControlSystem::destroyItem(targetuid)
-    def self.destroyItem(targetuid)
-        InFlightControlSystem::itemsOrderedByPosition()
-            .select{|item| item["targetuid"] == targetuid }
-            .each{|item|
-                FileUtils.rm(item["filepath"])
-            }
-    end
-
-    # InFlightControlSystem::getAllActiveItemsOrderedWithComputedOrdinal()
-    def self.getAllActiveItemsOrderedWithComputedOrdinal() # Array[ (item: Item, ordinal: Int) ]
-        # Todo: Take account of DoNotShowUntil...
-        InFlightControlSystem::itemsOrderedByPosition()
-            .map
-            .with_index
-            .to_a
-    end
-
-    # InFlightControlSystem::getCurrentOrdinalForTargetOrNull(targetuid)
-    def self.getCurrentOrdinalForTargetOrNull(targetuid)
-        InFlightControlSystem::getAllActiveItemsOrderedWithComputedOrdinal()
-            .select{|pair| pair[0]['targetuid'] == targetuid }
-            .map{|pair| pair[1] }
-            .first
-    end
-
-    # -----------------------------------------------------------
-    # Data Operations
-
-    # InFlightControlSystem::isRunning(targetuid)
-    def self.isRunning(targetuid)
-        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
-        !unixtime.nil?
-    end
-
     # InFlightControlSystem::start(targetuid)
     def self.start(targetuid)
         return if InFlightControlSystem::isRunning(targetuid)
@@ -233,28 +117,158 @@ class InFlightControlSystem
         Mercury::postValue("7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuid}", timespan)
     end
 
+    # InFlightControlSystem::destroyItem(targetuid)
+    def self.destroyItem(targetuid)
+        IFCS::itemsOrderedByPosition()
+            .select{|item| item["targetuid"] == targetuid }
+            .each{|item|
+                FileUtils.rm(item["filepath"])
+            }
+    end
+
+    # InFlightControlSystem::newItemInteractive(targetuid, description)
+    def self.newItemInteractive(targetuid, description)
+        position = IFCS::interactiveChoiceOfPosition()
+        IFCS::newItem(targetuid, description, position)
+    end
+
+    # InFlightControlSystem::catalistItemIFCSTransmutation(targetuid, object)
+    def self.catalistItemIFCSTransmutation(targetuid, object)
+        # This function helps clients of IFCS to implement the logic around overriding the metric 
+        # if that items was registered in IFCS.
+        return object if !InFlightControlSystem::isRegistered(targetuid)
+        # The object is registered. We first need to override the metric
+        object["metric"] = (IFCS::targetToMetricOrNull(targetuid) || 2.718)
+        object["contentItem"]["line"] = "[ifcs #{(IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)}] #{object["contentItem"]["line"]}"
+        object["isRunning"] = InFlightControlSystem::isRunning(targetuid)
+        object
+    end
+
+    # InFlightControlSystem::isRunning(targetuid)
+    def self.isRunning(targetuid)
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
+        !unixtime.nil?
+    end
+
+    # InFlightControlSystem::isRegistered(targetuid)
+    def self.isRegistered(targetuid) # Boolean
+        IFCS::itemsOrderedByPosition()
+            .any?{|item| item["targetuid"] == targetuid }
+    end
+
     # InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
     def self.runTimeInSecondsOrNull(targetuid)
         unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
         return nil if unixtime.nil?
         Time.new.to_i - unixtime.to_i
     end
+end
 
-    # InFlightControlSystem::targetTimePointsLast24Hours(targetuid)
+class IFCS
+
+    # IFCS::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # -----------------------------------------------------------
+    # Making
+
+    # Presents the current priority list of the caller and let them enter a number that is then returned
+    # IFCS::interactiveChoiceOfPosition()
+    def self.interactiveChoiceOfPosition() # Float
+        puts "Items"
+        IFCS::itemsOrderedByPosition()
+            .each{|item|
+                puts "    - #{item["position"]} #{item["description"]}"
+            }
+        LucilleCore::askQuestionAnswerAsString("position: ").to_f
+    end
+
+    # Creates a new entry in the tracking repository
+    # IFCS::newItem(targetuid, description, position)
+    def self.newItem(targetuid, description, position)
+        item = {
+            "targetuid"       => targetuid,
+            "description"     => description,
+            "position"        => position
+        }
+        filename = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{IFCS::timeStringL22()}.json"
+        File.open(filename, "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # -----------------------------------------------------------
+    # Querying Items
+
+    # IFCS::getDiveItem()
+    def self.getDiveItem()
+        {
+          "targetuid"   => "8D80531C-E98F-4553-A815-6D3284DE0FF8",
+          "description" => "🛩️",
+          "position"    => 2
+        }
+    end
+
+    # IFCS::getGGWItem()
+    def self.getGGWItem()
+        item = {
+          "targetuid"   => "6705C595-3B8A-437C-B351-9D9304B162AD",
+          "description" => "Guardian General Work",
+          "position"    => 1
+        }
+        shouldIssueItem = [1, 2, 3, 4, 5].include?(Time.new.wday)
+        shouldIssueItem ? item : nil
+    end
+
+    # IFCS::itemsOrderedByPosition()
+    def self.itemsOrderedByPosition()
+        items1 = [ IFCS::getDiveItem(), IFCS::getGGWItem() ].compact
+        items2 = Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem")
+                    .select{|filename| filename[-5, 5] == ".json" }
+                    .map{|filename| "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/#{filename}" }
+                    .map{|filepath| 
+                        item = JSON.parse(IO.read(filepath))
+                        item["filepath"] = filepath
+                        item
+                    }
+        (items1 + items2).sort{|i1, i2| i1["position"] <=> i2["position"] }
+    end
+
+    # IFCS::getAllActiveItemsOrderedWithComputedOrdinal()
+    def self.getAllActiveItemsOrderedWithComputedOrdinal() # Array[ (item: Item, ordinal: Int) ]
+        # Todo: Take account of DoNotShowUntil...
+        IFCS::itemsOrderedByPosition()
+            .map
+            .with_index
+            .to_a
+    end
+
+    # IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
+    def self.getCurrentOrdinalForTargetOrNull(targetuid)
+        IFCS::getAllActiveItemsOrderedWithComputedOrdinal()
+            .select{|pair| pair[0]['targetuid'] == targetuid }
+            .map{|pair| pair[1] }
+            .first
+    end
+
+    # -----------------------------------------------------------
+    # Data Operations
+
+    # IFCS::targetTimePointsLast24Hours(targetuid)
     def self.targetTimePointsLast24Hours(targetuid)
         channel = "7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuid}"
         Mercury::discardFirstElementsToEnforceTimeHorizon(channel, Time.new.to_i - 86400)
         Mercury::getAllValues(channel)
     end
 
-    # InFlightControlSystem::targetStoredTotalTimespanLast24Hours(targetuid)
+    # IFCS::targetStoredTotalTimespanLast24Hours(targetuid)
     def self.targetStoredTotalTimespanLast24Hours(targetuid)
-        InFlightControlSystem::targetTimePointsLast24Hours(targetuid).inject(0, :+)
+        IFCS::targetTimePointsLast24Hours(targetuid).inject(0, :+)
     end
 
-    # InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid)
+    # IFCS::targetLiveTotalTimespanLast24Hours(targetuid)
     def self.targetLiveTotalTimespanLast24Hours(targetuid)
-        x0 = InFlightControlSystem::targetStoredTotalTimespanLast24Hours(targetuid)
+        x0 = IFCS::targetStoredTotalTimespanLast24Hours(targetuid)
         x1 = 0
         unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
         if unixtime then
@@ -263,46 +277,46 @@ class InFlightControlSystem
         x0 + x1
     end
 
-    # InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
+    # IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
     def self.targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
         3600*(6 *(1.to_f / 2**ordinal))
     end
 
-    # InFlightControlSystem::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
+    # IFCS::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
     def self.targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
-        InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid) - InFlightControlSystem::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
+        IFCS::targetLiveTotalTimespanLast24Hours(targetuid) - IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
     end
 
-    # InFlightControlSystem::targetTimeDifferentialInSecondsOrNull(targetuid)
+    # IFCS::targetTimeDifferentialInSecondsOrNull(targetuid)
     def self.targetTimeDifferentialInSecondsOrNull(targetuid)
-        ordinal = InFlightControlSystem::getCurrentOrdinalForTargetOrNull(targetuid)
+        ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
         return nil if ordinal.nil?
-        InFlightControlSystem::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
+        IFCS::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
     end
 
-    # InFlightControlSystem::timeDifferentialToMetric(timedifferential)
+    # IFCS::timeDifferentialToMetric(timedifferential)
     def self.timeDifferentialToMetric(timedifferential)
         timeInHours = timedifferential.to_f/3600
-        return 0.75 if timeInHours < -1
+        return (0.75 + Math.atan(-timeInHours).to_f/1000) if timeInHours < -1
         0.75*Math.exp(-timeInHours-1)
 
-        # puts InFlightControlSystem::timeDifferentialToMetric(-3600*2) -> 0.75
-        # puts InFlightControlSystem::timeDifferentialToMetric(-3600)   -> 0.75
-        # puts InFlightControlSystem::timeDifferentialToMetric(-300)    -> 0.29988724075863554
-        # puts InFlightControlSystem::timeDifferentialToMetric(0)       -> 0.27590958087858175
+        # puts IFCS::timeDifferentialToMetric(-3600*2) -> 0.75
+        # puts IFCS::timeDifferentialToMetric(-3600)   -> 0.75
+        # puts IFCS::timeDifferentialToMetric(-300)    -> 0.29988724075863554
+        # puts IFCS::timeDifferentialToMetric(0)       -> 0.27590958087858175
     end
 
-    # InFlightControlSystem::targetToMetricOrNull(targetuid)
+    # IFCS::targetToMetricOrNull(targetuid)
     def self.targetToMetricOrNull(targetuid)
-        timedifferential = InFlightControlSystem::targetTimeDifferentialInSecondsOrNull(targetuid)
+        timedifferential = IFCS::targetTimeDifferentialInSecondsOrNull(targetuid)
         return nil if timedifferential.nil?
-        InFlightControlSystem::timeDifferentialToMetric(timedifferential)
+        IFCS::timeDifferentialToMetric(timedifferential)
     end
 
     # -----------------------------------------------------------
     # User Interface
 
-    # InFlightControlSystem::onScreenNotification(title, message)
+    # IFCS::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")
         message = message.gsub("'","")

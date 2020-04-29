@@ -45,7 +45,7 @@ object = {
     "uuid"           => "EF4A84FB-558E-43FA-B300-D02476783433",
     "contentItem"    => {
         "type" => "line",
-        "line" => "Nyx Review"
+        "line" => "Nyx Review (#{get24HoursSize() - 50})"
     },
     "metric"         => metric,
     "commands"       => [],

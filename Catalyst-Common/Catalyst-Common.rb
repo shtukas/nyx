@@ -70,8 +70,6 @@ class CatalystCommon
                 inputline += c
             end
             inputline = inputline.gsub(/[^[:print:]]/i, '')
-            system("clear")
-            puts "exit with ctrl+d"
             puts "> #{inputline}"
             puts inputToTextDisplay.call(inputline)
             break if shouldStop.call(inputline, c)

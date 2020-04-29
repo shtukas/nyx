@@ -61,9 +61,9 @@ def itemToCatalystItem(item)
         "uuid"            => targetuid,
         "contentItem"     => {
             "type" => "line",
-            "line" => "[IFCS] #{item["description"]}  (#{(InFlightControlSystem::targetLiveTotalTimespanLast24Hours(targetuid).to_f/3600).round(2)}) [#{(InFlightControlSystem::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)}]#{runTimeAsString}"
+            "line" => "[ifcs #{(IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)}] #{item["description"]}#{runTimeAsString}"
         },
-        "metric"          => (InFlightControlSystem::targetToMetricOrNull(targetuid) || 2.71828),
+        "metric"          => (IFCS::targetToMetricOrNull(targetuid) || 2.718),
         "commands"        => [],
         "isRunning"       => InFlightControlSystem::isRunning(targetuid),
         "defaultCommand"  => isRunning ? "stop" : "start",
@@ -75,7 +75,9 @@ def itemToCatalystItem(item)
     }
 end
 
-objects << InFlightControlSystem::itemsOrderedByPosition()
-            .map{|item| itemToCatalystItem(item) }
+objects << [ 
+                IFCS::getDiveItem(), 
+                IFCS::getGGWItem() 
+           ].map{|item| itemToCatalystItem(item) }
 
 puts JSON.generate(objects)
