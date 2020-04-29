@@ -45,7 +45,9 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-if !IFCS::isOperating() then
+items = [ IFCS::getDiveItem(), IFCS::getGGWItem() ]
+
+if !IFCS::isOperating() and items.none?{|item| InFlightControlSystem::isRunning(item["targetuid"]) } then
     puts "[]"
     exit
 end
@@ -75,9 +77,6 @@ def itemToCatalystItem(item)
     }
 end
 
-objects << [ 
-                IFCS::getDiveItem(), 
-                IFCS::getGGWItem() 
-           ].map{|item| itemToCatalystItem(item) }
+objects << items.map{|item| itemToCatalystItem(item) }
 
 puts JSON.generate(objects)
