@@ -295,7 +295,7 @@ class InFlightControlSystem
     # InFlightControlSystem::targetToMetricOrNull(targetuid)
     def self.targetToMetricOrNull(targetuid)
         timedifferential = InFlightControlSystem::targetTimeDifferentialInSecondsOrNull(targetuid)
-        return nil if timedifferential
+        return nil if timedifferential.nil?
         InFlightControlSystem::timeDifferentialToMetric(timedifferential)
     end
 
