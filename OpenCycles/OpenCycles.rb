@@ -173,7 +173,7 @@ class OpenCycles
 
     # OpenCycles::selectLocationOrNull()
     def self.selectLocationOrNull()
-        locations = OpenCycles::getLocations()
+        locations = OpenCycles::locations()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| OpenCycles::getBestDescription(location) })
     end
 
@@ -195,7 +195,7 @@ class OpenCyclesXUserInterface
             puts "description: #{OpenCycles::getBestDescription(location)}"
             options = [
                 "open",
-                "done",
+                "destroy",
                 "set description",
                 "transmute into folder"
             ]
@@ -204,7 +204,7 @@ class OpenCyclesXUserInterface
             if option == "open" then
                 OpenCycles::openLocation(location)
             end
-            if option == "done" then
+            if option == "destroy" then
                 OpenCyclesXUserInterface::doneLucilleLocation(location)
                 return
             end

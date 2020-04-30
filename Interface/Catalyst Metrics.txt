@@ -18,6 +18,8 @@
 
 0.20 -> 0.70  YouTubeVideoStream # Day Locked
 
+        0.60  Open Cycles ack
+
         0.53  BackupsMonitor
 
 0.20 -> 0.40  Lucille (cluster) # Day Locked

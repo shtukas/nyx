@@ -161,7 +161,7 @@ class NSXGeneralCommandHandler
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")
             end
-            if option == "open Cycles" then
+            if option == "Open Cycles" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
             end
             return

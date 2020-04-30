@@ -40,11 +40,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "OpenCyles.rb"
+require_relative "OpenCycles.rb"
 
 # -------------------------------------------------------------------------
 
-puts "Open Cycles "
+puts "Open Cycles"
 
 loop {
     location = OpenCycles::selectLocationOrNull()
