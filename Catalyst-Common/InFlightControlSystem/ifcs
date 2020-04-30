@@ -45,17 +45,46 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-toString = lambda{|item| 
-    targetuid = item["targetuid"]
-    timeDifferentialAsString = (IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)
-    runTime = InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
-    runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
-    ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
-    expectation = IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
-    "position: #{"%6.3f" % item["position"]} | ordinal: #{ordinal} | expectation: #{"%6.3f" % (expectation.to_f/3600)} hours | #{item["description"]} (#{timeDifferentialAsString})#{runTimeAsString}" 
-}
+def itemToString(item)
+        targetuid = item["targetuid"]
+        timeDifferentialAsString = (IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)
+        runTime = InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
+        runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
+        ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
+        expectation = IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
+        "position: #{"%6.3f" % item["position"]} | ordinal: #{ordinal} | expectation: #{"%6.3f" % (expectation.to_f/3600)} hours | #{item["description"]} (#{timeDifferentialAsString})#{runTimeAsString}"
+end
 
-puts "Select item to start"
-item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", IFCS::itemsOrderedByPosition(), toString)
-exit if item.nil?
-InFlightControlSystem::start(item["targetuid"])
+def printSummary()
+    IFCS::itemsOrderedByPosition()
+        .each{|item| puts itemToString(item) }
+end
+
+def selectItemOrNull()
+    toString = lambda{|item| itemToString(item) }
+    puts "Select item to start"
+    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", IFCS::itemsOrderedByPosition(), toString)
+end
+
+loop {
+    system("clear")
+    printSummary()
+    puts ""
+    operations = [
+        "start item",
+        "unregister item"
+    ]
+    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+    break if operation.nil?
+    if operation == "start item" then
+        item = selectItemOrNull()
+        next if item.nil?
+        InFlightControlSystem::start(item["targetuid"])
+    end
+    if operation == "unregister item" then
+        item = selectItemOrNull()
+        filepath = item["filepath"]
+        puts filepath
+        FileUtils.rm(filepath)
+    end
+}
