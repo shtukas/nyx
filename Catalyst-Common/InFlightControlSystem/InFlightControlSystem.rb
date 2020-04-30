@@ -257,15 +257,17 @@ class IFCS
     # IFCS::distributeTimeCommitmentsIfNotDoneAlready()
     def self.distributeTimeCommitmentsIfNotDoneAlready()
         return if ![1,2,3,4,5].include?(Time.new.wday)
-        return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb19:#{Time.new.to_s[0, 10]}")
         IFCS::itemsOrderedByPosition()
             .each{|item|
                 targetuid = item["targetuid"]
+                next if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb19:#{targetuid}:#{Time.new.to_s[0, 10]}")
+                next if IFCS::getTargetTimeInSeconds(targetuid) < -3600 # This allows small targets to get some time and the big ones not to become overwelming
                 ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
                 timeExpectationInSeconds = IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
                 IFCS::insertTargetTime(targetuid, Time.new.to_s[0, 10], -timeExpectationInSeconds)
+                KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb19:#{targetuid}:#{Time.new.to_s[0, 10]}")
             }
-        KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb19:#{Time.new.to_s[0, 10]}")
+        
     end
 
     # -----------------------------------------------------------
