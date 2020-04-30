@@ -39,7 +39,7 @@ end
 
 Mercury::discardFirstElementsToEnforceTimeHorizon("14f50e3a-25f5-4e8b-86c7-71d55b10ee9b", Time.new.to_i - 86400)
 
-metric = Math.exp(-get24HoursSize().to_f/50)
+metric = 0.2 + 0.6*Math.exp(-get24HoursSize().to_f/50)
 
 object = {
     "uuid"           => "EF4A84FB-558E-43FA-B300-D02476783433",
