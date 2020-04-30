@@ -46,13 +46,12 @@ require_relative "InFlightControlSystem.rb"
 # -------------------------------------------------------------------------
 
 def itemToString(item)
-        targetuid = item["targetuid"]
-        timeDifferentialAsString = (IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)
+        targetuid = item["targetuid"]        
         runTime = InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
         runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
         ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
         expectation = IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
-        "position: #{"%6.3f" % item["position"]} | ordinal: #{ordinal} | expectation: #{"%6.3f" % (expectation.to_f/3600)} hours | #{item["description"]} (#{timeDifferentialAsString})#{runTimeAsString}"
+        "position: #{"%6.3f" % item["position"]} | ordinal: #{ordinal} | expect: #{"%6.3f" % (expectation.to_f/3600)} hours | time: #{"%6.3f" % (IFCS::getTargetTimeInSeconds(targetuid).to_f/3600)} | metric: #{"%6.3f" % IFCS::targetToMetric(targetuid)} | #{item["description"]} #{runTimeAsString}"
 end
 
 def printSummary()

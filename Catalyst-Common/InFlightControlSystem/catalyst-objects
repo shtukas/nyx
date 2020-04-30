@@ -45,6 +45,8 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
+IFCS::distributeTimeCommitmentsIfNotDoneAlready()
+
 items = [ IFCS::getDiveItem(), IFCS::getGGWItem() ]
 
 if !IFCS::isOperating() and items.none?{|item| InFlightControlSystem::isRunning(item["targetuid"]) } then
@@ -63,9 +65,9 @@ def itemToCatalystItem(item)
         "uuid"            => targetuid,
         "contentItem"     => {
             "type" => "line",
-            "line" => "[ifcs #{(IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)}] #{item["description"]}#{runTimeAsString}"
+            "line" => "[ifcs #{(IFCS::getTargetTimeInSeconds(targetuid).to_f/3600).round(2)}] #{item["description"]}#{runTimeAsString}"
         },
-        "metric"          => (IFCS::targetToMetricOrNull(targetuid) || 2.718),
+        "metric"          => IFCS::targetToMetric(targetuid),
         "commands"        => [],
         "isRunning"       => InFlightControlSystem::isRunning(targetuid),
         "defaultCommand"  => isRunning ? "stop" : "start",

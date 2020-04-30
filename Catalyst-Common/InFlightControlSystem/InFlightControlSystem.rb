@@ -21,14 +21,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)
     KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
     KeyValueStore::destroy(repositorylocation or nil, key)
-
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
@@ -48,6 +48,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
 
     Mercury::getFirstValueOrNull(channel)
     Mercury::deleteFirstValue(channel)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
 require_relative "../Catalyst-Common.rb"
@@ -80,7 +88,6 @@ Special Purpose Items:
   "position": 1
 }
 
-
 Time provisioning:
 
     InFlightControlSystem operates From 9am to 9pm.
@@ -96,85 +103,6 @@ Time provisioning:
 
 =end
 
-class InFlightControlSystem
-    # InFlightControlSystem::start(targetuid)
-    def self.start(targetuid)
-        return if InFlightControlSystem::isRunning(targetuid)
-        KeyValueStore::set(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}", Time.new.to_i)
-    end
-
-    # InFlightControlSystem::stop(targetuid)
-    def self.stop(targetuid) # Float or Null # latter if it wasn't running.
-        return if !InFlightControlSystem::isRunning(targetuid)
-        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}").to_i
-        unixtime = unixtime.to_i
-        KeyValueStore::destroy(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
-        timespan = Time.new.to_i - unixtime
-        timespan = [timespan, 3600*2].min 
-            # To avoid problems after leaving things running 
-            # or when we create a new top three item while something was running.
-        Mercury::postValue("7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuid}", timespan)
-    end
-
-    # InFlightControlSystem::destroyItem(targetuid)
-    def self.destroyItem(targetuid)
-        IFCS::itemsOrderedByPosition()
-            .select{|item| item["targetuid"] == targetuid }
-            .each{|item|
-                FileUtils.rm(item["filepath"])
-            }
-    end
-
-    # InFlightControlSystem::newItemInteractive(targetuid, description)
-    def self.newItemInteractive(targetuid, description)
-        position = IFCS::interactiveChoiceOfPosition()
-        IFCS::newItem(targetuid, description, position)
-    end
-
-    # InFlightControlSystem::isRunning(targetuid)
-    def self.isRunning(targetuid)
-        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
-        !unixtime.nil?
-    end
-
-    # InFlightControlSystem::isRegistered(targetuid)
-    def self.isRegistered(targetuid) # Boolean
-        IFCS::itemsOrderedByPosition()
-            .any?{|item| item["targetuid"] == targetuid }
-    end
-
-    # InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
-    def self.runTimeInSecondsOrNull(targetuid)
-        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
-        return nil if unixtime.nil?
-        Time.new.to_i - unixtime.to_i
-    end
-
-    # InFlightControlSystem::catalistItemIFCSTransmutation(targetuid, object)
-    def self.catalistItemIFCSTransmutation(targetuid, object)
-        # This function helps clients of IFCS to implement the logic around overriding the metric 
-        # if that items was registered in IFCS.
-        return object if !InFlightControlSystem::isRegistered(targetuid)
-        # The object is registered. We first need to override the metric
-
-
-        timeDifferentialAsString = (IFCS::targetTimeDifferentialInSecondsOrNull(targetuid).to_f/3600).round(2)
-        runTime = InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
-        runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
-
-        if object["contentItem"]["type"] == "line" then
-            object["contentItem"]["line"] = "[ifcs #{timeDifferentialAsString}#{runTimeAsString}] #{object["contentItem"]["line"]}"
-        end
-        if object["contentItem"]["type"] == "line-and-body" then
-            object["contentItem"]["line"] = "[ifcs #{timeDifferentialAsString}#{runTimeAsString}] #{object["contentItem"]["line"]}"
-            object["contentItem"]["body"] = "[ifcs #{timeDifferentialAsString}#{runTimeAsString}]\n#{object["contentItem"]["body"]}"
-        end
-        object["metric"] = (IFCS::targetToMetricOrNull(targetuid) || 2.718)
-        object["isRunning"] = InFlightControlSystem::isRunning(targetuid)
-        object
-    end
-end
-
 class IFCS
 
     # IFCS::timeStringL22()
@@ -182,14 +110,20 @@ class IFCS
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # IFCS::isOperating()
-    def self.isOperating()
-        Time.new.hour >= 9 and Time.new.hour < 21
+    # IFCS::startingHour()
+    def self.startingHour()
+        9
     end
 
     # IFCS::operatingTimespanInHours()
     def self.operatingTimespanInHours()
         12
+    end
+
+    # IFCS::isOperating()
+    def self.isOperating()
+        startingHour = IFCS::startingHour()
+        (Time.new.hour >= startingHour) and (Time.new.hour < (startingHour+IFCS::operatingTimespanInHours()))
     end
 
     # -----------------------------------------------------------
@@ -275,21 +209,9 @@ class IFCS
             .first
     end
 
-    # IFCS::targetTimePointsLast24Hours(targetuid)
-    def self.targetTimePointsLast24Hours(targetuid)
-        channel = "7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuid}"
-        Mercury::discardFirstElementsToEnforceTimeHorizon(channel, Time.new.to_i - 86400)
-        Mercury::getAllValues(channel)
-    end
-
-    # IFCS::targetStoredTotalTimespanLast24Hours(targetuid)
-    def self.targetStoredTotalTimespanLast24Hours(targetuid)
-        IFCS::targetTimePointsLast24Hours(targetuid).inject(0, :+)
-    end
-
     # IFCS::targetLiveTotalTimespanLast24Hours(targetuid)
     def self.targetLiveTotalTimespanLast24Hours(targetuid)
-        x0 = IFCS::targetStoredTotalTimespanLast24Hours(targetuid)
+        x0 = IFCS::getTargetTimeInSeconds(targetuid)
         x1 = 0
         unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
         if unixtime then
@@ -303,22 +225,10 @@ class IFCS
         3600 * IFCS::operatingTimespanInHours() * (1.to_f / 2**(ordinal+1))
     end
 
-    # IFCS::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
-    def self.targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
-        IFCS::targetLiveTotalTimespanLast24Hours(targetuid) - IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
-    end
-
-    # IFCS::targetTimeDifferentialInSecondsOrNull(targetuid)
-    def self.targetTimeDifferentialInSecondsOrNull(targetuid)
-        ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
-        return nil if ordinal.nil?
-        IFCS::targetWithOrdinalTimeDifferentialInSeconds(targetuid, ordinal)
-    end
-
-    # IFCS::timeDifferentialToMetric(targetuid, timedifferential)
-    def self.timeDifferentialToMetric(targetuid, timedifferential)
+    # IFCS::targetTimeToMetric(targetuid, timeInSeconds)
+    def self.targetTimeToMetric(targetuid, timeInSeconds)
         return 1 if InFlightControlSystem::isRunning(targetuid)
-        timeInHours = timedifferential.to_f/3600
+        timeInHours = timeInSeconds.to_f/3600
         return (0.75 + Math.atan(-timeInHours).to_f/1000) if timeInHours < -1
         0.75*Math.exp(-timeInHours-1)
 
@@ -328,11 +238,34 @@ class IFCS
         #  0      -> 0.27590958087858175
     end
 
-    # IFCS::targetToMetricOrNull(targetuid)
-    def self.targetToMetricOrNull(targetuid)
-        timedifferential = IFCS::targetTimeDifferentialInSecondsOrNull(targetuid)
-        return nil if timedifferential.nil?
-        IFCS::timeDifferentialToMetric(targetuid, timedifferential)
+    # IFCS::getTargetTimeInSeconds(targetuid)
+    def self.getTargetTimeInSeconds(targetuid)
+        BTreeSets::values(nil, "80a2e070-4501-4aa0-a24d-074a625b582f:#{targetuid}")
+            .inject(0, :+)
+    end
+
+    # IFCS::insertTargetTime(targetuid, day, timeInSeconds)
+    def self.insertTargetTime(targetuid, day, timeInSeconds)
+        BTreeSets::set(nil, "80a2e070-4501-4aa0-a24d-074a625b582f:#{targetuid}", "#{targetuid}:#{day}", timeInSeconds)
+    end
+
+    # IFCS::targetToMetric(targetuid)
+    def self.targetToMetric(targetuid)
+        IFCS::targetTimeToMetric(targetuid, IFCS::getTargetTimeInSeconds(targetuid))
+    end
+
+    # IFCS::distributeTimeCommitmentsIfNotDoneAlready()
+    def self.distributeTimeCommitmentsIfNotDoneAlready()
+        return if ![1,2,3,4,5].include?(Time.new.wday)
+        return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb19:#{Time.new.to_s[0, 10]}")
+        IFCS::itemsOrderedByPosition()
+            .each{|item|
+                targetuid = item["targetuid"]
+                ordinal = IFCS::getCurrentOrdinalForTargetOrNull(targetuid)
+                timeExpectationInSeconds = IFCS::targetuidWithOrdinalTo24HoursTimeExpectationInSeconds(targetuid, ordinal)
+                IFCS::insertTargetTime(targetuid, Time.new.to_s[0, 10], -timeExpectationInSeconds)
+            }
+        KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb19:#{Time.new.to_s[0, 10]}")
     end
 
     # -----------------------------------------------------------
@@ -346,5 +279,83 @@ class IFCS
         message = message.gsub("]","|")
         command = "terminal-notifier -title '#{title}' -message '#{message}'"
         system(command)
+    end
+end
+
+class InFlightControlSystem
+    # InFlightControlSystem::start(targetuid)
+    def self.start(targetuid)
+        return if InFlightControlSystem::isRunning(targetuid)
+        KeyValueStore::set(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}", Time.new.to_i)
+    end
+
+    # InFlightControlSystem::stop(targetuid)
+    def self.stop(targetuid) # Float or Null # latter if it wasn't running.
+        return if !InFlightControlSystem::isRunning(targetuid)
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}").to_i
+        unixtime = unixtime.to_i
+        KeyValueStore::destroy(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
+        timespan = Time.new.to_i - unixtime
+        timespan = [timespan, 3600*2].min 
+            # To avoid problems after leaving things running 
+            # or when we create a new top three item while something was running.
+        Mercury::postValue("7ee6b697-ced5-4b43-8724-405d9e744971:#{targetuid}", timespan)
+    end
+
+    # InFlightControlSystem::destroyItem(targetuid)
+    def self.destroyItem(targetuid)
+        IFCS::itemsOrderedByPosition()
+            .select{|item| item["targetuid"] == targetuid }
+            .each{|item|
+                FileUtils.rm(item["filepath"])
+            }
+    end
+
+    # InFlightControlSystem::newItemInteractive(targetuid, description)
+    def self.newItemInteractive(targetuid, description)
+        position = IFCS::interactiveChoiceOfPosition()
+        IFCS::newItem(targetuid, description, position)
+    end
+
+    # InFlightControlSystem::isRunning(targetuid)
+    def self.isRunning(targetuid)
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
+        !unixtime.nil?
+    end
+
+    # InFlightControlSystem::isRegistered(targetuid)
+    def self.isRegistered(targetuid) # Boolean
+        IFCS::itemsOrderedByPosition()
+            .any?{|item| item["targetuid"] == targetuid }
+    end
+
+    # InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
+    def self.runTimeInSecondsOrNull(targetuid)
+        unixtime = KeyValueStore::getOrNull(nil, "b5a151ef-515e-403e-9313-1c9c463052d1:#{targetuid}")
+        return nil if unixtime.nil?
+        Time.new.to_i - unixtime.to_i
+    end
+
+    # InFlightControlSystem::catalistItemIFCSTransmutation(targetuid, object)
+    def self.catalistItemIFCSTransmutation(targetuid, object)
+        # This function helps clients of IFCS to implement the logic around overriding the metric 
+        # if that items was registered in IFCS.
+        return object if !InFlightControlSystem::isRegistered(targetuid)
+        # The object is registered. We first need to override the metric
+
+        timeAsString = (IFCS::getTargetTimeInSeconds(targetuid).to_f/3600).round(2)
+        runTime = InFlightControlSystem::runTimeInSecondsOrNull(targetuid)
+        runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
+
+        if object["contentItem"]["type"] == "line" then
+            object["contentItem"]["line"] = "[ifcs #{timeAsString}#{runTimeAsString}] #{object["contentItem"]["line"]}"
+        end
+        if object["contentItem"]["type"] == "line-and-body" then
+            object["contentItem"]["line"] = "[ifcs #{timeAsString}#{runTimeAsString}] #{object["contentItem"]["line"]}"
+            object["contentItem"]["body"] = "[ifcs #{timeAsString}#{runTimeAsString}]\n#{object["contentItem"]["body"]}"
+        end
+        object["metric"] = IFCS::targetToMetric(targetuid)
+        object["isRunning"] = InFlightControlSystem::isRunning(targetuid)
+        object
     end
 end
