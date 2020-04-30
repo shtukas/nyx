@@ -52,8 +52,7 @@ class BackupsMonitor
                 "line" => "[Backups Monitor] /Galaxy/LucilleOS/Backups-SubSystem/#{scriptname}"
             },
             "metric"       => 0.53,
-            "commands"     => ["done"],
-            "service-port" => 12345
+            "commands"     => []
         }
     end
 
