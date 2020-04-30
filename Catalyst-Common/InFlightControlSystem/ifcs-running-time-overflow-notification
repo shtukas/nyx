@@ -11,7 +11,7 @@ IFCS::itemsOrderedByPosition()
     next if !InFlightControlSystem::isRunning(item["targetuid"])
     # The item is running
     next if !InFlightControlSystem::runTimeInSecondsOrNull(item["targetuid"])
-    next if (Time.new.to_i - InFlightControlSystem::runTimeInSecondsOrNull(item["targetuid"])) < 3600
+    next if InFlightControlSystem::runTimeInSecondsOrNull(item["targetuid"]) < 3600
     IFCS::onScreenNotification("In Flight Control System", "#{item["description"]} is running for more than an hour")
     sleep 1
     exit
