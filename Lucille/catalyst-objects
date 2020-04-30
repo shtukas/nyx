@@ -69,13 +69,13 @@ def makeMetric(location, indx, isRunning, timeline)
         return 1
     end
 
-    getDayCachedOrComputedAndCacheMetric = lambda {|location, metric|
-        metric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}")
-        if metric then
-            return metric.to_f
+    getDayCachedOrComputedAndCacheMetric = lambda {|location, computedmetric|
+        storedmetric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}")
+        if storedmetric then
+            return storedmetric.to_f
         end
-        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}", metric)
-        metric
+        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}", computedmetric)
+        computedmetric
     }
 
     if timeline == "[Inbox]" then
