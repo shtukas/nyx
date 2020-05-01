@@ -44,4 +44,20 @@ require_relative "OpenCycles.rb"
 
 # -------------------------------------------------------------------------
 
+exit
+
+"1815ea639314"
+
+OpenCycles::uuids()
+.each{|location|
+    puts location
+    l22uid = File.basename(location)[0, 22]
+    puts l22uid
+    aetherfilename = "#{l22uid}.data"
+    aetherfilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/I2tems/#{aetherfilename}"
+    # AetherGenesys::makeNewPoint(aetherfilepath)
+    AetherKVStore::set(aetherfilepath, "uuid", l22uid)
+    AetherKVStore::set(aetherfilepath, "description", OpenCycles::getDescription(location))
+    AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", location)
+}
 

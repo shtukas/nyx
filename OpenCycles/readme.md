@@ -1,7 +1,16 @@
-Special timelines are "[Inbox]", and "[Open Cycles]". 
+We are now using Aether files to store Open Cycles data.
 
-[Inbox] is not actually declared by, say Vienna or Lucille-Inbox processing, but is the default timeline for any Lucille item without one. An item on that timeline is meant to either be immediately consumed (eg: online comics), or recast to the appropriate timeline.
+The file names carry are l22 strings which also are the UUIDs of the items. Example
 
-[Open Cycles] is used to store material that may need to be looked up as part of an ongoing project.
+```
+20200416-110732-623024.data
+```
 
-Note that we also have [Infinity], which contains the streams of entertainement consumables.
+The expected kv entries are
+
+- uuid
+- description
+
+And then a single aion reference hardcoded to "1815ea639314" pointing at a file or a folder.
+
+

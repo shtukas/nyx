@@ -44,29 +44,29 @@ require_relative "OpenCycles.rb"
 
 # -------------------------------------------------------------------------
 
-def metric(location)
-    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:da72d6d2-fd9e-48dd-b6f6-f1dc28b3337e:#{location}") ? 0.60 : 0.10
+def metric(uuid)
+    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:da72d6d2-fd9e-48dd-b6f6-f1dc28b3337e:#{uuid}") ? 0.60 : 0.10
 end
 
-objects = OpenCycles::locations()
-    .map{|location|
+objects = OpenCycles::uuids()
+    .map{|uuid|
         object = {
-            "uuid"           => Digest::SHA1.hexdigest("2e37555c-5918-4c78-b90f-a95a8afa55df:#{location}"),
+            "uuid"           => uuid,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "[Open Cycles] #{OpenCycles::getBestDescription(location)}"
+                "line" => "[Open Cycles] #{OpenCycles::getDescription(uuid)}"
             },
-            "metric"         => metric(location),
+            "metric"         => metric(uuid),
             "commands"       => ["open", "start", "stop"],
             "defaultCommand" => "ack",
             "shell-redirects" => {
-                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{location}'",
-                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{location}'",
-                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing start '#{location}'",
-                "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing stop '#{location}'"
+                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{uuid}'",
+                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{uuid}'",
+                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing start '#{uuid}'",
+                "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing stop '#{uuid}'"
             }
         }
-        InFlightControlSystem::catalistItemIFCSTransmutation(location, object)
+        InFlightControlSystem::catalistItemIFCSTransmutation(uuid, object)
     }
 
 puts JSON.generate(objects)
