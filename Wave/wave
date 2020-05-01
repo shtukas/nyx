@@ -52,5 +52,5 @@ option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
 exit if option.nil?
 if option == "new wave" then
     line = LucilleCore::askQuestionAnswerAsString("line: ")
-    NSXMiscUtils::spawnNewWaveItem(line)
+    NSXWaveUtils::spawnNewWaveItem(line)
 end

@@ -35,16 +35,4 @@ class NSXMiscUtils
     def self.isLucille18()
         ENV["COMPUTERLUCILLENAME"] == "Lucille18"
     end
-
-    # NSXMiscUtils::spawnNewWaveItem(description): String (uuid)
-    def self.spawnNewWaveItem(description)
-        uuid = NSXMiscUtils::timeStringL22()
-        filepath = "#{NSXWaveUtils::waveFolderPath()}/Items/#{uuid}.zeta"
-        Zeta::makeNewFile(filepath)
-        Zeta::set(filepath, "uuid", uuid)
-        schedule = NSXWaveUtils::makeScheduleObjectInteractively()
-        Zeta::set(filepath, "schedule", JSON.generate(schedule))
-        Zeta::set(filepath, "text", description)
-        uuid
-    end
 end

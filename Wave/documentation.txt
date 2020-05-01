@@ -1,0 +1,11 @@
+
+Wave Zeta Files:
+    uuid
+    schedule
+    text
+
+Wave Aether Files:
+    KV Store:
+        uuid
+        schedule
+        text

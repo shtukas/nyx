@@ -23,7 +23,7 @@ require_relative "Wave.rb"
 def openItem(objectuuid)
     filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
     return if filepath.nil?
-    text = Zeta::getOrNull(filepath, "text").strip
+    text = AetherKVStore::getOrNull(filepath, "text").strip
     puts text
     if text.lines.to_a.size == 1 and text.start_with?("http") then
         url = text

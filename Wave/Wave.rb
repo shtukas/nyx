@@ -39,10 +39,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
 =begin
-    Zeta::makeNewFile(filepath)
-    Zeta::set(filepath, key, value)
-    Zeta::getOrNull(filepath, key)
-    Zeta::destroy(filepath, key)
+    AetherKVStore::makeNewFile(filepath)
+    AetherKVStore::set(filepath, key, value)
+    AetherKVStore::getOrNull(filepath, key)
+    AetherKVStore::destroy(filepath, key)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Aether.rb"
+=begin
+    AetherGenesys::makeNewPoint(filepath)
+    AetherKVStore::set(filepath, key, value)
+    AetherKVStore::getOrNull(filepath, key)
+    AetherKVStore::keys(filepath)
+    AetherKVStore::destroy(filepath, key)
+    AetherAionOperations::importLocationAgainstReference(filepath, xreference, location)
+    AetherAionOperations::exportReferenceAtFolder(filepath, xreference, targetReconstructionFolderpath)
 =end
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"

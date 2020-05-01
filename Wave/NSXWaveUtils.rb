@@ -37,14 +37,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
-=begin
-    Zeta::makeNewFile(filepath)
-    Zeta::set(filepath, key, value)
-    Zeta::getOrNull(filepath, key)
-    Zeta::destroy(filepath, key)
-=end
-
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
@@ -82,6 +74,18 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShow
 # ----------------------------------------------------------------------
 
 class NSXWaveUtils
+
+    # NSXWaveUtils::spawnNewWaveItem(description): String (uuid)
+    def self.spawnNewWaveItem(description)
+        uuid = NSXMiscUtils::timeStringL22()
+        filepath = "#{NSXWaveUtils::waveFolderPath()}/I2tems/#{uuid}.wavedata"
+        AetherKVStore::makeNewFile(filepath)
+        AetherKVStore::set(filepath, "uuid", uuid)
+        schedule = NSXWaveUtils::makeScheduleObjectInteractively()
+        AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))
+        AetherKVStore::set(filepath, "text", description)
+        uuid
+    end
 
     # NSXWaveUtils::waveFolderPath()
     def self.waveFolderPath()
@@ -223,7 +227,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
     def self.catalystUUIDToItemFilepathOrNull(uuid)
-        filepath = "#{NSXWaveUtils::waveFolderPath()}/Items/#{uuid}.zeta"
+        filepath = "#{NSXWaveUtils::waveFolderPath()}/I2tems/#{uuid}.wavedata"
         return nil if !File.exists?(filepath)
         filepath
     end
@@ -231,10 +235,10 @@ class NSXWaveUtils
     # NSXWaveUtils::catalystUUIDsEnumerator()
     def self.catalystUUIDsEnumerator()
         Enumerator.new do |uuids|
-            Find.find("#{NSXWaveUtils::waveFolderPath()}/Items") do |path|
+            Find.find("#{NSXWaveUtils::waveFolderPath()}/I2tems") do |path|
                 next if !File.file?(path)
-                next if File.basename(path)[-5, 5] != '.zeta'
-                uuids << File.basename(path)[0, File.basename(path).size-5]
+                next if File.basename(path)[-9, 9] != '.wavedata'
+                uuids << File.basename(path)[0, File.basename(path).size-9]
             end
         end
     end
@@ -243,14 +247,14 @@ class NSXWaveUtils
     def self.writeScheduleToZetaFile(uuid, schedule)
         filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
         return if filepath.nil?
-        Zeta::set(filepath, "schedule", JSON.generate(schedule))
+        AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))
     end
 
     # NSXWaveUtils::readScheduleFromWaveItemOrNull(uuid)
     def self.readScheduleFromWaveItemOrNull(uuid)
         filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
         return nil if filepath.nil?
-        schedule = Zeta::getOrNull(filepath, "schedule")
+        schedule = AetherKVStore::getOrNull(filepath, "schedule")
         return nil if schedule.nil?
         JSON.parse(schedule)
     end
@@ -285,7 +289,7 @@ class NSXWaveUtils
         filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
         return nil if filepath.nil?
         schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(objectuuid)
-        text = Zeta::getOrNull(filepath, "text") || "[default description]"
+        text = AetherKVStore::getOrNull(filepath, "text") || "[default description]"
         announce = NSXWaveUtils::announce(text, schedule)
         contentItem = {
             "type" => "line",
@@ -328,7 +332,7 @@ class NSXWaveUtils
     def self.setItemDescription(uuid, description)
         filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
         return if filepath.nil?
-        Zeta::set(filepath, "text", description)
+        AetherKVStore::set(filepath, "text", description)
     end
 
     # NSXWaveUtils::getCatalystObjects()
