@@ -47,7 +47,7 @@ require_relative "InFlightControlSystem.rb"
 
 IFCS::distributeTimeCommitmentsIfNotDoneAlready()
 
-items = [ IFCS::getDiveItem(), IFCS::getGGWItem() ]
+items = [ IFCS::getDiveItem(), IFCS::getGGWItem() ].compact
 
 if !IFCS::isOperating() and items.none?{|item| InFlightControlSystem::isRunning(item["targetuid"]) } then
     puts "[]"
