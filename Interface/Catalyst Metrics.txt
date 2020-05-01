@@ -1,29 +1,24 @@
 
         1.00  Running items
-        0.95  Anniversaries
 
-        0.92  In Flight Control System
-              Dive item 🛩️ at rest, it will be pushed back by the interface, when running
+        0.95  Anniversaries
 
         0.90  Wave sticky
         0.80+ Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+ Wave every-n-hours / every-n-days
 
         0.75  In Flight Control System
-              The item with negative differential
 
         0.72  Lucille 'Inbox'
 
-0.20 -> 0.71  DesktopFile # Day Locked
+0.20 -> 0.71  DesktopFile (Day Locked)
 
-0.20 -> 0.70  YouTubeVideoStream # Day Locked
+0.20 -> 0.70  YouTubeVideoStream (Day Locked)
 
         0.60  Open Cycles ack
 
         0.53  BackupsMonitor
 
-0.20 -> 0.40  Lucille (cluster) # Day Locked
-        0.30  In Flight Control System # TopThree positive differential
-        0.25  In Flight Control System # Registered non TopThree
+0.20 -> 0.40  Lucille (cluster) (Day Locked)
 
 ------- 0.20 ------- Water level ------------------------------
