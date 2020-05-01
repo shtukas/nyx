@@ -45,6 +45,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
+require_relative "../Catalyst-Common/InFlightControlSystem/InFlightControlSystem.rb"
+
 # -----------------------------------------------------------------
 
 class OpenCycles
@@ -195,14 +197,23 @@ class OpenCyclesXUserInterface
             puts "description: #{OpenCycles::getBestDescription(location)}"
             options = [
                 "open",
+                "start",
+                "stop",
                 "destroy",
                 "set description",
-                "transmute into folder"
+                "transmute into folder",
+                ">ifcs"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
                 OpenCycles::openLocation(location)
+            end
+            if option == "start" then
+                InFlightControlSystem::start(location)
+            end
+            if option == "stop" then
+                InFlightControlSystem::stop(location)
             end
             if option == "destroy" then
                 OpenCyclesXUserInterface::doneLucilleLocation(location)
@@ -214,6 +225,9 @@ class OpenCyclesXUserInterface
             end
             if option == "transmute into folder" then
                 OpenCycles::transformLocationFileIntoLocationFolder(location)
+            end
+            if option == ">ifcs" then
+                InFlightControlSystem::newItemInteractive(location, OpenCycles::getBestDescription(location))
             end
         }
     end

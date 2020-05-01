@@ -44,25 +44,29 @@ require_relative "OpenCycles.rb"
 
 # -------------------------------------------------------------------------
 
+def metric(location)
+    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:da72d6d2-fd9e-48dd-b6f6-f1dc28b3337e:#{location}") ? 0.60 : 0.10
+end
+
 objects = OpenCycles::locations()
-    .select{|location|
-        !KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:da72d6d2-fd9e-48dd-b6f6-f1dc28b3337e:#{location}")
-    }
     .map{|location|
-        {
+        object = {
             "uuid"           => Digest::SHA1.hexdigest("2e37555c-5918-4c78-b90f-a95a8afa55df:#{location}"),
             "contentItem"    => {
                 "type" => "line",
                 "line" => "[Open Cycles] #{OpenCycles::getBestDescription(location)}"
             },
-            "metric"         => 0.60,
-            "commands"       => ["open"],
+            "metric"         => metric(location),
+            "commands"       => ["open", "start", "stop"],
             "defaultCommand" => "ack",
             "shell-redirects" => {
                 "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{location}'",
-                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{location}'"
+                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{location}'",
+                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing start '#{location}'",
+                "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing stop '#{location}'"
             }
         }
+        InFlightControlSystem::catalistItemIFCSTransmutation(location, object)
     }
 
 puts JSON.generate(objects)

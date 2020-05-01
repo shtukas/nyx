@@ -41,3 +41,13 @@ if ARGV[0] == "open" and ARGV[1] then
     location = ARGV[1]
     OpenCycles::openLocation(location)
 end
+
+if ARGV[0] == "start" and ARGV[1] then
+    location = ARGV[1]
+    InFlightControlSystem::start(location)
+end
+
+if ARGV[0] == "stop" and ARGV[1] then
+    location = ARGV[1]
+    InFlightControlSystem::stop(location)
+end

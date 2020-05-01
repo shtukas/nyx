@@ -1,0 +1,16 @@
+
+As a client, generally an application, you need to use the management provided by InFlightControlSystem all you need to do is:
+
+1. Register your element once. Use a targetuid specific to it.
+    InFlightControlSystem::newItemInteractive(targetuid, description)
+
+2. Make your object the most natural way, and transmute it with
+    InFlightControlSystem::catalistItemIFCSTransmutation(targetuid, object)
+
+3. Then you only need to start it and stop it.
+
+    InFlightControlSystem::start(targetuid)
+    InFlightControlSystem::stop(ltargetuid)
+
+You do not need to manage the times, IFCS does that for you.
+
