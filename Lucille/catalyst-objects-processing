@@ -26,84 +26,60 @@ require_relative "Lucille.rb"
 # -----------------------------------------------------------------------------
 
 if ARGV[0] == "start" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    InFlightControlSystem::start(location)
-end
-
-if ARGV[0] == "start+open" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    InFlightControlSystem::start(location)
-    LucilleThisCore::openLocation(location)
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
+    InFlightControlSystem::start(uuid)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LXUserInterface::stopLocation(location)
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
+    LXUserInterface::stopItem(uuid)
 end
 
 if ARGV[0] == "open" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LucilleThisCore::openLocation(location)
-end
-
-if ARGV[0] == "open+done" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LucilleThisCore::openLocation(location)
-    LXUserInterface::doneLucilleLocation(location)
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
+    LucilleThisCore::exportContentsAtDesktop(uuid)
 end
 
 if ARGV[0] == "set-description" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
     description = LucilleCore::askQuestionAnswerAsString("description: ")
-    LucilleThisCore::setDescription(location, description)
+    LucilleThisCore::setDescription(uuid, description)
 end
 
 if ARGV[0] == "recast" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LXUserInterface::recastLucilleLocation(location)
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
+    LXUserInterface::recastItem(uuid)
 end
 
 if ARGV[0] == "move-to-nyx" then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LucilleThisCore::transformIntoNyxItem(location)
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
+    LucilleThisCore::transformIntoNyxItem(uuid)
     exit
 end
 
 if ARGV[0] == "done" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LXUserInterface::doneLucilleLocation(location)
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
+    LXUserInterface::doneItem(uuid)
 end
 
-if ARGV[0] == "export-to-desktop" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    LucilleCore::copyFileSystemLocation(location, "/Users/pascal/Desktop")
-end
-
-if ARGV[0] == "merge-with-other-Lucille-location" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
-    location2 = LucilleThisCore::selectLocationOrNull()
-    exit if location2.nil?
-    if File.file?(location2) then
-        location2 = LucilleThisCore::transformLocationFileIntoLocationFolder(location2)
-    end
-    LucilleCore::copyFileSystemLocation(location, location2)
-    LucilleCore::removeFileSystemLocation(location)
-end
-
-if ARGV[0] == "throttle" and ARGV[1] then
-    location = ARGV[1]
-    exit if !File.exists?(location)
+if ARGV[0] == ">ifcs" and ARGV[1] then
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
     description = LucilleCore::askQuestionAnswerAsString("description: ")
-    InFlightControlSystem::newItemInteractive(location, description)
+    InFlightControlSystem::newItemInteractive(uuid, description)
 end

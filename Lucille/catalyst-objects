@@ -44,100 +44,62 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-LucilleThisCore::ensureStandardFilenames()
-
-# -------------------------------------------------------------------------
-
-def makeContentItem(location, timeline)
-    # We have the two special timelines [Inbox] and [Infinity]
-    timelinefragment = timeline[0, 1] == "[" ? timeline : "(#{timeline})"
-    if location[-4, 4] == ".txt" then
-        return {
-            "type" => "line-and-body",
-            "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}",
-            "body" => "[lucille] #{timelinefragment} #{(IO.read(location).strip.lines.to_a.size > 1 ? "\n" : "")}#{IO.read(location).strip}"
-        }
-    end
-    {
-        "type" => "line",
-        "line" => "[lucille] #{timelinefragment} #{LucilleThisCore::getBestDescription(location)}"
-    }
-end
-
-def makeMetric(location, indx, isRunning, timeline)
+def makeMetric(uuid, indx, isRunning, timeline)
     if isRunning then
         return 1
     end
 
-    getDayCachedOrComputedAndCacheMetric = lambda {|location, computedmetric|
-        storedmetric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}")
+    getDayCachedOrComputedAndCacheMetric = lambda {|uuid, computedmetric|
+        storedmetric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{uuid}")
         if storedmetric then
             return storedmetric.to_f
         end
-        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{location}", computedmetric)
+        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{uuid}", computedmetric)
         computedmetric
     }
 
     if timeline == "[Inbox]" then
-        return getDayCachedOrComputedAndCacheMetric.call(location, 0.72 - indx.to_f/1000 )
+        return getDayCachedOrComputedAndCacheMetric.call(uuid, 0.72 - indx.to_f/1000 )
     end
 
-    return getDayCachedOrComputedAndCacheMetric.call(location, 0.40 - indx.to_f/1000 )
+    return getDayCachedOrComputedAndCacheMetric.call(uuid, 0.40 - indx.to_f/1000 )
 end
 
-def makeCommands(location, timeline)
-    runCommands = InFlightControlSystem::isRegistered(location) ? ["start", "stop"] : []
+def makeCommands(uuid, timeline)
+    runCommands = InFlightControlSystem::isRegistered(uuid) ? ["start", "stop"] : []
     runCommands + ["open", "done", "set-description", "export-to-desktop", "recast", ">ifcs", ">lucille-other", ">nyx"]
-end
-
-def shouldOpenAndDone(location)
-    str1 = "vienna-url.txt"
-    return true if location[-str1.size, str1.size] == str1
-    false
-end
-
-def makeDefaultCommand(location, isRunning, timeline)
-    if InFlightControlSystem::isRegistered(location) then
-        return ( isRunning ? "stop" : "start+open" )
-    end
-    shouldOpenAndDone(location) ? "open+done" : "open"
 end
 
 # -------------------------------------------------------------------------
 
-locations = LucilleThisCore::getTimelineLocations("[Inbox]") + LXCluster::getWorkingCluster()
-
-objects = locations
-            .select{|location| DoNotShowUntil::isVisible(location) }
+objects = (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingCluster()["uuids"])
             .map
-            .with_index{|location, indx|
-                timeline = LucilleThisCore::getLocationTimeline(location)
-                uuid = Digest::SHA1.hexdigest(location)
-                isRunning = InFlightControlSystem::isRunning(location)
+            .with_index{|uuid, indx|
+                timeline = LucilleThisCore::getItemTimeline(uuid)
+                isRunning = InFlightControlSystem::isRunning(uuid)
+                description = LucilleThisCore::getDescription(uuid)
                 object = {
                     "uuid"            => uuid,
-                    "contentItem"     => makeContentItem(location, timeline),
-                    "metric"          => makeMetric(location, indx, isRunning, timeline),
-                    "commands"        => makeCommands(location, timeline),
-                    "isRunning"       => isRunning,
-                    "defaultCommand"  => makeDefaultCommand(location, isRunning, timeline),
-                    "shell-redirects" => {
-                        "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{location}'",
-                        "start+open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start+open '#{location}'",
-                        "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{location}'",
-                        "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{location}'",
-                        "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open+done '#{location}'",
-                        "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{location}'",
-                        "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{location}'",
-                        ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{location}'",
-                        "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{location}'",
-                        "export-to-desktop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing export-to-desktop '#{location}'",
-                        ">lucille-other" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing merge-with-other-Lucille-location '#{location}'",
-                        ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing throttle '#{location}'"
+                    "contentItem"     => {
+                        "type" => "line",
+                        "line" => "[lucille] #{description} (#{timeline})"
                     },
-                    "location"        => location
+                    "metric"          => makeMetric(uuid, indx, isRunning, timeline),
+                    "commands"        => makeCommands(uuid, timeline),
+                    "isRunning"       => isRunning,
+                    "defaultCommand"  => isRunning ? "stop" : "start",
+                    "shell-redirects" => {
+                        "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{uuid}'",
+                        "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{uuid}'",
+                        "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{uuid}'",
+                        "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{uuid}'",
+                        "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{uuid}'",
+                        ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{uuid}'",
+                        "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{uuid}'",
+                        ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing throttle '#{uuid}'"
+                    }
                 }
-                InFlightControlSystem::catalistItemIFCSTransmutation(location, object)
+                InFlightControlSystem::catalistItemIFCSTransmutation(uuid, object)
             }
 
 puts JSON.generate(objects)
