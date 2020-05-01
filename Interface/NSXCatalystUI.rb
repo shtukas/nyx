@@ -136,6 +136,9 @@ class NSXCatalystUI
                 return
             end
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            if KeyValueStore::flagIsTrue(nil, "0300c0fa-eb2c-40c7-800d-26020354d987") then
+                objects = objects.first(1)
+            end
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end

@@ -17,6 +17,18 @@ require 'securerandom'
 	# The command is "special" and going to be captured and executed at some point along the code
 	# The command is handled by an agent and the signal forwarded to the NSXCatalystObjectsOperator
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 class NSXGeneralCommandHandler
@@ -114,6 +126,8 @@ class NSXGeneralCommandHandler
                     options = [
                         "TheBridge generation speed",
                         "ui generation speed",
+                        "focus mode [on]",
+                        "focus mode [off]"
                     ]
                     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                     break if option.nil?
@@ -143,6 +157,12 @@ class NSXGeneralCommandHandler
                         t2 = Time.new.to_f
                         puts "UI generation speed: #{(t2-t1).round(3)} seconds"
                         LucilleCore::pressEnterToContinue()
+                    end
+                    if option == "focus mode [on]" then
+                        KeyValueStore::setFlagTrue(nil, "0300c0fa-eb2c-40c7-800d-26020354d987")
+                    end
+                    if option == "focus mode [off]" then
+                        KeyValueStore::setFlagFalse(nil, "0300c0fa-eb2c-40c7-800d-26020354d987")
                     end
                 }
             end
