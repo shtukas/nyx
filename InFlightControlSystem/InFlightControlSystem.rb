@@ -299,6 +299,12 @@ class InFlightControlSystem
         InFlightControlSystem::insertTime(uuid, timespan)
     end
 
+    # InFlightControlSystem::stopWhicheverIsRunning()
+    def self.stopWhicheverIsRunning()
+        InFlightControlSystem::uuids()
+            .each{|uuid| InFlightControlSystem::stop(uuid) }
+    end
+
     # InFlightControlSystem::itemToLongString(uuid)
     def self.itemToLongString(uuid)
         runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
