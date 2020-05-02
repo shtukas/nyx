@@ -79,7 +79,6 @@ class NSXCatalystUI
                     .first([10, verticalSpaceLeft].min)
                     .map{|line| "    " + line }
                     .join()
-                    .strip
         if content.size > 0 then
             puts ""
             puts "Lucille.txt 👩‍💻"
