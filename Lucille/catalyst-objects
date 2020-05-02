@@ -108,6 +108,18 @@ while (url = Mercury::dequeueFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89
     LucilleThisCore::newItemPayloadUrl(url, "[Inbox]", url)
 end
 
+getNextLocationAtTheInboxOrNull = lambda {
+    Dir.entries("/Users/pascal/Desktop/Lucille-Inbox")
+        .reject{|filename| filename[0, 1] == '.' }
+        .map{|filename| "/Users/pascal/Desktop/Lucille-Inbox/#{filename}" }
+        .first
+}
+
+while (location = getNextLocationAtTheInboxOrNull.call()) do
+    LucilleThisCore::newItemPayloadAionpoint(File.basename(location), "[Inbox]", location)
+    LucilleCore::removeFileSystemLocation(location)
+end
+
 # -------------------------------------------------------------------------
 
 objects = (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingCluster()["uuids"])

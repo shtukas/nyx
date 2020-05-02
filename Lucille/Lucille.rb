@@ -92,8 +92,8 @@ class LucilleThisCore
     # -----------------------------
     # Makers
 
-    # LucilleThisCore::newItemPayloadAionpoint(description, timeline, filepath)
-    def self.newItemPayloadAionpoint(description, timeline, filepath)
+    # LucilleThisCore::newItemPayloadAionpoint(description, timeline, location)
+    def self.newItemPayloadAionpoint(description, timeline, location)
         uuid = LucilleThisCore::timeStringL22()
         aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
         AetherGenesys::makeNewPoint(aetherfilepath)
@@ -101,7 +101,7 @@ class LucilleThisCore
         AetherKVStore::set(aetherfilepath, "description", description)
         AetherKVStore::set(aetherfilepath, "timeline", timeline)
         AetherKVStore::set(aetherfilepath, "payloadType", "aionpoint")
-        AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", filepath)
+        AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", location)
     end
 
     # LucilleThisCore::newItemPayloadText(description, timeline, text)
