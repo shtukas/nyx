@@ -40,6 +40,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::dequeueFirstValueOrNull(channel)
+
+    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
+    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
+
+    Mercury::getQueueSize(channel)
+    Mercury::getAllValues(channel)
+
+    Mercury::getFirstValueOrNull(channel)
+    Mercury::deleteFirstValue(channel)
+=end
+
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 # -------------------------------------------------------------------------
@@ -85,7 +100,7 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     puts "vienna: #{link}"
-    File.open("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{timeStringL22()}-vienna-url.txt", "w"){|f| f.puts(link) }
+    Mercury::postValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E", link)
     viennaLinkFeeder.done(link)
 }
 

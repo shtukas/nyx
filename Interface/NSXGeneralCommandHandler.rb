@@ -29,6 +29,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::dequeueFirstValueOrNull(channel)
+
+    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
+    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
+
+    Mercury::getQueueSize(channel)
+    Mercury::getAllValues(channel)
+
+    Mercury::getFirstValueOrNull(channel)
+    Mercury::deleteFirstValue(channel)
+=end
+
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 class NSXGeneralCommandHandler
@@ -87,15 +102,7 @@ class NSXGeneralCommandHandler
             return if option.nil?
             if option == "New Lucille text item" then
                 text = NSXMiscUtils::editTextUsingTextmate("").strip
-                location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{NSXMiscUtils::timeStringL22()}.txt"
-                File.open(location, "w"){|f| f.puts(text) }
-                description = nil
-                if text.lines.to_a.size == 1 then
-                    description = text
-                else
-                    description = LucilleCore::askQuestionAnswerAsString("description: ")
-                end
-                KeyValueStore::set(nil, "3bbaacf8-2114-4d85-9738-0d4784d3bbb2:#{location}", description)
+                Mercury::postValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E", text)
             end
             return
         end

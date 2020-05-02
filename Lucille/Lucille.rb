@@ -90,6 +90,20 @@ class LucilleThisCore
     end
 
     # -----------------------------
+    # Makers
+
+    # LucilleThisCore::newItemTargetingFile(description, timeline, filepath)
+    def self.newItemTargetingFile(description, timeline, filepath)
+        uuid = LucilleThisCore::timeStringL22()
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherGenesys::makeNewPoint(aetherfilepath)
+        AetherKVStore::set(aetherfilepath, "uuid", uuid)
+        AetherKVStore::set(aetherfilepath, "description", description)
+        AetherKVStore::set(aetherfilepath, "timeline", timeline)
+        AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", filepath)
+    end
+
+    # -----------------------------
     # Data
 
     # LucilleThisCore::uuid()
@@ -97,6 +111,7 @@ class LucilleThisCore
         Dir.entries(LucilleThisCore::pathToItems())
             .select{|filename| filename[-5, 5] == ".data" }
             .map{|filename| filename[0, 22] }
+            .sort
     end
 
     # LucilleThisCore::setDescription(uuid, description)

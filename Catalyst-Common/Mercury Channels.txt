@@ -1,0 +1,5 @@
+
+Text to become Lucille item payload
+    channel: AF39EC62-4779-4C00-85D9-D2F19BD2D71E
+    payload: String
+

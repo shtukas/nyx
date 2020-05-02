@@ -17,6 +17,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
 # SectionsType0141::contentToSections(text)
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::dequeueFirstValueOrNull(channel)
+
+    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
+    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
+
+    Mercury::getQueueSize(channel)
+    Mercury::getAllValues(channel)
+
+    Mercury::getFirstValueOrNull(channel)
+    Mercury::deleteFirstValue(channel)
+=end
+
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 # --------------------------------------------------------------------
@@ -75,8 +90,6 @@ if ARGV[0] == "tolucille" and ARGV[1] then
     sectionuuid = ARGV[1]
     section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
     exit if section.nil?
-    basename = "#{timeStringL22()}.txt"
-    location = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/Items/#{basename}"
-    File.open(location, "w"){|f| f.puts(section) }
+    Mercury::postValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E", section)
     rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end
