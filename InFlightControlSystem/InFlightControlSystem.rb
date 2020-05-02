@@ -200,8 +200,7 @@ class InFlightControlSystem
     def self.timeToMetric(uuid, timeInSeconds)
         return 1 if InFlightControlSystem::isRunning(uuid)
         timeInHours = timeInSeconds.to_f/3600
-        return 0.40 if timeInHours > 0
-        return 0.77 if timeInHours < -1
+        return + Math.atan(-timeInHours).to_f/1000 if timeInHours > 0
         0.76 + Math.atan(-timeInHours).to_f/1000
     end
 
@@ -235,7 +234,6 @@ class InFlightControlSystem
                 "IFCSStandard"        => 5 * 3600
             }
         end
-
     end
 
     # InFlightControlSystem::ordinalTo24HoursTimeExpectationInSeconds(ordinal)
@@ -266,7 +264,6 @@ class InFlightControlSystem
                 InFlightControlSystem::insertTime(uuid, -timespan)
                 KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             }
-        
     end
 
     # InFlightControlSystem::isRunning(uuid)
