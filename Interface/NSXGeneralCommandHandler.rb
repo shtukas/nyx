@@ -117,6 +117,10 @@ class NSXGeneralCommandHandler
             File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(content) }
         end
 
+        if command == ">>" then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '20200502-141716-483780'")
+        end
+
         if command == "/" then
             options = [
                 "Nyx Search",
