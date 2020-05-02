@@ -90,6 +90,16 @@ if ARGV[0] == "tolucille" and ARGV[1] then
     sectionuuid = ARGV[1]
     section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
     exit if section.nil?
+    CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
     Mercury::postValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E", section)
+    rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+end
+
+if ARGV[0] == "toopencycles" and ARGV[1] then
+    sectionuuid = ARGV[1]
+    section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
+    exit if section.nil?
+    CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
+    Mercury::postValue("b4efb93f-488d-4984-96bd-d4e453ebb00e", section)
     rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end

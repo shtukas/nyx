@@ -61,14 +61,15 @@ objects = SectionsType0141::contentToSections(content)
             "uuid"           => sectionuuid,
             "contentItem"    => {
                 "type" => "line-and-body",
-                "line" => "[done or ++ or >lucille] " + section.strip.lines.to_a.first,
-                "body" => "[done or ++ or >lucille] " + section.strip
+                "line" => "[done or ++ or >] " + section.strip.lines.to_a.first,
+                "body" => "[done or ++ or >] " + section.strip
             },
             "metric"          => 0.74 - indx.to_f/10000,
-            "commands"        => [">lucille"],
+            "commands"        => [">lucille", ">opencycles"],
             "defaultCommand"  => "done",
             "shell-redirects" => {
                 ">lucille" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing tolucille #{sectionuuid}",
+                ">opencycles" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing toopencycles #{sectionuuid}",
                 "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing done #{sectionuuid}"
             }
         }

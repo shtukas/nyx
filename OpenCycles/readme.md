@@ -13,4 +13,9 @@ The expected kv entries are
 
 And then a single aionreference hardcoded to "1815ea639314" pointing at a file or a folder.
 
+### Mercury Channels
 
+Text to become Open Cycles item payload `text`
+
+- channel: b4efb93f-488d-4984-96bd-d4e453ebb00e
+- payload: String

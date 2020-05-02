@@ -79,6 +79,18 @@ class OpenCycles
         "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/I2tems/#{aetherfilename}"
     end
 
+    # OpenCycles::newItemPayloadText(text)
+    def self.newItemPayloadText(text)
+        uuid = OpenCycles::timeStringL22()
+        aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+        AetherGenesys::makeNewPoint(aetherfilepath)
+        AetherKVStore::set(aetherfilepath, "uuid", uuid)
+        AetherKVStore::set(aetherfilepath, "description", text.lines.first.strip)
+        filepath = "/tmp/#{uuid}"
+        File.open(filepath, "w") {|f| f.puts(text) }
+        AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", filepath)
+    end
+
     # -----------------------------
     # Data
 
