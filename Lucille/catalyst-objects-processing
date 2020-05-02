@@ -43,7 +43,7 @@ if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
     exit if !File.exists?(aetherfilepath)
-    LucilleThisCore::exportContentsAtDesktop(uuid)
+    LXUserInterface::openItemReadOnly(uuid)
 end
 
 if ARGV[0] == "set-description" and ARGV[1] then

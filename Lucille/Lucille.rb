@@ -92,8 +92,8 @@ class LucilleThisCore
     # -----------------------------
     # Makers
 
-    # LucilleThisCore::newItemTargetingFile(description, timeline, filepath)
-    def self.newItemTargetingFile(description, timeline, filepath)
+    # LucilleThisCore::newItemPayloadAionpoint(description, timeline, filepath)
+    def self.newItemPayloadAionpoint(description, timeline, filepath)
         uuid = LucilleThisCore::timeStringL22()
         aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
         AetherGenesys::makeNewPoint(aetherfilepath)
@@ -102,6 +102,30 @@ class LucilleThisCore
         AetherKVStore::set(aetherfilepath, "timeline", timeline)
         AetherKVStore::set(aetherfilepath, "payloadType", "aionpoint")
         AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", filepath)
+    end
+
+    # LucilleThisCore::newItemPayloadText(description, timeline, text)
+    def self.newItemPayloadText(description, timeline, text)
+        uuid = LucilleThisCore::timeStringL22()
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherGenesys::makeNewPoint(aetherfilepath)
+        AetherKVStore::set(aetherfilepath, "uuid", uuid)
+        AetherKVStore::set(aetherfilepath, "description", description)
+        AetherKVStore::set(aetherfilepath, "timeline", timeline)
+        AetherKVStore::set(aetherfilepath, "payloadType", "text")
+        AetherKVStore::set(aetherfilepath, "472ec67c0dd6", text)
+    end
+
+    # LucilleThisCore::newItemPayloadUrl(description, timeline, url)
+    def self.newItemPayloadUrl(description, timeline, url)
+        uuid = LucilleThisCore::timeStringL22()
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherGenesys::makeNewPoint(aetherfilepath)
+        AetherKVStore::set(aetherfilepath, "uuid", uuid)
+        AetherKVStore::set(aetherfilepath, "description", description)
+        AetherKVStore::set(aetherfilepath, "timeline", timeline)
+        AetherKVStore::set(aetherfilepath, "payloadType", "url")
+        AetherKVStore::set(aetherfilepath, "67c2db721728", url)
     end
 
     # -----------------------------
@@ -238,6 +262,26 @@ class LXCluster
 end
 
 class LXUserInterface
+
+    # LXUserInterface::openItemReadOnly(uuid)
+    def self.openItemReadOnly(uuid)
+        payloadType = LucilleThisCore::getPayloadType(uuid)
+        if payloadType == "aionpoint" then
+            LucilleThisCore::exportContentsAtDesktop(uuid)
+        end
+        if payloadType == "text" then
+            aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+            text = AetherKVStore::getOrNull(aetherfilepath, "472ec67c0dd6")
+            tmpfilepath = "/tmp/#{uuid}.txt"
+            File.open(tmpfilepath, "w") {|f| f.puts(text) }
+            system("open '#{tmpfilepath}'")
+        end
+        if payloadType == "url" then
+            aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+            url = AetherKVStore::getOrNull(aetherfilepath, "67c2db721728")
+            system("open '#{url}'")
+        end
+    end
 
     # LXUserInterface::stopItem(uuid)
     def self.stopItem(uuid)

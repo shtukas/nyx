@@ -101,10 +101,7 @@ end
 while (text = Mercury::dequeueFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
     text = text.strip
     next if text.size == 0
-    filepath = "/Users/pascal/Desktop/#{LucilleThisCore::timeStringL22()}.txt"
-    File.open(filepath, "w"){|f| f.puts(text) }
-    LucilleThisCore::newItemTargetingFile(text.lines.first.strip, "[Inbox]", filepath)
-    FileUtils.rm(filepath)
+    LucilleThisCore::newItemPayloadText(text.lines.first.strip, "[Inbox]", text)
 end
 
 # -------------------------------------------------------------------------
@@ -119,7 +116,7 @@ objects = (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingC
                     "uuid"            => uuid,
                     "contentItem"     => {
                         "type" => "line",
-                        "line" => "[lucille] #{description} (#{timeline})"
+                        "line" => "[lucille] [#{LucilleThisCore::getPayloadType(uuid)}] #{description} (#{timeline})"
                     },
                     "metric"          => makeMetric(uuid, indx, isRunning, timeline),
                     "commands"        => makeCommands(uuid, timeline),
