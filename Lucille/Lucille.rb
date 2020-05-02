@@ -153,8 +153,8 @@ class LucilleThisCore
         AetherKVStore::getOrNull(aetherfilepath, "description")
     end
 
-    # LucilleThisCore::setItemTimeline(location, timeline)
-    def self.setItemTimeline(location, timeline)
+    # LucilleThisCore::setItemTimeline(uuid, timeline)
+    def self.setItemTimeline(uuid, timeline)
         aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
         AetherKVStore::set(aetherfilepath, "timeline", timeline)
     end
@@ -250,7 +250,7 @@ class LXCluster
     # LXCluster::selectUUIDsForCluster()
     def self.selectUUIDsForCluster()
         LucilleThisCore::timelines()
-            .reject{|timeline| timeline=="[Inbox]"}
+            .reject{|timeline| timeline=="Inbox"}
             .map{|timeline|
                 LucilleThisCore::getTimelineUUIDs(timeline).sort.first(10)
             }
@@ -319,10 +319,9 @@ class LXUserInterface
 
     # LXUserInterface::recastItem(uuid)
     def self.recastItem(uuid)
-        LXRunManagement::stopLocation(uuid)
         timeline = nil
         loop {
-            timelines = LucilleThisCore::timelines().reject{|timeline| timeline == "[Inbox]" }
+            timelines = LucilleThisCore::timelines().reject{|timeline| timeline == "Inbox" }
             t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
             if t then
                 timeline = t

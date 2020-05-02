@@ -72,7 +72,7 @@ require_relative "Lucille.rb"
 # -------------------------------------------------------------------------
 
 def makeMetric(uuid, indx, timeline)
-    if timeline == "[Inbox]" then
+    if timeline == "Inbox" then
         return 0.72 - indx.to_f/10000
     end
     0.40 - indx.to_f/10000
@@ -94,7 +94,7 @@ end
 
 while (url = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
     url = url.strip
-    LucilleThisCore::newItemPayloadUrl(url, "[Inbox]", url)
+    LucilleThisCore::newItemPayloadUrl(url, "Inbox", url)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
@@ -107,7 +107,7 @@ getNextLocationAtTheInboxOrNull = lambda {
 }
 
 while (location = getNextLocationAtTheInboxOrNull.call()) do
-    LucilleThisCore::newItemPayloadAionpoint(File.basename(location), "[Inbox]", location)
+    LucilleThisCore::newItemPayloadAionpoint(File.basename(location), "Inbox", location)
     LucilleCore::removeFileSystemLocation(location)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
@@ -115,7 +115,7 @@ end
 # -------------------------------------------------------------------------
 
 def makeCatalystObjects()
-    (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingCluster()["uuids"])
+    (LucilleThisCore::getTimelineUUIDs("Inbox") + LXCluster::getWorkingCluster()["uuids"])
         .map
         .with_index{|uuid, indx|
             timeline = LucilleThisCore::getItemTimeline(uuid)
@@ -124,7 +124,7 @@ def makeCatalystObjects()
                 "uuid"            => uuid,
                 "contentItem"     => {
                     "type" => "line",
-                    "line" => "[lucille] [#{timeline == "[Inbox]" ? "done or ++ or recast" : timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
+                    "line" => "[lucille] [#{timeline == "Inbox" ? "done or ++ or recast" : timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
                 },
                 "metric"          => makeMetric(uuid, indx, timeline),
                 "commands"        => makeCommands(uuid, timeline),

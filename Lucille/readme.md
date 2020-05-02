@@ -1,8 +1,8 @@
-Special timelines are "[Inbox]", and "[Infinity]". 
+Special timelines are "Inbox", and "Infinity". 
 
-[Inbox] is not actually declared by, say Vienna or Lucille-Inbox processing, but is the default timeline for any Lucille item without one. An item on that timeline is meant to either be immediately consumed (eg: online comics), or recast to the appropriate timeline.
+Inbox is not actually declared by, say Vienna or Lucille-Inbox processing, but is the default timeline for any Lucille item without one. An item on that timeline is meant to either be immediately consumed (eg: online comics), or recast to the appropriate timeline.
 
-[Infinity] contains the streams of entertainement consumables.
+Infinity contains the streams of entertainement consumables.
 
 ### Aether
 
