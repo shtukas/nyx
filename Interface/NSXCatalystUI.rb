@@ -70,7 +70,6 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
-        hasLucilleDisplay = false
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
                     .strip
@@ -83,7 +82,6 @@ class NSXCatalystUI
             puts "Lucille.txt 👩‍💻"
             puts content
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
-            hasLucilleDisplay = true
         end
 
         if displayObjects.size==0 then
@@ -98,10 +96,6 @@ class NSXCatalystUI
 
         # displayObjectsForListing is being consumed while displayObjects should remain static
         displayObjectsForListing = displayObjects.map{|object| object.clone }
-
-        if hasLucilleDisplay then
-            displayObjectsForListing = displayObjectsForListing.select{|object| object["isRunning"] }
-        end
 
         if !displayObjectsForListing.empty? then
             puts ""
