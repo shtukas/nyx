@@ -101,7 +101,14 @@ class NSXGeneralCommandHandler
             return if option.nil?
             if option == "New Lucille text item" then
                 text = NSXMiscUtils::editTextUsingTextmate("").strip
-                Mercury::postValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E", text)
+                timelines = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-timelines`)
+                timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", timelines)
+                timeline = timeline || "[Inbox]"
+                packet = {
+                    "text" => section,
+                    "timeline" => timeline
+                }
+                Mercury::postValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E", packet)
             end
             return
         end

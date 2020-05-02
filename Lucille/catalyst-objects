@@ -84,9 +84,10 @@ end
 
 # -------------------------------------------------------------------------
 
-while (text = Mercury::getFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
-    text = text.strip
-    LucilleThisCore::newItemPayloadText(text.lines.first.strip, "[Inbox]", text)
+while (packet = Mercury::getFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
+    text = packet["text"]
+    timeline = packet["timeline"]
+    LucilleThisCore::newItemPayloadText(text.lines.first.strip, timeline, text)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
     Mercury::deleteFirstValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")
 end
