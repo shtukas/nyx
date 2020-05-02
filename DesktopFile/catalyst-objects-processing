@@ -92,7 +92,7 @@ if ARGV[0] == "tolucille" and ARGV[1] then
     CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
     timelines = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-timelines`)
     timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", timelines)
-    timeline = timeline || "[Inbox]"
+    timeline = timeline || "Inbox"
     packet = {
         "text" => section,
         "timeline" => timeline

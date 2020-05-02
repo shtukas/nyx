@@ -103,9 +103,9 @@ class NSXGeneralCommandHandler
                 text = NSXMiscUtils::editTextUsingTextmate("").strip
                 timelines = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-timelines`)
                 timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", timelines)
-                timeline = timeline || "[Inbox]"
+                timeline = timeline || "Inbox"
                 packet = {
-                    "text" => section,
+                    "text" => text,
                     "timeline" => timeline
                 }
                 Mercury::postValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E", packet)
