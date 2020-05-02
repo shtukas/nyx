@@ -72,9 +72,9 @@ require_relative "Lucille.rb"
 
 def makeMetric(uuid, indx, timeline)
     if timeline == "[Inbox]" then
-        return 0.72 - indx.to_f/1000
+        return 0.72 - indx.to_f/10000
     end
-    0.40 - indx.to_f/1000
+    0.40 - indx.to_f/10000
 end
 
 def makeCommands(uuid, timeline)

@@ -5,6 +5,7 @@
 [0.91 -> 0.99] Calendar
 
                0.95  Anniversaries
+               0.93  Calendar Items
 
 # ---------------------------------------------------------
 [0.78 -> 0.90] Repeat Items

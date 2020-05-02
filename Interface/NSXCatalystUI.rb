@@ -23,12 +23,18 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 class NSXCatalystUI
 
-    # NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, verticalSpaceLeft)
-    def self.printDisplayObjectsForListing(displayObjectsForListing, position, verticalSpaceLeft)
+    # NSXCatalystUI::printDisplayObjects(sectionname, displayObjectsForListing, lowerboundmetric, position, verticalSpaceLeft)
+    def self.printDisplayObjects(sectionname, displayObjectsForListing, lowerboundmetric, position, verticalSpaceLeft)
 
-        lucilleHasBeenDisplayed = false
+        return [displayObjectsForListing, position, verticalSpaceLeft] if displayObjectsForListing.empty?
+        return [displayObjectsForListing, position, verticalSpaceLeft] if verticalSpaceLeft<=5
+        return [displayObjectsForListing, position, verticalSpaceLeft] if displayObjectsForListing[0]["metric"] < lowerboundmetric
 
-        while displayObjectsForListing.size>0 do
+        puts ""
+        puts sectionname
+        verticalSpaceLeft = verticalSpaceLeft - 2
+
+        while displayObjectsForListing.size>0 and displayObjectsForListing[0]["metric"] >= lowerboundmetric do
 
             # Position and Focus Management
             position = position + 1
@@ -46,7 +52,7 @@ class NSXCatalystUI
             break if verticalSpaceLeft<=0 and displayObjectsForListing.none?{|object| object["isRunning"] }
         end
 
-        [position, verticalSpaceLeft]
+        [displayObjectsForListing, position, verticalSpaceLeft]
     end
 
     # NSXCatalystUI::performInterfaceDisplay(displayObjects)
@@ -56,11 +62,21 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
+        # displayObjectsForListing is being consumed while displayObjects should remain static
+        displayObjectsForListing = displayObjects.map{|object| object.clone }
+        focusobject = displayObjectsForListing.first
+
+        position = 0
+
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🏃‍♀️", displayObjectsForListing, 1, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🗓️", displayObjectsForListing, 0.91, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("💫", displayObjectsForListing, 0.78, position, verticalSpaceLeft)
+
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
                     .strip
                     .lines
-                    .first(10)
+                    .first([10, verticalSpaceLeft].min)
                     .map{|line| "    " + line }
                     .join()
                     .strip
@@ -71,6 +87,11 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
         end
 
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("In FLight Control System 🛰️", displayObjectsForListing, 0.76, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("Lucille.txt [bottom]", displayObjectsForListing, 0.73, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("📬", displayObjectsForListing, 0.71, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛩️", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
+
         if displayObjects.size==0 then
             puts ""
             puts "No objects found"
@@ -78,18 +99,6 @@ class NSXCatalystUI
             command = STDIN.gets().strip
             NSXGeneralCommandHandler::processCatalystCommandManager(nil, command)
             return
-        end
-
-        # displayObjectsForListing is being consumed while displayObjects should remain static
-        displayObjectsForListing = displayObjects.map{|object| object.clone }
-        focusobject = displayObjectsForListing.first
-
-        if !displayObjectsForListing.empty? then
-            puts ""
-            puts "Catalyst 💫"
-            verticalSpaceLeft = verticalSpaceLeft - 2
-            position = 0
-            position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, verticalSpaceLeft)
         end
 
         # -----------------------------------------------------------------------------------

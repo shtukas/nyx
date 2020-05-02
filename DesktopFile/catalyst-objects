@@ -61,10 +61,10 @@ objects = SectionsType0141::contentToSections(content)
             "uuid"           => sectionuuid,
             "contentItem"    => {
                 "type" => "line-and-body",
-                "line" => "[Desktop] " + section.strip.lines.to_a.first,
-                "body" => "[Desktop] " + section.strip
+                "line" => "[Now or ++ or >lucille] " + section.strip.lines.to_a.first,
+                "body" => "[Now or ++ or >lucille] " + section.strip
             },
-            "metric"          => 0.74 - indx.to_f/1000,
+            "metric"          => 0.74 - indx.to_f/10000,
             "commands"        => [">lucille"],
             "defaultCommand"  => "done",
             "shell-redirects" => {

@@ -54,7 +54,7 @@ def catalystObject(uuid)
         "uuid"            => uuid,
         "contentItem"     => {
             "type" => "line",
-            "line" => "[ifcs #{(InFlightControlSystem::storedTimespan(uuid).to_f/3600).round(2)}] #{InFlightControlSystem::getDescription(uuid)}#{runTimeAsString}"
+            "line" => "[ifcs #{"%5.2f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)}] #{InFlightControlSystem::getDescription(uuid)}#{runTimeAsString}"
         },
         "metric"          => InFlightControlSystem::metric(uuid),
         "commands"        => [],
