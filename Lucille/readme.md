@@ -33,3 +33,14 @@ When "text", the content is held in the kv store at key "472ec67c0dd6"
 
 When "url", the url is held in the kv store at key "67c2db721728"
 
+### Mercury Channels
+
+Text to become Lucille item payload `text`
+
+- channel: AF39EC62-4779-4C00-85D9-D2F19BD2D71E
+- payload: String
+
+URL to become Lucille item payload `url`
+
+- channel: F771D7FE-1802-409D-B009-5EB95BA89D86
+- payload: String

@@ -100,8 +100,12 @@ end
 
 while (text = Mercury::dequeueFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
     text = text.strip
-    next if text.size == 0
     LucilleThisCore::newItemPayloadText(text.lines.first.strip, "[Inbox]", text)
+end
+
+while (url = Mercury::dequeueFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
+    url = url.strip
+    LucilleThisCore::newItemPayloadUrl(url, "[Inbox]", url)
 end
 
 # -------------------------------------------------------------------------
