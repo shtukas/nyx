@@ -56,8 +56,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Aether.rb
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
-require_relative "../Catalyst-Common/InFlightControlSystem/InFlightControlSystem.rb"
-
 # -----------------------------------------------------------------
 
 class OpenCycles
@@ -138,8 +136,6 @@ class OpenCycles
             puts "description: #{OpenCycles::getDescription(uuid)}"
             options = [
                 "open",
-                "start",
-                "stop",
                 "destroy",
                 "set description",
                 ">ifcs"
@@ -148,12 +144,6 @@ class OpenCycles
             return if option.nil?
             if option == "open" then
                 OpenCycles::exportContentsAtDesktop(uuid)
-            end
-            if option == "start" then
-                InFlightControlSystem::start(uuid)
-            end
-            if option == "stop" then
-                InFlightControlSystem::stop(uuid)
             end
             if option == "destroy" then
                 OpenCycles::terminateItem(uuid)
@@ -164,7 +154,7 @@ class OpenCycles
                 OpenCycles::setDescription(uuid, description)
             end
             if option == ">ifcs" then
-                InFlightControlSystem::newItemInteractive(uuid, OpenCycles::getDescription(uuid))
+                
             end
         }
     end

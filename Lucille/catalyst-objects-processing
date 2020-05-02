@@ -25,20 +25,6 @@ require_relative "Lucille.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == "start" and ARGV[1] then
-    uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
-    InFlightControlSystem::start(uuid)
-end
-
-if ARGV[0] == "stop" and ARGV[1] then
-    uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
-    LXUserInterface::stopItem(uuid)
-end
-
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
@@ -61,14 +47,6 @@ if ARGV[0] == "recast" and ARGV[1] then
     LXUserInterface::recastItem(uuid)
 end
 
-if ARGV[0] == "move-to-nyx" then
-    uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
-    LucilleThisCore::transformIntoNyxItem(uuid)
-    exit
-end
-
 if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
     aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
@@ -76,10 +54,16 @@ if ARGV[0] == "done" and ARGV[1] then
     LXUserInterface::doneItem(uuid)
 end
 
+if ARGV[0] == ">nyx" then
+    uuid = ARGV[1]
+    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+    exit if !File.exists?(aetherfilepath)
+    LucilleThisCore::transformIntoNyxItem(uuid)
+    exit
+end
+
 if ARGV[0] == ">ifcs" and ARGV[1] then
     uuid = ARGV[1]
     aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
     exit if !File.exists?(aetherfilepath)
-    description = LucilleCore::askQuestionAnswerAsString("description: ")
-    InFlightControlSystem::newItemInteractive(uuid, description)
 end

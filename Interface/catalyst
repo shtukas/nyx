@@ -73,7 +73,7 @@ NSXEstateServices::binTimelineGarbageCollectionEnvelop(true)
 Thread.new {
     loop {
         sleep 120
-        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst-Common/InFlightControlSystem/ifcs-running-time-overflow-notification")
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-running-time-overflow-notification")
     }
 }
 

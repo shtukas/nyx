@@ -16,10 +16,12 @@ The file names carry are l22 strings which also are the UUIDs of the items. Exam
 
 The expected kv entries are
 
+```
 - uuid
 - description
-- timeline
+- position     : Float
 - payloadType
+```
 
 The possible values for payloadType are
 

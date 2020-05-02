@@ -1,0 +1,17 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "InFlightControlSystem.rb"
+
+# --------------------------------------------------------------------
+
+InFlightControlSystem::uuidsOrderedByPosition()
+.each{|uuid|
+    next if !InFlightControlSystem::isRunning(uuid)
+    # The item is running
+    next if !InFlightControlSystem::runTimeInSecondsOrNull(uuid)
+    next if InFlightControlSystem::runTimeInSecondsOrNull(uuid) < 3600
+    CatalystCommon::onScreenNotification("In Flight Control System", "#{InFlightControlSystem::getDescription(uuid)} is running for more than an hour")
+    exit
+}

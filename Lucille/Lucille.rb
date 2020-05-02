@@ -56,8 +56,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Aether.rb
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
-require_relative "../Catalyst-Common/InFlightControlSystem/InFlightControlSystem.rb"
-
 # -----------------------------------------------------------------
 
 class LucilleThisCore
@@ -83,7 +81,6 @@ class LucilleThisCore
 
     # LucilleThisCore::terminateItem(uuid)
     def self.terminateItem(uuid)
-        InFlightControlSystem::destroyItem(uuid)
         filepath = LucilleThisCore::uuid2aetherfilepath(uuid)
         CatalystCommon::copyLocationToCatalystBin(filepath)
         FileUtils.rm(filepath)
@@ -283,14 +280,8 @@ class LXUserInterface
         end
     end
 
-    # LXUserInterface::stopItem(uuid)
-    def self.stopItem(uuid)
-        InFlightControlSystem::stop(uuid)
-    end
-
     # LXUserInterface::doneItem(uuid)
     def self.doneItem(uuid)
-        LXUserInterface::stopItem(uuid)
         LucilleThisCore::terminateItem(uuid)
     end
 
@@ -321,9 +312,7 @@ class LXUserInterface
             puts "uuid: #{uuid}"
             puts "description: #{LucilleThisCore::getDescription(uuid)}"
             options = [
-                "start",
                 "open",
-                "stop",
                 "done",
                 "set description",
                 "recast",
@@ -331,12 +320,6 @@ class LXUserInterface
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
-            if option == "start" then
-                InFlightControlSystem::start(uuid)
-            end
-            if option == "stop" then
-                LXUserInterface::stopItem(uuid)
-            end
             if option == "open" then
                 LucilleThisCore::exportContentsAtDesktop(uuid)
             end

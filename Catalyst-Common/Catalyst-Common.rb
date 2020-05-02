@@ -20,6 +20,16 @@ CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_CATALYST_FOLDERPATH
 
 class CatalystCommon
 
+    # CatalystCommon::onScreenNotification(title, message)
+    def self.onScreenNotification(title, message)
+        title = title.gsub("'","")
+        message = message.gsub("'","")
+        message = message.gsub("[","|")
+        message = message.gsub("]","|")
+        command = "terminal-notifier -title '#{title}' -message '#{message}'"
+        system(command)
+    end
+
     # CatalystCommon::copyLocationToCatalystBin(location)
     def self.copyLocationToCatalystBin(location)
         return if location.nil?

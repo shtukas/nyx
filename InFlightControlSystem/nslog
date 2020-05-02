@@ -40,30 +40,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "OpenCycles.rb"
+require_relative "InFlightControlSystem.rb"
+
 
 # -------------------------------------------------------------------------
 
-def metric(uuid)
-    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:da72d6d2-fd9e-48dd-b6f6-f1dc28b3337e:#{uuid}") ? 0.60 : 0.10
-end
+exit
+InFlightControlSystem::newItemPayloadText("Interface 🛩️", 0, "")
 
-objects = OpenCycles::uuids()
-    .map{|uuid|
-        object = {
-            "uuid"           => uuid,
-            "contentItem"    => {
-                "type" => "line",
-                "line" => "[Open Cycles] #{OpenCycles::getDescription(uuid)}"
-            },
-            "metric"         => metric(uuid),
-            "commands"       => ["open"],
-            "defaultCommand" => "ack",
-            "shell-redirects" => {
-                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{uuid}'",
-                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{uuid}'"
-            }
-        }
-    }
-
-puts JSON.generate(objects)

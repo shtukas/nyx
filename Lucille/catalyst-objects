@@ -70,11 +70,7 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-def makeMetric(uuid, indx, isRunning, timeline)
-    if isRunning then
-        return 1
-    end
-
+def makeMetric(uuid, indx, timeline)
     getDayCachedOrComputedAndCacheMetric = lambda {|uuid, computedmetric|
         storedmetric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{uuid}")
         if storedmetric then
@@ -92,8 +88,7 @@ def makeMetric(uuid, indx, isRunning, timeline)
 end
 
 def makeCommands(uuid, timeline)
-    runCommands = InFlightControlSystem::isRegistered(uuid) ? ["start", "stop"] : []
-    runCommands + ["open", "done", "set-description", "export-to-desktop", "recast", ">ifcs", ">lucille-other", ">nyx"]
+    ["open", "done", "set-description", "recast", ">ifcs", ">lucille-other", ">nyx"]
 end
 
 # -------------------------------------------------------------------------
@@ -126,7 +121,6 @@ objects = (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingC
             .map
             .with_index{|uuid, indx|
                 timeline = LucilleThisCore::getItemTimeline(uuid)
-                isRunning = InFlightControlSystem::isRunning(uuid)
                 description = LucilleThisCore::getDescription(uuid)
                 object = {
                     "uuid"            => uuid,
@@ -134,22 +128,20 @@ objects = (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingC
                         "type" => "line",
                         "line" => "[lucille] [#{timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
                     },
-                    "metric"          => makeMetric(uuid, indx, isRunning, timeline),
+                    "metric"          => makeMetric(uuid, indx, timeline),
                     "commands"        => makeCommands(uuid, timeline),
-                    "isRunning"       => isRunning,
-                    "defaultCommand"  => InFlightControlSystem::isRegistered(uuid) ? (isRunning ? "stop" : "start") : "open",
+                    "defaultCommand"  => "open",
                     "shell-redirects" => {
                         "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{uuid}'",
                         "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{uuid}'",
                         "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{uuid}'",
                         "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{uuid}'",
                         "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{uuid}'",
-                        ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing move-to-nyx '#{uuid}'",
+                        ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing >nyx '#{uuid}'",
                         "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{uuid}'",
                         ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing throttle '#{uuid}'"
                     }
                 }
-                InFlightControlSystem::catalistItemIFCSTransmutation(uuid, object)
             }
 
 puts JSON.generate(objects)
