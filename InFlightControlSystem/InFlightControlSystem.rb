@@ -196,9 +196,10 @@ class InFlightControlSystem
         x0 + x1
     end
 
-    # InFlightControlSystem::timeToMetric(uuid, timeInSeconds)
-    def self.timeToMetric(uuid, timeInSeconds)
+    # InFlightControlSystem::timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
+    def self.timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
         return 1 if InFlightControlSystem::isRunning(uuid)
+        return 0 if interfaceDiveIsRunning # We kill other items when Interface Dive is running
         timeInHours = timeInSeconds.to_f/3600
         return + Math.atan(-timeInHours).to_f/1000 if timeInHours > 0
         0.76 + Math.atan(-timeInHours).to_f/1000
@@ -211,7 +212,7 @@ class InFlightControlSystem
 
     # InFlightControlSystem::metric(uuid)
     def self.metric(uuid)
-        InFlightControlSystem::timeToMetric(uuid, InFlightControlSystem::storedTimespan(uuid))
+        InFlightControlSystem::timeToMetric(uuid, InFlightControlSystem::storedTimespan(uuid), InFlightControlSystem::isRunning("20200502-141716-483780"))
     end
 
     # InFlightControlSystem::isWeekDay()
