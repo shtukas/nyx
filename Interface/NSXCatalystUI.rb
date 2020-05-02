@@ -142,21 +142,6 @@ class NSXCatalystUI
                 return
             end
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-
-            getObjectForFocusDisplay = lambda{|selected, tail|
-                return selected if tail.empty?
-                if selected.empty? or tail.any?{|object| object["isRunning"] } then
-                    object = tail.shift
-                    selected << object
-                    return getObjectForFocusDisplay.call(selected, tail)
-                end
-                selected
-            }
-
-
-            if KeyValueStore::flagIsTrue(nil, "0300c0fa-eb2c-40c7-800d-26020354d987") then
-                objects = getObjectForFocusDisplay.call([], objects)
-            end
             NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
         }
     end

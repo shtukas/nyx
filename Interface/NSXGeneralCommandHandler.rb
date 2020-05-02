@@ -132,9 +132,7 @@ class NSXGeneralCommandHandler
                 loop {
                     options = [
                         "TheBridge generation speed",
-                        "ui generation speed",
-                        "focus mode [on]",
-                        "focus mode [off]"
+                        "ui generation speed"
                     ]
                     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                     break if option.nil?
@@ -164,12 +162,6 @@ class NSXGeneralCommandHandler
                         t2 = Time.new.to_f
                         puts "UI generation speed: #{(t2-t1).round(3)} seconds"
                         LucilleCore::pressEnterToContinue()
-                    end
-                    if option == "focus mode [on]" then
-                        KeyValueStore::setFlagTrue(nil, "0300c0fa-eb2c-40c7-800d-26020354d987")
-                    end
-                    if option == "focus mode [off]" then
-                        KeyValueStore::setFlagFalse(nil, "0300c0fa-eb2c-40c7-800d-26020354d987")
                     end
                 }
             end
