@@ -19,5 +19,17 @@ The expected kv entries are
 - uuid
 - description
 - timeline
+- payloadType
 
-And then a single aion reference hardcoded to "1815ea639314" pointing at a file or a folder.
+The possible values for payloadType are
+
+- aionpoint
+- text
+- url
+
+When "aionpoint" a single aion reference hardcoded to "1815ea639314" pointing at a file or a folder.
+
+When "text", the content is held in the kv store at key "472ec67c0dd6"
+
+When "url", the url is held in the kv store at key "67c2db721728"
+

@@ -100,14 +100,15 @@ class LucilleThisCore
         AetherKVStore::set(aetherfilepath, "uuid", uuid)
         AetherKVStore::set(aetherfilepath, "description", description)
         AetherKVStore::set(aetherfilepath, "timeline", timeline)
+        AetherKVStore::set(aetherfilepath, "payloadType", "aionpoint")
         AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", filepath)
     end
 
     # -----------------------------
     # Data
 
-    # LucilleThisCore::uuid()
-    def self.uuid()
+    # LucilleThisCore::uuids()
+    def self.uuids()
         Dir.entries(LucilleThisCore::pathToItems())
             .select{|filename| filename[-5, 5] == ".data" }
             .map{|filename| filename[0, 22] }
@@ -140,7 +141,7 @@ class LucilleThisCore
 
     # LucilleThisCore::timelines()
     def self.timelines()
-        LucilleThisCore::uuid()
+        LucilleThisCore::uuids()
             .map{|uuid| LucilleThisCore::getItemTimeline(uuid) }
             .uniq
             .sort
@@ -148,8 +149,20 @@ class LucilleThisCore
 
     # LucilleThisCore::getTimelineUUIDs(timeline)
     def self.getTimelineUUIDs(timeline)
-        LucilleThisCore::uuid()
+        LucilleThisCore::uuids()
             .select{|uuid| LucilleThisCore::getItemTimeline(uuid) == timeline }
+    end
+
+    # LucilleThisCore::setPayloadType(uuid, payloadType)
+    def self.setPayloadType(uuid, payloadType)
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherKVStore::set(aetherfilepath, "payloadType", payloadType)
+    end
+
+    # LucilleThisCore::getPayloadType(uuid)
+    def self.getPayloadType(uuid)
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherKVStore::getOrNull(aetherfilepath, "payloadType")
     end
 
     # -----------------------------
