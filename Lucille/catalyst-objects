@@ -71,20 +71,10 @@ require_relative "Lucille.rb"
 # -------------------------------------------------------------------------
 
 def makeMetric(uuid, indx, timeline)
-    getDayCachedOrComputedAndCacheMetric = lambda {|uuid, computedmetric|
-        storedmetric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{uuid}")
-        if storedmetric then
-            return storedmetric.to_f
-        end
-        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:4298a5d7-d24c-4716-b988-eec8d06ccde1:#{uuid}", computedmetric)
-        computedmetric
-    }
-
     if timeline == "[Inbox]" then
-        return getDayCachedOrComputedAndCacheMetric.call(uuid, 0.72 - indx.to_f/1000 )
+        return 0.72 - indx.to_f/1000
     end
-
-    return getDayCachedOrComputedAndCacheMetric.call(uuid, 0.40 - indx.to_f/1000 )
+    0.40 - indx.to_f/1000
 end
 
 def makeCommands(uuid, timeline)

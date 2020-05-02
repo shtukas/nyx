@@ -200,13 +200,9 @@ class InFlightControlSystem
     def self.timeToMetric(uuid, timeInSeconds)
         return 1 if InFlightControlSystem::isRunning(uuid)
         timeInHours = timeInSeconds.to_f/3600
-        return (0.75 + Math.atan(-timeInHours).to_f/1000) if timeInHours < -1
-        0.75*Math.exp(-timeInHours-1)
-
-        # -3600*2 -> 0.75
-        # -3600   -> 0.75
-        # -300    -> 0.29988724075863554
-        #  0      -> 0.27590958087858175
+        return 0.40 if timeInHours > 0
+        return 0.77 if timeInHours < -1
+        0.76 + Math.atan(-timeInHours).to_f/1000
     end
 
     # InFlightControlSystem::insertTime(uuid, timeInSeconds)
@@ -261,6 +257,7 @@ class InFlightControlSystem
 
     # InFlightControlSystem::distributeDayTimeCommitmentsIfNotDoneAlready()
     def self.distributeDayTimeCommitmentsIfNotDoneAlready()
+        return if Time.new.hour < 9
         InFlightControlSystem::uuidsOrderedByPosition()
             .each{|uuid|
                 next if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
@@ -317,5 +314,4 @@ class InFlightControlSystem
                             end
         "position: #{"%6.3f" % InFlightControlSystem::getPosition(uuid)} | ordinal: #{ordinal} | #{expectationString} | time: #{"%6.3f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)} | metric: #{"%6.3f" % InFlightControlSystem::metric(uuid)} | #{InFlightControlSystem::getDescription(uuid)} #{runTimeAsString}"
     end
-
 end

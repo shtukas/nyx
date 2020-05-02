@@ -23,17 +23,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 class NSXCatalystUI
 
-    # NSXCatalystUI::stringOrFirstString(content_type)
-    def self.stringOrFirstString(content_type)
-        if content_type.class.to_s == "String" then
-            content_type
-        else
-            content_type.first
-        end
-    end
-
-    # NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
-    def self.printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
+    # NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, verticalSpaceLeft)
+    def self.printDisplayObjectsForListing(displayObjectsForListing, position, verticalSpaceLeft)
 
         lucilleHasBeenDisplayed = false
 
@@ -42,9 +33,6 @@ class NSXCatalystUI
             # Position and Focus Management
             position = position + 1
             object = displayObjectsForListing.shift
-            if position == 1 then
-                focusobject = object
-            end
 
             # Space and Priorities Management
             displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
@@ -58,11 +46,11 @@ class NSXCatalystUI
             break if verticalSpaceLeft<=0 and displayObjectsForListing.none?{|object| object["isRunning"] }
         end
 
-        [position, verticalSpaceLeft, focusobject]
+        [position, verticalSpaceLeft]
     end
 
-    # NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(displayObjects)
-    def self.performPrimaryDisplayWithCatalystObjects(displayObjects)
+    # NSXCatalystUI::performInterfaceDisplay(displayObjects)
+    def self.performInterfaceDisplay(displayObjects)
 
         system("clear")
 
@@ -75,6 +63,7 @@ class NSXCatalystUI
                     .first(10)
                     .map{|line| "    " + line }
                     .join()
+                    .strip
         if content.size > 0 then
             puts ""
             puts "Lucille.txt 👩‍💻"
@@ -83,6 +72,7 @@ class NSXCatalystUI
         end
 
         if displayObjects.size==0 then
+            puts ""
             puts "No objects found"
             print "--> "
             command = STDIN.gets().strip
@@ -90,17 +80,16 @@ class NSXCatalystUI
             return
         end
 
-        focusobject = nil
-
         # displayObjectsForListing is being consumed while displayObjects should remain static
         displayObjectsForListing = displayObjects.map{|object| object.clone }
+        focusobject = displayObjectsForListing.first
 
         if !displayObjectsForListing.empty? then
             puts ""
             puts "Catalyst 💫"
             verticalSpaceLeft = verticalSpaceLeft - 2
             position = 0
-            position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
+            position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, verticalSpaceLeft)
         end
 
         # -----------------------------------------------------------------------------------
@@ -140,7 +129,7 @@ class NSXCatalystUI
                 return
             end
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            NSXCatalystUI::performPrimaryDisplayWithCatalystObjects(objects)
+            NSXCatalystUI::performInterfaceDisplay(objects)
         }
     end
 end

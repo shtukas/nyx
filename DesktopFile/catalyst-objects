@@ -49,17 +49,6 @@ def sectionToUUID(section)
     "#{Time.new.to_s[0,10]}-#{Digest::SHA1.hexdigest(section)}"
 end
 
-def metric(uuid, indx)
-    metric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:950e862e-21db-419a-ae60-5b3ff050987a:#{uuid}")
-    if metric then
-        return metric.to_f
-    else
-        metric = 0.71 - indx.to_f/1000
-        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:950e862e-21db-419a-ae60-5b3ff050987a:#{uuid}", metric)
-        return metric
-    end
-end
-
 # -----------------------------------------------------------------------------
 
 content = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b').map{|part| part.strip }[1]
@@ -75,7 +64,7 @@ objects = SectionsType0141::contentToSections(content)
                 "line" => "[Desktop] " + section.strip.lines.to_a.first,
                 "body" => "[Desktop] " + section.strip
             },
-            "metric"          => metric(sectionuuid, indx),
+            "metric"          => 0.74 - indx.to_f/1000,
             "commands"        => [">lucille"],
             "defaultCommand"  => "done",
             "shell-redirects" => {

@@ -49,7 +49,7 @@ InFlightControlSystem::distributeDayTimeCommitmentsIfNotDoneAlready()
 def catalystObject(uuid)
     isRunning = InFlightControlSystem::isRunning(uuid)
     runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
-    runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
+    runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : ""
     {
         "uuid"            => uuid,
         "contentItem"     => {

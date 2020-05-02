@@ -204,7 +204,7 @@ class NSXWaveUtils
             if schedule['from-hour'].nil? then
                 schedule['from-hour'] = 6
             end
-            return Time.new.hour >= schedule['from-hour'] ? ( 0.90 + NSXMiscUtils::traceToMetricShift(schedule["uuid"]) ) : 0
+            return Time.new.hour >= schedule['from-hour'] ? ( 0.82 + NSXMiscUtils::traceToMetricShift(schedule["uuid"]) ) : 0
         end
 
         # Repeats

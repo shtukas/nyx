@@ -40,6 +40,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require_relative "../Catalyst-Common/TwentyFourHoursCounterMetricHelper.rb"
+
 require_relative "YouTubeVideoStream.rb"
 
 # -------------------------------------------------------------------------
@@ -59,17 +61,9 @@ if !File.exists?(YouTubeVideoStream::spaceFolderpath()) then
     exit
 end
 
-def metric(uuid, indx)
-    metric = KeyValueStore::getOrNull(nil, "#{Time.new.to_s[0, 10]}:5a84c282-e6fb-46b7-b23f-2aa38b1aa8a3:#{uuid}")
-    if metric then
-        return metric.to_f
-    else
-        metric = 0.70 - indx.to_f/1000
-        KeyValueStore::set(nil, "#{Time.new.to_s[0, 10]}:5a84c282-e6fb-46b7-b23f-2aa38b1aa8a3:#{uuid}", metric)
-        return metric
-    end
+def metric(indx)
+    0.70 - indx.to_f/1000 + TwentyFourHoursCounterMetricHelper::metricshift("73718aae-ca1f-48b0-b6f5-10571e34b409", 20, -0.5)[1]
 end
-
 
 objects = []
 
@@ -84,11 +78,11 @@ YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath
             "type" => "line",
             "line" => "[VideoStream] #{File.basename(filepath)}"
         },
-        "metric"         => metric(uuid, indx),
+        "metric"         => metric(indx),
         "commands"       => ["delete"],
         "defaultCommand" => "play",
         "shell-redirects" => {
-            "play"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/catalyst-objects-processing play '#{uuid}'",
+            "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/catalyst-objects-processing open '#{uuid}'",
             "delete" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/catalyst-objects-processing delete '#{uuid}'"
         }
     }
