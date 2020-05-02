@@ -343,7 +343,7 @@ class LXUserInterface
                 "done",
                 "set description",
                 "recast",
-                "to-nyx"
+                ">nyx"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
@@ -361,7 +361,11 @@ class LXUserInterface
             if option == "recast" then
                 LXUserInterface::recastItem(uuid)
             end
-            if option == "to-nyx" then
+            if option == ">ifcs" then
+                LucilleThisCore::recastAsIFCSItem(uuid)
+                return
+            end
+            if option == ">nyx" then
                 LucilleThisCore::recastAsNyxItem(uuid)
                 return
             end

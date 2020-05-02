@@ -5,7 +5,7 @@ kvstore
       uuid        :
       description :
       payloadType :
-      positon     : Float
+      position    : Float
 
 The possible values for payloadType are
 

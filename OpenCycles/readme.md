@@ -11,6 +11,6 @@ The expected kv entries are
 - uuid
 - description
 
-And then a single aion reference hardcoded to "1815ea639314" pointing at a file or a folder.
+And then a single aionreference hardcoded to "1815ea639314" pointing at a file or a folder.
 
 

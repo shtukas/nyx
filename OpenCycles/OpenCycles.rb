@@ -120,6 +120,26 @@ class OpenCycles
         FileUtils.rm(aetherfilepath)
     end
 
+    # OpenCycles::recastAsIFCSItem(uuid)
+    def self.recastAsIFCSItem(uuid)
+        # IFCS expect
+        #    uuid        :
+        #    description :
+        #    payloadType :
+        #    position    : Float
+        # OpenCycles has
+        #    uuid
+        #    description
+        aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+        AetherKVStore::set(aetherfilepath, "payloadType", "aionpoint")
+        ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items-report`
+        puts ifcsreport
+        position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
+        AetherKVStore::set(aetherfilepath, "position", position)
+        ifcsfilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/Items/#{File.basename(aetherfilepath)}"
+        FileUtils.mv(aetherfilepath, ifcsfilepath)
+    end
+
     # -----------------------------
     # User Interface
 
@@ -154,7 +174,8 @@ class OpenCycles
                 OpenCycles::setDescription(uuid, description)
             end
             if option == ">ifcs" then
-                
+                OpenCycles::recastAsIFCSItem(uuid)
+                return
             end
         }
     end
