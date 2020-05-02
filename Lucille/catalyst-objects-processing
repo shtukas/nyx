@@ -27,43 +27,39 @@ require_relative "Lucille.rb"
 
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
+    exit if !LucilleThisCore::isCurrentUUID(uuid)
     LXUserInterface::openItemReadOnly(uuid)
 end
 
 if ARGV[0] == "set-description" and ARGV[1] then
     uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
+    exit if !LucilleThisCore::isCurrentUUID(uuid)
     description = LucilleCore::askQuestionAnswerAsString("description: ")
     LucilleThisCore::setDescription(uuid, description)
 end
 
 if ARGV[0] == "recast" and ARGV[1] then
     uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
+    exit if !LucilleThisCore::isCurrentUUID(uuid)
     LXUserInterface::recastItem(uuid)
 end
 
 if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
+    exit if !LucilleThisCore::isCurrentUUID(uuid)
     LXUserInterface::doneItem(uuid)
 end
 
-if ARGV[0] == ">nyx" then
+if ARGV[0] == "to-nyx" then
     uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
-    LucilleThisCore::transformIntoNyxItem(uuid)
+    exit if !LucilleThisCore::isCurrentUUID(uuid)
+    LucilleThisCore::recastAsNyxItem(uuid)
     exit
 end
 
-if ARGV[0] == ">ifcs" and ARGV[1] then
+if ARGV[0] == "to-ifcs" and ARGV[1] then
     uuid = ARGV[1]
-    aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-    exit if !File.exists?(aetherfilepath)
+    puts uuid
+    exit if !LucilleThisCore::isCurrentUUID(uuid)
+    LucilleThisCore::recastAsIFCSItem(uuid)
 end

@@ -2,9 +2,10 @@
 ## InFlightControlSystem Aether files
 
 kvstore
-      uuid: 
-      description:
-      payloadType:
+      uuid        :
+      description :
+      payloadType :
+      positon     : Float
 
 The possible values for payloadType are
 

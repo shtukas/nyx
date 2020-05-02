@@ -19,8 +19,9 @@ The expected kv entries are
 ```
 - uuid
 - description
-- position     : Float
 - payloadType
+- timeline
+
 ```
 
 The possible values for payloadType are

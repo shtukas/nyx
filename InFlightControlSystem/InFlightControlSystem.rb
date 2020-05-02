@@ -304,4 +304,18 @@ class InFlightControlSystem
         InFlightControlSystem::insertTime(uuid, timespan)
     end
 
+    # InFlightControlSystem::itemToLongString(uuid)
+    def self.itemToLongString(uuid)
+        runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
+        runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
+        ordinal = InFlightControlSystem::getCurrentOrdinalForUUIDOrNull(uuid)
+        expectation = InFlightControlSystem::ordinalTo24HoursTimeExpectationInSeconds(ordinal)
+        expectationString = if ["20200502-141331-226084", "20200502-141716-483780"].include?(uuid) then
+                                "special circumstances"
+                            else
+                                "expect: #{"%7.3f" % (expectation.to_f/3600)} hours"
+                            end
+        "position: #{"%6.3f" % InFlightControlSystem::getPosition(uuid)} | ordinal: #{ordinal} | #{expectationString} | time: #{"%6.3f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)} | metric: #{"%6.3f" % InFlightControlSystem::metric(uuid)} | #{InFlightControlSystem::getDescription(uuid)} #{runTimeAsString}"
+    end
+
 end

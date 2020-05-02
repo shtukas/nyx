@@ -86,6 +86,12 @@ class LucilleThisCore
         FileUtils.rm(filepath)
     end
 
+    # LucilleThisCore::isCurrentUUID(uuid)
+    def self.isCurrentUUID(uuid)
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        File.exists?(aetherfilepath)
+    end
+
     # -----------------------------
     # Makers
 
@@ -203,8 +209,29 @@ class LucilleThisCore
         AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", targetfolderpath)
     end
 
-    # LucilleThisCore::transformIntoNyxItem(uuid)
-    def self.transformIntoNyxItem(uuid)
+    # LucilleThisCore::recastAsIFCSItem(uuid)
+    def self.recastAsIFCSItem(uuid)
+        # IFCS expect
+        #    uuid        :
+        #    description :
+        #    payloadType :
+        #    position    : Float
+        # Lucille has
+        #    uuid
+        #    description
+        #    payloadType
+        #    timeline
+        ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items-report`
+        puts ifcsreport
+        position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherKVStore::set(aetherfilepath, "position", position)
+        ifcsfilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/Items/#{File.basename(aetherfilepath)}"
+        FileUtils.mv(aetherfilepath, ifcsfilepath)
+    end
+
+    # LucilleThisCore::recastAsNyxItem(uuid)
+    def self.recastAsNyxItem(uuid)
         puts "Not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
@@ -316,7 +343,7 @@ class LXUserInterface
                 "done",
                 "set description",
                 "recast",
-                ">nyx"
+                "to-nyx"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
@@ -334,8 +361,8 @@ class LXUserInterface
             if option == "recast" then
                 LXUserInterface::recastItem(uuid)
             end
-            if option == ">nyx" then
-                LucilleThisCore::transformIntoNyxItem(uuid)
+            if option == "to-nyx" then
+                LucilleThisCore::recastAsNyxItem(uuid)
                 return
             end
         }

@@ -45,38 +45,5 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-def printSummary()
-    InFlightControlSystem::uuidsOrderedByPosition()
-        .each{|uuid| puts InFlightControlSystem::itemToLongString(uuid) }
-end
-
-def selectUUIDOrNull()
-    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", InFlightControlSystem::uuidsOrderedByPosition(), lambda{|uuid| itemToString(uuid) })
-end
-
-loop {
-    system("clear")
-    printSummary()
-    puts ""
-    operations = [
-        "start item",
-        "destroy item"
-    ]
-    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-    break if operation.nil?
-    if operation == "start item" then
-        uuid = selectUUIDOrNull()
-        next if uuid.nil?
-        InFlightControlSystem::start(uuid)
-    end
-    if operation == "destroy item" then
-        uuid = selectUUIDOrNull()
-        next if uuid.nil?
-        if ["20200502-141331-226084", "20200502-141716-483780"].include?(uuid) then
-            puts "Sorry Dave. You can't do that."
-            LucilleCore::pressEnterToContinue()
-            next
-        end
-        InFlightControlSystem::destroyItem(uuid)
-    end
-}
+InFlightControlSystem::uuidsOrderedByPosition()
+    .each{|uuid| puts InFlightControlSystem::itemToLongString(uuid) }
