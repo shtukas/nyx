@@ -20,6 +20,17 @@ CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_CATALYST_FOLDERPATH
 
 class CatalystCommon
 
+    # CatalystCommon::editTextUsingTextmate(text)
+    def self.editTextUsingTextmate(text)
+      filename = SecureRandom.hex
+      filepath = "/tmp/#{filename}"
+      File.open(filepath, 'w') {|f| f.write(text)}
+      system("/usr/local/bin/mate \"#{filepath}\"")
+      print "> press enter when done: "
+      input = STDIN.gets
+      IO.read(filepath)
+    end
+
     # CatalystCommon::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")
