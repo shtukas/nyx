@@ -68,8 +68,9 @@ class NSXCatalystUI
 
         system("clear")
 
-        verticalSpaceLeft = NSXMiscUtils::screenHeight()-4
+        verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
+        hasLucilleDisplay = false
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
                     .strip
@@ -78,10 +79,11 @@ class NSXCatalystUI
                     .map{|line| "    " + line }
                     .join()
         if content.size > 0 then
+            puts ""
             puts "Lucille.txt 👩‍💻"
             puts content
-            puts ""
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
+            hasLucilleDisplay = true
         end
 
         if displayObjects.size==0 then
@@ -94,15 +96,19 @@ class NSXCatalystUI
 
         focusobject = nil
 
-        displayObjectsForListing = displayObjects.map{|object| object.clone }
         # displayObjectsForListing is being consumed while displayObjects should remain static
+        displayObjectsForListing = displayObjects.map{|object| object.clone }
 
-        puts "Catalyst 💫"
-        position = 0
-        position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
+        if hasLucilleDisplay then
+            displayObjectsForListing = displayObjectsForListing.select{|object| object["isRunning"] }
+        end
 
-        if focusobject.nil? then
-            puts "Nothing to do for the moment (^_^)"
+        if !displayObjectsForListing.empty? then
+            puts ""
+            puts "Catalyst 💫"
+            verticalSpaceLeft = verticalSpaceLeft - 2
+            position = 0
+            position, verticalSpaceLeft, focusobject = NSXCatalystUI::printDisplayObjectsForListing(displayObjectsForListing, position, focusobject, verticalSpaceLeft)
         end
 
         # -----------------------------------------------------------------------------------
@@ -125,7 +131,7 @@ class NSXCatalystUI
             return
         end
 
-        if command == "open" or (command == '..' and focusobject["defaultCommand"] == "open") then
+        if focusobject and command == "open" or (command == '..' and focusobject["defaultCommand"] == "open") then
             NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
             return
