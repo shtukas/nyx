@@ -116,7 +116,7 @@ objects = (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingC
                     "uuid"            => uuid,
                     "contentItem"     => {
                         "type" => "line",
-                        "line" => "[lucille] [#{timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
+                        "line" => "[lucille] [#{timeline == "[Inbox]" ? "done or ++ or recast" : timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
                     },
                     "metric"          => makeMetric(uuid, indx, timeline),
                     "commands"        => makeCommands(uuid, timeline),
