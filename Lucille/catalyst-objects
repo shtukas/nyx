@@ -66,6 +66,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Aether.rb
     AetherAionOperations::exportReferenceAtFolder(filepath, xreference, targetReconstructionFolderpath)
 =end
 
+require_relative "../Catalyst-Common/TheCacheWithLambdas.rb"
+
 require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
@@ -86,11 +88,13 @@ end
 while (text = Mercury::dequeueFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
     text = text.strip
     LucilleThisCore::newItemPayloadText(text.lines.first.strip, "[Inbox]", text)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 while (url = Mercury::dequeueFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
     url = url.strip
     LucilleThisCore::newItemPayloadUrl(url, "[Inbox]", url)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 getNextLocationAtTheInboxOrNull = lambda {
@@ -103,35 +107,40 @@ getNextLocationAtTheInboxOrNull = lambda {
 while (location = getNextLocationAtTheInboxOrNull.call()) do
     LucilleThisCore::newItemPayloadAionpoint(File.basename(location), "[Inbox]", location)
     LucilleCore::removeFileSystemLocation(location)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 # -------------------------------------------------------------------------
 
-objects = (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingCluster()["uuids"])
-            .map
-            .with_index{|uuid, indx|
-                timeline = LucilleThisCore::getItemTimeline(uuid)
-                description = LucilleThisCore::getDescription(uuid)
-                object = {
-                    "uuid"            => uuid,
-                    "contentItem"     => {
-                        "type" => "line",
-                        "line" => "[lucille] [#{timeline == "[Inbox]" ? "done or ++ or recast" : timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
-                    },
-                    "metric"          => makeMetric(uuid, indx, timeline),
-                    "commands"        => makeCommands(uuid, timeline),
-                    "defaultCommand"  => "open",
-                    "shell-redirects" => {
-                        "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{uuid}'",
-                        "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{uuid}'",
-                        "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{uuid}'",
-                        "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{uuid}'",
-                        "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{uuid}'",
-                        ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing to-nyx '#{uuid}'",
-                        "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{uuid}'",
-                        ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing to-ifcs '#{uuid}'"
-                    }
+def makeCatalystObjects()
+    (LucilleThisCore::getTimelineUUIDs("[Inbox]") + LXCluster::getWorkingCluster()["uuids"])
+        .map
+        .with_index{|uuid, indx|
+            timeline = LucilleThisCore::getItemTimeline(uuid)
+            description = LucilleThisCore::getDescription(uuid)
+            object = {
+                "uuid"            => uuid,
+                "contentItem"     => {
+                    "type" => "line",
+                    "line" => "[lucille] [#{timeline == "[Inbox]" ? "done or ++ or recast" : timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
+                },
+                "metric"          => makeMetric(uuid, indx, timeline),
+                "commands"        => makeCommands(uuid, timeline),
+                "defaultCommand"  => "open",
+                "shell-redirects" => {
+                    "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{uuid}'",
+                    "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{uuid}'",
+                    "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{uuid}'",
+                    "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{uuid}'",
+                    "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{uuid}'",
+                    ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing to-nyx '#{uuid}'",
+                    "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{uuid}'",
+                    ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing to-ifcs '#{uuid}'"
                 }
             }
+        }
+end
+
+objects = TheCacheWithLambdas::get("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441", lambda { makeCatalystObjects() }, 3600)
 
 puts JSON.generate(objects)

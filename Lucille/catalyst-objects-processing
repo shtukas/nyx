@@ -19,7 +19,7 @@ require 'securerandom'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
-# --------------------------------------------------------------------
+require_relative "../Catalyst-Common/TheCacheWithLambdas.rb"
 
 require_relative "Lucille.rb"
 
@@ -36,24 +36,28 @@ if ARGV[0] == "set-description" and ARGV[1] then
     exit if !LucilleThisCore::isCurrentUUID(uuid)
     description = LucilleCore::askQuestionAnswerAsString("description: ")
     LucilleThisCore::setDescription(uuid, description)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 if ARGV[0] == "recast" and ARGV[1] then
     uuid = ARGV[1]
     exit if !LucilleThisCore::isCurrentUUID(uuid)
     LXUserInterface::recastItem(uuid)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
     exit if !LucilleThisCore::isCurrentUUID(uuid)
     LXUserInterface::doneItem(uuid)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 if ARGV[0] == "to-nyx" then
     uuid = ARGV[1]
     exit if !LucilleThisCore::isCurrentUUID(uuid)
     LucilleThisCore::recastAsNyxItem(uuid)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
     exit
 end
 
@@ -62,4 +66,5 @@ if ARGV[0] == "to-ifcs" and ARGV[1] then
     puts uuid
     exit if !LucilleThisCore::isCurrentUUID(uuid)
     LucilleThisCore::recastAsIFCSItem(uuid)
+    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end

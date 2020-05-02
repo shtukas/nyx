@@ -253,7 +253,7 @@ class LXCluster
         LucilleThisCore::timelines()
             .reject{|timeline| timeline=="[Inbox]"}
             .map{|timeline|
-                LucilleThisCore::getTimelineUUIDs(timeline).sort.first(100)
+                LucilleThisCore::getTimelineUUIDs(timeline).sort.first(10)
             }
             .flatten
     end
@@ -269,17 +269,23 @@ class LXCluster
         JSON.parse(IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Lucille/cluster.json"))
     end
 
+    # LXCluster::issueNewCluster()
+    def self.issueNewCluster()
+        uuids = LXCluster::selectUUIDsForCluster()
+        cluster = {
+            "uuids" => uuids,
+            "initialsize" => uuids.size
+        }
+        LXCluster::commitClusterToDisk(cluster)
+        cluster
+    end
+
     # LXCluster::getWorkingCluster()
     def self.getWorkingCluster()
         cluster = LXCluster::getClusterFromDisk()
         cluster["uuids"] = cluster["uuids"].select{|uuid| File.exists?(LucilleThisCore::uuid2aetherfilepath(uuid)) }
         if cluster["uuids"].size < 0.5*cluster["initialsize"] then
-            uuids = LXCluster::selectUUIDsForCluster()
-            cluster = {
-                "uuids" => uuids,
-                "initialsize" => uuids.size
-            }
-            LXCluster::commitClusterToDisk(cluster)
+            cluster = LXCluster::issueNewCluster()
         end
         cluster
     end
