@@ -4,7 +4,6 @@
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
 =begin
     Mercury::postValue(channel, value)
-    Mercury::dequeueFirstValueOrNull(channel)
 
     Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
     Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)

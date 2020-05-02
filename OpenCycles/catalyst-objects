@@ -43,7 +43,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
 =begin
     Mercury::postValue(channel, value)
-    Mercury::dequeueFirstValueOrNull(channel)
 
     Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
     Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
@@ -59,9 +58,10 @@ require_relative "OpenCycles.rb"
 
 # -------------------------------------------------------------------------
 
-while (text = Mercury::dequeueFirstValueOrNull("b4efb93f-488d-4984-96bd-d4e453ebb00e")) do
+while (text = Mercury::getFirstValueOrNull("b4efb93f-488d-4984-96bd-d4e453ebb00e")) do
     text = text.strip
     OpenCycles::newItemPayloadText(text)
+    Mercury::deleteFirstValue("b4efb93f-488d-4984-96bd-d4e453ebb00e")
 end
 
 def metric(uuid)

@@ -43,7 +43,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
 =begin
     Mercury::postValue(channel, value)
-    Mercury::dequeueFirstValueOrNull(channel)
 
     Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
     Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
@@ -85,16 +84,18 @@ end
 
 # -------------------------------------------------------------------------
 
-while (text = Mercury::dequeueFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
+while (text = Mercury::getFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
     text = text.strip
     LucilleThisCore::newItemPayloadText(text.lines.first.strip, "[Inbox]", text)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
+    Mercury::deleteFirstValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")
 end
 
-while (url = Mercury::dequeueFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
+while (url = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
     url = url.strip
     LucilleThisCore::newItemPayloadUrl(url, "[Inbox]", url)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
+    Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
 getNextLocationAtTheInboxOrNull = lambda {

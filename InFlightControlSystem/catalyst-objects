@@ -43,7 +43,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
 =begin
     Mercury::postValue(channel, value)
-    Mercury::dequeueFirstValueOrNull(channel)
 
     Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
     Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
@@ -59,11 +58,12 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-while (packet = Mercury::dequeueFirstValueOrNull("95df0a03-2bf5-4d7a-a911-b6d67bed8d09")) do
+while (packet = Mercury::getFirstValueOrNull("95df0a03-2bf5-4d7a-a911-b6d67bed8d09")) do
     description = packet["description"]
     text = packet["text"]
     position = packet["position"]
     InFlightControlSystem::newItemPayloadText(description, position, text)
+    Mercury::deleteFirstValue("95df0a03-2bf5-4d7a-a911-b6d67bed8d09")
 end
 
 InFlightControlSystem::distributeDayTimeCommitmentsIfNotDoneAlready()
