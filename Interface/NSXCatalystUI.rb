@@ -97,8 +97,8 @@ class NSXCatalystUI
         end
 
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("In FLight Control System 🛰️", displayObjectsForListing, 0.76, position, verticalSpaceLeft)
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("Lucille.txt [bottom]", displayObjectsForListing, 0.73, position, verticalSpaceLeft)
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("📬", displayObjectsForListing, 0.71, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("Lucille.txt [bottom] (quickly done, or postponed, or reclassified possibly as ifcs)", displayObjectsForListing, 0.73, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("📬 (quickly done, or postponed, or reclassified possibly as ifcs)", displayObjectsForListing, 0.71, position, verticalSpaceLeft)
 
         if verticalSpaceLeft >= 2 then
             lucilleClusterReport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-cluster-report`.strip
@@ -107,7 +107,7 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - 2
         end
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛩️", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛩️  (quickly done, or postponed, or reclassified possibly as ifcs)", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
 
         if displayObjects.size==0 then
             puts ""

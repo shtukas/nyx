@@ -61,8 +61,8 @@ objects = SectionsType0141::contentToSections(content)
             "uuid"           => sectionuuid,
             "contentItem"    => {
                 "type" => "line-and-body",
-                "line" => "[done or ++ or >] " + section.strip.lines.to_a.first,
-                "body" => "[done or ++ or >] " + section.strip
+                "line" => section.strip.lines.to_a.first,
+                "body" => section.strip
             },
             "metric"          => 0.74 - indx.to_f/10000,
             "commands"        => [">lucille", ">opencycles", ">ifcs"],
