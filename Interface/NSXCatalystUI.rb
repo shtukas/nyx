@@ -84,7 +84,7 @@ class NSXCatalystUI
         if content.size > 0 then
             puts ""
             puts "Lucille.txt 👩‍💻"
-            puts content
+            puts content.green
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
         end
 
