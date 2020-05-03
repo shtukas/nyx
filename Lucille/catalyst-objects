@@ -124,7 +124,7 @@ def makeCatalystObjects()
                 "uuid"            => uuid,
                 "contentItem"     => {
                     "type" => "line",
-                    "line" => "[lucille] [#{timeline == "Inbox" ? "done or ++ or recast" : timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
+                    "line" => "[lucille] [#{timeline}]#{timeline == "Inbox" ? " [done or ++ or recast]" : ""} [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
                 },
                 "metric"          => makeMetric(uuid, indx, timeline),
                 "commands"        => makeCommands(uuid, timeline),

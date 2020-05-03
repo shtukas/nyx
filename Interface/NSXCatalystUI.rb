@@ -70,12 +70,6 @@ class NSXCatalystUI
 
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🏃‍♀️", displayObjectsForListing, 1, position, verticalSpaceLeft)
 
-        calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
-        if calendarreport.size > 0 then
-            puts calendarreport
-            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size )
-        end
-
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🗓️", displayObjectsForListing, 0.91, position, verticalSpaceLeft)
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("💫", displayObjectsForListing, 0.78, position, verticalSpaceLeft)
 
@@ -92,6 +86,14 @@ class NSXCatalystUI
             puts "Lucille.txt 👩‍💻"
             puts content
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
+        end
+
+        calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
+        if calendarreport.size > 0 then
+            puts ""
+            puts "🗓️"
+            puts calendarreport
+            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 2 )
         end
 
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("In FLight Control System 🛰️", displayObjectsForListing, 0.76, position, verticalSpaceLeft)

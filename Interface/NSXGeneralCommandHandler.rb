@@ -131,6 +131,7 @@ class NSXGeneralCommandHandler
             options = [
                 "Nyx Search",
                 "Nyx",
+                "Calendar",
                 "In Flight Control System",
                 "Open Cycles",
                 "Lucille",
@@ -177,6 +178,9 @@ class NSXGeneralCommandHandler
             end
             if option == "In Flight Control System" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs")
+            end
+            if option == "Calendar" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")
             end
             if option == "Lucille" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille")
