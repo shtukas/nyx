@@ -83,6 +83,7 @@ class NSXCatalystUI
         content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
                     .strip
                     .lines
+                    .select{|line| line.strip.size > 0 }
                     .first([10, verticalSpaceLeft].min)
                     .map{|line| "    " + line }
                     .join()
