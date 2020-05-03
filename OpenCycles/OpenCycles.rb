@@ -115,13 +115,35 @@ class OpenCycles
     # -----------------------------
     # Operations
 
-    # OpenCycles::exportContentsAtDesktop(uuid)
-    def self.exportContentsAtDesktop(uuid)
-        targetfolderpath = "/Users/pascal/Desktop/#{uuid}"
-        return if File.exists?(targetfolderpath)
-        FileUtils.mkdir(targetfolderpath)
+    # OpenCycles::exportContentAtDesktop(uuid)
+    def self.exportContentAtDesktop(uuid)
+        exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
+        return if File.exists?(exportfolderpath)
+        FileUtils.mkdir(exportfolderpath)
         aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
-        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", targetfolderpath)
+        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+    end
+
+    # OpenCycles::editContent(uuid)
+    def self.editContent(uuid)
+        exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
+        while File.exists?(exportfolderpath) do
+            puts "-> I an see a folder [#{uuid}] on the Desktop"
+            puts "-> It might be from a previous export"
+            puts "-> Please delete it or rename it to continue with edition"
+            LucilleCore::pressEnterToContinue()
+        end
+        FileUtils.mkdir(exportfolderpath)
+        puts "-> When edition is done I am going to import #{exportfolderpath}"
+        aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+        puts "-> Edition in progress... Next step will be the import."
+        LucilleCore::pressEnterToContinue()
+        AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", exportfolderpath)
+        puts "-> Put copying the target to Catalyst Bin Timeline"
+        CatalystCommon::copyLocationToCatalystBin(exportfolderpath)
+        puts "-> Deleting the target"
+        LucilleCore::removeFileSystemLocation(exportfolderpath)
     end
 
     # OpenCycles::terminateItem(uuid)
@@ -167,6 +189,7 @@ class OpenCycles
             puts "description: #{OpenCycles::getDescription(uuid)}"
             options = [
                 "open",
+                "edit",
                 "destroy",
                 "set description",
                 ">ifcs"
@@ -174,7 +197,10 @@ class OpenCycles
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                OpenCycles::exportContentsAtDesktop(uuid)
+                OpenCycles::exportContentAtDesktop(uuid)
+            end
+            if option == "edit" then
+                OpenCycles::editContent(uuid)
             end
             if option == "destroy" then
                 OpenCycles::terminateItem(uuid)

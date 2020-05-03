@@ -199,8 +199,8 @@ class LucilleThisCore
         LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", LucilleThisCore::timelines())
     end
 
-    # LucilleThisCore::exportContentsAtDesktop(uuid)
-    def self.exportContentsAtDesktop(uuid)
+    # LucilleThisCore::exportContentAtDesktop(uuid)
+    def self.exportContentAtDesktop(uuid)
         targetfolderpath = "/Users/pascal/Desktop/#{uuid}"
         return if File.exists?(targetfolderpath)
         FileUtils.mkdir(targetfolderpath)
@@ -297,7 +297,7 @@ class LXUserInterface
     def self.openItemReadOnly(uuid)
         payloadType = LucilleThisCore::getPayloadType(uuid)
         if payloadType == "aionpoint" then
-            LucilleThisCore::exportContentsAtDesktop(uuid)
+            LucilleThisCore::exportContentAtDesktop(uuid)
         end
         if payloadType == "text" then
             aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
@@ -353,7 +353,7 @@ class LXUserInterface
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                LucilleThisCore::exportContentsAtDesktop(uuid)
+                LucilleThisCore::exportContentAtDesktop(uuid)
             end
             if option == "done" then
                 LXUserInterface::doneItem(uuid)
