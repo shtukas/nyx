@@ -272,8 +272,9 @@ class LXCluster
     def self.issueNewCluster()
         uuids = LXCluster::selectUUIDsForCluster()
         cluster = {
-            "uuids" => uuids,
-            "initialsize" => uuids.size
+            "creationunixtime" => Time.new.to_i,
+            "initialsize" => uuids.size,
+            "uuids" => uuids
         }
         LXCluster::commitClusterToDisk(cluster)
         cluster
