@@ -124,7 +124,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == ">>" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop-whichever-is-running")
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop-or-start")
         end
 
         if command == "/" then

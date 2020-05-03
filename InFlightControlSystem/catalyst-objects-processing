@@ -37,6 +37,6 @@ if ARGV[0] == "stop" and ARGV[1] then
     InFlightControlSystem::stop(uuid)
 end
 
-if ARGV[0] == "stop-whichever-is-running" then
-    InFlightControlSystem::stopWhicheverIsRunning()
+if ARGV[0] == "stop-or-start" then
+    InFlightControlSystem::stopOrStart()
 end

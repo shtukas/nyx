@@ -298,10 +298,18 @@ class InFlightControlSystem
         InFlightControlSystem::insertTime(uuid, timespan)
     end
 
-    # InFlightControlSystem::stopWhicheverIsRunning()
-    def self.stopWhicheverIsRunning()
-        InFlightControlSystem::uuids()
-            .each{|uuid| InFlightControlSystem::stop(uuid) }
+    # InFlightControlSystem::stopOrStart()
+    def self.stopOrStart()
+        if InFlightControlSystem::uuids().any?{|uuid| InFlightControlSystem::isRunning(uuid) } then
+            InFlightControlSystem::uuids()
+                .each{|uuid| InFlightControlSystem::stop(uuid) }
+        else
+            InFlightControlSystem::uuids()
+                .sort{|uuid1, uuid2| InFlightControlSystem::storedTimespan(uuid1) <=> InFlightControlSystem::storedTimespan(uuid2) }
+                .first(1)
+                .each{|uuid| InFlightControlSystem::start(uuid) }
+        end
+
     end
 
     # InFlightControlSystem::itemToLongString(uuid)
