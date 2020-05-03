@@ -270,6 +270,7 @@ class NyxPermanodeOperator
         return false if !types.include?(object["type"])
         if object["type"] == "perma-dir-11859659" then
             return false if object["foldername"].nil?
+            return false if !File.exists?("/Users/pascal/Galaxy/Nyx-Permadirs/#{object["foldername"]}")
         end
         true
     end
@@ -394,8 +395,8 @@ class NyxPermanodeOperator
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = Ymir2Estate::locationBasenameToYmirLocationOrNull(pathToYmir, target["foldername"])
-            if folderpath.nil? then
+            folderpath = "/Users/pascal/Galaxy/Nyx-Permadirs/#{target["foldername"]}"
+            if !File.exists?(folderpath) then
                 puts "[error: dbd35b00] This should not have happened. Cannot find folder for permadir foldername '#{target["foldername"]}'"
                 LucilleCore::pressEnterToContinue()
                 return
@@ -628,7 +629,7 @@ class NyxPermanodeOperator
             selecteddesktopLocationnames, _ = LucilleCore::selectZeroOrMore("file", [], desktopLocationnames)
             return nil if selecteddesktopLocationnames.empty?
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = Ymir2Estate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), foldername2)
+            folderpath2 = "/Users/pascal/Galaxy/Nyx-Permadirs/#{foldername2}"
             FileUtils.mkdir(folderpath2)
             selecteddesktopLocations = selecteddesktopLocationnames.map{|filename| "/Users/pascal/Desktop/#{filename}" }
             selecteddesktopLocations.each{|desktoplocation|
@@ -773,7 +774,7 @@ class NyxPermanodeOperator
             locations = NyxMiscUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
 
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = Ymir2Estate::makeNewYmirLocationForBasename(NyxEstate::pathToYmir(), foldername2)
+            f2olderpath2 = "/Users/pascal/Galaxy/Nyx-Permadirs/#{foldername2}"
             FileUtils.mkdir(folderpath2)
 
             permanodeTarget = {
@@ -827,7 +828,7 @@ class NyxPermanodeOperator
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = Ymir2Estate::locationBasenameToYmirLocationOrNull(NyxEstate::pathToYmir(), target["foldername"])
+            folderpath = "/Users/pascal/Galaxy/Nyx-Permadirs/#{target["foldername"]}"
             return if folderpath.nil?
             LucilleCore::removeFileSystemLocation(folderpath)
             return
