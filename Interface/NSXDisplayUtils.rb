@@ -109,6 +109,13 @@ class NSXDisplayUtils
         puts NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1)
         print "--> "
         command = STDIN.gets().strip
+
+        if command == "open" or (command == '..' and object["defaultCommand"] == "open") then
+            NSXGeneralCommandHandler::processCatalystCommandManager(object, "open")
+            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+            return
+        end
+
         NSXGeneralCommandHandler::processCatalystCommandManager(object, command)
     end
 

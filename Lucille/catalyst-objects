@@ -79,7 +79,7 @@ def makeMetric(uuid, indx, timeline)
 end
 
 def makeCommands(uuid, timeline)
-    ["open", "done", "set-description", "recast", ">ifcs", ">lucille-other", ">nyx"]
+    ["open", "edit", "done", "set-description", "recast", ">ifcs", ">lucille-other", ">nyx"]
 end
 
 # -------------------------------------------------------------------------
@@ -133,6 +133,7 @@ def makeCatalystObjects()
                     "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{uuid}'",
                     "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{uuid}'",
                     "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{uuid}'",
+                    "edit" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing edit '#{uuid}'",
                     "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{uuid}'",
                     "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{uuid}'",
                     ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing to-nyx '#{uuid}'",

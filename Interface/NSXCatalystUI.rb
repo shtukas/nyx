@@ -136,7 +136,7 @@ class NSXCatalystUI
             return
         end
 
-        if focusobject and command == "open" or (command == '..' and focusobject["defaultCommand"] == "open") then
+        if focusobject and (command == "open" or (command == '..' and focusobject["defaultCommand"] == "open")) then
             NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, "open")
             NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(focusobject)
             return

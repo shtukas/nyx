@@ -199,15 +199,6 @@ class LucilleThisCore
         LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", LucilleThisCore::timelines())
     end
 
-    # LucilleThisCore::exportContentAtDesktop(uuid)
-    def self.exportContentAtDesktop(uuid)
-        targetfolderpath = "/Users/pascal/Desktop/#{uuid}"
-        return if File.exists?(targetfolderpath)
-        FileUtils.mkdir(targetfolderpath)
-        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", targetfolderpath)
-    end
-
     # LucilleThisCore::recastAsIFCSItem(uuid)
     def self.recastAsIFCSItem(uuid)
         # IFCS expect
@@ -297,7 +288,7 @@ class LXUserInterface
     def self.openItemReadOnly(uuid)
         payloadType = LucilleThisCore::getPayloadType(uuid)
         if payloadType == "aionpoint" then
-            LucilleThisCore::exportContentAtDesktop(uuid)
+            LXUserInterface::exportContentAtDesktop(uuid)
         end
         if payloadType == "text" then
             aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
@@ -310,6 +301,56 @@ class LXUserInterface
             aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
             url = AetherKVStore::getOrNull(aetherfilepath, "67c2db721728")
             system("open '#{url}'")
+        end
+    end
+
+    # LXUserInterface::exportContentAtDesktop(uuid)
+    def self.exportContentAtDesktop(uuid)
+        exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
+        return if File.exists?(exportfolderpath)
+        FileUtils.mkdir(exportfolderpath)
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+    end
+
+    # LXUserInterface::editContent(uuid)
+    def self.editContent(uuid)
+
+        payloadType = LucilleThisCore::getPayloadType(uuid)
+
+        if payloadType == "aionpoint" then
+            exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
+            while File.exists?(exportfolderpath) do
+                puts "-> I am seeing a folder [#{uuid}] on the Desktop"
+                puts "-> It might be from a previous export"
+                puts "-> Please delete it or rename it to continue with edition"
+                LucilleCore::pressEnterToContinue()
+            end
+            FileUtils.mkdir(exportfolderpath)
+            puts "-> When edition is done I am going to import #{exportfolderpath}"
+            aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+            AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+            puts "-> Edition in progress... Next step will be the import."
+            LucilleCore::pressEnterToContinue()
+            AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", exportfolderpath)
+            puts "-> Put copying the target to Catalyst Bin Timeline"
+            CatalystCommon::copyLocationToCatalystBin(exportfolderpath)
+            puts "-> Deleting the target"
+            LucilleCore::removeFileSystemLocation(exportfolderpath)
+        end
+
+        if payloadType == "text" then
+            aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+            text = AetherKVStore::getOrNull(aetherfilepath, "472ec67c0dd6")
+            text = CatalystCommon::editTextUsingTextmate(text)
+            AetherKVStore::set(aetherfilepath, "472ec67c0dd6", text)
+        end
+
+        if payloadType == "url" then
+            aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+            url = AetherKVStore::getOrNull(aetherfilepath, "67c2db721728")
+            url = CatalystCommon::editTextUsingTextmate(url).strip
+            AetherKVStore::set(aetherfilepath, "67c2db721728", url)
         end
     end
 
@@ -345,6 +386,7 @@ class LXUserInterface
             puts "description: #{LucilleThisCore::getDescription(uuid)}"
             options = [
                 "open",
+                "edit",
                 "done",
                 "set description",
                 "recast",
@@ -353,7 +395,10 @@ class LXUserInterface
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                LucilleThisCore::exportContentAtDesktop(uuid)
+                LXUserInterface::exportContentAtDesktop(uuid)
+            end
+            if option == "edit" then
+                LXUserInterface::editContent(uuid)
             end
             if option == "done" then
                 LXUserInterface::doneItem(uuid)

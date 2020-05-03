@@ -128,7 +128,7 @@ class OpenCycles
     def self.editContent(uuid)
         exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
         while File.exists?(exportfolderpath) do
-            puts "-> I an see a folder [#{uuid}] on the Desktop"
+            puts "-> I am seeing a folder [#{uuid}] on the Desktop"
             puts "-> It might be from a previous export"
             puts "-> Please delete it or rename it to continue with edition"
             LucilleCore::pressEnterToContinue()
