@@ -90,6 +90,7 @@ if ARGV[0] == "tolucille" and ARGV[1] then
     section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
     exit if section.nil?
     CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
+    section = CatalystCommon::editTextUsingTextmate(section)
     timelines = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-timelines`)
     timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", timelines)
     timeline = timeline || "Inbox"
