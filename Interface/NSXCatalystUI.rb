@@ -69,6 +69,13 @@ class NSXCatalystUI
         position = 0
 
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🏃‍♀️", displayObjectsForListing, 1, position, verticalSpaceLeft)
+
+        calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
+        if calendarreport.size > 0 then
+            puts calendarreport
+            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size )
+        end
+
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🗓️", displayObjectsForListing, 0.91, position, verticalSpaceLeft)
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("💫", displayObjectsForListing, 0.78, position, verticalSpaceLeft)
 

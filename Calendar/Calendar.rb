@@ -3,14 +3,23 @@ def pathToCalendarItems()
     "/Users/pascal/Galaxy/DataBank/Catalyst/Calendar/Items"
 end
 
-def itemsFilepaths()
-    Dir.entries(pathToCalendarItems())
-        .select{|filename| filename[-4, 4] == ".txt" }
-        .sort
-        .map{|filename| "#{pathToCalendarItems()}/#{filename}" }
+def today()
+    Time.new.to_s[0, 10]
 end
 
-def filePathToCatalystObject(filepath, indx)
+def dates()
+    Dir.entries(pathToCalendarItems())
+    .select{|filename| filename[-4, 4] == ".txt" }
+    .sort
+    .map{|filename| filename[0, 10] }
+end
+
+def dateToFilepath(date)
+    "#{pathToCalendarItems()}/#{date}.txt"
+end
+
+def filePathToCatalystObject(date, indx)
+    filepath = dateToFilepath(date)
     content = IO.read(filepath).strip
     date = File.basename(filepath)
     uuid = filepath
@@ -31,9 +40,9 @@ def filePathToCatalystObject(filepath, indx)
 end
 
 def catalystObjects()
-    itemsFilepaths()
+    dates()
         .map
-        .with_index{|filepath, indx| filePathToCatalystObject(filepath, indx) }
+        .with_index{|date, indx| filePathToCatalystObject(date, indx) }
 end
 
 
