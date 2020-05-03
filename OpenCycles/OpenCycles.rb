@@ -117,7 +117,7 @@ class OpenCycles
 
     # OpenCycles::exportContentsAtDesktop(uuid)
     def self.exportContentsAtDesktop(uuid)
-        targetfolderpath = "/Users/pascal/Deskop/#{uuid}"
+        targetfolderpath = "/Users/pascal/Desktop/#{uuid}"
         return if File.exists?(targetfolderpath)
         FileUtils.mkdir(targetfolderpath)
         aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
