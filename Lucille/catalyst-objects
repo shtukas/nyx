@@ -71,19 +71,6 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-def makeMetric(uuid, indx, timeline)
-    if timeline == "Inbox" then
-        return 0.72 - indx.to_f/10000
-    end
-    0.40 - indx.to_f/10000
-end
-
-def makeCommands(uuid, timeline)
-    ["open", "edit", "done", "set-description", "recast", ">ifcs", ">lucille-other", ">nyx"]
-end
-
-# -------------------------------------------------------------------------
-
 while (packet = Mercury::getFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
     text = packet["text"]
     timeline = packet["timeline"]
@@ -114,25 +101,47 @@ end
 
 # -------------------------------------------------------------------------
 
+def makeMetric(uuid, indx, timeline)
+    if timeline == "Inbox" then
+        return 0.72 - indx.to_f/10000
+    end
+    0.40 - indx.to_f/10000
+end
+
+def makeCommands(uuid, timeline)
+    ["open", "edit", "done", "set-description", "recast", ">ifcs", ">lucille-other", ">nyx"]
+end
+
+def makeDefaultCommand(contentItem)
+    if [".gov", ".com"].any?{|fragment| contentItem["line"].include?(fragment) } then
+        return "open+done"
+    end
+    "open"
+end
+
+# -------------------------------------------------------------------------
+
 def makeCatalystObjects()
     (LucilleThisCore::getTimelineUUIDs("Inbox") + LXCluster::getWorkingCluster()["uuids"])
         .map
         .with_index{|uuid, indx|
             timeline = LucilleThisCore::getItemTimeline(uuid)
             description = LucilleThisCore::getDescription(uuid)
+            contentItem = {
+                "type" => "line",
+                "line" => "[lucille] [#{timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
+            }
             object = {
                 "uuid"            => uuid,
-                "contentItem"     => {
-                    "type" => "line",
-                    "line" => "[lucille] [#{timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
-                },
+                "contentItem"     => contentItem,
                 "metric"          => makeMetric(uuid, indx, timeline),
                 "commands"        => makeCommands(uuid, timeline),
-                "defaultCommand"  => "open",
+                "defaultCommand"  => makeDefaultCommand(contentItem),
                 "shell-redirects" => {
                     "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing start '#{uuid}'",
                     "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{uuid}'",
                     "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{uuid}'",
+                    "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open+done '#{uuid}'",
                     "edit" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing edit '#{uuid}'",
                     "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{uuid}'",
                     "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{uuid}'",
