@@ -40,8 +40,19 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
+
 require_relative "Calendar.rb"
 
 # -------------------------------------------------------------------------
+
+dates()
+    .each{|date|
+        filepath = dateToFilepath(date)
+        content = IO.read(filepath).strip
+        next if content.size > 0
+        CatalystCommon::copyLocationToCatalystBin(filepath)
+        FileUtils.rm(filepath)
+    }
 
 puts JSON.generate(catalystObjects())
