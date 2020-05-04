@@ -89,7 +89,7 @@ class NSXCatalystUI
         end
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
-        if calendarreport.size > 0 then
+        if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""
             puts "🗓️"
             puts calendarreport
