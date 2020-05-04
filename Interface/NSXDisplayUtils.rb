@@ -34,7 +34,7 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::defaultCatalystObjectCommands()
     def self.defaultCatalystObjectCommands()
-        ["expose"]
+        ["expose", "note"]
     end
 
     # NSXDisplayUtils::objectInferfaceString(object)
@@ -55,52 +55,48 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
-
-        announceOrBodyLines = lambda{|object, announce, body|
-            if body then
-                if body.lines.size>1 then
-                    [
-                        "\n",
-                        object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding),
-                    ]
-                else
-                    [
-                        " ",
-                       (object["isRunning"] ? body.green : body),
-                    ]
-                end
-            else
-                [
-                    " ",
-                   (object["isRunning"] ? announce.green : announce),
-                ]
-            end
-        }
-        
         announce = NSXDisplayUtils::contentItemToAnnounce(object['contentItem'])
         body = NSXDisplayUtils::contentItemToBody(object['contentItem'])
-        lines = 
+        onFocusObjectPrefix = lambda{ |displayOrdinal, object|
+            "[#{"*".green}#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]})"
+        }
+        onFocusPossiblyLineReturnPrefixedObjectDisplayText = lambda{|object, announce, body|
+            if body then
+                if body.lines.size>1 then
+                    "\n #{object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding)}"
+                else
+                    " #{(object["isRunning"] ? body.green : body)}"
+                end
+            else
+                " #{(object["isRunning"] ? announce.green : announce)}"
+            end
+        }
+        onFocusObjectNoteDisplayOrNull = lambda {|prefix, object|
+            if NSXMiscUtils::hasXNote(object["uuid"]) then
+                text = [
+                    prefix,
+                    "-- note ---------------------------------------\n",
+                    NSXMiscUtils::getXNoteOrNull(object["uuid"]).lines.first(10).join() + "\n",
+                    "-----------------------------------------------"
+                ].join()
+                NSXDisplayUtils::addLeftPaddingToLinesOfText(text, NSX0746_StandardPadding)
+            else
+                nil
+            end
+        }
+        onFocusLineReturnPrefixedObjectSuffix = lambda {|object|
+            [
+                onFocusObjectNoteDisplayOrNull.call("\n", object),
+                "\n", 
+                NSX0746_StandardPadding,
+                NSXDisplayUtils::objectInferfaceString(object)
+            ].compact.join()
+        }
         if isFocus then
-            [
-                "[#{"*".green}#{"%2d" % displayOrdinal}]",
-                " ",
-                "(#{"%5.3f" % object["metric"]})"
-            ] + 
-            announceOrBodyLines.call(object, announce, body) +
-            [
-                "\n" + NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object)
-            ]
+            onFocusObjectPrefix.call(displayOrdinal, object) + onFocusPossiblyLineReturnPrefixedObjectDisplayText.call(object, announce, body) + onFocusLineReturnPrefixedObjectSuffix.call(object)
         else
-            [
-                "[ #{"%2d" % displayOrdinal}]",
-                " ",
-                "(#{"%5.3f" % object["metric"]})",
-                " ",
-                (object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])
-            ]
+            "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{(object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])}"
         end
-
-        lines.join()
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)

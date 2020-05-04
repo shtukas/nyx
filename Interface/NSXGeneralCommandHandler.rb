@@ -121,10 +121,12 @@ class NSXGeneralCommandHandler
             part1 = NSXMiscUtils::applyNextTransformationToContent(part1)
             content = [part1, part2].join("\n\n@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b\n\n")
             File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(content) }
+            return
         end
 
         if command == ">>" then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop-or-start")
+            return
         end
 
         if command == "/" then
@@ -214,6 +216,11 @@ class NSXGeneralCommandHandler
         if command == 'expose' then
             puts JSON.pretty_generate(object)
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == "note" then
+            NSXMiscUtils::editXNote(object["uuid"])
             return
         end
 

@@ -70,11 +70,6 @@ class NSXCatalystUI
 
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🏃‍♀️", displayObjectsForListing, 1, position, verticalSpaceLeft)
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🗓️", displayObjectsForListing, 0.91, position, verticalSpaceLeft)
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("💫", displayObjectsForListing, 0.78, position, verticalSpaceLeft)
-
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("In FLight Control System 🛰️", displayObjectsForListing, 0.76, position, verticalSpaceLeft)
-
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
                     .strip
@@ -91,6 +86,11 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
         end
 
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🗓️", displayObjectsForListing, 0.91, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("💫", displayObjectsForListing, 0.78, position, verticalSpaceLeft)
+
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("In FLight Control System 🛰️", displayObjectsForListing, 0.76, position, verticalSpaceLeft)
+
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""
@@ -105,11 +105,11 @@ class NSXCatalystUI
         if verticalSpaceLeft >= 2 then
             lucilleClusterReport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-cluster-report`.strip
             puts ""
-            puts lucilleClusterReport
+            puts "Lucille cluster report: #{lucilleClusterReport}"
             verticalSpaceLeft = verticalSpaceLeft - 2
         end
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛩️  (quickly done, or postponed, or reclassified possibly as ifcs)".yellow, displayObjectsForListing, 0.2, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛩️", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
 
         if displayObjects.size==0 then
             puts ""
