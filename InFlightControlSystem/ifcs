@@ -51,7 +51,7 @@ def printSummary()
 end
 
 def selectUUIDOrNull()
-    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", InFlightControlSystem::uuidsOrderedByPosition(), lambda{|uuid| itemToString(uuid) })
+    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", InFlightControlSystem::uuidsOrderedByPosition(), lambda{|uuid| InFlightControlSystem::itemToLongString(uuid) })
 end
 
 loop {
