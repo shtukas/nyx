@@ -115,8 +115,8 @@ class OpenCycles
     # -----------------------------
     # Operations
 
-    # OpenCycles::exportContentAtDesktop(uuid)
-    def self.exportContentAtDesktop(uuid)
+    # OpenCycles::exportAionContentAtDesktop(uuid)
+    def self.exportAionContentAtDesktop(uuid)
         exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
         return if File.exists?(exportfolderpath)
         FileUtils.mkdir(exportfolderpath)
@@ -197,7 +197,7 @@ class OpenCycles
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                OpenCycles::exportContentAtDesktop(uuid)
+                OpenCycles::exportAionContentAtDesktop(uuid)
             end
             if option == "edit" then
                 OpenCycles::editContent(uuid)

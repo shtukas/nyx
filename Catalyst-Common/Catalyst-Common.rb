@@ -99,4 +99,16 @@ class CatalystCommon
         inputline
     end
 
+    # CatalystCommon::getIFCSPositionForItemCreation()
+    def self.getIFCSPositionForItemCreation()
+        ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items-report`
+        puts ifcsreport
+        position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ").strip
+        if position.size>0 then
+            position.to_f
+        else
+            `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-highest-current-position`.to_f + 1
+        end
+    end
+
 end

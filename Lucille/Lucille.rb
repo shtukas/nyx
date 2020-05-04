@@ -211,9 +211,7 @@ class LucilleThisCore
         #    description
         #    payloadType
         #    timeline
-        ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items-report`
-        puts ifcsreport
-        position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
+        position = CatalystCommon::getIFCSPositionForItemCreation()
         aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
         AetherKVStore::set(aetherfilepath, "position", position)
         ifcsfilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/Items/#{File.basename(aetherfilepath)}"
@@ -284,11 +282,20 @@ end
 
 class LXUserInterface
 
+    # LXUserInterface::exportAionContentAtDesktop(uuid)
+    def self.exportAionContentAtDesktop(uuid)
+        exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
+        return if File.exists?(exportfolderpath)
+        FileUtils.mkdir(exportfolderpath)
+        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+    end
+
     # LXUserInterface::openItemReadOnly(uuid)
     def self.openItemReadOnly(uuid)
         payloadType = LucilleThisCore::getPayloadType(uuid)
         if payloadType == "aionpoint" then
-            LXUserInterface::exportContentAtDesktop(uuid)
+            LXUserInterface::exportAionContentAtDesktop(uuid)
         end
         if payloadType == "text" then
             aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
@@ -304,13 +311,47 @@ class LXUserInterface
         end
     end
 
-    # LXUserInterface::exportContentAtDesktop(uuid)
-    def self.exportContentAtDesktop(uuid)
-        exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
-        return if File.exists?(exportfolderpath)
-        FileUtils.mkdir(exportfolderpath)
-        aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
-        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+    # LXUserInterface::intelligentReadOnlyOpen(uuid)
+    def self.intelligentReadOnlyOpen(uuid) # Boolean # returns whether or not the intelligent opening did work
+        payloadType = LucilleThisCore::getPayloadType(uuid)
+        if payloadType == "aionpoint" then
+            exportfolderpath = "/tmp/#{LucilleThisCore::timeStringL22()}"
+            FileUtils.mkdir(exportfolderpath)
+            aetherfilepath = LucilleThisCore::uuid2aetherfilepath(uuid)
+            AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+            getBestDescendantFileInsideFolderOrNull = lambda{|folderpath|
+                locations = LucilleCore::locationsAtFolder(folderpath)
+                if locations.size == 1 then
+                    location = locations[0]
+                    if File.directory?(location) then
+                        getBestDescendantFileInsideFolderOrNull.call(location)
+                    else
+                        if [".txt", ".png", ".jpg", ".jpeg", ".pdf"].any?{|ext| location[-ext.size, ext.size] == ext } then
+                            location
+                        else
+                            nil
+                        end
+                    end
+                else
+                    nil
+                end
+            }
+            filepath = getBestDescendantFileInsideFolderOrNull.call(exportfolderpath)
+            if filepath then
+                system("open '#{filepath}'")
+                return true
+            else
+                return false
+            end
+        end
+        if payloadType == "text" then
+            LXUserInterface::openItemReadOnly(uuid)
+            return true
+        end
+        if payloadType == "url" then
+            LXUserInterface::openItemReadOnly(uuid)
+            return true
+        end
     end
 
     # LXUserInterface::editContent(uuid)
@@ -395,7 +436,7 @@ class LXUserInterface
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
-                LXUserInterface::exportContentAtDesktop(uuid)
+                LXUserInterface::exportAionContentAtDesktop(uuid)
             end
             if option == "edit" then
                 LXUserInterface::editContent(uuid)

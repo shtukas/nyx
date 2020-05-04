@@ -118,11 +118,10 @@ if ARGV[0] == "toifcs" and ARGV[1] then
     exit if section.nil?
     CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
     section = CatalystCommon::editTextUsingTextmate(section)
-    ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items-report`
-    puts ifcsreport
+    position = CatalystCommon::getIFCSPositionForItemCreation()
     packet = {
         "description" => section.lines.first.strip,
-        "position"    => LucilleCore::askQuestionAnswerAsString("position: ").to_f,
+        "position"    => position,
         "text"        => section
     }
     Mercury::postValue("95df0a03-2bf5-4d7a-a911-b6d67bed8d09", packet)
