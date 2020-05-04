@@ -79,7 +79,7 @@ class NSXWaveUtils
     def self.spawnNewWaveItem(description)
         uuid = NSXMiscUtils::timeStringL22()
         filepath = "#{NSXWaveUtils::waveFolderPath()}/I2tems/#{uuid}.wavedata"
-        AetherKVStore::makeNewFile(filepath)
+        AetherGenesys::makeNewPoint(filepath)
         AetherKVStore::set(filepath, "uuid", uuid)
         schedule = NSXWaveUtils::makeScheduleObjectInteractively()
         AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))
@@ -243,8 +243,8 @@ class NSXWaveUtils
         end
     end
 
-    # NSXWaveUtils::writeScheduleToZetaFile(uuid, schedule)
-    def self.writeScheduleToZetaFile(uuid, schedule)
+    # NSXWaveUtils::writeScheduleToAetherFile(uuid, schedule)
+    def self.writeScheduleToAetherFile(uuid, schedule)
         filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
         return if filepath.nil?
         AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))

@@ -62,7 +62,7 @@ end
 if ARGV[0] == 'recast' and ARGV[1] then
     objectuuid = ARGV[1]
     schedule = NSXWaveUtils::makeNewSchedule()
-    NSXWaveUtils::writeScheduleToZetaFile(objectuuid, schedule)
+    NSXWaveUtils::writeScheduleToAetherFile(objectuuid, schedule)
     exit
 end
 

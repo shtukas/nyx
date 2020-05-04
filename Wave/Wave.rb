@@ -37,14 +37,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Zeta.rb"
-=begin
-    AetherKVStore::makeNewFile(filepath)
-    AetherKVStore::set(filepath, key, value)
-    AetherKVStore::getOrNull(filepath, key)
-    AetherKVStore::destroy(filepath, key)
-=end
-
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Aether.rb"
 =begin
     AetherGenesys::makeNewPoint(filepath)
