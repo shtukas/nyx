@@ -78,7 +78,7 @@ require_relative "../Catalyst-Common/Catalyst-Common.rb"
 class NyxEstate
     # NyxEstate::uuid2aetherfilepath(uuid)
     def self.uuid2aetherfilepath(uuid)
-        "/Users/pascal/Galaxy/Nyx-Points/#{uuid}.nyxpoint"
+        "/Users/pascal/Galaxy/Nyx/Points/#{uuid}.nyxpoint"
     end
 end
 
@@ -353,7 +353,7 @@ class NyxOps
         end
         if target["type"] == "file-3C93365A" then
             filename = target["filename"]
-            filepath = "/Users/pascal/Galaxy/Nyx-Files/#{filename}"
+            filepath = "/Users/pascal/Galaxy/Nyx/Files/#{filename}"
             if NyxOps::fileCanBeSafelyOpen(filename) then
                 system("open '#{filepath}'")
             else
@@ -387,7 +387,7 @@ class NyxOps
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = "/Users/pascal/Galaxy/Nyx-Permadirs/#{target["foldername"]}"
+            folderpath = "/Users/pascal/Galaxy/Nyx/Permadirs/#{target["foldername"]}"
             if !File.exists?(folderpath) then
                 puts "[error: dbd35b00] This should not have happened. Cannot find folder for permadir foldername '#{target["foldername"]}'"
                 LucilleCore::pressEnterToContinue()
@@ -433,7 +433,7 @@ class NyxOps
 
     # NyxOps::nyxuuids()
     def self.nyxuuids()
-        Dir.entries("/Users/pascal/Galaxy/Nyx-Points")
+        Dir.entries("/Users/pascal/Galaxy/Nyx/Points")
             .select{|filename| filename[-9, 9] == ".nyxpoint" } # .nyxpoint
             .map{|filename| filename[0, filename.size-9] }
             .sort
@@ -497,7 +497,7 @@ class NyxOps
         filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
-        filepath3 = "/Users/pascal/Galaxy/Nyx-Files/#{filename2}"
+        filepath3 = "/Users/pascal/Galaxy/Nyx/Files/#{filename2}"
         FileUtils.mv(filepath2, filepath3)
         return {
             "uuid"     => SecureRandom.uuid,
@@ -584,7 +584,7 @@ class NyxOps
             selecteddesktopLocationnames, _ = LucilleCore::selectZeroOrMore("file", [], desktopLocationnames)
             return nil if selecteddesktopLocationnames.empty?
             foldername2 = NyxMiscUtils::l22()
-            folderpath2 = "/Users/pascal/Galaxy/Nyx-Permadirs/#{foldername2}"
+            folderpath2 = "/Users/pascal/Galaxy/Nyx/Permadirs/#{foldername2}"
             FileUtils.mkdir(folderpath2)
             selecteddesktopLocations = selecteddesktopLocationnames.map{|filename| "/Users/pascal/Desktop/#{filename}" }
             selecteddesktopLocations.each{|desktoplocation|
@@ -722,7 +722,7 @@ class NyxOps
             locations = NyxMiscUtils::selectOneOrMoreFilesOnTheDesktopByLocation()
 
             foldername2 = NyxMiscUtils::l22()
-            f2olderpath2 = "/Users/pascal/Galaxy/Nyx-Permadirs/#{foldername2}"
+            f2olderpath2 = "/Users/pascal/Galaxy/Nyx/Permadirs/#{foldername2}"
             FileUtils.mkdir(folderpath2)
 
             nyxPointTarget = {
@@ -754,7 +754,7 @@ class NyxOps
         end
         if target["type"] == "file-3C93365A" then
             filename = target["filename"]
-            filepath = "/Users/pascal/Galaxy/Nyx-Files/#{filename}"
+            filepath = "/Users/pascal/Galaxy/Nyx/Files/#{filename}"
             if File.exists?(filepath) then
                 CatalystCommon::copyLocationToCatalystBin(filepath)
                 FileUtils.rm(filepath)
@@ -775,7 +775,7 @@ class NyxOps
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            folderpath = "/Users/pascal/Galaxy/Nyx-Permadirs/#{target["foldername"]}"
+            folderpath = "/Users/pascal/Galaxy/Nyx/Permadirs/#{target["foldername"]}"
             return if folderpath.nil?
             CatalystCommon::copyLocationToCatalystBin(folderpath)
             LucilleCore::removeFileSystemLocation(folderpath)
