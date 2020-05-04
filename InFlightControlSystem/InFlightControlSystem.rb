@@ -323,6 +323,6 @@ class InFlightControlSystem
                             else
                                 "expect: #{"%7.3f" % (expectation.to_f/3600)} hours"
                             end
-        "position: #{"%6.3f" % InFlightControlSystem::getPosition(uuid)} | ordinal: #{ordinal} | #{expectationString} | time: #{"%6.3f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)} | metric: #{"%6.3f" % InFlightControlSystem::metric(uuid)} | #{InFlightControlSystem::getDescription(uuid)} #{runTimeAsString}"
+        "position: #{"%6.3f" % InFlightControlSystem::getPosition(uuid)} | ordinal: #{"%3d" % ordinal} | #{expectationString} | time: #{"%6.3f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)} | metric: #{"%6.3f" % InFlightControlSystem::metric(uuid)} | #{InFlightControlSystem::getDescription(uuid)} #{runTimeAsString}"
     end
 end
