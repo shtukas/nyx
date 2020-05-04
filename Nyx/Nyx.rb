@@ -427,6 +427,7 @@ class NyxOps
         filepath = NyxEstate::uuid2aetherfilepath(nyxuuid)
         puts filepath
         return if !File.exists?(filepath)
+        CatalystCommon::copyLocationToCatalystBin(filepath)
         FileUtils.rm(filepath)
     end
 
@@ -755,6 +756,7 @@ class NyxOps
             filename = target["filename"]
             filepath = "/Users/pascal/Galaxy/Nyx-Files/#{filename}"
             if File.exists?(filepath) then
+                CatalystCommon::copyLocationToCatalystBin(filepath)
                 FileUtils.rm(filepath)
             end
             return
@@ -775,6 +777,7 @@ class NyxOps
         if target["type"] == "perma-dir-11859659" then
             folderpath = "/Users/pascal/Galaxy/Nyx-Permadirs/#{target["foldername"]}"
             return if folderpath.nil?
+            CatalystCommon::copyLocationToCatalystBin(folderpath)
             LucilleCore::removeFileSystemLocation(folderpath)
             return
         end
