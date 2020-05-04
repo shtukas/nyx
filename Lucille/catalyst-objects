@@ -146,4 +146,12 @@ end
 
 objects = TheCacheWithLambdas::get("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441", lambda { makeCatalystObjects() }, 3600)
 
+# -----------------------------------------------------------------------
+# mark: be89bcf6-3bae-4872-ad1b-ea882aceddda
+# We are no longer invalidating the cache after having 'done' an object, 
+# therefore the cached data could have
+# objects which are no longer valid. We filter them out.
+objects = objects.select{|object| LucilleThisCore::isCurrentUUID(object["uuid"]) }
+# -----------------------------------------------------------------------
+
 puts JSON.generate(objects)

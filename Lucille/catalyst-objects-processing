@@ -57,7 +57,13 @@ if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
     exit if !LucilleThisCore::isCurrentUUID(uuid)
     LXUserInterface::doneItem(uuid)
-    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
+
+    # -----------------------------------------------------------------------
+    # mark: be89bcf6-3bae-4872-ad1b-ea882aceddda
+    # TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
+    # We no longer invalidate the precomputed catalyst objects when one is done
+    # Instead, we remove the corresponding object from the precomputed data
+    # -----------------------------------------------------------------------
 end
 
 if ARGV[0] == "to-nyx" then
