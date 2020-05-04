@@ -21,7 +21,6 @@ end
 def filePathToCatalystObject(date, indx)
     filepath = dateToFilepath(date)
     content = IO.read(filepath).strip
-    date = File.basename(filepath)
     uuid = filepath
     {
         "uuid"            => uuid,
@@ -31,10 +30,11 @@ def filePathToCatalystObject(date, indx)
             "body" => date + "\n" + content
         },
         "metric"          => KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{uuid}") ? 0 : 0.93 - indx.to_f/10000,
-        "commands"        => [],
-        "defaultCommand"  => "reviewed",
+        "commands"        => ["open"],
+        "defaultCommand"  => "reviewed", 
         "shell-redirects" => {
             "reviewed" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/catalyst-objects-processing reviewed '#{uuid}'",
+            "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/catalyst-objects-processing open '#{date}'",
         }
     }
 end
