@@ -47,7 +47,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShow
 (zeta file)
     uuid     : String
     schedule : String # Serialised JSON
-    text     : string # description, possibly multi lines
+    text     : string # Possibly multi lines
 
 (schedule) 
 
@@ -75,16 +75,28 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShow
 
 class NSXWaveUtils
 
-    # NSXWaveUtils::spawnNewWaveItem(description): String (uuid)
-    def self.spawnNewWaveItem(description)
+    # NSXWaveUtils::spawnNewWaveItem(text): String (uuid)
+    def self.spawnNewWaveItem(text)
         uuid = NSXMiscUtils::timeStringL22()
         filepath = "#{NSXWaveUtils::waveFolderPath()}/I2tems/#{uuid}.wavedata"
         AetherGenesys::makeNewPoint(filepath)
         AetherKVStore::set(filepath, "uuid", uuid)
         schedule = NSXWaveUtils::makeScheduleObjectInteractively()
         AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))
-        AetherKVStore::set(filepath, "text", description)
+        AetherKVStore::set(filepath, "text", text)
         uuid
+    end
+
+    # NSXWaveUtils::getText(nyxuuid)
+    def self.getText(nyxuuid)
+        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
+        AetherKVStore::getOrNull(filepath, "text") || "[default text]"
+    end
+
+    # NSXWaveUtils::setText(nyxuuid, text)
+    def self.setText(nyxuuid, text)
+        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
+        AetherKVStore::set(filepath, "text", text)
     end
 
     # NSXWaveUtils::waveFolderPath()
@@ -166,8 +178,8 @@ class NSXWaveUtils
         DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00").to_time.to_i
     end
 
-    # NSXWaveUtils::scheduleToDoNotShowUnixtime(objectuuid, schedule)
-    def self.scheduleToDoNotShowUnixtime(objectuuid, schedule)
+    # NSXWaveUtils::scheduleToDoNotShowUnixtime(nyxuuid, schedule)
+    def self.scheduleToDoNotShowUnixtime(nyxuuid, schedule)
         if schedule['@'] == 'sticky' then
             return NSXWaveUtils::unixtimeAtComingMidnight() + 6*3600
         end
@@ -225,8 +237,8 @@ class NSXWaveUtils
         1
     end
 
-    # NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
-    def self.catalystUUIDToItemFilepathOrNull(uuid)
+    # NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
+    def self.nyxuuidToFilepathOrNull(uuid)
         filepath = "#{NSXWaveUtils::waveFolderPath()}/I2tems/#{uuid}.wavedata"
         return nil if !File.exists?(filepath)
         filepath
@@ -245,14 +257,14 @@ class NSXWaveUtils
 
     # NSXWaveUtils::writeScheduleToAetherFile(uuid, schedule)
     def self.writeScheduleToAetherFile(uuid, schedule)
-        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
         return if filepath.nil?
         AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))
     end
 
     # NSXWaveUtils::readScheduleFromWaveItemOrNull(uuid)
     def self.readScheduleFromWaveItemOrNull(uuid)
-        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
         return nil if filepath.nil?
         schedule = AetherKVStore::getOrNull(filepath, "schedule")
         return nil if schedule.nil?
@@ -267,7 +279,7 @@ class NSXWaveUtils
     # NSXWaveUtils::sendItemToBin(uuid)
     def self.sendItemToBin(uuid)
         return if uuid.nil?
-        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
         return nil if filepath.nil?
         CatalystCommon::copyLocationToCatalystBin(filepath)
         LucilleCore::removeFileSystemLocation(filepath)
@@ -284,55 +296,56 @@ class NSXWaveUtils
         "[#{NSXWaveUtils::scheduleToAnnounce(schedule)}] #{NSXWaveUtils::extractFirstLineFromText(text)}"
     end
 
-    # NSXWaveUtils::makeCatalystObjectOrNull(objectuuid)
-    def self.makeCatalystObjectOrNull(objectuuid)
-        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
+    # NSXWaveUtils::makeCatalystObjectOrNull(nyxuuid)
+    def self.makeCatalystObjectOrNull(nyxuuid)
+        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
         return nil if filepath.nil?
-        schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(objectuuid)
-        text = AetherKVStore::getOrNull(filepath, "text") || "[default description]"
+        schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(nyxuuid)
+        text = NSXWaveUtils::getText(nyxuuid)
         announce = NSXWaveUtils::announce(text, schedule)
         contentItem = {
             "type" => "line",
             "line" => announce
         }
         object = {}
-        object['uuid'] = objectuuid
+        object['uuid'] = nyxuuid
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
-        object["commands"] = ["open", "done",  "recast", "destroy"]
+        object["commands"] = ["open", "edit", "done",  "recast", "destroy"]
         object["defaultCommand"] = "open+done"
         object['schedule'] = schedule
         object["shell-redirects"] = {
-            "open"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{objectuuid}'",
-            "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{objectuuid}'",
-            "done"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{objectuuid}'",
-            "recast"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{objectuuid}'",
-            "destroy"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{objectuuid}'"
+            "open"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{nyxuuid}'",
+            "edit"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing edit '#{nyxuuid}'",
+            "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{nyxuuid}'",
+            "done"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{nyxuuid}'",
+            "recast"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{nyxuuid}'",
+            "destroy"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{nyxuuid}'"
         }
         object
     end
 
-    # NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
-    def self.getObjectByUUIDOrNull(objectuuid)
+    # NSXWaveUtils::getObjectByUUIDOrNull(nyxuuid)
+    def self.getObjectByUUIDOrNull(nyxuuid)
         NSXWaveUtils::getCatalystObjects()
-            .select{|object| object["uuid"] == objectuuid }
+            .select{|object| object["uuid"] == nyxuuid }
             .first
     end
 
-    # NSXWaveUtils::performDone2(objectuuid)
-    def self.performDone2(objectuuid)
-        object = NSXWaveUtils::getObjectByUUIDOrNull(objectuuid)
+    # NSXWaveUtils::performDone2(nyxuuid)
+    def self.performDone2(nyxuuid)
+        object = NSXWaveUtils::getObjectByUUIDOrNull(nyxuuid)
         return if object.nil?
         schedule = object['schedule']
-        unixtime = NSXWaveUtils::scheduleToDoNotShowUnixtime(objectuuid, schedule)
-        DoNotShowUntil::setUnixtime(objectuuid, unixtime)
+        unixtime = NSXWaveUtils::scheduleToDoNotShowUnixtime(nyxuuid, schedule)
+        DoNotShowUntil::setUnixtime(nyxuuid, unixtime)
     end
 
-    # NSXWaveUtils::setItemDescription(uuid, description)
-    def self.setItemDescription(uuid, description)
-        filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(uuid)
+    # NSXWaveUtils::setItemDescription(uuid, text)
+    def self.setItemDescription(uuid, text)
+        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
         return if filepath.nil?
-        AetherKVStore::set(filepath, "text", description)
+        AetherKVStore::set(filepath, "text", text)
     end
 
     # NSXWaveUtils::getCatalystObjects()

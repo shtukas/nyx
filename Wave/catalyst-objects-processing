@@ -20,8 +20,8 @@ require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
 
-def openItem(objectuuid)
-    filepath = NSXWaveUtils::catalystUUIDToItemFilepathOrNull(objectuuid)
+def openItem(nyxuuid)
+    filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
     return if filepath.nil?
     text = AetherKVStore::getOrNull(filepath, "text").strip
     puts text
@@ -41,35 +41,43 @@ def openItem(objectuuid)
 end
 
 if ARGV[0] == 'open' and ARGV[1] then
-    objectuuid = ARGV[1]
-    openItem(objectuuid)
+    nyxuuid = ARGV[1]
+    openItem(nyxuuid)
+    exit
+end
+
+if ARGV[0] == 'edit' and ARGV[1] then
+    nyxuuid = ARGV[1]
+    text = NSXWaveUtils::getText(nyxuuid)
+    text = CatalystCommon::editTextUsingTextmate(text)
+    NSXWaveUtils::setText(nyxuuid, text)
     exit
 end
 
 if ARGV[0] == 'open+done' and ARGV[1] then
-    objectuuid = ARGV[1]
-    openItem(objectuuid)
-    NSXWaveUtils::performDone2(objectuuid)
+    nyxuuid = ARGV[1]
+    openItem(nyxuuid)
+    NSXWaveUtils::performDone2(nyxuuid)
     exit
 end
 
 if ARGV[0] == 'done' and ARGV[1] then
-    objectuuid = ARGV[1]
-    NSXWaveUtils::performDone2(objectuuid)
+    nyxuuid = ARGV[1]
+    NSXWaveUtils::performDone2(nyxuuid)
     exit
 end
 
 if ARGV[0] == 'recast' and ARGV[1] then
-    objectuuid = ARGV[1]
+    nyxuuid = ARGV[1]
     schedule = NSXWaveUtils::makeNewSchedule()
-    NSXWaveUtils::writeScheduleToAetherFile(objectuuid, schedule)
+    NSXWaveUtils::writeScheduleToAetherFile(nyxuuid, schedule)
     exit
 end
 
 if ARGV[0] == 'destroy' and ARGV[1] then
-    objectuuid = ARGV[1]
+    nyxuuid = ARGV[1]
     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-        NSXWaveUtils::sendItemToBin(objectuuid)
+        NSXWaveUtils::sendItemToBin(nyxuuid)
         exit
     end
     exit
