@@ -344,8 +344,8 @@ class NyxOps
         true # TODO
     end
 
-    # NyxOps::openNyxTarget(nyxuuid, target)
-    def self.openNyxTarget(nyxuuid, target)
+    # NyxOps::openNyxTarget(target)
+    def self.openNyxTarget(target)
         if target["type"] == "url-EFB8D55B" then
             url = target["url"]
             system("open '#{url}'")
@@ -416,7 +416,7 @@ class NyxOps
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", NyxOps::getTargets(nyxuuid), lambda{|target| NyxOps::nyxTargetToString(target) })
         end
         puts JSON.pretty_generate(target)
-        NyxOps::openNyxTarget(nyxuuid, target)
+        NyxOps::openNyxTarget(target)
     end
 
     # ------------------------------------------
@@ -902,7 +902,7 @@ class NyxUserInterface
         puts "-> nyxPointTarget:"
         puts JSON.pretty_generate(nyxPointTarget)
         puts NyxOps::nyxTargetToString(nyxPointTarget)
-        NyxOps::openNyxTarget(nyxuuid, nyxPointTarget)
+        NyxOps::openNyxTarget(nyxPointTarget)
     end
 
     # NyxUserInterface::nyxTargetsDive(nyxuuid)
