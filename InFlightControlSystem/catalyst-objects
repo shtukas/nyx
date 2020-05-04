@@ -89,7 +89,8 @@ def catalystObject(uuid)
     }
 end
 
-objects = InFlightControlSystem::uuids()
+objects = InFlightControlSystem::uuidsOrderedByPosition()
             .map{|uuid| catalystObject(uuid) }
+            .first(5) # dive, guardian work, and then 3 focuses
 
 puts JSON.generate(objects)
