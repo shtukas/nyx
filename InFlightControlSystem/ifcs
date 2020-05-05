@@ -84,6 +84,8 @@ loop {
             LucilleCore::pressEnterToContinue()
             next
         end
-        InFlightControlSystem::destroyItem(uuid)
+        if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this item? ") then
+            InFlightControlSystem::destroyItem(uuid)
+        end
     end
 }

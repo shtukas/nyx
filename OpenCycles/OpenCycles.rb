@@ -319,7 +319,9 @@ class OpenCycles
                 OpenCycles::editContent(uuid)
             end
             if option == "destroy" then
-                OpenCycles::terminateItem(uuid)
+                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this item? ") then
+                    OpenCycles::terminateItem(uuid)
+                end
                 return
             end
             if option == "set description" then
