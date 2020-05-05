@@ -112,18 +112,13 @@ if ARGV[0] == "recastAsOpenCycle" and ARGV[1] then
     # rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end
 
-if ARGV[0] == "toifcs" and ARGV[1] then
+if ARGV[0] == "recastAsIfcs" and ARGV[1] then
     sectionuuid = ARGV[1]
     section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
     exit if section.nil?
     CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
     section = CatalystCommon::editTextUsingTextmate(section)
     position = CatalystCommon::getIFCSPositionForItemCreation()
-    packet = {
-        "description" => section.lines.first.strip,
-        "position"    => position,
-        "text"        => section
-    }
-    Mercury::postValue("95df0a03-2bf5-4d7a-a911-b6d67bed8d09", packet)
-    rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+    # ...
+    # rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end

@@ -99,11 +99,6 @@ class OpenCycles
         OpenCycles::claims().select{|claim| claim["uuid"] == uuid }
     end
 
-    # OpenCycles::uuids()
-    def self.uuids()
-        OpenCycles::claims().map{|claim| claim["uuid"] }
-    end
-
     # OpenCycles::save(claim)
     def self.save(claim)
         uuid = claim["uuid"]
@@ -114,6 +109,7 @@ class OpenCycles
     def self.destroy(claim)
         uuid = claim["uuid"]
         filepath = "#{OpenCycles::pathToClaims()}/#{uuid}.json"
+        return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
@@ -133,8 +129,8 @@ class OpenCycles
         OpenCycles::save(claim)
     end
 
-    # OpenCycles::twinAsIFCSItem(claim)
-    def self.twinAsIFCSItem(claim)
+    # OpenCycles::issueIfcsClaim(claim)
+    def self.issueIfcsClaim(claim)
 
     end
 
@@ -171,7 +167,7 @@ class OpenCycles
                 OpenCycles::save(claim)
             end
             if option == ">ifcs" then
-                OpenCycles::twinAsIFCSItem(claim)
+                OpenCycles::issueIfcsClaim(claim)
                 return
             end
         }

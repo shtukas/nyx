@@ -58,17 +58,10 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-while (packet = Mercury::getFirstValueOrNull("95df0a03-2bf5-4d7a-a911-b6d67bed8d09")) do
-    description = packet["description"]
-    text = packet["text"]
-    position = packet["position"]
-    InFlightControlSystem::newItemPayloadText(description, position, text)
-    Mercury::deleteFirstValue("95df0a03-2bf5-4d7a-a911-b6d67bed8d09")
-end
-
 InFlightControlSystem::distributeDayTimeCommitmentsIfNotDoneAlready()
 
-def catalystObject(uuid)
+def catalystObject(claim)
+    uuid = claim["uuid"]
     isRunning = InFlightControlSystem::isRunning(uuid)
     runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
     runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : ""
@@ -76,7 +69,7 @@ def catalystObject(uuid)
         "uuid"            => uuid,
         "contentItem"     => {
             "type" => "line",
-            "line" => "[ifcs #{"%5.2f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)}] [#{InFlightControlSystem::getPayloadType(uuid)}] #{InFlightControlSystem::getDescription(uuid)}#{runTimeAsString}"
+            "line" => "[ifcs #{"%5.2f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)}] #{claim["description"]}#{runTimeAsString}"
         },
         "metric"          => InFlightControlSystem::metric(uuid),
         "commands"        => ["open", "edit"],
@@ -84,15 +77,14 @@ def catalystObject(uuid)
         "defaultCommand"  => isRunning ? "stop" : "start",
         "shell-redirects" => {
             "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing open '#{uuid}'",
-            "edit"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing edit '#{uuid}'",
             "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{uuid}'",
             "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{uuid}'",
         }
     }
 end
 
-objects = InFlightControlSystem::uuidsOrderedByPosition()
-            .map{|uuid| catalystObject(uuid) }
+objects = InFlightControlSystem::claims()
+            .map{|claim| catalystObject(claim) }
             .first(5) # dive, guardian work, and then 3 focuses
 
 puts JSON.generate(objects)

@@ -6,12 +6,13 @@ require_relative "InFlightControlSystem.rb"
 
 # --------------------------------------------------------------------
 
-InFlightControlSystem::uuidsOrderedByPosition()
-.each{|uuid|
+InFlightControlSystem::claims()
+.each{|claim|
+    uuid = claim["uuid"]
     next if !InFlightControlSystem::isRunning(uuid)
     # The item is running
     next if !InFlightControlSystem::runTimeInSecondsOrNull(uuid)
     next if InFlightControlSystem::runTimeInSecondsOrNull(uuid) < 3600
-    CatalystCommon::onScreenNotification("In Flight Control System", "#{InFlightControlSystem::getDescription(uuid)} is running for more than an hour")
+    CatalystCommon::onScreenNotification("In Flight Control System", "#{claim["description"]} is running for more than an hour")
     exit
 }

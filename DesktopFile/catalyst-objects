@@ -70,7 +70,7 @@ objects = SectionsType0141::contentToSections(content)
             "shell-redirects" => {
                 ">lucille" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing tolucille #{sectionuuid}",
                 ">opencycles" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing recastAsOpenCycle #{sectionuuid}",
-                ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing toifcs #{sectionuuid}",
+                ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing recastAsIfcs #{sectionuuid}",
                 "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing done #{sectionuuid}"
             }
         }

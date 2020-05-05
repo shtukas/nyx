@@ -45,47 +45,33 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-def printSummary()
-    InFlightControlSystem::uuidsOrderedByPosition()
-        .each{|uuid| puts InFlightControlSystem::itemToLongString(uuid) }
-end
-
-def selectUUIDOrNull()
-    LucilleCore::selectEntityFromListOfEntitiesOrNull("item", InFlightControlSystem::uuidsOrderedByPosition(), lambda{|uuid| InFlightControlSystem::itemToLongString(uuid) })
-end
-
 loop {
     system("clear")
-    uuid = selectUUIDOrNull()
-    break if uuid.nil?
+    claim = InFlightControlSystem::selectClaimOrNull()
+    break if claim.nil?
     puts ""
     operations = [
         "start item",
         "set description",
-        "edit item contents",
         "destroy item"
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
     break if operation.nil?
     if operation == "start item" then
-        InFlightControlSystem::start(uuid)
+        InFlightControlSystem::start(claim["uuid"])
     end
     if operation == "set description" then
-        text = InFlightControlSystem::getDescription(uuid)
-        text = CatalystCommon::editTextUsingTextmate(text)
-        InFlightControlSystem::setDescription(uuid, text)
-    end
-    if operation == "edit item contents" then
-        InFlightControlSystem::editContent(uuid)
+        claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
+        InFlightControlSystem::save(claim)
     end
     if operation == "destroy item" then
-        if ["20200502-141331-226084", "20200502-141716-483780"].include?(uuid) then
+        if ["20200502-141331-226084", "20200502-141716-483780"].include?(claim["uuid"]) then
             puts "Sorry Dave. You can't do that."
             LucilleCore::pressEnterToContinue()
             next
         end
         if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this item? ") then
-            InFlightControlSystem::destroyItem(uuid)
+            InFlightControlSystem::destroy(claim)
         end
     end
 }

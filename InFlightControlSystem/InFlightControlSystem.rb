@@ -91,103 +91,18 @@ class InFlightControlSystem
     end
 
     # -----------------------------------------------------------
-    # IO
-
-    # InFlightControlSystem::pathToItems()
-    def self.pathToItems()
-        "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/InFlightControlSystem/Items"
-    end
-
-    # InFlightControlSystem::uuid2aetherfilepath(uuid)
-    def self.uuid2aetherfilepath(uuid)
-        aetherfilename = "#{uuid}.data"
-        "#{InFlightControlSystem::pathToItems()}/#{aetherfilename}"
-    end
-
-    # InFlightControlSystem::newItemPayloadText(description, position, text)
-    def self.newItemPayloadText(description, position, text)
-        uuid = InFlightControlSystem::timeStringL22()
-        aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-        AetherGenesys::makeNewPoint(aetherfilepath)
-        AetherKVStore::set(aetherfilepath, "uuid", uuid)
-        AetherKVStore::set(aetherfilepath, "description", description)
-        AetherKVStore::set(aetherfilepath, "position", position)
-        AetherKVStore::set(aetherfilepath, "payloadType", "text")
-        AetherKVStore::set(aetherfilepath, "472ec67c0dd6", text)
-    end
-
-    # InFlightControlSystem::destroyItem(uuid)
-    def self.destroyItem(uuid)
-        filepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # -----------------------------------------------------------
     # Data
-
-    # InFlightControlSystem::uuids()
-    def self.uuids()
-        Dir.entries(InFlightControlSystem::pathToItems())
-            .select{|filename| filename[-5, 5] == ".data" }
-            .map{|filename| filename[0, 22] }
-            .sort
-    end
-
-    # InFlightControlSystem::getPosition(uuid)
-    def self.getPosition(uuid)
-        aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-        AetherKVStore::getOrNull(aetherfilepath, "position").to_f
-    end
-
-    # InFlightControlSystem::getDescription(uuid)
-    def self.getDescription(uuid)
-        aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-        AetherKVStore::getOrNull(aetherfilepath, "description")
-    end
-
-    # LucilleThisCore::setDescription(uuid, description)
-    def self.setDescription(uuid, description)
-        aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-        AetherKVStore::set(aetherfilepath, "description", description)
-    end
-
-    # InFlightControlSystem::getPayloadType(uuid)
-    def self.getPayloadType(uuid)
-        aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-        AetherKVStore::getOrNull(aetherfilepath, "payloadType")
-    end
-
-    # InFlightControlSystem::uuidsOrderedByPosition()
-    def self.uuidsOrderedByPosition()
-        InFlightControlSystem::uuids().sort{|uuid1, uuid2| InFlightControlSystem::getPosition(uuid1) <=> InFlightControlSystem::getPosition(uuid2) }
-    end
 
     # Presents the current priority list of the caller and let them enter a number that is then returned
     # InFlightControlSystem::interactiveChoiceOfPosition()
     def self.interactiveChoiceOfPosition() # Float
         puts "Items"
-        InFlightControlSystem::uuidsOrderedByPosition()
-            .each{|uuid|
-                puts "    - #{InFlightControlSystem::getPosition(uuid)} #{InFlightControlSystem::getDescription(uuid)}"
+        InFlightControlSystem::claims()
+            .each{|claim|
+                uuid = claim["uuid"]
+                puts "    - #{claim["position"]} #{claim["description"]}"
             }
         LucilleCore::askQuestionAnswerAsString("position: ").to_f
-    end
-
-    # InFlightControlSystem::getAllUUIDsOrderedWithComputedOrdinal()
-    def self.getAllUUIDsOrderedWithComputedOrdinal() # Array[ (uuid, ordinal: Int) ]
-        InFlightControlSystem::uuidsOrderedByPosition()
-            .map
-            .with_index
-            .to_a
-    end
-
-    # InFlightControlSystem::getCurrentOrdinalForUUIDOrNull(uuid)
-    def self.getCurrentOrdinalForUUIDOrNull(uuid)
-        InFlightControlSystem::getAllUUIDsOrderedWithComputedOrdinal()
-            .select{|pair| pair[0] == uuid }
-            .map{|pair| pair[1] }
-            .first
     end
 
     # InFlightControlSystem::storedTimespan(uuid)
@@ -262,14 +177,15 @@ class InFlightControlSystem
         if uuid == "20200502-141716-483780" then 
             return InFlightControlSystem::operatingTimespanMapping()["InterfaceDive"]
         end
-        InFlightControlSystem::ordinalTo24HoursTimeExpectationInSeconds(InFlightControlSystem::getCurrentOrdinalForUUIDOrNull(uuid))
+        InFlightControlSystem::ordinalTo24HoursTimeExpectationInSeconds(InFlightControlSystem::getOrdinal(uuid))
     end
 
     # InFlightControlSystem::distributeDayTimeCommitmentsIfNotDoneAlready()
     def self.distributeDayTimeCommitmentsIfNotDoneAlready()
         return if Time.new.hour < 9
-        InFlightControlSystem::uuidsOrderedByPosition()
-            .each{|uuid|
+        InFlightControlSystem::claims()
+            .each{|claim|
+                uuid = claim["uuid"]
                 next if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
                 timespan = InFlightControlSystem::itemPractical24HoursTimeExpectationInSecondsOrNull(uuid)
                 next if timespan.nil?
@@ -293,139 +209,6 @@ class InFlightControlSystem
     # -----------------------------------------------------------
     # Operations
 
-    # --------------------------------------
-    # This is a copy of the Lucille function
-    # --------------------------------------
-    # InFlightControlSystem::exportAionContentAtDesktop(uuid)
-    def self.exportAionContentAtDesktop(uuid)
-        exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
-        return if File.exists?(exportfolderpath)
-        FileUtils.mkdir(exportfolderpath)
-        aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
-    end
-
-    # --------------------------------------
-    # This is a copy of the Lucille function
-    # --------------------------------------
-    # InFlightControlSystem::openItemReadOnly(uuid)
-    def self.openItemReadOnly(uuid)
-        payloadType = InFlightControlSystem::getPayloadType(uuid)
-        if payloadType == "aionpoint" then
-            InFlightControlSystem::exportAionContentAtDesktop(uuid)
-        end
-        if payloadType == "text" then
-            aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-            text = AetherKVStore::getOrNull(aetherfilepath, "472ec67c0dd6")
-            tmpfilepath = "/tmp/#{uuid}.txt"
-            File.open(tmpfilepath, "w") {|f| f.puts(text) }
-            system("open '#{tmpfilepath}'")
-        end
-        if payloadType == "url" then
-            aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-            url = AetherKVStore::getOrNull(aetherfilepath, "67c2db721728")
-            system("open '#{url}'")
-        end
-    end
-
-    # --------------------------------------
-    # This is a copy of the Lucille function
-    # --------------------------------------
-    # InFlightControlSystem::intelligentReadOnlyOpen(uuid)
-    def self.intelligentReadOnlyOpen(uuid) # Boolean # returns whether or not the intelligent opening did work
-        payloadType = InFlightControlSystem::getPayloadType(uuid)
-        if payloadType == "aionpoint" then
-            exportfolderpath = "/tmp/#{InFlightControlSystem::timeStringL22()}"
-            FileUtils.mkdir(exportfolderpath)
-            aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-            AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
-            getBestDescendantFileInsideFolderOrNull = lambda{|folderpath|
-                locations = LucilleCore::locationsAtFolder(folderpath)
-                if locations.size == 1 then
-                    location = locations[0]
-                    if File.directory?(location) then
-                        getBestDescendantFileInsideFolderOrNull.call(location)
-                    else
-                        if [".txt", ".png", ".jpg", ".jpeg", ".pdf"].any?{|ext| location[-ext.size, ext.size] == ext } then
-                            location
-                        else
-                            nil
-                        end
-                    end
-                else
-                    nil
-                end
-            }
-            filepath = getBestDescendantFileInsideFolderOrNull.call(exportfolderpath)
-            if filepath then
-                system("open '#{filepath}'")
-                return true
-            else
-                return false
-            end
-        end
-        if payloadType == "text" then
-            InFlightControlSystem::openItemReadOnly(uuid)
-            return true
-        end
-        if payloadType == "url" then
-            InFlightControlSystem::openItemReadOnly(uuid)
-            return true
-        end
-    end
-
-    # --------------------------------------
-    # This is a copy of the Lucille function
-    # --------------------------------------
-    # InFlightControlSystem::bestOpen(uuid)
-    def self.bestOpen(uuid)
-        status = InFlightControlSystem::intelligentReadOnlyOpen(uuid)
-        if !status then
-            InFlightControlSystem::openItemReadOnly(uuid)
-        end
-    end
-
-    # InFlightControlSystem::editContent(uuid)
-    def self.editContent(uuid)
-
-        payloadType = InFlightControlSystem::getPayloadType(uuid)
-
-        if payloadType == "aionpoint" then
-            exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
-            while File.exists?(exportfolderpath) do
-                puts "-> I am seeing a folder [#{uuid}] on the Desktop"
-                puts "-> It might be from a previous export"
-                puts "-> Please delete it or rename it to continue with edition"
-                LucilleCore::pressEnterToContinue()
-            end
-            FileUtils.mkdir(exportfolderpath)
-            puts "-> When edition is done I am going to import #{exportfolderpath}"
-            aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-            AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
-            puts "-> Edition in progress... Next step will be the import."
-            LucilleCore::pressEnterToContinue()
-            AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", exportfolderpath)
-            puts "-> Put copying the target to Catalyst Bin Timeline"
-            CatalystCommon::copyLocationToCatalystBin(exportfolderpath)
-            puts "-> Deleting the target"
-            LucilleCore::removeFileSystemLocation(exportfolderpath)
-        end
-
-        if payloadType == "text" then
-            aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-            text = AetherKVStore::getOrNull(aetherfilepath, "472ec67c0dd6")
-            text = CatalystCommon::editTextUsingTextmate(text)
-            AetherKVStore::set(aetherfilepath, "472ec67c0dd6", text)
-        end
-
-        if payloadType == "url" then
-            aetherfilepath = InFlightControlSystem::uuid2aetherfilepath(uuid)
-            url = AetherKVStore::getOrNull(aetherfilepath, "67c2db721728")
-            url = CatalystCommon::editTextUsingTextmate(url).strip
-            AetherKVStore::set(aetherfilepath, "67c2db721728", url)
-        end
-    end
-
     # InFlightControlSystem::start(uuid)
     def self.start(uuid)
         return if InFlightControlSystem::isRunning(uuid)
@@ -445,29 +228,104 @@ class InFlightControlSystem
 
     # InFlightControlSystem::stopOrStart()
     def self.stopOrStart()
-        if InFlightControlSystem::uuids().any?{|uuid| InFlightControlSystem::isRunning(uuid) } then
-            InFlightControlSystem::uuids()
-                .each{|uuid| InFlightControlSystem::stop(uuid) }
+        if InFlightControlSystem::claims().any?{|claim| InFlightControlSystem::isRunning(claim["uuid"]) } then
+            InFlightControlSystem::claims()
+                .each{|claim| InFlightControlSystem::stop(claim["uuid"]) }
         else
-            InFlightControlSystem::uuids()
-                .sort{|uuid1, uuid2| InFlightControlSystem::storedTimespan(uuid1) <=> InFlightControlSystem::storedTimespan(uuid2) }
+            InFlightControlSystem::claims()
+                .sort{|claim1, claim2| InFlightControlSystem::storedTimespan(claim1["uuid"]) <=> InFlightControlSystem::storedTimespan(claim2["uuid"]) }
                 .first(1)
-                .each{|uuid| InFlightControlSystem::start(uuid) }
+                .each{|claim| InFlightControlSystem::start(claim["uuid"]) }
         end
 
     end
 
-    # InFlightControlSystem::itemToLongString(uuid)
-    def self.itemToLongString(uuid)
+    # InFlightControlSystem::claimToLongString(claim)
+    def self.claimToLongString(claim)
+        uuid = claim["uuid"]
         runTime = InFlightControlSystem::runTimeInSecondsOrNull(uuid)
         runTimeAsString = runTime ? " (running for #{(runTime.to_f/3600).round(2)} hours)" : "" 
-        ordinal = InFlightControlSystem::getCurrentOrdinalForUUIDOrNull(uuid)
+        ordinal = InFlightControlSystem::getOrdinal(uuid)
         expectation = InFlightControlSystem::ordinalTo24HoursTimeExpectationInSeconds(ordinal)
         expectationString = if ["20200502-141331-226084", "20200502-141716-483780"].include?(uuid) then
                                 "special circumstances"
                             else
                                 "expect: #{"%7.3f" % (expectation.to_f/3600)} hours"
                             end
-        "position: #{"%6.3f" % InFlightControlSystem::getPosition(uuid)} | ordinal: #{"%3d" % ordinal} | #{expectationString} | time: #{"%6.3f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)} | metric: #{"%6.3f" % InFlightControlSystem::metric(uuid)} | #{InFlightControlSystem::getDescription(uuid)} #{runTimeAsString}"
+        "position: #{"%6.3f" % claim["position"]} | ordinal: #{"%3d" % ordinal} | #{expectationString} | time: #{"%6.3f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)} | metric: #{"%6.3f" % InFlightControlSystem::metric(uuid)} | #{claim["description"]} #{runTimeAsString}"
     end
+
+    # ----------------------------------------------------------------------
+
+    # InFlightControlSystem::pathToClaims()
+    def self.pathToClaims()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/Claims"
+    end
+
+    # InFlightControlSystem::claims()
+    def self.claims()
+        Dir.entries(InFlightControlSystem::pathToClaims())
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "#{InFlightControlSystem::pathToClaims()}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|c1, c2| c1["position"] <=> c2["position"] }
+    end
+
+    # InFlightControlSystem::getClaimByUUIDOrNUll(uuid)
+    def self.getClaimByUUIDOrNUll(uuid)
+        InFlightControlSystem::claims().select{|claim| claim["uuid"] == uuid }
+    end
+
+    # InFlightControlSystem::save(claim)
+    def self.save(claim)
+        uuid = claim["uuid"]
+        File.open("#{InFlightControlSystem::pathToClaims()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+    end
+
+    # InFlightControlSystem::destroy(claim)
+    def self.destroy(claim)
+        uuid = claim["uuid"]
+        filepath = "#{InFlightControlSystem::pathToClaims()}/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # InFlightControlSystem::makeClaim(uuid, description, target, position)
+    def self.makeClaim(uuid, description, target, position)
+        {
+            "uuid"         => uuid,
+            "creationtime" => Time.new.to_f,
+            "description"  => description,
+            "target"       => target,
+            "position"     => position
+        }
+    end
+
+    # InFlightControlSystem::issueClaim(uuid, description, target, position)
+    def self.issueClaim(uuid, description, target, position)
+        claim = InFlightControlSystem::makeClaim(uuid, description, target, position)
+        InFlightControlSystem::save(claim)
+    end
+
+    # InFlightControlSystem::selectClaimOrNull()
+    def self.selectClaimOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("claim:", InFlightControlSystem::claims(), lambda {|claim| InFlightControlSystem::claimToLongString(claim) })
+    end
+
+    # InFlightControlSystem::getOrderedClaimsWithComputedOrdinal()
+    def self.getOrderedClaimsWithComputedOrdinal() # Array[ (claim, ordinal: Int) ]
+        InFlightControlSystem::claims()
+            .map
+            .with_index
+            .to_a
+    end
+
+    # InFlightControlSystem::getOrdinal(uuid)
+    def self.getOrdinal(uuid)
+        InFlightControlSystem::getOrderedClaimsWithComputedOrdinal()
+            .select{|pair| pair[0]["uuid"] == uuid }
+            .map{|pair| pair[1] }
+            .first
+    end
+
 end

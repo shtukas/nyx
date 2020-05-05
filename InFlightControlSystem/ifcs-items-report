@@ -45,5 +45,5 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-InFlightControlSystem::uuidsOrderedByPosition()
-    .each{|uuid| puts InFlightControlSystem::itemToLongString(uuid) }
+InFlightControlSystem::claims()
+    .each{|claim| puts InFlightControlSystem::claimToLongString(claim) }

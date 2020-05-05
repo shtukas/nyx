@@ -45,4 +45,4 @@ require_relative "InFlightControlSystem.rb"
 
 # -------------------------------------------------------------------------
 
-puts InFlightControlSystem::uuidsOrderedByPosition().map{|uuid| InFlightControlSystem::getPosition(uuid) }.max
+puts InFlightControlSystem::claims().map{|claim| claim["position"] }.max
