@@ -72,7 +72,7 @@ class NSXDisplayUtils
             end
         }
         onFocusObjectNoteDisplayOrNull = lambda {|prefix, object|
-            if NSXMiscUtils::hasXNote(object["uuid"]) then
+            if NSXMiscUtils::hasXNote(object["uuid"]) and NSXMiscUtils::getXNoteOrNull(object["uuid"]).strip.size>0 then
                 text = [
                     prefix,
                     "-- note ---------------------------------------\n",
