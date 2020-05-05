@@ -476,10 +476,10 @@ class LXUserInterface
     def self.timelineDive(timeline)
         puts "-> #{timeline}"
         loop {
-            locations = LucilleThisCore::getTimelineUUIDs(timeline)
-            location = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", locations, lambda {|location| LucilleThisCore::getDescription(location) })
-            break if location.nil?
-            LXUserInterface::itemDive(location)
+            uuids = LucilleThisCore::getTimelineUUIDs(timeline)
+            uuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("locations:", uuids, lambda {|uuid| "[#{LucilleThisCore::getPayloadType(uuid)}] #{LucilleThisCore::getDescription(uuid)}"  })
+            break if uuid.nil?
+            LXUserInterface::itemDive(uuid)
         }
     end
 

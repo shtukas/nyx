@@ -294,7 +294,7 @@ class OpenCycles
 
     # OpenCycles::selectItemOrNull()
     def self.selectItemOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", OpenCycles::uuids(), lambda {|uuid| OpenCycles::getDescription(uuid) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", OpenCycles::uuids(), lambda {|uuid| "[#{OpenCycles::getPayloadType(uuid)}] #{OpenCycles::getDescription(uuid)}"  })
     end
 
     # OpenCycles::itemDive(uuid)
