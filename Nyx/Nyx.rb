@@ -605,17 +605,7 @@ class NyxOps
 
     # NyxOps::makeOnePermanodeTagInteractiveOrNull()
     def self.makeOnePermanodeTagInteractiveOrNull()
-        inputToTextDisplay = lambda { |input|
-            return "" if input.size < 3
-            NyxSearch::searchPatternToTags(input).join("\n")
-        }
-        fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
-        return nil if fragment == ";"
-        if fragment[-1, 1] == ";" then
-            fragment = fragment[0, fragment.size-1]
-        end
-        return nil if fragment.size == 0
-        fragment
+        LucilleCore::askQuestionAnswerAsString("tag: ")
     end
 
     # NyxOps::makePermanodeTagsInteractive()
@@ -633,17 +623,7 @@ class NyxOps
 
     # NyxOps::makeOnePermanodeStreamInteractiveOrNull()
     def self.makeOnePermanodeStreamInteractiveOrNull()
-        inputToTextDisplay = lambda { |input|
-            return "" if input.size < 3
-            NyxSearch::searchPatternToStreams(input).join("\n")
-        }
-        fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
-        return nil if fragment == ";"
-        if fragment[-1, 1] == ";" then
-            fragment = fragment[0, fragment.size-1]
-        end
-        return nil if fragment.size == 0
-        fragment
+        LucilleCore::askQuestionAnswerAsString("stream: ")
     end
 
     # NyxOps::makePermanodeStreamsInteractive()
@@ -820,26 +800,7 @@ class NyxSearch
 
     # NyxSearch::nextGenGetSearchFragmentOrNull()
     def self.nextGenGetSearchFragmentOrNull() # () -> String
-        inputToTextDisplay = lambda { |input|
-            return "" if input.size < 3 
-            str1 = NyxSearch::searchPatternToNyxPointsDescriptions(input)
-                    .map{|description| "nyx point: #{description}" }
-                    .join("\n")
-            str2 = NyxSearch::searchPatternToTags(input)
-                    .map{|tag| "tag: #{tag}" }
-                    .join("\n")
-            str3 = NyxSearch::searchPatternToStreams(input)
-                    .map{|stream| "stream #{stream}" }
-                    .join("\n")
-            [ str1, str2, str3 ].join("\n\n")
-        }
-        fragment = CatalystCommon::interactiveVisualisation(inputToTextDisplay)
-        return nil if fragment == ";"
-        if fragment[-1, 1] == ";" then
-            fragment = fragment[0, fragment.size-1]
-        end
-        return nil if fragment.size == 0
-        fragment
+        LucilleCore::askQuestionAnswerAsString("search fragment: ")
     end
 
     # NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(fragment)

@@ -61,44 +61,6 @@ class CatalystCommon
         File.open("#{folder3}/#{filename}", "w"){|f| f.puts(text) }
     end
 
-    # CatalystCommon::interactiveVisualisation(inputToTextDisplay)
-    def self.interactiveVisualisation(inputToTextDisplay)
-        # Input:
-        #     inputToTextDisplay: StringLine -> StringMultiline
-        # Output:
-        #     StringLine # The last one
-
-        shouldStop = lambda {|inputline, character|
-            ords = [
-                4     # CRTL+D
-            ]
-            ords.include?(character.ord) or (inputline[-1, 1] == ";")
-        }
-
-        inputline = ""
-
-        system("clear")
-        puts "exit with ctrl+d and commit with ';'"
-        print "> "
-
-        loop {
-            c = STDIN.getch
-            if c.ord == 127 then # DELETE
-                if inputline.size > 0 then
-                    inputline = inputline[0, inputline.size-1]
-                end
-            else
-                inputline += c
-            end
-            inputline = inputline.gsub(/[^[:print:]]/i, '')
-            puts "> #{inputline}"
-            str = inputToTextDisplay.call(inputline)
-            puts str if str.size > 0
-            break if shouldStop.call(inputline, c)
-        }
-        inputline
-    end
-
     # CatalystCommon::getIFCSPositionForItemCreation()
     def self.getIFCSPositionForItemCreation()
         ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items-report`
