@@ -1,16 +1,12 @@
-We are now using Aether files to store Open Cycles data.
+### OpenCycles Next Gen
 
-The file names carry are l22 strings which also are the UUIDs of the items. Example
+An OpenCycle's claim is an object
 
 ```
-20200416-110732-623024.data
+{
+    "uuid"         : String
+    "creationtime" : unixtime with decimals
+    "description"  : String
+    "target"       : CatalystStandardTarget
+}
 ```
-
-Implement the TheLucilleTypeAetherCarrier conventions.
-
-### Mercury Channels
-
-Text to become Open Cycles item payload `text`
-
-- channel: b4efb93f-488d-4984-96bd-d4e453ebb00e
-- payload: String

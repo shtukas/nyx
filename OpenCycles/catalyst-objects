@@ -58,31 +58,24 @@ require_relative "OpenCycles.rb"
 
 # -------------------------------------------------------------------------
 
-while (text = Mercury::getFirstValueOrNull("b4efb93f-488d-4984-96bd-d4e453ebb00e")) do
-    text = text.strip
-    OpenCycles::newItemPayloadText(text)
-    Mercury::deleteFirstValue("b4efb93f-488d-4984-96bd-d4e453ebb00e")
-end
-
 def metric(uuid)
     KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:da72d6d2-fd9e-48dd-b6f6-f1dc28b3337e:#{uuid}") ? 0.60 : 0.10
 end
 
-objects = OpenCycles::uuids()
-    .map{|uuid|
+objects = OpenCycles::claims()
+    .map{|claim|
         object = {
-            "uuid"           => uuid,
+            "uuid"           => claim["uuid"],
             "contentItem"    => {
                 "type" => "line",
-                "line" => "[Open Cycles] [#{OpenCycles::getPayloadType(uuid)}] #{OpenCycles::getDescription(uuid)}"
+                "line" => "[Open Cycles] #{claim["description"]}"
             },
-            "metric"         => metric(uuid),
+            "metric"         => metric(claim["uuid"]),
             "commands"       => ["open", "edit"],
             "defaultCommand" => "ack",
             "shell-redirects" => {
-                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{uuid}'",
-                "edit" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing edit '#{uuid}'",
-                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{uuid}'"
+                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{claim["uuid"]}'",
+                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{claim["uuid"]}'"
             }
         }
     }

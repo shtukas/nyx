@@ -102,14 +102,14 @@ if ARGV[0] == "tolucille" and ARGV[1] then
     rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end
 
-if ARGV[0] == "toopencycles" and ARGV[1] then
+if ARGV[0] == "recastAsOpenCycle" and ARGV[1] then
     sectionuuid = ARGV[1]
     section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
     exit if section.nil?
     CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
     section = CatalystCommon::editTextUsingTextmate(section)
-    Mercury::postValue("b4efb93f-488d-4984-96bd-d4e453ebb00e", section)
-    rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+    # ....
+    # rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end
 
 if ARGV[0] == "toifcs" and ARGV[1] then

@@ -47,7 +47,7 @@ require_relative "OpenCycles.rb"
 puts "Open Cycles"
 
 loop {
-    uuid = OpenCycles::selectItemOrNull()
-    break if uuid.nil?
-    OpenCycles::itemDive(uuid)
+    claim = OpenCycles::selectClaimOrNull()
+    break if claim.nil?
+    OpenCycles::claimDive(claim)
 }

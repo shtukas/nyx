@@ -8,7 +8,21 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require 'io/console'
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.rb"
+=begin
+
+    CoreDataFile::copyFileToRepository(filepath)
+    CoreDataFile::filenameToFilepath(filename)
+    CoreDataFile::filenameIsCurrent(filename)
+    CoreDataFile::openOrCopyToDesktop(filename)
+    CoreDataFile::deleteFile(filename)
+
+    CoreDataDirectory::copyFolderToRepository(folderpath)
+    CoreDataDirectory::foldernameToFolderpath(foldername)
+    CoreDataDirectory::openFolder(foldername)
+    CoreDataDirectory::deleteFolder(foldername)
+
+=end
 
 # -----------------------------------------------------------------
 
@@ -71,6 +85,23 @@ class CatalystCommon
         else
             `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-highest-current-position`.to_f + 1
         end
+    end
+
+    # CatalystCommon::openCatalystStandardTarget(target)
+    def self.openCatalystStandardTarget(target)
+        if target["type"] == "file" then
+            CoreDataFile::openOrCopyToDesktop(target["filename"])
+            return
+        end
+        if target["type"] == "url" then
+            system("open '#{target["url"]}'")
+            return
+        end
+        if target["type"] == "folder" then
+            CoreDataDirectory::openFolder(target["foldername"])
+            return
+        end
+        raise "Catalyst Common error 160050-490261"
     end
 
 end

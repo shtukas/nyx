@@ -172,6 +172,10 @@ class NSXMiscUtils
 
     # NSXMiscUtils::setXNote(uuid, text)
     def self.setXNote(uuid, text)
+        if text.strip.size == 0 then
+            KeyValueStore::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/XNotes", uuid)
+            return
+        end
         KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/XNotes", uuid, text)
     end
 
