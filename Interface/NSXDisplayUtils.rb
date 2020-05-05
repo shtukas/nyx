@@ -95,6 +95,7 @@ class NSXDisplayUtils
         if isFocus then
             onFocusObjectPrefix.call(displayOrdinal, object) + onFocusPossiblyLineReturnPrefixedObjectDisplayText.call(object, announce, body) + onFocusLineReturnPrefixedObjectSuffix.call(object)
         else
+            announce = "#{announce}#{NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : ""}"
             "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{(object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-9]).green : announce[0,NSXMiscUtils::screenWidth()-15])}"
         end
     end
