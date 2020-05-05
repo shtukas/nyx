@@ -14,27 +14,7 @@ The file names carry are l22 strings which also are the UUIDs of the items. Exam
 20200416-110732-623024.data
 ```
 
-The expected kv entries are
-
-```
-- uuid
-- description
-- payloadType
-- timeline
-
-```
-
-The possible values for payloadType are
-
-- aionpoint
-- text
-- url
-
-When "aionpoint" a single aion reference hardcoded to "1815ea639314" pointing at a file or a folder.
-
-When "text", the content is held in the kv store at key "472ec67c0dd6"
-
-When "url", the url is held in the kv store at key "67c2db721728"
+Implement the TheLucilleTypeAetherCarrier conventions, with the additional kvstore key: `timeline`.
 
 ### Mercury Channels
 

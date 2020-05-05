@@ -74,13 +74,14 @@ objects = OpenCycles::uuids()
             "uuid"           => uuid,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "[Open Cycles] #{OpenCycles::getDescription(uuid)}"
+                "line" => "[Open Cycles] [#{OpenCycles::getPayloadType(uuid)}] #{OpenCycles::getDescription(uuid)}"
             },
             "metric"         => metric(uuid),
-            "commands"       => ["open"],
+            "commands"       => ["open", "edit"],
             "defaultCommand" => "ack",
             "shell-redirects" => {
                 "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{uuid}'",
+                "edit" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing edit '#{uuid}'",
                 "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing open '#{uuid}'"
             }
         }

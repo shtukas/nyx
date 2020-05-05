@@ -5,7 +5,7 @@
 [0.91 -> 0.99] Calendar
 
                0.95  Anniversaries
-               0.93  Calendar Items
+               0.93  Calendar [ack]
 
 # ---------------------------------------------------------
 [0.78 -> 0.90] Repeat Items
@@ -36,7 +36,7 @@
 [0.20 -> 0.70] 
 
                0.70- YouTubeVideoStream
-               0.60  Open Cycles ack
+               0.60  Open Cycles [ack]
                0.53  BackupsMonitor
                0.40  In Flight Control System (positive)
                0.40- Lucille [Cluster]

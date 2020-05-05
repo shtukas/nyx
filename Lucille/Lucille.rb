@@ -354,6 +354,14 @@ class LXUserInterface
         end
     end
 
+    # LXUserInterface::bestOpen(uuid)
+    def self.bestOpen(uuid)
+        status = LXUserInterface::intelligentReadOnlyOpen(uuid)
+        if !status then
+            LXUserInterface::openItemReadOnly(uuid)
+        end
+    end
+
     # LXUserInterface::editContent(uuid)
     def self.editContent(uuid)
 
@@ -446,8 +454,9 @@ class LXUserInterface
                 return
             end
             if option == "set description" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                LucilleThisCore::setDescription(uuid, description)
+                text = LucilleThisCore::getDescription(uuid)
+                text = CatalystCommon::editTextUsingTextmate(text)
+                LucilleThisCore::setDescription(uuid, text)
             end
             if option == "recast" then
                 LXUserInterface::recastItem(uuid)

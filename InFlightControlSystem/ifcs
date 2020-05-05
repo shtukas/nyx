@@ -56,22 +56,29 @@ end
 
 loop {
     system("clear")
-    printSummary()
+    uuid = selectUUIDOrNull()
+    break if uuid.nil?
     puts ""
     operations = [
         "start item",
+        "set description",
+        "edit item contents",
         "destroy item"
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
     break if operation.nil?
     if operation == "start item" then
-        uuid = selectUUIDOrNull()
-        next if uuid.nil?
         InFlightControlSystem::start(uuid)
     end
+    if operation == "set description" then
+        text = InFlightControlSystem::getDescription(uuid)
+        text = CatalystCommon::editTextUsingTextmate(text)
+        InFlightControlSystem::setDescription(uuid, text)
+    end
+    if operation == "edit item contents" then
+        InFlightControlSystem::editContent(uuid)
+    end
     if operation == "destroy item" then
-        uuid = selectUUIDOrNull()
-        next if uuid.nil?
         if ["20200502-141331-226084", "20200502-141716-483780"].include?(uuid) then
             puts "Sorry Dave. You can't do that."
             LucilleCore::pressEnterToContinue()

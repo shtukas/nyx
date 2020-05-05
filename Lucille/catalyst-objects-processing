@@ -28,19 +28,13 @@ require_relative "Lucille.rb"
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     exit if !LucilleThisCore::isCurrentUUID(uuid)
-    status = LXUserInterface::intelligentReadOnlyOpen(uuid)
-    if !status then
-        LXUserInterface::openItemReadOnly(uuid)
-    end
+    LXUserInterface::bestOpen(uuid)
 end
 
 if ARGV[0] == "open+done" and ARGV[1] then
     uuid = ARGV[1]
     exit if !LucilleThisCore::isCurrentUUID(uuid)
-    status = LXUserInterface::intelligentReadOnlyOpen(uuid)
-    if !status then
-        LXUserInterface::openItemReadOnly(uuid)
-    end
+    LXUserInterface::bestOpen(uuid)
     LXUserInterface::doneItem(uuid)
 end
 
@@ -54,8 +48,9 @@ end
 if ARGV[0] == "set-description" and ARGV[1] then
     uuid = ARGV[1]
     exit if !LucilleThisCore::isCurrentUUID(uuid)
-    description = LucilleCore::askQuestionAnswerAsString("description: ")
-    LucilleThisCore::setDescription(uuid, description)
+    text = LucilleThisCore::getDescription(uuid)
+    text = CatalystCommon::editTextUsingTextmate(text)
+    LucilleThisCore::setDescription(uuid, text)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 

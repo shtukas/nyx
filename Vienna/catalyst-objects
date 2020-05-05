@@ -102,7 +102,7 @@ viennaLinkFeeder = ViennaLinkFeeder.new()
 loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
-    puts "vienna: #{link}"
+    #puts "vienna: #{link}"
     Mercury::postValue("F771D7FE-1802-409D-B009-5EB95BA89D86", link)
     viennaLinkFeeder.done(link)
 }

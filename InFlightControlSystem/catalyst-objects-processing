@@ -31,6 +31,18 @@ if ARGV[0] == "start" and ARGV[1] then
     InFlightControlSystem::start(uuid)
 end
 
+if ARGV[0] == "open" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    InFlightControlSystem::bestOpen(uuid)
+end
+
+if ARGV[0] == "edit" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    InFlightControlSystem::editContent(uuid)
+end
+
 if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?

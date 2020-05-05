@@ -76,13 +76,15 @@ def catalystObject(uuid)
         "uuid"            => uuid,
         "contentItem"     => {
             "type" => "line",
-            "line" => "[ifcs #{"%5.2f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)}] #{InFlightControlSystem::getDescription(uuid)}#{runTimeAsString}"
+            "line" => "[ifcs #{"%5.2f" % (InFlightControlSystem::storedTimespan(uuid).to_f/3600)}] [#{InFlightControlSystem::getPayloadType(uuid)}] #{InFlightControlSystem::getDescription(uuid)}#{runTimeAsString}"
         },
         "metric"          => InFlightControlSystem::metric(uuid),
-        "commands"        => [],
+        "commands"        => ["open", "edit"],
         "isRunning"       => isRunning,
         "defaultCommand"  => isRunning ? "stop" : "start",
         "shell-redirects" => {
+            "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing open '#{uuid}'",
+            "edit"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing edit '#{uuid}'",
             "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing start '#{uuid}'",
             "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/catalyst-objects-processing stop '#{uuid}'",
         }

@@ -85,9 +85,26 @@ class OpenCycles
         AetherGenesys::makeNewPoint(aetherfilepath)
         AetherKVStore::set(aetherfilepath, "uuid", uuid)
         AetherKVStore::set(aetherfilepath, "description", text.lines.first.strip)
-        filepath = "/tmp/#{uuid}"
-        File.open(filepath, "w") {|f| f.puts(text) }
-        AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", filepath)
+        AetherKVStore::set(aetherfilepath, "payloadType", "aionpoint")
+        AetherKVStore::set(aetherfilepath, "472ec67c0dd6", text)
+    end
+
+    # --------------------------------------
+    # This is a copy of the Lucille function
+    # --------------------------------------
+    # OpenCycles::setPayloadType(uuid, payloadType)
+    def self.setPayloadType(uuid, payloadType)
+        aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+        AetherKVStore::set(aetherfilepath, "payloadType", payloadType)
+    end
+
+    # --------------------------------------
+    # This is a copy of the Lucille function
+    # --------------------------------------
+    # OpenCycles::getPayloadType(uuid)
+    def self.getPayloadType(uuid)
+        aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+        AetherKVStore::getOrNull(aetherfilepath, "payloadType")
     end
 
     # -----------------------------
@@ -115,6 +132,9 @@ class OpenCycles
     # -----------------------------
     # Operations
 
+    # --------------------------------------
+    # This is a copy of the Lucille function
+    # --------------------------------------
     # OpenCycles::exportAionContentAtDesktop(uuid)
     def self.exportAionContentAtDesktop(uuid)
         exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
@@ -124,26 +144,125 @@ class OpenCycles
         AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
     end
 
+    # --------------------------------------
+    # This is a copy of the Lucille function
+    # --------------------------------------
+    # OpenCycles::openItemReadOnly(uuid)
+    def self.openItemReadOnly(uuid)
+        payloadType = OpenCycles::getPayloadType(uuid)
+        if payloadType == "aionpoint" then
+            OpenCycles::exportAionContentAtDesktop(uuid)
+        end
+        if payloadType == "text" then
+            aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+            text = AetherKVStore::getOrNull(aetherfilepath, "472ec67c0dd6")
+            tmpfilepath = "/tmp/#{uuid}.txt"
+            File.open(tmpfilepath, "w") {|f| f.puts(text) }
+            system("open '#{tmpfilepath}'")
+        end
+        if payloadType == "url" then
+            aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+            url = AetherKVStore::getOrNull(aetherfilepath, "67c2db721728")
+            system("open '#{url}'")
+        end
+    end
+
+    # --------------------------------------
+    # This is a copy of the Lucille function
+    # --------------------------------------
+    # OpenCycles::intelligentReadOnlyOpen(uuid)
+    def self.intelligentReadOnlyOpen(uuid) # Boolean # returns whether or not the intelligent opening did work
+        payloadType = OpenCycles::getPayloadType(uuid)
+        if payloadType == "aionpoint" then
+            exportfolderpath = "/tmp/#{OpenCycles::timeStringL22()}"
+            FileUtils.mkdir(exportfolderpath)
+            aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+            AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+            getBestDescendantFileInsideFolderOrNull = lambda{|folderpath|
+                locations = LucilleCore::locationsAtFolder(folderpath)
+                if locations.size == 1 then
+                    location = locations[0]
+                    if File.directory?(location) then
+                        getBestDescendantFileInsideFolderOrNull.call(location)
+                    else
+                        if [".txt", ".png", ".jpg", ".jpeg", ".pdf"].any?{|ext| location[-ext.size, ext.size] == ext } then
+                            location
+                        else
+                            nil
+                        end
+                    end
+                else
+                    nil
+                end
+            }
+            filepath = getBestDescendantFileInsideFolderOrNull.call(exportfolderpath)
+            if filepath then
+                system("open '#{filepath}'")
+                return true
+            else
+                return false
+            end
+        end
+        if payloadType == "text" then
+            OpenCycles::openItemReadOnly(uuid)
+            return true
+        end
+        if payloadType == "url" then
+            OpenCycles::openItemReadOnly(uuid)
+            return true
+        end
+    end
+
+    # --------------------------------------
+    # This is a copy of the Lucille function
+    # --------------------------------------
+    # OpenCycles::bestOpen(uuid)
+    def self.bestOpen(uuid)
+        status = OpenCycles::intelligentReadOnlyOpen(uuid)
+        if !status then
+            OpenCycles::openItemReadOnly(uuid)
+        end
+    end
+
     # OpenCycles::editContent(uuid)
     def self.editContent(uuid)
-        exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
-        while File.exists?(exportfolderpath) do
-            puts "-> I am seeing a folder [#{uuid}] on the Desktop"
-            puts "-> It might be from a previous export"
-            puts "-> Please delete it or rename it to continue with edition"
+
+        payloadType = OpenCycles::getPayloadType(uuid)
+
+        if payloadType == "aionpoint" then
+            exportfolderpath = "/Users/pascal/Desktop/#{uuid}"
+            while File.exists?(exportfolderpath) do
+                puts "-> I am seeing a folder [#{uuid}] on the Desktop"
+                puts "-> It might be from a previous export"
+                puts "-> Please delete it or rename it to continue with edition"
+                LucilleCore::pressEnterToContinue()
+            end
+            FileUtils.mkdir(exportfolderpath)
+            puts "-> When edition is done I am going to import #{exportfolderpath}"
+            aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+            AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
+            puts "-> Edition in progress... Next step will be the import."
             LucilleCore::pressEnterToContinue()
+            AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", exportfolderpath)
+            puts "-> Put copying the target to Catalyst Bin Timeline"
+            CatalystCommon::copyLocationToCatalystBin(exportfolderpath)
+            puts "-> Deleting the target"
+            LucilleCore::removeFileSystemLocation(exportfolderpath)
         end
-        FileUtils.mkdir(exportfolderpath)
-        puts "-> When edition is done I am going to import #{exportfolderpath}"
-        aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
-        AetherAionOperations::exportReferenceAtFolder(aetherfilepath, "1815ea639314", exportfolderpath)
-        puts "-> Edition in progress... Next step will be the import."
-        LucilleCore::pressEnterToContinue()
-        AetherAionOperations::importLocationAgainstReference(aetherfilepath, "1815ea639314", exportfolderpath)
-        puts "-> Put copying the target to Catalyst Bin Timeline"
-        CatalystCommon::copyLocationToCatalystBin(exportfolderpath)
-        puts "-> Deleting the target"
-        LucilleCore::removeFileSystemLocation(exportfolderpath)
+
+        if payloadType == "text" then
+            aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+            text = AetherKVStore::getOrNull(aetherfilepath, "472ec67c0dd6")
+            text = CatalystCommon::editTextUsingTextmate(text)
+            AetherKVStore::set(aetherfilepath, "472ec67c0dd6", text)
+        end
+
+        if payloadType == "url" then
+            aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
+            url = AetherKVStore::getOrNull(aetherfilepath, "67c2db721728")
+            url = CatalystCommon::editTextUsingTextmate(url).strip
+            AetherKVStore::set(aetherfilepath, "67c2db721728", url)
+        end
     end
 
     # OpenCycles::terminateItem(uuid)
@@ -155,21 +274,18 @@ class OpenCycles
 
     # OpenCycles::recastAsIFCSItem(uuid)
     def self.recastAsIFCSItem(uuid)
-        # IFCS expect
-        #    uuid        :
-        #    description :
-        #    payloadType :
-        #    position    : Float
         # OpenCycles has
-        #    uuid
-        #    description
+        #    [TheLucilleTypeAetherCarrier]
+        # IFCS expect
+        #    [TheLucilleTypeAetherCarrier]
+        #    position    : Float
         aetherfilepath = OpenCycles::uuid2aetherfilepath(uuid)
         AetherKVStore::set(aetherfilepath, "payloadType", "aionpoint")
         ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs-items-report`
         puts ifcsreport
         position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
         AetherKVStore::set(aetherfilepath, "position", position)
-        ifcsfilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/Items/#{File.basename(aetherfilepath)}"
+        ifcsfilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/Items/#{File.basename(aetherfilepath)}"
         FileUtils.mv(aetherfilepath, ifcsfilepath)
     end
 
@@ -207,8 +323,9 @@ class OpenCycles
                 return
             end
             if option == "set description" then
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
-                OpenCycles::setDescription(uuid, description)
+                text = OpenCycles::getDescription(uuid)
+                text = CatalystCommon::editTextUsingTextmate(text)
+                OpenCycles::setDescription(uuid, text)
             end
             if option == ">ifcs" then
                 OpenCycles::recastAsIFCSItem(uuid)
