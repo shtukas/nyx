@@ -44,7 +44,7 @@ require_relative "Wave.rb"
 
 # -------------------------------------------------------------------------
 
-objects = NSXWaveUtils::catalystUUIDsEnumerator()
+objects = NSXWaveUtils::uuids()
             .select{|uuid| DoNotShowUntil::isVisible(uuid) }
             .map{|uuid| NSXWaveUtils::makeCatalystObjectOrNull(uuid) }
 

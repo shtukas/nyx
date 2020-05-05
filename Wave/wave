@@ -45,12 +45,32 @@ require_relative "Wave.rb"
 # -------------------------------------------------------------------------
 
 puts "Wave 🌊"
-options = [
-    "new wave",
-]
-option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-exit if option.nil?
-if option == "new wave" then
-    line = LucilleCore::askQuestionAnswerAsString("line: ")
-    NSXWaveUtils::spawnNewWaveItem(line)
-end
+loop {
+    options = [
+        "new wave",
+        "waves dive"
+    ]
+    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+    break if option.nil?
+    if option == "new wave" then
+        line = LucilleCore::askQuestionAnswerAsString("line: ")
+        NSXWaveUtils::spawnNewWaveItem(line)
+    end
+    if option == "waves dive" then
+        uuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", NSXWaveUtils::uuids(), lambda {|uuid| NSXWaveUtils::getText(uuid) })
+        next if uuid.nil?
+        puts NSXWaveUtils::getText(uuid)
+        ops = ["edit description", "recast"]
+        op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
+        next if op.nil?
+        if op == "edit description" then
+            text = NSXWaveUtils::getText(uuid)
+            text = CatalystCommon::editTextUsingTextmate(text)
+            NSXWaveUtils::setText(uuid, text)
+        end
+        if op == "recast" then
+            schedule = NSXWaveUtils::makeNewSchedule()
+            NSXWaveUtils::writeScheduleToAetherFile(uuid, schedule)
+        end
+    end
+}

@@ -244,15 +244,15 @@ class NSXWaveUtils
         filepath
     end
 
-    # NSXWaveUtils::catalystUUIDsEnumerator()
-    def self.catalystUUIDsEnumerator()
-        Enumerator.new do |uuids|
-            Find.find("#{NSXWaveUtils::waveFolderPath()}/I2tems") do |path|
-                next if !File.file?(path)
-                next if File.basename(path)[-9, 9] != '.wavedata'
-                uuids << File.basename(path)[0, File.basename(path).size-9]
-            end
+    # NSXWaveUtils::uuids()
+    def self.uuids()
+        uuids = []
+        Find.find("#{NSXWaveUtils::waveFolderPath()}/I2tems") do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-9, 9] != '.wavedata'
+            uuids << File.basename(path)[0, File.basename(path).size-9]
         end
+        uuids
     end
 
     # NSXWaveUtils::writeScheduleToAetherFile(uuid, schedule)
@@ -350,8 +350,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::getCatalystObjects()
     def self.getCatalystObjects()
-        NSXWaveUtils::catalystUUIDsEnumerator()
+        NSXWaveUtils::uuids()
             .map{|uuid| NSXWaveUtils::makeCatalystObjectOrNull(uuid) }
     end
-
 end
