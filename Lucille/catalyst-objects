@@ -78,11 +78,10 @@ getNextLocationAtTheInboxOrNull = lambda {
         .first
 }
 
-while (location = getNextLocationAtTheInboxOrNull.call()) do
-
+# while (location = getNextLocationAtTheInboxOrNull.call()) do
     # LucilleCore::removeFileSystemLocation(location)
     # TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
-end
+# end
 
 # -------------------------------------------------------------------------
 
