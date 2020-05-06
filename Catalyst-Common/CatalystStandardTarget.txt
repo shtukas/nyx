@@ -3,6 +3,10 @@ A CatalystStandardTarget is an object of the form
 
 ```
 {
+    "type"       : "line"
+    "line"       : String
+}
+{
     "type"       : "file"
     "filename"   : String
 }

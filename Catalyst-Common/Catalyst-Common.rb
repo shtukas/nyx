@@ -89,6 +89,11 @@ class CatalystCommon
 
     # CatalystCommon::openCatalystStandardTarget(target)
     def self.openCatalystStandardTarget(target)
+        if target["type"] == "line" then
+            puts target["line"]
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         if target["type"] == "file" then
             CoreDataFile::openOrCopyToDesktop(target["filename"])
             return

@@ -20,10 +20,8 @@ require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
 
-def openItem(nyxuuid)
-    filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
-    return if filepath.nil?
-    text = AetherKVStore::getOrNull(filepath, "text").strip
+def openItem(claim)
+    text = claim["description"]
     puts text
     if text.lines.to_a.size == 1 and text.start_with?("http") then
         url = text
@@ -41,43 +39,51 @@ def openItem(nyxuuid)
 end
 
 if ARGV[0] == 'open' and ARGV[1] then
-    nyxuuid = ARGV[1]
-    openItem(nyxuuid)
-    exit
-end
-
-if ARGV[0] == 'edit' and ARGV[1] then
-    nyxuuid = ARGV[1]
-    text = NSXWaveUtils::getText(nyxuuid)
-    text = CatalystCommon::editTextUsingTextmate(text)
-    NSXWaveUtils::setText(nyxuuid, text)
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    openItem(uuid)
     exit
 end
 
 if ARGV[0] == 'open+done' and ARGV[1] then
-    nyxuuid = ARGV[1]
-    openItem(nyxuuid)
-    NSXWaveUtils::performDone2(nyxuuid)
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    openItem(claim)
+    NSXWaveUtils::performDone2(claim)
     exit
 end
 
 if ARGV[0] == 'done' and ARGV[1] then
-    nyxuuid = ARGV[1]
-    NSXWaveUtils::performDone2(nyxuuid)
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    NSXWaveUtils::performDone2(claim)
     exit
 end
 
 if ARGV[0] == 'recast' and ARGV[1] then
-    nyxuuid = ARGV[1]
-    schedule = NSXWaveUtils::makeNewSchedule()
-    NSXWaveUtils::writeScheduleToAetherFile(nyxuuid, schedule)
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    schedule = NSXWaveUtils::makeScheduleObjectInteractively()
+    claim["schedule"] = schedule
+    WaveNextGen::save(claim)
     exit
 end
 
 if ARGV[0] == 'destroy' and ARGV[1] then
-    nyxuuid = ARGV[1]
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-        NSXWaveUtils::sendItemToBin(nyxuuid)
+        WaveNextGen::destroy(claim)
         exit
     end
     exit

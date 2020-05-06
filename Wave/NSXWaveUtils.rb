@@ -75,30 +75,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/DoNotShow
 
 class NSXWaveUtils
 
-    # NSXWaveUtils::spawnNewWaveItem(text): String (uuid)
-    def self.spawnNewWaveItem(text)
-        uuid = NSXMiscUtils::timeStringL22()
-        filepath = "#{NSXWaveUtils::waveFolderPath()}/I2tems/#{uuid}.wavedata"
-        AetherGenesys::makeNewPoint(filepath)
-        AetherKVStore::set(filepath, "uuid", uuid)
-        schedule = NSXWaveUtils::makeScheduleObjectInteractively()
-        AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))
-        AetherKVStore::set(filepath, "text", text)
-        uuid
-    end
-
-    # NSXWaveUtils::getText(nyxuuid)
-    def self.getText(nyxuuid)
-        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
-        AetherKVStore::getOrNull(filepath, "text") || "[default text]"
-    end
-
-    # NSXWaveUtils::setText(nyxuuid, text)
-    def self.setText(nyxuuid, text)
-        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
-        AetherKVStore::set(filepath, "text", text)
-    end
-
     # NSXWaveUtils::waveFolderPath()
     def self.waveFolderPath()
         "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Wave"
@@ -149,37 +125,13 @@ class NSXWaveUtils
         schedule
     end
 
-    # NSXWaveUtils::scheduleToAnnounce(schedule)
-    def self.scheduleToAnnounce(schedule)
-        if schedule['@'] == 'sticky' then
-            # Backward compatibility
-            if schedule['from-hour'].nil? then
-                schedule['from-hour'] = 6
-            end
-            return "sticky, from: #{schedule['from-hour']}"
-        end
-        if schedule['@'] == 'every-n-hours' then
-            return "every-n-hours  #{"%6.1f" % schedule['repeat-value']}"
-        end
-        if schedule['@'] == 'every-n-days' then
-            return "every-n-days   #{"%6.1f" % schedule['repeat-value']}"
-        end
-        if schedule['@'] == 'every-this-day-of-the-month' then
-            return "every-this-day-of-the-month: #{schedule['repeat-value']}"
-        end
-        if schedule['@'] == 'every-this-day-of-the-week' then
-            return "every-this-day-of-the-week: #{schedule['repeat-value']}"
-        end
-        JSON.generate(schedule)
-    end
-
     # NSXWaveUtils::unixtimeAtComingMidnight()
     def self.unixtimeAtComingMidnight()
         DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00").to_time.to_i
     end
 
-    # NSXWaveUtils::scheduleToDoNotShowUnixtime(nyxuuid, schedule)
-    def self.scheduleToDoNotShowUnixtime(nyxuuid, schedule)
+    # NSXWaveUtils::scheduleToDoNotShowUnixtime(uuid, schedule)
+    def self.scheduleToDoNotShowUnixtime(uuid, schedule)
         if schedule['@'] == 'sticky' then
             return NSXWaveUtils::unixtimeAtComingMidnight() + 6*3600
         end
@@ -237,54 +189,6 @@ class NSXWaveUtils
         1
     end
 
-    # NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
-    def self.nyxuuidToFilepathOrNull(uuid)
-        filepath = "#{NSXWaveUtils::waveFolderPath()}/I2tems/#{uuid}.wavedata"
-        return nil if !File.exists?(filepath)
-        filepath
-    end
-
-    # NSXWaveUtils::uuids()
-    def self.uuids()
-        uuids = []
-        Find.find("#{NSXWaveUtils::waveFolderPath()}/I2tems") do |path|
-            next if !File.file?(path)
-            next if File.basename(path)[-9, 9] != '.wavedata'
-            uuids << File.basename(path)[0, File.basename(path).size-9]
-        end
-        uuids
-    end
-
-    # NSXWaveUtils::writeScheduleToAetherFile(uuid, schedule)
-    def self.writeScheduleToAetherFile(uuid, schedule)
-        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        AetherKVStore::set(filepath, "schedule", JSON.generate(schedule))
-    end
-
-    # NSXWaveUtils::readScheduleFromWaveItemOrNull(uuid)
-    def self.readScheduleFromWaveItemOrNull(uuid)
-        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
-        return nil if filepath.nil?
-        schedule = AetherKVStore::getOrNull(filepath, "schedule")
-        return nil if schedule.nil?
-        JSON.parse(schedule)
-    end
-
-    # NSXWaveUtils::makeNewSchedule()
-    def self.makeNewSchedule()
-        NSXWaveUtils::makeScheduleObjectInteractively()
-    end
-
-    # NSXWaveUtils::sendItemToBin(uuid)
-    def self.sendItemToBin(uuid)
-        return if uuid.nil?
-        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
-        return nil if filepath.nil?
-        CatalystCommon::copyLocationToCatalystBin(filepath)
-        LucilleCore::removeFileSystemLocation(filepath)
-    end
-
     # NSXWaveUtils::extractFirstLineFromText(text)
     def self.extractFirstLineFromText(text)
         return "" if text.size==0
@@ -296,61 +200,65 @@ class NSXWaveUtils
         "[#{NSXWaveUtils::scheduleToAnnounce(schedule)}] #{NSXWaveUtils::extractFirstLineFromText(text)}"
     end
 
-    # NSXWaveUtils::makeCatalystObjectOrNull(nyxuuid)
-    def self.makeCatalystObjectOrNull(nyxuuid)
-        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(nyxuuid)
-        return nil if filepath.nil?
-        schedule = NSXWaveUtils::readScheduleFromWaveItemOrNull(nyxuuid)
-        text = NSXWaveUtils::getText(nyxuuid)
-        announce = NSXWaveUtils::announce(text, schedule)
+    # NSXWaveUtils::scheduleToAnnounce(schedule)
+    def self.scheduleToAnnounce(schedule)
+        if schedule['@'] == 'sticky' then
+            # Backward compatibility
+            if schedule['from-hour'].nil? then
+                schedule['from-hour'] = 6
+            end
+            return "sticky, from: #{schedule['from-hour']}"
+        end
+        if schedule['@'] == 'every-n-hours' then
+            return "every-n-hours  #{"%6.1f" % schedule['repeat-value']}"
+        end
+        if schedule['@'] == 'every-n-days' then
+            return "every-n-days   #{"%6.1f" % schedule['repeat-value']}"
+        end
+        if schedule['@'] == 'every-this-day-of-the-month' then
+            return "every-this-day-of-the-month: #{schedule['repeat-value']}"
+        end
+        if schedule['@'] == 'every-this-day-of-the-week' then
+            return "every-this-day-of-the-week: #{schedule['repeat-value']}"
+        end
+        JSON.generate(schedule)
+    end
+
+    # NSXWaveUtils::makeCatalystObjectOrNull(claim)
+    def self.makeCatalystObjectOrNull(claim)
+        uuid = claim["uuid"]
+        schedule = claim["schedule"]
+        announce = NSXWaveUtils::announce(claim["description"], schedule)
         contentItem = {
             "type" => "line",
             "line" => announce
         }
         object = {}
-        object['uuid'] = nyxuuid
+        object['uuid'] = uuid
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
         object["commands"] = ["open", "edit", "done",  "recast", "destroy"]
         object["defaultCommand"] = "open+done"
         object['schedule'] = schedule
         object["shell-redirects"] = {
-            "open"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{nyxuuid}'",
-            "edit"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing edit '#{nyxuuid}'",
-            "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{nyxuuid}'",
-            "done"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{nyxuuid}'",
-            "recast"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{nyxuuid}'",
-            "destroy"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{nyxuuid}'"
+            "open"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{uuid}'",
+            "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{uuid}'",
+            "done"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{uuid}'",
+            "recast"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{uuid}'",
+            "destroy"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{uuid}'"
         }
         object
     end
 
-    # NSXWaveUtils::getObjectByUUIDOrNull(nyxuuid)
-    def self.getObjectByUUIDOrNull(nyxuuid)
-        NSXWaveUtils::getCatalystObjects()
-            .select{|object| object["uuid"] == nyxuuid }
-            .first
-    end
-
-    # NSXWaveUtils::performDone2(nyxuuid)
-    def self.performDone2(nyxuuid)
-        object = NSXWaveUtils::getObjectByUUIDOrNull(nyxuuid)
-        return if object.nil?
-        schedule = object['schedule']
-        unixtime = NSXWaveUtils::scheduleToDoNotShowUnixtime(nyxuuid, schedule)
-        DoNotShowUntil::setUnixtime(nyxuuid, unixtime)
-    end
-
-    # NSXWaveUtils::setItemDescription(uuid, text)
-    def self.setItemDescription(uuid, text)
-        filepath = NSXWaveUtils::nyxuuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        AetherKVStore::set(filepath, "text", text)
+    # NSXWaveUtils::performDone2(claim)
+    def self.performDone2(claim)
+        unixtime = NSXWaveUtils::scheduleToDoNotShowUnixtime(uuid, claim['schedule'])
+        DoNotShowUntil::setUnixtime(uuid, unixtime)
     end
 
     # NSXWaveUtils::getCatalystObjects()
     def self.getCatalystObjects()
-        NSXWaveUtils::uuids()
-            .map{|uuid| NSXWaveUtils::makeCatalystObjectOrNull(uuid) }
+        WaveNextGen::claims()
+            .map{|claim| NSXWaveUtils::makeCatalystObjectOrNull(claim) }
     end
 end

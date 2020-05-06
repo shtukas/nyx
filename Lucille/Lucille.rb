@@ -42,17 +42,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
     Mercury::deleteFirstValue(channel)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Aether.rb"
-=begin
-    AetherGenesys::makeNewPoint(filepath)
-    AetherKVStore::set(filepath, key, value)
-    AetherKVStore::getOrNull(filepath, key)
-    AetherKVStore::keys(filepath)
-    AetherKVStore::destroy(filepath, key)
-    AetherAionOperations::importLocationAgainstReference(filepath, xreference, location)
-    AetherAionOperations::exportReferenceAtFolder(filepath, xreference, targetReconstructionFolderpath)
-=end
-
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 # -----------------------------------------------------------------

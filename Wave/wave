@@ -54,23 +54,23 @@ loop {
     break if option.nil?
     if option == "new wave" then
         line = LucilleCore::askQuestionAnswerAsString("line: ")
-        NSXWaveUtils::spawnNewWaveItem(line)
+        schedule = NSXWaveUtils::makeScheduleObjectInteractively()
+        WaveNextGen::issueClaim(SecureRandom.uuid, line, schedule)
     end
     if option == "waves dive" then
-        uuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", NSXWaveUtils::uuids(), lambda {|uuid| NSXWaveUtils::getText(uuid) })
-        next if uuid.nil?
-        puts NSXWaveUtils::getText(uuid)
+        claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", WaveNextGen::claims(), lambda {|wave| wave["description"] })
+        next if claim.nil?
         ops = ["edit description", "recast"]
         op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
         next if op.nil?
         if op == "edit description" then
-            text = NSXWaveUtils::getText(uuid)
-            text = CatalystCommon::editTextUsingTextmate(text)
-            NSXWaveUtils::setText(uuid, text)
+            claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
+            WaveNextGen::save(claim)
         end
         if op == "recast" then
-            schedule = NSXWaveUtils::makeNewSchedule()
-            NSXWaveUtils::writeScheduleToAetherFile(uuid, schedule)
+            schedule = NSXWaveUtils::makeScheduleObjectInteractively()
+            claim["schedule"] = schedule
+            WaveNextGen::save(claim)
         end
     end
 }
