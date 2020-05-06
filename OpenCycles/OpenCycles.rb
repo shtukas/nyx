@@ -115,11 +115,6 @@ class OpenCycles
         OpenCycles::save(claim)
     end
 
-    # OpenCycles::issueIfcsClaim(claim)
-    def self.issueIfcsClaim(claim)
-
-    end
-
     # OpenCycles::selectClaimOrNull()
     def self.selectClaimOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("claim:", OpenCycles::claims(), lambda {|claim| claim["description"] })
@@ -159,4 +154,7 @@ class OpenCycles
         }
     end
 
+    # OpenCycles::issueIfcsClaim(claim)
+    def self.issueIfcsClaim(claim)
+    end
 end

@@ -71,7 +71,7 @@ objects = OpenCycles::claims()
                 "line" => "[Open Cycles] #{claim["description"]}"
             },
             "metric"         => metric(claim["uuid"]),
-            "commands"       => ["open", "edit"],
+            "commands"       => ["open"],
             "defaultCommand" => "ack",
             "shell-redirects" => {
                 "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/catalyst-objects-processing ack '#{claim["uuid"]}'",
