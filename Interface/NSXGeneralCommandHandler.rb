@@ -93,23 +93,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "l+" then
-            options = [
-                "New Lucille text item",
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            return if option.nil?
-            if option == "New Lucille text item" then
-                text = NSXMiscUtils::editTextUsingTextmate("").strip
-                timelines = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-timelines`)
-                timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", timelines)
-                timeline = timeline || "Inbox"
-                puts "Not implemented yet"
-                LucilleCore::pressEnterToContinue()
-            end
-            return
-        end
-
         if command == "[]" then
             CatalystCommon::copyLocationToCatalystBin("/Users/pascal/Desktop/Lucille.txt")
             parts = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')
