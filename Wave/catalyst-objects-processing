@@ -41,7 +41,7 @@ end
 if ARGV[0] == 'open' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    claim = WaveNextGen::getClaimByUUIDOrNUll(uuid)
     exit if claim.nil?
     openItem(uuid)
     exit
@@ -50,7 +50,7 @@ end
 if ARGV[0] == 'open+done' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    claim = WaveNextGen::getClaimByUUIDOrNUll(uuid)
     exit if claim.nil?
     openItem(claim)
     NSXWaveUtils::performDone2(claim)
@@ -60,7 +60,7 @@ end
 if ARGV[0] == 'done' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    claim = WaveNextGen::getClaimByUUIDOrNUll(uuid)
     exit if claim.nil?
     NSXWaveUtils::performDone2(claim)
     exit
@@ -69,7 +69,7 @@ end
 if ARGV[0] == 'recast' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    claim = WaveNextGen::getClaimByUUIDOrNUll(uuid)
     exit if claim.nil?
     schedule = NSXWaveUtils::makeScheduleObjectInteractively()
     claim["schedule"] = schedule
@@ -80,7 +80,7 @@ end
 if ARGV[0] == 'destroy' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = OpenCycles::getClaimByUUIDOrNUll(uuid)
+    claim = WaveNextGen::getClaimByUUIDOrNUll(uuid)
     exit if claim.nil?
     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
         WaveNextGen::destroy(claim)
