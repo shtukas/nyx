@@ -46,7 +46,7 @@ require_relative "Lucille.rb"
 
 cluster = LXCluster::getClusterFromDisk()
 ageInDays = (Time.new.to_i - cluster["creationunixtime"]).to_f/86400
-xdone = cluster["initialsize"] - cluster["uuids"].size
+xdone = cluster["initialsize"] - cluster["claims"].size
 xtodo = cluster["initialsize"].to_f/2
 doneRatio = xdone.to_f/xtodo
 puts "#{ageInDays.round(2)} days old ; done: #{(doneRatio*100).round(2)}%"
