@@ -128,7 +128,6 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "Nyx Search",
                 "Nyx",
                 "Calendar",
                 "In Flight Control System",
@@ -186,9 +185,6 @@ class NSXGeneralCommandHandler
             end
             if option == "Nyx" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx")
-            end
-            if option == "Nyx Search" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx-search")
             end
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")

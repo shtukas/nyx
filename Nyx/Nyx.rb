@@ -60,17 +60,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Ymir2Esta
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/AtlasCore.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Aether.rb"
-=begin
-    AetherGenesys::makeNewPoint(filepath)
-    AetherKVStore::set(filepath, key, value)
-    AetherKVStore::getOrNull(filepath, key)
-    AetherKVStore::keys(filepath)
-    AetherKVStore::destroy(filepath, key)
-    AetherAionOperations::importLocationAgainstReference(filepath, xreference, location)
-    AetherAionOperations::exportReferenceAtFolder(filepath, xreference, targetReconstructionFolderpath)
-=end
-
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.rb"
 =begin
 
@@ -90,13 +79,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 # --------------------------------------------------------------------
-
-class NyxEstate
-    # NyxEstate::uuid2aetherfilepath(uuid)
-    def self.uuid2aetherfilepath(uuid)
-        "/Users/pascal/Galaxy/Nyx/Points/#{uuid}.nyxpoint"
-    end
-end
 
 class NyxMiscUtils
 
@@ -219,87 +201,6 @@ end
 
 class NyxOps
 
-    # ------------------------------------------
-    # Aether Ops
-
-    # NyxOps::setCreationTimestamp(uuid, creationTimestamp)
-    def self.setCreationTimestamp(uuid, creationTimestamp)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::set(aetherfilepath, "creationTimestamp", creationTimestamp)
-    end
-
-    # NyxOps::getCreationTimestamp(uuid)
-    def self.getCreationTimestamp(uuid)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::getOrNull(aetherfilepath, "creationTimestamp").to_f
-    end
-
-    # NyxOps::setReferenceDateTime(uuid, referenceDateTime)
-    def self.setReferenceDateTime(uuid, referenceDateTime)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::set(aetherfilepath, "referenceDateTime", referenceDateTime)
-    end
-
-    # NyxOps::getReferenceDateTime(uuid)
-    def self.getReferenceDateTime(uuid)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::getOrNull(aetherfilepath, "referenceDateTime")
-    end
-
-    # NyxOps::setDescription(uuid, description)
-    def self.setDescription(uuid, description)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::set(aetherfilepath, "description", description)
-    end
-
-    # NyxOps::getDescription(uuid)
-    def self.getDescription(uuid)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::getOrNull(aetherfilepath, "description")
-    end
-
-    # NyxOps::setTargets(uuid, targets)
-    def self.setTargets(uuid, targets)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::set(aetherfilepath, "targets", JSON.generate(targets))
-    end
-
-    # NyxOps::getTargets(uuid)
-    def self.getTargets(uuid)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        targets = AetherKVStore::getOrNull(aetherfilepath, "targets")
-        raise "Error 6d0d3ca1" if targets.nil?
-        JSON.parse(targets)
-    end
-
-    # NyxOps::setTags(uuid, tags)
-    def self.setTags(uuid, tags)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::set(aetherfilepath, "tags", JSON.generate(tags))
-    end
-
-    # NyxOps::getTags(uuid)
-    def self.getTags(uuid)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        tags = AetherKVStore::getOrNull(aetherfilepath, "tags")
-        raise "Error 448111f8" if tags.nil?
-        JSON.parse(tags)
-    end
-
-    # NyxOps::setStreams(uuid, streams)
-    def self.setStreams(uuid, streams)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherKVStore::set(aetherfilepath, "streams", JSON.generate(streams))
-    end
-
-    # NyxOps::getStreams(uuid)
-    def self.getStreams(uuid)
-        aetherfilepath = NyxEstate::uuid2aetherfilepath(uuid)
-        streams = AetherKVStore::getOrNull(aetherfilepath, "streams")
-        raise "Error 18de3f96" if streams.nil?
-        JSON.parse(streams)
-    end
-
     # ------------------------------------------------------------------
     # To Strings
 
@@ -323,30 +224,30 @@ class NyxOps
         raise "[error: f84bb73d]"
     end
 
-    # NyxOps::printNyxDetails(uuid)
-    def self.printNyxDetails(uuid)
+    # NyxOps::printPointDetails(uuid)
+    def self.printPointDetails(point)
         puts "Permanode:"
-        puts "    uuid: #{uuid}"
-        puts "    description: #{NyxOps::getDescription(uuid).green}"
-        puts "    datetime: #{NyxOps::getReferenceDateTime(uuid)}"
+        puts "    uuid: #{point["uuid"]}"
+        puts "    description: #{point["description"].green}"
+        puts "    datetime: #{point["referenceDateTime"]}"
         puts "    targets:"
-        NyxOps::getTargets(uuid)
-            .each{|nyxPointTarget|
-                puts "        #{NyxOps::nyxTargetToString(nyxPointTarget)}"
+        point["targets"]
+            .each{|target|
+                puts "        #{NyxOps::nyxTargetToString(target)}"
             }
-        if NyxOps::getTags(uuid).empty? then
+        if point["tags"].empty? then
             puts "    tags: (empty set)".green
         else
             puts "    tags"
-            NyxOps::getTags(uuid).each{|item|
+            point["tags"].each{|item|
                 puts "        #{item}".green
             }
         end
-        if NyxOps::getStreams(uuid).empty? then
+        if point["streams"].empty? then
             puts "    streams: (empty set)".green
         else
             puts "    streams"
-            NyxOps::getStreams(uuid).each{|item|
+            point["streams"].each{|item|
                 puts "        #{item}".green
             }
         end
@@ -354,11 +255,6 @@ class NyxOps
 
     # ------------------------------------------
     # Opening
-
-    # NyxOps::fileCanBeSafelyOpen(filename)
-    def self.fileCanBeSafelyOpen(filename)
-        true # TODO
-    end
 
     # NyxOps::openNyxTarget(target)
     def self.openNyxTarget(target)
@@ -402,74 +298,54 @@ class NyxOps
         raise "[error: 15c46fdd]"
     end
 
-    # NyxOps::optimisticOpen(nyxuuid)
-    def self.optimisticOpen(nyxuuid)
-        NyxOps::printNyxDetails(nyxuuid)
+    # NyxOps::openPoint(point)
+    def self.openPoint(point)
+        NyxOps::printPointDetails(point)
         puts "    -> Opening..."
-        if NyxOps::getTargets(nyxuuid).size == 0 then
+        if point["targets"].size == 0 then
             if LucilleCore::askQuestionAnswerAsBoolean("I could not find target for this nyx point. Dive? ") then
-                NyxUserInterface::nyxPointDive(nyxuuid)
+                NyxUserInterface::pointDive(point)
             end
             return
         end
         target = nil
-        if NyxOps::getTargets(nyxuuid).size == 1 then
-            target = NyxOps::getTargets(nyxuuid).first
+        if point["targets"].size == 1 then
+            target = point["targets"].first
         else
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", NyxOps::getTargets(nyxuuid), lambda{|target| NyxOps::nyxTargetToString(target) })
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", point["targets"], lambda{|target| NyxOps::nyxTargetToString(target) })
         end
         puts JSON.pretty_generate(target)
         NyxOps::openNyxTarget(target)
     end
 
-    # ------------------------------------------
-    # IO Ops
-
-    # NyxOps::destroyNyxPoint(nyxuuid)
-    def self.destroyNyxPoint(nyxuuid)
-        filepath = NyxEstate::uuid2aetherfilepath(nyxuuid)
-        puts filepath
-        return if !File.exists?(filepath)
-        CatalystCommon::copyLocationToCatalystBin(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # NyxOps::nyxuuids()
-    def self.nyxuuids()
-        Dir.entries("/Users/pascal/Galaxy/Nyx/Points")
-            .select{|filename| filename[-9, 9] == ".nyxpoint" } # .nyxpoint
-            .map{|filename| filename[0, filename.size-9] }
-            .sort
-    end
-
     # ------------------------------------------------------------------
     # Data Queries and Data Manipulations
 
-    # NyxOps::selectNyxUUIDOrNull(uuids)
-    def self.selectNyxPointOrNull(uuids)
-        descriptionXp = lambda { |uuid|
-            "#{NyxOps::getDescription(uuid)} (#{uuid[0,4]})"
+    # NyxOps::selectNyxPointOrNull(points)
+    def self.selectNyxPointOrNull(points)
+        descriptionXp = lambda { |point|
+            "#{point["description"]} (#{point["uuid"][0,4]})"
         }
-        descriptionsxp = uuids.map{|uuid| descriptionXp.call(uuid) }
+        descriptionsxp = points.map{|point| descriptionXp.call(point) }
         selectedDescriptionxp = NyxMiscUtils::chooseALinePecoStyle("select nyx point (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
-        uuid = uuids.select{|uuid| descriptionXp.call(uuid) == selectedDescriptionxp }.first
-        return nil if uuid.nil?
-        uuid
+        point = points.select{|point| descriptionXp.call(point) == selectedDescriptionxp }.first
+        return nil if point.nil?
+        point
     end
 
     # NyxOps::getNyxUUIDsCarryingThisDirectoryMark(mark)
     def self.getNyxUUIDsCarryingThisDirectoryMark(mark)
-        NyxOps::nyxuuids()
-            .select{|uuid|
-                NyxOps::getTargets(uuid).any?{|target| target["type"] == "lstore-directory-mark-BEE670D0" and target["mark"] == mark }
+        NyxPoints::points()
+            .select{|point|
+                point["targets"].any?{|target| target["type"] == "lstore-directory-mark-BEE670D0" and target["mark"] == mark }
             }
     end
 
     # NyxOps::tags()
     def self.tags()
-        NyxOps::nyxuuids()
-            .map{|uuid| NyxOps::getTags(uuid)}
+        NyxPoints::points()
+            .map{|point| point["tags"] }
             .flatten
             .uniq
             .sort
@@ -477,16 +353,11 @@ class NyxOps
 
     # NyxOps::streams()
     def self.streams()
-        NyxOps::nyxuuids()
-            .map{|uuid| NyxOps::getStreams(uuid) }
+        NyxPoints::points()
+            .map{|point| point["streams"] }
             .flatten
             .uniq
             .sort
-    end
-
-    # NyxOps::nyxPointCarriesTag(uuid, tag)
-    def self.nyxPointCarriesTag(uuid, tag)
-        NyxOps::getTags(uuid).map{|t| t.downcase }.include?(tag.downcase)
     end
 
     # ------------------------------------------------------------------
@@ -546,7 +417,7 @@ class NyxOps
     # NyxOps::makeNyxTargetInteractiveOrNull(type)
     # type = nil | "url-EFB8D55B" | "file-3C93365A" | "unique-name-C2BF46D6" | "lstore-directory-mark-BEE670D0" | "perma-dir-11859659"
     def self.makeNyxTargetInteractiveOrNull(type)
-        nyxPointTargetType =
+        targetType =
             if type.nil? then
                 LucilleCore::selectEntityFromListOfEntitiesOrNull("type", [
                     "url-EFB8D55B",
@@ -558,28 +429,28 @@ class NyxOps
             else
                 type
             end
-        return nil if nyxPointTargetType.nil?
-        if nyxPointTargetType == "url-EFB8D55B" then
+        return nil if targetType.nil?
+        if targetType == "url-EFB8D55B" then
             return {
                 "uuid" => SecureRandom.uuid,
                 "type" => "url-EFB8D55B",
                 "url"  => LucilleCore::askQuestionAnswerAsString("url: ").strip
             }
         end
-        if nyxPointTargetType == "file-3C93365A" then
+        if targetType == "file-3C93365A" then
             return NyxOps::makeNyxTargetFileInteractiveOrNull()
         end
-        if nyxPointTargetType == "unique-name-C2BF46D6" then
+        if targetType == "unique-name-C2BF46D6" then
             return {
                 "uuid" => SecureRandom.uuid,
                 "type" => "unique-name-C2BF46D6",
                 "name" => LucilleCore::askQuestionAnswerAsString("uniquename: ").strip
             }
         end
-        if nyxPointTargetType == "lstore-directory-mark-BEE670D0" then
+        if targetType == "lstore-directory-mark-BEE670D0" then
             return NyxOps::makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
         end
-        if nyxPointTargetType == "perma-dir-11859659" then
+        if targetType == "perma-dir-11859659" then
             desktopLocationnames = Dir.entries("/Users/pascal/Desktop")
                                     .reject{|filename| filename[0, 1] == '.' }
                                     .reject{|filename| ["pascal.png", "Lucille-Inbox", "Lucille.txt"].include?(filename) }
@@ -637,23 +508,19 @@ class NyxOps
         streams
     end
 
-    # NyxOps::makePermanode2Interactive(description, nyxPointTarget)
-    def self.makePermanode2Interactive(description, nyxPointTarget)
+    # NyxOps::makeNyxPointInteractivePart2(description, target)
+    def self.makeNyxPointInteractivePart2(description, target)
         uuid = SecureRandom.uuid
+        creationTimestamp = Time.new.to_f
+        referenceDateTime = Time.now.utc.iso8601
+        targets = [ target ]
         tags = NyxOps::makePermanodeTagsInteractive()
         streams = NyxOps::makePermanodeStreamsInteractive()
-        filepath = NyxEstate::uuid2aetherfilepath(uuid)
-        AetherGenesys::makeNewPoint(filepath)
-        NyxOps::setCreationTimestamp(uuid, Time.new.to_f)
-        NyxOps::setReferenceDateTime(uuid, Time.now.utc.iso8601)
-        NyxOps::setDescription(uuid, description)
-        NyxOps::setTargets(uuid, [ nyxPointTarget ])
-        NyxOps::setTags(uuid, tags)
-        NyxOps::setStreams(uuid, streams)
+        NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
     end
 
-    # NyxOps::makePermanode1Interactive()
-    def self.makePermanode1Interactive()
+    # NyxOps::makeNyxPointInteractivePart1()
+    def self.makeNyxPointInteractivePart1()
         operations = [
             "url",
             "uniquename",
@@ -666,37 +533,37 @@ class NyxOps
         if operation == "url" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             url = LucilleCore::askQuestionAnswerAsString("url: ")
-            nyxPointTarget = {
+            target = {
                 "uuid" => SecureRandom.uuid,
                 "type" => "url-EFB8D55B",
                 "url" => url
             }
-            NyxOps::makePermanode2Interactive(description, nyxPointTarget)
+            NyxOps::makeNyxPointInteractivePart2(description, target)
         end
 
         if operation == "uniquename" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
-            nyxPointTarget = {
+            target = {
                 "uuid" => SecureRandom.uuid,
                 "type" => "unique-name-C2BF46D6",
                 "name" => uniquename
             }
-            NyxOps::makePermanode2Interactive(description, nyxPointTarget)
+            NyxOps::makeNyxPointInteractivePart2(description, target)
         end
 
         if operation == "file (from desktop)" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            nyxPointTarget = NyxOps::makeNyxTargetFileInteractiveOrNull()
-            return if nyxPointTarget.nil?
-            NyxOps::makePermanode2Interactive(description, nyxPointTarget)
+            target = NyxOps::makeNyxTargetFileInteractiveOrNull()
+            return if target.nil?
+            NyxOps::makeNyxPointInteractivePart2(description, target)
         end
 
         if operation == "lstore-directory-mark" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            nyxPointTarget = NyxOps::makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
-            return if nyxPointTarget.nil?
-            NyxOps::makePermanode2Interactive(description, nyxPointTarget)
+            target = NyxOps::makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
+            return if target.nil?
+            NyxOps::makeNyxPointInteractivePart2(description, target)
         end
 
         if operation == "Desktop files inside permadir" then
@@ -707,12 +574,12 @@ class NyxOps
             folderpath2 = CoreDataDirectory::foldernameToFolderpath(foldername2)
             FileUtils.mkdir(folderpath2)
 
-            nyxPointTarget = {
+            target = {
                 "uuid"       => SecureRandom.uuid,
                 "type"       => "perma-dir-11859659",
                 "foldername" => foldername2
             }
-            NyxOps::makePermanode2Interactive(description, nyxPointTarget)
+            NyxOps::makeNyxPointInteractivePart2(description, target)
 
             locations.each{|location|
                 puts "Copying '#{location}'"
@@ -759,15 +626,10 @@ class NyxOps
         raise "[error: 15c46fdd]"
     end
 
-    # NyxOps::destroyNyxPointAttempt(uuid)
-    def self.destroyNyxPointAttempt(uuid)
-        NyxOps::getTargets(uuid).all?{|target| NyxOps::destroyNyxTargetAttempt(target) }
-        NyxOps::destroyNyxPoint(uuid)
-    end
-
-    # NyxOps::destroyNyxPointContentsAndPermanode(uuid)
-    def self.destroyNyxPointContentsAndPermanode(uuid)
-        NyxOps::destroyNyxPointAttempt(uuid)
+    # NyxOps::destroyPointContentsAndPoint(point)
+    def self.destroyPointContentsAndPoint(point)
+        point["targets"].all?{|target| NyxOps::destroyNyxTargetAttempt(target) }
+        NyxPoints::destroy(point)
     end
 end
 
@@ -784,16 +646,16 @@ class NyxSearch
             .select{|stream| stream.downcase.include?(searchPattern.downcase) }
     end
 
-    # NyxSearch::searchPatternToNyxUUIDs(searchPattern)
-    def self.searchPatternToNyxUUIDs(searchPattern)
-        NyxOps::nyxuuids()
-            .select{|uuid| NyxOps::getDescription(uuid).downcase.include?(searchPattern.downcase) }
+    # NyxSearch::searchPatternToPoints(searchPattern)
+    def self.searchPatternToPoints(searchPattern)
+        NyxPoints::points()
+            .select{|point| point["description"].downcase.include?(searchPattern.downcase) }
     end
 
     # NyxSearch::searchPatternToNyxPointsDescriptions(searchPattern)
     def self.searchPatternToNyxPointsDescriptions(searchPattern)
-        NyxSearch::searchPatternToNyxUUIDs(searchPattern)
-            .map{|uuid| NyxOps::getDescription(uuid) }
+        NyxSearch::searchPatternToPoints(searchPattern)
+            .map{|point| point["description"] }
             .uniq
             .sort
     end
@@ -805,11 +667,11 @@ class NyxSearch
 
     # NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(fragment)
     def self.nextGenSearchFragmentToGlobalSearchStructure(fragment)
-        objs1 = NyxSearch::searchPatternToNyxUUIDs(fragment)
-                    .map{|uuid| 
+        objs1 = NyxSearch::searchPatternToPoints(fragment)
+                    .map{|point| 
                         {
-                            "type" => "nyxpoint",
-                            "uuid" => uuid
+                            "type" => "point",
+                            "point" => point
                         }
                     }
         objs2 = NyxSearch::searchPatternToTags(fragment)
@@ -827,13 +689,13 @@ class NyxSearch
         loop {
             system("clear")
             globalssObjectToMenuItemOrNull = lambda {|object|
-                if object["type"] == "nyxpoint" then
-                    uuid = object["uuid"]
-                    return [ "nyx point: #{NyxOps::getDescription(uuid)}" , lambda { NyxUserInterface::nyxPointDive(uuid) } ]
+                if object["type"] == "point" then
+                    point = object["point"]
+                    return [ "nyx point: #{point["description"]}" , lambda { NyxUserInterface::pointDive(point) } ]
                 end
                 if object["type"] == "tag" then
                     tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { NyxUserInterface::nextGenTagDive(tag) } ]
+                    return [ "tag: #{tag}" , lambda { NyxUserInterface::tagDive(tag) } ]
                 end
                 nil
             }
@@ -856,31 +718,31 @@ end
 
 class NyxUserInterface
 
-    # NyxUserInterface::nyxTargetDive(nyxuuid, nyxPointTarget)
-    def self.nyxTargetDive(nyxuuid, nyxPointTarget)
-        puts "-> nyxPointTarget:"
-        puts JSON.pretty_generate(nyxPointTarget)
-        puts NyxOps::nyxTargetToString(nyxPointTarget)
-        NyxOps::openNyxTarget(nyxPointTarget)
+    # NyxUserInterface::targetDive(target)
+    def self.targetDive(target)
+        puts "-> target:"
+        puts JSON.pretty_generate(target)
+        puts NyxOps::nyxTargetToString(target)
+        NyxOps::openNyxTarget(target)
     end
 
-    # NyxUserInterface::nyxTargetsDive(nyxuuid)
-    def self.nyxTargetsDive(nyxuuid)
-        toStringLambda = lambda { |nyxPointTarget| NyxOps::nyxTargetToString(nyxPointTarget) }
-        nyxPointTarget = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose target", NyxOps::getTargets(nyxuuid), toStringLambda)
-        return if nyxPointTarget.nil?
-        NyxUserInterface::nyxTargetDive(nyxuuid, nyxPointTarget)
+    # NyxUserInterface::targetsDive(targets)
+    def self.targetsDive(targets)
+        toStringLambda = lambda { |target| NyxOps::nyxTargetToString(target) }
+        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose target", targets, toStringLambda)
+        return if target.nil?
+        NyxUserInterface::targetDive(target)
     end
 
-    # NyxUserInterface::nyxPointDive(uuid)
-    def self.nyxPointDive(uuid)
+    # NyxUserInterface::pointDive(point)
+    def self.pointDive(point)
         loop {
-            NyxOps::printNyxDetails(uuid)
+            NyxOps::printPointDetails(point)
             operations = [
-                "quick open",
+                "open",
                 "edit description",
                 "edit reference datetime",
-                "targets dive",
+                "target(s) dive",
                 "targets (add new)",
                 "targets (select and remove)",
                 "tags (add new)",
@@ -891,107 +753,102 @@ class NyxUserInterface
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
-            if operation == "quick open" then
-                NyxOps::optimisticOpen(uuid)
+            if operation == "open" then
+                NyxOps::openPoint(point)
             end
             if operation == "edit description" then
-                description = NyxOps::getDescription(uuid)
-                description = NyxMiscUtils::editTextUsingTextmate(description).strip
+                point["description"] = NyxMiscUtils::editTextUsingTextmate(point["description"]).strip
                 if description == "" or description.lines.to_a.size != 1 then
-                    puts "Descriptions should have one non empty line"
+                    puts "Descriptions should be one non empty line"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                NyxOps::setDescription(uuid description)
-
+                NyxPoints::save(point)
             end
             if operation == "edit reference datetime" then
-                referenceDateTime = NyxOps::getReferenceDateTime(uuid)
-                referenceDateTime = NyxMiscUtils::editTextUsingTextmate(referenceDateTime).strip
+                referenceDateTime = NyxMiscUtils::editTextUsingTextmate(point["referenceDateTime"]).strip
                 if NyxMiscUtils::isProperDateTimeIso8601(referenceDateTime) then
-                    NyxOps::setReferenceDateTime(uuid, referenceDateTime)
+                    point["referenceDateTime"] = referenceDateTime
+                    NyxPoints::save(point)
                 else
                     puts "I could not validate #{referenceDateTime} as a proper iso8601 datetime"
                     puts "Aborting operation"
                     LucilleCore::pressEnterToContinue()
                 end
             end
-            if operation == "target dive" then
-                NyxUserInterface::nyxTargetDive(uuid, NyxOps::getTargets(uuid).first)
-            end
-            if operation == "targets dive" then
-                NyxUserInterface::nyxTargetsDive(uuid)
+            if operation == "target(s) dive" then
+                if point["targets"].size == 1 then
+                    NyxUserInterface::targetDive(point["targets"][0])
+                else
+                    NyxUserInterface::targetsDive(point["targets"])
+                end
             end
             if operation == "targets (add new)" then
-                targets = NyxOps::getTargets(uuid)
                 target = NyxOps::makeNyxTargetInteractiveOrNull(nil)
                 next if target.nil?
-                targets << target
-                NyxOps::setTargets(uuid, target)
+                point["targets"] << target
+                NyxPoints::save(point)
             end
             if operation == "targets (select and remove)" then
-                toStringLambda = lambda { |nyxPointTarget| NyxOps::nyxTargetToString(nyxPointTarget) }
-                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", NyxOps::getTargets(uuid), toStringLambda)
+                toStringLambda = lambda { |target| NyxOps::nyxTargetToString(target) }
+                target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", point["targets"], toStringLambda)
                 next if target.nil?
-                targets = NyxOps::getTargets(uuid).reject{|t| t["uuid"]==target["uuid"] }
+                point["targets"] = point["targets"].reject{|t| t["uuid"]==target["uuid"] }
+                NyxPoints::save(point)
                 NyxOps::destroyNyxTargetAttempt(target)
             end
             if operation == "tags (add new)" then
                 tag = NyxOps::makeOnePermanodeTagInteractiveOrNull()
                 next if tag.nil?
-                tags = NyxOps::getTags(uuid)
-                tags << tag
-                NyxOps::setTags(uuid, tags)
+                point["tags"] << tag
+                NyxPoints::save(point)
             end
             if operation == "tags (remove)" then
-                tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", tags)
+                tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", point["tags"])
                 next if tag.nil?
-                tags = NyxOps::getTags(uuid)
-                tags = tags.reject{|t| t == tag }
-                NyxOps::setTags(uuid, tags)
+                point["tags"] = point["tags"].reject{|t| t == tag }
+                NyxPoints::save(point)
             end
             if operation == "streams (add new)" then
                 stream = NyxOps::makeOnePermanodeStreamInteractiveOrNull()
                 next if stream.nil?
-                streams = NyxOps::getStreams(uuid)
-                streams << stream
-                NyxOps::setStreams(uuid, streams)
+                point["streams"] << stream
+                NyxPoints::save(point)
             end
             if operation == "streams (remove)" then
-                streams = NyxOps::getStreams(uuid)
-                stream = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream", streams)
+                stream = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream", point["streams"])
                 next if stream.nil?
-                streams = streams.reject{|x| x == stream }
-                NyxOps::setStreams(uuid, streams)
+                point["streams"] = point["streams"].reject{|x| x == stream }
+                NyxPoints::save(point)
             end
             if operation == "destroy point" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                    NyxOps::destroyNyxPointContentsAndPermanode(uuid)
+                    NyxOps::destroyPointContentsAndPoint(point)
                     return
                 end
             end
         }
     end
 
-    # NyxUserInterface::nyxPointsDive(uuids)
-    def self.nyxPointsDive(uuids)
+    # NyxUserInterface::pointsDive(points)
+    def self.pointsDive(points)
         loop {
-            uuid = NyxOps::selectNyxUUIDOrNull(uuids)
-            break if uuid.nil?
-            NyxUserInterface::nyxPointDive(uuid)
+            point = NyxOps::selectNyxPointOrNull(points)
+            break if point.nil?
+            NyxUserInterface::pointDive(point)
         }
     end
 
-    # NyxUserInterface::nextGenTagDive(tag)
-    def self.nextGenTagDive(tag)
+    # NyxUserInterface::tagDive(tag)
+    def self.tagDive(tag)
         loop {
             system('clear')
             puts "Tag diving: #{tag}"
             items = []
-            NyxOps::nyxuuids()
-                .select{|uuid| NyxOps::nyxPointCarriesTag(uuid, tag) }
-                .each{|uuid|
-                    items << [ NyxOps::getDescription(uuid) , lambda { NyxUserInterface::nyxPointDive(uuid) } ]
+            NyxPoints::points()
+                .select{|point| point["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
+                .each{|point|
+                    items << [ point["description"] , lambda { NyxUserInterface::pointDive(point) } ]
                 }
             break if items.empty?
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -1013,6 +870,7 @@ class NyxUserInterface
                 # View
                 "show newly created nyx points",
                 "nyx point dive (uuid)",
+                "repair json (uuid)",
 
                 # Make or modify
                 "make new nyx point",
@@ -1040,12 +898,14 @@ class NyxUserInterface
                     end
                     tag
                 }
-                NyxOps::nyxuuids()
-                    .each{|uuid|
-                        tags1 = NyxOps::getTags(uuid)
+                NyxPoints::points()
+                    .each{|point|
+                        uuid = point["uuid"]
+                        tags1 = point["tags"]
                         tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
                         if tags1.join(':') != tags2.join(':') then
-                            NyxOps::setTags(uuid, tags2)
+                            point["tags"] = tags2
+                            NyxPoints::save(point)
                         end
                     }
             end
@@ -1060,40 +920,117 @@ class NyxUserInterface
                     end
                     stream
                 }
-                NyxOps::nyxuuids()
-                    .each{|uuid|
-                        streams1 = NyxOps::getStreams(uuid)
+                NyxPoints::points()
+                    .each{|point|
+                        uuid = point["uuid"]
+                        streams1 = point["streams"]
                         streams2 = streams1.map{|stream| renameStreamIfNeeded.call(stream, oldname, newname) }
                         if streams1.join(':') != streams2.join(':') then
-                            NyxOps::setStreams(uuid, stream2)
+                            point["streams"] = streams2
+                            NyxPoints::save(point)
                         end
                     }
             end
             if operation == "nyx point dive (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                filepath = NyxEstate::uuid2aetherfilepath(uuid)
-                if File.exists?(filepath) then
-                    NyxUserInterface::nyxPointDive(uuid)
+                point = NyxPoints::getPointByUUIDOrNUll(uuid)
+                if point then
+                    NyxUserInterface::pointDive(point)
+                else
+                    puts "Could not find nyx point for uuid (#{uuid})"
+                end
+            end
+            if operation == "repair json (uuid)" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                point = NyxPoints::getPointByUUIDOrNUll(uuid)
+                if point then
+                    pointjson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(point))
+                    point = JSON.parse(pointjson)
+                    NyxPoints::save(point)
                 else
                     puts "Could not find nyx point for uuid (#{uuid})"
                 end
             end
             if operation == "make new nyx point" then
-                NyxOps::makePermanode1Interactive()
+                NyxOps::makeNyxPointInteractivePart1()
             end
             if operation == "show newly created nyx points" then
-                uuids = NyxOps::nyxuuids()
-                                .sort{|uuid1, uuid2| NyxOps::getCreationTimestamp(uuid1) <=> NyxOps::getCreationTimestamp(uuid2) }
-                                .reverse
-                                .first(20)
-                NyxUserInterface::nyxPointsDive(uuids)
+                points = NyxPoints::points()
+                            .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
+                            .reverse
+                            .first(20)
+                NyxUserInterface::pointsDive(points)
             end
             if operation == "nyx point destroy (uuid)" then
-                nyxuuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                point = NyxPoints::getPointByUUIDOrNUll(uuid)
+                next if point.nil?
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                    NyxOps::destroyNyxPointContentsAndPermanode(nyxuuid)
+                    NyxOps::destroyPointContentsAndPoint(point)
                 end
             end
         }
     end
 end
+
+class NyxPoints
+    # NyxPoints::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # NyxPoints::pathToPoints()
+    def self.pathToPoints()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxPoints"
+    end
+
+    # NyxPoints::points()
+    def self.points()
+        Dir.entries(NyxPoints::pathToPoints())
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "#{NyxPoints::pathToPoints()}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|c1, c2| c1["creationTimestamp"] <=> c2["creationTimestamp"] }
+    end
+
+    # NyxPoints::getPointByUUIDOrNUll(uuid)
+    def self.getPointByUUIDOrNUll(uuid)
+        filepath = "#{NyxPoints::pathToPoints()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NyxPoints::save(point)
+    def self.save(point)
+        uuid = point["uuid"]
+        File.open("#{NyxPoints::pathToPoints()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(point)) }
+    end
+
+    # NyxPoints::destroy(point)
+    def self.destroy(point)
+        uuid = point["uuid"]
+        filepath = "#{NyxPoints::pathToPoints()}/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
+    def self.makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
+        {
+            "uuid"              => uuid,
+            "creationTimestamp" => creationTimestamp,
+            "referenceDateTime" => referenceDateTime,
+            "description"       => description,
+            "targets"           => targets,
+            "tags"              => tags,
+            "streams"           => streams
+        }
+    end
+
+    # NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
+    def self.issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
+        point = NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
+        NyxPoints::save(point)
+    end
+end
+
