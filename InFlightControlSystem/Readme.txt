@@ -7,7 +7,7 @@ An IFCS's claim is an object
     "uuid"         : String
     "creationtime" : unixtime with decimals
     "description"  : String
-    "target"       : CatalystStandardTarget
+    "target"       : null | CatalystStandardTarget
     "position"     : Float
 }
 ```
