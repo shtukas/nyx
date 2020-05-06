@@ -1,30 +1,25 @@
+
+### Lucille Next Gen
+
+An Lucille's claim is an object
+
+```
+{
+    "uuid"         : String
+    "creationtime" : unixtime with decimals
+    "description"  : String
+    "target"       : CatalystStandardTarget
+    "timeline"     : String
+}
+```
+
 Special timelines are "Inbox", and "Infinity". 
 
 Inbox is not actually declared by, say Vienna or Lucille-Inbox processing, but is the default timeline for any Lucille item without one. An item on that timeline is meant to either be immediately consumed (eg: online comics), or recast to the appropriate timeline.
 
 Infinity contains the streams of entertainement consumables.
 
-### Aether
-
-We are now using Aether files to store Lucille data.
-
-The file names carry are l22 strings which also are the UUIDs of the items. Example
-
-```
-20200416-110732-623024.data
-```
-
-Implement the TheLucilleTypeAetherCarrier conventions, with the additional kvstore key: `timeline`.
-
 ### Mercury Channels
-
-Text to become Lucille item payload `text`
-
-- channel: AF39EC62-4779-4C00-85D9-D2F19BD2D71E
-- payload: {
-    "text"
-    "timeline"
-}
 
 URL to become Lucille item payload `url`
 

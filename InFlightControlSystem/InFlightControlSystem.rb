@@ -273,7 +273,9 @@ class InFlightControlSystem
 
     # InFlightControlSystem::getClaimByUUIDOrNUll(uuid)
     def self.getClaimByUUIDOrNUll(uuid)
-        InFlightControlSystem::claims().select{|claim| claim["uuid"] == uuid }
+        filepath = "#{InFlightControlSystem::pathToClaims()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # InFlightControlSystem::save(claim)

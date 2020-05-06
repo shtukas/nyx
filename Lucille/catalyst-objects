@@ -71,17 +71,13 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-while (packet = Mercury::getFirstValueOrNull("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")) do
-    text = packet["text"]
-    timeline = packet["timeline"]
-    LucilleThisCore::newItemPayloadText(text.lines.first.strip, timeline, text)
-    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
-    Mercury::deleteFirstValue("AF39EC62-4779-4C00-85D9-D2F19BD2D71E")
-end
-
 while (url = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86")) do
     url = url.strip
-    LucilleThisCore::newItemPayloadUrl(url, "Inbox", url)
+    target = {
+        "type" => "url",
+        "url"  => url
+    }
+    LucilleNextGen::issueClaim(SecureRandom.uuid, url, target, "Inbox")
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
@@ -94,9 +90,9 @@ getNextLocationAtTheInboxOrNull = lambda {
 }
 
 while (location = getNextLocationAtTheInboxOrNull.call()) do
-    LucilleThisCore::newItemPayloadAionpoint(File.basename(location), "Inbox", location)
-    LucilleCore::removeFileSystemLocation(location)
-    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
+
+    # LucilleCore::removeFileSystemLocation(location)
+    # TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 # -------------------------------------------------------------------------
@@ -122,14 +118,15 @@ end
 # -------------------------------------------------------------------------
 
 def makeCatalystObjects()
-    (LucilleThisCore::getTimelineUUIDs("Inbox") + LXCluster::getWorkingCluster()["uuids"])
+    (LucilleThisCore::getTimelineClaims("Inbox") + LXCluster::getWorkingCluster()["claims"])
         .map
-        .with_index{|uuid, indx|
-            timeline = LucilleThisCore::getItemTimeline(uuid)
-            description = LucilleThisCore::getDescription(uuid)
+        .with_index{|claim, indx|
+            uuid = claim["uuid"]
+            timeline = claim["timeline"]
+            description = claim["description"]
             contentItem = {
                 "type" => "line",
-                "line" => "[lucille] [#{timeline}] [#{LucilleThisCore::getPayloadType(uuid)}] #{description}"
+                "line" => "[lucille] [#{timeline}] #{description}"
             }
             object = {
                 "uuid"            => uuid,
@@ -142,12 +139,11 @@ def makeCatalystObjects()
                     "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing stop '#{uuid}'",
                     "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open '#{uuid}'",
                     "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing open+done '#{uuid}'",
-                    "edit" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing edit '#{uuid}'",
                     "set-description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing set-description '#{uuid}'",
                     "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recast '#{uuid}'",
-                    ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing to-nyx '#{uuid}'",
+                    ">nyx" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing recastAsNyxItem '#{uuid}'",
                     "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing done '#{uuid}'",
-                    ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing to-ifcs '#{uuid}'"
+                    ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/catalyst-objects-processing twinAsIfcsItem '#{uuid}'"
                 }
             }
         }
@@ -160,7 +156,7 @@ objects = TheCacheWithLambdas::get("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441", lambd
 # We are no longer invalidating the cache after having 'done' an object, 
 # therefore the cached data could have
 # objects which are no longer valid. We filter them out.
-objects = objects.select{|object| LucilleThisCore::isCurrentUUID(object["uuid"]) }
+objects = objects.select{|object| LucilleNextGen::isCurrentUUID(object["uuid"]) }
 # -----------------------------------------------------------------------
 
 puts JSON.generate(objects)

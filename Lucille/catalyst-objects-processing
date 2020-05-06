@@ -27,44 +27,46 @@ require_relative "Lucille.rb"
 
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    LXUserInterface::bestOpen(uuid)
+    exit if uuid.nil?
+    claim = LucilleNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    CatalystCommon::openCatalystStandardTarget(claim["target"])
 end
 
 if ARGV[0] == "open+done" and ARGV[1] then
     uuid = ARGV[1]
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    LXUserInterface::bestOpen(uuid)
-    LXUserInterface::doneItem(uuid)
-end
-
-if ARGV[0] == "edit" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    LXUserInterface::editContent(uuid)
-    TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
+    exit if uuid.nil?
+    claim = LucilleNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    CatalystCommon::openCatalystStandardTarget(claim["target"])
+    LucilleNextGen::destroy(claim)
 end
 
 if ARGV[0] == "set-description" and ARGV[1] then
     uuid = ARGV[1]
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    text = LucilleThisCore::getDescription(uuid)
-    text = CatalystCommon::editTextUsingTextmate(text)
-    LucilleThisCore::setDescription(uuid, text)
+    exit if uuid.nil?
+    claim = LucilleNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
+    LucilleNextGen::save(claim)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 if ARGV[0] == "recast" and ARGV[1] then
     uuid = ARGV[1]
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    LXUserInterface::recastItem(uuid)
+    exit if uuid.nil?
+    claim = LucilleNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    LXUserInterface::recastItem(claim)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end
 
 if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    LXUserInterface::doneItem(uuid)
+    exit if uuid.nil?
+    claim = LucilleNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    LucilleNextGen::destroy(claim)
 
     # -----------------------------------------------------------------------
     # mark: be89bcf6-3bae-4872-ad1b-ea882aceddda
@@ -74,18 +76,21 @@ if ARGV[0] == "done" and ARGV[1] then
     # -----------------------------------------------------------------------
 end
 
-if ARGV[0] == "to-nyx" then
+if ARGV[0] == "twinAsIfcsItem" then
     uuid = ARGV[1]
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    LucilleThisCore::recastAsNyxItem(uuid)
+    exit if uuid.nil?
+    claim = LucilleNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    LucilleThisCore::twinAsIfcsItem(uuid)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
     exit
 end
 
-if ARGV[0] == "to-ifcs" and ARGV[1] then
+if ARGV[0] == "recastAsNyxItem" and ARGV[1] then
     uuid = ARGV[1]
-    puts uuid
-    exit if !LucilleThisCore::isCurrentUUID(uuid)
-    LucilleThisCore::recastAsIFCSItem(uuid)
+    exit if uuid.nil?
+    claim = LucilleNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    LucilleThisCore::recastAsNyxItem(uuid)
     TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
 end

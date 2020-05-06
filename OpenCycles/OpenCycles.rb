@@ -96,7 +96,9 @@ class OpenCycles
 
     # OpenCycles::getClaimByUUIDOrNUll(uuid)
     def self.getClaimByUUIDOrNUll(uuid)
-        OpenCycles::claims().select{|claim| claim["uuid"] == uuid }
+        filepath = "#{OpenCycles::pathToClaims()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
     # OpenCycles::save(claim)

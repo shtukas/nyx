@@ -52,6 +52,7 @@ loop {
     puts ""
     operations = [
         "start item",
+        "open",
         "set description",
         "destroy item"
     ]
@@ -59,6 +60,9 @@ loop {
     break if operation.nil?
     if operation == "start item" then
         InFlightControlSystem::start(claim["uuid"])
+    end
+    if option == "open" then
+        CatalystCommon::openCatalystStandardTarget(claim["target"])
     end
     if operation == "set description" then
         claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
