@@ -253,7 +253,7 @@ class NSXWaveUtils
     # NSXWaveUtils::performDone2(claim)
     def self.performDone2(claim)
         unixtime = NSXWaveUtils::scheduleToDoNotShowUnixtime(uuid, claim['schedule'])
-        DoNotShowUntil::setUnixtime(uuid, unixtime)
+        DoNotShowUntil::setUnixtime(claim["uuid"], unixtime)
     end
 
     # NSXWaveUtils::getCatalystObjects()
