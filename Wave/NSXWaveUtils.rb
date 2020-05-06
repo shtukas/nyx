@@ -224,8 +224,16 @@ class NSXWaveUtils
         JSON.generate(schedule)
     end
 
-    # NSXWaveUtils::makeCatalystObjectOrNull(claim)
-    def self.makeCatalystObjectOrNull(claim)
+    # NSXWaveUtils::defaultCommand(announce)
+    def self.defaultCommand(announce)
+        if announce.start_with?("http") then
+            "open+done"
+        end
+        "done"
+    end
+
+    # NSXWaveUtils::claimToCatalystObject(claim)
+    def self.claimToCatalystObject(claim)
         uuid = claim["uuid"]
         schedule = claim["schedule"]
         announce = NSXWaveUtils::announce(claim["description"], schedule)
@@ -238,7 +246,7 @@ class NSXWaveUtils
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
         object["commands"] = ["open", "edit", "done",  "recast", "destroy"]
-        object["defaultCommand"] = "open+done"
+        object["defaultCommand"] = NSXWaveUtils::defaultCommand(announce)
         object['schedule'] = schedule
         object["shell-redirects"] = {
             "open"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{uuid}'",
@@ -259,6 +267,6 @@ class NSXWaveUtils
     # NSXWaveUtils::getCatalystObjects()
     def self.getCatalystObjects()
         WaveNextGen::claims()
-            .map{|claim| NSXWaveUtils::makeCatalystObjectOrNull(claim) }
+            .map{|claim| NSXWaveUtils::claimToCatalystObject(claim) }
     end
 end

@@ -46,6 +46,6 @@ require_relative "Wave.rb"
 
 objects = WaveNextGen::claims()
             .select{|claim| DoNotShowUntil::isVisible(claim["uuid"]) }
-            .map{|claim| NSXWaveUtils::makeCatalystObjectOrNull(claim) }
+            .map{|claim| NSXWaveUtils::claimToCatalystObject(claim) }
 
 puts JSON.generate(objects)
