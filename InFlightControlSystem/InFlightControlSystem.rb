@@ -74,11 +74,6 @@ The time per day we expect from each is
 
 class InFlightControlSystem
 
-    # InFlightControlSystem::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
     # -----------------------------------------------------------
     # Data
 

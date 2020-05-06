@@ -64,11 +64,6 @@ require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 class OpenCycles
 
-    # OpenCycles::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
     # OpenCycles::pathToClaims()
     def self.pathToClaims()
         "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/Claims"

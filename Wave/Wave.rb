@@ -45,11 +45,6 @@ require_relative "NSXMiscUtils.rb"
 require_relative "NSXWaveUtils.rb"
 
 class WaveNextGen
-    # WaveNextGen::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
     # WaveNextGen::pathToClaims()
     def self.pathToClaims()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Wave/Claims"

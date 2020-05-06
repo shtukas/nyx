@@ -46,13 +46,39 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
-
 puts "Lucille 👩‍💻"
 loop {
     system("clear")
-    timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", LucilleThisCore::timelines())
-    break if timeline.nil?
-    LXUserInterface::timelineDive(timeline)
+    options = [
+        "create new item", 
+        "dive",
+        "invalidate cluster cache"
+    ]
+    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+    break if option.nil?
+    if option == "create new item" then
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        target = nil
+        if LucilleCore::askQuestionAnswerAsBoolean("Do you want to make a Catalyst Standard Target? ") then
+            target = CatalystCommon::createNewCatalystStandardTargetInteractivelyOrNull()
+        end
+        timeline = LXUserInterface::selectTimelineExistingOrNewOrNull()
+        claim = {
+            "uuid"         => LucilleCore::timeStringL22(),
+            "creationtime" => Time.new.to_f,
+            "description"  => description,
+            "target"       => target,
+            "timeline"     => timeline
+        }
+        LucilleClaims::save(claim)
+    end
+    if option == "dive" then
+        timeline = LXUserInterface::selectTimeOrNull()
+        next if timeline.nil?
+        LXUserInterface::timelineDive(timeline)
+    end
+    if option == "invalidate cluster cache" then
+        TheCacheWithLambdas::invalidate("FC36D82E-77E2-4B2C-B3A7-23BDC7A7C441")
+    end
 }
 

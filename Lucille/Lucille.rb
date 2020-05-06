@@ -46,27 +46,86 @@ require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 # -----------------------------------------------------------------
 
-class LucilleThisCore
-
-    # LucilleThisCore::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+class LucilleClaims
+    # LucilleClaims::pathToClaims()
+    def self.pathToClaims()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Claims"
     end
+
+    # LucilleClaims::claims()
+    def self.claims()
+        Dir.entries(LucilleClaims::pathToClaims())
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "#{LucilleClaims::pathToClaims()}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
+    end
+
+    # LucilleClaims::getClaimByUUIDOrNUll(uuid)
+    def self.getClaimByUUIDOrNUll(uuid)
+        filepath = "#{LucilleClaims::pathToClaims()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # LucilleClaims::save(claim)
+    def self.save(claim)
+        uuid = claim["uuid"]
+        File.open("#{LucilleClaims::pathToClaims()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+    end
+
+    # LucilleClaims::destroy(claim)
+    def self.destroy(claim)
+        uuid = claim["uuid"]
+        filepath = "#{LucilleClaims::pathToClaims()}/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # LucilleClaims::makeClaim(uuid, description, target, timeline)
+    def self.makeClaim(uuid, description, target, timeline)
+        {
+            "uuid"         => uuid,
+            "creationtime" => Time.new.to_f,
+            "description"  => description,
+            "target"       => target,
+            "timeline"     => timeline
+        }
+    end
+
+    # LucilleClaims::issueClaim(uuid, description, target, timeline)
+    def self.issueClaim(uuid, description, target, timeline)
+        claim = LucilleClaims::makeClaim(uuid, description, target, timeline)
+        LucilleClaims::save(claim)
+    end
+
+    # LucilleClaims::selectClaimOrNull()
+    def self.selectClaimOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("claim:", LucilleClaims::claims(), lambda {|claim| claim["description"] })
+    end
+
+    # LucilleClaims::isCurrentUUID(uuid)
+    def self.isCurrentUUID(uuid)
+        File.exists?("#{LucilleClaims::pathToClaims()}/#{uuid}.json")
+    end
+end
+
+class LucilleSpecialOps
 
     # -----------------------------
     # Data
 
-    # LucilleThisCore::timelines()
+    # LucilleSpecialOps::timelines()
     def self.timelines()
-        LucilleNextGen::claims()
+        LucilleClaims::claims()
             .map{|claim| claim["timeline"] }
             .uniq
             .sort
     end
 
-    # LucilleThisCore::getTimelineClaims(timeline)
+    # LucilleSpecialOps::getTimelineClaims(timeline)
     def self.getTimelineClaims(timeline)
-        LucilleNextGen::claims()
+        LucilleClaims::claims()
             .select{|claim| claim["timeline"] == timeline }
             .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
     end
@@ -74,12 +133,12 @@ class LucilleThisCore
     # -----------------------------
     # Operations
 
-    # LucilleThisCore::twinAsIfcsItem(claim)
+    # LucilleSpecialOps::twinAsIfcsItem(claim)
     def self.twinAsIfcsItem(claim)
 
     end
 
-    # LucilleThisCore::recastAsNyxItem(claim)
+    # LucilleSpecialOps::recastAsNyxItem(claim)
     def self.recastAsNyxItem(claim)
 
     end
@@ -90,10 +149,10 @@ class LXCluster
 
     # LXCluster::selectClaimsForCluster()
     def self.selectClaimsForCluster()
-        LucilleThisCore::timelines()
+        LucilleSpecialOps::timelines()
             .reject{|timeline| timeline == "Inbox"}
             .map{|timeline|
-                LucilleThisCore::getTimelineClaims(timeline).first(10)
+                LucilleSpecialOps::getTimelineClaims(timeline).first(10)
             }
             .flatten
     end
@@ -124,7 +183,7 @@ class LXCluster
     # LXCluster::getWorkingCluster()
     def self.getWorkingCluster()
         cluster = LXCluster::getClusterFromDisk()
-        cluster["claims"] = cluster["claims"].select{|claim| LucilleNextGen::isCurrentUUID(claim["uuid"]) }
+        cluster["claims"] = cluster["claims"].select{|claim| LucilleClaims::isCurrentUUID(claim["uuid"]) }
         if cluster["claims"].size < 0.5*cluster["initialsize"] then
             cluster = LXCluster::issueNewCluster()
         end
@@ -138,7 +197,7 @@ class LXUserInterface
     def self.recastItem(claim)
         timeline = nil
         loop {
-            timelines = LucilleThisCore::timelines().reject{|timeline| timeline == "Inbox" }
+            timelines = LucilleSpecialOps::timelines().reject{|timeline| timeline == "Inbox" }
             t = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", timelines)
             if t then
                 timeline = t
@@ -151,7 +210,7 @@ class LXUserInterface
             end
         }
         claim["timeline"] = timeline
-        LucilleNextGen::save(claim)
+        LucilleClaims::save(claim)
     end
 
     # LXUserInterface::itemDive(claim)
@@ -170,27 +229,28 @@ class LXUserInterface
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "open" then
+                next if claim["target"].nil?
                 CatalystCommon::openCatalystStandardTarget(claim["target"])
             end
             if option == "done" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this claim? ") then
-                    LucilleNextGen::destroy(claim)
+                    LucilleClaims::destroy(claim)
                 end
                 return
             end
             if option == "set description" then
                 claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
-                LucilleNextGen::save(claim)
+                LucilleClaims::save(claim)
             end
             if option == "recast" then
                 LXUserInterface::recastItem(claim)
             end
             if option == ">ifcs" then
-                LucilleThisCore::twinAsIfcsItem(claim)
+                LucilleSpecialOps::twinAsIfcsItem(claim)
                 return
             end
             if option == ">nyx" then
-                LucilleThisCore::recastAsNyxItem(claim)
+                LucilleSpecialOps::recastAsNyxItem(claim)
                 return
             end
         }
@@ -200,76 +260,25 @@ class LXUserInterface
     def self.timelineDive(timeline)
         puts "-> #{timeline}"
         loop {
-            claims = LucilleThisCore::getTimelineClaims(timeline)
+            claims = LucilleSpecialOps::getTimelineClaims(timeline)
             claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("items:", claims, lambda {|claim| claim["description"] })
             break if claim.nil?
             LXUserInterface::itemDive(claim)
         }
     end
 
-end
-
-
-class LucilleNextGen
-    # LucilleNextGen::pathToClaims()
-    def self.pathToClaims()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Lucille/Claims"
+    # LXUserInterface::selectTimeOrNull()
+    def self.selectTimeOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", LucilleSpecialOps::timelines())
     end
 
-    # LucilleNextGen::claims()
-    def self.claims()
-        Dir.entries(LucilleNextGen::pathToClaims())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{LucilleNextGen::pathToClaims()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
+    # LXUserInterface::selectTimelineExistingOrNewOrNull()
+    def self.selectTimelineExistingOrNewOrNull()
+        timeline = LXUserInterface::selectTimeOrNull()
+        return timeline if timeline
+        timeline = LucilleCore::askQuestionAnswerAsString("timeline: ")
+        return nil if timeline == ""
+        timeline
     end
 
-    # LucilleNextGen::getClaimByUUIDOrNUll(uuid)
-    def self.getClaimByUUIDOrNUll(uuid)
-        filepath = "#{LucilleNextGen::pathToClaims()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # LucilleNextGen::save(claim)
-    def self.save(claim)
-        uuid = claim["uuid"]
-        File.open("#{LucilleNextGen::pathToClaims()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
-    end
-
-    # LucilleNextGen::destroy(claim)
-    def self.destroy(claim)
-        uuid = claim["uuid"]
-        filepath = "#{LucilleNextGen::pathToClaims()}/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # LucilleNextGen::makeClaim(uuid, description, target, timeline)
-    def self.makeClaim(uuid, description, target, timeline)
-        {
-            "uuid"         => uuid,
-            "creationtime" => Time.new.to_f,
-            "description"  => description,
-            "target"       => target,
-            "timeline"     => timeline
-        }
-    end
-
-    # LucilleNextGen::issueClaim(uuid, description, target, timeline)
-    def self.issueClaim(uuid, description, target, timeline)
-        claim = LucilleNextGen::makeClaim(uuid, description, target, timeline)
-        LucilleNextGen::save(claim)
-    end
-
-    # LucilleNextGen::selectClaimOrNull()
-    def self.selectClaimOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("claim:", LucilleNextGen::claims(), lambda {|claim| claim["description"] })
-    end
-
-    # LucilleNextGen::isCurrentUUID(uuid)
-    def self.isCurrentUUID(uuid)
-        File.exists?("#{LucilleNextGen::pathToClaims()}/#{uuid}.json")
-    end
 end

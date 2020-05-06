@@ -44,4 +44,4 @@ require_relative "Lucille.rb"
 
 # -------------------------------------------------------------------------
 
-puts JSON.generate(LucilleThisCore::timelines())
+puts JSON.generate(LucilleSpecialOps::timelines())

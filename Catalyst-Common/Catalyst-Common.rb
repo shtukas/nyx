@@ -87,6 +87,21 @@ class CatalystCommon
         end
     end
 
+    # CatalystCommon::createNewCatalystStandardTargetInteractivelyOrNull()
+    def self.createNewCatalystStandardTargetInteractivelyOrNull()
+        types = ["line", "file", "url", "folder"]
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
+        return if type.nil?
+        if type == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            return {
+                "type" => "line",
+                "line" => line
+            }
+        end
+        nil
+    end
+
     # CatalystCommon::openCatalystStandardTarget(target)
     def self.openCatalystStandardTarget(target)
         if target["type"] == "line" then
