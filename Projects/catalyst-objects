@@ -59,7 +59,7 @@ require_relative "Projects.rb"
 # -------------------------------------------------------------------------
 
 def metric(uuid)
-    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.60 : 0.10
+    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.10 : 0.60
 end
 
 objects = Projects::items()

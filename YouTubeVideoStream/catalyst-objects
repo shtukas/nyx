@@ -62,13 +62,13 @@ if !File.exists?(YouTubeVideoStream::spaceFolderpath()) then
 end
 
 def metric(indx)
-    0.70 - indx.to_f/1000 + TwentyFourHoursCounterMetricHelper::metricshift("73718aae-ca1f-48b0-b6f5-10571e34b409", 20, -0.5)[1]
+    0.99 - indx.to_f/1000 + TwentyFourHoursCounterMetricHelper::metricshift("73718aae-ca1f-48b0-b6f5-10571e34b409", 20, -0.7)[1]
 end
 
 objects = []
 
 YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath())
-.first(100)
+.first(3)
 .map
 .with_index{|filepath, indx|
     uuid = YouTubeVideoStream::filepathToVideoUUID(filepath)
