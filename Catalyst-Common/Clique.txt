@@ -1,0 +1,7 @@
+
+Clique {
+    "uuid"         : String
+    "creationtime" : Float # Unixtime with decimals
+    "description"  : String
+    "items"        : Array[CatalystStandardTarget]
+}

@@ -7,17 +7,15 @@ A CatalystStandardTarget is an object of the form
     "line"       : String
 }
 {
-    "type"       : "file"
-    "filename"   : String
-}
-{
     "type"       : "url"
     "url"        : String
 }
 {
+    "type"       : "file"
+    "filename"   : String (CoreData managed)
+}
+{
     "type"       : "folder"
-    "foldername" : String
+    "foldername" : String (CoreData managed)
 }
 ```
-
-The file and the folder are managed by CoreData.

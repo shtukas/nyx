@@ -61,7 +61,7 @@ loop {
     if operation == "start item" then
         InFlightControlSystem::start(claim["uuid"])
     end
-    if option == "open" then
+    if operation == "open" then
         CatalystCommon::openCatalystStandardTarget(claim["target"])
     end
     if operation == "set description" then
