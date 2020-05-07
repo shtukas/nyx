@@ -1,18 +1,31 @@
 
-1.00      Running items
-0.95      Anniversaries
-0.93      Calendar [ack]
-0.82+     Wave sticky
-0.80+     Wave every-this-day-of-the-month / every-this-day-of-the-week
-0.78+     Wave every-n-hours / every-n-days
+🏃‍♀️
+        1.00      Running items
+                  Lucille.txt [top]
 
-          Lucille.txt [top]
+🗓️
+        0.95      Anniversaries
+        0.93      Calendar [ack]
 
-0.76-     In Flight Control System
-0.75-     LucilleTxt [bottom] (mostly stuff that need to be done now or moved to Projects)
-0.73      BackupsMonitor
-0.72      Project "Inbox"
-0.70-> 0  YouTubeVideoStream
-0.60-> 0  Projects [ack]
+💫
+        0.82+     Wave sticky
+        0.80+     Wave every-this-day-of-the-month / every-this-day-of-the-week
+        0.78+     Wave every-n-hours / every-n-days
 
-0.20 ------- Water level ------------------------------
+🛰️
+        0.76+     In Flight Control System
+
+🗓️
+        Calendar Report
+
+Lucille.txt [bottom]
+        0.74-     LucilleTxt [bottom] (mostly stuff that need to be done now or moved to Projects)
+
+📬
+        0.72-     Project "Inbox"
+
+🛩️
+        0.70-> 0  YouTubeVideoStream
+        0.60-> 0  Projects [ack]
+
+        0.20 ------- Water level ------------------------------

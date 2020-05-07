@@ -89,7 +89,7 @@ class NSXCatalystUI
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🗓️", displayObjectsForListing, 0.91, position, verticalSpaceLeft)
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("💫", displayObjectsForListing, 0.78, position, verticalSpaceLeft)
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("In FLight Control System 🛰️", displayObjectsForListing, 0.76, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛰️", displayObjectsForListing, 0.75, position, verticalSpaceLeft)
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
@@ -99,8 +99,8 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 2 )
         end
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("Lucille.txt [bottom] (quickly done, or postponed, or reclassified possibly as ifcs)".yellow, displayObjectsForListing, 0.73, position, verticalSpaceLeft)
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("📬 (quickly done, or postponed, or reclassified possibly as ifcs)".yellow, displayObjectsForListing, 0.71, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("Lucille.txt [bottom]".yellow, displayObjectsForListing, 0.73, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("📬".yellow, displayObjectsForListing, 0.71, position, verticalSpaceLeft)
 
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛩️", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
 
