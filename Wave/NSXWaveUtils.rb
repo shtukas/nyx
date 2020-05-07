@@ -227,7 +227,7 @@ class NSXWaveUtils
     # NSXWaveUtils::defaultCommand(announce)
     def self.defaultCommand(announce)
         if announce.start_with?("http") then
-            "open+done"
+            return "open+done"
         end
         "done"
     end
