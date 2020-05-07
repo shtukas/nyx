@@ -1,44 +1,18 @@
 
-            1.00  Running items
+1.00      Running items
+0.95      Anniversaries
+0.93      Calendar [ack]
+0.82+     Wave sticky
+0.80+     Wave every-this-day-of-the-month / every-this-day-of-the-week
+0.78+     Wave every-n-hours / every-n-days
 
-# ---------------------------------------------------------
-[0.91 -> 0.99] Calendar
+          Lucille.txt [top]
 
-               0.95  Anniversaries
-               0.93  Calendar [ack]
+0.76-     In Flight Control System
+0.75-     LucilleTxt [bottom] (mostly stuff that need to be done now or moved to Projects)
+0.73      BackupsMonitor
+0.72      Project "Inbox"
+0.70-> 0  YouTubeVideoStream
+0.60-> 0  Projects [ack]
 
-# ---------------------------------------------------------
-[0.78 -> 0.90] Repeat Items
-
-               0.82+ Wave sticky
-               0.80+ Wave every-this-day-of-the-month / every-this-day-of-the-week
-               0.78+ Wave every-n-hours / every-n-days
-
-# ---------------------------------------------------------
-# Lucille.txt [top]
-
-# ---------------------------------------------------------
-[0.76 -> 0.77] IFCS
-
-       0.00 -> 0.76+ In Flight Control System
-
-# ---------------------------------------------------------
-[0.73 -> 0.75] Lucille.txt [bottom] (mostly stuff that need to be done now or moved to Lucille)
-
-               0.74-
-
-# ---------------------------------------------------------
-[0.71 -> 0.72] Lucille Inbox
-
-               0.72- Lucille Inbox
-
-# ---------------------------------------------------------
-[0.20 -> 0.70] 
-
-               0.70- YouTubeVideoStream
-               0.60  Open Cycles [ack]
-               0.53  BackupsMonitor
-               0.40  In Flight Control System (positive)
-               0.40- Lucille [Cluster]
-
--------------- 0.20 ------- Water level ------------------------------
+0.20 ------- Water level ------------------------------

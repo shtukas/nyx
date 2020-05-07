@@ -167,6 +167,7 @@ class InFlightControlSystem
     # InFlightControlSystem::distributeDayTimeCommitmentsIfNotDoneAlready()
     def self.distributeDayTimeCommitmentsIfNotDoneAlready()
         return if Time.new.hour < 9
+        return if Time.new.hour > 18
         InFlightControlSystem::claims()
             .each{|claim|
                 uuid = claim["uuid"]

@@ -24,49 +24,49 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.
 
 =end
 
-require_relative "Catalyst-Common.rb"
+require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 # -----------------------------------------------------------------
 
-class Clique
+class Projects
 
-    # Clique::pathToCliques()
-    def self.pathToCliques()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Cliques/Items"
+    # Projects::pathToProjects()
+    def self.pathToProjects()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Projects/Items"
     end
 
-    # Clique::cliques()
-    def self.cliques()
-        Dir.entries(Clique::pathToCliques())
+    # Projects::items()
+    def self.items()
+        Dir.entries(Projects::pathToProjects())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{Clique::pathToCliques()}/#{filename}" }
+            .map{|filename| "#{Projects::pathToProjects()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
     end
 
-    # Clique::getCliqueByUUIDOrNUll(uuid)
-    def self.getCliqueByUUIDOrNUll(uuid)
-        filepath = "#{Clique::pathToCliques()}/#{uuid}.json"
+    # Projects::getProjectByUUIDOrNUll(uuid)
+    def self.getProjectByUUIDOrNUll(uuid)
+        filepath = "#{Projects::pathToProjects()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # Clique::save(clique)
-    def self.save(clique)
-        uuid = clique["uuid"]
-        File.open("#{Clique::pathToCliques()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(clique)) }
+    # Projects::save(item)
+    def self.save(item)
+        uuid = item["uuid"]
+        File.open("#{Projects::pathToProjects()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # Clique::destroy(clique)
-    def self.destroy(clique)
-        uuid = clique["uuid"]
-        filepath = "#{Clique::pathToCliques()}/#{uuid}.json"
+    # Projects::destroy(item)
+    def self.destroy(item)
+        uuid = item["uuid"]
+        filepath = "#{Projects::pathToProjects()}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # Clique::makeClique(uuid, description, items)
-    def self.makeClique(uuid, description, items)
+    # Projects::makeProject(uuid, description, items)
+    def self.makeProject(uuid, description, items)
         {
             "uuid"         => uuid,
             "creationtime" => Time.new.to_f,
@@ -75,15 +75,15 @@ class Clique
         }
     end
 
-    # Clique::issueClique(uuid, description, items)
-    def self.issueClique(uuid, description, items)
-        clique = Clique::makeClique(uuid, description, items)
-        Clique::save(clique)
+    # Projects::issueProject(uuid, description, items)
+    def self.issueProject(uuid, description, items)
+        item = Projects::makeProject(uuid, description, items)
+        Projects::save(item)
     end
 
-    # Clique::selectCliqueOrNull()
-    def self.selectCliqueOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("clique:", Clique::cliques(), lambda {|clique| clique["description"] })
+    # Projects::selectProjectOrNull()
+    def self.selectProjectOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("item:", Projects::items(), lambda {|item| item["description"] })
     end
 
 end

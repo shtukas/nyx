@@ -40,13 +40,43 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "Lucille.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+
+    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
+    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
+
+    Mercury::getQueueSize(channel)
+    Mercury::getAllValues(channel)
+
+    Mercury::getFirstValueOrNull(channel)
+    Mercury::deleteFirstValue(channel)
+=end
+
+require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-cluster = LXCluster::getClusterFromDisk()
-ageInDays = (Time.new.to_i - cluster["creationunixtime"]).to_f/86400
-xdone = cluster["initialsize"] - cluster["claims"].size
-xtodo = cluster["initialsize"].to_f/2
-doneRatio = xdone.to_f/xtodo
-puts "#{ageInDays.round(2)} days old ; done: #{(doneRatio*100).round(2)}%"
+def metric(uuid)
+    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.60 : 0.10
+end
+
+objects = Projects::items()
+    .map{|item|
+        object = {
+            "uuid"           => item["uuid"],
+            "contentItem"    => {
+                "type" => "line",
+                "line" => "[project] #{item["description"]}"
+            },
+            "metric"         => metric(item["uuid"]),
+            "commands"       => ["open"],
+            "defaultCommand" => "ack",
+            "shell-redirects" => {
+                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{item["uuid"]}'"
+            }
+        }
+    }
+
+puts JSON.generate(objects)

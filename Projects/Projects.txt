@@ -1,5 +1,5 @@
 
-Clique {
+Project {
     "uuid"         : String
     "creationtime" : Float # Unixtime with decimals
     "description"  : String

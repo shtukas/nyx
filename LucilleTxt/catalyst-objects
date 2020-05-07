@@ -68,10 +68,10 @@ objects = SectionsType0141::contentToSections(content)
             "commands"        => [">lucille", ">opencycles", ">ifcs"],
             "defaultCommand"  => "done",
             "shell-redirects" => {
-                ">lucille" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing recastAsLucilleItem #{sectionuuid}",
-                ">opencycles" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing recastAsOpenCycle #{sectionuuid}",
-                ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing recastAsIfcs #{sectionuuid}",
-                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DesktopFile/catalyst-objects-processing done #{sectionuuid}"
+                ">lucille" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing recastAsLucilleItem #{sectionuuid}",
+                ">opencycles" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing recastAsOpenCycle #{sectionuuid}",
+                ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing recastAsIfcs #{sectionuuid}",
+                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing done #{sectionuuid}"
             }
         }
     }
