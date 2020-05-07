@@ -2,9 +2,11 @@
 
 # encoding: UTF-8
 
-require_relative "InFlightControlSystem.rb"
+require_relative "Projects.rb"
 
 # --------------------------------------------------------------------
+
+exit
 
 InFlightControlSystem::claims()
 .each{|claim|

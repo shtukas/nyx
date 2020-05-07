@@ -40,10 +40,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "InFlightControlSystem.rb"
-
+require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-InFlightControlSystem::claims()
-    .each{|claim| puts InFlightControlSystem::claimToLongString(claim) }
+Projects::getIFCSProjects()
+    .each{|project|
+        uuid = project["uuid"]
+        puts "[project ; ifcs: #{("%6.3f" % project["schedule"]["position"])} [#{"%2d" % Projects::getOrdinal(uuid)}] ;  #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}] #{project["description"]}"
+    }

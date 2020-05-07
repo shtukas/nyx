@@ -53,3 +53,7 @@ if ARGV[0] == "stop" and ARGV[1] then
     exit if project.nil?
     Projects::stop(project["uuid"])
 end
+
+if ARGV[0] == "ifcs-stop-or-start" then
+    Projects::stopOrStart()
+end
