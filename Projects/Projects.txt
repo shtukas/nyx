@@ -3,5 +3,25 @@ Project {
     "uuid"         : String
     "creationtime" : Float # Unixtime with decimals
     "description"  : String
+    "schedule"     : Schedule
     "items"        : Array[CatalystStandardTarget]
 }
+
+Schedule:
+    {
+        "type" : "ack"
+    }
+    {
+        "type" : "standard"
+    }
+    {
+        "type" : "ifcs"
+        "position" : Float
+    }
+
+
+"standard" schedule timepoint:
+    {
+        "uuid"     : String
+        "timespan" : Float
+    }

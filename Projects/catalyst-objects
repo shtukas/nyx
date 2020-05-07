@@ -58,23 +58,55 @@ require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-def metric(uuid)
-    KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.10 : 0.60
+
+def metric(item)
+    uuid = item["uuid"]
+    return 1 if Projects::isRunning(uuid)
+    if item["schedule"]["type"] == "standard" then
+        timepoints = Projects::getTimepointsOverThePastNSeconds(uuid, 86400*7)
+        timeInHours = timepoints.map{|point| point["timespan"] }.inject(0, :+).to_f/3600
+        return 0.2 + 0.4 * Math.exp(-timeInHours)
+    end
+    raise "Projects: 59c680f3"
+    # KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.10 : 0.60
+end
+
+def defaultCommand(item)
+    uuid = item["uuid"]
+    if item["schedule"]["type"] == "standard" then
+        return (Projects::isRunning(uuid) ? "stop" : "start")
+    end
+    raise "Projects: b95c4fcb"
+end
+
+def kickerText(item)
+    uuid = item["uuid"]
+    if item["schedule"]["type"] == "standard" then
+        timepoints = Projects::getTimepoints(uuid)
+        timeInHours = timepoints.map{|point| point["timespan"] }.inject(0, :+).to_f/3600
+        return "[project / standard / #{"%7.2f" % timeInHours} hours]"
+    end
+    raise "Projects: f40a0f00"
 end
 
 objects = Projects::items()
     .map{|item|
+        uuid = item["uuid"]
+        isRunning = Projects::isRunning(uuid)
         object = {
-            "uuid"           => item["uuid"],
+            "uuid"           => uuid,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "[project] #{item["description"]}"
+                "line" => "#{kickerText(item)} #{item["description"]}"
             },
-            "metric"         => metric(item["uuid"]),
-            "commands"       => ["open"],
-            "defaultCommand" => "ack",
+            "metric"         => metric(item),
+            "commands"       => [],
+            "defaultCommand" => defaultCommand(item),
+            "isRunning" => isRunning,
             "shell-redirects" => {
-                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{item["uuid"]}'"
+                "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'",
+                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing start '#{uuid}'",
+                "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{uuid}'"
             }
         }
     }

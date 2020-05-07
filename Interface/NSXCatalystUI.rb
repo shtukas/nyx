@@ -81,7 +81,7 @@ class NSXCatalystUI
                     .rstrip
         if content.size > 0 then
             puts ""
-            puts "Lucille.txt 👩‍💻"
+            puts "🔥 Lucille.txt"
             puts content.green
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
         end
@@ -102,7 +102,7 @@ class NSXCatalystUI
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("Lucille.txt [bottom]".yellow, displayObjectsForListing, 0.73, position, verticalSpaceLeft)
         displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("📬".yellow, displayObjectsForListing, 0.71, position, verticalSpaceLeft)
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛩️", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("👩‍💻 🛩", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
 
         if displayObjects.size==0 then
             puts ""

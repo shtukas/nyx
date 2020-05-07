@@ -3,6 +3,8 @@
         1.00      Running items
                   Lucille.txt [top]
 
+🔥 Lucille.txt
+
 🗓️
         0.95      Anniversaries
         0.93      Calendar [ack]
@@ -15,8 +17,7 @@
 🛰️
         0.76+     In Flight Control System
 
-🗓️
-        Calendar Report
+🗓️ Calendar Report
 
 Lucille.txt [bottom]
         0.74-     LucilleTxt [bottom] (mostly stuff that need to be done now or moved to Projects)
@@ -24,8 +25,7 @@ Lucille.txt [bottom]
 📬
         0.72-     Project "Inbox"
 
-🛩️
-        0.70-> 0  YouTubeVideoStream
+👩‍💻 🛩
         0.60-> 0  Projects [ack]
 
         0.20 ------- Water level ------------------------------
