@@ -226,7 +226,8 @@ class NSXWaveUtils
 
     # NSXWaveUtils::defaultCommand(announce)
     def self.defaultCommand(announce)
-        if announce.start_with?("http") then
+        if announce[24, 4] == 'http' then
+            # Here we rely on the current special form of NSXWaveUtils::scheduleToAnnounce(schedule), [every-n-hours    28.0] https:...
             return "open+done"
         end
         "done"
