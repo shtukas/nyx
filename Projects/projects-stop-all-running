@@ -5,12 +5,26 @@
 require 'json'
 # JSON.pretty_generate(object)
 
+require 'date'
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
 # FileUtils.mv 'oldname', 'newname'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
@@ -26,30 +40,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-# --------------------------------------------------------------------
-
 require_relative "Projects.rb"
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
-if ARGV[0] == "ack" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    KeyValueStore::setFlagTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid }")
-end
-
-if ARGV[0] == "start" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    project = Projects::getProjectByUUIDOrNUll(uuid)
-    exit if project.nil?
-    Projects::start(project["uuid"])
-end
-
-if ARGV[0] == "stop" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    project = Projects::getProjectByUUIDOrNUll(uuid)
-    exit if project.nil?
-    Projects::stop(project["uuid"])
-end
+Projects::projects()
+    .each{|project|
+        Projects::stop(project["uuid"])
+    }

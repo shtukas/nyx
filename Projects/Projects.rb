@@ -39,6 +39,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
+require_relative "../Catalyst-Common/CatalystStandardTarget.rb"
+=begin 
+    CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
+    CatalystStandardTarget::targetToString(target)
+    CatalystStandardTarget::openTarget(target)
+=end
+
 # -----------------------------------------------------------------
 
 class Projects
@@ -120,6 +127,29 @@ class Projects
     def self.getProjectItemsByCreationTime(projectuuid)
         BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid)
             .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
+    end
+
+    # Projects::projectItemToString(item)
+    def self.projectItemToString(item)
+        item["description"] || CatalystStandardTarget::targetToString(item["target"])
+    end
+
+    # Projects::projectItemToCatalystObject(item, basemetric, indx)
+    def self.projectItemToCatalystObject(item, basemetric, indx)
+        uuid = item["uuid"]
+        {
+            "uuid"           => uuid,
+            "contentItem"    => {
+                "type" => "line",
+                "line" => "[project item] #{Projects::projectItemToString(item)}"
+            },
+            "metric"         => basemetric - indx.to_f/10000,
+            "commands"       => ["open", "done"],
+            "shell-redirects" => {
+                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-open '#{uuid}'",
+                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-done '#{uuid}'"
+            }
+        }
     end
 
     # -----------------------------------------------------------
@@ -208,19 +238,6 @@ class Projects
             .select{|pair| pair[0]["uuid"] == uuid }
             .map{|pair| pair[1] }
             .first
-    end
-
-    # Projects::stopOrStart()
-    def self.stopOrStart()
-        if Projects::getIFCSProjects().any?{|project| Projects::isRunning(project["uuid"]) } then
-            Projects::getIFCSProjects()
-                .each{|project| Projects::stop(project["uuid"]) }
-        else
-            Projects::getIFCSProjects()
-                .sort{|project1, project2| Projects::getStoredRunTimespan(project1["uuid"]) <=> Projects::getStoredRunTimespan(project2["uuid"]) }
-                .first(1)
-                .each{|project| Projects::start(project["uuid"]) }
-        end
     end
 
     # Presents the current priority list of the caller and let them enter a number that is then returned
@@ -333,7 +350,6 @@ class Projects
     def self.projectSuffixText(project)
         uuid = project["uuid"]
         str1 = " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
-        puts Projects::getProjectItemsByCreationTime(project["uuid"])
         str2 = 
             if Projects::isRunning(uuid) then
                 " (running for #{(Projects::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
@@ -356,16 +372,27 @@ class Projects
 
     # Projects::diveProject(project)
     def self.diveProject(project)
+        system("clear")
+        puts Projects::projectToString(project)
         options = [
-            "start"
+            "start",
+            "show items"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return if option.nil?
         if option == "start" then
             Projects::start(project["uuid"])
         end
-    end
+        if option == "show items" then
+            Projects::getProjectItemsByCreationTime(project["uuid"])
+                .each{|item|
+                    puts Projects::projectItemToString(item)
+                }
+            LucilleCore::pressEnterToContinue()
+        end
 
+        
+    end
 end
 
 

@@ -60,7 +60,9 @@ require_relative "Projects.rb"
 
 def projectMetric(project)
     uuid = project["uuid"]
-    return 1 if Projects::isRunning(uuid)
+    return 1 if Projects::isRunning(uuid) 
+        # 0.99 because the first item of the project will be 1, this is an easy way 
+        # to ensure project object in second position (at least not the first position)
     if project["schedule"]["type"] == "standard" then
         return 0.2 + 0.4 * Math.exp(-Projects::getStoredRunTimespanOverThePastNSeconds(uuid, 86400*7).to_f/3600)
     end
@@ -99,24 +101,55 @@ def projectToCatalystObject(project)
             "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'",
             "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing start '#{uuid}'",
             "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{uuid}'"
-        }
+        },
+        "x-interface:projects:project-is-running" => isRunning
     }
 end
 
 Projects::distributeDayTimeCommitmentsIfNotDoneAlready()
+
+def projectToCatalystObjects(project)
+    objects = []
+    objects << projectToCatalystObject(project) 
+    if Projects::isRunning(project["uuid"]) then
+        Projects::getProjectItemsByCreationTime(project["uuid"])
+            .first(6)
+            .map
+            .with_index {|item, indx|
+                objects << Projects::projectItemToCatalystObject(item, 1, indx+1) # 1 because we are running
+            }
+    end
+    objects
+end
 
 objects = []
 
 Projects::projects()
     .select{|project| project["schedule"]["type"] == "standard" }
     .each{|project| 
-        objects << projectToCatalystObject(project) 
+        projectToCatalystObjects(project)
+            .each{|object|
+                objects << object
+            }
     }
 
 Projects::getIFCSProjects()
-    .first(5) # dive, guardian work, and then 3 focuses
+    .reduce([]){|projects, project|
+        if Projects::isRunning(project["uuid"]) then
+            projects + [ project ]
+        else
+            if projects.size < 5 then
+                projects + [ project ]
+            else
+                projects
+            end
+        end 
+    }
     .each{|project| 
-        objects << projectToCatalystObject(project) 
+        projectToCatalystObjects(project)
+            .each{|object|
+                objects << object
+            }
     }
 
 puts JSON.generate(objects)

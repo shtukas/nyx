@@ -68,7 +68,7 @@ class NSXCatalystUI
 
         position = 0
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🏃‍♀️", displayObjectsForListing, 1, position, verticalSpaceLeft)
+        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🏃‍♀️", displayObjectsForListing, 0.97, position, verticalSpaceLeft) # 0.97 to capture any running project items before the Lucille.txt display
 
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]

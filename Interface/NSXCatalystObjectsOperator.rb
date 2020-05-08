@@ -55,6 +55,15 @@ class NSXCatalystObjectsOperator
             .reverse
 
 
+        # Make sure that not two projects are running at the same time
+        count = objects.select{|object| object["x-interface:projects:project-is-running"] }.size
+        if count > 1 then
+            puts "I am seeing #{count} projects running. Killing them all..."
+            sleep 3
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/projects-stop-all-running")
+            return NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        end
+
         # Make sure that running ifcs Wave is not first
         loop {
             break if objects.size < 2

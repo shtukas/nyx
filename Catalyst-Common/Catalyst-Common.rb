@@ -89,41 +89,4 @@ class CatalystCommon
         end
     end
 
-    # CatalystCommon::createNewCatalystStandardTargetInteractivelyOrNull()
-    def self.createNewCatalystStandardTargetInteractivelyOrNull()
-        types = ["line", "file", "url", "folder"]
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
-        return if type.nil?
-        if type == "line" then
-            line = LucilleCore::askQuestionAnswerAsString("line: ")
-            return {
-                "type" => "line",
-                "line" => line
-            }
-        end
-        nil
-    end
-
-    # CatalystCommon::openCatalystStandardTarget(target)
-    def self.openCatalystStandardTarget(target)
-        if target["type"] == "line" then
-            puts target["line"]
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if target["type"] == "file" then
-            CoreDataFile::openOrCopyToDesktop(target["filename"])
-            return
-        end
-        if target["type"] == "url" then
-            system("open '#{target["url"]}'")
-            return
-        end
-        if target["type"] == "folder" then
-            CoreDataDirectory::openFolder(target["foldername"])
-            return
-        end
-        raise "Catalyst Common error 160050-490261"
-    end
-
 end

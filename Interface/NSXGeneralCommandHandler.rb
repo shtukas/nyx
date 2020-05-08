@@ -105,7 +105,7 @@ class NSXGeneralCommandHandler
         end
 
         if command == ">>" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ifcs-stop-or-start")
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/projects-stop-or-start")
             return
         end
 

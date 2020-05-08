@@ -1,7 +1,6 @@
 
 🏃‍♀️
-        1.00      Running items
-                  Lucille.txt [top]
+        1.00-      Running items (including items of a running project)
 
 🔥 Lucille.txt
 
