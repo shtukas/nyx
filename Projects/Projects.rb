@@ -76,8 +76,7 @@ class Projects
 
     # Projects::save(project)
     def self.save(project)
-        uuid = project["uuid"]
-        File.open("#{Projects::pathToProjects()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(project)) }
+        File.open("#{Projects::pathToProjects()}/#{project["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(project)) }
     end
 
     # Projects::destroy(project)
@@ -115,6 +114,7 @@ class Projects
 
     # Projects::insertProjectItem(projectuuid, item)
     def self.insertProjectItem(projectuuid, item)
+        # There is a copy of function in LucilleTxt/catalyst-objects-processing
         BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
     end
 
@@ -381,6 +381,7 @@ class Projects
         loop {
             system("clear")
             puts "project: #{Projects::projectToString(project)}"
+            puts JSON.pretty_generate(project)
             options = [
                 "start",
                 "dive items"
@@ -397,7 +398,7 @@ class Projects
                 items = Projects::getProjectItemsByCreationTime(project["uuid"])
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Projects::projectItemToString(item) })
                 next if item.nil?
-
+                Projects::diveItem(item)
             end
             if option == "set ifcs position" then
                 puts "--------------------"
@@ -418,8 +419,11 @@ class Projects
         loop {
             system("clear")
             puts "project item: #{Projects::projectItemToString(item)}"
+            puts JSON.pretty_generate(item)
             options = []
+            puts "No operation defined yet for project items"
             LucilleCore::pressEnterToContinue()
+            break
         }
     end
 end

@@ -12,6 +12,11 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
@@ -29,6 +34,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.r
 
     Mercury::getFirstValueOrNull(channel)
     Mercury::deleteFirstValue(channel)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
 require_relative "../Catalyst-Common/Catalyst-Common.rb"
@@ -74,6 +87,80 @@ def timeStringL22()
     "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
 end
 
+
+def insertProjectItem(projectuuid, item)
+    # This function is the copy of the one in Projects.rb
+    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
+end
+
+def moveSectionToProjects(section) # Boolean # returns true if the operation was successful
+    projects = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/projects-projects`)
+    project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project (null to create a new one)", projects, lambda{|project| "-> #{project["description"]}" })
+    if project.nil? then
+        # We need to create a new project, and commit it to the projects datastore using 
+        # priviledge information about the internals of Projects.rb
+        puts "-> Choosing project schedule type"
+        scheduletype = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("project schedule type", ["standard", "ack", "ifcs"])
+        puts "-> Making schedule"
+        schedule = nil
+        if scheduletype == "standard" then
+            schedule = {
+                "type"  => "standard"
+            }
+        end
+        if scheduletype == "ack" then
+            schedule = {
+                "type" => "ack"
+            }
+        end
+        if scheduletype == "ifcs" then
+            schedule = {
+                "type" => "ifcs",
+                "position" => CatalystCommon::interactivelyGetIfcsPosition()
+            }
+        end
+        puts JSON.pretty_generate(schedule)
+        puts "-> Choosing project description"
+        description = LucilleCore::askQuestionAnswerAsString("project description: ")
+        puts "-> Making project"
+        project = {
+            "uuid"         => SecureRandom.uuid,
+            "creationtime" => Time.new.to_f,
+            "description"  => description,
+            "schedule"     => schedule
+        }
+        puts JSON.pretty_generate(project)
+        puts "-> Committing project to project data store"
+        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/projects1/#{project["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(project)) }
+    end
+    # We are going to make a catalyst standard target and then we are going to add an
+    # item to the project, using priviledge informations about the internals of Projects.
+    puts "-> Sending section to CoreData"
+    filename = "#{timeStringL22()}.txt"
+    puts "CoreData filename: #{filename}"
+    filepath = "/tmp/#{filename}"
+    File.open(filepath, "w") {|f| f.puts(section)}
+    CoreDataFile::copyFileToRepository(filepath)
+    # The file has been saved to Core Data, we can now make a catalyst standard target
+    puts "-> Making Catalyst Standard Target"
+    target = {
+        "type"     => "file",
+        "filename" => filename
+    }
+    puts JSON.pretty_generate(target)
+    # And a 
+    puts "-> Making Project Item"
+    projectItem = {
+        "uuid"         => SecureRandom.uuid,
+        "creationtime" => Time.new.to_f,
+        "description"  => LucilleCore::askQuestionAnswerAsString("project item user friendly description: "),
+        "target"       => target
+    }
+    puts JSON.pretty_generate(projectItem)
+    puts "-> Committing project item to project"
+    insertProjectItem(project["uuid"], projectItem)
+end
+
 # -----------------------------------------------------------------------------
 
 if ARGV[0] == "done" and ARGV[1] then
@@ -85,36 +172,17 @@ if ARGV[0] == "done" and ARGV[1] then
     rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end
 
-if ARGV[0] == "recastAsLucilleItem" and ARGV[1] then
+if ARGV[0] == "moveToProjects" and ARGV[1] then
     sectionuuid = ARGV[1]
     section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
     exit if section.nil?
     CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
     section = CatalystCommon::editTextUsingTextmate(section)
-    timelines = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Lucille/lucille-timelines`)
-    timeline = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline:", timelines)
-    timeline = timeline || "Inbox"
-    # ...
-    # rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
-end
-
-if ARGV[0] == "recastAsOpenCycle" and ARGV[1] then
-    sectionuuid = ARGV[1]
-    section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
-    exit if section.nil?
-    CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
-    section = CatalystCommon::editTextUsingTextmate(section)
-    # ....
-    # rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
-end
-
-if ARGV[0] == "recastAsIfcs" and ARGV[1] then
-    sectionuuid = ARGV[1]
-    section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
-    exit if section.nil?
-    CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
-    section = CatalystCommon::editTextUsingTextmate(section)
-    position = CatalystCommon::interactivelyGetIfcsPosition()
-    # ...
-    # rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+    # Let's move that thing to projects
+    # We either choose an existing project or make a new one
+    # Trying first to choose from existing
+    status = moveSectionToProjects(section)
+    if status then
+        rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
+    end
 end

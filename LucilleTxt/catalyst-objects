@@ -65,13 +65,11 @@ objects = SectionsType0141::contentToSections(content)
                 "body" => section.strip
             },
             "metric"          => 0.74 - indx.to_f/10000,
-            "commands"        => [">lucille", ">opencycles", ">ifcs"],
+            "commands"        => [">project"],
             "defaultCommand"  => "done",
             "shell-redirects" => {
-                ">lucille" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing recastAsLucilleItem #{sectionuuid}",
-                ">opencycles" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing recastAsOpenCycle #{sectionuuid}",
-                ">ifcs" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing recastAsIfcs #{sectionuuid}",
-                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing done #{sectionuuid}"
+                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing done #{sectionuuid}",
+                ">project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing moveToProjects #{sectionuuid}"
             }
         }
     }

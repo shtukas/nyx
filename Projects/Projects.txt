@@ -8,10 +8,10 @@ Project {
 
 Schedule:
     {
-        "type" : "ack"
+        "type" : "standard"
     }
     {
-        "type" : "standard"
+        "type" : "ack"
     }
     {
         "type" : "ifcs"
