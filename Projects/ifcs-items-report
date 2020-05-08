@@ -46,6 +46,5 @@ require_relative "Projects.rb"
 
 Projects::getIFCSProjects()
     .each{|project|
-        uuid = project["uuid"]
-        puts "[project ; ifcs: #{("%6.3f" % project["schedule"]["position"])} [#{"%2d" % Projects::getOrdinal(uuid)}] ;  #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}] #{project["description"]}"
+        puts Projects::projectToString(project)
     }

@@ -114,7 +114,7 @@ if ARGV[0] == "recastAsIfcs" and ARGV[1] then
     exit if section.nil?
     CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
     section = CatalystCommon::editTextUsingTextmate(section)
-    position = CatalystCommon::getIFCSPositionForItemCreation()
+    position = CatalystCommon::interactivelyGetIfcsPosition()
     # ...
     # rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end

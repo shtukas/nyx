@@ -129,6 +129,7 @@ class Projects
             .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
     end
 
+    # Projects::destroyProjectItem(projectuuid, itemuuid)
     def self.destroyProjectItem(projectuuid, itemuuid)
         BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, itemuuid)
     end
@@ -377,26 +378,49 @@ class Projects
 
     # Projects::diveProject(project)
     def self.diveProject(project)
-        system("clear")
-        puts Projects::projectToString(project)
-        options = [
-            "start",
-            "show items"
-        ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        return if option.nil?
-        if option == "start" then
-            Projects::start(project["uuid"])
-        end
-        if option == "show items" then
-            Projects::getProjectItemsByCreationTime(project["uuid"])
-                .each{|item|
-                    puts Projects::projectItemToString(item)
-                }
-            LucilleCore::pressEnterToContinue()
-        end
+        loop {
+            system("clear")
+            puts "project: #{Projects::projectToString(project)}"
+            options = [
+                "start",
+                "dive items"
+            ]
+            if project["schedule"]["type"] == "ifcs" then
+                options << "set ifcs position"
+            end
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+            return if option.nil?
+            if option == "start" then
+                Projects::start(project["uuid"])
+            end
+            if option == "dive items" then
+                items = Projects::getProjectItemsByCreationTime(project["uuid"])
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Projects::projectItemToString(item) })
+                next if item.nil?
 
-        
+            end
+            if option == "set ifcs position" then
+                puts "--------------------"
+                Projects::getIFCSProjects()
+                    .each{|project|
+                        puts Projects::projectToString(project)
+                    }
+                puts "--------------------"
+                position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
+                project["schedule"]["position"] = position
+                Projects::save(project)
+            end
+        }
+    end
+
+    # Projects::diveItem(item)
+    def self.diveItem(item)
+        loop {
+            system("clear")
+            puts "project item: #{Projects::projectItemToString(item)}"
+            options = []
+            LucilleCore::pressEnterToContinue()
+        }
     end
 end
 

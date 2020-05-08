@@ -77,8 +77,8 @@ class CatalystCommon
         File.open("#{folder3}/#{filename}", "w"){|f| f.puts(text) }
     end
 
-    # CatalystCommon::getIFCSPositionForItemCreation()
-    def self.getIFCSPositionForItemCreation()
+    # CatalystCommon::interactivelyGetIfcsPosition()
+    def self.interactivelyGetIfcsPosition()
         ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/ifcs-items-report`
         puts ifcsreport
         position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ").strip
