@@ -116,7 +116,7 @@ def projectToCatalystObjects(project)
             .first(6)
             .map
             .with_index {|item, indx|
-                objects << Projects::projectItemToCatalystObject(item, 1, indx+1) # 1 because we are running
+                objects << Projects::projectItemToCatalystObject(project, item, 1, indx+1) # 1 because we are running
             }
     end
     objects

@@ -118,8 +118,8 @@ class Projects
         BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
     end
 
-    # Projects::getProjectItemByItemUuidOrNull(projectuuid, itemuuid)
-    def self.getProjectItemByItemUuidOrNull(projectuuid, itemuuid)
+    # Projects::getProjectItemOrNull(projectuuid, itemuuid)
+    def self.getProjectItemOrNull(projectuuid, itemuuid)
         BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, itemuuid)
     end
 
@@ -129,13 +129,17 @@ class Projects
             .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
     end
 
+    def self.destroyProjectItem(projectuuid, itemuuid)
+        BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, itemuuid)
+    end
+
     # Projects::projectItemToString(item)
     def self.projectItemToString(item)
         item["description"] || CatalystStandardTarget::targetToString(item["target"])
     end
 
-    # Projects::projectItemToCatalystObject(item, basemetric, indx)
-    def self.projectItemToCatalystObject(item, basemetric, indx)
+    # Projects::projectItemToCatalystObject(project, item, basemetric, indx)
+    def self.projectItemToCatalystObject(project, item, basemetric, indx)
         uuid = item["uuid"]
         {
             "uuid"           => uuid,
@@ -145,9 +149,10 @@ class Projects
             },
             "metric"         => basemetric - indx.to_f/10000,
             "commands"       => ["open", "done"],
+            "defaultCommand" => "open",
             "shell-redirects" => {
-                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-open '#{uuid}'",
-                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-done '#{uuid}'"
+                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-open '#{project["uuid"]}' '#{uuid}'",
+                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-done '#{project["uuid"]}' '#{uuid}'"
             }
         }
     end
