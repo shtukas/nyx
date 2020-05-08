@@ -32,6 +32,10 @@ if ARGV[0] == "play" then
         filepath = filepath2
     end
     system("open '#{filepath}'")
+    if LucilleCore::askQuestionAnswerAsBoolean("-> delete? ") then
+        FileUtils.rm(filepath)
+    end
+    TwentyFourHoursCounterMetricHelper::ping("73718aae-ca1f-48b0-b6f5-10571e34b409")
 end
 
 if ARGV[0] == "delete" then
