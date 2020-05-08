@@ -73,6 +73,10 @@ def projectMetric(project)
     # KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.10 : 0.60
 end
 
+def projectCommands(project)
+    (["dive"] + [ Projects::getProjectItemsByCreationTime(project["uuid"]).size == 0 ? "destroy-project" : nil ]).compact
+end
+
 def projectDefaultCommand(project)
     uuid = project["uuid"]
     if project["schedule"]["type"] == "standard" then
@@ -94,14 +98,15 @@ def projectToCatalystObject(project)
             "line" => Projects::projectToString(project)
         },
         "metric"         => projectMetric(project),
-        "commands"       => ["dive"],
+        "commands"       => projectCommands(project),
         "defaultCommand" => projectDefaultCommand(project),
         "isRunning" => isRunning,
         "shell-redirects" => {
             "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing start '#{uuid}'",
             "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{uuid}'",
             "dive" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing dive '#{uuid}'",
-            "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'"
+            "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'",
+            "destroy-project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing destroy-project '#{uuid}'"
         },
         "x-interface:projects:project-is-running" => isRunning
     }

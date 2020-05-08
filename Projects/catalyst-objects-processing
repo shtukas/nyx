@@ -63,6 +63,16 @@ if ARGV[0] == "ack" and ARGV[1] then
     KeyValueStore::setFlagTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid }")
 end
 
+if ARGV[0] == "destroy-project" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    project = Projects::getProjectByUUIDOrNUll(uuid)
+    exit if project.nil?
+    exit if Projects::getProjectItemsByCreationTime(uuid).size > 0 # we do not destroy a project that has some items
+    Projects::destroy(project)
+end
+
+
 if ARGV[0] == "project-item-open" and ARGV[1] and ARGV[2] then
     projectuuid = ARGV[1]
     exit if projectuuid.nil?
