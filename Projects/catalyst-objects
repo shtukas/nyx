@@ -82,28 +82,6 @@ def projectDefaultCommand(project)
     raise "Projects: b95c4fcb"
 end
 
-def projectKickerText(project)
-    uuid = project["uuid"]
-    if project["schedule"]["type"] == "standard" then
-        return "[project ; standard ; #{"%7.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)} hours]"
-    end
-    if project["schedule"]["type"] == "ifcs" then
-        return "[project ; ifcs: #{("%6.3f" % project["schedule"]["position"])} [#{"%2d" % Projects::getOrdinal(uuid)}] ;  #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
-    end
-    raise "Projects: f40a0f00"
-end
-
-def projectSuffixText(project)
-    uuid = project["uuid"]
-    if project["schedule"]["type"] == "standard" then
-        return "(#{project["items"].size})"
-    end
-    if project["schedule"]["type"] == "ifcs" then
-        return " (#{project["items"].size})"
-    end
-    raise "Projects: 85cdae2a"
-end
-
 def projectToCatalystObject(project)
     uuid = project["uuid"]
     isRunning = Projects::isRunning(uuid)
@@ -111,7 +89,7 @@ def projectToCatalystObject(project)
         "uuid"           => uuid,
         "contentItem"    => {
             "type" => "line",
-            "line" => "#{projectKickerText(project)} #{project["description"]}#{projectSuffixText(project)}"
+            "line" => Projects::projectToString(project)
         },
         "metric"         => projectMetric(project),
         "commands"       => [],

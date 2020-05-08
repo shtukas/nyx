@@ -121,8 +121,8 @@ class Projects
         KeyValueStore::set(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}", Time.new.to_i)
     end
 
-    # Projects::insertRunTime(uuid, algebraicTimespanInSeconds)
-    def self.insertRunTime(uuid, algebraicTimespanInSeconds)
+    # Projects::insertAlgebraicTime(uuid, algebraicTimespanInSeconds)
+    def self.insertAlgebraicTime(uuid, algebraicTimespanInSeconds)
         timepoint = {
             "uuid"     => SecureRandom.uuid,
             "unixtime" => Time.new.to_i,
@@ -138,7 +138,7 @@ class Projects
         unixtime = unixtime.to_f
         timespan = Time.new.to_f - unixtime
         timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        Projects::insertRunTime(uuid, timespan)
+        Projects::insertAlgebraicTime(uuid, timespan)
         KeyValueStore::destroy(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
     end
 
@@ -287,9 +287,60 @@ class Projects
                 next if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
                 timespan = Projects::itemPractical24HoursTimeExpectationInSecondsOrNull(uuid)
                 next if timespan.nil?
-                Projects::insertRunTime(uuid, -timespan)
+                Projects::insertAlgebraicTime(uuid, -timespan)
                 KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             }
+    end
+
+    # -----------------------------------------------------------
+    # User Interface
+
+    # Projects::projectKickerText(project)
+    def self.projectKickerText(project)
+        uuid = project["uuid"]
+        if project["schedule"]["type"] == "standard" then
+            return "[project ; standard ; #{"%7.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)} hours]"
+        end
+        if project["schedule"]["type"] == "ifcs" then
+            return "[project ; ifcs: #{("%6.3f" % project["schedule"]["position"])} [#{"%2d" % Projects::getOrdinal(uuid)}] ;  #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
+        end
+        raise "Projects: f40a0f00"
+    end
+
+    # Projects::projectSuffixText(project)
+    def self.projectSuffixText(project)
+        uuid = project["uuid"]
+        str1 = " (#{project["items"].size})"
+        str2 = 
+            if Projects::isRunning(uuid) then
+                " (running for #{(Projects::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+        if project["schedule"]["type"] == "standard" then
+            return "#{str1}#{str2}"
+        end
+        if project["schedule"]["type"] == "ifcs" then
+            return "#{str1}#{str2}"
+        end
+        raise "Projects: 85cdae2a"
+    end
+
+    # Projects::projectToString(project)
+    def self.projectToString(project)
+        "#{Projects::projectKickerText(project)} #{project["description"]}#{Projects::projectSuffixText(project)}"
+    end
+
+    # Projects::diveProject(project)
+    def self.diveProject(project)
+        options = [
+            "start"
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        return if option.nil?
+        if option == "start" then
+            Projects::start(project["uuid"])
+        end
     end
 
 end

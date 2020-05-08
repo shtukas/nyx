@@ -63,16 +63,22 @@ puts "Projects 👩‍💻"
 loop {
     system("clear")
     options = [
-        "create new item", 
+        "create new project", 
         "dive",
+        "dive ifcs projects"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "create new item" then
+    if option == "create new project" then
 
     end
     if option == "dive" then
         
+    end
+    if option == "dive ifcs projects" then
+        project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getIFCSProjects(), lambda{|project| Projects::projectToString(project) })
+        next if project.nil?
+        Projects::diveProject(project)
     end
 }
 
