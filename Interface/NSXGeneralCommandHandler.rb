@@ -111,10 +111,10 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "Nyx",
                 "Calendar",
-                "Projects",
                 "Wave",
+                "Projects",
+                "Nyx",
                 "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)

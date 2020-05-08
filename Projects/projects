@@ -64,7 +64,7 @@ loop {
     system("clear")
     options = [
         "create new project", 
-        "dive",
+        "dive projects",
         "dive ifcs projects"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -72,8 +72,10 @@ loop {
     if option == "create new project" then
 
     end
-    if option == "dive" then
-        
+    if option == "dive projects" then
+        project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::projects(), lambda{|project| Projects::projectToString(project) })
+        next if project.nil?
+        Projects::diveProject(project)
     end
     if option == "dive ifcs projects" then
         project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getIFCSProjects(), lambda{|project| Projects::projectToString(project) })

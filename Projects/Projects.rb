@@ -43,9 +43,12 @@ require_relative "../Catalyst-Common/Catalyst-Common.rb"
 
 class Projects
 
+    # -----------------------------------------------------------
+    # Projects
+
     # Projects::pathToProjects()
     def self.pathToProjects()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Projects/Items"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Projects/projects1"
     end
 
     # Projects::projects()
@@ -98,6 +101,25 @@ class Projects
     # Projects::selectProjectOrNull()
     def self.selectProjectOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project:", Projects::projects(), lambda {|project| project["description"] })
+    end
+
+    # -----------------------------------------------------------
+    # Items Management
+
+    # Projects::insertProjectItem(projectuuid, item)
+    def self.insertProjectItem(projectuuid, item)
+        BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
+    end
+
+    # Projects::getProjectItemByItemUuidOrNull(projectuuid, itemuuid)
+    def self.getProjectItemByItemUuidOrNull(projectuuid, itemuuid)
+        BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, itemuuid)
+    end
+
+    # Projects::getProjectItemsByCreationTime(projectuuid)
+    def self.getProjectItemsByCreationTime(projectuuid)
+        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid)
+            .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
     end
 
     # -----------------------------------------------------------
@@ -299,10 +321,10 @@ class Projects
     def self.projectKickerText(project)
         uuid = project["uuid"]
         if project["schedule"]["type"] == "standard" then
-            return "[project ; standard ; #{"%7.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)} hours]"
+            return "[project standard ; st: #{"%7.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)} hours]"
         end
         if project["schedule"]["type"] == "ifcs" then
-            return "[project ; ifcs: #{("%6.3f" % project["schedule"]["position"])} [#{"%2d" % Projects::getOrdinal(uuid)}] ;  #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
+            return "[project ifcs ; pos: #{("%6.3f" % project["schedule"]["position"])} ; ord: #{"%2d" % Projects::getOrdinal(uuid)} ; st: #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
         end
         raise "Projects: f40a0f00"
     end
@@ -310,7 +332,8 @@ class Projects
     # Projects::projectSuffixText(project)
     def self.projectSuffixText(project)
         uuid = project["uuid"]
-        str1 = " (#{project["items"].size})"
+        str1 = " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
+        puts Projects::getProjectItemsByCreationTime(project["uuid"])
         str2 = 
             if Projects::isRunning(uuid) then
                 " (running for #{(Projects::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"

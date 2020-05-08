@@ -4,7 +4,6 @@ Project {
     "creationtime" : Float # Unixtime with decimals
     "description"  : String
     "schedule"     : Schedule
-    "items"        : Array[CatalystStandardTarget]
 }
 
 Schedule:
@@ -25,3 +24,10 @@ Schedule:
         "uuid"     : String
         "timespan" : Float
     }
+
+ProjectItem {
+    "uuid"         : String
+    "creationtime" : Float
+    "description"  : null | String
+    "target"       : CatalystStandardTarget
+}
