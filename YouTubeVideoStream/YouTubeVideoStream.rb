@@ -33,7 +33,7 @@ class YouTubeVideoStream
 
     # YouTubeVideoStream::energyGridFolderpath()
     def self.energyGridFolderpath()
-        "/Volumes/EnergyGrid/Data/Pascal/Galaxy/YouTube Videos"
+        "/Volumes/EnergyGrid/Data/Pascal/YouTube-Videos"
     end
 
     # YouTubeVideoStream::videoFolderpathsAtFolder(folderpath)

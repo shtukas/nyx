@@ -20,7 +20,7 @@ require_relative "YouTubeVideoStream.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == "open" then
+if ARGV[0] == "play" then
     uuid = ARGV[1]
     exit if uuid.nil?
     filepath = YouTubeVideoStream::getVideoFilepathByUUIDOrNull(uuid)
