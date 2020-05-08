@@ -11,11 +11,11 @@ Schedule:
         "type" : "standard"
     }
     {
-        "type" : "ack"
-    }
-    {
         "type" : "ifcs"
         "position" : Float
+    }
+    {
+        "type" : "ack"
     }
 
 

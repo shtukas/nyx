@@ -32,12 +32,6 @@ require_relative "Projects.rb"
 
 # -----------------------------------------------------------------------------
 
-if ARGV[0] == "ack" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    KeyValueStore::setFlagTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid }")
-end
-
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
@@ -52,6 +46,21 @@ if ARGV[0] == "stop" and ARGV[1] then
     project = Projects::getProjectByUUIDOrNUll(uuid)
     exit if project.nil?
     Projects::stop(project["uuid"])
+end
+
+
+if ARGV[0] == "dive" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    project = Projects::getProjectByUUIDOrNUll(uuid)
+    exit if project.nil?
+    Projects::diveProject(project)
+end
+
+if ARGV[0] == "ack" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    KeyValueStore::setFlagTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid }")
 end
 
 if ARGV[0] == "project-item-open" and ARGV[1] and ARGV[2] then

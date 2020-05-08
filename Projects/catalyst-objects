@@ -60,7 +60,7 @@ require_relative "Projects.rb"
 
 def projectMetric(project)
     uuid = project["uuid"]
-    return 1 if Projects::isRunning(uuid) 
+    return 0.99 if Projects::isRunning(uuid) 
         # 0.99 because the first item of the project will be 1, this is an easy way 
         # to ensure project object in second position (at least not the first position)
     if project["schedule"]["type"] == "standard" then
@@ -94,13 +94,14 @@ def projectToCatalystObject(project)
             "line" => Projects::projectToString(project)
         },
         "metric"         => projectMetric(project),
-        "commands"       => [],
+        "commands"       => ["dive"],
         "defaultCommand" => projectDefaultCommand(project),
         "isRunning" => isRunning,
         "shell-redirects" => {
-            "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'",
             "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing start '#{uuid}'",
-            "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{uuid}'"
+            "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{uuid}'",
+            "dive" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing dive '#{uuid}'",
+            "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'"
         },
         "x-interface:projects:project-is-running" => isRunning
     }

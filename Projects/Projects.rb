@@ -112,8 +112,8 @@ class Projects
     # -----------------------------------------------------------
     # Items Management
 
-    # Projects::insertProjectItem(projectuuid, item)
-    def self.insertProjectItem(projectuuid, item)
+    # Projects::saveProjectItem(projectuuid, item)
+    def self.saveProjectItem(projectuuid, item)
         # There is a copy of function in LucilleTxt/catalyst-objects-processing
         BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
     end
@@ -381,7 +381,8 @@ class Projects
         loop {
             system("clear")
             puts "project: #{Projects::projectToString(project)}"
-            puts JSON.pretty_generate(project)
+            puts "description: #{project["description"]}"
+            puts "schedule: #{project["schedule"]}"
             options = [
                 "start",
                 "dive items"
@@ -398,7 +399,7 @@ class Projects
                 items = Projects::getProjectItemsByCreationTime(project["uuid"])
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Projects::projectItemToString(item) })
                 next if item.nil?
-                Projects::diveItem(item)
+                Projects::diveItem(project, item)
             end
             if option == "set ifcs position" then
                 puts "--------------------"
@@ -414,16 +415,26 @@ class Projects
         }
     end
 
-    # Projects::diveItem(item)
-    def self.diveItem(item)
+    # Projects::diveItem(project, item)
+    def self.diveItem(project, item)
         loop {
             system("clear")
             puts "project item: #{Projects::projectItemToString(item)}"
-            puts JSON.pretty_generate(item)
-            options = []
-            puts "No operation defined yet for project items"
-            LucilleCore::pressEnterToContinue()
-            break
+            puts "description: #{item["description"]}"
+            puts "target: #{target["schedule"]}"
+            options = [
+                "open",
+                "set description"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items)
+            break if option.nil?
+            if option == "open" then
+                CatalystStandardTarget::openTarget(item["target"])
+            end
+            if option == "set description" then
+                item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+                Projects::saveProjectItem(project["uuid"], item)
+            end
         }
     end
 end
