@@ -4,14 +4,14 @@
 
     CoreDataFile::copyFileToRepository(filepath)
     CoreDataFile::filenameToFilepath(filename)
-    CoreDataFile::filenameIsCurrent(filename)
+    CoreDataFile::exists?(filename)
     CoreDataFile::openOrCopyToDesktop(filename)
-    CoreDataFile::deleteFile(filename)
 
     CoreDataDirectory::copyFolderToRepository(folderpath)
     CoreDataDirectory::foldernameToFolderpath(foldername)
+    CoreDataDirectory::exists?(foldername)
     CoreDataDirectory::openFolder(foldername)
-    CoreDataDirectory::deleteFolder(foldername)
+
 
 =end
 
@@ -99,10 +99,10 @@ class CoreDataFile
         FileUtils.cp(filepath, filepath2)
     end
 
-    # CoreDataFile::filenameIsCurrent(filename)
-    def self.filenameIsCurrent(filename)
+    # CoreDataFile::exists?(filename)
+    def self.exists?(filename)
         filepath = CoreDataFile::filenameToFilepath(filename)
-        !File.exists?(filepath)
+        File.exists?(filepath)
     end
 
     # CoreDataFile::fileByFilenameIsSafelyOpenable(filename)
@@ -121,14 +121,6 @@ class CoreDataFile
             FileUtils.cp(filepath, "/Users/pascal/Desktop/")
         end
     end
-
-    # CoreDataFile::deleteFile(filename)
-    def self.deleteFile(filename)
-        filepath = CoreDataFile::filenameToFilepath(filename)
-        return if !File.exists?(filepath)
-        CoreDataInternalUtils::copyLocationToCatalystBin(filepath)
-        FileUtils.rm(filepath)
-    end
 end
 
 class CoreDataDirectory
@@ -136,6 +128,12 @@ class CoreDataDirectory
     # CoreDataDirectory::foldernameToFolderpath(foldername)
     def self.foldernameToFolderpath(foldername)
         "#{CoreDataInternalUtils::pathToCoreData()}/Directories/#{foldername}"
+    end
+
+    # CoreDataDirectory::exists?(foldername)
+    def self.exists?(foldername)
+        folderpath = CoreDataDirectory::foldernameToFolderpath(foldername)
+        File.exists?(folderpath)
     end
 
     # CoreDataDirectory::copyFolderToRepository(folderpath)
@@ -153,14 +151,5 @@ class CoreDataDirectory
         return if !File.exists?(folderpath)
         system("open '#{folderpath}'")
     end
-
-    # CoreDataDirectory::deleteFolder(foldername)
-    def self.deleteFolder(foldername)
-        folderpath = CoreDataDirectory::foldernameToFolderpath(foldername)
-        return if !File.exists?(folderpath)
-        CoreDataInternalUtils::copyLocationToCatalystBin(folderpath)
-        LucilleCore::removeFileSystemLocation(folderpath)
-    end
-
 end
 

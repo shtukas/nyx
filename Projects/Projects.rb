@@ -18,14 +18,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
 
     CoreDataFile::copyFileToRepository(filepath)
     CoreDataFile::filenameToFilepath(filename)
-    CoreDataFile::filenameIsCurrent(filename)
+    CoreDataFile::exists?(filename)
     CoreDataFile::openOrCopyToDesktop(filename)
-    CoreDataFile::deleteFile(filename)
 
     CoreDataDirectory::copyFolderToRepository(folderpath)
     CoreDataDirectory::foldernameToFolderpath(foldername)
     CoreDataDirectory::openFolder(foldername)
-    CoreDataDirectory::deleteFolder(foldername)
 
 =end
 
@@ -171,7 +169,6 @@ class Projects
         puts JSON.pretty_generate(schedule)
 
         Projects::issueProject(SecureRandom.uuid, description, schedule, []) # Project
-
     end
 
     # -----------------------------------------------------------
@@ -383,6 +380,53 @@ class Projects
                 Projects::insertAlgebraicTime(uuid, -timespan)
                 KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             }
+    end
+
+    # -----------------------------------------------------------
+    # Fsck
+
+    # Projects::fsckItem(item)
+    def self.fsckItem(item)
+        puts JSON.pretty_generate(item)
+        if item["uuid"].nil? then
+            puts item
+            raise "Project item has no uuid"
+        end
+        if item["creationtime"].nil? then
+            puts item
+            raise "Project item has no creationtime"
+        end
+        if item["target"].nil? then
+            puts item
+            raise "Project item has no target"
+        end
+        target = item["target"]
+        CatalystStandardTarget::fsckTarget(target)
+    end
+
+    # Projects::fsckProject(project)
+    def self.fsckProject(project)
+        puts JSON.pretty_generate(project)
+        if project["uuid"].nil? then
+            puts project
+            raise "Project has no uuid"
+        end
+        if project["creationtime"].nil? then
+            puts project
+            raise "Project has no creationtime"
+        end
+        if project["description"].nil? then
+            puts project
+            raise "Project has no description"
+        end
+        if project["schedule"].nil? then
+            puts project
+            raise "Project has no schedule"
+        end
+        items = Projects::getProjectItemsByCreationTime(project["uuid"])
+        items.each{|item|
+            Projects::fsckItem(item)
+        }
     end
 
     # -----------------------------------------------------------

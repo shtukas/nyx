@@ -56,14 +56,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
 
     CoreDataFile::copyFileToRepository(filepath)
     CoreDataFile::filenameToFilepath(filename)
-    CoreDataFile::filenameIsCurrent(filename)
+    CoreDataFile::exists?(filename)
     CoreDataFile::openOrCopyToDesktop(filename)
-    CoreDataFile::deleteFile(filename)
 
     CoreDataDirectory::copyFolderToRepository(folderpath)
     CoreDataDirectory::foldernameToFolderpath(foldername)
     CoreDataDirectory::openFolder(foldername)
-    CoreDataDirectory::deleteFolder(foldername)
 
 =end
 
@@ -594,7 +592,6 @@ class NyxOps
         end
         if target["type"] == "file-3C93365A" then
             filename = target["filename"]
-            CoreDataFile::deleteFile(filename)
             return
         end
         if target["type"] == "unique-name-C2BF46D6" then
@@ -611,7 +608,6 @@ class NyxOps
             return
         end
         if target["type"] == "perma-dir-11859659" then
-            CoreDataDirectory::deleteFolder(target["foldername"])
             return
         end
         raise "[error: 15c46fdd]"

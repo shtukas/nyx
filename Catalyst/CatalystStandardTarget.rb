@@ -20,14 +20,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
 
     CoreDataFile::copyFileToRepository(filepath)
     CoreDataFile::filenameToFilepath(filename)
-    CoreDataFile::filenameIsCurrent(filename)
+    CoreDataFile::exists?(filename)
     CoreDataFile::openOrCopyToDesktop(filename)
-    CoreDataFile::deleteFile(filename)
 
     CoreDataDirectory::copyFolderToRepository(folderpath)
     CoreDataDirectory::foldernameToFolderpath(foldername)
     CoreDataDirectory::openFolder(foldername)
-    CoreDataDirectory::deleteFolder(foldername)
 
 =end
 
@@ -87,5 +85,43 @@ class CatalystStandardTarget
             return
         end
         raise "Catalyst Standard Target error 160050-490261"
+    end
+
+    # CatalystStandardTarget::fsckTarget(target)
+    def self.fsckTarget(target)
+        if target["type"].nil? then
+            puts target
+            raise "target as no type"
+        end
+        if target["type"] == "line" then
+            if target["line"].nil? then
+                puts target
+                raise "target as no line"
+            end
+        end
+        if target["type"] == "file" then
+            if target["filename"].nil? then
+                puts target
+                raise "target as no filename"
+            end
+            status = CoreDataFile::exists?(target["filename"])
+            if !status then
+                puts target
+                raise "CoreDataFile cannot find this filename: #{target["filename"]}"
+            end
+        end
+        if target["type"] == "url" then
+        end
+        if target["type"] == "folder" then
+            if target["foldername"].nil? then
+                puts target
+                raise "target as no foldername"
+            end
+            status = CoreDataDirectory::exists?(target["foldername"])
+            if !status then
+                puts target
+                raise "CoreDataFile cannot find this foldername: #{target["foldername"]}"
+            end
+        end
     end
 end
