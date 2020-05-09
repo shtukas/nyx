@@ -56,9 +56,9 @@ class NSXCatalystObjectsOperator
 
 
         # Make sure that not two projects are running at the same time
-        count = objects.select{|object| object["x-interface:projects:project-is-running"] }.size
+        count = objects.select{|object| object["x-interface:projects:project-is-running"] and object["uuid"] != "20200502-141716-483780" }.size
         if count > 1 then
-            puts "I am seeing #{count} projects running. Killing them all..."
+            puts "I am seeing #{count} non interface dive projects running. Killing them all..."
             sleep 3
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/projects-stop-all-running")
             return NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()

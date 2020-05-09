@@ -28,17 +28,9 @@ require 'find'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
-=begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
-
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
-=end
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShowUntil.rb"
+#    DoNotShowUntil::setUnixtime(uid, unixtime)
+#    DoNotShowUntil::isVisible(uid)
 
 require_relative "Projects.rb"
 
@@ -54,6 +46,7 @@ if Projects::projects().any?{|project| Runner::isRunning(project["uuid"]) } then
         }
 else
     Projects::getIFCSProjects()
+        .select{|project| DoNotShowUntil::isVisible(project["uuid"]) }
         .sort{|project1, project2| Projects::getStoredRunTimespan(project1["uuid"]) <=> Projects::getStoredRunTimespan(project2["uuid"]) }
         .first(1)
         .each{|project| Runner::start(project["uuid"]) }
