@@ -49,18 +49,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Ymir2Estate.rb"
-=begin
-    Ymir2Estate::makeNewYmirLocationForBasename(pathToYmir, basename)
-        # If base name is meant to be the name of a folder then folder itself 
-        # still need to be created. Only the parent is created.
-    Ymir2Estate::locationBasenameToYmirLocationOrNull(pathToYmir, basename)
-    Ymir2Estate::ymirLocationEnumerator(pathToYmir)
-=end
-
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/AtlasCore.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
 =begin
 
     CoreDataFile::copyFileToRepository(filepath)
@@ -76,7 +67,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.
 
 =end
 
-require_relative "../Catalyst-Common/Catalyst-Common.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
 # --------------------------------------------------------------------
 

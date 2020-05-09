@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require_relative "../Catalyst-Common/CatalystStandardTarget.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
 =begin 
     CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     CatalystStandardTarget::targetToString(target)
@@ -15,7 +15,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
 =begin
 
     CoreDataFile::copyFileToRepository(filepath)
@@ -56,13 +56,13 @@ class CatalystStandardTarget
             return target["line"]
         end
         if target["type"] == "file" then
-            return "core data file: #{target["filename"]}"
+            return "CoreData file: #{target["filename"]}"
         end
         if target["type"] == "url" then
             return target["url"]
         end
         if target["type"] == "folder" then
-            return "code data folder: #{target["foldername"]}"
+            return "CoreData folder: #{target["foldername"]}"
         end
         raise "Catalyst Standard Target error 3c7968e4"
     end

@@ -19,22 +19,8 @@ require 'securerandom'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
 # SectionsType0141::contentToSections(text)
-
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-
-    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
-    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
-
-    Mercury::getQueueSize(channel)
-    Mercury::getAllValues(channel)
-
-    Mercury::getFirstValueOrNull(channel)
-    Mercury::deleteFirstValue(channel)
-=end
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets.rb"
 =begin
@@ -44,7 +30,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
-require_relative "../Catalyst-Common/Catalyst-Common.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::ping(uuid, weight, timespan)
+    Ping::pong(uuid)
+=end
 
 # --------------------------------------------------------------------
 
@@ -163,11 +163,32 @@ end
 
 # -----------------------------------------------------------------------------
 
+if ARGV[0] == "start" and ARGV[1] then
+    sectionuuid = ARGV[1]
+    section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
+    exit if section.nil?
+    Runner::start("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
+end
+
+if ARGV[0] == "stop" and ARGV[1] then
+    sectionuuid = ARGV[1]
+    section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
+    exit if section.nil?
+    timespan = Runner::stop("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
+    exit if timespan.nil?
+    puts "Pushing #{timespan} to ping"
+    Ping::ping("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad", timespan, 86400) # run items individually but contribute to the group
+end
+
 if ARGV[0] == "done" and ARGV[1] then
     sectionuuid = ARGV[1]
     section = getSectionFromFileBySectionUUIDOrNull(sectionuuid)
     if section then
         CatalystCommon::commitTextToCatalystBin("Lucille File Fragment.text", section)
+    end
+    timespan = Runner::stop("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
+    if timespan then
+        Ping::ping("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad", timespan, 86400) # run items individually but contribute to the group
     end
     rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
 end

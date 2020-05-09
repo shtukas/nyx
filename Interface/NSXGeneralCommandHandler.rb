@@ -29,21 +29,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-
-    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
-    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
-
-    Mercury::getQueueSize(channel)
-    Mercury::getAllValues(channel)
-
-    Mercury::getFirstValueOrNull(channel)
-    Mercury::deleteFirstValue(channel)
-=end
-
-require_relative "../Catalyst-Common/Catalyst-Common.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
 class NSXGeneralCommandHandler
 

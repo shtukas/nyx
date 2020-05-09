@@ -2,7 +2,7 @@
 # encoding: UTF-8
 require 'json'
 
-require_relative "../Catalyst-Common/Catalyst-Common.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
 # -------------------------------------------------------------------------------------
 

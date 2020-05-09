@@ -13,7 +13,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
 =begin
 
     CoreDataFile::copyFileToRepository(filepath)
@@ -37,13 +37,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
-require_relative "../Catalyst-Common/Catalyst-Common.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
-require_relative "../Catalyst-Common/CatalystStandardTarget.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
 =begin 
     CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     CatalystStandardTarget::targetToString(target)
     CatalystStandardTarget::openTarget(target)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
 =end
 
 # -----------------------------------------------------------------
@@ -82,6 +90,8 @@ class Projects
     # Projects::destroy(project)
     def self.destroy(project)
         uuid = project["uuid"]
+        return if uuid == "20200502-141716-483780" # Interface 🛩️
+        return if uuid == "20200502-141331-226084" # Guardian General Work
         filepath = "#{Projects::pathToProjects()}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
@@ -161,24 +171,6 @@ class Projects
     # -----------------------------------------------------------
     # Run Management
 
-    # Projects::isRunning(uuid)
-    def self.isRunning(uuid)
-        !KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}").nil?
-    end
-
-    # Projects::runTimeInSecondsOrNull(uuid)
-    def self.runTimeInSecondsOrNull(uuid)
-        unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
-        return nil if unixtime.nil?
-        Time.new.to_f - unixtime.to_f
-    end
-
-    # Projects::start(uuid)
-    def self.start(uuid)
-        return if Projects::isRunning(uuid)
-        KeyValueStore::set(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}", Time.new.to_i)
-    end
-
     # Projects::insertAlgebraicTime(uuid, algebraicTimespanInSeconds)
     def self.insertAlgebraicTime(uuid, algebraicTimespanInSeconds)
         timepoint = {
@@ -187,17 +179,6 @@ class Projects
             "timespan" => algebraicTimespanInSeconds
         }
         BTreeSets::set(nil, "acc68599-2249-42fc-b6dd-f7db287c73db:#{uuid}", timepoint["uuid"], timepoint)
-    end
-
-    # Projects::stop(uuid)
-    def self.stop(uuid)
-        return if !Projects::isRunning(uuid)
-        unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}").to_i
-        unixtime = unixtime.to_f
-        timespan = Time.new.to_f - unixtime
-        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        Projects::insertAlgebraicTime(uuid, timespan)
-        KeyValueStore::destroy(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
     end
 
     # Projects::getTimepoints(uuid)
@@ -271,16 +252,16 @@ class Projects
 
     # Projects::timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
     def self.timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
-        return 1 if Projects::isRunning(uuid)
+        return 1 if Runner::isRunning(uuid)
         return 0 if interfaceDiveIsRunning # We kill other items when Interface Dive is running
+        return 0 if timeInSeconds > 0 # We kill any item that is not late
         timeInHours = timeInSeconds.to_f/3600
-        return 0.76 + Math.atan(-timeInHours).to_f/1000 if timeInHours > 0
         0.76 + Math.atan(-timeInHours).to_f/1000
     end
 
-    # Projects::metric(uuid)
-    def self.metric(uuid)
-        Projects::timeToMetric(uuid, Projects::getStoredRunTimespan(uuid), Projects::isRunning("20200502-141716-483780"))
+    # Projects::ifcsMetric(uuid)
+    def self.ifcsMetric(uuid)
+        Projects::timeToMetric(uuid, Projects::getStoredRunTimespan(uuid), Runner::isRunning("20200502-141716-483780"))
     end
 
     # Projects::isWeekDay()
@@ -357,8 +338,8 @@ class Projects
         uuid = project["uuid"]
         str1 = " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
         str2 = 
-            if Projects::isRunning(uuid) then
-                " (running for #{(Projects::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            if Runner::isRunning(uuid) then
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
             else
                 ""
             end
@@ -393,7 +374,7 @@ class Projects
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "start" then
-                Projects::start(project["uuid"])
+                Runner::start(project["uuid"])
             end
             if option == "dive items" then
                 items = Projects::getProjectItemsByCreationTime(project["uuid"])
@@ -421,12 +402,12 @@ class Projects
             system("clear")
             puts "project item: #{Projects::projectItemToString(item)}"
             puts "description: #{item["description"]}"
-            puts "target: #{target["schedule"]}"
+            puts "target: #{item["target"]}"
             options = [
                 "open",
                 "set description"
             ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items)
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
             if option == "open" then
                 CatalystStandardTarget::openTarget(item["target"])

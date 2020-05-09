@@ -40,8 +40,22 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/SectionsType0141.rb"
-# SectionsType0141::contentToSections(text)
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
+# SectionsType0141::contentToSection(text)
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::ping(uuid, weight, timespan)
+    Ping::pong(uuid)
+=end
 
 # -------------------------------------------------------------------------
 
@@ -54,23 +68,30 @@ end
 content = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b').map{|part| part.strip }[1]
 
 objects = SectionsType0141::contentToSections(content)
+    .first(10)
     .map
     .with_index{|section, indx|
         sectionuuid = sectionToUUID(section)
+        isRunning = Runner::isRunning("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
+        metric = isRunning ? 1 : (0.74 - indx.to_f/10000 - (0.2/3600)*Ping::pong("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad")) # We count seconds over the past 24 hours, one hour we go down by 0.2
         {
             "uuid"           => sectionuuid,
             "contentItem"    => {
                 "type" => "line-and-body",
-                "line" => section.strip.lines.to_a.first,
-                "body" => section.strip
+                "line" => "Lucille.txt [bottom] #{section.strip.lines.to_a.first}",
+                "body" => "Lucille.txt [bottom]\n"+section.strip
             },
-            "metric"          => 0.74 - indx.to_f/10000,
-            "commands"        => [">project"],
-            "defaultCommand"  => "done",
+            "metric"          => metric,
+            "commands"        => ["start", "stop", "done", ">project"],
+            "defaultCommand"  => isRunning ? "stop" : "start",
+            "isRunning" => isRunning,
             "shell-redirects" => {
+                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing start #{sectionuuid}",
+                "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing stop #{sectionuuid}",
                 "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing done #{sectionuuid}",
                 ">project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing moveToProjects #{sectionuuid}"
-            }
+            },
+            "pong" => Ping::pong("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad")
         }
     }
 

@@ -37,7 +37,7 @@ if ARGV[0] == "start" and ARGV[1] then
     exit if uuid.nil?
     project = Projects::getProjectByUUIDOrNUll(uuid)
     exit if project.nil?
-    Projects::start(project["uuid"])
+    Runner::start(project["uuid"])
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
@@ -45,7 +45,10 @@ if ARGV[0] == "stop" and ARGV[1] then
     exit if uuid.nil?
     project = Projects::getProjectByUUIDOrNUll(uuid)
     exit if project.nil?
-    Projects::stop(project["uuid"])
+    timespan = Runner::stop(project["uuid"])
+    exit if timespan.nil?
+    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+    Projects::insertAlgebraicTime(uuid, timespan)
 end
 
 
@@ -63,7 +66,7 @@ if ARGV[0] == "ack" and ARGV[1] then
     KeyValueStore::setFlagTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid }")
 end
 
-if ARGV[0] == "destroy-project" and ARGV[1] then
+if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     project = Projects::getProjectByUUIDOrNUll(uuid)

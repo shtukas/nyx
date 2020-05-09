@@ -40,57 +40,43 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-
-    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
-    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
-
-    Mercury::getQueueSize(channel)
-    Mercury::getAllValues(channel)
-
-    Mercury::getFirstValueOrNull(channel)
-    Mercury::deleteFirstValue(channel)
-=end
-
 require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
 def projectMetric(project)
     uuid = project["uuid"]
-    return 0.99 if Projects::isRunning(uuid) 
+    return 0.99 if Runner::isRunning(uuid) 
         # 0.99 because the first item of the project will be 1, this is an easy way 
         # to ensure project object in second position (at least not the first position)
     if project["schedule"]["type"] == "standard" then
         return 0.2 + 0.4 * Math.exp(-Projects::getStoredRunTimespanOverThePastNSeconds(uuid, 86400*7).to_f/3600)
     end
     if project["schedule"]["type"] == "ifcs" then
-        return Projects::metric(uuid)
+        return Projects::ifcsMetric(uuid)
     end
     raise "Projects: 59c680f3"
     # KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.10 : 0.60
 end
 
 def projectCommands(project)
-    (["dive"] + [ Projects::getProjectItemsByCreationTime(project["uuid"]).size == 0 ? "destroy-project" : nil ]).compact
+    (["dive"] + [ Projects::getProjectItemsByCreationTime(project["uuid"]).size == 0 ? "done" : nil ]).compact
 end
 
 def projectDefaultCommand(project)
     uuid = project["uuid"]
     if project["schedule"]["type"] == "standard" then
-        return (Projects::isRunning(uuid) ? "stop" : "start")
+        return (Runner::isRunning(uuid) ? "stop" : "start")
     end
     if project["schedule"]["type"] == "ifcs" then
-        return (Projects::isRunning(uuid) ? "stop" : "start")
+        return (Runner::isRunning(uuid) ? "stop" : "start")
     end
     raise "Projects: b95c4fcb"
 end
 
 def projectToCatalystObject(project)
     uuid = project["uuid"]
-    isRunning = Projects::isRunning(uuid)
+    isRunning = Runner::isRunning(uuid)
     {
         "uuid"           => uuid,
         "contentItem"    => {
@@ -106,7 +92,7 @@ def projectToCatalystObject(project)
             "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{uuid}'",
             "dive" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing dive '#{uuid}'",
             "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'",
-            "destroy-project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing destroy-project '#{uuid}'"
+            "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing done '#{uuid}'"
         },
         "x-interface:projects:project-is-running" => isRunning
     }
@@ -117,7 +103,7 @@ Projects::distributeDayTimeCommitmentsIfNotDoneAlready()
 def projectToCatalystObjects(project)
     objects = []
     objects << projectToCatalystObject(project) 
-    if Projects::isRunning(project["uuid"]) then
+    if Runner::isRunning(project["uuid"]) then
         Projects::getProjectItemsByCreationTime(project["uuid"])
             .first(6)
             .map
@@ -141,7 +127,7 @@ Projects::projects()
 
 Projects::getIFCSProjects()
     .reduce([]){|projects, project|
-        if Projects::isRunning(project["uuid"]) then
+        if Runner::isRunning(project["uuid"]) then
             projects + [ project ]
         else
             if projects.size < 5 then

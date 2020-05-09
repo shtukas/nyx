@@ -44,12 +44,17 @@ require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-if Projects::projects().any?{|project| Projects::isRunning(project["uuid"]) } then
+if Projects::projects().any?{|project| Runner::isRunning(project["uuid"]) } then
     Projects::projects()
-        .each{|project| Projects::stop(project["uuid"]) }
+        .each{|project| 
+            timespan = Runner::stop(project["uuid"])
+            next if timespan.nil?
+            timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+            Projects::insertAlgebraicTime(project["uuid"], timespan)
+        }
 else
     Projects::getIFCSProjects()
         .sort{|project1, project2| Projects::getStoredRunTimespan(project1["uuid"]) <=> Projects::getStoredRunTimespan(project2["uuid"]) }
         .first(1)
-        .each{|project| Projects::start(project["uuid"]) }
+        .each{|project| Runner::start(project["uuid"]) }
 end

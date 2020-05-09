@@ -23,18 +23,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 class NSXCatalystUI
 
-    # NSXCatalystUI::printDisplayObjects(sectionname, displayObjectsForListing, lowerboundmetric, position, verticalSpaceLeft)
-    def self.printDisplayObjects(sectionname, displayObjectsForListing, lowerboundmetric, position, verticalSpaceLeft)
+    # NSXCatalystUI::printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
+    def self.printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
 
-        return [displayObjectsForListing, position, verticalSpaceLeft] if displayObjectsForListing.empty?
-        return [displayObjectsForListing, position, verticalSpaceLeft] if verticalSpaceLeft<=5
-        return [displayObjectsForListing, position, verticalSpaceLeft] if displayObjectsForListing[0]["metric"] < lowerboundmetric
+        return verticalSpaceLeft if displayObjectsForListing.empty?
 
-        puts ""
-        puts sectionname
-        verticalSpaceLeft = verticalSpaceLeft - 2
-
-        while displayObjectsForListing.size>0 and displayObjectsForListing[0]["metric"] >= lowerboundmetric do
+        while displayObjectsForListing.size>0 do
 
             # Position and Focus Management
             position = position + 1
@@ -52,7 +46,7 @@ class NSXCatalystUI
             break if verticalSpaceLeft<=0 and displayObjectsForListing.none?{|object| object["isRunning"] }
         end
 
-        [displayObjectsForListing, position, verticalSpaceLeft]
+        verticalSpaceLeft
     end
 
     # NSXCatalystUI::performInterfaceDisplay(displayObjects)
@@ -68,8 +62,6 @@ class NSXCatalystUI
 
         position = 0
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🏃‍♀️", displayObjectsForListing, 0.97, position, verticalSpaceLeft) # 0.97 to capture any running project items before the Lucille.txt display
-
         filepath = "/Users/pascal/Desktop/Lucille.txt"
         content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
                     .strip
@@ -81,15 +73,10 @@ class NSXCatalystUI
                     .rstrip
         if content.size > 0 then
             puts ""
-            puts "🔥 Lucille.txt"
+            puts "🔥 Lucille.txt [top]"
             puts content.green
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
         end
-
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🗓️", displayObjectsForListing, 0.91, position, verticalSpaceLeft)
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("💫", displayObjectsForListing, 0.78, position, verticalSpaceLeft)
-
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("🛰️", displayObjectsForListing, 0.75, position, verticalSpaceLeft)
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
@@ -99,10 +86,10 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 2 )
         end
 
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("Lucille.txt [bottom]".yellow, displayObjectsForListing, 0.73, position, verticalSpaceLeft)
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("📬".yellow, displayObjectsForListing, 0.71, position, verticalSpaceLeft)
-
-        displayObjectsForListing, position, verticalSpaceLeft = NSXCatalystUI::printDisplayObjects("👩‍💻 🛩", displayObjectsForListing, 0.2, position, verticalSpaceLeft)
+        puts ""
+        puts "👩‍💻"
+        verticalSpaceLeft = verticalSpaceLeft - 2
+        verticalSpaceLeft = NSXCatalystUI::printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
 
         if displayObjects.size==0 then
             puts ""

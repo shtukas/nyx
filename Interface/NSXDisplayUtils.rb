@@ -63,7 +63,7 @@ class NSXDisplayUtils
         onFocusPossiblyLineReturnPrefixedObjectDisplayText = lambda{|object, announce, body|
             if body then
                 if body.lines.size>1 then
-                    "\n #{object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding)}"
+                    "\n#{object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding)}"
                 else
                     " #{(object["isRunning"] ? body.green : body)}"
                 end

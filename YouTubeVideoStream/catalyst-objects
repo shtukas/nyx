@@ -40,7 +40,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require_relative "../Catalyst-Common/TwentyFourHoursCounterMetricHelper.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::ping(uuid, weight, timespan)
+    Ping::pong(uuid)
+=end
 
 require_relative "YouTubeVideoStream.rb"
 
@@ -62,7 +66,7 @@ if !File.exists?(YouTubeVideoStream::spaceFolderpath()) then
 end
 
 def metric(indx)
-    0.99 - indx.to_f/1000 + TwentyFourHoursCounterMetricHelper::metricshift("73718aae-ca1f-48b0-b6f5-10571e34b409", 20, -0.7)[1]
+    0.60 - indx.to_f/1000 - (0.4/25)*Ping::pong("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01").to_f # We go down by 0.4 after 25, we do over 24 hours
 end
 
 objects = []

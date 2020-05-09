@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require_relative "../Catalyst-Common/Catalyst-Common.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -10,7 +10,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/CoreData.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
 =begin
 
     CoreDataFile::copyFileToRepository(filepath)
