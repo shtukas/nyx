@@ -332,10 +332,10 @@ class Projects
     def self.projectKickerText(project)
         uuid = project["uuid"]
         if project["schedule"]["type"] == "standard" then
-            return "[project standard ; st: #{"%7.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)} hours]"
+            return "[project standard ; time: #{"%7.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)} hours]"
         end
         if project["schedule"]["type"] == "ifcs" then
-            return "[project ifcs ; pos: #{("%6.3f" % project["schedule"]["position"])} ; ord: #{"%2d" % Projects::getOrdinal(uuid)} ; st: #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
+            return "[project ifcs ; pos: #{("%6.3f" % project["schedule"]["position"])} ; ord: #{"%2d" % Projects::getOrdinal(uuid)} ; time: #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
         end
         raise "Projects: f40a0f00"
     end
