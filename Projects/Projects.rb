@@ -52,6 +52,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::ping(uuid, weight, validityTimespan)
+    Ping::pong(uuid)
+=end
+
 # -----------------------------------------------------------------
 
 class Projects
@@ -80,8 +86,8 @@ class Projects
             .sort{|p1, p2| p1["creationtime"] <=> p2["creationtime"] }
     end
 
-    # Projects::getIFCSProjects()
-    def self.getIFCSProjects()
+    # Projects::getIFCSProjectsOrderedByPosition()
+    def self.getIFCSProjectsOrderedByPosition()
         Projects::projects()
             .select{|project| project["schedule"]["type"] == "ifcs" }
             .sort{|p1, p2| p1["schedule"]["position"] <=> p2["schedule"]["position"] }
@@ -171,7 +177,7 @@ class Projects
         if scheduletype == "ifcs" then
             schedule = {
                 "type" => "ifcs",
-                "position" => CatalystCommon::interactivelyGetIfcsPosition()
+                "position" => Projects::interactiveChoiceOfIfcsPosition()
             }
         end
         puts JSON.pretty_generate(schedule)
@@ -197,7 +203,7 @@ class Projects
             }
         end
         if scheduletype == "ifcs" then
-            position = CatalystCommon::interactivelyGetIfcsPosition()
+            position = Projects::interactiveChoiceOfIfcsPosition()
             schedule = {
                 "type" => "ifcs",
                 "position" => position
@@ -205,6 +211,41 @@ class Projects
         end
         puts JSON.pretty_generate(schedule)
         schedule
+    end
+
+    # -----------------------------------------------------------
+    # Project Time and Metric
+
+    # Projects::setProjectAlgebraicTime(uuid, timespanInSeconds)
+    def self.setProjectAlgebraicTime(uuid, timespanInSeconds)
+        Ping::ping(uuid, timespanInSeconds, 86400*30) # 30 days
+    end
+
+    # Projects::getProjectAlgebraicTime(uuid)
+    def self.getProjectAlgebraicTime(uuid)
+        Ping::pong(uuid)
+    end
+
+    # Projects::algebraicTimeToMetric(uuid, timeInSeconds)
+    def self.algebraicTimeToMetric(uuid, timeInSeconds)
+        baseMetric = 0.76
+        if uuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+            return 0.77 # Not affected by the time
+        end
+        timeInHours = timeInSeconds.to_f/3600
+        return 0.76 + Math.atan(-timeInHours).to_f/1000
+    end
+
+    # Projects::projectMetric(project)
+    def self.projectMetric(project)
+        uuid = project["uuid"]
+        return 1 if Runner::isRunning(uuid)
+        return 0 if project["schedule"]["type"] == "ack"
+        if Projects::getProjectItemsByCreationTime(uuid).size > 0 then
+            return 0 # We do not display a project if it has objects
+        else
+            Projects::algebraicTimeToMetric(uuid, Projects::getProjectAlgebraicTime(uuid))
+        end
     end
 
     # -----------------------------------------------------------
@@ -237,26 +278,6 @@ class Projects
         item["description"] || CatalystStandardTarget::targetToString(item["target"])
     end
 
-    # Projects::projectItemToCatalystObject(project, item, basemetric, indx)
-    def self.projectItemToCatalystObject(project, item, basemetric, indx)
-        uuid = item["uuid"]
-        {
-            "uuid"           => uuid,
-            "contentItem"    => {
-                "type" => "line",
-                "line" => "[project item] #{Projects::projectItemToString(item)}"
-            },
-            "metric"         => basemetric - indx.to_f/10000,
-            "commands"       => ["open", "done", "recast"],
-            "defaultCommand" => "open",
-            "shell-redirects" => {
-                "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-open '#{project["uuid"]}' '#{uuid}'",
-                "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-done '#{project["uuid"]}' '#{uuid}'",
-                "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-recast '#{project["uuid"]}' '#{uuid}'"
-            }
-        }
-    end
-
     # Projects::recastItem(projectuuid, itemuuid)
     def self.recastItem(projectuuid, itemuuid)
         item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
@@ -268,44 +289,11 @@ class Projects
     end
 
     # -----------------------------------------------------------
-    # Run Management
-
-    # Projects::insertAlgebraicTime(uuid, algebraicTimespanInSeconds)
-    def self.insertAlgebraicTime(uuid, algebraicTimespanInSeconds)
-        timepoint = {
-            "uuid"     => SecureRandom.uuid,
-            "unixtime" => Time.new.to_i,
-            "timespan" => algebraicTimespanInSeconds
-        }
-        BTreeSets::set(nil, "acc68599-2249-42fc-b6dd-f7db287c73db:#{uuid}", timepoint["uuid"], timepoint)
-    end
-
-    # Projects::getTimepoints(uuid)
-    def self.getTimepoints(uuid)
-        BTreeSets::values(nil, "acc68599-2249-42fc-b6dd-f7db287c73db:#{uuid}")
-    end
-
-    # Projects::getStoredRunTimespan(uuid)
-    def self.getStoredRunTimespan(uuid)
-        Projects::getTimepoints(uuid)
-            .map{|point| point["timespan"] }
-            .inject(0, :+)
-    end
-
-    # Projects::getStoredRunTimespanOverThePastNSeconds(uuid, n)
-    def self.getStoredRunTimespanOverThePastNSeconds(uuid, n)
-        Projects::getTimepoints(uuid)
-            .select{|timepoint| (Time.new.to_f - timepoint["unixtime"]) <= n }
-            .map{|point| point["timespan"] }
-            .inject(0, :+)
-    end
-
-    # -----------------------------------------------------------
     # In Flight Control System
 
     # Projects::getOrderedIfcsProjectsWithComputedOrdinal()
     def self.getOrderedIfcsProjectsWithComputedOrdinal() # Array[ (project, ordinal: Int) ]
-        Projects::getIFCSProjects()
+        Projects::getIFCSProjectsOrderedByPosition()
             .map
             .with_index
             .to_a
@@ -320,10 +308,10 @@ class Projects
     end
 
     # Presents the current priority list of the caller and let them enter a number that is then returned
-    # Projects::interactiveChoiceOfPosition()
-    def self.interactiveChoiceOfPosition() # Float
+    # Projects::interactiveChoiceOfIfcsPosition()
+    def self.interactiveChoiceOfIfcsPosition() # Float
         puts "Items"
-        Projects::getIFCSProjects()
+        Projects::getIFCSProjectsOrderedByPosition()
             .each{|project|
                 uuid = project["uuid"]
                 puts "    - #{("%5.3f" % project["schedule"]["position"])} #{project["description"]}"
@@ -333,7 +321,7 @@ class Projects
 
     # Projects::uuidTotalTimespanIncludingLiveRun(uuid)
     def self.uuidTotalTimespanIncludingLiveRun(uuid)
-        x0 = Projects::getStoredRunTimespan(uuid)
+        x0 = Projects::getProjectAlgebraicTime(uuid)
         x1 = 0
         unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
         if unixtime then
@@ -342,82 +330,54 @@ class Projects
         x0 + x1
     end
 
-    # Projects::projectIsInboxAndHasItems(projectuuid)
-    def self.projectIsInboxAndHasItems(projectuuid)
-        b1 = projectuuid == "44caf74675ceb79ba5cc13bafa102509369c2b53"
-        b2 = !Projects::getProjectItemsByCreationTime(projectuuid).empty?
-        b1 and b2
-    end
-
-    # Projects::timeToMetric(uuid, timeInSeconds)
-    def self.timeToMetric(uuid, timeInSeconds)
-        return 1 if Runner::isRunning(uuid)
-        return 0.77 if Projects::projectIsInboxAndHasItems(uuid)
-        return 0 if timeInSeconds > 0 # We kill any item that is not late
-        timeInHours = timeInSeconds.to_f/3600
-        0.76 + Math.atan(-timeInHours).to_f/1000
-    end
-
-    # Projects::ifcsMetric(uuid)
-    def self.ifcsMetric(uuid)
-        Projects::timeToMetric(uuid, Projects::getStoredRunTimespan(uuid))
-    end
-
     # Projects::isWeekDay()
     def self.isWeekDay()
         [1,2,3,4,5].include?(Time.new.wday)
     end
 
-    # Projects::operatingTimespanMapping()
-    def self.operatingTimespanMapping()
+    # Projects::getProjectsTotalAttributed24TimeExpectation()
+    def self.getProjectsTotalAttributed24TimeExpectation()
         if Projects::isWeekDay() then
-            {
-                "GuardianGeneralWork" => 5 * 3600,
-                "IFCSStandard"        => 2 * 3600
-            }
+            2 * 3600
         else
-            {
-                "GuardianGeneralWork" => 0 * 3600,
-                "IFCSStandard"        => 4 * 3600
-            }
+            4 * 3600
+        end
+    end
+
+    # Projects::getGuardian24TimeExpectation()
+    def self.getGuardian24TimeExpectation()
+        if Projects::isWeekDay() then
+            5 * 3600
+        else
+            0 * 3600
         end
     end
 
     # Projects::ordinalTo24HoursTimeExpectationInSeconds(ordinal)
     def self.ordinalTo24HoursTimeExpectationInSeconds(ordinal)
-        Projects::operatingTimespanMapping()["IFCSStandard"] * (1.to_f / 2**(ordinal+1))
+        Projects::getProjectsTotalAttributed24TimeExpectation() * (1.to_f / 2**(ordinal+1))
     end
 
-    # Projects::itemPractical24HoursTimeExpectationInSecondsOrNull(uuid)
-    def self.itemPractical24HoursTimeExpectationInSecondsOrNull(uuid)
-        return nil if Projects::getStoredRunTimespan(uuid) < -3600 # This allows small targets to get some time and the big ones not to become overwelming
-        if uuid == "20200502-141331-226084" then # Guardian General Work
-            return Projects::operatingTimespanMapping()["GuardianGeneralWork"]
-        end
-        Projects::ordinalTo24HoursTimeExpectationInSeconds(Projects::getOrdinal(uuid))
+    # Projects::getProject24HoursTimeExpectationInSeconds(uuid, ordinal)
+    def self.getProject24HoursTimeExpectationInSeconds(uuid, ordinal)
+        return Projects::getGuardian24TimeExpectation() if uuid == "20200502-141331-226084"
+        Projects::ordinalTo24HoursTimeExpectationInSeconds(ordinal)
     end
 
-    # Projects::distributeDayTimeCommitmentsIfNotDoneAlready()
-    def self.distributeDayTimeCommitmentsIfNotDoneAlready()
+    # Projects::distributeDayTimePenatiesIfNotDoneAlready()
+    def self.distributeDayTimePenatiesIfNotDoneAlready()
         return if Time.new.hour < 9
         return if Time.new.hour > 18
-        Projects::getIFCSProjects()
+        Projects::getIFCSProjectsOrderedByPosition()
             .each{|project|
                 uuid = project["uuid"]
+                next if Projects::getProjectAlgebraicTime(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
                 next if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
-                timespan = Projects::itemPractical24HoursTimeExpectationInSecondsOrNull(uuid)
+                timespan = Projects::getProject24HoursTimeExpectationInSeconds(uuid, Projects::getOrdinal(uuid))
                 next if timespan.nil?
-                Projects::insertAlgebraicTime(uuid, -timespan)
+                Projects::setProjectAlgebraicTime(uuid, -timespan)
                 KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             }
-    end
-
-    # -----------------------------------------------------------
-    # Metric
-
-    # Projects::projectMetric(project)
-    def self.projectMetric(project)
-        0.7 # TODO
     end
 
     # -----------------------------------------------------------
@@ -474,13 +434,13 @@ class Projects
     def self.projectKickerText(project)
         uuid = project["uuid"]
         if project["schedule"]["type"] == "standard" then
-            return "[project standard ; time: #{"%7.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)} hours]"
+            return "[project standard ; time: #{"%7.2f" % (Projects::getProjectAlgebraicTime(uuid).to_f/3600)} hours]"
         end
         if project["schedule"]["type"] == "ifcs" then
-            return "[project ifcs ; pos: #{("%6.3f" % project["schedule"]["position"])} ; ord: #{"%2d" % Projects::getOrdinal(uuid)} ; time: #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
+            return "[project ifcs ; pos: #{("%6.3f" % project["schedule"]["position"])} ; ord: #{"%2d" % Projects::getOrdinal(uuid)} ; time: #{"%5.2f" % (Projects::getProjectAlgebraicTime(uuid).to_f/3600)}]"
         end
         if project["schedule"]["type"] == "ack" then
-            return "[]"
+            return ""
         end
         raise "Projects: f40a0f00"
     end
@@ -514,6 +474,7 @@ class Projects
             options = [
                 "start",
                 "dive items",
+                "set description",
                 "recast"
             ]
             if project["schedule"]["type"] == "ifcs" then
@@ -530,9 +491,13 @@ class Projects
                 next if item.nil?
                 Projects::diveItem(project, item)
             end
+            if option == "set description" then
+                project["description"] = CatalystCommon::editTextUsingTextmate(project["description"])
+                Projects::save(project)
+            end
             if option == "set ifcs position" then
                 puts "--------------------"
-                Projects::getIFCSProjects()
+                Projects::getIFCSProjectsOrderedByPosition()
                     .each{|project|
                         puts Projects::projectToString(project)
                     }

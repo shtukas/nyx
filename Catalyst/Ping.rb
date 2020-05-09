@@ -3,7 +3,7 @@
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
-    Ping::ping(uuid, weight, timespan)
+    Ping::ping(uuid, weight, validityTimespan)
     Ping::pong(uuid)
 =end
 

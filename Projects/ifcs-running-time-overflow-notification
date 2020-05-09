@@ -6,7 +6,7 @@ require_relative "Projects.rb"
 
 # --------------------------------------------------------------------
 
-Projects::getIFCSProjects()
+Projects::getIFCSProjectsOrderedByPosition()
 .each{|project|
     uuid = project["uuid"]
     next if !Runner::isRunning(uuid)

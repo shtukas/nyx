@@ -48,22 +48,33 @@ require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-def projectMetric(project)
-    uuid = project["uuid"]
-    return 0.99 if Runner::isRunning(uuid) 
-        # 0.99 because the first item of the project will be 1, this is an easy way 
-        # to ensure project object in second position (at least not the first position)
-    if project["schedule"]["type"] == "standard" then
-        return 0.2 + 0.4 * Math.exp(-Projects::getStoredRunTimespanOverThePastNSeconds(uuid, 86400*7).to_f/3600)
-    end
-    if project["schedule"]["type"] == "ifcs" then
-        return Projects::ifcsMetric(uuid)
-    end
-    if project["schedule"]["type"] == "ack" then
-        return Projects::projectMetric(project)
-    end
-    raise "Projects: 59c680f3"
-    # KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.10 : 0.60
+def projectItemMetric(projectuuid, projectAlgebraicTimeInSeconds, indx, itemIsRunning)
+    return 1 if itemIsRunning
+    Projects::algebraicTimeToMetric(projectuuid, projectAlgebraicTimeInSeconds) - indx.to_f/1000
+end
+
+def projectItemToCatalystObject(project, projectAlgebraicTimeInSeconds, item, indx)
+    itemuuid = item["uuid"]
+    isRunning = Runner::isRunning(itemuuid)
+    {
+        "uuid"           => itemuuid,
+        "contentItem"    => {
+            "type" => "line",
+            "line" => "[project: #{project["description"].yellow}] item: #{Projects::projectItemToString(item)}"
+        },
+        "metric"         => projectItemMetric(project["uuid"], projectAlgebraicTimeInSeconds, indx, isRunning),
+        "commands"       => ["open", "done", "recast", "dive-project"],
+        "defaultCommand" => "open",
+        "isRunning"      => isRunning,
+        "shell-redirects" => {
+            "open"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item open '#{project["uuid"]}' '#{itemuuid}'",
+            "done"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item done '#{project["uuid"]}' '#{itemuuid}'",
+            "start"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item start '#{itemuuid}'",
+            "stop"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item stop '#{project["uuid"]}' '#{itemuuid}'",
+            "recast"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item recast '#{project["uuid"]}' '#{itemuuid}'",
+            "dive-project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project dive '#{project["uuid"]}'"
+        }
+    }
 end
 
 def projectCommands(project)
@@ -93,72 +104,40 @@ def projectToCatalystObject(project)
             "type" => "line",
             "line" => Projects::projectToString(project)
         },
-        "metric"         => projectMetric(project),
+        "metric"         => Projects::projectMetric(project),
         "commands"       => projectCommands(project),
         "defaultCommand" => projectDefaultCommand(project),
         "isRunning" => isRunning,
         "shell-redirects" => {
-            "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing start '#{uuid}'",
-            "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{uuid}'",
-            "dive" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing dive '#{uuid}'",
-            "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'",
-            "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing done '#{uuid}'"
+            "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project start '#{uuid}'",
+            "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project stop '#{uuid}'",
+            "dive"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project dive '#{uuid}'",
+            "ack"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project ack '#{uuid}'",
+            "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project done '#{uuid}'"
         }
     }
 end
 
-Projects::distributeDayTimeCommitmentsIfNotDoneAlready()
-
-def projectToCatalystObjects(project)
-    objects = []
-    objects << projectToCatalystObject(project)
-    if Runner::isRunning(project["uuid"]) then
-        Projects::getProjectItemsByCreationTime(project["uuid"])
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .first(6)
-            .map
-            .with_index {|item, indx|
-                objects << Projects::projectItemToCatalystObject(project, item, 1, indx+1) # 1 because we are running
-            }
-    end
-    objects
+def projectItemsCatalystObjects(project)
+    projectAlgebraicTimeInSeconds = Projects::getProjectAlgebraicTime(project["uuid"])
+    Projects::getProjectItemsByCreationTime(project["uuid"])
+        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+        .first(6)
+        .map
+        .with_index {|item, indx|
+            projectItemToCatalystObject(project, projectAlgebraicTimeInSeconds, item, indx+1)
+        }
 end
+
+Projects::distributeDayTimePenatiesIfNotDoneAlready()
 
 objects = []
 
-Projects::getStandardProjects()
+Projects::projects()
     .select{|project| DoNotShowUntil::isVisible(project["uuid"]) }
     .each{|project| 
-        projectToCatalystObjects(project)
-            .each{|object|
-                objects << object
-            }
-    }
-
-Projects::getIFCSProjects()
-    .select{|project| DoNotShowUntil::isVisible(project["uuid"]) }
-    .reduce([]){|projects, project|
-        if Runner::isRunning(project["uuid"]) then
-            projects + [ project ]
-        else
-            if projects.size < 5 then
-                projects + [ project ]
-            else
-                projects
-            end
-        end 
-    }
-    .each{|project| 
-        projectToCatalystObjects(project)
-            .each{|object|
-                objects << object
-            }
-    }
-
-Projects::getAckProjects()
-    .select{|project| DoNotShowUntil::isVisible(project["uuid"]) }
-    .each{|project| 
-        projectToCatalystObjects(project)
+        objects << projectToCatalystObject(project)
+        projectItemsCatalystObjects(project)
             .each{|object|
                 objects << object
             }

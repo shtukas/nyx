@@ -35,3 +35,5 @@ ProjectItem {
     "description"  : null | String
     "target"       : CatalystStandardTarget
 }
+
+We use Ping to manage the project times. We cover the past 30 days.

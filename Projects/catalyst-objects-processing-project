@@ -48,9 +48,8 @@ if ARGV[0] == "stop" and ARGV[1] then
     timespan = Runner::stop(project["uuid"])
     exit if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    Projects::insertAlgebraicTime(uuid, timespan)
+    Projects::setProjectAlgebraicTime(uuid, timespan)
 end
-
 
 if ARGV[0] == "dive" and ARGV[1] then
     uuid = ARGV[1]
@@ -73,35 +72,4 @@ if ARGV[0] == "done" and ARGV[1] then
     exit if project.nil?
     exit if Projects::getProjectItemsByCreationTime(uuid).size > 0 # we do not destroy a project that has some items
     Projects::destroy(project)
-end
-
-
-if ARGV[0] == "project-item-open" and ARGV[1] and ARGV[2] then
-    projectuuid = ARGV[1]
-    exit if projectuuid.nil?
-    itemuuid = ARGV[2]
-    exit if itemuuid.nil?
-    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
-    exit if item.nil?
-    CatalystStandardTarget::openTarget(item["target"])
-end
-
-if ARGV[0] == "project-item-done" and ARGV[1] and ARGV[2] then
-    projectuuid = ARGV[1]
-    exit if projectuuid.nil?
-    itemuuid = ARGV[2]
-    exit if itemuuid.nil?
-    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
-    exit if item.nil?
-    Projects::detachProjectItemFromProject(projectuuid, itemuuid)
-end
-
-if ARGV[0] == "project-item-recast" and ARGV[1] and ARGV[2] then
-    projectuuid = ARGV[1]
-    exit if projectuuid.nil?
-    itemuuid = ARGV[2]
-    exit if itemuuid.nil?
-    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
-    exit if item.nil?
-    Projects::recastItem(projectuuid, itemuuid)
 end

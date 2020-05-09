@@ -45,4 +45,4 @@ require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-puts Projects::getIFCSProjects().map{|project| project["schedule"]["position"] }.max
+puts Projects::getIFCSProjectsOrderedByPosition().map{|project| project["schedule"]["position"] }.max

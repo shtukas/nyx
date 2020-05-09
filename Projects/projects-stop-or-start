@@ -42,12 +42,12 @@ if Projects::projects().any?{|project| Runner::isRunning(project["uuid"]) } then
             timespan = Runner::stop(project["uuid"])
             next if timespan.nil?
             timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-            Projects::insertAlgebraicTime(project["uuid"], timespan)
+            Projects::setProjectAlgebraicTime(project["uuid"], timespan)
         }
 else
-    Projects::getIFCSProjects()
+    Projects::getIFCSProjectsOrderedByPosition()
         .select{|project| DoNotShowUntil::isVisible(project["uuid"]) }
-        .sort{|project1, project2| Projects::getStoredRunTimespan(project1["uuid"]) <=> Projects::getStoredRunTimespan(project2["uuid"]) }
+        .sort{|project1, project2| Projects::getProjectAlgebraicTime(project1["uuid"]) <=> Projects::getProjectAlgebraicTime(project2["uuid"]) }
         .first(1)
         .each{|project| Runner::start(project["uuid"]) }
 end
