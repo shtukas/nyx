@@ -1,7 +1,6 @@
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
 =begin
-
     CoreDataFile::copyFileToRepository(filepath)
     CoreDataFile::filenameToFilepath(filename)
     CoreDataFile::exists?(filename)
@@ -11,8 +10,6 @@
     CoreDataDirectory::foldernameToFolderpath(foldername)
     CoreDataDirectory::exists?(foldername)
     CoreDataDirectory::openFolder(foldername)
-
-
 =end
 
 

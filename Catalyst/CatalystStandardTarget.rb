@@ -2,7 +2,8 @@
 # encoding: UTF-8
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
-=begin 
+=begin
+    CatalystStandardTarget::locationToTargetOrNullIfBasenameIsCurrent(location)
     CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     CatalystStandardTarget::targetToString(target)
     CatalystStandardTarget::openTarget(target)
@@ -15,9 +16,13 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
 =begin
-
     CoreDataFile::copyFileToRepository(filepath)
     CoreDataFile::filenameToFilepath(filename)
     CoreDataFile::exists?(filename)
@@ -25,13 +30,33 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
 
     CoreDataDirectory::copyFolderToRepository(folderpath)
     CoreDataDirectory::foldernameToFolderpath(foldername)
+    CoreDataDirectory::exists?(foldername)
     CoreDataDirectory::openFolder(foldername)
-
 =end
 
 # -----------------------------------------------------------------
 
 class CatalystStandardTarget
+
+    # CatalystStandardTarget::locationToTargetOrNullIfBasenameIsCurrent(location)
+    def self.locationToTargetOrNullIfBasenameIsCurrent(location)
+        raise "f8e3b314" if !File.exists?(location)
+        if File.file?(location) then
+            return nil if CoreDataFile::exists?(File.basename(location))
+            CoreDataFile::copyFileToRepository(location)
+            {
+                "type"     => "file",
+                "filename" => File.basename(location)
+            }
+        else
+            return nil if CoreDataDirectory::exists?(File.basename(location))
+            CoreDataDirectory::copyFolderToRepository(location)
+            {
+                "type"       => "folder",
+                "foldername" => File.basename(location)
+            }
+        end
+    end
 
     # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     def self.makeNewTargetInteractivelyOrNull()
