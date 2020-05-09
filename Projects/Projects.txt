@@ -7,7 +7,8 @@ Project {
 }
 
 "20200502-141331-226084"                   Guardian General Work
-"44caf74675ceb79ba5cc13bafa102509369c2b53" Inbox
+"44caf74675ceb79ba5cc13bafa102509369c2b53" Inbox (gets items from Lucille-Inbox)
+"0219fd54bd5841008b18c414a5b2dea331bad1c5" Infinity (gets links from Vienna)
 
 Schedule:
     {
