@@ -14,15 +14,15 @@
         0.80+     Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+     Wave every-n-hours / every-n-days
 
+📬
+        0.77      Project "Inbox"
+
 🛰️
         0.76+     In Flight Control System
 
 Lucille.txt [bottom]
         0.74-> 0  LucilleTxt [bottom] (mostly stuff that need to be done now or moved to Projects)
         0.73      Backups Monitor
-
-📬
-        0.70      Project "Inbox"
 
 👩‍💻 🛩
         0.60-> 0  Projects [ack]
