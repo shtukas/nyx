@@ -44,18 +44,11 @@ require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-def projectIsInboxAndHasItems(project)
-    b1 = project["uuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53"
-    b2 = !Projects::getProjectItemsByCreationTime(project["uuid"]).empty?
-    b1 and b2
-end
-
 def projectMetric(project)
     uuid = project["uuid"]
     return 0.99 if Runner::isRunning(uuid) 
         # 0.99 because the first item of the project will be 1, this is an easy way 
         # to ensure project object in second position (at least not the first position)
-    return 0.77 if projectIsInboxAndHasItems(project)
     if project["schedule"]["type"] == "standard" then
         return 0.2 + 0.4 * Math.exp(-Projects::getStoredRunTimespanOverThePastNSeconds(uuid, 86400*7).to_f/3600)
     end
@@ -109,10 +102,9 @@ Projects::distributeDayTimeCommitmentsIfNotDoneAlready()
 
 def projectToCatalystObjects(project)
     objects = []
-    objects << projectToCatalystObject(project) 
+    objects << projectToCatalystObject(project)
     if Runner::isRunning(project["uuid"]) then
         Projects::getProjectItemsByCreationTime(project["uuid"])
-            .first(6)
             .map
             .with_index {|item, indx|
                 objects << Projects::projectItemToCatalystObject(project, item, 1, indx+1) # 1 because we are running

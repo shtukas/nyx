@@ -93,7 +93,15 @@ if ARGV[0] == "project-item-done" and ARGV[1] and ARGV[2] then
     exit if itemuuid.nil?
     item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
     exit if item.nil?
-    Projects::destroyProjectItem(projectuuid, itemuuid)
+    Projects::detachProjectItemFromProject(projectuuid, itemuuid)
 end
 
-
+if ARGV[0] == "project-item-recast" and ARGV[1] and ARGV[2] then
+    projectuuid = ARGV[1]
+    exit if projectuuid.nil?
+    itemuuid = ARGV[2]
+    exit if itemuuid.nil?
+    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
+    exit if item.nil?
+    Projects::recastItem(projectuuid, itemuuid)
+end

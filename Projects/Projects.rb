@@ -126,6 +126,7 @@ class Projects
     def self.issueProject(uuid, description, schedule, items)
         project = Projects::makeProject(uuid, description, schedule, items)
         Projects::save(project)
+        project
     end
 
     # Projects::selectProjectOrNull()
@@ -133,11 +134,51 @@ class Projects
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project:", Projects::projects(), lambda {|project| project["description"] })
     end
 
+    # Projects::selectProjectFromExistingOrNewOrNull()
+    def self.selectProjectFromExistingOrNewOrNull()
+
+        project = Projects::selectProjectOrNull()
+        return project if project
+
+        puts "-> No project select. Please give a description to make a new one (empty for aborting operation)"
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+
+        if description == "" then
+            return nil
+        end
+
+        puts "-> Choosing project schedule type"
+        scheduletype = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("project schedule type", ["standard", "ack", "ifcs"])
+
+        puts "-> Making schedule"
+        schedule = nil
+        if scheduletype == "standard" then
+            schedule = {
+                "type"  => "standard"
+            }
+        end
+        if scheduletype == "ack" then
+            schedule = {
+                "type" => "ack"
+            }
+        end
+        if scheduletype == "ifcs" then
+            schedule = {
+                "type" => "ifcs",
+                "position" => CatalystCommon::interactivelyGetIfcsPosition()
+            }
+        end
+        puts JSON.pretty_generate(schedule)
+
+        Projects::issueProject(SecureRandom.uuid, description, schedule, []) # Project
+
+    end
+
     # -----------------------------------------------------------
     # Items Management
 
-    # Projects::saveProjectItem(projectuuid, item)
-    def self.saveProjectItem(projectuuid, item)
+    # Projects::attachProjectItemToProject(projectuuid, item)
+    def self.attachProjectItemToProject(projectuuid, item)
         # There is a copy of function in LucilleTxt/catalyst-objects-processing
         BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
     end
@@ -153,8 +194,8 @@ class Projects
             .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
     end
 
-    # Projects::destroyProjectItem(projectuuid, itemuuid)
-    def self.destroyProjectItem(projectuuid, itemuuid)
+    # Projects::detachProjectItemFromProject(projectuuid, itemuuid)
+    def self.detachProjectItemFromProject(projectuuid, itemuuid)
         BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, itemuuid)
     end
 
@@ -173,13 +214,24 @@ class Projects
                 "line" => "[project item] #{Projects::projectItemToString(item)}"
             },
             "metric"         => basemetric - indx.to_f/10000,
-            "commands"       => ["open", "done"],
+            "commands"       => ["open", "done", "recast"],
             "defaultCommand" => "open",
             "shell-redirects" => {
-                "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-open '#{project["uuid"]}' '#{uuid}'",
-                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-done '#{project["uuid"]}' '#{uuid}'"
+                "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-open '#{project["uuid"]}' '#{uuid}'",
+                "done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-done '#{project["uuid"]}' '#{uuid}'",
+                "recast" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-item-recast '#{project["uuid"]}' '#{uuid}'"
             }
         }
+    end
+
+    # Projects::recastItem(projectuuid, itemuuid)
+    def self.recastItem(projectuuid, itemuuid)
+        item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
+        return if item.nil?
+        # We need to choose a project, possibly a new one and add the item to it and remove the item from the original project
+        targetproject = Projects::selectProjectFromExistingOrNewOrNull()
+        Projects::attachProjectItemToProject(targetproject["uuid"], item)
+        Projects::detachProjectItemFromProject(projectuuid, itemuuid)
     end
 
     # -----------------------------------------------------------
@@ -257,10 +309,18 @@ class Projects
         x0 + x1
     end
 
+    # Projects::projectIsInboxAndHasItems(projectuuid)
+    def self.projectIsInboxAndHasItems(projectuuid)
+        b1 = projectuuid == "44caf74675ceb79ba5cc13bafa102509369c2b53"
+        b2 = !Projects::getProjectItemsByCreationTime(projectuuid).empty?
+        b1 and b2
+    end
+
     # Projects::timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
     def self.timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
         return 1 if Runner::isRunning(uuid)
         return 0 if interfaceDiveIsRunning # We kill other items when Interface Dive is running
+        return 0.77 if Projects::projectIsInboxAndHasItems(uuid)
         return 0 if timeInSeconds > 0 # We kill any item that is not late
         timeInHours = timeInSeconds.to_f/3600
         0.76 + Math.atan(-timeInHours).to_f/1000
@@ -343,7 +403,12 @@ class Projects
     # Projects::projectSuffixText(project)
     def self.projectSuffixText(project)
         uuid = project["uuid"]
-        str1 = " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
+        str1 = 
+            if project["uuid"] != "20200502-141716-483780" then
+                " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
+            else
+                " "
+            end
         str2 = 
             if Runner::isRunning(uuid) then
                 " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
@@ -423,11 +488,11 @@ class Projects
                 CatalystStandardTarget::openTarget(item["target"])
             end
             if option == "done" then
-                Projects::destroyProjectItem(project["uuid"], item["uuid"])
+                Projects::detachProjectItemFromProject(project["uuid"], item["uuid"])
             end
             if option == "set description" then
                 item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-                Projects::saveProjectItem(project["uuid"], item)
+                Projects::attachProjectItemToProject(project["uuid"], item)
             end
         }
     end

@@ -88,7 +88,7 @@ def timeStringL22()
 end
 
 
-def saveProjectItem(projectuuid, item)
+def attachProjectItemToProject(projectuuid, item)
     # This function is the copy of the one in Projects.rb
     BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
 end
@@ -158,7 +158,7 @@ def moveSectionToProjects(section) # Boolean # returns true if the operation was
     }
     puts JSON.pretty_generate(projectItem)
     puts "-> Committing project item to project"
-    saveProjectItem(project["uuid"], projectItem)
+    attachProjectItemToProject(project["uuid"], projectItem)
     true
 end
 
