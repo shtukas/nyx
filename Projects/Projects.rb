@@ -369,6 +369,7 @@ class Projects
         loop {
             system("clear")
             puts "project: #{Projects::projectToString(project)}"
+            puts "uuid: #{project["uuid"]}"
             puts "description: #{project["description"]}"
             puts "schedule: #{project["schedule"]}"
             options = [
@@ -408,16 +409,21 @@ class Projects
         loop {
             system("clear")
             puts "project item: #{Projects::projectItemToString(item)}"
+            puts "uuid: #{item["uuid"]}"
             puts "description: #{item["description"]}"
             puts "target: #{item["target"]}"
             options = [
                 "open",
+                "done",
                 "set description"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
             if option == "open" then
                 CatalystStandardTarget::openTarget(item["target"])
+            end
+            if option == "done" then
+                Projects::destroyProjectItem(project["uuid"], item["uuid"])
             end
             if option == "set description" then
                 item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")

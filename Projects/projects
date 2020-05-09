@@ -58,10 +58,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
 require_relative "Projects.rb"
 
 # --------------------------------------------------------------------
-
-puts "Projects 👩‍💻"
 loop {
     system("clear")
+    puts "Projects 👩‍💻"
     options = [
         "create new project", 
         "dive standard projects",

@@ -22,7 +22,7 @@ Lucille.txt [bottom]
         0.73      Backups Monitor
 
 📬
-        0.72-     Project "Inbox"
+        0.70      Project "Inbox"
 
 👩‍💻 🛩
         0.60-> 0  Projects [ack]
