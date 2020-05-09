@@ -97,8 +97,7 @@ def projectToCatalystObject(project)
             "dive" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing dive '#{uuid}'",
             "ack" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing ack '#{uuid}'",
             "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing done '#{uuid}'"
-        },
-        "x-interface:projects:project-is-running" => isRunning
+        }
     }
 end
 

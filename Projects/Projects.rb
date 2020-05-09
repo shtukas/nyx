@@ -102,7 +102,6 @@ class Projects
     # Projects::destroy(project)
     def self.destroy(project)
         uuid = project["uuid"]
-        return if uuid == "20200502-141716-483780" # Interface 🛩️
         return if uuid == "20200502-141331-226084" # Guardian General Work
         filepath = "#{Projects::pathToProjects()}/#{uuid}.json"
         return if !File.exists?(filepath)
@@ -313,10 +312,9 @@ class Projects
         b1 and b2
     end
 
-    # Projects::timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
-    def self.timeToMetric(uuid, timeInSeconds, interfaceDiveIsRunning)
+    # Projects::timeToMetric(uuid, timeInSeconds)
+    def self.timeToMetric(uuid, timeInSeconds)
         return 1 if Runner::isRunning(uuid)
-        return 0 if interfaceDiveIsRunning # We kill other items when Interface Dive is running
         return 0.77 if Projects::projectIsInboxAndHasItems(uuid)
         return 0 if timeInSeconds > 0 # We kill any item that is not late
         timeInHours = timeInSeconds.to_f/3600
@@ -325,7 +323,7 @@ class Projects
 
     # Projects::ifcsMetric(uuid)
     def self.ifcsMetric(uuid)
-        Projects::timeToMetric(uuid, Projects::getStoredRunTimespan(uuid), Runner::isRunning("20200502-141716-483780"))
+        Projects::timeToMetric(uuid, Projects::getStoredRunTimespan(uuid))
     end
 
     # Projects::isWeekDay()
@@ -338,13 +336,11 @@ class Projects
         if Projects::isWeekDay() then
             {
                 "GuardianGeneralWork" => 5 * 3600,
-                "InterfaceDive"       => 2 * 3600,
                 "IFCSStandard"        => 2 * 3600
             }
         else
             {
                 "GuardianGeneralWork" => 0 * 3600,
-                "InterfaceDive"       => 4 * 3600,
                 "IFCSStandard"        => 4 * 3600
             }
         end
@@ -360,9 +356,6 @@ class Projects
         return nil if Projects::getStoredRunTimespan(uuid) < -3600 # This allows small targets to get some time and the big ones not to become overwelming
         if uuid == "20200502-141331-226084" then # Guardian General Work
             return Projects::operatingTimespanMapping()["GuardianGeneralWork"]
-        end
-        if uuid == "20200502-141716-483780" then 
-            return Projects::operatingTimespanMapping()["InterfaceDive"]
         end
         Projects::ordinalTo24HoursTimeExpectationInSeconds(Projects::getOrdinal(uuid))
     end
@@ -447,12 +440,7 @@ class Projects
     # Projects::projectSuffixText(project)
     def self.projectSuffixText(project)
         uuid = project["uuid"]
-        str1 = 
-            if project["uuid"] != "20200502-141716-483780" then
-                " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
-            else
-                " "
-            end
+        str1 = " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
         str2 = 
             if Runner::isRunning(uuid) then
                 " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"

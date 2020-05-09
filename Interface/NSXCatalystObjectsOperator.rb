@@ -54,27 +54,6 @@ class NSXCatalystObjectsOperator
             .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
             .reverse
 
-
-        # Make sure that not two projects are running at the same time
-        count = objects.select{|object| object["x-interface:projects:project-is-running"] and object["uuid"] != "20200502-141716-483780" }.size
-        if count > 1 then
-            puts "I am seeing #{count} non interface dive projects running. Killing them all..."
-            sleep 3
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/projects-stop-all-running")
-            return NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-        end
-
-        # Make sure that running ifcs Wave is not first
-        loop {
-            break if objects.size < 2
-            break if objects[0]["uuid"] != "20200502-141716-483780" # Interface Dive
-            break if !objects[0]["isRunning"]
-            objects[0]["metric"] = objects[0]["metric"] - 0.001
-            objects = objects
-                .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-                .reverse
-        }
-
         objects
     end
 end

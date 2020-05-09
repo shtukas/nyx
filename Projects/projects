@@ -92,9 +92,3 @@ loop {
         LucilleCore::pressEnterToContinue()
     end
 }
-
-=begin
-20200502-141331-226084 ; Guardian General Work
-20200502-141716-483780 ; Interface 🛩️
-=end
-

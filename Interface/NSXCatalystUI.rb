@@ -87,7 +87,7 @@ class NSXCatalystUI
         end
 
         puts ""
-        puts "👩‍💻"
+        puts "👩‍💻 🛩️"
         verticalSpaceLeft = verticalSpaceLeft - 2
         verticalSpaceLeft = NSXCatalystUI::printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
 
