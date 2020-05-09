@@ -159,6 +159,7 @@ def moveSectionToProjects(section) # Boolean # returns true if the operation was
     puts JSON.pretty_generate(projectItem)
     puts "-> Committing project item to project"
     saveProjectItem(project["uuid"], projectItem)
+    true
 end
 
 # -----------------------------------------------------------------------------
