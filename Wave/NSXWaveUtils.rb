@@ -77,7 +77,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::waveFolderPath()
     def self.waveFolderPath()
-        "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Wave"
+        "#{CatalystCommon::catalystFolderpath()}/Wave"
     end
 
     # NSXWaveUtils::makeScheduleObjectInteractively()

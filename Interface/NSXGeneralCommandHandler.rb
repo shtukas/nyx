@@ -114,7 +114,7 @@ class NSXGeneralCommandHandler
                     break if option.nil?
                     if option == "TheBridge items generation speed" then
                         puts "TheBridge items generation speed report"
-                        JSON.parse(IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/TheBridge/sources.json"))
+                        JSON.parse(IO.read("#{CatalystCommon::catalystFolderpath()}/TheBridge/sources.json"))
                             .map{|source|
                                 t1 = Time.new.to_f
                                 JSON.parse(`#{source}`)

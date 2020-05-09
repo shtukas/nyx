@@ -10,31 +10,24 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
-=begin
-
-    CoreDataFile::copyFileToRepository(filepath)
-    CoreDataFile::filenameToFilepath(filename)
-    CoreDataFile::filenameIsCurrent(filename)
-    CoreDataFile::openOrCopyToDesktop(filename)
-    CoreDataFile::deleteFile(filename)
-
-    CoreDataDirectory::copyFolderToRepository(folderpath)
-    CoreDataDirectory::foldernameToFolderpath(foldername)
-    CoreDataDirectory::openFolder(foldername)
-    CoreDataDirectory::deleteFolder(foldername)
-
-=end
-
-# -----------------------------------------------------------------
-
-CATALYST_COMMON_DATABANK_FOLDERPATH = "/Users/pascal/Galaxy/DataBank" unless defined? CATALYST_COMMON_DATABANK_FOLDERPATH
-CATALYST_COMMON_CATALYST_FOLDERPATH = "#{CATALYST_COMMON_DATABANK_FOLDERPATH}/Catalyst" unless defined? CATALYST_COMMON_CATALYST_FOLDERPATH
-CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH = "#{CATALYST_COMMON_CATALYST_FOLDERPATH}/Bin-Timeline" unless defined? CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH
-
 # -----------------------------------------------------------------
 
 class CatalystCommon
+
+    # CatalystCommon::databankFolderpath()
+    def self.databankFolderpath()
+        "/Users/pascal/Galaxy/DataBank"
+    end
+
+    # CatalystCommon::catalystFolderpath()
+    def self.catalystFolderpath()
+        "#{CatalystCommon::databankFolderpath()}/Catalyst"
+    end
+
+    # CatalystCommon::binTimelineFolderpath()
+    def self.binTimelineFolderpath()
+        "#{CatalystCommon::catalystFolderpath()}/Bin-Timeline"
+    end
 
     # CatalystCommon::editTextUsingTextmate(text)
     def self.editTextUsingTextmate(text)
@@ -61,7 +54,7 @@ class CatalystCommon
     def self.copyLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
-        folder1 = "#{CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{CatalystCommon::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkdir(folder3)
@@ -70,7 +63,7 @@ class CatalystCommon
 
     # CatalystCommon::commitTextToCatalystBin(filename, text)
     def self.commitTextToCatalystBin(filename, text)
-        folder1 = "#{CATALYST_COMMON_BIN_TIMELINE_FOLDERPATH}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{CatalystCommon::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkdir(folder3)

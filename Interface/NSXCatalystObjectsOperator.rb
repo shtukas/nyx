@@ -19,7 +19,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = JSON.parse(IO.read("#{CATALYST_COMMON_CATALYST_FOLDERPATH}/TheBridge/sources.json"))
+        objects = JSON.parse(IO.read("#{CatalystCommon::catalystFolderpath()}/TheBridge/sources.json"))
                     .map{|source|
                         begin
                             JSON.parse(`#{source}`)
