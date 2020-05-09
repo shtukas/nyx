@@ -73,6 +73,13 @@ class Projects
             .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
     end
 
+    # Projects::getAckProjects()
+    def self.getAckProjects()
+        Projects::projects()
+            .select{|project| project["schedule"]["type"] == "ack" }
+            .sort{|p1, p2| p1["creationtime"] <=> p2["creationtime"] }
+    end
+
     # Projects::getIFCSProjects()
     def self.getIFCSProjects()
         Projects::projects()
@@ -170,6 +177,34 @@ class Projects
         puts JSON.pretty_generate(schedule)
 
         Projects::issueProject(SecureRandom.uuid, description, schedule, []) # Project
+    end
+
+    # Projects::makeNewScheduleInteractiveOrNull()
+    def self.makeNewScheduleInteractiveOrNull()
+        puts "-> Choosing project schedule type"
+        scheduletype = LucilleCore::selectEntityFromListOfEntitiesOrNull("project schedule type", ["standard", "ifcs", "ack"])
+        return nil if scheduletype.nil?
+        puts "-> Making schedule"
+        schedule = nil
+        if scheduletype == "standard" then
+            schedule = {
+                "type"  => "standard"
+            }
+        end
+        if scheduletype == "ack" then
+            schedule = {
+                "type" => "ack"
+            }
+        end
+        if scheduletype == "ifcs" then
+            position = CatalystCommon::interactivelyGetIfcsPosition()
+            schedule = {
+                "type" => "ifcs",
+                "position" => position
+            }
+        end
+        puts JSON.pretty_generate(schedule)
+        schedule
     end
 
     # -----------------------------------------------------------
@@ -378,6 +413,14 @@ class Projects
     end
 
     # -----------------------------------------------------------
+    # Metric
+
+    # Projects::projectMetric(project)
+    def self.projectMetric(project)
+        0.7 # TODO
+    end
+
+    # -----------------------------------------------------------
     # Fsck
 
     # Projects::fsckItem(item)
@@ -436,6 +479,9 @@ class Projects
         if project["schedule"]["type"] == "ifcs" then
             return "[project ifcs ; pos: #{("%6.3f" % project["schedule"]["position"])} ; ord: #{"%2d" % Projects::getOrdinal(uuid)} ; time: #{"%5.2f" % (Projects::getStoredRunTimespan(uuid).to_f/3600)}]"
         end
+        if project["schedule"]["type"] == "ack" then
+            return "[]"
+        end
         raise "Projects: f40a0f00"
     end
 
@@ -449,13 +495,7 @@ class Projects
             else
                 ""
             end
-        if project["schedule"]["type"] == "standard" then
-            return "#{str1}#{str2}"
-        end
-        if project["schedule"]["type"] == "ifcs" then
-            return "#{str1}#{str2}"
-        end
-        raise "Projects: 85cdae2a"
+        "#{str1}#{str2}"
     end
 
     # Projects::projectToString(project)
@@ -473,7 +513,8 @@ class Projects
             puts "schedule: #{project["schedule"]}"
             options = [
                 "start",
-                "dive items"
+                "dive items",
+                "recast"
             ]
             if project["schedule"]["type"] == "ifcs" then
                 options << "set ifcs position"
@@ -498,6 +539,12 @@ class Projects
                 puts "--------------------"
                 position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
                 project["schedule"]["position"] = position
+                Projects::save(project)
+            end
+            if option == "recast" then
+                schedule = Projects::makeNewScheduleInteractiveOrNull()
+                next if schedule.nil?
+                project["schedule"] = schedule
                 Projects::save(project)
             end
         }

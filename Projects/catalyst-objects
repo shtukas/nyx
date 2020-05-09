@@ -59,6 +59,9 @@ def projectMetric(project)
     if project["schedule"]["type"] == "ifcs" then
         return Projects::ifcsMetric(uuid)
     end
+    if project["schedule"]["type"] == "ack" then
+        return Projects::projectMetric(project)
+    end
     raise "Projects: 59c680f3"
     # KeyValueStore::flagIsTrue(nil, "#{Time.new.to_s[0, 10]}:640f0030-0f14-4ece-b1ce-a2e1605f301d:#{uuid}") ? 0.10 : 0.60
 end
@@ -74,6 +77,9 @@ def projectDefaultCommand(project)
     end
     if project["schedule"]["type"] == "ifcs" then
         return (Runner::isRunning(uuid) ? "stop" : "start")
+    end
+    if project["schedule"]["type"] == "ack" then
+        return "ack"
     end
     raise "Projects: b95c4fcb"
 end
@@ -142,6 +148,15 @@ Projects::getIFCSProjects()
             end
         end 
     }
+    .each{|project| 
+        projectToCatalystObjects(project)
+            .each{|object|
+                objects << object
+            }
+    }
+
+Projects::getAckProjects()
+    .select{|project| DoNotShowUntil::isVisible(project["uuid"]) }
     .each{|project| 
         projectToCatalystObjects(project)
             .each{|object|
