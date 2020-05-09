@@ -59,6 +59,18 @@ if ARGV[0] == "start" and ARGV[1] then
     Runner::start(itemuuid)
 end
 
+if ARGV[0] == "start+open" and ARGV[1] then
+    projectuuid = ARGV[1]
+    exit if !projectuuidIsValid(projectuuid)
+
+    itemuuid = ARGV[2]
+    exit if !itemuuidIsValid(projectuuid, itemuuid)
+
+    Runner::start(itemuuid)
+    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
+    CatalystStandardTarget::openTarget(item["target"])
+end
+
 if ARGV[0] == "stop" and ARGV[1] and ARGV[2] then
     projectuuid = ARGV[1]
     exit if !projectuuidIsValid(projectuuid)
@@ -70,6 +82,7 @@ if ARGV[0] == "stop" and ARGV[1] and ARGV[2] then
     exit if timespan.nil?
 
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+    puts "Sending #{timespan} seconds to project #{projectuuid}"
     Projects::setProjectAlgebraicTime(projectuuid, timespan)
 end
 
@@ -86,6 +99,7 @@ if ARGV[0] == "done" and ARGV[1] and ARGV[2] then
     exit if timespan.nil?
     
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+    puts "Sending #{timespan} seconds to project #{projectuuid}"
     Projects::setProjectAlgebraicTime(projectuuid, timespan)
 end
 
@@ -96,5 +110,12 @@ if ARGV[0] == "recast" and ARGV[1] and ARGV[2] then
     itemuuid = ARGV[2]
     exit if !itemuuidIsValid(projectuuid, itemuuid)
     
+    timespan = Runner::stop(itemuuid)
+    if timespan then
+        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+        puts "Sending #{timespan} seconds to project #{projectuuid}"
+        Projects::setProjectAlgebraicTime(projectuuid, timespan)
+    end
+
     Projects::recastItem(projectuuid, itemuuid)
 end
