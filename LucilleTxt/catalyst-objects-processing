@@ -177,7 +177,7 @@ if ARGV[0] == "stop" and ARGV[1] then
     exit if section.nil?
     timespan = Runner::stop("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
     exit if timespan.nil?
-    puts "Pushing #{timespan} to ping"
+    puts "LucilleTxt: pushing #{timespan.to_i} seconds to ping"
     Ping::ping("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad", timespan, 86400) # run items individually but contribute to the group
 end
 
@@ -189,6 +189,7 @@ if ARGV[0] == "done" and ARGV[1] then
     end
     timespan = Runner::stop("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
     if timespan then
+        puts "LucilleTxt: pushing #{timespan.to_i} seconds to ping"
         Ping::ping("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad", timespan, 86400) # run items individually but contribute to the group
     end
     rewriteLucilleFileWithoutThisSectionUUID(sectionuuid)
