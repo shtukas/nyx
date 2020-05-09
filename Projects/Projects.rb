@@ -75,6 +75,20 @@ class Projects
             .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
     end
 
+    # Projects::getIFCSProjects()
+    def self.getIFCSProjects()
+        Projects::projects()
+            .select{|project| project["schedule"]["type"] == "ifcs" }
+            .sort{|p1, p2| p1["schedule"]["position"] <=> p2["schedule"]["position"] }
+    end
+
+    # Projects::getStandardProjects()
+    def self.getStandardProjects()
+        Projects::projects()
+            .select{|project| project["schedule"]["type"] == "standard" }
+            .sort{|p1, p2| p1["creationtime"] <=> p2["creationtime"] }
+    end
+
     # Projects::getProjectByUUIDOrNUll(uuid)
     def self.getProjectByUUIDOrNUll(uuid)
         filepath = "#{Projects::pathToProjects()}/#{uuid}.json"
@@ -203,13 +217,6 @@ class Projects
 
     # -----------------------------------------------------------
     # In Flight Control System
-
-    # Projects::getIFCSProjects()
-    def self.getIFCSProjects()
-        Projects::projects()
-            .select{|project| project["schedule"]["type"] == "ifcs" }
-            .sort{|p1, p2| p1["schedule"]["position"] <=> p2["schedule"]["position"] }
-    end
 
     # Projects::getOrderedIfcsProjectsWithComputedOrdinal()
     def self.getOrderedIfcsProjectsWithComputedOrdinal() # Array[ (project, ordinal: Int) ]
