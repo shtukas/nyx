@@ -53,6 +53,10 @@ def projectItemMetric(projectuuid, projectAlgebraicTimeInSeconds, indx, itemIsRu
     Projects::algebraicTimeToMetric(projectuuid, projectAlgebraicTimeInSeconds) - indx.to_f/1000
 end
 
+def projectItemDefaultCommand(isRunning)
+    isRunning ? "stop" : "start+open"
+end
+
 def projectItemToCatalystObject(project, projectAlgebraicTimeInSeconds, item, indx)
     itemuuid = item["uuid"]
     isRunning = Runner::isRunning(itemuuid)
@@ -63,17 +67,18 @@ def projectItemToCatalystObject(project, projectAlgebraicTimeInSeconds, item, in
             "line" => "[project: #{project["description"].yellow}] item: #{Projects::projectItemToString(item)}"
         },
         "metric"         => projectItemMetric(project["uuid"], projectAlgebraicTimeInSeconds, indx, isRunning),
-        "commands"       => ["start", "open", "stop", "done", "recast", "dive-project"],
-        "defaultCommand" => "start+open",
+        "commands"       => ["start", "open", "stop", "done", "description", "recast", "project"],
+        "defaultCommand" => projectItemDefaultCommand(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
             "open"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item open '#{project["uuid"]}' '#{itemuuid}'",
             "done"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item done '#{project["uuid"]}' '#{itemuuid}'",
             "start"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item start '#{itemuuid}'",
             "start+open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item start+open '#{project["uuid"]}' '#{itemuuid}'",
+            "description"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item description '#{project["uuid"]}' '#{itemuuid}'",            
             "stop"         => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item stop '#{project["uuid"]}' '#{itemuuid}'",
             "recast"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item recast '#{project["uuid"]}' '#{itemuuid}'",
-            "dive-project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project dive '#{project["uuid"]}'"
+            "project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project dive '#{project["uuid"]}'"
         }
     }
 end

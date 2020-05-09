@@ -103,6 +103,18 @@ if ARGV[0] == "done" and ARGV[1] and ARGV[2] then
     Projects::setProjectAlgebraicTime(projectuuid, timespan)
 end
 
+if ARGV[0] == "description" and ARGV[1] and ARGV[2] then
+    projectuuid = ARGV[1]
+    exit if !projectuuidIsValid(projectuuid)
+
+    itemuuid = ARGV[2]
+    exit if !itemuuidIsValid(projectuuid, itemuuid)
+
+    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
+    item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
+    Projects::attachProjectItemToProject(projectuuid, item)
+end
+
 if ARGV[0] == "recast" and ARGV[1] and ARGV[2] then
     projectuuid = ARGV[1]
     exit if !projectuuidIsValid(projectuuid)
