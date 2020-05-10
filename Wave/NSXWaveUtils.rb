@@ -245,15 +245,16 @@ class NSXWaveUtils
         object['uuid'] = uuid
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
-        object["commands"] = ["open", "edit", "done",  "recast", "destroy"]
+        object["commands"] = ["open", "edit", "done", "description", "recast", "destroy"]
         object["defaultCommand"] = NSXWaveUtils::defaultCommand(announce)
         object['schedule'] = schedule
         object["shell-redirects"] = {
-            "open"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{uuid}'",
-            "open+done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{uuid}'",
-            "done"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{uuid}'",
-            "recast"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{uuid}'",
-            "destroy"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{uuid}'"
+            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{uuid}'",
+            "open+done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{uuid}'",
+            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{uuid}'",
+            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing description '#{uuid}'",
+            "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{uuid}'",
+            "destroy"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing destroy '#{uuid}'"
         }
         object
     end

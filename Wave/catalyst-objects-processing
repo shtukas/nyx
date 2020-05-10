@@ -77,6 +77,16 @@ if ARGV[0] == 'recast' and ARGV[1] then
     exit
 end
 
+if ARGV[0] == 'description' and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = WaveNextGen::getClaimByUUIDOrNUll(uuid)
+    exit if claim.nil?
+    claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
+    WaveNextGen::save(claim)
+    exit
+end
+
 if ARGV[0] == 'destroy' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
