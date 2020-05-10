@@ -62,9 +62,10 @@ loop {
     puts "Projects 👩‍💻"
     options = [
         "create new project", 
-        "dive standard projects",
-        "dive ifcs projects",
-        "dive ack projects",
+        "standard projects (dive)",
+        "ifcs projects (dive)",
+        "ifcs projects (reordering)",
+        "ack projects (dive)",
         "fsck"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -73,17 +74,27 @@ loop {
         puts "Create New Project, not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
-    if option == "dive standard projects" then
+    if option == "standard projects (dive)" then
         project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getStandardProjects(), lambda{|project| Projects::projectToString(project) })
         next if project.nil?
         Projects::diveProject(project)
     end
-    if option == "dive ifcs projects" then
+    if option == "ifcs projects (dive)" then
         project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getIFCSProjectsOrderedByPosition(), lambda{|project| Projects::projectToString(project) })
         next if project.nil?
         Projects::diveProject(project)
     end
-    if option == "dive ack projects" then
+    if option == "ifcs projects (reordering)" then
+        loop {
+            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getIFCSProjectsOrderedByPosition(), lambda{|project| Projects::projectToString(project) })
+            break if project.nil?
+            position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
+            next if position == 0
+            project["schedule"]["position"] = position
+            Projects::save(project)
+        }
+    end
+    if option == "ack projects (dive)" then
         project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getAckProjects(), lambda{|project| Projects::projectToString(project) })
         next if project.nil?
         Projects::diveProject(project)
