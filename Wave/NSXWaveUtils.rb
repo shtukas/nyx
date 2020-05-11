@@ -80,11 +80,11 @@ class NSXWaveUtils
         "#{CatalystCommon::catalystFolderpath()}/Wave"
     end
 
-    # NSXWaveUtils::makeScheduleObjectInteractively()
-    def self.makeScheduleObjectInteractively()
+    # NSXWaveUtils::makeScheduleObjectInteractivelyOrNull()
+    def self.makeScheduleObjectInteractivelyOrNull()
 
         scheduleTypes = ['sticky', 'date', 'repeat']
-        scheduleType = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes, lambda{|entity| entity })
+        scheduleType = LucilleCore::selectEntityFromListOfEntitiesOrNull("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
         if scheduleType=='sticky' then
@@ -226,10 +226,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::defaultCommand(announce)
     def self.defaultCommand(announce)
-        if announce.include?('http') then
-            return "open+done"
-        end
-        "done"
+        "open"
     end
 
     # NSXWaveUtils::claimToCatalystObject(claim)
@@ -250,7 +247,6 @@ class NSXWaveUtils
         object['schedule'] = schedule
         object["shell-redirects"] = {
             "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open '#{uuid}'",
-            "open+done"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing open+done '#{uuid}'",
             "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing done '#{uuid}'",
             "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing description '#{uuid}'",
             "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/catalyst-objects-processing recast '#{uuid}'",

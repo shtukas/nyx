@@ -3,23 +3,24 @@
 
 🗓️ Calendar Report
 
-🏃‍♀️      1.00-      Running items (including items of a running project)
+🏃‍♀️      1.00         Running items (including items of a running project)
 
 🗓️
-        0.95      Anniversaries
-        0.93      Calendar [ack]
+        0.95         Anniversaries
+        0.93         Calendar [ack]
 
 💫
-        0.82+     Wave sticky
-        0.80+     Wave every-this-day-of-the-month / every-this-day-of-the-week
-        0.78+     Wave every-n-hours / every-n-days
+        0.82+        Wave sticky
+        0.80+        Wave every-this-day-of-the-month / every-this-day-of-the-week
+        0.78+        Wave every-n-hours / every-n-days
 
 📬
-        0.77      Project "Inbox"
+        0.77         Project "Inbox"
 
 👩‍💻 🛩
-        0.76-> 0  Projects
-        0.74-> 0  LucilleTxt [bottom]
-        0.73      Backups Monitor
+        0.75 -> 0.70 ifcs (while negative time, then 0)
+        0.65 -> 0.20 Projects
+        0.60 -> 0    LucilleTxt [bottom]
+        0.50         Backups Monitor
 
         0.20 ------- Water level ------------------------------

@@ -104,8 +104,8 @@ class CoreDataFile
 
     # CoreDataFile::fileByFilenameIsSafelyOpenable(filename)
     def self.fileByFilenameIsSafelyOpenable(filename)
-        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc"]
-        safelyOpeneableExtensions.any?{|extension| filename[-extension.size, extension.size] == extension }
+        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
+        safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
     # CoreDataFile::openOrCopyToDesktop(filename)

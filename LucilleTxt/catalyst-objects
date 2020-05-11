@@ -97,13 +97,18 @@ end
 
 content = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b').map{|part| part.strip }[1]
 
+metric = lambda{|_24hTimeInSeconds, indx|
+    # We keep the numbers for 24 hours
+    # Starts at 0.6 and decrease by 0.2 every hour
+    0.60 - (0.2/3600)*_24hTimeInSeconds - indx.to_f/10000
+}
+
 objects = SectionsType0141::contentToSections(content)
     .first(10)
     .map
     .with_index{|section, indx|
         sectionuuid = sectionToUUID(section)
         isRunning = Runner::isRunning("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
-        metric = isRunning ? 1 : (0.74 - indx.to_f/10000 - (0.2/3600)*Ping::pong("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad")) # We count seconds over the past 24 hours, one hour we go down by 0.2
         {
             "uuid"           => sectionuuid,
             "contentItem"    => {
@@ -111,7 +116,7 @@ objects = SectionsType0141::contentToSections(content)
                 "line" => "Lucille.txt [bottom] #{section.strip.lines.to_a.first}",
                 "body" => "Lucille.txt [bottom]\n"+section.strip
             },
-            "metric"          => metric,
+            "metric"          => metric.call(Ping::pong("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad"), indx),
             "commands"        => ["start", "stop", "done", ">project"],
             "defaultCommand"  => isRunning ? "stop" : "start",
             "isRunning" => isRunning,

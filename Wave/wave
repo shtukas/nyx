@@ -54,7 +54,8 @@ loop {
     break if option.nil?
     if option == "new wave" then
         line = LucilleCore::askQuestionAnswerAsString("line: ")
-        schedule = NSXWaveUtils::makeScheduleObjectInteractively()
+        schedule = NSXWaveUtils::makeScheduleObjectInteractivelyOrNull()
+        next if schedule.nil?
         WaveNextGen::issueClaim(LucilleCore::timeStringL22(), line, schedule)
     end
     if option == "waves dive" then
@@ -68,7 +69,8 @@ loop {
             WaveNextGen::save(claim)
         end
         if op == "recast" then
-            schedule = NSXWaveUtils::makeScheduleObjectInteractively()
+            schedule = NSXWaveUtils::makeScheduleObjectInteractivelyOrNull()
+            next if schedule.nil?
             claim["schedule"] = schedule
             WaveNextGen::save(claim)
         end

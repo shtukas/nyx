@@ -42,6 +42,34 @@ def itemuuidIsValid(projectuuid, itemuuid)
     !Projects::getProjectByUUIDOrNUll(projectuuid).nil?
 end
 
+def processing_done(projectuuid, itemuuid)
+    Projects::detachItemFromProject(projectuuid, itemuuid)
+    
+    timespan = Runner::stop(itemuuid)
+    exit if timespan.nil?
+    
+    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+    puts "Sending #{timespan} seconds to project #{projectuuid}"
+    Ping::ping(projectuuid, timespan, Projects::pingRetainPeriodInSeconds())
+
+    puts "Sending #{timespan} seconds to item #{itemuuid}"
+    Ping::ping(itemuuid, timespan, Projects::pingRetainPeriodInSeconds())
+
+end
+
+def processing_recast(projectuuid, itemuuid)
+    timespan = Runner::stop(itemuuid)
+    if timespan then
+        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+        puts "Sending #{timespan} seconds to project #{projectuuid}"
+        Ping::ping(projectuuid, timespan, Projects::pingRetainPeriodInSeconds())
+        puts "Sending #{timespan} seconds to item #{itemuuid}"
+        Ping::ping(itemuuid, timespan, Projects::pingRetainPeriodInSeconds())
+    end
+
+    Projects::recastItem(projectuuid, itemuuid)
+end
+
 if ARGV[0] == "open" and ARGV[1] and ARGV[2] then
     projectuuid = ARGV[1]
     exit if !projectuuidIsValid(projectuuid)
@@ -49,17 +77,13 @@ if ARGV[0] == "open" and ARGV[1] and ARGV[2] then
     itemuuid = ARGV[2]
     exit if !itemuuidIsValid(projectuuid, itemuuid)
 
-    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
-    CatalystStandardTarget::openTarget(item["target"])
+    item = Projects::getItemOrNull(projectuuid, itemuuid)
+    exit if item.nil
+    puts JSON.pretty_generate(item)
+    Projects::openItem(item)
 end
 
-if ARGV[0] == "start" and ARGV[1] then
-    itemuuid = ARGV[1]
-    exit if !itemuuidIsValid(projectuuid, itemuuid)
-    Runner::start(itemuuid)
-end
-
-if ARGV[0] == "start+open" and ARGV[1] then
+if ARGV[0] == "start" and ARGV[1] and ARGV[2] then
     projectuuid = ARGV[1]
     exit if !projectuuidIsValid(projectuuid)
 
@@ -67,8 +91,26 @@ if ARGV[0] == "start+open" and ARGV[1] then
     exit if !itemuuidIsValid(projectuuid, itemuuid)
 
     Runner::start(itemuuid)
-    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
-    CatalystStandardTarget::openTarget(item["target"])
+
+    if projectuuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+        item = Projects::getItemOrNull(projectuuid, itemuuid)
+        CatalystStandardTarget::openTarget(item["target"])
+    else
+        if LucilleCore::askQuestionAnswerAsBoolean("-> open ? ", true) then
+            item = Projects::getItemOrNull(projectuuid, itemuuid)
+            CatalystStandardTarget::openTarget(item["target"])
+        end
+    end
+
+    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
+        item = Projects::getItemOrNull(projectuuid, itemuuid)
+        processing_done(projectuuid, itemuuid)
+    else
+        if projectuuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+            puts "-> Going to recast"
+            processing_recast(projectuuid, itemuuid)
+        end
+    end
 end
 
 if ARGV[0] == "stop" and ARGV[1] and ARGV[2] then
@@ -83,7 +125,9 @@ if ARGV[0] == "stop" and ARGV[1] and ARGV[2] then
 
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
     puts "Sending #{timespan} seconds to project #{projectuuid}"
-    Projects::setProjectAlgebraicTime(projectuuid, timespan)
+    Ping::ping(projectuuid, timespan, Projects::pingRetainPeriodInSeconds())
+    puts "Sending #{timespan} seconds to item #{itemuuid}"
+    Ping::ping(itemuuid, timespan, Projects::pingRetainPeriodInSeconds())
 end
 
 if ARGV[0] == "done" and ARGV[1] and ARGV[2] then
@@ -93,14 +137,7 @@ if ARGV[0] == "done" and ARGV[1] and ARGV[2] then
     itemuuid = ARGV[2]
     exit if !itemuuidIsValid(projectuuid, itemuuid)
 
-    Projects::detachProjectItemFromProject(projectuuid, itemuuid)
-    
-    timespan = Runner::stop(itemuuid)
-    exit if timespan.nil?
-    
-    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    puts "Sending #{timespan} seconds to project #{projectuuid}"
-    Projects::setProjectAlgebraicTime(projectuuid, timespan)
+    processing_done(projectuuid, itemuuid)
 end
 
 if ARGV[0] == "description" and ARGV[1] and ARGV[2] then
@@ -110,9 +147,20 @@ if ARGV[0] == "description" and ARGV[1] and ARGV[2] then
     itemuuid = ARGV[2]
     exit if !itemuuidIsValid(projectuuid, itemuuid)
 
-    item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
+    item = Projects::getItemOrNull(projectuuid, itemuuid)
     item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-    Projects::attachProjectItemToProject(projectuuid, item)
+    Projects::attachItemToProject(projectuuid, item)
+end
+
+if ARGV[0] == "make-ifcs-claim" and ARGV[1] and ARGV[2] then
+    projectuuid = ARGV[1]
+    exit if !projectuuidIsValid(projectuuid)
+
+    itemuuid = ARGV[2]
+    exit if !itemuuidIsValid(projectuuid, itemuuid)
+
+    position = Projects::nextIfcsPosition()
+    Projects::issueIfcsClaimTypeItem(projectuuid, itemuuid, position)
 end
 
 if ARGV[0] == "recast" and ARGV[1] and ARGV[2] then
@@ -122,12 +170,6 @@ if ARGV[0] == "recast" and ARGV[1] and ARGV[2] then
     itemuuid = ARGV[2]
     exit if !itemuuidIsValid(projectuuid, itemuuid)
     
-    timespan = Runner::stop(itemuuid)
-    if timespan then
-        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-        puts "Sending #{timespan} seconds to project #{projectuuid}"
-        Projects::setProjectAlgebraicTime(projectuuid, timespan)
-    end
-
-    Projects::recastItem(projectuuid, itemuuid)
+    processing_recast(projectuuid, itemuuid)
+    puts "item #{itemuuid} recast at #{projectuuid}"
 end

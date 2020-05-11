@@ -48,7 +48,7 @@ if ARGV[0] == "stop" and ARGV[1] then
     timespan = Runner::stop(project["uuid"])
     exit if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    Projects::setProjectAlgebraicTime(uuid, timespan)
+    Ping::ping(uuid, timespan, Projects::pingRetainPeriodInSeconds())
 end
 
 if ARGV[0] == "dive" and ARGV[1] then
@@ -57,6 +57,21 @@ if ARGV[0] == "dive" and ARGV[1] then
     project = Projects::getProjectByUUIDOrNUll(uuid)
     exit if project.nil?
     Projects::diveProject(project)
+end
+
+if ARGV[0] == "open" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    project = Projects::getProjectByUUIDOrNUll(uuid)
+    exit if project.nil?
+    puts JSON.pretty_generate(project)
+    items = Projects::getItemsByCreationTime(uuid)
+    if items.size == 0 then
+        puts "There doesn't seen to be any items for this project, aborting open operation."
+        LucilleCore::pressEnterToContinue()
+        exit
+    end
+    Projects::openProject(project)
 end
 
 if ARGV[0] == "ack" and ARGV[1] then
@@ -70,6 +85,6 @@ if ARGV[0] == "done" and ARGV[1] then
     exit if uuid.nil?
     project = Projects::getProjectByUUIDOrNUll(uuid)
     exit if project.nil?
-    exit if Projects::getProjectItemsByCreationTime(uuid).size > 0 # we do not destroy a project that has some items
-    Projects::destroy(project)
+    exit if Projects::getItemsByCreationTime(uuid).size > 0 # we do not destroy a project that has some items
+    Projects::destroyProject(project)
 end

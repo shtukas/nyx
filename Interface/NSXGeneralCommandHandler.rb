@@ -40,8 +40,7 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "help",
-                "/                    General Menu",
-                "l+                   spawn new catalyst item",
+                "/                    General Menu"
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -87,11 +86,6 @@ class NSXGeneralCommandHandler
             part1 = NSXMiscUtils::applyNextTransformationToContent(part1)
             content = [part1, part2].join("\n\n@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b\n\n")
             File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(content) }
-            return
-        end
-
-        if command == ">>" then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/projects-stop-or-start")
             return
         end
 

@@ -44,7 +44,7 @@ require_relative "Projects.rb"
 
 # -------------------------------------------------------------------------
 
-Projects::getIFCSProjectsOrderedByPosition()
-    .each{|project|
-        puts Projects::projectToString(project)
+Projects::ifcsClaimsOrdered()
+    .each{|claim|
+        puts Project::ifcsClaimDescription(claim)
     }

@@ -63,8 +63,8 @@ loop {
     options = [
         "create new project", 
         "standard projects (dive)",
-        "ifcs projects (dive)",
-        "ifcs projects (reordering)",
+        "ifcs claims (dive)",
+        "ifcs claims (reordering)",
         "ack projects (dive)",
         "fsck"
     ]
@@ -79,19 +79,19 @@ loop {
         next if project.nil?
         Projects::diveProject(project)
     end
-    if option == "ifcs projects (dive)" then
-        project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getIFCSProjectsOrderedByPosition(), lambda{|project| Projects::projectToString(project) })
-        next if project.nil?
-        Projects::diveProject(project)
+    if option == "ifcs claims (dive)" then
+        ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::ifcsClaimsOrdered(), lambda{|claim| Projects::ifcsClaimToString(claim) })
+        next if ifcsclaim.nil?
+        Projects::diveIfcsClaim(ifcsclaim)
     end
-    if option == "ifcs projects (reordering)" then
+    if option == "ifcs claims (reordering)" then
         loop {
-            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getIFCSProjectsOrderedByPosition(), lambda{|project| Projects::projectToString(project) })
-            break if project.nil?
+            claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", Projects::ifcsClaimsOrdered(), lambda{|claim| Projects::ifcsClaimToString(claim) })
+            break if claim.nil?
             position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
             next if position == 0
-            project["schedule"]["position"] = position
-            Projects::save(project)
+            claim["position"] = position
+            Projects::saveIfcsClaim(claim)
         }
     end
     if option == "ack projects (dive)" then

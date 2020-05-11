@@ -15,18 +15,7 @@ Schedule:
         "type" : "standard"
     }
     {
-        "type" : "ifcs"
-        "position" : Float
-    }
-    {
         "type" : "ack"
-    }
-
-
-"standard" schedule timepoint:
-    {
-        "uuid"     : String
-        "timespan" : Float
     }
 
 ProjectItem {
@@ -36,4 +25,21 @@ ProjectItem {
     "target"       : CatalystStandardTarget
 }
 
-We use Ping to manage the project times. We cover the past 30 days.
+The project item runs (Runner), but gives its time to the project. We cover the past 30 days.
+
+InFlighControlSystemClaim
+{
+    "uuid"             : String
+    "position"         : Float # Unixtime with decimals
+    "type"             : "project"
+    "projectuuid"      : String
+}
+{
+    "uuid"             : String
+    "position"         : Float # Unixtime with decimals
+    "type"             : "item"
+    "projectuuid"      : String
+    "itemuuid"         : String
+}
+
+We use Ping to manage the ifcs claims time. We cover the past 30 days. They get negative daily penalties.

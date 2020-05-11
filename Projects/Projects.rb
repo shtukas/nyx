@@ -63,6 +63,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 class Projects
 
     # -----------------------------------------------------------
+    # Misc
+
+    # Projects::pingRetainPeriodInSeconds()
+    def self.pingRetainPeriodInSeconds()
+        (365.24/4)*86400 # Number of seconds in a quarter of a year
+    end
+
+    # -----------------------------------------------------------
     # Projects
 
     # Projects::pathToProjects()
@@ -79,24 +87,17 @@ class Projects
             .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
     end
 
-    # Projects::getAckProjects()
-    def self.getAckProjects()
-        Projects::projects()
-            .select{|project| project["schedule"]["type"] == "ack" }
-            .sort{|p1, p2| p1["creationtime"] <=> p2["creationtime"] }
-    end
-
-    # Projects::getIFCSProjectsOrderedByPosition()
-    def self.getIFCSProjectsOrderedByPosition()
-        Projects::projects()
-            .select{|project| project["schedule"]["type"] == "ifcs" }
-            .sort{|p1, p2| p1["schedule"]["position"] <=> p2["schedule"]["position"] }
-    end
-
     # Projects::getStandardProjects()
     def self.getStandardProjects()
         Projects::projects()
             .select{|project| project["schedule"]["type"] == "standard" }
+            .sort{|p1, p2| p1["creationtime"] <=> p2["creationtime"] }
+    end
+
+    # Projects::getAckProjects()
+    def self.getAckProjects()
+        Projects::projects()
+            .select{|project| project["schedule"]["type"] == "ack" }
             .sort{|p1, p2| p1["creationtime"] <=> p2["creationtime"] }
     end
 
@@ -107,13 +108,13 @@ class Projects
         JSON.parse(IO.read(filepath))
     end
 
-    # Projects::save(project)
-    def self.save(project)
+    # Projects::saveProject(project)
+    def self.saveProject(project)
         File.open("#{Projects::pathToProjects()}/#{project["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(project)) }
     end
 
-    # Projects::destroy(project)
-    def self.destroy(project)
+    # Projects::destroyProject(project)
+    def self.destroyProject(project)
         uuid = project["uuid"]
         return if uuid == "20200502-141331-226084" # Guardian General Work
         return if uuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" # Inbox
@@ -129,7 +130,7 @@ class Projects
             "uuid"         => uuid,
             "creationtime" => Time.new.to_f,
             "description"  => description,
-            "schedule" => schedule,
+            "schedule"     => schedule,
             "items"        => items
         }
     end
@@ -137,19 +138,19 @@ class Projects
     # Projects::issueProject(uuid, description, schedule, items)
     def self.issueProject(uuid, description, schedule, items)
         project = Projects::makeProject(uuid, description, schedule, items)
-        Projects::save(project)
+        Projects::saveProject(project)
         project
     end
 
-    # Projects::selectProjectOrNull()
-    def self.selectProjectOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("project:", Projects::projects(), lambda {|project| project["description"] })
+    # Projects::selectProjectInteractivelyOrNull()
+    def self.selectProjectInteractivelyOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::projects().sort{|p1, p2| p1["description"] <=> p2["description"] }, lambda {|project| Projects::projectToString(project) })
     end
 
     # Projects::selectProjectFromExistingOrNewOrNull()
     def self.selectProjectFromExistingOrNewOrNull()
 
-        project = Projects::selectProjectOrNull()
+        project = Projects::selectProjectInteractivelyOrNull()
         return project if project
 
         puts "-> No project select. Please give a description to make a new one (empty for aborting operation)"
@@ -160,7 +161,7 @@ class Projects
         end
 
         puts "-> Choosing project schedule type"
-        scheduletype = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("project schedule type", ["standard", "ack", "ifcs"])
+        scheduletype = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("project schedule type", ["standard", "ack"])
 
         puts "-> Making schedule"
         schedule = nil
@@ -174,12 +175,6 @@ class Projects
                 "type" => "ack"
             }
         end
-        if scheduletype == "ifcs" then
-            schedule = {
-                "type" => "ifcs",
-                "position" => Projects::interactiveChoiceOfIfcsPosition()
-            }
-        end
         puts JSON.pretty_generate(schedule)
 
         Projects::issueProject(SecureRandom.uuid, description, schedule, []) # Project
@@ -188,7 +183,7 @@ class Projects
     # Projects::makeNewScheduleInteractiveOrNull()
     def self.makeNewScheduleInteractiveOrNull()
         puts "-> Choosing project schedule type"
-        scheduletype = LucilleCore::selectEntityFromListOfEntitiesOrNull("project schedule type", ["standard", "ifcs", "ack"])
+        scheduletype = LucilleCore::selectEntityFromListOfEntitiesOrNull("project schedule type", ["standard", "ack"])
         return nil if scheduletype.nil?
         puts "-> Making schedule"
         schedule = nil
@@ -202,108 +197,143 @@ class Projects
                 "type" => "ack"
             }
         end
-        if scheduletype == "ifcs" then
-            position = Projects::interactiveChoiceOfIfcsPosition()
-            schedule = {
-                "type" => "ifcs",
-                "position" => position
-            }
-        end
         puts JSON.pretty_generate(schedule)
         schedule
     end
 
-    # -----------------------------------------------------------
-    # Project Time and Metric
-
-    # Projects::setProjectAlgebraicTime(uuid, timespanInSeconds)
-    def self.setProjectAlgebraicTime(uuid, timespanInSeconds)
-        Ping::ping(uuid, timespanInSeconds, 86400*30) # 30 days
-    end
-
-    # Projects::getProjectAlgebraicTime(uuid)
-    def self.getProjectAlgebraicTime(uuid)
-        Ping::pong(uuid)
-    end
-
-    # Projects::algebraicTimeToMetric(uuid, timeInSeconds)
-    def self.algebraicTimeToMetric(uuid, timeInSeconds)
-        baseMetric = 0.76
-        if uuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-            return 0.77 # Not affected by the time
+    # Projects::openProject(project)
+    def self.openProject(project)
+        items = Projects::getItemsByCreationTime(project["uuid"])
+        if items.size == 1 then
+            Projects::openItem(items[0])
+            return
         end
-        timeInHours = timeInSeconds.to_f/3600
-        return 0.76 + Math.atan(-timeInHours).to_f/1000
-    end
-
-    # Projects::projectMetric(project)
-    def self.projectMetric(project)
-        uuid = project["uuid"]
-        return 1 if Runner::isRunning(uuid)
-        return 0 if project["schedule"]["type"] == "ack"
-        if Projects::getProjectItemsByCreationTime(uuid).size > 0 then
-            return 0 # We do not display a project if it has objects
-        else
-            Projects::algebraicTimeToMetric(uuid, Projects::getProjectAlgebraicTime(uuid))
-        end
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Projects::itemBestDescription(item) })
+        return if item.nil?
+        Projects::openItem(item)
     end
 
     # -----------------------------------------------------------
-    # Items Management
+    # Project Items
 
-    # Projects::attachProjectItemToProject(projectuuid, item)
-    def self.attachProjectItemToProject(projectuuid, item)
+    # Projects::attachItemToProject(projectuuid, item)
+    def self.attachItemToProject(projectuuid, item)
         # There is a copy of function in LucilleTxt/catalyst-objects-processing
         BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
     end
 
-    # Projects::getProjectItemOrNull(projectuuid, itemuuid)
-    def self.getProjectItemOrNull(projectuuid, itemuuid)
+    # Projects::getItemOrNull(projectuuid, itemuuid)
+    def self.getItemOrNull(projectuuid, itemuuid)
         BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, itemuuid)
     end
 
-    # Projects::getProjectItemsByCreationTime(projectuuid)
-    def self.getProjectItemsByCreationTime(projectuuid)
+    # Projects::getItemsByCreationTime(projectuuid)
+    def self.getItemsByCreationTime(projectuuid)
         BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid)
             .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
     end
 
-    # Projects::detachProjectItemFromProject(projectuuid, itemuuid)
-    def self.detachProjectItemFromProject(projectuuid, itemuuid)
+    # Projects::detachItemFromProject(projectuuid, itemuuid)
+    def self.detachItemFromProject(projectuuid, itemuuid)
         BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, itemuuid)
     end
 
-    # Projects::projectItemToString(item)
-    def self.projectItemToString(item)
+    # Projects::itemBestDescription(item)
+    def self.itemBestDescription(item)
         item["description"] || CatalystStandardTarget::targetToString(item["target"])
     end
 
     # Projects::recastItem(projectuuid, itemuuid)
     def self.recastItem(projectuuid, itemuuid)
-        item = Projects::getProjectItemOrNull(projectuuid, itemuuid)
+        item = Projects::getItemOrNull(projectuuid, itemuuid)
         return if item.nil?
         # We need to choose a project, possibly a new one and add the item to it and remove the item from the original project
         targetproject = Projects::selectProjectFromExistingOrNewOrNull()
-        Projects::attachProjectItemToProject(targetproject["uuid"], item)
-        Projects::detachProjectItemFromProject(projectuuid, itemuuid)
+        return if targetproject.nil?
+        Projects::attachItemToProject(targetproject["uuid"], item)
+        Projects::detachItemFromProject(projectuuid, itemuuid)
+    end
+
+    # Projects::openItem(item)
+    def self.openItem(item)
+        CatalystStandardTarget::openTarget(item["target"])
     end
 
     # -----------------------------------------------------------
-    # In Flight Control System
+    # In Flight Control System Claims
 
-    # Projects::getOrderedIfcsProjectsWithComputedOrdinal()
-    def self.getOrderedIfcsProjectsWithComputedOrdinal() # Array[ (project, ordinal: Int) ]
-        Projects::getIFCSProjectsOrderedByPosition()
+    # Projects::saveIfcsClaim(claim)
+    def self.saveIfcsClaim(claim)
+        BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3", claim["uuid"], claim)
+    end
+
+    # Projects::issueIfcsClaimTypeProject(projectuuid, position)
+    def self.issueIfcsClaimTypeProject(projectuuid, position)
+        claim = {
+            "uuid"        => SecureRandom.uuid,
+            "type"        => "project",
+            "projectuuid" => projectuuid,
+            "position"    => position,
+        }
+        BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3", claim["uuid"], claim)
+    end
+
+    # Projects::issueIfcsClaimTypeItem(projectuuid, itemuuid, position)
+    def self.issueIfcsClaimTypeItem(projectuuid, itemuuid, position)
+        claim = {
+            "uuid"        => SecureRandom.uuid,
+            "type"        => "item",
+            "projectuuid" => projectuuid,
+            "itemuuid"    => itemuuid,
+            "position"    => position
+        }
+        Projects::saveIfcsClaim(claim)
+    end
+
+    # Projects::getClaimByUuidOrNull(claimuuid)
+    def self.getClaimByUuidOrNull(claimuuid)
+        BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3", claimuuid)
+    end
+
+    # Projects::ifcsClaimDescription(claim)
+    def self.ifcsClaimDescription(claim)
+        if claim["type"] == "project" then
+            project = Projects::getProjectByUUIDOrNUll(claim["projectuuid"])
+            return ( project ? "[project] #{project["description"]}" : "{unknown project at claim/project #{claim["uuid"]}}" )
+        end
+        if claim["type"] == "item" then
+            project = Projects::getProjectByUUIDOrNUll(claim["projectuuid"])
+            if project.nil? then
+                return "{unknown project at claim/item #{claim["uuid"]}}"
+            end
+            item = Projects::getItemOrNull(claim["projectuuid"], claim["itemuuid"])
+            if item.nil? then
+                return "{unknown item at claim/item #{claim["uuid"]}}"
+            end
+            return "[item] #{Projects::itemBestDescription(item)}"
+        end
+        raise "error: 0f7a2c14-5443"
+    end
+
+    # Projects::ifcsClaimsOrdered() # Array[ (ifcs claim, ordinal: Int) ]
+    def self.ifcsClaimsOrdered()
+        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3")
+            .sort{|c1, c2| c1["position"] <=> c2["position"] }
+    end
+
+    # Projects::ifcsClaimsOrderedWithOrdinal() # Array[ (ifcs claim, ordinal: Int) ]
+    def self.ifcsClaimsOrderedWithOrdinal()
+        Projects::ifcsClaimsOrdered()
             .map
             .with_index
             .to_a
     end
 
-    # Projects::getOrdinal(uuid)
-    def self.getOrdinal(uuid)
-        Projects::getOrderedIfcsProjectsWithComputedOrdinal()
-            .select{|pair| pair[0]["uuid"] == uuid }
-            .map{|pair| pair[1] }
+    # Projects::getIfcsClaimOfTypeItemByUuidsOrNull(projectuuid, itemuuid)
+    def self.getIfcsClaimOfTypeItemByUuidsOrNull(projectuuid, itemuuid)
+        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3")
+            .select{|claim| claim["projectuuid"] == projectuuid }
+            .select{|claim| claim["itemuuid"] == itemuuid }
             .first
     end
 
@@ -311,23 +341,28 @@ class Projects
     # Projects::interactiveChoiceOfIfcsPosition()
     def self.interactiveChoiceOfIfcsPosition() # Float
         puts "Items"
-        Projects::getIFCSProjectsOrderedByPosition()
-            .each{|project|
-                uuid = project["uuid"]
-                puts "    - #{("%5.3f" % project["schedule"]["position"])} #{project["description"]}"
+        Projects::ifcsClaimsOrdered()
+            .each{|claim|
+                uuid = claim["uuid"]
+                puts "    - #{("%5.3f" % claim["position"])} #{Projects::ifcsClaimDescription(claim)}"
             }
         LucilleCore::askQuestionAnswerAsString("position: ").to_f
     end
 
-    # Projects::uuidTotalTimespanIncludingLiveRun(uuid)
-    def self.uuidTotalTimespanIncludingLiveRun(uuid)
-        x0 = Projects::getProjectAlgebraicTime(uuid)
-        x1 = 0
-        unixtime = KeyValueStore::getOrNull(nil, "db183530-293a-41f8-b260-283c59659bd5:#{uuid}")
-        if unixtime then
-            x1 = Time.new.to_f - unixtime.to_f
-        end
-        x0 + x1
+    # Projects::nextIfcsPosition()
+    def self.nextIfcsPosition()
+        Projects::ifcsClaimsOrdered().map{|claim| claim["position"] }.max.ceil
+    end
+
+    # -----------------------------------------------------------
+    # In Flight Control System Daily Time Penalties
+
+    # Projects::getOrdinalOrNull(uuid)
+    def self.getOrdinalOrNull(uuid)
+        Projects::ifcsClaimsOrderedWithOrdinal()
+            .select{|pair| pair[0]["uuid"] == uuid }
+            .map{|pair| pair[1] }
+            .first
     end
 
     # Projects::isWeekDay()
@@ -335,8 +370,9 @@ class Projects
         [1,2,3,4,5].include?(Time.new.wday)
     end
 
-    # Projects::getProjectsTotalAttributed24TimeExpectation()
-    def self.getProjectsTotalAttributed24TimeExpectation()
+    # Projects::getTotalAttributed24TimeExpectation1()
+    def self.getTotalAttributed24TimeExpectation1()
+        # This is the time given to IFCS and then we move to standard projects
         if Projects::isWeekDay() then
             2 * 3600
         else
@@ -349,13 +385,13 @@ class Projects
         if Projects::isWeekDay() then
             5 * 3600
         else
-            0 * 3600
+            2 * 3600
         end
     end
 
     # Projects::ordinalTo24HoursTimeExpectationInSeconds(ordinal)
     def self.ordinalTo24HoursTimeExpectationInSeconds(ordinal)
-        Projects::getProjectsTotalAttributed24TimeExpectation() * (1.to_f / 2**(ordinal+1))
+        Projects::getTotalAttributed24TimeExpectation1() * (1.to_f / 2**(ordinal+1))
     end
 
     # Projects::getProject24HoursTimeExpectationInSeconds(uuid, ordinal)
@@ -364,18 +400,18 @@ class Projects
         Projects::ordinalTo24HoursTimeExpectationInSeconds(ordinal)
     end
 
-    # Projects::distributeDayTimePenatiesIfNotDoneAlready()
-    def self.distributeDayTimePenatiesIfNotDoneAlready()
+    # Projects::distributeIfcsPenatiesIfNotDoneAlready()
+    def self.distributeIfcsPenatiesIfNotDoneAlready()
         return if Time.new.hour < 9
         return if Time.new.hour > 18
-        Projects::getIFCSProjectsOrderedByPosition()
-            .each{|project|
-                uuid = project["uuid"]
-                next if Projects::getProjectAlgebraicTime(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
+        Projects::ifcsClaimsOrdered()
+            .each{|claim|
+                uuid = claim["uuid"]
+                next if Ping::pong(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
                 next if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
-                timespan = Projects::getProject24HoursTimeExpectationInSeconds(uuid, Projects::getOrdinal(uuid))
+                timespan = Projects::getProject24HoursTimeExpectationInSeconds(uuid, Projects::getOrdinalOrNull(uuid))
                 next if timespan.nil?
-                Projects::setProjectAlgebraicTime(uuid, -timespan)
+                Ping::ping(uuid, -timespan, Projects::pingRetainPeriodInSeconds())
                 KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             }
     end
@@ -421,7 +457,7 @@ class Projects
             puts project
             raise "Project has no schedule"
         end
-        items = Projects::getProjectItemsByCreationTime(project["uuid"])
+        items = Projects::getItemsByCreationTime(project["uuid"])
         items.each{|item|
             Projects::fsckItem(item)
         }
@@ -433,22 +469,13 @@ class Projects
     # Projects::projectKickerText(project)
     def self.projectKickerText(project)
         uuid = project["uuid"]
-        if project["schedule"]["type"] == "standard" then
-            return "[project standard ; time: #{"%7.2f" % (Projects::getProjectAlgebraicTime(uuid).to_f/3600)} hours]"
-        end
-        if project["schedule"]["type"] == "ifcs" then
-            return "[project ifcs ; pos: #{("%6.3f" % project["schedule"]["position"])} ; ord: #{"%2d" % Projects::getOrdinal(uuid)} ; time: #{"%5.2f" % (Projects::getProjectAlgebraicTime(uuid).to_f/3600)}]"
-        end
-        if project["schedule"]["type"] == "ack" then
-            return ""
-        end
-        raise "Projects: f40a0f00"
+        "[project #{project["schedule"]["type"].rjust(8)}] (#{"%7.2f" % (Ping::pong(uuid).to_f/3600)} hours)"
     end
 
     # Projects::projectSuffixText(project)
     def self.projectSuffixText(project)
         uuid = project["uuid"]
-        str1 = " (#{Projects::getProjectItemsByCreationTime(project["uuid"]).size})"
+        str1 = " (#{Projects::getItemsByCreationTime(project["uuid"]).size})"
         str2 = 
             if Runner::isRunning(uuid) then
                 " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
@@ -463,22 +490,36 @@ class Projects
         "#{Projects::projectKickerText(project)} #{project["description"]}#{Projects::projectSuffixText(project)}"
     end
 
+    # Projects::itemToString(item)
+    def self.itemToString(item)
+        itemuuid = item["uuid"]
+        isRunning = Runner::isRunning(itemuuid)
+        runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
+        "[item] (#{"%7.2f" % (Ping::pong(itemuuid).to_f/3600).round(2)} hours) #{item["target"]["type"]}: #{Projects::itemBestDescription(item)}#{runningSuffix}"
+    end
+
+    # Projects::ifcsClaimToString(claim)
+    def self.ifcsClaimToString(claim)
+        uuid = claim["uuid"]
+        isRunning = Runner::isRunning(uuid)
+        runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hour)" : ""
+        "[ifcs: #{"%6.2f" % claim["position"]}] (#{"%7.2f" % (Ping::pong(uuid).to_f/3600).round(2)} hours) #{Projects::ifcsClaimDescription(claim)}#{runningSuffix}"
+    end
+
     # Projects::diveProject(project)
     def self.diveProject(project)
         loop {
             system("clear")
-            puts "project: #{Projects::projectToString(project)}"
-            puts "uuid: #{project["uuid"]}"
-            puts "description: #{project["description"]}"
-            puts "schedule: #{project["schedule"]}"
+            puts Projects::projectToString(project).green
+            puts JSON.pretty_generate(project)
             options = [
                 "start",
                 "dive items",
                 "set description",
                 "recast"
             ]
-            if project["schedule"]["type"] == "ifcs" then
-                options << "set ifcs position"
+            if Runner::isRunning(project["uuid"]) then
+                options.delete("start")
             end
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
@@ -486,31 +527,20 @@ class Projects
                 Runner::start(project["uuid"])
             end
             if option == "dive items" then
-                items = Projects::getProjectItemsByCreationTime(project["uuid"])
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Projects::projectItemToString(item) })
+                items = Projects::getItemsByCreationTime(project["uuid"])
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Projects::itemBestDescription(item) })
                 next if item.nil?
                 Projects::diveItem(project, item)
             end
             if option == "set description" then
                 project["description"] = CatalystCommon::editTextUsingTextmate(project["description"])
-                Projects::save(project)
-            end
-            if option == "set ifcs position" then
-                puts "--------------------"
-                Projects::getIFCSProjectsOrderedByPosition()
-                    .each{|project|
-                        puts Projects::projectToString(project)
-                    }
-                puts "--------------------"
-                position = LucilleCore::askQuestionAnswerAsString("position: ").to_f
-                project["schedule"]["position"] = position
-                Projects::save(project)
+                Projects::saveProject(project)
             end
             if option == "recast" then
                 schedule = Projects::makeNewScheduleInteractiveOrNull()
                 next if schedule.nil?
                 project["schedule"] = schedule
-                Projects::save(project)
+                Projects::saveProject(project)
             end
         }
     end
@@ -519,26 +549,51 @@ class Projects
     def self.diveItem(project, item)
         loop {
             system("clear")
-            puts "project item: #{Projects::projectItemToString(item)}"
-            puts "uuid: #{item["uuid"]}"
-            puts "description: #{item["description"]}"
-            puts "target: #{item["target"]}"
+            puts Projects::itemToString(item).green
+            puts JSON.pretty_generate(item)
             options = [
+                "start",
                 "open",
                 "done",
                 "set description"
             ]
+            if Runner::isRunning(item["uuid"]) then
+                options.delete("start")
+            end
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
+            if option == "start" then
+                Runner::start(item["uuid"])
+            end
             if option == "open" then
                 CatalystStandardTarget::openTarget(item["target"])
             end
             if option == "done" then
-                Projects::detachProjectItemFromProject(project["uuid"], item["uuid"])
+                Projects::detachItemFromProject(project["uuid"], item["uuid"])
             end
             if option == "set description" then
-                item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
-                Projects::attachProjectItemToProject(project["uuid"], item)
+                item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
+                Projects::attachItemToProject(project["uuid"], item)
+            end
+        }
+    end
+
+    def self.diveIfcsClaim(claim)
+        loop {
+            system("clear")
+            puts Projects::ifcsClaimToString(claim).green
+            puts JSON.pretty_generate(claim)
+            options = [
+                "start"
+            ]
+            if Runner::isRunning(claim["uuid"]) then
+                options.delete("start")
+            end
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            break if option.nil?
+
+            if option == "start" then
+                Runner::start(claim["uuid"])
             end
         }
     end

@@ -88,7 +88,7 @@ def timeStringL22()
 end
 
 
-def attachProjectItemToProject(projectuuid, item)
+def attachItemToProject(projectuuid, item)
     # This function is the copy of the one in Projects.rb
     BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
 end
@@ -100,7 +100,7 @@ def moveSectionToProjects(section) # Boolean # returns true if the operation was
         # We need to create a new project, and commit it to the projects datastore using 
         # priviledge information about the internals of Projects.rb
         puts "-> Choosing project schedule type"
-        scheduletype = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("project schedule type", ["standard", "ack", "ifcs"])
+        scheduletype = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("project schedule type", ["standard", "ack"])
         puts "-> Making schedule"
         schedule = nil
         if scheduletype == "standard" then
@@ -111,12 +111,6 @@ def moveSectionToProjects(section) # Boolean # returns true if the operation was
         if scheduletype == "ack" then
             schedule = {
                 "type" => "ack"
-            }
-        end
-        if scheduletype == "ifcs" then
-            schedule = {
-                "type" => "ifcs",
-                "position" => CatalystCommon::interactivelyGetIfcsPosition()
             }
         end
         puts JSON.pretty_generate(schedule)
@@ -158,7 +152,7 @@ def moveSectionToProjects(section) # Boolean # returns true if the operation was
     }
     puts JSON.pretty_generate(projectItem)
     puts "-> Committing project item to project"
-    attachProjectItemToProject(project["uuid"], projectItem)
+    attachItemToProject(project["uuid"], projectItem)
     true
 end
 

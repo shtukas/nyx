@@ -6,13 +6,13 @@ require_relative "Projects.rb"
 
 # --------------------------------------------------------------------
 
-Projects::getIFCSProjectsOrderedByPosition()
-.each{|project|
-    uuid = project["uuid"]
+Projects::ifcsClaimsOrdered()
+.each{|claim|
+    uuid = claim["uuid"]
     next if !Runner::isRunning(uuid)
     # The item is running
     next if !Runner::runTimeInSecondsOrNull(uuid)
     next if Runner::runTimeInSecondsOrNull(uuid) < 3600
-    CatalystCommon::onScreenNotification("In Flight Control System", "#{project["description"]} is running for more than an hour")
+    CatalystCommon::onScreenNotification("In Flight Control System", "ifcs claim '#{Projects::ifcsClaimDescription(claim)}' is running for more than an hour")
     exit
 }
