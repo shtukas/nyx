@@ -14,12 +14,14 @@
         0.80+        Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+        Wave every-n-hours / every-n-days
 
+👩‍💻 🛩
+        0.75 -> 0.70 ifcs (while negative time) (positive time -> metric 0)
+
 📬
-        0.77         Project "Inbox"
+        0.68         Project "Inbox"
 
 👩‍💻 🛩
-        0.75 -> 0.70 ifcs (while negative time, then 0)
-        0.65 -> 0.20 Projects
+        0.66 -> 0.20 Projects
         0.60 -> 0    LucilleTxt [bottom]
         0.50         Backups Monitor
 

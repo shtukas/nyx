@@ -173,9 +173,9 @@ def projectToCatalystObject(project)
         uuid = project["uuid"]
         return 1 if Runner::isRunning(uuid)
         return 0 if project["schedule"]["type"] == "ack"
-        return 0.77 if uuid == "44caf74675ceb79ba5cc13bafa102509369c2b53"
+        return 0.68 if uuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" # Inbox
         timeInDays = Ping::pong(uuid).to_f/86400
-        return 0.2 + 0.46*Math.exp(-timeInDays)
+        0.2 + 0.46*Math.exp(-timeInDays)
     }
 
     commands = lambda{|project|
