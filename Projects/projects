@@ -75,14 +75,19 @@ loop {
         LucilleCore::pressEnterToContinue()
     end
     if option == "standard projects (dive)" then
-        project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getStandardProjects(), lambda{|project| Projects::projectToString(project) })
-        next if project.nil?
-        Projects::diveProject(project)
+        loop {
+            projects = Projects::getStandardProjects().sort{|p1, p2| p1["description"] <=> p2["description"] }
+            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|project| Projects::projectToString(project) })
+            break if project.nil?
+            Projects::diveProject(project)
+        }
     end
     if option == "ifcs claims (dive)" then
-        ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::ifcsClaimsOrdered(), lambda{|claim| Projects::ifcsClaimToString(claim) })
-        next if ifcsclaim.nil?
-        Projects::diveIfcsClaim(ifcsclaim)
+        loop {
+            ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", Projects::ifcsClaimsOrdered(), lambda{|claim| Projects::ifcsClaimToString(claim) })
+            break if ifcsclaim.nil?
+            Projects::diveIfcsClaim(ifcsclaim)
+        }
     end
     if option == "ifcs claims (reordering)" then
         loop {
@@ -95,9 +100,12 @@ loop {
         }
     end
     if option == "ack projects (dive)" then
-        project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Projects::getAckProjects(), lambda{|project| Projects::projectToString(project) })
-        next if project.nil?
-        Projects::diveProject(project)
+        loop {
+            projects = Projects::getAckProjects().sort{|p1, p2| p1["description"] <=> p2["description"] }
+            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|project| Projects::projectToString(project) })
+            break if project.nil?
+            Projects::diveProject(project)
+        }
     end
     if option == "fsck" then
         puts "-> running fsck"

@@ -329,12 +329,17 @@ class Projects
             .to_a
     end
 
-    # Projects::getIfcsClaimOfTypeItemByUuidsOrNull(projectuuid, itemuuid)
-    def self.getIfcsClaimOfTypeItemByUuidsOrNull(projectuuid, itemuuid)
+    # Projects::getIfcsClaimsOfTypeItemByUuids(projectuuid, itemuuid)
+    def self.getIfcsClaimsOfTypeItemByUuids(projectuuid, itemuuid)
         BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3")
             .select{|claim| claim["projectuuid"] == projectuuid }
             .select{|claim| claim["itemuuid"] == itemuuid }
-            .first
+    end
+
+    # Projects::getIfcsClaimsOfTypeProjectByUuid(projectuuid)
+    def self.getIfcsClaimsOfTypeProjectByUuid(projectuuid)
+        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3")
+            .select{|claim| claim["projectuuid"] == projectuuid }
     end
 
     # Presents the current priority list of the caller and let them enter a number that is then returned
@@ -490,12 +495,12 @@ class Projects
         "#{Projects::projectKickerText(project)} #{project["description"]}#{Projects::projectSuffixText(project)}"
     end
 
-    # Projects::itemToString(item)
-    def self.itemToString(item)
+    # Projects::itemToString(project, item)
+    def self.itemToString(project, item)
         itemuuid = item["uuid"]
         isRunning = Runner::isRunning(itemuuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[item] (#{"%7.2f" % (Ping::pong(itemuuid).to_f/3600).round(2)} hours) #{item["target"]["type"]}: #{Projects::itemBestDescription(item)}#{runningSuffix}"
+        "[item] (#{"%7.2f" % (Ping::pong(itemuuid).to_f/3600).round(2)} hours) [#{project["description"].yellow}] [#{item["target"]["type"]}] #{Projects::itemBestDescription(item)}#{runningSuffix}"
     end
 
     # Projects::ifcsClaimToString(claim)
@@ -513,18 +518,26 @@ class Projects
             puts Projects::projectToString(project).green
             puts JSON.pretty_generate(project)
             options = [
-                "start",
                 "dive items",
                 "set description",
-                "recast"
+                "recast",
+                "dive ifcs claims"
             ]
+            if Projects::getItemsByCreationTime(project["uuid"]).empty? then
+                options = ["start", "stop"] + options
+            end
             if Runner::isRunning(project["uuid"]) then
                 options.delete("start")
+            else
+                options.delete("stop")
             end
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
             if option == "start" then
                 Runner::start(project["uuid"])
+            end
+            if option == "stop" then
+                Runner::stop(project["uuid"])
             end
             if option == "dive items" then
                 items = Projects::getItemsByCreationTime(project["uuid"])
@@ -542,6 +555,14 @@ class Projects
                 project["schedule"] = schedule
                 Projects::saveProject(project)
             end
+            if option == "dive ifcs claims" then
+                claims = Projects::getIfcsClaimsOfTypeProjectByUuid(project["uuid"])
+                loop {
+                    ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", claims, lambda{|claim| Projects::ifcsClaimToString(claim) })
+                    break if ifcsclaim.nil?
+                    Projects::diveIfcsClaim(ifcsclaim)
+                }
+            end
         }
     end
 
@@ -549,13 +570,14 @@ class Projects
     def self.diveItem(project, item)
         loop {
             system("clear")
-            puts Projects::itemToString(item).green
+            puts Projects::itemToString(project, item).green
             puts JSON.pretty_generate(item)
             options = [
                 "start",
                 "open",
                 "done",
-                "set description"
+                "set description",
+                "dive ifcs claims"
             ]
             if Runner::isRunning(item["uuid"]) then
                 options.delete("start")
@@ -574,6 +596,14 @@ class Projects
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
                 Projects::attachItemToProject(project["uuid"], item)
+            end
+            if option == "dive ifcs claims" then
+                claims = Projects::getIfcsClaimsOfTypeItemtByUuids(project["uuid"], item["uuid"])
+                loop {
+                    ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", claims, lambda{|claim| Projects::ifcsClaimToString(claim) })
+                    break if ifcsclaim.nil?
+                    Projects::diveIfcsClaim(ifcsclaim)
+                }
             end
         }
     end
