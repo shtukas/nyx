@@ -60,6 +60,7 @@ class CatalystStandardTarget
 
     # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     def self.makeNewTargetInteractivelyOrNull()
+        puts "For the moment CatalystStandardTarget::makeNewTargetInteractivelyOrNull() can only do lines, if you need any of [file, url, folder] do write the code"
         types = ["line", "file", "url", "folder"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?

@@ -58,71 +58,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.r
     Mercury::deleteFirstValue(channel)
 =end
 
-require_relative "Projects.rb"
+require_relative "Core/Core.rb"
 
 # -------------------------------------------------------------------------
-
-def ifcsClaimToCatalystObjectOrNull(claim)
-
-    # We return null if the target project or the target item do not exist
-
-    metric = lambda {|uuid|
-        return 1 if Runner::isRunning(uuid)
-        timeInHours = Ping::pong(uuid).to_f/3600
-        return 0 if timeInHours > 0
-        0.70 + 0.05*(1-Math.exp(timeInHours))
-    }
-
-    if claim["type"] == "project" then
-        uuid = claim["uuid"]
-        project = Projects::getProjectByUUIDOrNUll(claim["projectuuid"])
-        return nil if project.nil?
-        isRunning = Runner::isRunning(uuid)
-        return {
-            "uuid"            => uuid,
-            "contentItem"     => {
-                "type" => "line",
-                "line" => Projects::ifcsClaimToString(claim)
-            },
-            "metric"          => metric.call(uuid),
-            "commands"        => ["open"],
-            "defaultCommand"  => isRunning ? "stop" : "start",
-            "isRunning"       => isRunning,
-            "shell-redirects" => {
-                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-ifcs start '#{uuid}'",
-                "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-ifcs stop '#{uuid}'",
-                "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project open '#{claim["projectuuid"]}'"
-            }
-        }
-    end
-    if claim["type"] == "item" then
-        uuid = claim["uuid"]
-        project = Projects::getProjectByUUIDOrNUll(claim["projectuuid"])
-        return nil if project.nil?
-        item = Projects::getItemOrNull(claim["projectuuid"], claim["itemuuid"])
-        return nil if item.nil?
-        isRunning = Runner::isRunning(uuid)
-        runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hour)" : ""
-        return {
-            "uuid"            => uuid,
-            "contentItem"     => {
-                "type" => "line",
-                "line" => Projects::ifcsClaimToString(claim)
-            },
-            "metric"          => metric.call(uuid),
-            "commands"        => ["open", "description"],
-            "defaultCommand"  => isRunning ? "stop" : "start",
-            "isRunning"       => isRunning,
-            "shell-redirects" => {
-                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-ifcs start '#{uuid}'",
-                "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-ifcs stop '#{uuid}'",
-                "open"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item open '#{claim["projectuuid"]}' '#{claim["itemuuid"]}'",
-                "description"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item description '#{claim["projectuuid"]}' '#{claim["itemuuid"]}'"
-            }
-        }
-    end
-    raise "error: 78b605297097"
-end
 
 def projectItemToCatalystObject(project, item, projectmetric, indx)
 
@@ -135,7 +73,7 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
 
     metric = lambda{|projectuuid, itemuuid, projectmetric, indx|
         return 1 if Runner::isRunning(itemuuid)
-        return 0 if !Projects::getIfcsClaimsOfTypeItemByUuids(projectuuid, itemuuid).empty?
+        return 0 if !IfcsClaims::getClaimsOfTypeItemByUuids(projectuuid, itemuuid).empty?
         projectmetric - indx.to_f/1000
     }
 
@@ -143,77 +81,24 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
         "uuid"           => itemuuid,
         "contentItem"    => {
             "type" => "line",
-            "line" => Projects::itemToString(project, item)
+            "line" => Items::itemToString(project, item)
         },
-        "metric"         => metric.call(project["uuid"], itemuuid, projectmetric, indx),
-        "commands"       => ["start", "open", "stop", "done", "description", "project", "recast", ">ifcs"],
+        "metric"         => Items::itemMetric(project["uuid"], itemuuid, projectmetric, indx),
+        "commands"       => ["start", "open", "stop", "done", "description", "dive", "recast", ">ifcs"],
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
-            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item open '#{project["uuid"]}' '#{itemuuid}'",
-            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item done '#{project["uuid"]}' '#{itemuuid}'",
-            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item start '#{project["uuid"]}' '#{itemuuid}'",
-            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item description '#{project["uuid"]}' '#{itemuuid}'",
-            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item stop '#{project["uuid"]}' '#{itemuuid}'",
-            "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item recast '#{project["uuid"]}' '#{itemuuid}'",
-            ">ifcs"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-item make-ifcs-claim '#{project["uuid"]}' '#{itemuuid}'",
-            "project"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project dive '#{project["uuid"]}'"
+            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing open '#{project["uuid"]}' '#{itemuuid}'",
+            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing done '#{project["uuid"]}' '#{itemuuid}'",
+            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing start '#{project["uuid"]}' '#{itemuuid}'",
+            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing description '#{project["uuid"]}' '#{itemuuid}'",
+            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{project["uuid"]}' '#{itemuuid}'",
+            "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing recast '#{project["uuid"]}' '#{itemuuid}'",
+            ">ifcs"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing make-ifcs-claim '#{project["uuid"]}' '#{itemuuid}'",
+            "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-dive '#{project["uuid"]}'"
         },
         "x-project:project" => project,
         "x-project:item" => item
-    }
-end
-
-def projectToCatalystObject(project)
-
-    metric = lambda {|uuid|
-        uuid = project["uuid"]
-        return 1 if Runner::isRunning(uuid)
-        return 0 if project["schedule"]["type"] == "ack"
-        return 0 if !Projects::getIfcsClaimsOfTypeProjectByUuid(uuid).empty?
-        return 0.68 if uuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" # Inbox
-        timeInDays = Ping::pong(uuid).to_f/86400
-        0.2 + 0.46*Math.exp(-timeInDays)
-    }
-
-    commands = lambda{|project|
-        (["dive"] + [ Projects::getItemsByCreationTime(project["uuid"]).size == 0 ? "done" : nil ]).compact
-    }
-
-    defaultCommand = lambda {|project|
-        uuid = project["uuid"]
-        if project["schedule"]["type"] == "standard" then
-            return (Runner::isRunning(uuid) ? "stop" : "start")
-        end
-        if project["schedule"]["type"] == "ack" then
-            return "ack"
-        end
-        raise "Projects: b95c4fcb"
-    }
-
-    uuid = project["uuid"]
-    isRunning = Runner::isRunning(uuid)
-
-    {
-        "uuid"           => uuid,
-        "contentItem"    => {
-            "type" => "line",
-            "line" => Projects::projectToString(project)
-        },
-        "metric"         => metric.call(project),
-        "commands"       => commands.call(project),
-        "defaultCommand" => defaultCommand.call(project),
-        "isRunning" => isRunning,
-        "shell-redirects" => {
-            "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project start '#{uuid}'",
-            "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project stop '#{uuid}'",
-            "dive"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project dive '#{uuid}'",
-            "ack"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project ack '#{uuid}'",
-            "open"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project open '#{uuid}'",
-            "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing-project done '#{uuid}'"
-        },
-        "x-project:project" => project,
-        "x-project:pong" => Ping::pong(uuid)
     }
 end
 
@@ -230,11 +115,11 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
         "description"  => link,
         "target"       => target
     }
-    Projects::attachItemToProject("44caf74675ceb79ba5cc13bafa102509369c2b53", item)
+    Items::attachItemToProject("44caf74675ceb79ba5cc13bafa102509369c2b53", item)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
-Projects::distributeIfcsPenatiesIfNotDoneAlready()
+IfcsTimePenalties::distributeIfcsPenatiesIfNotDoneAlready()
 
 # -------------------------------------------------------------------------
 
@@ -242,8 +127,8 @@ objects = []
 
 Projects::projects()
     .each{|project|
-        probject = projectToCatalystObject(project)
-        iobjects = Projects::getItemsByCreationTime(project["uuid"])
+        projectMetric = Projects::projectMetric(project)
+        Items::getItemsByCreationTime(project["uuid"])
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or Runner::isRunning(item["uuid"]) }
             .reduce([]){|items, item|
                 if items.size < 6 then
@@ -257,32 +142,11 @@ Projects::projects()
             }
             .map
             .with_index {|item, indx|
-                projectItemToCatalystObject(project, item, probject["metric"], indx+1)
+                projectItemToCatalystObject(project, item, projectMetric, indx+1)
             }
-            .compact
-        iobjects.each{|object|
-            objects << object
-        }
-        if iobjects.size == 0 then
-            objects << probject
-        end
-    }
-
-Projects::ifcsClaimsOrdered()
-    .reduce([]){|claims, claim|
-        if claims.size < 4 then
-            claims << claim
-        else
-            if Runner::isRunning(claim["uuid"]) then
-                claims << claim
-            end
-        end
-        claims
-    }
-    .each{|claim|
-        object = ifcsClaimToCatalystObjectOrNull(claim)
-        next if object.nil?
-        objects << object
+            .each{|object|
+                objects << object
+            }
     }
 
 puts JSON.generate(objects)

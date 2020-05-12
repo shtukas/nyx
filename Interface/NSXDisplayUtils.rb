@@ -93,10 +93,14 @@ class NSXDisplayUtils
             ].compact.join()
         }
         if isFocus then
-            onFocusObjectPrefix.call(displayOrdinal, object) + onFocusPossiblyLineReturnPrefixedObjectDisplayText.call(object, announce, body) + onFocusLineReturnPrefixedObjectSuffix.call(object)
+            onFocusObjectPrefix.call(displayOrdinal, object) +
+            onFocusPossiblyLineReturnPrefixedObjectDisplayText.call(object, announce, body) +
+            onFocusLineReturnPrefixedObjectSuffix.call(object)
         else
             announce = "#{announce}#{NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : ""}"
-            "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{(object["isRunning"] ? (announce[0,NSXMiscUtils::screenWidth()-15]).green : announce[0,NSXMiscUtils::screenWidth()-15])}"
+            line1 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) "
+            line2 = "#{(object["isRunning"] ? (announce).green : announce)}"
+            line1+line2[0, NSXMiscUtils::screenWidth()-(line1.size+1)]
         end
     end
 

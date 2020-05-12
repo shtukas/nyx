@@ -15,7 +15,8 @@
         0.78+        Wave every-n-hours / every-n-days
 
 👩‍💻 🛩
-        0.75 -> 0.70 ifcs (while negative time) (positive time -> metric 0)
+        0.75 -> 0.70 ifcs negative time
+        0.70 -> 0.00 ifcs positive time
 
 📬
         0.68         Project "Inbox"

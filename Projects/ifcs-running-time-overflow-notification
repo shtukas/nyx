@@ -2,17 +2,19 @@
 
 # encoding: UTF-8
 
-require_relative "Projects.rb"
+require_relative "Core/Core.rb"
 
 # --------------------------------------------------------------------
 
-Projects::ifcsClaimsOrdered()
-.each{|claim|
-    uuid = claim["uuid"]
-    next if !Runner::isRunning(uuid)
-    # The item is running
-    next if !Runner::runTimeInSecondsOrNull(uuid)
-    next if Runner::runTimeInSecondsOrNull(uuid) < 3600
-    CatalystCommon::onScreenNotification("In Flight Control System", "ifcs claim '#{Projects::ifcsClaimDescription(claim)}' is running for more than an hour")
-    exit
-}
+Projects::projects()
+    .each{|project|
+        Items::getItemsByCreationTime(project["uuid"])
+            .each{|item|
+                uuid = item["uuid"]
+                next if !Runner::isRunning(uuid)
+                next if (Runner::runTimeInSecondsOrNull(uuid) || 0) < 3600
+                CatalystCommon::onScreenNotification("Projects Time Control", "item '#{Items::itemBestDescription(item)}' is running for more than an hour")
+                exit
+            }
+    }
+

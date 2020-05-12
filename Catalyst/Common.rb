@@ -69,17 +69,4 @@ class CatalystCommon
         FileUtils.mkdir(folder3)
         File.open("#{folder3}/#{filename}", "w"){|f| f.puts(text) }
     end
-
-    # CatalystCommon::interactivelyGetIfcsPosition()
-    def self.interactivelyGetIfcsPosition()
-        ifcsreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/ifcs-items-report`
-        puts ifcsreport
-        position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ").strip
-        if position.size>0 then
-            position.to_f
-        else
-            `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/ifcs-highest-current-position`.to_f + 1
-        end
-    end
-
 end
