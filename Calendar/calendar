@@ -44,17 +44,7 @@ require_relative "Calendar.rb"
 
 # -------------------------------------------------------------------------
 
-loop {
-    date = LucilleCore::selectEntityFromListOfEntitiesOrNull("date", dates()+["create new"])
-    break if date.nil?
-    if date == "create new" then
-        date = LucilleCore::askQuestionAnswerAsString("date: ")
-        filepath = dateToFilepath(date)
-        FileUtils.touch(filepath)
-    end
-    system("open '#{dateToFilepath(date)}'")
-    LucilleCore::pressEnterToContinue()
-}
+system("open '/Users/pascal/Galaxy/DataBank/Catalyst/Calendar/Items'")
 
 
 
