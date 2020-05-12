@@ -78,7 +78,7 @@ if ARGV[0] == "open" and ARGV[1] and ARGV[2] then
     exit if !itemuuidIsValid(projectuuid, itemuuid)
 
     item = Projects::getItemOrNull(projectuuid, itemuuid)
-    exit if item.nil
+    exit if item.nil?
     puts JSON.pretty_generate(item)
     Projects::openItem(item)
 end
