@@ -14,6 +14,9 @@
         0.80+        Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+        Wave every-n-hours / every-n-days
 
+🗞️
+        0.77 -> 0.57 Gwork
+
 👩‍💻 🛩
         0.75 -> 0.70 ifcs negative time
         0.70 -> 0.00 ifcs positive time

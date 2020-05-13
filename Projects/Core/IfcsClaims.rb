@@ -143,6 +143,7 @@ class IfcsClaims
             break if option.nil?
             if option == "destroy" then
                 IfcsClaims::destroy(claim["uuid"])
+                return
             end
         }
     end

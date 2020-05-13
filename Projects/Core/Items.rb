@@ -102,6 +102,7 @@ class Items
             end
             if option == "done" then
                 Items::detachItemFromProject(project["uuid"], item["uuid"])
+                return
             end
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])

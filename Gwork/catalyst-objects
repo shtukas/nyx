@@ -1,0 +1,107 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'date'
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::ping(uuid, weight, validityTimespan)
+    Ping::pong(uuid)
+=end
+
+# -------------------------------------------------------------------------
+
+objectuuid = "e2ac5276-be0b-4613-8dde-1d8c29f1ca74"
+
+status = KeyValueStore::getOrNull(nil, "status:549d2997-bc87-4550-90a8-f22077d78a18:#{Time.new.to_s[0, 10]}")
+
+if status.nil? then
+    object = {
+        "uuid"            => objectuuid,
+        "contentItem"     => {
+            "type" => "line",
+            "line" => "Guardian Work"
+        },
+        "metric"          => 0.77,
+        "commands"        => [],
+        "defaultCommand"  => "set-day-time-commitment", 
+        "shell-redirects" => {
+            "set-day-time-commitment" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing set-day-time-commitment"
+        }
+    }
+    puts JSON.generate([object])
+    exit
+end
+
+todayTimeInHours = status.to_f
+isRunning = Runner::isRunning(objectuuid)
+timeDoneInSeconds = Ping::pong(objectuuid)
+timeDoneInHours = timeDoneInSeconds.to_f/3600
+timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
+
+metric = isRunning ? 1 : ( timeDoneRatio <= 1 ? 0.77 - timeDoneRatio*0.20 : 0 )
+
+object = {
+    "uuid"            => objectuuid,
+    "contentItem"     => {
+        "type" => "line",
+        "line" => "Guardian Work (running, time remaining: #{(todayTimeInHours-timeDoneInHours).round(2)} hours)"
+    },
+    "metric"          => metric,
+    "commands"        => [],
+    "defaultCommand"  => isRunning ? "stop" : "start",
+    "isRunning"       => isRunning,
+    "shell-redirects" => {
+        "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing start",
+        "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing stop",
+    }
+}
+puts JSON.generate([object])
+

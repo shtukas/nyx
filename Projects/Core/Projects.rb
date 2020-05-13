@@ -107,7 +107,6 @@ class Projects
     # Projects::destroyProject(project)
     def self.destroyProject(project)
         uuid = project["uuid"]
-        return if uuid == "20200502-141331-226084" # Guardian General Work
         return if uuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" # Inbox
         return if uuid == "0219fd54bd5841008b18c414a5b2dea331bad1c5" # Infinity
         filepath = "#{Projects::pathToProjects()}/#{uuid}.json"
@@ -254,10 +253,14 @@ class Projects
                 "make and attach new item",
                 "set project description",
                 "recast project schedule",
-                "dive ifcs claims"
+                "dive ifcs claims",
+                "destroy project"
             ]
             if IfcsClaims::getClaimsOfTypeProjectByUuid(project["uuid"]).empty? then
                 options.delete("dive ifcs claims")
+            end
+            if !Items::getItemsByCreationTime(project["uuid"]).empty? then
+                options.delete("destroy project")
             end
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
             return if option.nil?
@@ -304,6 +307,10 @@ class Projects
                     break if ifcsclaim.nil?
                     IfcsClaims::diveIfcsClaim(ifcsclaim)
                 }
+            end
+            if option == "destroy project" then
+                Projects::destroyProject(project)
+                return
             end
         }
     end
