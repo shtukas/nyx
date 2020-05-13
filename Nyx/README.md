@@ -16,7 +16,6 @@ Nyx Points are objects of the form
     description
     targets          : String JSON Array[NyxTarget]
     tags             : String JSON Array[String]
-    streams          : String JSON Array[String]
 }
 ```
 
@@ -55,9 +54,9 @@ Nyx Points are objects of the form
 
 **PermaDirs** are just directories, with fixed immutable foldernames. The uuid of the `perma-dir-11859659` object is the name of the corresponding directory. They are a more controlled version of general directories with marks (those that are targets of `lstore-directory-mark-BEE670D0` objects).
 
-## Tags and Streams
+## Tags
 
-The overall organization of the Nyx system is that of tags and streams. Tags have the regular meaning of attributes of the nyx points itself and streams are time ordered collections of nyx points about a given subject.
+The overall organization of the Nyx system is that of tags.
 
 
 

@@ -188,6 +188,66 @@ class NyxMiscUtils
     end
 end
 
+class NyxPoints
+    # NyxPoints::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # NyxPoints::pathToPoints()
+    def self.pathToPoints()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxPoints"
+    end
+
+    # NyxPoints::points()
+    def self.points()
+        Dir.entries(NyxPoints::pathToPoints())
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "#{NyxPoints::pathToPoints()}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|c1, c2| c1["creationTimestamp"] <=> c2["creationTimestamp"] }
+    end
+
+    # NyxPoints::getPointByUUIDOrNUll(uuid)
+    def self.getPointByUUIDOrNUll(uuid)
+        filepath = "#{NyxPoints::pathToPoints()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # NyxPoints::save(point)
+    def self.save(point)
+        uuid = point["uuid"]
+        File.open("#{NyxPoints::pathToPoints()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(point)) }
+    end
+
+    # NyxPoints::destroy(point)
+    def self.destroy(point)
+        uuid = point["uuid"]
+        filepath = "#{NyxPoints::pathToPoints()}/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+    def self.makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+        {
+            "uuid"              => uuid,
+            "creationTimestamp" => creationTimestamp,
+            "referenceDateTime" => referenceDateTime,
+            "description"       => description,
+            "targets"           => targets,
+            "tags"              => tags
+        }
+    end
+
+    # NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+    def self.issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+        point = NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+        NyxPoints::save(point)
+    end
+end
+
 class NyxOps
 
     # ------------------------------------------------------------------
@@ -229,14 +289,6 @@ class NyxOps
         else
             puts "    tags"
             point["tags"].each{|item|
-                puts "        #{item}".green
-            }
-        end
-        if point["streams"].empty? then
-            puts "    streams: (empty set)".green
-        else
-            puts "    streams"
-            point["streams"].each{|item|
                 puts "        #{item}".green
             }
         end
@@ -340,13 +392,11 @@ class NyxOps
             .sort
     end
 
-    # NyxOps::streams()
-    def self.streams()
-        NyxPoints::points()
-            .map{|point| point["streams"] }
-            .flatten
-            .uniq
-            .sort
+    # NyxOps::getPointsForTag(tag)
+    def self.getPointsForTag(tag)
+        NyxPoints::points().select{|point|
+            point["tags"].include?(tag)
+        }
     end
 
     # ------------------------------------------------------------------
@@ -481,22 +531,6 @@ class NyxOps
         tags
     end
 
-    # NyxOps::makeOnePermanodeStreamInteractiveOrNull()
-    def self.makeOnePermanodeStreamInteractiveOrNull()
-        LucilleCore::askQuestionAnswerAsString("stream: ")
-    end
-
-    # NyxOps::makePermanodeStreamsInteractive()
-    def self.makePermanodeStreamsInteractive()
-        streams = []
-        loop {
-            stream = NyxOps::makeOnePermanodeStreamInteractiveOrNull()
-            break if stream.nil?
-            streams << stream
-        }
-        streams
-    end
-
     # NyxOps::makeNyxPointInteractivePart2(description, target)
     def self.makeNyxPointInteractivePart2(description, target)
         uuid = SecureRandom.uuid
@@ -504,8 +538,7 @@ class NyxOps
         referenceDateTime = Time.now.utc.iso8601
         targets = [ target ]
         tags = NyxOps::makePermanodeTagsInteractive()
-        streams = NyxOps::makePermanodeStreamsInteractive()
-        NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
+        NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
     end
 
     # NyxOps::makeNyxPointInteractivePart1()
@@ -627,11 +660,6 @@ class NyxSearch
         NyxOps::tags()
             .select{|tag| tag.downcase.include?(searchPattern.downcase) }
     end
-    # NyxSearch::searchPatternToStreams(searchPattern)
-    def self.searchPatternToStreams(searchPattern)
-        NyxOps::streams()
-            .select{|stream| stream.downcase.include?(searchPattern.downcase) }
-    end
 
     # NyxSearch::searchPatternToPoints(searchPattern)
     def self.searchPatternToPoints(searchPattern)
@@ -734,8 +762,6 @@ class NyxUserInterface
                 "targets (select and remove)",
                 "tags (add new)",
                 "tags (remove)",
-                "streams (add new)",
-                "streams (remove)",
                 "destroy point"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -796,18 +822,6 @@ class NyxUserInterface
                 point["tags"] = point["tags"].reject{|t| t == tag }
                 NyxPoints::save(point)
             end
-            if operation == "streams (add new)" then
-                stream = NyxOps::makeOnePermanodeStreamInteractiveOrNull()
-                next if stream.nil?
-                point["streams"] << stream
-                NyxPoints::save(point)
-            end
-            if operation == "streams (remove)" then
-                stream = LucilleCore::selectEntityFromListOfEntitiesOrNull("stream", point["streams"])
-                next if stream.nil?
-                point["streams"] = point["streams"].reject{|x| x == stream }
-                NyxPoints::save(point)
-            end
             if operation == "destroy point" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
                     NyxOps::destroyPointContentsAndPoint(point)
@@ -864,7 +878,6 @@ class NyxUserInterface
 
                 # Special operations
                 "rename tag",
-                "rename stream",
 
                 # Destroy
                 "nyx point destroy (uuid)",
@@ -892,28 +905,6 @@ class NyxUserInterface
                         tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
                         if tags1.join(':') != tags2.join(':') then
                             point["tags"] = tags2
-                            NyxPoints::save(point)
-                        end
-                    }
-            end
-            if operation == "rename stream" then
-                oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
-                next if oldname.size == 0
-                newname = LucilleCore::askQuestionAnswerAsString("new name: ")
-                next if newname.size == 0
-                renameStreamIfNeeded = lambda {|stream, oldname, newname|
-                    if stream.downcase == oldname.downcase then
-                        stream = newname
-                    end
-                    stream
-                }
-                NyxPoints::points()
-                    .each{|point|
-                        uuid = point["uuid"]
-                        streams1 = point["streams"]
-                        streams2 = streams1.map{|stream| renameStreamIfNeeded.call(stream, oldname, newname) }
-                        if streams1.join(':') != streams2.join(':') then
-                            point["streams"] = streams2
                             NyxPoints::save(point)
                         end
                     }
@@ -957,67 +948,6 @@ class NyxUserInterface
                 end
             end
         }
-    end
-end
-
-class NyxPoints
-    # NyxPoints::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
-    # NyxPoints::pathToPoints()
-    def self.pathToPoints()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxPoints"
-    end
-
-    # NyxPoints::points()
-    def self.points()
-        Dir.entries(NyxPoints::pathToPoints())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{NyxPoints::pathToPoints()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|c1, c2| c1["creationTimestamp"] <=> c2["creationTimestamp"] }
-    end
-
-    # NyxPoints::getPointByUUIDOrNUll(uuid)
-    def self.getPointByUUIDOrNUll(uuid)
-        filepath = "#{NyxPoints::pathToPoints()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # NyxPoints::save(point)
-    def self.save(point)
-        uuid = point["uuid"]
-        File.open("#{NyxPoints::pathToPoints()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(point)) }
-    end
-
-    # NyxPoints::destroy(point)
-    def self.destroy(point)
-        uuid = point["uuid"]
-        filepath = "#{NyxPoints::pathToPoints()}/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
-    def self.makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
-        {
-            "uuid"              => uuid,
-            "creationTimestamp" => creationTimestamp,
-            "referenceDateTime" => referenceDateTime,
-            "description"       => description,
-            "targets"           => targets,
-            "tags"              => tags,
-            "streams"           => streams
-        }
-    end
-
-    # NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
-    def self.issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
-        point = NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags, streams)
-        NyxPoints::save(point)
     end
 end
 
