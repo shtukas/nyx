@@ -74,7 +74,7 @@ class NSXDisplayUtils
         getNoteLines = lambda{|objectuuid|
             if NSXMiscUtils::hasXNote(objectuuid) then
                 [ "-- note ---------------------------------------" ] +
-                NSXMiscUtils::getXNoteOrNull(object["uuid"]).lines.map{|line| line[0, line.size-1] } +
+                NSXMiscUtils::getXNoteOrNull(object["uuid"]).lines.first(10).map{|line| line[0, line.size-1] } +
                 [ "-----------------------------------------------" ]
             else
                 []
