@@ -85,7 +85,7 @@ class NSXDisplayUtils
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
             answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
             answerlinesOnePlus = corelines.map{|line| NSX0746_StandardPadding + (object["isRunning"] ? line.green : line) }
-            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| NSX0746_StandardPadding + line }.map{|line| object["isRunning"] ? line.green : line } + answerlinesOnePlus + [ NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object)]).join("\n")
+            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| NSX0746_StandardPadding + line } + answerlinesOnePlus + [ NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object)]).join("\n")
         else
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
             answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
