@@ -270,10 +270,19 @@ class Projects
             if option == "make and attach new item" then
                 catalystStandardTarget = CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
                 next if catalystStandardTarget.nil?
+                itemDescription = lambda{|target|
+                    if target["type"] == "line" then
+                        return target["line"]
+                    end
+                    if target["type"] == "url" then
+                        return target["url"]
+                    end
+                    LucilleCore::askQuestionAnswerAsString("item description: ")
+                }
                 item = {
                     "uuid"         => SecureRandom.uuid,
                     "creationtime" => Time.new.to_f,
-                    "description"  => LucilleCore::askQuestionAnswerAsString("item description: "),
+                    "description"  => itemDescription.call(catalystStandardTarget),
                     "target"       => catalystStandardTarget
                 }
                 Items::attachItemToProject(project["uuid"], item)
