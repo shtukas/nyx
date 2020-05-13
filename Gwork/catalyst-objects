@@ -82,7 +82,7 @@ end
 
 todayTimeInHours = status.to_f
 isRunning = Runner::isRunning(objectuuid)
-timeDoneInSeconds = Ping::pong(objectuuid)
+timeDoneInSeconds = Ping::pong(objectuuid+Time.new.to_s[0, 10]) # we cannot change the object uuid because it carries the note, but we have a different ping channel per day, that works well with the day status.
 timeDoneInHours = timeDoneInSeconds.to_f/3600
 timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 

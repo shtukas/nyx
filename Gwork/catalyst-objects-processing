@@ -54,5 +54,7 @@ if ARGV[0] == "start" then
 end
 
 if ARGV[0] == "stop" then
-    Runner::stop(objectuuid)
+    timespan = Runner::stop(objectuuid)
+    exit if timespan.nil?
+    Ping::ping(objectuuid+Time.new.to_s[0, 10], timespan, 86400) # we cannot change the object uuid because it carries the note, but we have a different ping channel per day, that works well with the day status.
 end
