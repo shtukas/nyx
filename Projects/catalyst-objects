@@ -77,12 +77,24 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
         projectmetric - indx.to_f/1000
     }
 
+    ifcsClaims = IfcsClaims::getClaimsOfTypeProjectByUuid(project["uuid"]) + IfcsClaims::getClaimsOfTypeItemByUuids(project["uuid"], itemuuid)
+
+    contentItem = 
+        if ifcsClaims.empty? then
+            {
+                "type" => "line",
+                "line" => Items::itemToString(project, item)
+            }
+        else
+            {
+                "type"  => "lines",
+                "lines" => [Items::itemToString(project, item)] + ifcsClaims.map{|claim| IfcsClaims::ifcsClaimToString(claim) }
+            }
+        end
+
     {
         "uuid"           => itemuuid,
-        "contentItem"    => {
-            "type" => "line",
-            "line" => Items::itemToString(project, item)
-        },
+        "contentItem"    => contentItem,
         "metric"         => Items::itemMetric(project["uuid"], itemuuid, projectmetric, indx),
         "commands"       => ["start", "open", "stop", "done", "description", "dive", "recast", ">ifcs"],
         "defaultCommand" => defaultCommand.call(isRunning),
@@ -97,8 +109,9 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
             ">ifcs"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing make-ifcs-claim '#{project["uuid"]}' '#{itemuuid}'",
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-dive '#{project["uuid"]}'"
         },
-        "x-project:project" => project,
-        "x-project:item" => item
+        "x-projects:project" => project,
+        "x-projects:item" => item,
+        "x-projects:ifcsclaims" => ifcsClaims
     }
 end
 

@@ -27,6 +27,11 @@ ContentItem
 }
 
 {
+    "type"  : "lines"
+    "lines" : Array[String] # each string carries a single line
+}
+
+{
     "type" : "line-and-body"
     "line" : String # carries a single line.
     "body" : String

@@ -10,6 +10,9 @@ class NSXDisplayUtils
         if item["type"] == "line" then
             return item["line"]
         end
+        if item["type"] == "lines" then
+            return (item["lines"][0] || "contentItem of type lines needs at least one line")
+        end
         if item["type"] == "line-and-body" then
             return item["line"]
         end
@@ -55,52 +58,38 @@ class NSXDisplayUtils
 
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
-        announce = NSXDisplayUtils::contentItemToAnnounce(object['contentItem'])
-        body = NSXDisplayUtils::contentItemToBody(object['contentItem'])
-        onFocusObjectPrefix = lambda{ |displayOrdinal, object|
-            "[#{"*".green}#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]})"
+        # NSXMiscUtils::screenWidth()
+        contentItemToCoreLines = lambda {|contentItem|
+            if contentItem["type"] == "line" then
+                return [contentItem["line"]]
+            end
+            if contentItem["type"] == "lines" then
+                return contentItem["lines"]
+            end
+            if contentItem["type"] == "line-and-body" then
+                return contentItem["line"] + contentItem["body"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
+            end
+            [ "I don't know how to contentItemToCoreLines: #{contentItem}" ]
         }
-        onFocusPossiblyLineReturnPrefixedObjectDisplayText = lambda{|object, announce, body|
-            if body then
-                if body.lines.size>1 then
-                    "\n#{object["isRunning"] ? NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding).green : NSXDisplayUtils::addLeftPaddingToLinesOfText(body, NSX0746_StandardPadding)}"
-                else
-                    " #{(object["isRunning"] ? body.green : body)}"
-                end
+        getNoteLines = lambda{|objectuuid|
+            if NSXMiscUtils::hasXNote(objectuuid) then
+                [ "-- note ---------------------------------------" ] +
+                NSXMiscUtils::getXNoteOrNull(object["uuid"]).lines.map{|line| line[0, line.size-1] } +
+                [ "-----------------------------------------------" ]
             else
-                " #{(object["isRunning"] ? announce.green : announce)}"
+                []
             end
         }
-        onFocusObjectNoteDisplayOrNull = lambda {|prefix, object|
-            if NSXMiscUtils::hasXNote(object["uuid"]) and NSXMiscUtils::getXNoteOrNull(object["uuid"]).strip.size>0 then
-                text = [
-                    prefix,
-                    "-- note ---------------------------------------\n",
-                    NSXMiscUtils::getXNoteOrNull(object["uuid"]).lines.first(10).join() + "\n",
-                    "-----------------------------------------------"
-                ].join()
-                NSXDisplayUtils::addLeftPaddingToLinesOfText(text, NSX0746_StandardPadding)
-            else
-                nil
-            end
-        }
-        onFocusLineReturnPrefixedObjectSuffix = lambda {|object|
-            [
-                onFocusObjectNoteDisplayOrNull.call("\n", object),
-                "\n", 
-                NSX0746_StandardPadding,
-                NSXDisplayUtils::objectInferfaceString(object)
-            ].compact.join()
-        }
+        corelines = contentItemToCoreLines.call(object["contentItem"])
         if isFocus then
-            onFocusObjectPrefix.call(displayOrdinal, object) +
-            onFocusPossiblyLineReturnPrefixedObjectDisplayText.call(object, announce, body) +
-            onFocusLineReturnPrefixedObjectSuffix.call(object)
+            firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
+            answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
+            answerlinesOnePlus = corelines.map{|line| NSX0746_StandardPadding + (object["isRunning"] ? line.green : line) }
+            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| NSX0746_StandardPadding + line }.map{|line| object["isRunning"] ? line.green : line } + answerlinesOnePlus + [ NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object)]).join("\n")
         else
-            announce = "#{announce}#{NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : ""}"
-            line1 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) "
-            line2 = "#{(object["isRunning"] ? (announce).green : announce)}"
-            line1+line2[0, NSXMiscUtils::screenWidth()-(line1.size+1)]
+            firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
+            answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
+            answerline0
         end
     end
 
