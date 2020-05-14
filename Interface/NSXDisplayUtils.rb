@@ -67,7 +67,7 @@ class NSXDisplayUtils
                 return contentItem["lines"]
             end
             if contentItem["type"] == "line-and-body" then
-                return contentItem["line"] + contentItem["body"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
+                return [contentItem["line"]] + contentItem["body"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
             end
             [ "I don't know how to contentItemToCoreLines: #{contentItem}" ]
         }
