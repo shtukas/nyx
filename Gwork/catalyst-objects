@@ -65,7 +65,7 @@ end
 
 objectuuid = "e2ac5276-be0b-4613-8dde-1d8c29f1ca74:#{Time.new.to_s[0, 10]}"
 
-status = KeyValueStore::getOrNull(nil, "649d2997-bc87-4550-90a8-f22077d78a18")
+status = KeyValueStore::getOrNull(nil, "649d2997-bc87-4550-90a8-f22077d78a18:#{Time.new.to_s[0, 10]}")
 
 if status.nil? then
     object = {

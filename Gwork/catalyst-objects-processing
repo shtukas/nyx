@@ -46,7 +46,7 @@ objectuuid = "e2ac5276-be0b-4613-8dde-1d8c29f1ca74:#{Time.new.to_s[0, 10]}"
 
 if ARGV[0] == "set-day-time-commitment" then
     time = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-    KeyValueStore::set(nil, "649d2997-bc87-4550-90a8-f22077d78a18", time)
+    KeyValueStore::set(nil, "649d2997-bc87-4550-90a8-f22077d78a18:#{Time.new.to_s[0, 10]}", time)
 end
 
 if ARGV[0] == "start" then
@@ -60,5 +60,5 @@ if ARGV[0] == "stop" then
 end
 
 if ARGV[0] == "done" then
-    KeyValueStore::set(nil, "649d2997-bc87-4550-90a8-f22077d78a18", "done")
+    KeyValueStore::set(nil, "649d2997-bc87-4550-90a8-f22077d78a18:#{Time.new.to_s[0, 10]}", "done")
 end
