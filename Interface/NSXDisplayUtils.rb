@@ -64,7 +64,11 @@ class NSXDisplayUtils
                 return [contentItem["line"]]
             end
             if contentItem["type"] == "lines" then
-                return contentItem["lines"]
+                lines = contentItem["lines"]
+                if lines.size == 0 then
+                    lines << "contentItem of type lines needs at least one line"
+                end 
+                return lines
             end
             if contentItem["type"] == "line-and-body" then
                 return [contentItem["line"]] + contentItem["body"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
@@ -80,7 +84,7 @@ class NSXDisplayUtils
                 []
             end
         }
-        corelines = contentItemToCoreLines.call(object["contentItem"])
+        corelines = contentItemToCoreLines.call(object["contentItem"].clone)
         if isFocus then
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
             answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
