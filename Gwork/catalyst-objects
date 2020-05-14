@@ -97,7 +97,7 @@ timeDoneInSeconds = Ping::pong(objectuuid)
 timeDoneInHours = timeDoneInSeconds.to_f/3600
 timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 
-metric = timeDoneRatio <= 1 ? 0.77 - timeDoneRatio*0.20 : 0 
+metric = isRunning ? 1 : (timeDoneRatio <= 1 ? 0.77 - timeDoneRatio*0.10 : 0)
 
 object = {
     "uuid"            => objectuuid,

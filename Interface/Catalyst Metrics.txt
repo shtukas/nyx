@@ -15,7 +15,7 @@
         0.78+        Wave every-n-hours / every-n-days
 
 🗞️
-        0.77 -> 0.57 Gwork
+        0.77 -> 0.67 Gwork
 
 👩‍💻 🛩
         0.75 -> 0.70 ifcs negative time
