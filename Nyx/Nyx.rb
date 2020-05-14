@@ -229,21 +229,21 @@ class NyxPoints
         FileUtils.rm(filepath)
     end
 
-    # NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
-    def self.makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+    # NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
+    def self.makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
         {
             "uuid"              => uuid,
             "creationTimestamp" => creationTimestamp,
             "referenceDateTime" => referenceDateTime,
             "description"       => description,
             "targets"           => targets,
-            "tags"              => tags
+            "taxonomy"              => taxonomy
         }
     end
 
-    # NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
-    def self.issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
-        point = NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+    # NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
+    def self.issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
+        point = NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
         NyxPoints::save(point)
     end
 end
@@ -284,11 +284,11 @@ class NyxOps
             .each{|target|
                 puts "        #{NyxOps::nyxTargetToString(target)}"
             }
-        if point["tags"].empty? then
-            puts "    tags: (empty set)".green
+        if point["taxonomy"].empty? then
+            puts "    taxonomy: (empty set)".green
         else
-            puts "    tags"
-            point["tags"].each{|item|
+            puts "    taxonomy"
+            point["taxonomy"].each{|item|
                 puts "        #{item}".green
             }
         end
@@ -383,19 +383,19 @@ class NyxOps
             }
     end
 
-    # NyxOps::tags()
-    def self.tags()
+    # NyxOps::taxonomy()
+    def self.taxonomy()
         NyxPoints::points()
-            .map{|point| point["tags"] }
+            .map{|point| point["taxonomy"] }
             .flatten
             .uniq
             .sort
     end
 
-    # NyxOps::getPointsForTag(tag)
-    def self.getPointsForTag(tag)
+    # NyxOps::getPointsForTag(taxo)
+    def self.getPointsForTag(taxo)
         NyxPoints::points().select{|point|
-            point["tags"].include?(tag)
+            point["taxonomy"].include?(taxo)
         }
     end
 
@@ -515,20 +515,20 @@ class NyxOps
 
     # NyxOps::makeOnePermanodeTagInteractiveOrNull()
     def self.makeOnePermanodeTagInteractiveOrNull()
-        tag = LucilleCore::askQuestionAnswerAsString("tag (empty for exit): ")
-        return nil if tag == ""
-        tag
+        taxo = LucilleCore::askQuestionAnswerAsString("taxo (empty for exit): ")
+        return nil if taxo == ""
+        taxo
     end
 
     # NyxOps::makePermanodeTagsInteractive()
     def self.makePermanodeTagsInteractive()
-        tags = []
+        taxonomy = []
         loop {
-            tag = NyxOps::makeOnePermanodeTagInteractiveOrNull()
-            break if tag.nil?
-            tags << tag
+            taxo = NyxOps::makeOnePermanodeTagInteractiveOrNull()
+            break if taxo.nil?
+            taxonomy << taxo
         }
-        tags
+        taxonomy
     end
 
     # NyxOps::makeNyxPointInteractivePart2(description, target)
@@ -537,8 +537,8 @@ class NyxOps
         creationTimestamp = Time.new.to_f
         referenceDateTime = Time.now.utc.iso8601
         targets = [ target ]
-        tags = NyxOps::makePermanodeTagsInteractive()
-        NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, tags)
+        taxonomy = NyxOps::makePermanodeTagsInteractive()
+        NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
     end
 
     # NyxOps::makeNyxPointInteractivePart1()
@@ -655,10 +655,10 @@ end
 
 class NyxSearch
 
-    # NyxSearch::searchPatternToTags(searchPattern)
-    def self.searchPatternToTags(searchPattern)
-        NyxOps::tags()
-            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
+    # NyxSearch::searchPatternToTaxos(searchPattern)
+    def self.searchPatternToTaxos(searchPattern)
+        NyxOps::taxonomy()
+            .select{|taxo| taxo.downcase.include?(searchPattern.downcase) }
     end
 
     # NyxSearch::searchPatternToPoints(searchPattern)
@@ -689,11 +689,11 @@ class NyxSearch
                             "point" => point
                         }
                     }
-        objs2 = NyxSearch::searchPatternToTags(fragment)
-                    .map{|tag|
+        objs2 = NyxSearch::searchPatternToTaxos(fragment)
+                    .map{|taxo|
                         {
-                            "type" => "tag",
-                            "tag" => tag
+                            "type" => "taxo",
+                            "taxo" => taxo
                         }
                     }
         objs1 + objs2
@@ -708,9 +708,9 @@ class NyxSearch
                     point = object["point"]
                     return [ "nyx point: #{point["description"]}" , lambda { NyxUserInterface::pointDive(point) } ]
                 end
-                if object["type"] == "tag" then
-                    tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { NyxUserInterface::tagDive(tag) } ]
+                if object["type"] == "taxo" then
+                    taxo = object["taxo"]
+                    return [ "taxo: #{taxo}" , lambda { NyxUserInterface::taxoDive(taxo) } ]
                 end
                 nil
             }
@@ -760,8 +760,8 @@ class NyxUserInterface
                 "target(s) dive",
                 "targets (add new)",
                 "targets (select and remove)",
-                "tags (add new)",
-                "tags (remove)",
+                "taxonomy (add new)",
+                "taxonomy (remove)",
                 "destroy point"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -810,16 +810,16 @@ class NyxUserInterface
                 NyxPoints::save(point)
                 NyxOps::destroyNyxTargetAttempt(target)
             end
-            if operation == "tags (add new)" then
-                tag = NyxOps::makeOnePermanodeTagInteractiveOrNull()
-                next if tag.nil?
-                point["tags"] << tag
+            if operation == "taxonomy (add new)" then
+                taxo = NyxOps::makeOnePermanodeTagInteractiveOrNull()
+                next if taxo.nil?
+                point["taxonomy"] << taxo
                 NyxPoints::save(point)
             end
-            if operation == "tags (remove)" then
-                tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", point["tags"])
-                next if tag.nil?
-                point["tags"] = point["tags"].reject{|t| t == tag }
+            if operation == "taxonomy (remove)" then
+                taxo = LucilleCore::selectEntityFromListOfEntitiesOrNull("taxo", point["taxonomy"])
+                next if taxo.nil?
+                point["taxonomy"] = point["taxonomy"].reject{|t| t == taxo }
                 NyxPoints::save(point)
             end
             if operation == "destroy point" then
@@ -840,14 +840,14 @@ class NyxUserInterface
         }
     end
 
-    # NyxUserInterface::tagDive(tag)
-    def self.tagDive(tag)
+    # NyxUserInterface::taxoDive(taxo)
+    def self.taxoDive(taxo)
         loop {
             system('clear')
-            puts "Tag diving: #{tag}"
+            puts "Tag diving: #{taxo}"
             items = []
             NyxPoints::points()
-                .select{|point| point["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
+                .select{|point| point["taxonomy"].map{|taxo| taxo.downcase }.include?(taxo.downcase) }
                 .each{|point|
                     items << [ point["description"] , lambda { NyxUserInterface::pointDive(point) } ]
                 }
@@ -877,7 +877,7 @@ class NyxUserInterface
                 "make new nyx point",
 
                 # Special operations
-                "rename tag",
+                "rename taxo",
 
                 # Destroy
                 "nyx point destroy (uuid)",
@@ -887,24 +887,24 @@ class NyxUserInterface
             if operation == "search" then
                 NyxSearch::search()
             end
-            if operation == "rename tag" then
+            if operation == "rename taxo" then
                 oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
                 next if oldname.size == 0
                 newname = LucilleCore::askQuestionAnswerAsString("new name: ")
                 next if newname.size == 0
-                renameTagIfNeeded = lambda {|tag, oldname, newname|
-                    if tag.downcase == oldname.downcase then
-                        tag = newname
+                renameTagIfNeeded = lambda {|taxo, oldname, newname|
+                    if taxo.downcase == oldname.downcase then
+                        taxo = newname
                     end
-                    tag
+                    taxo
                 }
                 NyxPoints::points()
                     .each{|point|
                         uuid = point["uuid"]
-                        tags1 = point["tags"]
-                        tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
-                        if tags1.join(':') != tags2.join(':') then
-                            point["tags"] = tags2
+                        taxonomy1 = point["taxonomy"]
+                        taxonomy2 = taxonomy1.map{|taxo| renameTagIfNeeded.call(taxo, oldname, newname) }
+                        if taxonomy1.join(':') != taxonomy2.join(':') then
+                            point["taxonomy"] = taxonomy2
                             NyxPoints::save(point)
                         end
                     }

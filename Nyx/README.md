@@ -15,7 +15,7 @@ Nyx Points are objects of the form
     referenceDateTime: DateTime Iso8601
     description
     targets          : String JSON Array[NyxTarget]
-    tags             : String JSON Array[String]
+    taxonomy         : String JSON Array[String]
 }
 ```
 
@@ -56,7 +56,7 @@ Nyx Points are objects of the form
 
 ## Tags
 
-The overall organization of the Nyx system is that of tags.
+The overall organization of the Nyx system is that of taxonomy.
 
 
 
