@@ -56,6 +56,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::pong(uuid)
 =end
 
+require_relative "Gwork.rb"
+
+# -------------------------------------------------------------------------
+
+
 # -------------------------------------------------------------------------
 
 if Time.new.hour < 8 or [6, 0].include?(Time.new.wday) then
@@ -63,13 +68,11 @@ if Time.new.hour < 8 or [6, 0].include?(Time.new.wday) then
     exit
 end
 
-objectuuid = "e2ac5276-be0b-4613-8dde-1d8c29f1ca74:#{Time.new.to_s[0, 10]}"
-
-status = KeyValueStore::getOrNull(nil, "649d2997-bc87-4550-90a8-f22077d78a18:#{Time.new.to_s[0, 10]}")
+status = KeyValueStore::getOrNull(nil, statusKey())
 
 if status.nil? then
     object = {
-        "uuid"            => objectuuid,
+        "uuid"            => objectuuid(),
         "contentItem"     => {
             "type" => "line",
             "line" => "Guardian Work"
@@ -92,15 +95,15 @@ if status == "done" then
 end
 
 todayTimeInHours = status.to_f
-isRunning = Runner::isRunning(objectuuid)
-timeDoneInSeconds = Ping::pong(objectuuid)
+isRunning = Runner::isRunning(objectuuid())
+timeDoneInSeconds = Ping::pong(pingponguuid())
 timeDoneInHours = timeDoneInSeconds.to_f/3600
 timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 
 metric = isRunning ? 1 : (timeDoneRatio <= 1 ? 0.77 - timeDoneRatio*0.10 : 0)
 
 object = {
-    "uuid"            => objectuuid,
+    "uuid"            => objectuuid(),
     "contentItem"     => {
         "type" => "line",
         "line" => "Guardian Work (#{isRunning ? "running, " : ""}time remaining: #{(todayTimeInHours-timeDoneInHours).round(2)} hours)"

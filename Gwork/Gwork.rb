@@ -5,12 +5,26 @@
 require 'json'
 # JSON.pretty_generate(object)
 
+require 'date'
+require 'colorize'
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
 # FileUtils.cp(src, dst)
 # FileUtils.mv 'oldname', 'newname'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
@@ -26,6 +40,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
 =begin 
     Runner::isRunning(uuid)
@@ -40,25 +56,20 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::pong(uuid)
 =end
 
-require_relative "Gwork.rb"
+# -------------------------------------------------------------------------
 
-# --------------------------------------------------------------------
-
-if ARGV[0] == "set-day-time-commitment" then
-    time = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
-    KeyValueStore::set(nil, statusKey(), time)
+def objectuuid()
+    "9aebb4c6-d2e8-42dd-bf5d-48a0c1e6613d"
 end
 
-if ARGV[0] == "start" then
-    Runner::start(objectuuid())
+def today()
+    Time.new.to_s[0, 10]
 end
 
-if ARGV[0] == "stop" then
-    timespan = Runner::stop(objectuuid())
-    exit if timespan.nil?
-    Ping::ping(pingponguuid(), timespan, 86400)
+def statusKey()
+    "649d2997-bc87-4550-90a8-f22077d78a18:#{today()}"
 end
 
-if ARGV[0] == "done" then
-    KeyValueStore::set(nil, statusKey(), "done")
+def pingponguuid()
+    "8a8f6b02-2508-4f6c-84d9-56e897b176e2:#{today()}"
 end
