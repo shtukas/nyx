@@ -58,7 +58,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 
 # -------------------------------------------------------------------------
 
-if Time.new.hour < 8 then
+if Time.new.hour < 8 or [6, 0].include?(Time.new.wday) then
     puts "[]"
     exit
 end
