@@ -27,7 +27,7 @@ def filePathToCatalystObject(date, indx)
         "contentItem"     => {
             "type" => "line-and-body",
             "line" => date,
-            "body" => date + "\n" + content
+            "body" => content
         },
         "metric"          => KeyValueStore::flagIsTrue(nil, "63bbe86e-15ae-4c0f-93b9-fb1b66278b00:#{Time.new.to_s[0, 10]}:#{date}") ? 0 : 0.93 - indx.to_f/10000,
         "commands"        => ["open"],
