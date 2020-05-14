@@ -515,15 +515,15 @@ class NyxOps
 
     # NyxOps::makeOnePermanodeTagInteractiveOrNull()
     def self.makeOnePermanodeTagInteractiveOrNull()
-        LucilleCore::askQuestionAnswerAsString("tag: ")
+        tag = LucilleCore::askQuestionAnswerAsString("tag (empty for exit): ")
+        return nil if tag == ""
+        tag
     end
 
     # NyxOps::makePermanodeTagsInteractive()
     def self.makePermanodeTagsInteractive()
         tags = []
         loop {
-            puts "Making tag"
-            LucilleCore::pressEnterToContinue()
             tag = NyxOps::makeOnePermanodeTagInteractiveOrNull()
             break if tag.nil?
             tags << tag
