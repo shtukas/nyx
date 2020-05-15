@@ -101,14 +101,15 @@ class NSXGeneralCommandHandler
             if option == "Catalyst" then
                 loop {
                     options = [
-                        "TheBridge items generation speed",
-                        "TheBridge + UI generation speed"
+                        "Applications generation speed",
+                        "UI generation speed"
                     ]
                     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                     break if option.nil?
-                    if option == "TheBridge items generation speed" then
-                        puts "TheBridge items generation speed report"
-                        JSON.parse(IO.read("#{CatalystCommon::catalystFolderpath()}/TheBridge/sources.json"))
+                    if option == "Applications generation speed" then
+                        puts "Applications generation speed report"
+                        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "LucilleTxt", "Projects", "Vienna", "Wave", "YouTubeVideoStream"]
+                            .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/catalyst-objects" }
                             .map{|source|
                                 t1 = Time.new.to_f
                                 JSON.parse(`#{source}`)
@@ -125,7 +126,7 @@ class NSXGeneralCommandHandler
                             }
                         LucilleCore::pressEnterToContinue()
                     end
-                    if option == "TheBridge + UI generation speed" then
+                    if option == "UI generation speed" then
                         t1 = Time.new.to_f
                         NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
                             .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
