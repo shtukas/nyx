@@ -67,12 +67,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 
 # -----------------------------------------------------------------------------
 
-def sectionToUUID(section)
-    "#{Time.new.to_s[0,10]}-#{Digest::SHA1.hexdigest(section)}"
-end
-
-# -----------------------------------------------------------------------------
-
 getNextLocationAtTheInboxOrNull = lambda {
     Dir.entries("/Users/pascal/Desktop/Lucille-Inbox")
         .reject{|filename| filename[0, 1] == '.' }
@@ -97,69 +91,39 @@ end
 
 # -----------------------------------------------------------------------------
 
-FlamePadding = "              "
+PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-objects = []
+objectuuid = "82af928d-5596-4d14-a9bc-dceb0e1f55c0"
 
-# -----------------------------------------------------------------------------
-
-content = IO.read("/Users/pascal/Desktop/Lucille.txt")
-            .split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b').map{|part| part.strip }[0]
+content = IO.read(PATH_TO_DESKTOP_FILE)
             .lines
+            .select{|line| line.strip.size>0 }
             .first(10)
-            .map{|line| "#{FlamePadding}#{line}"}
             .join()
 
-objects << {
-    "uuid"           => "82af928d-5596-4d14-a9bc-dceb0e1f55c0",
-    "contentItem"    => {
-        "type" => "block",
-        "block" => ("#{FlamePadding}🔥 Lucille.txt [top]\n\n"+content).green
-    },
-    "metric"          => 0.76,
-    "commands"        => [],
-    "defaultCommand"  => "[]",
-    "isRunning" => false,
-    "shell-redirects" => {
+isRunning = Runner::isRunning(objectuuid)
 
-    }
-}
+# We keep the numbers for 24 hours
+# Starts at 0.6 and decrease by 0.2 every hour
+timeDoneLive = Ping::pong(objectuuid) + (Runner::runTimeInSecondsOrNull(objectuuid) || 0)
+metric = 0.76 - (0.2/3600)*timeDoneLive
 
-# -----------------------------------------------------------------------------
-
-content = IO.read("/Users/pascal/Desktop/Lucille.txt").split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b').map{|part| part.strip }[1]
-
-metric = lambda{|_24hTimeInSeconds, indx|
-    # We keep the numbers for 24 hours
-    # Starts at 0.6 and decrease by 0.2 every hour
-    0.60 - (0.2/3600)*_24hTimeInSeconds - indx.to_f/10000
-}
-
-SectionsType0141::contentToSections(content)
-    .first(10)
-    .map
-    .with_index{|section, indx|
-        sectionuuid = sectionToUUID(section)
-        isRunning = Runner::isRunning("d81479f8-8d0a-473e-aef0-b14cfcaa0ae0:#{sectionuuid}")
-        objects << {
-            "uuid"           => sectionuuid,
-            "contentItem"    => {
-                "type" => "line-and-body",
-                "line" => "Lucille.txt [bottom] #{section.strip.lines.to_a.first}",
-                "body" => "Lucille.txt [bottom]\n"+section.strip
-            },
-            "metric"          => metric.call(Ping::pong("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad"), indx),
-            "commands"        => ["start", "stop", "done", ">project"],
-            "defaultCommand"  => isRunning ? "stop" : "start",
-            "isRunning" => isRunning,
-            "shell-redirects" => {
-                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing start #{sectionuuid}",
-                "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing stop #{sectionuuid}",
-                "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing done #{sectionuuid}",
-                ">project" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing moveToProjects #{sectionuuid}"
-            },
-            "pong" => Ping::pong("lucilletxt:f5c4f321-3a0a-4b58-b3db-a2e940160bad")
+objects = [
+    {
+        "uuid"           => objectuuid,
+        "contentItem"    => {
+            "type" => "block",
+            "block" => content
+        },
+        "metric"          => metric,
+        "commands"        => ["stop"],
+        "defaultCommand"  => isRunning ? "[]" : "start",
+        "isRunning" => isRunning,
+        "shell-redirects" => {
+            "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing start",
+            "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing stop",
         }
     }
+]
 
 puts JSON.generate(objects)

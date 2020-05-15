@@ -39,13 +39,14 @@ class NSXDisplayUtils
         if defaultCommand then
             commands = commands.reject{|c| c == defaultCommand }
         end
-        part2 = 
+        part2 =
             [
+                (object["contentItem"]["type"] != "block" ? FlamePadding : nil),
                 defaultCommand ? "#{defaultCommand.green}" : nil,
                 commands.join(" "),
                 NSXDisplayUtils::defaultCatalystObjectCommands().join(" ")
             ].compact.reject{|command| command=='' }.join(" ")
-        part2.strip
+        part2
     end
 
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
@@ -84,7 +85,7 @@ class NSXDisplayUtils
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
             answerline0 = "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
             answerlinesOnePlus = corelines.map{|line| FlamePadding + (object["isRunning"] ? line.green : line) }
-            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| FlamePadding + line } + answerlinesOnePlus + [ FlamePadding + NSXDisplayUtils::objectInferfaceString(object)]).join("\n")
+            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| FlamePadding + line } + answerlinesOnePlus + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
         else
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
             answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
