@@ -35,7 +35,7 @@ if ARGV[0] == "play" then
     if LucilleCore::askQuestionAnswerAsBoolean("-> delete? ") then
         FileUtils.rm(filepath)
     end
-    Ping::ping("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1, 86400)
+    Bank::put("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1, 86400)
 end
 
 if ARGV[0] == "delete" then
@@ -45,5 +45,5 @@ if ARGV[0] == "delete" then
     exit if filepath.nil?
     puts filepath
     FileUtils.rm(filepath)
-    Ping::ping("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1, 86400)
+    Bank::put("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1, 86400)
 end

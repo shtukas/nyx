@@ -1,10 +1,10 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Ping::ping(uuid, weight, validityTimespan)
-    Ping::pong(uuid)
+    Bank::put(uuid, weight, validityTimespan)
+    Bank::total(uuid)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets.rb"
@@ -17,10 +17,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 # -----------------------------------------------------------------
 
-class Ping
+class Bank
 
-    # Ping::ping(setuuid, weight: Float, timespan: Float)
-    def self.ping(setuuid, weight, timespan)
+    # Bank::put(setuuid, weight: Float, timespan: Float)
+    def self.put(setuuid, weight, timespan)
         uuid = Time.new.to_f.to_s
         packet = {
             "uuid" => uuid,
@@ -30,8 +30,8 @@ class Ping
         BTreeSets::set(nil, "3621f4d3:#{setuuid}", uuid, packet)
     end
 
-    # Ping::pong(setuuid)
-    def self.pong(setuuid)
+    # Bank::total(setuuid)
+    def self.total(setuuid)
         BTreeSets::values(nil, "3621f4d3:#{setuuid}")
             .select{|packet| Time.new.to_i < packet["deathtime"] }
             .map{|packet| packet["weight"] }

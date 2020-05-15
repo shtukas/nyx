@@ -51,7 +51,7 @@ class Items
         itemuuid = item["uuid"]
         isRunning = Runner::isRunning(itemuuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
-        "[item] (#{"%7.2f" % (Ping::pong(itemuuid).to_f/3600).round(2)} hours) [#{project["description"].yellow}] [#{item["target"]["type"]}] #{Items::itemBestDescription(item)}#{runningSuffix}"
+        "[item] (bank: #{(Bank::total(itemuuid).to_f/3600).round(2)} hours) [#{project["description"].yellow}] [#{item["target"]["type"]}] #{Items::itemBestDescription(item)}#{runningSuffix}"
     end
 
     # Items::itemMetric(projectuuid, itemuuid, projectmetric, indx)
@@ -79,7 +79,8 @@ class Items
                 "open",
                 "done",
                 "set description",
-                "dive ifcs claims"
+                "dive ifcs claims",
+                "add ifcs claim"
             ]
             if Runner::isRunning(item["uuid"]) then
                 options.delete("start")
@@ -116,15 +117,19 @@ class Items
                     IfcsClaims::diveIfcsClaim(ifcsclaim)
                 }
             end
+            if option == "add ifcs claim" then
+                position = IfcsClaims::interactiveChoiceOfIfcsPosition()
+                IfcsClaims::issueClaimTypeItem(project["uuid"], item["uuid"], position)
+            end
         }
     end
 
     # Items::receiveRunTimespan(projectuuid, itemuuid, timespan)
     def self.receiveRunTimespan(projectuuid, itemuuid, timespan)
-        Ping::ping(itemuuid, timespan, Utils::pingRetainPeriodInSeconds())
+        Bank::put(itemuuid, timespan, Utils::pingRetainPeriodInSeconds())
         Projects::receiveRunTimespan(projectuuid, timespan)
         IfcsClaims::getClaimsOfTypeItemByUuids(projectuuid, itemuuid).each{|claim|
-            Ping::ping(claim["uuid"], timespan, Utils::pingRetainPeriodInSeconds())
+            Bank::put(claim["uuid"], timespan, Utils::pingRetainPeriodInSeconds())
         }
     end
 end

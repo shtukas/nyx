@@ -51,10 +51,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Ping::ping(uuid, weight, timespan)
-    Ping::pong(uuid)
+    Bank::put(uuid, weight, timespan)
+    Bank::total(uuid)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
@@ -105,7 +105,7 @@ isRunning = Runner::isRunning(objectuuid)
 
 # We keep the numbers for 24 hours
 # Starts at 0.6 and decrease by 0.2 every hour
-timeDoneLive = Ping::pong(objectuuid) + (Runner::runTimeInSecondsOrNull(objectuuid) || 0)
+timeDoneLive = Bank::total(objectuuid) + (Runner::runTimeInSecondsOrNull(objectuuid) || 0)
 metric = 0.76 - (0.2/3600)*timeDoneLive
 
 objects = [

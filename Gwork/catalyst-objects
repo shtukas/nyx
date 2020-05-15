@@ -50,10 +50,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Ping::ping(uuid, weight, validityTimespan)
-    Ping::pong(uuid)
+    Bank::put(uuid, weight, validityTimespan)
+    Bank::total(uuid)
 =end
 
 require_relative "Gwork.rb"
@@ -96,7 +96,7 @@ end
 
 todayTimeInHours = status.to_f
 isRunning = Runner::isRunning(objectuuid())
-timeDoneInSeconds = Ping::pong(pingponguuid()) + (Runner::runTimeInSecondsOrNull(objectuuid()) || 0)
+timeDoneInSeconds = Bank::total(pingponguuid()) + (Runner::runTimeInSecondsOrNull(objectuuid()) || 0)
 timeDoneInHours = timeDoneInSeconds.to_f/3600
 timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 

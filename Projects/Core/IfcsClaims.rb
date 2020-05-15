@@ -95,7 +95,11 @@ class IfcsClaims
         uuid = claim["uuid"]
         isRunning = Runner::isRunning(uuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hour)" : ""
-        "[ifcs: #{"%6.2f" % claim["position"]}] (#{"%7.2f" % (Ping::pong(uuid).to_f/3600).round(2)} hours) #{IfcsClaims::claimDescription(claim)}#{runningSuffix}"
+        position = claim["position"]
+        ordinal = IfcsTimePenalties::getClaimOrdinalOrNull(uuid)
+        timeexpectation = IfcsTimePenalties::getProject24HoursTimeExpectationInSeconds(uuid, ordinal)
+        timeInBank = Bank::total(uuid)
+        "[ifcs] (pos: #{claim["position"]}, time exp.: #{(timeexpectation.to_f/3600).round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) #{IfcsClaims::claimDescription(claim)}#{runningSuffix}"
     end
 
     # IfcsClaims::claimMetric(ifcsclaim)
@@ -103,7 +107,7 @@ class IfcsClaims
         uuid = ifcsclaim["uuid"]
         return 1 if Runner::isRunning(uuid)
         return 0 if IfcsTimePenalties::getClaimOrdinalOrNull(uuid) >= 4 # we only want 0 (Guardian) and 1, 2, 3
-        timeInHours = Ping::pong(uuid).to_f/3600
+        timeInHours = Bank::total(uuid).to_f/3600
         timeInQuarterOfHours = timeInHours*4
         if timeInHours > 0 then
             0.70*Math.exp(-timeInHours)

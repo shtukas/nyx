@@ -54,10 +54,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Ping::ping(uuid, weight, validityTimespan)
-    Ping::pong(uuid)
+    Bank::put(uuid, weight, validityTimespan)
+    Bank::total(uuid)
 =end
 
 # -----------------------------------------------------------------
@@ -137,7 +137,7 @@ class Projects
 
         projectKickerText = lambda {|project|
             uuid = project["uuid"]
-            "[project #{project["schedule"]["type"].rjust(8)}] (#{"%7.2f" % (Ping::pong(uuid).to_f/3600)} hours)"
+            "[project #{project["schedule"]["type"].rjust(8)}] (#{"%7.2f" % (Bank::total(uuid).to_f/3600)} hours)"
         }
 
         projectSuffixText = lambda {|project|
@@ -166,7 +166,7 @@ class Projects
 
         return 0 if project["schedule"]["type"] == "ack"
         return 0.68 if projectuuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" # Inbox
-        0.2 + 0.46*Math.exp(-(Ping::pong(projectuuid).to_f/86400))
+        0.2 + 0.46*Math.exp(-(Bank::total(projectuuid).to_f/86400))
     end
 
     # Projects::selectProjectInteractivelyOrNull()
@@ -317,9 +317,9 @@ class Projects
 
     # Projects::receiveRunTimespan(projectuuid, timespan)
     def self.receiveRunTimespan(projectuuid, timespan)
-        Ping::ping(projectuuid, timespan, Utils::pingRetainPeriodInSeconds())
+        Bank::put(projectuuid, timespan, Utils::pingRetainPeriodInSeconds())
         IfcsClaims::getClaimsOfTypeProjectByUuid(projectuuid).each{|claim|
-            Ping::ping(claim["uuid"], timespan, Utils::pingRetainPeriodInSeconds())
+            Bank::put(claim["uuid"], timespan, Utils::pingRetainPeriodInSeconds())
         }
     end
 

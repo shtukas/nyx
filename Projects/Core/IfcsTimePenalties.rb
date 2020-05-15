@@ -35,13 +35,13 @@ class IfcsTimePenalties
         IfcsClaims::claimsOrdered()
             .each{|claim|
                 uuid = claim["uuid"]
-                next if Ping::pong(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
+                next if Bank::total(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
                 ordinal = IfcsTimePenalties::getClaimOrdinalOrNull(uuid)
                 next if ordinal.nil? # Not necessary as we know the claim uuid is valid, but for completeness.
                 next if ordinal >= 4 # we only want 0 (Guardian) and 1, 2, 3
                 next if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
                 timespan = IfcsTimePenalties::getTotalAttributed24TimeExpectation1() * (1.to_f / 2**(ordinal+1))
-                Ping::ping(uuid, -timespan, Utils::pingRetainPeriodInSeconds())
+                Bank::put(uuid, -timespan, Utils::pingRetainPeriodInSeconds())
                 KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             }
     end

@@ -52,10 +52,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Ping::ping(uuid, weight, validityTimespan)
-    Ping::pong(uuid)
+    Bank::put(uuid, weight, validityTimespan)
+    Bank::total(uuid)
 =end
 
 # -----------------------------------------------------------------

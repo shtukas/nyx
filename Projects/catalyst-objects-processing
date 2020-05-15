@@ -151,11 +151,11 @@ if ARGV[0] == "make-ifcs-claim" and ARGV[1] and ARGV[2] then
 
     type = LucilleCore::askQuestionAnswerAsString("type? 'project', 'item' (type exactly): ")
     if type == "project" then
-        position = IfcsClaims::nextIfcsPosition()
+        position = IfcsClaims::interactiveChoiceOfIfcsPosition()
         IfcsClaims::issueClaimTypeProject(projectuuid, position)
     end
     if type == "item" then
-        position = IfcsClaims::nextIfcsPosition()
+        position = IfcsClaims::interactiveChoiceOfIfcsPosition()
         IfcsClaims::issueClaimTypeItem(projectuuid, itemuuid, position)
     end
 end
