@@ -11,12 +11,15 @@ CatalystObject
     "shell-redirects" : Map[String, String] # Optional [1]
 
     "isRunning"       : Boolean             # Optional [2]
+    "isDone"          : Boolean             # Optional [3]
 }
 
 [1] If defined and there is a key for the command that is being processed then this is called as a shell command, this overrides
 and replaces any agent processing.
 
 [2] If present and true, displays in green
+
+[3] When present cause a on screen notification, those are checked on a thread.
 
 # ------------------------------------------------------------------
 

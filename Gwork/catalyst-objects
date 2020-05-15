@@ -102,6 +102,8 @@ timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 
 metric = isRunning ? 1 : (timeDoneRatio <= 1 ? 0.77 : 0)
 
+isDone = isRunning and ((Runner::runTimeInSecondsOrNull(objectuuid()) || 0) > 3600)
+
 object = {
     "uuid"            => objectuuid(),
     "contentItem"     => {
@@ -112,6 +114,7 @@ object = {
     "commands"        => ["done"],
     "defaultCommand"  => isRunning ? "stop" : "start",
     "isRunning"       => isRunning,
+    "isDone"          => isDone,
     "shell-redirects" => {
         "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing start",
         "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing stop",

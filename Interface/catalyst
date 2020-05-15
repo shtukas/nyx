@@ -73,7 +73,12 @@ NSXEstateServices::binTimelineGarbageCollectionEnvelop(true)
 Thread.new {
     loop {
         sleep 120
-        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/ifcs-running-time-overflow-notification")
+        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            .select{|object| object["isDone"] }
+            .first(1)
+            .each{|object|
+                NSXMiscUtils::onScreenNotification("Catalyst Interface", "One object is potentially done")
+            }
     }
 }
 

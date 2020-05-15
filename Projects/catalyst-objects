@@ -92,6 +92,8 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
             }
         end
 
+    isDone = isRunning and ((Runner::runTimeInSecondsOrNull(itemuuid) || 0) > 3600)
+
     {
         "uuid"           => itemuuid,
         "contentItem"    => contentItem,
@@ -109,6 +111,7 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
             ">ifcs"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing make-ifcs-claim '#{project["uuid"]}' '#{itemuuid}'",
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-dive '#{project["uuid"]}'"
         },
+        "isDone" => isDone,
         "x-projects:project" => project,
         "x-projects:item" => item,
         "x-projects:ifcsclaims" => ifcsClaims
