@@ -52,6 +52,8 @@ class NSXCatalystUI
     # NSXCatalystUI::performInterfaceDisplay(displayObjects)
     def self.performInterfaceDisplay(displayObjects)
 
+        displayTime = Time.new.to_f
+
         system("clear")
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
@@ -89,6 +91,9 @@ class NSXCatalystUI
         print "--> "
         command = STDIN.gets().strip
         if command=='' then
+            if (Time.new.to_f - displayTime) < 5 then
+                return NSXCatalystUI::performInterfaceDisplay(displayObjects)
+            end
             return
         end
 
