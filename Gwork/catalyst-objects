@@ -96,7 +96,7 @@ end
 
 todayTimeInHours = status.to_f
 isRunning = Runner::isRunning(objectuuid())
-timeDoneInSeconds = Ping::pong(pingponguuid())
+timeDoneInSeconds = Ping::pong(pingponguuid()) + (Runner::runTimeInSecondsOrNull(objectuuid()) || 0)
 timeDoneInHours = timeDoneInSeconds.to_f/3600
 timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 
