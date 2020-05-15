@@ -96,17 +96,17 @@ class IfcsClaims
         isRunning = Runner::isRunning(uuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hour)" : ""
         position = claim["position"]
-        ordinal = IfcsTimePenalties::getClaimOrdinalOrNull(uuid)
-        timeexpectation = IfcsTimePenalties::getProject24HoursTimeExpectationInSeconds(uuid, ordinal)
+        ordinal = IfcsClaims::getClaimOrdinalOrNull(uuid)
+        timeexpectation = DailyNegativeTimes::getItem24HoursTimeExpectationInHours(DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal)
         timeInBank = Bank::total(uuid)
-        "[ifcs] (pos: #{claim["position"]}, time exp.: #{(timeexpectation.to_f/3600).round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) #{IfcsClaims::claimDescription(claim)}#{runningSuffix}"
+        "[ifcs] (pos: #{claim["position"]}, time exp.: #{timeexpectation.round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) #{IfcsClaims::claimDescription(claim)}#{runningSuffix}"
     end
 
     # IfcsClaims::claimMetric(ifcsclaim)
     def self.claimMetric(ifcsclaim)
         uuid = ifcsclaim["uuid"]
         return 1 if Runner::isRunning(uuid)
-        return 0 if IfcsTimePenalties::getClaimOrdinalOrNull(uuid) >= 4 # we only want 0 (Guardian) and 1, 2, 3
+        return 0 if IfcsClaims::getClaimOrdinalOrNull(uuid) >= 4 # we only want 0 (Guardian) and 1, 2, 3
         timeInHours = Bank::total(uuid).to_f/3600
         timeInQuarterOfHours = timeInHours*4
         if timeInHours > 0 then
@@ -131,6 +131,14 @@ class IfcsClaims
     # IfcsClaims::nextIfcsPosition()
     def self.nextIfcsPosition()
         IfcsClaims::claimsOrdered().map{|claim| claim["position"] }.max.ceil
+    end
+
+    # IfcsClaims::getClaimOrdinalOrNull(uuid)
+    def self.getClaimOrdinalOrNull(uuid)
+        IfcsClaims::claimsOrderedWithOrdinal()
+            .select{|pair| pair[0]["uuid"] == uuid }
+            .map{|pair| pair[1] }
+            .first
     end
 
     # IfcsClaims::diveIfcsClaim(claim)

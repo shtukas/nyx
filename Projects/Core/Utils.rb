@@ -67,9 +67,4 @@ class Utils
     end
 end
 
-require_relative "Items.rb"
-require_relative "IfcsClaims.rb"
-require_relative "IfcsTimePenalties.rb"
-require_relative "Fsck.rb"
-
 

@@ -56,10 +56,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyNegativeTimes.rb"
+
 require_relative "Gwork.rb"
 
 # -------------------------------------------------------------------------
 
+DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(objectuuid(), 6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
 # -------------------------------------------------------------------------
 

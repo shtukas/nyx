@@ -135,7 +135,12 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
-IfcsTimePenalties::distributeIfcsPenatiesIfNotDoneAlready()
+IfcsClaims::claimsOrdered()
+    .each{|claim|
+        uuid = claim["uuid"]
+        ordinal = IfcsClaims::getClaimOrdinalOrNull(uuid)
+        DailyNegativeTimes::addNegativeTimePerOrdinalToBankOrDoNothing(uuid, DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal, [1,2,3,4,5,6]) # 3 hours in total, Monday to Saturday
+    }
 
 # -------------------------------------------------------------------------
 

@@ -65,6 +65,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
     CatalystStandardTarget::openTarget(target)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyNegativeTimes.rb"
+
 # -----------------------------------------------------------------------------
 
 getNextLocationAtTheInboxOrNull = lambda {
@@ -94,6 +96,8 @@ end
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
 objectuuid = "82af928d-5596-4d14-a9bc-dceb0e1f55c0"
+
+DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(objectuuid, 2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
 
 content = IO.read(PATH_TO_DESKTOP_FILE)
             .lines
