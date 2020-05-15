@@ -82,7 +82,7 @@ class NSXDisplayUtils
         corelines = contentItemToCoreLines.call(object["contentItem"].clone)
         if isFocus then
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
-            answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
+            answerline0 = "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
             answerlinesOnePlus = corelines.map{|line| FlamePadding + (object["isRunning"] ? line.green : line) }
             ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| FlamePadding + line } + answerlinesOnePlus + [ FlamePadding + NSXDisplayUtils::objectInferfaceString(object)]).join("\n")
         else
