@@ -681,6 +681,15 @@ class NyxSearch
     end
 
     # NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+    # Objects returned by the function: they are essentially search results.
+    # {
+    #     "type" => "point",
+    #     "point" => point
+    # }
+    # {
+    #     "type" => "taxo",
+    #     "taxo" => taxo
+    # }
     def self.nextGenSearchFragmentToGlobalSearchStructure(fragment)
         objs1 = NyxSearch::searchPatternToPoints(fragment)
                     .map{|point| 
