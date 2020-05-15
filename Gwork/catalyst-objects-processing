@@ -44,7 +44,7 @@ require_relative "Gwork.rb"
 
 # --------------------------------------------------------------------
 
-if ARGV[0] == "set-day-time-commitment" then
+if ARGV[0] == "initialize" then
     time = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
     KeyValueStore::set(nil, statusKey(), time)
 end

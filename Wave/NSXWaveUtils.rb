@@ -236,7 +236,7 @@ class NSXWaveUtils
         announce = NSXWaveUtils::announce(claim["description"], schedule)
         contentItem = {
             "type" => "line",
-            "line" => announce
+            "line" => "💫 "+announce
         }
         object = {}
         object['uuid'] = uuid

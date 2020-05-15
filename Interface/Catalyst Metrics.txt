@@ -1,7 +1,7 @@
 
-🔥 Lucille.txt
 
-🗓️ Calendar Report
+
+🗓️                   Calendar Report
 
 🏃‍♀️      1.00         Running items (including items of a running project)
 
@@ -15,7 +15,10 @@
         0.78+        Wave every-n-hours / every-n-days
 
 🗞️
-        0.77 -> 0.67 Gwork
+        0.77         Gwork
+
+🔥
+        0.76         Lucille.txt
 
 👩‍💻 🛩
         0.75 -> 0.70 ifcs negative time

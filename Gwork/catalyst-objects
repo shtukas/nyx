@@ -75,13 +75,13 @@ if status.nil? then
         "uuid"            => objectuuid(),
         "contentItem"     => {
             "type" => "line",
-            "line" => "Guardian Work"
+            "line" => "Guardian Work [not initialized]"
         },
         "metric"          => 0.77,
         "commands"        => ["done"],
-        "defaultCommand"  => "set-day-time-commitment", 
+        "defaultCommand"  => "initialize", 
         "shell-redirects" => {
-            "set-day-time-commitment" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing set-day-time-commitment",
+            "initialize" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing initialize",
             "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing done",
         }
     }
@@ -100,7 +100,7 @@ timeDoneInSeconds = Ping::pong(pingponguuid())
 timeDoneInHours = timeDoneInSeconds.to_f/3600
 timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 
-metric = isRunning ? 1 : (timeDoneRatio <= 1 ? 0.77 - timeDoneRatio*0.10 : 0)
+metric = isRunning ? 1 : (timeDoneRatio <= 1 ? 0.77 : 0)
 
 object = {
     "uuid"            => objectuuid(),

@@ -62,22 +62,6 @@ class NSXCatalystUI
 
         position = 0
 
-        filepath = "/Users/pascal/Desktop/Lucille.txt"
-        content = IO.read(filepath).split('@separation-e3cdf0ec-4119-43d8-8701-a363a74c398b')[0]
-                    .strip
-                    .lines
-                    .select{|line| line.strip.size > 0 }
-                    .first([10, verticalSpaceLeft].min)
-                    .map{|line| "    " + line }
-                    .join()
-                    .rstrip
-        if content.size > 0 then
-            puts ""
-            puts "🔥 Lucille.txt [top]"
-            puts content.green
-            verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 2 )
-        end
-
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""
@@ -87,8 +71,7 @@ class NSXCatalystUI
         end
 
         puts ""
-        puts "👩‍💻 🛩️"
-        verticalSpaceLeft = verticalSpaceLeft - 2
+        verticalSpaceLeft = verticalSpaceLeft - 1
         verticalSpaceLeft = NSXCatalystUI::printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
 
         if displayObjects.size==0 then

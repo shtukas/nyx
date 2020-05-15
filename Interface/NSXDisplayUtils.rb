@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-NSX0746_StandardPadding = "              "
+FlamePadding = "              "
 
 class NSXDisplayUtils
 
@@ -16,18 +16,10 @@ class NSXDisplayUtils
         if item["type"] == "line-and-body" then
             return item["line"]
         end
+        if item["type"] == "block" then
+            return "\n"+item["block"]
+        end
         "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
-    end
-
-    # NSXDisplayUtils::contentItemToBody(item)
-    def self.contentItemToBody(item)
-        if item["type"] == "line" then
-            return item["line"]
-        end
-        if item["type"] == "line-and-body" then
-            return item["body"]
-        end
-        "[09bab884] I don't know how to body: #{JSON.generate(item)}"
     end
 
     # NSXDisplayUtils::addLeftPaddingToLinesOfText(text, padding)
@@ -73,6 +65,9 @@ class NSXDisplayUtils
             if contentItem["type"] == "line-and-body" then
                 return [contentItem["line"]] + contentItem["body"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
             end
+            if contentItem["type"] == "block" then
+                return [ "\n"+contentItem["block"] ]
+            end
             [ "I don't know how to contentItemToCoreLines: #{contentItem}" ]
         }
         getNoteLines = lambda{|objectuuid|
@@ -88,8 +83,8 @@ class NSXDisplayUtils
         if isFocus then
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
             answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
-            answerlinesOnePlus = corelines.map{|line| NSX0746_StandardPadding + (object["isRunning"] ? line.green : line) }
-            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| NSX0746_StandardPadding + line } + answerlinesOnePlus + [ NSX0746_StandardPadding + NSXDisplayUtils::objectInferfaceString(object)]).join("\n")
+            answerlinesOnePlus = corelines.map{|line| FlamePadding + (object["isRunning"] ? line.green : line) }
+            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| FlamePadding + line } + answerlinesOnePlus + [ FlamePadding + NSXDisplayUtils::objectInferfaceString(object)]).join("\n")
         else
             firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
             answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
