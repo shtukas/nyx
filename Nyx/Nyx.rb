@@ -217,21 +217,20 @@ class NyxPoints
         FileUtils.rm(filepath)
     end
 
-    # NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
-    def self.makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
+    # NyxPoints::makePoint(uuid, creationTimestamp, description, targets, taxonomy)
+    def self.makePoint(uuid, creationTimestamp, description, targets, taxonomy)
         {
             "uuid"              => uuid,
             "creationTimestamp" => creationTimestamp,
-            "referenceDateTime" => referenceDateTime,
             "description"       => description,
             "targets"           => targets,
             "taxonomy"              => taxonomy
         }
     end
 
-    # NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
-    def self.issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
-        point = NyxPoints::makePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
+    # NyxPoints::issuePoint(uuid, creationTimestamp, description, targets, taxonomy)
+    def self.issuePoint(uuid, creationTimestamp, description, targets, taxonomy)
+        point = NyxPoints::makePoint(uuid, creationTimestamp, description, targets, taxonomy)
         NyxPoints::save(point)
     end
 end
@@ -266,7 +265,6 @@ class NyxOps
         puts "Permanode:"
         puts "    uuid: #{point["uuid"]}"
         puts "    description: #{point["description"].green}"
-        puts "    datetime: #{point["referenceDateTime"]}"
         puts "    targets:"
         point["targets"]
             .each{|target|
@@ -412,10 +410,9 @@ class NyxOps
     def self.makeNyxPointInteractivePart2(description, target)
         uuid = SecureRandom.uuid
         creationTimestamp = Time.new.to_f
-        referenceDateTime = Time.now.utc.iso8601
         targets = [ target ]
         taxonomy = NyxOps::makePermanodeTagsInteractive()
-        NyxPoints::issuePoint(uuid, creationTimestamp, referenceDateTime, description, targets, taxonomy)
+        NyxPoints::issuePoint(uuid, creationTimestamp, description, targets, taxonomy)
     end
 
     # NyxOps::makeNyxPointInteractivePart1()
@@ -630,7 +627,6 @@ class NyxUserInterface
             operations = [
                 "open",
                 "edit description",
-                "edit reference datetime",
                 "target(s) dive",
                 "targets (add new)",
                 "targets (select and remove)",
@@ -651,17 +647,6 @@ class NyxUserInterface
                     next
                 end
                 NyxPoints::save(point)
-            end
-            if operation == "edit reference datetime" then
-                referenceDateTime = NyxMiscUtils::editTextUsingTextmate(point["referenceDateTime"]).strip
-                if NyxMiscUtils::isProperDateTimeIso8601(referenceDateTime) then
-                    point["referenceDateTime"] = referenceDateTime
-                    NyxPoints::save(point)
-                else
-                    puts "I could not validate #{referenceDateTime} as a proper iso8601 datetime"
-                    puts "Aborting operation"
-                    LucilleCore::pressEnterToContinue()
-                end
             end
             if operation == "target(s) dive" then
                 if point["targets"].size == 1 then

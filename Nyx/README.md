@@ -12,7 +12,6 @@ Nyx Points are objects of the form
 {
     uuid
     creationTimestamp: Float
-    referenceDateTime: DateTime Iso8601
     description
     targets          : String JSON Array[NyxTarget]
     taxonomy         : String JSON Array[String]
