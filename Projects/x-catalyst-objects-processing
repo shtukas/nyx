@@ -149,15 +149,8 @@ if ARGV[0] == "make-ifcs-claim" and ARGV[1] and ARGV[2] then
     itemuuid = ARGV[2]
     exit if !itemuuidIsValid(projectuuid, itemuuid)
 
-    type = LucilleCore::askQuestionAnswerAsString("type? 'project', 'item' (type exactly): ")
-    if type == "project" then
-        position = IfcsClaims::interactiveChoiceOfIfcsPosition()
-        IfcsClaims::issueClaimTypeProject(projectuuid, position)
-    end
-    if type == "item" then
-        position = IfcsClaims::interactiveChoiceOfIfcsPosition()
-        IfcsClaims::issueClaimTypeItem(projectuuid, itemuuid, position)
-    end
+    position = InFlightControlSystem::interactiveChoiceOfIfcsPosition()
+    InFlightControlSystem::issue(projectuuid, itemuuid, position)
 end
 
 if ARGV[0] == "recast" and ARGV[1] and ARGV[2] then

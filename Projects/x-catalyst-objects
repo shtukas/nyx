@@ -71,7 +71,7 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
     itemuuid = item["uuid"]
     isRunning = Runner::isRunning(itemuuid)
 
-    ifcsClaims = IfcsClaims::getClaimsOfTypeProjectByUuid(project["uuid"]) + IfcsClaims::getClaimsOfTypeItemByUuids(project["uuid"], itemuuid)
+    ifcsClaims = InFlightControlSystem::getClaimsByItemUUID(project["uuid"], itemuuid)
 
     contentItem = 
         if ifcsClaims.empty? then
@@ -82,7 +82,7 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
         else
             {
                 "type"  => "lines",
-                "lines" => [Items::itemToString(project, item)] + ifcsClaims.map{|claim| IfcsClaims::ifcsClaimToString(claim) }
+                "lines" => [Items::itemToString(project, item)] + ifcsClaims.map{|claim| InFlightControlSystem::claimToStringOrNull(claim) }.compact
             }
         end
 
@@ -131,10 +131,10 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
-IfcsClaims::claimsOrdered()
+InFlightControlSystem::claimsOrdered()
     .each{|claim|
         uuid = claim["uuid"]
-        ordinal = IfcsClaims::getClaimOrdinalOrNull(uuid)
+        ordinal = InFlightControlSystem::getClaimOrdinalOrNull(uuid)
         DailyNegativeTimes::addNegativeTimePerOrdinalToBankOrDoNothing(uuid, DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal, [1,2,3,4,5,6]) # 3 hours in total, Monday to Saturday
     }
 

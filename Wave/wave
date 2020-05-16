@@ -56,7 +56,7 @@ loop {
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         schedule = NSXWaveUtils::makeScheduleObjectInteractivelyOrNull()
         next if schedule.nil?
-        WaveNextGen::issueClaim(LucilleCore::timeStringL22(), line, schedule)
+        WaveNextGen::issue(LucilleCore::timeStringL22(), line, schedule)
     end
     if option == "waves dive" then
         claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", WaveNextGen::claims(), lambda {|wave| wave["description"] })

@@ -44,13 +44,6 @@ InFlighControlSystemClaim
 {
     "uuid"             : String
     "position"         : Float # Unixtime with decimals
-    "type"             : "project"
-    "projectuuid"      : String
-}
-{
-    "uuid"             : String
-    "position"         : Float # Unixtime with decimals
-    "type"             : "item"
     "projectuuid"      : String
     "itemuuid"         : String
 }

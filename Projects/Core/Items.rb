@@ -58,9 +58,9 @@ class Items
     def self.itemMetric(projectuuid, itemuuid, projectmetric, indx)
         return 1 if Runner::isRunning(itemuuid)
 
-        claims = IfcsClaims::getClaimsOfTypeItemByUuids(projectuuid, itemuuid)
+        claims = InFlightControlSystem::getClaimsByItemUUID(projectuuid, itemuuid)
         if claims.size > 0 then
-            return claims.map{|ifcsclaim| IfcsClaims::claimMetric(ifcsclaim) }.max
+            return claims.map{|ifcsclaim| InFlightControlSystem::claimMetric(ifcsclaim) }.max
         end
 
         projectmetric - indx.to_f/1000
@@ -72,7 +72,7 @@ class Items
             system("clear")
             puts Items::itemToString(project, item).green
             puts JSON.pretty_generate([project, item])
-            puts JSON.pretty_generate(IfcsClaims::getClaimsOfTypeItemByUuids(project["uuid"], item["uuid"]))
+            puts JSON.pretty_generate(InFlightControlSystem::getClaimsByItemUUID(project["uuid"], item["uuid"]))
             puts "metric (project): #{Projects::projectMetric(project)}".green
             options = [
                 "start",
@@ -87,7 +87,7 @@ class Items
             else
                 options.delete("stop")
             end
-            if IfcsClaims::getClaimsOfTypeItemByUuids(project["uuid"], item["uuid"]).empty? then
+            if InFlightControlSystem::getClaimsByItemUUID(project["uuid"], item["uuid"]).empty? then
                 options.delete("dive ifcs claims")
             end
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -110,16 +110,16 @@ class Items
                 Items::attachItemToProject(project["uuid"], item)
             end
             if option == "dive ifcs claims" then
-                claims = IfcsClaims::getClaimsOfTypeItemByUuids(project["uuid"], item["uuid"])
+                claims = InFlightControlSystem::getClaimsByItemUUID(project["uuid"], item["uuid"])
                 loop {
-                    ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", claims, lambda{|claim| IfcsClaims::ifcsClaimToString(claim) })
+                    ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", claims, lambda{|claim| InFlightControlSystem::claimToStringOrNull(claim) })
                     break if ifcsclaim.nil?
-                    IfcsClaims::diveIfcsClaim(ifcsclaim)
+                    InFlightControlSystem::diveIfcsClaim(ifcsclaim)
                 }
             end
             if option == "add ifcs claim" then
-                position = IfcsClaims::interactiveChoiceOfIfcsPosition()
-                IfcsClaims::issueClaimTypeItem(project["uuid"], item["uuid"], position)
+                position = InFlightControlSystem::interactiveChoiceOfIfcsPosition()
+                InFlightControlSystem::issue(project["uuid"], item["uuid"], position)
             end
         }
     end
@@ -128,7 +128,7 @@ class Items
     def self.receiveRunTimespan(projectuuid, itemuuid, timespan)
         Bank::put(itemuuid, timespan, CatalystCommon::pingRetainPeriodInSeconds())
         Projects::receiveRunTimespan(projectuuid, timespan)
-        IfcsClaims::getClaimsOfTypeItemByUuids(projectuuid, itemuuid).each{|claim|
+        InFlightControlSystem::getClaimsByItemUUID(projectuuid, itemuuid).each{|claim|
             Bank::put(claim["uuid"], timespan, CatalystCommon::pingRetainPeriodInSeconds())
         }
     end

@@ -146,12 +146,6 @@ class Projects
     # Projects::projectMetric(project)
     def self.projectMetric(project)
         projectuuid = project["uuid"]
-
-        claims = IfcsClaims::getClaimsOfTypeProjectByUuid(projectuuid)
-        if claims.size > 0 then
-            return claims.map{|ifcsclaim| IfcsClaims::claimMetric(ifcsclaim) }.max
-        end
-
         return 0 if project["schedule"]["type"] == "ack"
         return 0.68 if projectuuid == "44caf74675ceb79ba5cc13bafa102509369c2b53" # Inbox
         0.2 + 0.46*Math.exp(-(Bank::total(projectuuid).to_f/86400))
@@ -234,19 +228,14 @@ class Projects
             system("clear")
             puts Projects::projectToString(project).green
             puts JSON.pretty_generate(project)
-            puts JSON.pretty_generate(IfcsClaims::getClaimsOfTypeProjectByUuid(project["uuid"]))
             puts "metric: #{Projects::projectMetric(project)}".green
             options = [
                 "dive items",
                 "make and attach new item",
                 "set project description",
                 "recast project schedule",
-                "dive ifcs claims",
                 "destroy project"
             ]
-            if IfcsClaims::getClaimsOfTypeProjectByUuid(project["uuid"]).empty? then
-                options.delete("dive ifcs claims")
-            end
             if !Items::getItemsByCreationTime(project["uuid"]).empty? then
                 options.delete("destroy project")
             end
@@ -288,14 +277,6 @@ class Projects
                 project["schedule"] = schedule
                 Projects::saveProject(project)
             end
-            if option == "dive ifcs claims" then
-                claims = IfcsClaims::getClaimsOfTypeProjectByUuid(project["uuid"])
-                loop {
-                    ifcsclaim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", claims, lambda{|claim| IfcsClaims::ifcsClaimToString(claim) })
-                    break if ifcsclaim.nil?
-                    IfcsClaims::diveIfcsClaim(ifcsclaim)
-                }
-            end
             if option == "destroy project" then
                 Projects::destroyProject(project)
                 return
@@ -306,9 +287,6 @@ class Projects
     # Projects::receiveRunTimespan(projectuuid, timespan)
     def self.receiveRunTimespan(projectuuid, timespan)
         Bank::put(projectuuid, timespan, CatalystCommon::pingRetainPeriodInSeconds())
-        IfcsClaims::getClaimsOfTypeProjectByUuid(projectuuid).each{|claim|
-            Bank::put(claim["uuid"], timespan, CatalystCommon::pingRetainPeriodInSeconds())
-        }
     end
 
 end

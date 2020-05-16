@@ -90,8 +90,8 @@ class WaveNextGen
         }
     end
 
-    # WaveNextGen::issueClaim(uuid, description, schedule)
-    def self.issueClaim(uuid, description, schedule)
+    # WaveNextGen::issue(uuid, description, schedule)
+    def self.issue(uuid, description, schedule)
         claim = WaveNextGen::makeClaim(uuid, description, schedule)
         WaveNextGen::save(claim)
     end
