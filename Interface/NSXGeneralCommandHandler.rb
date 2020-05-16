@@ -99,7 +99,7 @@ class NSXGeneralCommandHandler
             options = [
                 "Calendar",
                 "Wave",
-                "Projects",
+                "Todo",
                 "Nyx",
                 "Catalyst",
             ]
@@ -114,7 +114,7 @@ class NSXGeneralCommandHandler
                     break if option.nil?
                     if option == "Applications generation speed" then
                         puts "Applications generation speed report"
-                        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "LucilleTxt", "Projects", "Vienna", "Wave", "YouTubeVideoStream"]
+                        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "LucilleTxt", "Todo", "Vienna", "Wave", "YouTubeVideoStream"]
                             .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                             .map{|source|
                                 t1 = Time.new.to_f
@@ -142,8 +142,8 @@ class NSXGeneralCommandHandler
                     end
                 }
             end
-            if option == "Projects" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/projects")
+            if option == "Todo" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/projects")
             end
             if option == "Calendar" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")

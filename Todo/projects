@@ -47,7 +47,7 @@ require_relative "Core/Core.rb"
 
 loop {
     system("clear")
-    puts "Projects 👩‍💻"
+    puts "Todo 👩‍💻"
     options = [
         "items dive"
     ]

@@ -95,11 +95,11 @@ def itemToCatalystObject(item, basemetric, indx)
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
-            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing start '#{uuid}'",
-            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing open '#{uuid}'",
-            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing stop '#{uuid}'",
-            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing done '#{uuid}'",
-            "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing dive '#{uuid}'"
+            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{uuid}'",
+            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing open '#{uuid}'",
+            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing stop '#{uuid}'",
+            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing done '#{uuid}'",
+            "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing dive '#{uuid}'"
         },
         "isRunningForLong" => isRunningForLong,
         "x-projects:item" => item

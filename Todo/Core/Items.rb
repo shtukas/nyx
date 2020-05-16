@@ -89,7 +89,7 @@ class Items
 
     # Items::pathToRepository()
     def self.pathToRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items2"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2"
     end
 
     # Items::save(item)

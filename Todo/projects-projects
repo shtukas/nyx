@@ -45,5 +45,5 @@ require_relative "Core/Core.rb"
 
 # --------------------------------------------------------------------
 
-puts JSON.generate(Projects::projects())
+puts JSON.generate(Todo::projects())
 

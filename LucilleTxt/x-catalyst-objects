@@ -86,7 +86,7 @@ while (location = getNextLocationAtTheInboxOrNull.call()) do
         "description"  => File.basename(location),
         "target"       => target
     }
-    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items2/#{item["uuid"]}.json"
+    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{item["uuid"]}.json"
     File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     LucilleCore::removeFileSystemLocation(location2)
 end
