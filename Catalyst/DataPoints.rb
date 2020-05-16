@@ -2,10 +2,6 @@
 # encoding: UTF-8
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
-=begin
-    DataPoints::save(datapoint)
-    DataPoints::getOrNull(uuid)
-=end
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -18,6 +14,10 @@ require 'securerandom'
 # SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
 # -----------------------------------------------------------------
 
@@ -143,6 +143,7 @@ class DataPoints
     # DataPoints::pointDive(point)
     def self.pointDive(point)
         loop {
+            system("clear")
             DataPoints::printPointDetails(point)
             operations = [
                 "open",
@@ -152,6 +153,7 @@ class DataPoints
                 "targets (select and remove)",
                 "tags (add new)",
                 "tags (remove)",
+                "add to starlight node",
                 "destroy datapoint"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -197,6 +199,12 @@ class DataPoints
                 next if tag.nil?
                 point["tags"] = point["tags"].reject{|t| t == tag }
                 DataPoints::save(point)
+            end
+            if operation == "add to starlight node" then
+                node = StartlightNodes::selectNodeOrNull()
+                next if node.nil?
+                dataclaim = StarlightDataClaims::makeClaimGivenNodeAndDataPoint(node, point)
+                StarlightDataClaims::save(dataclaim)
             end
             if operation == "destroy datapoint" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then

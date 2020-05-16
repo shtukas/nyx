@@ -41,7 +41,7 @@ class NSXGeneralCommandHandler
             [
                 "help",
                 "/                    General Menu",
-                ">>                   Open Interface-Top.txt"
+                "::                   Open Interface-Top.txt"
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -85,8 +85,9 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == '>>' then
+        if command == '::' then
             system("open '/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt'")
+            LucilleCore::pressEnterToContinue()
             return
         end
 
@@ -109,10 +110,10 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
+                "DataNavigationAndSearch",
                 "Calendar",
                 "Wave",
                 "Todo",
-                "Nyx",
                 "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -160,8 +161,8 @@ class NSXGeneralCommandHandler
             if option == "Calendar" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")
             end
-            if option == "Nyx" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/nyx")
+            if option == "DataNavigationAndSearch" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNavigationAndSearch/data-navigation-and-search")
             end
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")

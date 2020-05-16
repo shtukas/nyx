@@ -2,12 +2,6 @@
 # encoding: UTF-8
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
-=begin
-    CatalystStandardTargets::locationToFileOrFolderTarget(location)
-    CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
-    CatalystStandardTargets::targetToString(target)
-    CatalystStandardTargets::openTarget(target)
-=end
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'

@@ -22,18 +22,21 @@ The navigation network is a semantic network of nodes and the paths between them
 
 ```
 StartlightNode {
-    uuid : String
-    name : String
+    "uuid"              : String
+    "creationTimestamp" : Float # Unixtime with decimals
+    "name"              : String
 }
 
 StarlightPath {
     "uuid"        : String
+    "creationTimestamp" : Float # Unixtime with decimals
     "sourceuuid"  : String # uuid of a StartlightNode
     "targetuuid"  : String # uuid of a StartlightNode
 }
 
 StarlightDataClaim {
     "uuid"      : String
+    "creationTimestamp" : Float # Unixtime with decimals
     "nodeuuid"  : String
     "pointuuid" : String
 }
