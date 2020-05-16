@@ -118,7 +118,7 @@ content = IO.read(PATH_TO_DESKTOP_FILE)
             .join()
 
 content = [
-            "Lucille 🔥",
+            "Lucille",
             " (bank: #{(timeInBank.to_f/3600).round(2)} hours)",
             Runner::runTimeInSecondsOrNull(objectuuid) ? " (running for #{(Runner::runTimeInSecondsOrNull(objectuuid).to_f/3600).round(2)} hours)" : "",
             "\n\n",

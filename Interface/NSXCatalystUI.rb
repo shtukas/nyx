@@ -58,6 +58,13 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
+        content = IO.read("/Users/pascal/Desktop/Interface-Top.txt").strip
+        if content.size > 0 then
+            puts ""
+            puts content.green
+            verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 1 )
+        end
+
         # displayObjectsForListing is being consumed while displayObjects should remain static
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         focusobject = displayObjectsForListing.first
