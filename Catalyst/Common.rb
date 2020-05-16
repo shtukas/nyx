@@ -40,6 +40,11 @@ class CatalystCommon
       IO.read(filepath)
     end
 
+    # CatalystCommon::isProperDateTimeIso8601(datetime)
+    def self.isProperDateTimeIso8601(datetime)
+        DateTime.parse(datetime).to_time.utc.iso8601 == datetime
+    end
+
     # CatalystCommon::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")
@@ -73,5 +78,39 @@ class CatalystCommon
     # CatalystCommon::pingRetainPeriodInSeconds()
     def self.pingRetainPeriodInSeconds()
         (365.24/4)*86400 # Number of seconds in a quarter of a year
+    end
+
+    # CatalystCommon::levenshteinDistance(s, t)
+    def self.levenshteinDistance(s, t)
+      # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
+      m = s.length
+      n = t.length
+      return m if n == 0
+      return n if m == 0
+      d = Array.new(m+1) {Array.new(n+1)}
+
+      (0..m).each {|i| d[i][0] = i}
+      (0..n).each {|j| d[0][j] = j}
+      (1..n).each do |j|
+        (1..m).each do |i|
+          d[i][j] = if s[i-1] == t[j-1]  # adjust index into string
+                      d[i-1][j-1]       # no operation required
+                    else
+                      [ d[i-1][j]+1,    # deletion
+                        d[i][j-1]+1,    # insertion
+                        d[i-1][j-1]+1,  # substitution
+                      ].min
+                    end
+        end
+      end
+      d[m][n]
+    end
+
+    # CatalystCommon::nyxStringDistance(str1, str2)
+    def self.nyxStringDistance(str1, str2)
+        # This metric takes values between 0 and 1
+        return 1 if str1.size == 0
+        return 1 if str2.size == 0
+        CatalystCommon::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
     end
 end

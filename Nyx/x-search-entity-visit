@@ -54,20 +54,20 @@ require_relative "Nyx.rb"
 
 UniqueId = 
     "pointuuid:<nyxPointUUID>"
-    "taxo:<taxo>"
+    "tag:<tag>"
 =end
 
 uniqueId = ARGV[0]
 exit if uniqueId.nil?
 if uniqueId.start_with?("pointuuid:") then
     pointuuid = uniqueId[10, 999].strip
-    point = NyxPoints::getPointByUUIDOrNUll(pointuuid)
+    point = DataPoints::getOrNull(pointuuid)
     exit if point.nil?
-    NyxUserInterface::pointDive(point)
+    DataPoints::pointDive(point)
 end
-if uniqueId.start_with?("taxo:") then
-    taxo = uniqueId[5, 999].strip
-    points = NyxOps::getPointsForTaxo(taxo)
+if uniqueId.start_with?("tag:") then
+    tag = uniqueId[5, 999].strip
+    points = NyxOps::getPointsForTag(tag)
     NyxUserInterface::pointsDive(points)
 end
 exit

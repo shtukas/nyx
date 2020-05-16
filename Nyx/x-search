@@ -50,8 +50,8 @@ def transform(item)
         if item["type"] == "point" then
             return item["point"]["description"]
         end
-        if item["type"] == "taxo" then
-            return item["taxo"]
+        if item["type"] == "tag" then
+            return item["tag"]
         end
     }
 
@@ -59,13 +59,13 @@ def transform(item)
         if item["type"] == "point" then
             return "pointuuid:#{item["point"]["uuid"]}"
         end
-        if item["type"] == "taxo" then
-            return "taxo:#{item["taxo"]}"
+        if item["type"] == "tag" then
+            return "tag:#{item["tag"]}"
         end
     }
 
     {
-        # {"type"=>"taxo", "taxo"=>"Pascal Guardian Open Cycles"}
+        # {"type"=>"tag", "tag"=>"Pascal Guardian Open Cycles"}
         "subsystem"   => "Nyx",
         "description" => itemToDescription.call(item),
         "uniqueId"    => itemToUniqueId.call(item)

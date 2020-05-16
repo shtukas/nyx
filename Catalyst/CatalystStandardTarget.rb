@@ -79,6 +79,8 @@ class CoreDataFile
         else
             filepath = CoreDataFile::filenameToFilepath(filename)
             FileUtils.cp(filepath, "/Users/pascal/Desktop/")
+            puts "File copied to Desktop {#{File.basename(filepath)}}"
+            LucilleCore::pressEnterToContinue()
         end
     end
 end
@@ -402,5 +404,21 @@ class CatalystStandardTarget
         end
         if target["type"] == "directory-mark" then
         end
+    end
+
+    # CatalystStandardTarget::targetDive(target)
+    def self.targetDive(target)
+        puts "-> target:"
+        puts JSON.pretty_generate(target)
+        puts CatalystStandardTarget::targetToString(target)
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # CatalystStandardTarget::targetsDive(targets)
+    def self.targetsDive(targets)
+        toStringLambda = lambda { |target| CatalystStandardTarget::targetToString(target) }
+        target = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose target", targets, toStringLambda)
+        return if target.nil?
+        CatalystStandardTarget::targetDive(target)
     end
 end

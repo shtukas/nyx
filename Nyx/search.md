@@ -7,6 +7,6 @@
 
 UniqueId = 
 	"pointuuid:<nyxPointUUID>"
-	"taxo:<taxo>"
+	"tag:<tag>"
 
 ```
