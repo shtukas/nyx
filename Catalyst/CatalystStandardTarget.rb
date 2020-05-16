@@ -78,73 +78,126 @@ class CatalystStandardTarget
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
-    def self.makeNewTargetInteractivelyOrNull()
-        puts "For the moment CatalystStandardTarget::makeNewTargetInteractivelyOrNull() can only do lines, if you need any of [file, url, folder] do write the code"
-        types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
-        return if type.nil?
-        if type == "line" then
-            line = LucilleCore::askQuestionAnswerAsString("line: ")
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "line",
-                "line" => line
-            }
-        end
-        if type == "url" then
-            url = LucilleCore::askQuestionAnswerAsString("url: ")
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "url",
-                "url"  => url
-            }
-        end
-        if type == "file" then
-            filepath1 = CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
-            return nil if filepath1.nil?
-            filename1 = File.basename(filepath1)
-            filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
-            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
-            FileUtils.mv(filepath1, filepath2)
-            CoreDataFile::copyFileToRepository(filepath2)
-            return {
-                "uuid"     => SecureRandom.uuid,
-                "type"     => "file",
-                "filename" => filename2
-            }
-        end
-        if type == "folder" then
-            folderpath1 = CatalystStandardTarget::selectOneFolderpathOnTheDesktopOrNull()
-            return nil if folderpath1.nil?
-            foldername1 = File.basename(folderpath1)
-            foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
-            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
-            FileUtils.mv(folderpath1, folderpath2)
-            CoreDataDirectory::copyFolderToRepository(folderpath2)
-            return {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "folder",
-                "foldername" => foldername2
-            }
-        end
-        if type == "unique-name" then
-            uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "unique-name",
-                "name" => uniquename
-            }
-        end
-        if type == "directory-mark" then
-            mark = LucilleCore::askQuestionAnswerAsString("directory mark: ")
+    # CatalystStandardTarget::makeTargetLineInteractively()
+    def self.makeTargetLineInteractively()
+        line = LucilleCore::askQuestionAnswerAsString("line: ")
+        return {
+            "uuid" => SecureRandom.uuid,
+            "type" => "line",
+            "line" => line
+        }
+    end
+
+    # CatalystStandardTarget::makeTargetUrlInteractively()
+    def self.makeTargetUrlInteractively()
+        url = LucilleCore::askQuestionAnswerAsString("url: ")
+        return {
+            "uuid" => SecureRandom.uuid,
+            "type" => "url",
+            "url"  => url
+        }
+    end
+
+    # CatalystStandardTarget::makeTargetFileInteractivelyOrNull()
+    def self.makeTargetFileInteractivelyOrNull()
+        filepath1 = CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
+        return nil if filepath1.nil?
+        filename1 = File.basename(filepath1)
+        filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
+        filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
+        FileUtils.mv(filepath1, filepath2)
+        CoreDataFile::copyFileToRepository(filepath2)
+        return {
+            "uuid"     => SecureRandom.uuid,
+            "type"     => "file",
+            "filename" => filename2
+        }
+    end
+
+    # CatalystStandardTarget::makeTargetFolderInteractivelyOrNull()
+    def self.makeTargetFolderInteractivelyOrNull()
+        folderpath1 = CatalystStandardTarget::selectOneFolderpathOnTheDesktopOrNull()
+        return nil if folderpath1.nil?
+        foldername1 = File.basename(folderpath1)
+        foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
+        folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
+        FileUtils.mv(folderpath1, folderpath2)
+        CoreDataDirectory::copyFolderToRepository(folderpath2)
+        return {
+            "uuid"       => SecureRandom.uuid,
+            "type"       => "folder",
+            "foldername" => foldername2
+        }
+    end
+
+    # CatalystStandardTarget::makeTargetUniqueNameInteractively()
+    def self.makeTargetUniqueNameInteractively()
+        uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
+        return {
+            "uuid" => SecureRandom.uuid,
+            "type" => "unique-name",
+            "name" => uniquename
+        }
+    end
+
+    # CatalystStandardTarget::makeTargetDirectoryMarkInteractively()
+    def self.makeTargetDirectoryMarkInteractively()
+        options = ["mark file already exists", "mark file should be created"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        return nil if option.nil?
+        if option == "mark file already exists" then
+            mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             return {
                 "uuid" => SecureRandom.uuid,
                 "type" => "directory-mark",
                 "mark" => mark
             }
         end
-        raise "Error: CatalystStandardTarget::makeNewTargetInteractivelyOrNull() is not completely implemented yet"
+        if option == "mark file should be created" then
+            mark = nil
+            loop {
+                targetFolderLocation = LucilleCore::askQuestionAnswerAsString("Location to the target folder: ")
+                if !File.exists?(targetFolderLocation) then
+                    puts "I can't see location '#{targetFolderLocation}'"
+                    puts "Let's try that again..."
+                    next
+                end
+                mark = SecureRandom.uuid
+                markFilepath = "#{targetFolderLocation}/Nyx-Directory-Mark.txt"
+                File.open(markFilepath, "w"){|f| f.write(mark) }
+                break
+            }
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "directory-mark",
+                "mark" => mark
+            }
+        end
+    end
+
+    # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
+    def self.makeNewTargetInteractivelyOrNull()
+        types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
+        return if type.nil?
+        if type == "line" then
+            return CatalystStandardTarget::makeTargetLineInteractively()
+        end
+        if type == "url" then
+            return CatalystStandardTarget::makeTargetUrlInteractively()
+        end
+        if type == "file" then
+            return CatalystStandardTarget::makeTargetFileInteractivelyOrNull()
+        end
+        if type == "folder" then
+            return CatalystStandardTarget::makeTargetFolderInteractivelyOrNull()
+        end
+        if type == "unique-name" then
+            return CatalystStandardTarget::makeTargetUniqueNameInteractively()
+        end
+        if type == "directory-mark" then
+            return CatalystStandardTarget::makeTargetDirectoryMarkInteractively()
+        end
     end
 
     # CatalystStandardTarget::targetToString(target)

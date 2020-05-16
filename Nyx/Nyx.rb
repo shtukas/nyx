@@ -402,117 +402,6 @@ class NyxOps
     # ------------------------------------------------------------------
     # Interactive Makers
 
-    # NyxOps::makeNyxTargetFileInteractiveOrNull()
-    def self.makeNyxTargetFileInteractiveOrNull()
-        filepath1 = NyxMiscUtils::selectOneFilepathOnTheDesktopOrNull()
-        return nil if filepath1.nil?
-        filename1 = File.basename(filepath1)
-        filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
-        filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
-        FileUtils.mv(filepath1, filepath2)
-        CoreDataFile::copyFileToRepository(filepath2)
-        return {
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "file",
-            "filename" => filename2
-        }
-    end
-
-    # NyxOps::makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
-    def self.makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
-        options = ["mark file already exists", "mark file should be created"]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
-        return nil if option.nil?
-        if option == "mark file already exists" then
-            mark = LucilleCore::askQuestionAnswerAsString("mark: ")
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "directory-mark",
-                "mark" => mark
-            }
-        end
-        if option == "mark file should be created" then
-            mark = nil
-            loop {
-                targetFolderLocation = LucilleCore::askQuestionAnswerAsString("Location to the target folder: ")
-                if !File.exists?(targetFolderLocation) then
-                    puts "I can't see location '#{targetFolderLocation}'"
-                    puts "Let's try that again..."
-                    next
-                end
-                mark = SecureRandom.uuid
-                markFilepath = "#{targetFolderLocation}/Nyx-Directory-Mark.txt"
-                File.open(markFilepath, "w"){|f| f.write(mark) }
-                break
-            }
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "directory-mark",
-                "mark" => mark
-            }
-        end
-    end
-
-    # NyxOps::makeNyxTargetInteractiveOrNull(type)
-    # type = nil | "url" | "file" | "unique-name" | "directory-mark" | "folder"
-    def self.makeNyxTargetInteractiveOrNull(type)
-        targetType =
-            if type.nil? then
-                LucilleCore::selectEntityFromListOfEntitiesOrNull("type", [
-                    "url",
-                    "unique-name",
-                    "file",
-                    "directory-mark",
-                    "folder"]
-                )
-            else
-                type
-            end
-        return nil if targetType.nil?
-        if targetType == "url" then
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "url",
-                "url"  => LucilleCore::askQuestionAnswerAsString("url: ").strip
-            }
-        end
-        if targetType == "file" then
-            return NyxOps::makeNyxTargetFileInteractiveOrNull()
-        end
-        if targetType == "unique-name" then
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "unique-name",
-                "name" => LucilleCore::askQuestionAnswerAsString("uniquename: ").strip
-            }
-        end
-        if targetType == "directory-mark" then
-            return NyxOps::makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
-        end
-        if targetType == "folder" then
-            desktopLocationnames = Dir.entries("/Users/pascal/Desktop")
-                                    .reject{|filename| filename[0, 1] == '.' }
-                                    .reject{|filename| ["pascal.png", "Lucille-Inbox", "Lucille.txt"].include?(filename) }
-            selecteddesktopLocationnames, _ = LucilleCore::selectZeroOrMore("file", [], desktopLocationnames)
-            return nil if selecteddesktopLocationnames.empty?
-            foldername2 = NyxMiscUtils::l22()
-            folderpath2 = CoreDataDirectory::foldernameToFolderpath(foldername2)
-            FileUtils.mkdir(folderpath2)
-            selecteddesktopLocations = selecteddesktopLocationnames.map{|filename| "/Users/pascal/Desktop/#{filename}" }
-            selecteddesktopLocations.each{|desktoplocation|
-                puts "Migrating '#{desktoplocation}' to '#{folderpath2}'"
-                LucilleCore::copyFileSystemLocation(desktoplocation, folderpath2)
-                LucilleCore::removeFileSystemLocation(desktoplocation)
-            }
-            return {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "folder",
-                "foldername" => foldername2
-            }
-        end
-        nil
-    end
-
     # NyxOps::makeOnePermanodeTagInteractiveOrNull()
     def self.makeOnePermanodeTagInteractiveOrNull()
         taxo = LucilleCore::askQuestionAnswerAsString("taxo (empty for exit): ")
@@ -574,14 +463,14 @@ class NyxOps
 
         if operation == "file (from desktop)" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            target = NyxOps::makeNyxTargetFileInteractiveOrNull()
+            target = CatalystStandardTarget::makeTargetFileInteractivelyOrNull()
             return if target.nil?
             NyxOps::makeNyxPointInteractivePart2(description, target)
         end
 
         if operation == "lstore-directory-mark" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            target = NyxOps::makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
+            target = CatalystStandardTarget::makeTargetDirectoryMarkInteractively()
             return if target.nil?
             NyxOps::makeNyxPointInteractivePart2(description, target)
         end
@@ -794,7 +683,7 @@ class NyxUserInterface
                 end
             end
             if operation == "targets (add new)" then
-                target = NyxOps::makeNyxTargetInteractiveOrNull(nil)
+                target = CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
                 next if target.nil?
                 point["targets"] << target
                 NyxPoints::save(point)
