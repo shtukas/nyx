@@ -86,8 +86,8 @@ YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath
         "commands"       => ["delete"],
         "defaultCommand" => "play",
         "shell-redirects" => {
-            "play"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/catalyst-objects-processing play '#{uuid}'",
-            "delete" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/catalyst-objects-processing delete '#{uuid}'"
+            "play"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/x-catalyst-objects-processing play '#{uuid}'",
+            "delete" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/x-catalyst-objects-processing delete '#{uuid}'"
         }
     }
 }

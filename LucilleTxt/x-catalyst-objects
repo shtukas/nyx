@@ -137,8 +137,8 @@ objects = [
         "isRunning" => isRunning,
         "isDone" => isDone,
         "shell-redirects" => {
-            "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing start",
-            "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/catalyst-objects-processing stop",
+            "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start",
+            "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop",
         }
     }
 ]

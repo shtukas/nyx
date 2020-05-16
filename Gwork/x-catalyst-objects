@@ -89,9 +89,9 @@ object = {
     "isRunning"       => isRunning,
     "isDone"          => isDone,
     "shell-redirects" => {
-        "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing start",
-        "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing stop",
-        "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing done",
+        "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-catalyst-objects-processing start",
+        "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-catalyst-objects-processing stop",
+        "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-catalyst-objects-processing done",
     }
 }
 puts JSON.generate([object])

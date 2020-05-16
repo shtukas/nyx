@@ -58,7 +58,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
 def visitSearchResult(searchResult)
     # {"subsystem"=>"Nyx", "description"=>"Pascal on naming things", "uniqueId"=>"pointuuid:f270920f-9426-4710-8a24-6ba02e0bccbd"}
     if searchResult["subsystem"] == "Nyx" then
-        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/search-entity-visit #{searchResult["uniqueId"]}")
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/x-search-entity-visit #{searchResult["uniqueId"]}")
         return
     end
     raise "I do not know how to contact subsystem #{searchResult["subsystem"]}"
@@ -72,7 +72,7 @@ loop {
 
     pattern = LucilleCore::askQuestionAnswerAsString("search pattern: ")
     break if pattern == ""
-    searchResults = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/search #{pattern}`)
+    searchResults = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/x-search #{pattern}`)
     result = LucilleCore::selectEntityFromListOfEntitiesOrNull("result", searchResults, tostring)
     break if result.nil?
     visitSearchResult(result)

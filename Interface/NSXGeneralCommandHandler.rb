@@ -109,7 +109,7 @@ class NSXGeneralCommandHandler
                     if option == "Applications generation speed" then
                         puts "Applications generation speed report"
                         ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "LucilleTxt", "Projects", "Vienna", "Wave", "YouTubeVideoStream"]
-                            .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/catalyst-objects" }
+                            .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                             .map{|source|
                                 t1 = Time.new.to_f
                                 JSON.parse(`#{source}`)

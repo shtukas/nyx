@@ -102,14 +102,14 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
-            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing open '#{project["uuid"]}' '#{itemuuid}'",
-            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing done '#{project["uuid"]}' '#{itemuuid}'",
-            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing start '#{project["uuid"]}' '#{itemuuid}'",
-            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing description '#{project["uuid"]}' '#{itemuuid}'",
-            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing stop '#{project["uuid"]}' '#{itemuuid}'",
-            "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing recast '#{project["uuid"]}' '#{itemuuid}'",
-            ">ifcs"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing make-ifcs-claim '#{project["uuid"]}' '#{itemuuid}'",
-            "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/catalyst-objects-processing project-dive '#{project["uuid"]}'"
+            "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing open '#{project["uuid"]}' '#{itemuuid}'",
+            "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing done '#{project["uuid"]}' '#{itemuuid}'",
+            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing start '#{project["uuid"]}' '#{itemuuid}'",
+            "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing description '#{project["uuid"]}' '#{itemuuid}'",
+            "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing stop '#{project["uuid"]}' '#{itemuuid}'",
+            "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing recast '#{project["uuid"]}' '#{itemuuid}'",
+            ">ifcs"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing make-ifcs-claim '#{project["uuid"]}' '#{itemuuid}'",
+            "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing project-dive '#{project["uuid"]}'"
         },
         "isDone" => isDone,
         "x-projects:project" => project,

@@ -57,7 +57,7 @@ if !Anniversaries::getNs1203WithOutstandingSequenceElements().empty? then
         "commands"       => [],
         "defaultCommand" => "activate",
         "shell-redirects" => {
-            "activate"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/catalyst-objects-processing activate"
+            "activate"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Anniversaries/x-catalyst-objects-processing activate"
         }
     }
 end

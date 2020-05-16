@@ -4,7 +4,7 @@
 class Items
     # Items::attachItemToProject(projectuuid, item)
     def self.attachItemToProject(projectuuid, item)
-        # There is a copy of function in LucilleTxt/catalyst-objects-processing
+        # There is a copy of function in LucilleTxt/x-catalyst-objects-processing
         BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", projectuuid, item["uuid"], item)
     end
 

@@ -33,8 +33,8 @@ def filePathToCatalystObject(date, indx)
         "commands"        => ["open"],
         "defaultCommand"  => "reviewed", 
         "shell-redirects" => {
-            "reviewed" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/catalyst-objects-processing reviewed '#{date}'",
-            "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/catalyst-objects-processing open '#{date}'",
+            "reviewed" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/x-catalyst-objects-processing reviewed '#{date}'",
+            "open" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/x-catalyst-objects-processing open '#{date}'",
         }
     }
 end
