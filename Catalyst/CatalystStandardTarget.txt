@@ -22,4 +22,10 @@ A CatalystStandardTarget is an object of the form
     "type"       : "unique-name"
     "uniquename" : String # Use Atlas to find them
 }
+{
+    "type"          : "directory-mark"
+    "directorymark" : String # Use Atlas to find them.
+                             # Atlas also supports findind directory marks.
+                             # `Nyx-Directory-Mark.txt` files with a unique name inside.
+}
 ```

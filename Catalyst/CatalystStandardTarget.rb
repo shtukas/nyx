@@ -61,7 +61,7 @@ class CatalystStandardTarget
     # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     def self.makeNewTargetInteractivelyOrNull()
         puts "For the moment CatalystStandardTarget::makeNewTargetInteractivelyOrNull() can only do lines, if you need any of [file, url, folder] do write the code"
-        types = ["line", "file", "url", "folder", "unique-name"]
+        types = ["line", "file", "url", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -85,6 +85,13 @@ class CatalystStandardTarget
                 "uniquename" => uniquename
             }
         end
+        if type == "directory-mark" then
+            directorymark = LucilleCore::askQuestionAnswerAsString("directory mark: ")
+            return {
+                "type" => "directory-mark",
+                "directorymark" => directorymark
+            }
+        end
         raise "Error: CatalystStandardTarget::makeNewTargetInteractivelyOrNull() is not completely implemented yet"
     end
 
@@ -104,6 +111,9 @@ class CatalystStandardTarget
         end
         if target["type"] == "unique-name" then
             return "unique name: #{target["uniquename"]}"
+        end
+        if target["type"] == "directory-mark" then
+            return "directory mark: #{target["directorymark"]}"
         end
         raise "Catalyst Standard Target error 3c7968e4"
     end
@@ -129,6 +139,11 @@ class CatalystStandardTarget
         end
         if target["type"] == "unique-name" then
             puts "Catalyst Standard Target doesn't yet know how to open unique-name. Please write the code."
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if target["type"] == "directory-mark" then
+            puts "Catalyst Standard Target doesn't yet know how to open directory-mark. Please write the code."
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -172,6 +187,8 @@ class CatalystStandardTarget
             end
         end
         if target["type"] == "unique-name" then
+        end
+        if target["type"] == "directory-mark" then
         end
     end
 end
