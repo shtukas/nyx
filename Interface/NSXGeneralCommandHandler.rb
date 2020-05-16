@@ -78,6 +78,12 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == '' then
+            puts NSXGeneralCommandHandler::helpLines().join()
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if command == "[]" then
             rewriteFile = lambda {|filepath|
                 CatalystCommon::copyLocationToCatalystBin(filepath)
@@ -85,7 +91,7 @@ class NSXGeneralCommandHandler
                 content = NSXMiscUtils::applyNextTransformationToContent(content)
                 File.open(filepath, "w"){|f| f.puts(content) }
             }
-            interfaceTopFilepath = "/Users/pascal/Desktop/Interface-Top.txt"
+            interfaceTopFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt"
             interfaceContents = IO.read(interfaceTopFilepath).strip
             if interfaceContents.size > 0 then
                 rewriteFile.call(interfaceTopFilepath)

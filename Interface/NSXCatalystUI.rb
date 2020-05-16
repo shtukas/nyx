@@ -58,7 +58,7 @@ class NSXCatalystUI
 
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
-        content = IO.read("/Users/pascal/Desktop/Interface-Top.txt").strip
+        content = IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt").strip
         if content.size > 0 then
             content = content.lines.select{|line| line.strip.size > 0 }.join().green
             puts ""
