@@ -1,12 +1,12 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
 =begin
-    CatalystStandardTarget::locationToFileOrFolderTarget(location)
-    CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
-    CatalystStandardTarget::targetToString(target)
-    CatalystStandardTarget::openTarget(target)
+    CatalystStandardTargets::locationToFileOrFolderTarget(location)
+    CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
+    CatalystStandardTargets::targetToString(target)
+    CatalystStandardTargets::openTarget(target)
 =end
 
 require 'fileutils'
@@ -115,12 +115,12 @@ class CoreDataDirectory
     end
 end
 
-class CatalystStandardTarget
+class CatalystStandardTargets
 
     # --------------------------------------------------
     # Makers
 
-    # CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
+    # CatalystStandardTargets::selectOneFilepathOnTheDesktopOrNull()
     def self.selectOneFilepathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -129,7 +129,7 @@ class CatalystStandardTarget
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # CatalystStandardTarget::selectOneFolderpathOnTheDesktopOrNull()
+    # CatalystStandardTargets::selectOneFolderpathOnTheDesktopOrNull()
     def self.selectOneFolderpathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -138,7 +138,7 @@ class CatalystStandardTarget
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # CatalystStandardTarget::makeTargetLineInteractively()
+    # CatalystStandardTargets::makeTargetLineInteractively()
     def self.makeTargetLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         return {
@@ -148,7 +148,7 @@ class CatalystStandardTarget
         }
     end
 
-    # CatalystStandardTarget::makeTargetUrlInteractively()
+    # CatalystStandardTargets::makeTargetUrlInteractively()
     def self.makeTargetUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         return {
@@ -158,9 +158,9 @@ class CatalystStandardTarget
         }
     end
 
-    # CatalystStandardTarget::makeTargetFileInteractivelyOrNull()
+    # CatalystStandardTargets::makeTargetFileInteractivelyOrNull()
     def self.makeTargetFileInteractivelyOrNull()
-        filepath1 = CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
+        filepath1 = CatalystStandardTargets::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
@@ -174,9 +174,9 @@ class CatalystStandardTarget
         }
     end
 
-    # CatalystStandardTarget::makeTargetFolderInteractivelyOrNull()
+    # CatalystStandardTargets::makeTargetFolderInteractivelyOrNull()
     def self.makeTargetFolderInteractivelyOrNull()
-        folderpath1 = CatalystStandardTarget::selectOneFolderpathOnTheDesktopOrNull()
+        folderpath1 = CatalystStandardTargets::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
@@ -190,7 +190,7 @@ class CatalystStandardTarget
         }
     end
 
-    # CatalystStandardTarget::makeTargetUniqueNameInteractively()
+    # CatalystStandardTargets::makeTargetUniqueNameInteractively()
     def self.makeTargetUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         return {
@@ -200,7 +200,7 @@ class CatalystStandardTarget
         }
     end
 
-    # CatalystStandardTarget::makeTargetDirectoryMarkInteractively()
+    # CatalystStandardTargets::makeTargetDirectoryMarkInteractively()
     def self.makeTargetDirectoryMarkInteractively()
         options = ["mark file already exists", "mark file should be created"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -235,32 +235,32 @@ class CatalystStandardTarget
         end
     end
 
-    # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
+    # CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
     def self.makeNewTargetInteractivelyOrNull()
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
-            return CatalystStandardTarget::makeTargetLineInteractively()
+            return CatalystStandardTargets::makeTargetLineInteractively()
         end
         if type == "url" then
-            return CatalystStandardTarget::makeTargetUrlInteractively()
+            return CatalystStandardTargets::makeTargetUrlInteractively()
         end
         if type == "file" then
-            return CatalystStandardTarget::makeTargetFileInteractivelyOrNull()
+            return CatalystStandardTargets::makeTargetFileInteractivelyOrNull()
         end
         if type == "folder" then
-            return CatalystStandardTarget::makeTargetFolderInteractivelyOrNull()
+            return CatalystStandardTargets::makeTargetFolderInteractivelyOrNull()
         end
         if type == "unique-name" then
-            return CatalystStandardTarget::makeTargetUniqueNameInteractively()
+            return CatalystStandardTargets::makeTargetUniqueNameInteractively()
         end
         if type == "directory-mark" then
-            return CatalystStandardTarget::makeTargetDirectoryMarkInteractively()
+            return CatalystStandardTargets::makeTargetDirectoryMarkInteractively()
         end
     end
 
-    # CatalystStandardTarget::locationToFileOrFolderTarget(location)
+    # CatalystStandardTargets::locationToFileOrFolderTarget(location)
     def self.locationToFileOrFolderTarget(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
@@ -292,7 +292,7 @@ class CatalystStandardTarget
 
     # --------------------------------------------------
 
-    # CatalystStandardTarget::targetToString(target)
+    # CatalystStandardTargets::targetToString(target)
     def self.targetToString(target)
         if target["type"] == "line" then
             return target["line"]
@@ -315,7 +315,7 @@ class CatalystStandardTarget
         raise "Catalyst Standard Target error 3c7968e4"
     end
 
-    # CatalystStandardTarget::openTarget(target)
+    # CatalystStandardTargets::openTarget(target)
     def self.openTarget(target)
         if target["type"] == "line" then
             puts target["line"]
@@ -361,7 +361,7 @@ class CatalystStandardTarget
         raise "Catalyst Standard Target error 160050-490261"
     end
 
-    # CatalystStandardTarget::fsckTarget(target)
+    # CatalystStandardTargets::fsckTarget(target)
     def self.fsckTarget(target)
         if target["uuid"].nil? then
             raise "target as no uuid"
@@ -406,19 +406,19 @@ class CatalystStandardTarget
         end
     end
 
-    # CatalystStandardTarget::targetDive(target)
+    # CatalystStandardTargets::targetDive(target)
     def self.targetDive(target)
         puts "-> target:"
         puts JSON.pretty_generate(target)
-        puts CatalystStandardTarget::targetToString(target)
+        puts CatalystStandardTargets::targetToString(target)
         LucilleCore::pressEnterToContinue()
     end
 
-    # CatalystStandardTarget::targetsDive(targets)
+    # CatalystStandardTargets::targetsDive(targets)
     def self.targetsDive(targets)
-        toStringLambda = lambda { |target| CatalystStandardTarget::targetToString(target) }
+        toStringLambda = lambda { |target| CatalystStandardTargets::targetToString(target) }
         target = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose target", targets, toStringLambda)
         return if target.nil?
-        CatalystStandardTarget::targetDive(target)
+        CatalystStandardTargets::targetDive(target)
     end
 end

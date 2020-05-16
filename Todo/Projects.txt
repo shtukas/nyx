@@ -5,7 +5,7 @@ Item {
     "projectname"  : String
     "projectuuid"  : String
     "description"  : null | String
-    "target"       : CatalystStandardTarget
+    "target"       : CatalystStandardTargets
 }
 
 "44caf74675ceb79ba5cc13bafa102509369c2b53" Inbox (gets items from Lucille-Inbox)

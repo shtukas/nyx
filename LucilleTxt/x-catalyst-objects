@@ -57,13 +57,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
-=begin
-    CatalystStandardTarget::locationToFileOrFolderTarget(location)
-    CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
-    CatalystStandardTarget::targetToString(target)
-    CatalystStandardTarget::openTarget(target)
-=end
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyNegativeTimes.rb"
 
@@ -77,7 +71,7 @@ getNextLocationAtTheInboxOrNull = lambda {
 }
 
 while (location = getNextLocationAtTheInboxOrNull.call()) do
-    target = CatalystStandardTarget::locationToFileOrFolderTarget(location)
+    target = CatalystStandardTargets::locationToFileOrFolderTarget(location)
     item = {
         "uuid"         => SecureRandom.uuid,
         "creationtime" => Time.new.to_f,

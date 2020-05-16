@@ -63,7 +63,7 @@ class DataPoints
     def self.makeCatalystStandardTargetsInteractively()
         targets = []
         loop {
-            target = CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
+            target = CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
             break if target.nil?
             targets << target
         }
@@ -108,7 +108,7 @@ class DataPoints
         puts "    targets:"
         point["targets"]
             .each{|target|
-                puts "        #{CatalystStandardTarget::targetToString(target)}"
+                puts "        #{CatalystStandardTargets::targetToString(target)}"
             }
         if point["tags"].empty? then
             puts "    tags: (empty set)".green
@@ -134,10 +134,10 @@ class DataPoints
         if point["targets"].size == 1 then
             target = point["targets"].first
         else
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", point["targets"], lambda{|target| CatalystStandardTarget::targetToString(target) })
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", point["targets"], lambda{|target| CatalystStandardTargets::targetToString(target) })
         end
         puts JSON.pretty_generate(target)
-        CatalystStandardTarget::openTarget(target)
+        CatalystStandardTargets::openTarget(target)
     end
 
     # DataPoints::pointDive(point)
@@ -170,19 +170,19 @@ class DataPoints
             end
             if operation == "target(s) dive" then
                 if point["targets"].size == 1 then
-                    CatalystStandardTarget::targetDive(point["targets"][0])
+                    CatalystStandardTargets::targetDive(point["targets"][0])
                 else
-                    CatalystStandardTarget::targetsDive(point["targets"])
+                    CatalystStandardTargets::targetsDive(point["targets"])
                 end
             end
             if operation == "targets (add new)" then
-                target = CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
+                target = CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
                 next if target.nil?
                 point["targets"] << target
                 DataPoints::save(point)
             end
             if operation == "targets (select and remove)" then
-                toStringLambda = lambda { |target| CatalystStandardTarget::targetToString(target) }
+                toStringLambda = lambda { |target| CatalystStandardTargets::targetToString(target) }
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", point["targets"], toStringLambda)
                 next if target.nil?
                 point["targets"] = point["targets"].reject{|t| t["uuid"] == target["uuid"] }
