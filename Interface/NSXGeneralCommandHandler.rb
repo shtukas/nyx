@@ -79,10 +79,19 @@ class NSXGeneralCommandHandler
         end
 
         if command == "[]" then
-            CatalystCommon::copyLocationToCatalystBin("/Users/pascal/Desktop/Lucille.txt")
-            content = IO.read("/Users/pascal/Desktop/Lucille.txt")
-            content = NSXMiscUtils::applyNextTransformationToContent(content)
-            File.open("/Users/pascal/Desktop/Lucille.txt", "w"){|f| f.puts(content) }
+            rewriteFile = lambda {|filepath|
+                CatalystCommon::copyLocationToCatalystBin(filepath)
+                content = IO.read(filepath)
+                content = NSXMiscUtils::applyNextTransformationToContent(content)
+                File.open(filepath, "w"){|f| f.puts(content) }
+            }
+            interfaceTopFilepath = "/Users/pascal/Desktop/Interface-Top.txt"
+            interfaceContents = IO.read(interfaceTopFilepath).strip
+            if interfaceContents.size > 0 then
+                rewriteFile.call(interfaceTopFilepath)
+            else
+                rewriteFile.call("/Users/pascal/Desktop/Lucille.txt")
+            end
             return
         end
 
