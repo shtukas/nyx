@@ -15,18 +15,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
-=begin
-    CoreDataFile::copyFileToRepository(filepath)
-    CoreDataFile::filenameToFilepath(filename)
-    CoreDataFile::exists?(filename)
-    CoreDataFile::openOrCopyToDesktop(filename)
-
-    CoreDataDirectory::copyFolderToRepository(folderpath)
-    CoreDataDirectory::foldernameToFolderpath(foldername)
-    CoreDataDirectory::exists?(foldername)
-    CoreDataDirectory::openFolder(foldername)
-=end
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 

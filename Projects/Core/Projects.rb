@@ -15,19 +15,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.rb"
-=begin
-
-    CoreDataFile::copyFileToRepository(filepath)
-    CoreDataFile::filenameToFilepath(filename)
-    CoreDataFile::exists?(filename)
-    CoreDataFile::openOrCopyToDesktop(filename)
-
-    CoreDataDirectory::copyFolderToRepository(folderpath)
-    CoreDataDirectory::foldernameToFolderpath(foldername)
-    CoreDataDirectory::openFolder(foldername)
-
-=end
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets.rb"
 =begin

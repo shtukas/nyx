@@ -60,8 +60,9 @@ class NSXCatalystUI
 
         content = IO.read("/Users/pascal/Desktop/Interface-Top.txt").strip
         if content.size > 0 then
+            content = content.lines.select{|line| line.strip.size > 0 }.join().green
             puts ""
-            puts content.green
+            puts content
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 1 )
         end
 
