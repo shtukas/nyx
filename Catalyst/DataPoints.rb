@@ -84,11 +84,11 @@ class DataPoints
     # DataPoints::makeDataPointInteractivelyOrNull()
     def self.makeDataPointInteractivelyOrNull()
         {
-            uuid              => SecureRandom.uuid,
-            creationTimestamp => Time.new.to_f,
-            description       => LucilleCore::askQuestionAnswerAsString("description: "),
-            targets           => DataPoints::makeCatalystStandardTargetsInteractively(),
-            tags              => DataPoints::makeTagsInteractively()
+            "uuid"              => SecureRandom.uuid,
+            "creationTimestamp" => Time.new.to_f,
+            "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
+            "targets"           => DataPoints::makeCatalystStandardTargetsInteractively(),
+            "tags"              => DataPoints::makeTagsInteractively()
         }
     end
 

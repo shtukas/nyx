@@ -22,8 +22,8 @@ The navigation network is a semantic network of nodes and the paths between them
 
 ```
 StartlightNode {
-    uuid     : String
-    nodename : String
+    uuid : String
+    name : String
 }
 
 StarlightPath {
