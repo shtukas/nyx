@@ -317,9 +317,9 @@ class Projects
 
     # Projects::receiveRunTimespan(projectuuid, timespan)
     def self.receiveRunTimespan(projectuuid, timespan)
-        Bank::put(projectuuid, timespan, Utils::pingRetainPeriodInSeconds())
+        Bank::put(projectuuid, timespan, CatalystCommon::pingRetainPeriodInSeconds())
         IfcsClaims::getClaimsOfTypeProjectByUuid(projectuuid).each{|claim|
-            Bank::put(claim["uuid"], timespan, Utils::pingRetainPeriodInSeconds())
+            Bank::put(claim["uuid"], timespan, CatalystCommon::pingRetainPeriodInSeconds())
         }
     end
 

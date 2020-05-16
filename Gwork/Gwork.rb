@@ -59,7 +59,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 # -------------------------------------------------------------------------
 
 def objectuuid()
-    "9aebb4c6-d2e8-42dd-bf5d-48a0c1e6613d"
+    "39909ff4-e102-45c2-ace9-21be21572772"
 end
 
 def today()

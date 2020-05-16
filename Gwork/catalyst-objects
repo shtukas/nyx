@@ -66,52 +66,21 @@ DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(objectuuid(), 6*3600, [1, 2
 
 # -------------------------------------------------------------------------
 
-if Time.new.hour < 8 or [6, 0].include?(Time.new.wday) then
-    puts "[]"
-    exit
-end
-
-status = KeyValueStore::getOrNull(nil, statusKey())
-
-if status.nil? then
-    object = {
-        "uuid"            => objectuuid(),
-        "contentItem"     => {
-            "type" => "line",
-            "line" => "Guardian Work [not initialized]"
-        },
-        "metric"          => 0.77,
-        "commands"        => ["done"],
-        "defaultCommand"  => "initialize", 
-        "shell-redirects" => {
-            "initialize" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing initialize",
-            "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/catalyst-objects-processing done",
-        }
-    }
-    puts JSON.generate([object])
-    exit
-end
-
-if status == "done" then
-    puts "[]"
-    exit
-end
-
-todayTimeInHours = status.to_f
 isRunning = Runner::isRunning(objectuuid())
-timeDoneInSeconds = Bank::total(pingponguuid()) + (Runner::runTimeInSecondsOrNull(objectuuid()) || 0)
-timeDoneInHours = timeDoneInSeconds.to_f/3600
-timeDoneRatio = timeDoneInHours.to_f/todayTimeInHours
 
-metric = isRunning ? 1 : (timeDoneRatio <= 1 ? 0.77 : 0)
+timeInBank = Bank::total(objectuuid())
+negativeTimesMetric = 0.72 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
+positiveTimeMetric  = 0.72*Math.exp(-timeInBank.to_f/3600)
+metric = timeInBank < 0 ? negativeTimesMetric : positiveTimeMetric
+metric = isRunning ? 1 : metric
 
-isDone = isRunning and ((Runner::runTimeInSecondsOrNull(objectuuid()) || 0) > 3600)
+isDone = isRunning and timeInBank >= 0
 
 object = {
     "uuid"            => objectuuid(),
     "contentItem"     => {
         "type" => "line",
-        "line" => "Guardian Work (#{isRunning ? "running, " : ""}time remaining: #{(todayTimeInHours-timeDoneInHours).round(2)} hours)"
+        "line" => "Guardian Work (bank: #{(timeInBank.to_f/3600).round(2)} hours)#{isRunning ? " (running for #{Runner::runTimeInSecondsOrNull(objectuuid()).to_f/3600} hours)" : ""}"
     },
     "metric"          => metric,
     "commands"        => ["done"],

@@ -126,10 +126,10 @@ class Items
 
     # Items::receiveRunTimespan(projectuuid, itemuuid, timespan)
     def self.receiveRunTimespan(projectuuid, itemuuid, timespan)
-        Bank::put(itemuuid, timespan, Utils::pingRetainPeriodInSeconds())
+        Bank::put(itemuuid, timespan, CatalystCommon::pingRetainPeriodInSeconds())
         Projects::receiveRunTimespan(projectuuid, timespan)
         IfcsClaims::getClaimsOfTypeItemByUuids(projectuuid, itemuuid).each{|claim|
-            Bank::put(claim["uuid"], timespan, Utils::pingRetainPeriodInSeconds())
+            Bank::put(claim["uuid"], timespan, CatalystCommon::pingRetainPeriodInSeconds())
         }
     end
 end

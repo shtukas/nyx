@@ -39,14 +39,12 @@ class NSXDisplayUtils
         if defaultCommand then
             commands = commands.reject{|c| c == defaultCommand }
         end
-        part2 =
-            [
-                (object["contentItem"]["type"] != "block" ? FlamePadding : nil),
-                defaultCommand ? "#{defaultCommand.green}" : nil,
-                commands.join(" "),
-                NSXDisplayUtils::defaultCatalystObjectCommands().join(" ")
-            ].compact.reject{|command| command=='' }.join(" ")
-        part2
+        [
+            (object["contentItem"]["type"] != "block" ? FlamePadding : nil),
+            defaultCommand ? "#{defaultCommand.green}" : nil,
+            commands.join(" "),
+            NSXDisplayUtils::defaultCatalystObjectCommands().join(" ")
+        ].compact.reject{|command| command=='' }.join(" ")
     end
 
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)

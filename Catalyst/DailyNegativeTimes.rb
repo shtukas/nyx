@@ -28,6 +28,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
     CoreDataDirectory::openFolder(foldername)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
+
 # -----------------------------------------------------------------
 
 class DailyNegativeTimes
@@ -45,7 +47,7 @@ class DailyNegativeTimes
         return if Time.new.hour < 6
         return if Time.new.hour > 12
         timespan = DailyNegativeTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal) * 3600
-        Bank::put(uuid, -timespan, Utils::pingRetainPeriodInSeconds())
+        Bank::put(uuid, -timespan, CatalystCommon::pingRetainPeriodInSeconds())
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 
@@ -56,7 +58,7 @@ class DailyNegativeTimes
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
         return if Time.new.hour < 6
         return if Time.new.hour > 12
-        Bank::put(uuid, -timeInSeconds, Utils::pingRetainPeriodInSeconds())
+        Bank::put(uuid, -timeInSeconds, CatalystCommon::pingRetainPeriodInSeconds())
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 end

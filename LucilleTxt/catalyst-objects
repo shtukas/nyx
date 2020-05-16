@@ -95,24 +95,33 @@ end
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-objectuuid = "82af928d-5596-4d14-a9bc-dceb0e1f55c0"
+objectuuid = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
 
 DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(objectuuid, 2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
+
+isRunning = Runner::isRunning(objectuuid)
+
+timeInBank = Bank::total(objectuuid)
+negativeTimesMetric = 0.70 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
+positiveTimeMetric  = 0.70*Math.exp(-timeInBank.to_f/3600)
+metric = timeInBank < 0 ? negativeTimesMetric : positiveTimeMetric
+metric = isRunning ? 1 : metric
+
+isDone = isRunning and timeInBank >= 0
 
 content = IO.read(PATH_TO_DESKTOP_FILE)
             .lines
             .select{|line| line.strip.size>0 }
             .first(10)
+            .map{|line| "              #{line}" }
             .join()
 
-isRunning = Runner::isRunning(objectuuid)
-
-# We keep the numbers for 24 hours
-# Starts at 0.6 and decrease by 0.2 every hour
-timeDoneLive = Bank::total(objectuuid) + (Runner::runTimeInSecondsOrNull(objectuuid) || 0)
-metric = 0.76 - (0.2/3600)*timeDoneLive
-
-isDone = isRunning and ((Runner::runTimeInSecondsOrNull(objectuuid) || 0) > 3600)
+content = [
+            "Lucille 🔥\n",
+            "(bank: #{(timeInBank.to_f/3600).round(2)} hours)\n",
+            Runner::runTimeInSecondsOrNull(objectuuid) ? "(running for #{(Runner::runTimeInSecondsOrNull(objectuuid).to_f/3600).round(2)} hours)\n" : "",
+            content
+          ].join()
 
 objects = [
     {
