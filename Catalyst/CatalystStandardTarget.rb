@@ -152,8 +152,15 @@ class CatalystStandardTarget
             return
         end
         if target["type"] == "directory-mark" then
-            puts "Catalyst Standard Target doesn't yet know how to open directory-mark. Please write the code."
-            LucilleCore::pressEnterToContinue()
+            directorymark = target["directorymark"]
+            location = AtlasCore::uniqueStringToLocationOrNull(directorymark)
+            if location then
+                puts "opening: #{File.dirname(location)}"
+                system("open '#{File.dirname(location)}'")
+            else
+                puts "I could not determine the location of mark: #{directorymark}"
+                LucilleCore::pressEnterToContinue()
+            end
             return
         end
         raise "Catalyst Standard Target error 160050-490261"
