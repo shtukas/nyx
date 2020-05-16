@@ -61,7 +61,7 @@ class CatalystStandardTarget
     # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     def self.makeNewTargetInteractivelyOrNull()
         puts "For the moment CatalystStandardTarget::makeNewTargetInteractivelyOrNull() can only do lines, if you need any of [file, url, folder] do write the code"
-        types = ["line", "file", "url", "folder"]
+        types = ["line", "file", "url", "folder", "unique-name"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
@@ -71,7 +71,21 @@ class CatalystStandardTarget
                 "line" => line
             }
         end
-        nil
+        if type == "url" then
+            url = LucilleCore::askQuestionAnswerAsString("url: ")
+            return {
+                "type" => "url",
+                "url" => url
+            }
+        end
+        if type == "unique-name" then
+            uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
+            return {
+                "type" => "unique-name",
+                "uniquename" => uniquename
+            }
+        end
+        raise "Error: CatalystStandardTarget::makeNewTargetInteractivelyOrNull() is not completely implemented yet"
     end
 
     # CatalystStandardTarget::targetToString(target)
@@ -87,6 +101,9 @@ class CatalystStandardTarget
         end
         if target["type"] == "folder" then
             return "CoreData folder: #{target["foldername"]}"
+        end
+        if target["type"] == "unique-name" then
+            return "unique name: #{target["uniquename"]}"
         end
         raise "Catalyst Standard Target error 3c7968e4"
     end
@@ -108,6 +125,11 @@ class CatalystStandardTarget
         end
         if target["type"] == "folder" then
             CoreDataDirectory::openFolder(target["foldername"])
+            return
+        end
+        if target["type"] == "unique-name" then
+            puts "Catalyst Standard Target doesn't yet know how to open unique-name. Please write the code."
+            LucilleCore::pressEnterToContinue()
             return
         end
         raise "Catalyst Standard Target error 160050-490261"
@@ -148,6 +170,8 @@ class CatalystStandardTarget
                 puts target
                 raise "CoreDataFile cannot find this foldername: #{target["foldername"]}"
             end
+        end
+        if target["type"] == "unique-name" then
         end
     end
 end

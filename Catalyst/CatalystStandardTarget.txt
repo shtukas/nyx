@@ -18,4 +18,8 @@ A CatalystStandardTarget is an object of the form
     "type"       : "folder"
     "foldername" : String (CoreData managed)
 }
+{
+    "type"       : "unique-name"
+    "uniquename" : String # Use Atlas to find them
+}
 ```
