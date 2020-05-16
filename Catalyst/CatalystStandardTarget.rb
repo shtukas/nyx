@@ -3,7 +3,7 @@
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
 =begin
-    CatalystStandardTarget::locationToTargetOrNullIfBasenameIsCurrent(location)
+    CatalystStandardTarget::locationToFileOrFolderTarget(location)
     CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     CatalystStandardTarget::targetToString(target)
     CatalystStandardTarget::openTarget(target)
@@ -29,6 +29,17 @@ class CoreDataUtils
     # CoreDataUtils::pathToCoreData()
     def self.pathToCoreData()
         "/Users/pascal/Galaxy/DataBank/Catalyst/CoreData"
+    end
+
+    # CoreDataUtils::copyLocationToCatalystBin(location)
+    def self.copyLocationToCatalystBin(location)
+        return if location.nil?
+        return if !File.exists?(location)
+        folder1 = "#{CatalystCommon::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder2 = LucilleCore::indexsubfolderpath(folder1)
+        folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
+        FileUtils.mkdir(folder3)
+        LucilleCore::copyFileSystemLocation(location, folder3)
     end
 end
 
@@ -104,33 +115,32 @@ end
 
 class CatalystStandardTarget
 
-    # CatalystStandardTarget::copyLocationToCatalystBin(location)
-    def self.copyLocationToCatalystBin(location)
-        return if location.nil?
-        return if !File.exists?(location)
-        folder1 = "#{CatalystCommon::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
-        folder2 = LucilleCore::indexsubfolderpath(folder1)
-        folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
-        FileUtils.mkdir(folder3)
-        LucilleCore::copyFileSystemLocation(location, folder3)
-    end
-
-    # CatalystStandardTarget::locationToTargetOrNullIfBasenameIsCurrent(location)
-    def self.locationToTargetOrNullIfBasenameIsCurrent(location)
+    # CatalystStandardTarget::locationToFileOrFolderTarget(location)
+    def self.locationToFileOrFolderTarget(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
-            return nil if CoreDataFile::exists?(File.basename(location))
-            CoreDataFile::copyFileToRepository(location)
-            {
+            filepath1 = location
+            filename1 = File.basename(filepath1)
+            filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
+            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
+            FileUtils.mv(filepath1, filepath2)
+            CoreDataFile::copyFileToRepository(filepath2)
+            return {
+                "uuid"     => SecureRandom.uuid,
                 "type"     => "file",
-                "filename" => File.basename(location)
+                "filename" => filename2
             }
         else
-            return nil if CoreDataDirectory::exists?(File.basename(location))
-            CoreDataDirectory::copyFolderToRepository(location)
-            {
+            folderpath1 = location
+            foldername1 = File.basename(folderpath1)
+            foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
+            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
+            FileUtils.mv(folderpath1, folderpath2)
+            CoreDataDirectory::copyFolderToRepository(folderpath2)
+            return {
+                "uuid"       => SecureRandom.uuid,
                 "type"       => "folder",
-                "foldername" => File.basename(location)
+                "foldername" => foldername2
             }
         end
     end

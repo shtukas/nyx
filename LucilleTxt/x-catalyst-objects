@@ -59,7 +59,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTarget.rb"
 =begin
-    CatalystStandardTarget::locationToTargetOrNullIfBasenameIsCurrent(location)
+    CatalystStandardTarget::locationToFileOrFolderTarget(location)
     CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     CatalystStandardTarget::targetToString(target)
     CatalystStandardTarget::openTarget(target)
@@ -77,14 +77,11 @@ getNextLocationAtTheInboxOrNull = lambda {
 }
 
 while (location = getNextLocationAtTheInboxOrNull.call()) do
-    location2 = "#{File.dirname(location)}/#{SecureRandom.hex(6)}-#{File.basename(location)}"
-    FileUtils.mv(location, location2)
-    target = CatalystStandardTarget::locationToTargetOrNullIfBasenameIsCurrent(location2)
-    raise "error: 23BDC7A7C441" if target.nil?
+    target = CatalystStandardTarget::locationToFileOrFolderTarget(location)
     item = {
         "uuid"         => SecureRandom.uuid,
         "creationtime" => Time.new.to_f,
-        "description"  => File.basename(location2),
+        "description"  => File.basename(location),
         "target"       => target
     }
     BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", "44caf74675ceb79ba5cc13bafa102509369c2b53", item["uuid"], item)
