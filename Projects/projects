@@ -49,40 +49,12 @@ loop {
     system("clear")
     puts "Projects 👩‍💻"
     options = [
-        "create new project", 
-        "standard projects (dive)",
-        "ack projects (dive)",
-        "fsck"
+        "items dive"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "create new project" then
-        puts "Create New Project, not implemented yet"
-        LucilleCore::pressEnterToContinue()
-    end
-    if option == "standard projects (dive)" then
-        loop {
-            projects = Projects::getStandardProjects().sort{|p1, p2| p1["description"] <=> p2["description"] }
-            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|project| Projects::projectToString(project) })
-            break if project.nil?
-            Projects::diveProject(project)
-        }
-    end
-    if option == "ack projects (dive)" then
-        loop {
-            projects = Projects::getAckProjects().sort{|p1, p2| p1["description"] <=> p2["description"] }
-            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|project| Projects::projectToString(project) })
-            break if project.nil?
-            Projects::diveProject(project)
-        }
-    end
-    if option == "fsck" then
-        puts "-> running fsck"
-        Projects::projects()
-            .each{|project|
-                Fsck::fsckProject(project)
-            }
-        puts "fsck completed"
+    if option == "items dive" then
+        puts "not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
 }

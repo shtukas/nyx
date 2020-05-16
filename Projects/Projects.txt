@@ -1,53 +1,19 @@
 
-# ---------------------------------------------------------------------
-
-ProjectItem {
+Item {
     "uuid"         : String
     "creationtime" : Float
+    "projectname"  : String
+    "projectuuid"  : String
     "description"  : null | String
     "target"       : CatalystStandardTarget
-}
-
-The project item runs (Runner) as Catalyst Object, but gives their times to 
-    - the project
-    - any Ifcs claims against the project or against the item itself. 
-
-The metric of an items is the max between 
-    - the metric of its project (from the project time and the ifcs items targetting the project)
-    - the metric from any ifcs item targetting the item itself.
-
-# ---------------------------------------------------------------------
-
-Project {
-    "uuid"         : String
-    "creationtime" : Float # Unixtime with decimals
-    "description"  : String
-    "schedule"     : Schedule
 }
 
 "44caf74675ceb79ba5cc13bafa102509369c2b53" Inbox (gets items from Lucille-Inbox)
 "0219fd54bd5841008b18c414a5b2dea331bad1c5" Infinity (gets links from Vienna)
 
-Schedule:
-    {
-        "type" : "standard"
-    }
-    {
-        "type" : "ack"
-    }
-
-The metric of a project comes from its own time and the metric of the ifcs claims that target it.
-
-# ---------------------------------------------------------------------
-
 InFlighControlSystemClaim
 {
     "uuid"             : String
     "position"         : Float # Unixtime with decimals
-    "projectuuid"      : String
     "itemuuid"         : String
 }
-
-InFlighControlSystemClaims have their own time bank (Ping). The positive numbers come from the items that run under them (either directly targetted or through targetting of the item's project), the negative numbers come from the daily penalties.
-
-The metric of an ifcs claim comes from its ordinal and its time. If the ordinal of an item is not in [0,1,2,3] then the metric is 0.

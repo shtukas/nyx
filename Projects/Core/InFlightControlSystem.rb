@@ -1,37 +1,57 @@
 
 # encoding: UTF-8
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+=end
+
 class InFlightControlSystem
 
-    # InFlightControlSystem::save(claim)
-    def self.save(claim)
-        BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3", claim["uuid"], claim)
+    # InFlightControlSystem::path()
+    def self.path()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims2"
     end
 
-    # InFlightControlSystem::issue(projectuuid, itemuuid, position)
-    def self.issue(projectuuid, itemuuid, position)
+    # InFlightControlSystem::save(item)
+    def self.save(item)
+        filepath = "#{InFlightControlSystem::path()}/#{item["uuid"]}.json"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # InFlightControlSystem::issue(itemuuid, position)
+    def self.issue(itemuuid, position)
         claim = {
             "uuid"        => SecureRandom.uuid,
-            "projectuuid" => projectuuid,
             "itemuuid"    => itemuuid,
             "position"    => position
         }
         InFlightControlSystem::save(claim)
     end
 
-    # InFlightControlSystem::getOrNull(claimuuid)
-    def self.getOrNull(claimuuid)
-        BTreeSets::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3", claimuuid)
+    # InFlightControlSystem::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = "#{InFlightControlSystem::path()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 
-    # InFlightControlSystem::destroy(claimuuid)
-    def self.destroy(claimuuid)
-        BTreeSets::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3", claimuuid)
+    # InFlightControlSystem::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "#{InFlightControlSystem::path()}/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # InFlightControlSystem::claimsOrdered() # Array[ (ifcs claim, ordinal: Int) ]
     def self.claimsOrdered()
-        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3")
+        Dir.entries(InFlightControlSystem::path())
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "#{InFlightControlSystem::path()}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|c1, c2| c1["position"] <=> c2["position"] }
     end
 
@@ -43,16 +63,15 @@ class InFlightControlSystem
             .to_a
     end
 
-    # InFlightControlSystem::getClaimsByItemUUID(projectuuid, itemuuid)
-    def self.getClaimsByItemUUID(projectuuid, itemuuid)
+    # InFlightControlSystem::getClaimsByItemUUID(itemuuid)
+    def self.getClaimsByItemUUID(itemuuid)
         BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3")
-            .select{|claim| claim["projectuuid"] == projectuuid }
             .select{|claim| claim["itemuuid"] == itemuuid }
     end
 
     # InFlightControlSystem::claimToStringOrNull(claim)
     def self.claimToStringOrNull(claim)
-        item = Items::getItemOrNull(claim["projectuuid"], claim["itemuuid"])
+        item = InFlightControlSystem::getOrNull(claim["itemuuid"])
         return nil if item.nil?
         uuid = claim["uuid"]
         isRunning = Runner::isRunning(uuid)

@@ -81,10 +81,13 @@ while (location = getNextLocationAtTheInboxOrNull.call()) do
     item = {
         "uuid"         => SecureRandom.uuid,
         "creationtime" => Time.new.to_f,
+        "projectname"  => "Inbox",
+        "projectuuid"  => "44caf74675ceb79ba5cc13bafa102509369c2b53",
         "description"  => File.basename(location),
         "target"       => target
     }
-    BTreeSets::set("/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items1", "44caf74675ceb79ba5cc13bafa102509369c2b53", item["uuid"], item)
+    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Projects/items2/#{item["uuid"]}.json"
+    File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     LucilleCore::removeFileSystemLocation(location2)
 end
 

@@ -19,6 +19,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
+=begin 
+    Bank::put(uuid, weight, validityTimespan)
+    Bank::total(uuid)
+=end
+
 # -----------------------------------------------------------------
 
 class DailyNegativeTimes
@@ -36,7 +42,7 @@ class DailyNegativeTimes
         return if Time.new.hour < 6
         return if Time.new.hour > 12
         timespan = DailyNegativeTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal) * 3600
-        Bank::put(uuid, -timespan, CatalystCommon::pingRetainPeriodInSeconds())
+        Bank::put(uuid, -timespan, CatalystCommon::bankRetainPeriodInSeconds())
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 
@@ -47,7 +53,7 @@ class DailyNegativeTimes
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
         return if Time.new.hour < 6
         return if Time.new.hour > 12
-        Bank::put(uuid, -timeInSeconds, CatalystCommon::pingRetainPeriodInSeconds())
+        Bank::put(uuid, -timeInSeconds, CatalystCommon::bankRetainPeriodInSeconds())
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 end

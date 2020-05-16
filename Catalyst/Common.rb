@@ -85,8 +85,8 @@ class CatalystCommon
         File.open("#{folder3}/#{filename}", "w"){|f| f.puts(text) }
     end
 
-    # CatalystCommon::pingRetainPeriodInSeconds()
-    def self.pingRetainPeriodInSeconds()
+    # CatalystCommon::bankRetainPeriodInSeconds()
+    def self.bankRetainPeriodInSeconds()
         (365.24/4)*86400 # Number of seconds in a quarter of a year
     end
 
