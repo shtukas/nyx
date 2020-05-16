@@ -40,7 +40,8 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "help",
-                "/                    General Menu"
+                "/                    General Menu",
+                ">>                   Open Interface-Top.txt"
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -81,6 +82,11 @@ class NSXGeneralCommandHandler
         if command == '' then
             puts NSXGeneralCommandHandler::helpLines().join()
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == '>>' then
+            system("open '/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt'")
             return
         end
 
