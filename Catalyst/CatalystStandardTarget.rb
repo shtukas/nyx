@@ -163,7 +163,7 @@ class CatalystStandardTarget
         filepath1 = CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
-        filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
+        filename2 = "#{CatalystCommon::l22()}-#{filename1}"
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
@@ -179,7 +179,7 @@ class CatalystStandardTarget
         folderpath1 = CatalystStandardTarget::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
-        foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
+        foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
         folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
         FileUtils.mv(folderpath1, folderpath2)
         CoreDataDirectory::copyFolderToRepository(folderpath2)
@@ -266,7 +266,7 @@ class CatalystStandardTarget
         if File.file?(location) then
             filepath1 = location
             filename1 = File.basename(filepath1)
-            filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
+            filename2 = "#{CatalystCommon::l22()}-#{filename1}"
             filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
             FileUtils.mv(filepath1, filepath2)
             CoreDataFile::copyFileToRepository(filepath2)
@@ -278,7 +278,7 @@ class CatalystStandardTarget
         else
             folderpath1 = location
             foldername1 = File.basename(folderpath1)
-            foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
+            foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
             folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
             FileUtils.mv(folderpath1, folderpath2)
             CoreDataDirectory::copyFolderToRepository(folderpath2)

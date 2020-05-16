@@ -57,103 +57,22 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 # --------------------------------------------------------------------
 
-class NyxMiscUtils
+class NyxOps
 
-    # NyxMiscUtils::l22()
-    def self.l22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    # NyxOps::path()
+    def self.path()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx/uuids-kvstore-repository"
     end
 
-    # NyxMiscUtils::chooseALinePecoStyle(announce: String, strs: Array[String]): String
-    def self.chooseALinePecoStyle(announce, strs)
-        `echo "#{strs.join("\n")}" | peco --prompt "#{announce}"`.strip
-    end
-
-    # NyxMiscUtils::cleanStringToBeFileSystemName(str)
-    def self.cleanStringToBeFileSystemName(str)
-        str = str.gsub(" ", "-")
-        str = str.gsub("'", "-")
-        str = str.gsub(":", "-")
-        str = str.gsub("/", "-")
-        str = str.gsub("!", "-")
-        str
-    end
-
-    # NyxMiscUtils::locationsNamesInsideFolder(folderpath): Array[String]
-    def self.locationsNamesInsideFolder(folderpath)
-        Dir.entries(folderpath)
-            .reject{|filename| [".", ".."].include?(filename) }
-            .reject{|filename| filename == "Icon\r" }
-            .reject{|filename| filename == ".DS_Store" }
-            .sort
-    end
-
-end
-
-class NyxPoints
-    # NyxPoints::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
-    # NyxPoints::pathToPoints()
-    def self.pathToPoints()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxPoints"
-    end
-
-    # NyxPoints::points()
+    # NyxOps::points()
     def self.points()
-        Dir.entries(NyxPoints::pathToPoints())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{NyxPoints::pathToPoints()}/#{filename}" }
-            .map{|filepath| 
-                nyxpoint =JSON.parse(IO.read(filepath))
-                DataPoints::getOrNull(nyxpoint["uuid"])
+        BTreeSets::values(NyxOps::path(), "")
+            .map{|uuid| 
+                DataPoints::getOrNull(uuid)
             }
             .compact
             .sort{|c1, c2| c1["creationTimestamp"] <=> c2["creationTimestamp"] }
     end
-
-    # NyxPoints::save(point)
-    def self.save(point)
-        DataPoints::save(point) # Nyx points are datapoints
-        uuid = point["uuid"]
-        File.open("#{NyxPoints::pathToPoints()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(point)) }
-    end
-
-    # NyxPoints::destroy(point)
-    def self.destroy(point)
-        uuid = point["uuid"]
-        filepath = "#{NyxPoints::pathToPoints()}/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # NyxPoints::issuePoint(uuid, creationTimestamp, description, targets, tags)
-    def self.issuePoint(uuid, creationTimestamp, description, targets, tags)
-        point = {
-            "uuid"              => uuid,
-            "creationTimestamp" => creationTimestamp,
-            "description"       => description,
-            "targets"           => targets,
-            "tags"              => tags
-        }
-        NyxPoints::save(point)
-    end
-end
-
-class NyxOps
-
-    # ------------------------------------------------------------------
-    # To Strings
-
-    # ------------------------------------------
-    # Opening
-
-
-
-    # ------------------------------------------------------------------
-    # Data Queries and Data Manipulations
 
     # NyxOps::selectNyxPointOrNull(points)
     def self.selectNyxPointOrNull(points)
@@ -161,7 +80,7 @@ class NyxOps
             "#{point["description"]} (#{point["uuid"][0,4]})"
         }
         descriptionsxp = points.map{|point| descriptionXp.call(point) }
-        selectedDescriptionxp = NyxMiscUtils::chooseALinePecoStyle("select datapoint (empty for null)", [""] + descriptionsxp)
+        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select datapoint (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
         point = points.select{|point| descriptionXp.call(point) == selectedDescriptionxp }.first
         return nil if point.nil?
@@ -170,7 +89,7 @@ class NyxOps
 
     # NyxOps::tags()
     def self.tags()
-        NyxPoints::points()
+        NyxOps::points()
             .map{|point| point["tags"] }
             .flatten
             .uniq
@@ -179,38 +98,9 @@ class NyxOps
 
     # NyxOps::getPointsForTag(tag)
     def self.getPointsForTag(tag)
-        NyxPoints::points().select{|point|
+        NyxOps::points().select{|point|
             point["tags"].include?(tag)
         }
-    end
-
-    # ------------------------------------------------------------------
-    # Interactive Makers
-
-    # NyxOps::makeOnePermanodeTagInteractiveOrNull()
-    def self.makeOnePermanodeTagInteractiveOrNull()
-        tag = LucilleCore::askQuestionAnswerAsString("tag (empty for exit): ")
-        return nil if tag == ""
-        tag
-    end
-
-    # NyxOps::makePermanodeTagsInteractive()
-    def self.makePermanodeTagsInteractive()
-        tags = []
-        loop {
-            tag = NyxOps::makeOnePermanodeTagInteractiveOrNull()
-            break if tag.nil?
-            tags << tag
-        }
-        tags
-    end
-
-    # ------------------------------------------------------------------
-    # Destroy
-
-    # NyxOps::destroyPointContentsAndPoint(point)
-    def self.destroyPointContentsAndPoint(point)
-        NyxPoints::destroy(point)
     end
 end
 
@@ -224,7 +114,7 @@ class NyxSearch
 
     # NyxSearch::searchPatternToPoints(searchPattern)
     def self.searchPatternToPoints(searchPattern)
-        NyxPoints::points()
+        NyxOps::points()
             .select{|point| point["description"].downcase.include?(searchPattern.downcase) }
     end
 
@@ -318,7 +208,7 @@ class NyxUserInterface
             system('clear')
             puts "Tag diving: #{tag}"
             items = []
-            NyxPoints::points()
+            NyxOps::points()
                 .select{|point| point["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|point|
                     items << [ point["description"] , lambda { DataPoints::pointDive(point) } ]

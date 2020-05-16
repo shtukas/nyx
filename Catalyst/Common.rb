@@ -14,6 +14,16 @@ require 'fileutils'
 
 class CatalystCommon
 
+    # CatalystCommon::l22()
+    def self.l22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # CatalystCommon::chooseALinePecoStyle(announce: String, strs: Array[String]): String
+    def self.chooseALinePecoStyle(announce, strs)
+        `echo "#{strs.join("\n")}" | peco --prompt "#{announce}"`.strip
+    end
+
     # CatalystCommon::databankFolderpath()
     def self.databankFolderpath()
         "/Users/pascal/Galaxy/DataBank"
