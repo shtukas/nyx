@@ -60,15 +60,34 @@ class CatalystStandardTarget
         end
     end
 
+    # CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
+    def self.selectOneFilepathOnTheDesktopOrNull()
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .select{|filepath| File.file?(filepath) }
+                            .sort
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
+    end
+
+    # CatalystStandardTarget::selectOneFolderpathOnTheDesktopOrNull()
+    def self.selectOneFolderpathOnTheDesktopOrNull()
+        desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
+                            .select{|filepath| filepath[0,1] != '.' }
+                            .select{|filepath| File.directory?(filepath) }
+                            .sort
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
+    end
+
     # CatalystStandardTarget::makeNewTargetInteractivelyOrNull()
     def self.makeNewTargetInteractivelyOrNull()
         puts "For the moment CatalystStandardTarget::makeNewTargetInteractivelyOrNull() can only do lines, if you need any of [file, url, folder] do write the code"
-        types = ["line", "file", "url", "folder", "unique-name", "directory-mark"]
+        types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "line",
                 "line" => line
             }
@@ -76,13 +95,43 @@ class CatalystStandardTarget
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "url",
-                "url" => url
+                "url"  => url
+            }
+        end
+        if type == "file" then
+            filepath1 = CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
+            return nil if filepath1.nil?
+            filename1 = File.basename(filepath1)
+            filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
+            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
+            FileUtils.mv(filepath1, filepath2)
+            CoreDataFile::copyFileToRepository(filepath2)
+            return {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "file",
+                "filename" => filename2
+            }
+        end
+        if type == "folder" then
+            folderpath1 = CatalystStandardTarget::selectOneFolderpathOnTheDesktopOrNull()
+            return nil if folderpath1.nil?
+            foldername1 = File.basename(folderpath1)
+            foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
+            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
+            FileUtils.mv(folderpath1, folderpath2)
+            CoreDataDirectory::copyFolderToRepository(folderpath2)
+            return {
+                "uuid"       => SecureRandom.uuid,
+                "type"       => "folder",
+                "foldername" => foldername2
             }
         end
         if type == "unique-name" then
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "unique-name",
                 "name" => uniquename
             }
@@ -90,6 +139,7 @@ class CatalystStandardTarget
         if type == "directory-mark" then
             mark = LucilleCore::askQuestionAnswerAsString("directory mark: ")
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "directory-mark",
                 "mark" => mark
             }
