@@ -78,7 +78,6 @@ def itemToCatalystObject(item, basemetric, indx)
 
     uuid = item["uuid"]
     isRunning = Runner::isRunning(uuid)
-
     isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
 
     metric = basemetric - indx.to_f/1000
@@ -102,7 +101,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing dive '#{uuid}'"
         },
         "isRunningForLong" => isRunningForLong,
-        "x-projects:item" => item
+        "x-todo:item" => item
     }
 end
 
@@ -148,9 +147,40 @@ Items::items()
         end
         items
     }
-    .map
-    .with_index {|item, indx|
+    .each_with_index {|item, indx|
         objects << itemToCatalystObject(item, 0.666, indx+1)
+    }
+
+InFlightControlSystem::claimsOrdered()
+    .each{|claim|
+
+        defaultCommand = lambda {|isRunning|
+            isRunning ? "stop" : "start"
+        }
+
+        uuid = claim["uuid"]
+        isRunning = Runner::isRunning(uuid)
+        isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
+
+        objects << {
+            "uuid"           => uuid,
+            "contentItem"    => {
+                "type" => "line",
+                "line" => (InFlightControlSystem::claimToStringOrNull(claim) || "ifcs claim default toString")
+            },
+            "metric"         => InFlightControlSystem::claimMetric(claim),
+            "commands"       => ["start", "open", "stop", "done"],
+            "defaultCommand" => defaultCommand.call(isRunning),
+            "isRunning"      => isRunning,
+            "shell-redirects" => {
+                "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-start '#{uuid}'",
+                "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-open '#{uuid}'",
+                "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-stop '#{uuid}'",
+                "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-done '#{uuid}'",
+            },
+            "isRunningForLong" => isRunningForLong,
+            "x-todo:claim" => claim
+        }
     }
 
 puts JSON.generate(objects)

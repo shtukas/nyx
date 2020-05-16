@@ -87,3 +87,62 @@ if ARGV[0] == "dive" and ARGV[1] then
 
     Items::diveItem(item)
 end
+
+if ARGV[0] == "ifcs-start" and ARGV[1] and ARGV[2] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
+
+    Runner::start(uuid)
+
+    item = Items::getOrNull(claim["itemuuid"])
+    exit if item.nil?
+    CatalystStandardTarget::openTarget(item["target"])
+end
+
+if ARGV[0] == "ifcs-open" and ARGV[1] and ARGV[2] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
+
+    item = Items::getOrNull(claim["itemuuid"])
+    exit if item.nil?
+    CatalystStandardTarget::openTarget(item["target"])
+end
+
+if ARGV[0] == "ifcs-stop" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
+
+    timespan = Runner::stop(uuid)
+    exit if timespan.nil?
+
+    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+
+    item = Items::getOrNull(claim["itemuuid"])
+    exit if item.nil?
+    Items::receiveRunTimespan(item, timespan)
+end
+
+if ARGV[0] == "ifcs-done" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    item = Items::getOrNull(uuid)
+    exit if item.nil?
+
+    timespan = Runner::stop(uuid)
+    if timespan.nil? then
+        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+
+        item = Items::getOrNull(claim["itemuuid"])
+        if item.nil? then
+            Items::receiveRunTimespan(item, timespan)
+        end
+    end
+
+    Items::destroy(item)
+end

@@ -71,7 +71,7 @@ class InFlightControlSystem
 
     # InFlightControlSystem::claimToStringOrNull(claim)
     def self.claimToStringOrNull(claim)
-        item = InFlightControlSystem::getOrNull(claim["itemuuid"])
+        item = Items::getOrNull(claim["itemuuid"])
         return nil if item.nil?
         uuid = claim["uuid"]
         isRunning = Runner::isRunning(uuid)
