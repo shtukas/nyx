@@ -84,14 +84,14 @@ class CatalystStandardTarget
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
             return {
                 "type" => "unique-name",
-                "uniquename" => uniquename
+                "name" => uniquename
             }
         end
         if type == "directory-mark" then
-            directorymark = LucilleCore::askQuestionAnswerAsString("directory mark: ")
+            mark = LucilleCore::askQuestionAnswerAsString("directory mark: ")
             return {
                 "type" => "directory-mark",
-                "directorymark" => directorymark
+                "mark" => mark
             }
         end
         raise "Error: CatalystStandardTarget::makeNewTargetInteractivelyOrNull() is not completely implemented yet"
@@ -112,10 +112,10 @@ class CatalystStandardTarget
             return "CoreData folder: #{target["foldername"]}"
         end
         if target["type"] == "unique-name" then
-            return "unique name: #{target["uniquename"]}"
+            return "unique name: #{target["name"]}"
         end
         if target["type"] == "directory-mark" then
-            return "directory mark: #{target["directorymark"]}"
+            return "directory mark: #{target["mark"]}"
         end
         raise "Catalyst Standard Target error 3c7968e4"
     end
@@ -140,7 +140,7 @@ class CatalystStandardTarget
             return
         end
         if target["type"] == "unique-name" then
-            uniquename = target["uniquename"]
+            uniquename = target["name"]
             location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
             if location then
                 puts "opening: #{location}"
@@ -152,13 +152,13 @@ class CatalystStandardTarget
             return
         end
         if target["type"] == "directory-mark" then
-            directorymark = target["directorymark"]
-            location = AtlasCore::uniqueStringToLocationOrNull(directorymark)
+            mark = target["mark"]
+            location = AtlasCore::uniqueStringToLocationOrNull(mark)
             if location then
                 puts "opening: #{File.dirname(location)}"
                 system("open '#{File.dirname(location)}'")
             else
-                puts "I could not determine the location of mark: #{directorymark}"
+                puts "I could not determine the location of mark: #{mark}"
                 LucilleCore::pressEnterToContinue()
             end
             return

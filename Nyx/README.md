@@ -24,35 +24,29 @@ Nyx Points are objects of the form
 
     ```
     {
-        "uuid" : String
-        "type" : "url-EFB8D55B"
+        "type" : "url"
         "url"  : <url>
     }
     {
-        "uuid"       : String UUID
-        "type"       : "file-3C93365A"
-        "filename"   : String
+        "uuid"     : String UUID
+        "type"     : "file"
+        "filename" : String
     }
     {
-        "uuid" : String
-        "type" : "unique-name-C2BF46D6"
+        "type" : "unique-name"
         "name" : String
     }
     {
         "uuid" : String
-        "type" : "lstore-directory-mark-BEE670D0"
+        "type" : "directory-mark"
         "mark" : String # UUID
     }
     {
         "uuid"       : String UUID
-        "type"       : "perma-dir-11859659"
+        "type"       : "folder"
         "foldername" : String # Should be unique # Preferred L22
     }
     ```
-
-## PermaDirs
-
-**PermaDirs** are just directories, with fixed immutable foldernames. The uuid of the `perma-dir-11859659` object is the name of the corresponding directory. They are a more controlled version of general directories with marks (those that are targets of `lstore-directory-mark-BEE670D0` objects).
 
 ## Tags
 

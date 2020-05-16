@@ -255,20 +255,20 @@ class NyxOps
 
     # NyxOps::nyxTargetToString(target)
     def self.nyxTargetToString(target)
-        if target["type"] == "url-EFB8D55B" then
+        if target["type"] == "url" then
             return "url       : #{target["url"]}"
         end
-        if target["type"] == "file-3C93365A" then
+        if target["type"] == "file" then
             return "file      : #{target["filename"]}"
         end
-        if target["type"] == "unique-name-C2BF46D6" then
+        if target["type"] == "unique-name" then
             return "uniquename: #{target["name"]}"
         end
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
+        if target["type"] == "directory-mark" then
             return "mark      : #{target["mark"]}"
         end
-        if target["type"] == "perma-dir-11859659" then
-            return "PermaDir  : #{target["uuid"]}"
+        if target["type"] == "folder" then
+            return "PermaDir  : #{target["foldername"]}"
         end
         raise "[error: f84bb73d]"
     end
@@ -299,19 +299,19 @@ class NyxOps
 
     # NyxOps::openNyxTarget(target)
     def self.openNyxTarget(target)
-        if target["type"] == "url-EFB8D55B" then
+        if target["type"] == "url" then
             url = target["url"]
             system("open '#{url}'")
             return
         end
-        if target["type"] == "file-3C93365A" then
+        if target["type"] == "file" then
             filename = target["filename"]
             CoreDataFile::openOrCopyToDesktop(filename)
             return
         end
-        if target["type"] == "unique-name-C2BF46D6" then
+        if target["type"] == "unique-name" then
             uniquename = target["name"]
-            location = NyxMiscUtils::uniqueNameResolutionLocationPathOrNull(uniquename)
+            location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
             if location then
                 puts "opening: #{location}"
                 system("open '#{location}'")
@@ -321,8 +321,8 @@ class NyxOps
             end
             return
         end
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            location = NyxMiscUtils::lStoreMarkResolutionToMarkFilepathOrNull(target["mark"])
+        if target["type"] == "directory-mark" then
+            location = AtlasCore::uniqueStringToLocationOrNull(target["mark"])
             if location then
                 puts "opening: #{File.dirname(location)}"
                 system("open '#{File.dirname(location)}'")
@@ -332,7 +332,7 @@ class NyxOps
             end
             return
         end
-        if target["type"] == "perma-dir-11859659" then
+        if target["type"] == "folder" then
             CoreDataDirectory::openFolder(target["foldername"])
             return
         end
@@ -379,7 +379,7 @@ class NyxOps
     def self.getNyxUUIDsCarryingThisDirectoryMark(mark)
         NyxPoints::points()
             .select{|point|
-                point["targets"].any?{|target| target["type"] == "lstore-directory-mark-BEE670D0" and target["mark"] == mark }
+                point["targets"].any?{|target| target["type"] == "directory-mark" and target["mark"] == mark }
             }
     end
 
@@ -412,8 +412,7 @@ class NyxOps
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         return {
-            "uuid"     => SecureRandom.uuid,
-            "type"     => "file-3C93365A",
+            "type"     => "file",
             "filename" => filename2
         }
     end
@@ -426,8 +425,7 @@ class NyxOps
         if option == "mark file already exists" then
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "lstore-directory-mark-BEE670D0",
+                "type" => "directory-mark",
                 "mark" => mark
             }
         end
@@ -446,50 +444,47 @@ class NyxOps
                 break
             }
             return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "lstore-directory-mark-BEE670D0",
+                "type" => "directory-mark",
                 "mark" => mark
             }
         end
     end
 
     # NyxOps::makeNyxTargetInteractiveOrNull(type)
-    # type = nil | "url-EFB8D55B" | "file-3C93365A" | "unique-name-C2BF46D6" | "lstore-directory-mark-BEE670D0" | "perma-dir-11859659"
+    # type = nil | "url" | "file" | "unique-name" | "directory-mark" | "folder"
     def self.makeNyxTargetInteractiveOrNull(type)
         targetType =
             if type.nil? then
                 LucilleCore::selectEntityFromListOfEntitiesOrNull("type", [
-                    "url-EFB8D55B",
-                    "unique-name-C2BF46D6",
-                    "file-3C93365A",
-                    "lstore-directory-mark-BEE670D0",
-                    "perma-dir-11859659"]
+                    "url",
+                    "unique-name",
+                    "file",
+                    "directory-mark",
+                    "folder"]
                 )
             else
                 type
             end
         return nil if targetType.nil?
-        if targetType == "url-EFB8D55B" then
+        if targetType == "url" then
             return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "url-EFB8D55B",
+                "type" => "url",
                 "url"  => LucilleCore::askQuestionAnswerAsString("url: ").strip
             }
         end
-        if targetType == "file-3C93365A" then
+        if targetType == "file" then
             return NyxOps::makeNyxTargetFileInteractiveOrNull()
         end
-        if targetType == "unique-name-C2BF46D6" then
+        if targetType == "unique-name" then
             return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "unique-name-C2BF46D6",
+                "type" => "unique-name",
                 "name" => LucilleCore::askQuestionAnswerAsString("uniquename: ").strip
             }
         end
-        if targetType == "lstore-directory-mark-BEE670D0" then
+        if targetType == "directory-mark" then
             return NyxOps::makeNyxTargetLStoreDirectoryMarkInteractiveOrNull()
         end
-        if targetType == "perma-dir-11859659" then
+        if targetType == "folder" then
             desktopLocationnames = Dir.entries("/Users/pascal/Desktop")
                                     .reject{|filename| filename[0, 1] == '.' }
                                     .reject{|filename| ["pascal.png", "Lucille-Inbox", "Lucille.txt"].include?(filename) }
@@ -505,8 +500,7 @@ class NyxOps
                 LucilleCore::removeFileSystemLocation(desktoplocation)
             }
             return {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "perma-dir-11859659",
+                "type"       => "folder",
                 "foldername" => foldername2
             }
         end
@@ -545,7 +539,7 @@ class NyxOps
     def self.makeNyxPointInteractivePart1()
         operations = [
             "url",
-            "uniquename",
+            "unique-name",
             "file (from desktop)",
             "lstore-directory-mark",
             "Desktop files inside permadir"
@@ -556,19 +550,17 @@ class NyxOps
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             url = LucilleCore::askQuestionAnswerAsString("url: ")
             target = {
-                "uuid" => SecureRandom.uuid,
-                "type" => "url-EFB8D55B",
+                "type" => "url",
                 "url" => url
             }
             NyxOps::makeNyxPointInteractivePart2(description, target)
         end
 
-        if operation == "uniquename" then
+        if operation == "unique-name" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
             target = {
-                "uuid" => SecureRandom.uuid,
-                "type" => "unique-name-C2BF46D6",
+                "type" => "unique-name",
                 "name" => uniquename
             }
             NyxOps::makeNyxPointInteractivePart2(description, target)
@@ -597,8 +589,7 @@ class NyxOps
             FileUtils.mkdir(folderpath2)
 
             target = {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "perma-dir-11859659",
+                "type"       => "folder",
                 "foldername" => foldername2
             }
             NyxOps::makeNyxPointInteractivePart2(description, target)
@@ -619,28 +610,19 @@ class NyxOps
 
     # NyxOps::destroyNyxTargetAttempt(target)
     def self.destroyNyxTargetAttempt(target)
-        if target["type"] == "url-EFB8D55B" then
-            url = target["url"]
+        if target["type"] == "url" then
             return
         end
-        if target["type"] == "file-3C93365A" then
-            filename = target["filename"]
+        if target["type"] == "file" then
             return
         end
-        if target["type"] == "unique-name-C2BF46D6" then
-            uniquename = target["name"]
+        if target["type"] == "unique-name" then
             return
         end
-        if target["type"] == "lstore-directory-mark-BEE670D0" then
-            location = NyxMiscUtils::lStoreMarkResolutionToMarkFilepathOrNull(target["mark"])
-            return if location.nil?
-            if NyxOps::getNyxUUIDsCarryingThisDirectoryMark(target["mark"]).size == 1 then
-                puts "destroying mark file: #{location}"
-                LucilleCore::removeFileSystemLocation(location)
-            end
+        if target["type"] == "directory-mark" then
             return
         end
-        if target["type"] == "perma-dir-11859659" then
+        if target["type"] == "folder" then
             return
         end
         raise "[error: 15c46fdd]"
@@ -815,7 +797,7 @@ class NyxUserInterface
                 toStringLambda = lambda { |target| NyxOps::nyxTargetToString(target) }
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", point["targets"], toStringLambda)
                 next if target.nil?
-                point["targets"] = point["targets"].reject{|t| t["uuid"]==target["uuid"] }
+                point["targets"] = point["targets"].reject{|t| t.to_s == target.to_s }
                 NyxPoints::save(point)
                 NyxOps::destroyNyxTargetAttempt(target)
             end
