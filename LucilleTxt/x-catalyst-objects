@@ -108,7 +108,8 @@ metric =
         0.70*Math.exp(-timeInBank.to_f/3600)
     end
 metric = isRunning ? 1 : metric
-isDone = (isRunning and timeInBank >= 0)
+isRunningForLong = (Runner::runTimeInSecondsOrNull(objectuuid) || 0) > 3600
+isDone = (isRunning and (timeInBank+(Runner::runTimeInSecondsOrNull(objectuuid) || 0)) >= 0)
 
 content = IO.read(PATH_TO_DESKTOP_FILE)
             .lines
@@ -135,6 +136,7 @@ objects = [
         "commands"        => ["stop"],
         "defaultCommand"  => isRunning ? "[]" : "start",
         "isRunning" => isRunning,
+        "isRunningForLong" => isRunningForLong,
         "isDone" => isDone,
         "shell-redirects" => {
             "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start",

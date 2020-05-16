@@ -71,14 +71,29 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 NSXEstateServices::binTimelineGarbageCollectionEnvelop(true)
 
 Thread.new {
-    loop {
-        sleep 120
+
+    checkOveruns = lambda{
         NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .select{|object| object["isDone"] }
             .first(1)
             .each{|object|
-                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object #{object["uuid"]} is potentially done")
+                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object #{object["uuid"]} is done")
             }
+        sleep 12
+        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            .select{|object| object["isRunningForLong"] }
+            .first(1)
+            .each{|object|
+                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object #{object["uuid"]} is running for long")
+            }
+    }
+
+    sleep 10
+
+    checkOveruns.call()
+    loop {
+        sleep 120
+        checkOveruns.call()
     }
 }
 

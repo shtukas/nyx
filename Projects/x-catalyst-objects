@@ -71,12 +71,6 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
     itemuuid = item["uuid"]
     isRunning = Runner::isRunning(itemuuid)
 
-    metric = lambda{|projectuuid, itemuuid, projectmetric, indx|
-        return 1 if Runner::isRunning(itemuuid)
-        return 0 if !IfcsClaims::getClaimsOfTypeItemByUuids(projectuuid, itemuuid).empty?
-        projectmetric - indx.to_f/1000
-    }
-
     ifcsClaims = IfcsClaims::getClaimsOfTypeProjectByUuid(project["uuid"]) + IfcsClaims::getClaimsOfTypeItemByUuids(project["uuid"], itemuuid)
 
     contentItem = 
@@ -92,7 +86,8 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
             }
         end
 
-    isDone = isRunning and ((Runner::runTimeInSecondsOrNull(itemuuid) || 0) > 3600)
+    isRunningForLong = ((Runner::runTimeInSecondsOrNull(itemuuid) || 0) > 3600)
+    isDone = isRunning and (Bank::total(project["uuid"])+(Runner::runTimeInSecondsOrNull(project["uuid"]) || 0)) >= 0 and ifcsClaims.all?{|claim| (Bank::total(claim["uuid"])+(Runner::runTimeInSecondsOrNull(claim["uuid"]) || 0)) >= 0 }
 
     {
         "uuid"           => itemuuid,
@@ -111,6 +106,7 @@ def projectItemToCatalystObject(project, item, projectmetric, indx)
             ">ifcs"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing make-ifcs-claim '#{project["uuid"]}' '#{itemuuid}'",
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Projects/x-catalyst-objects-processing project-dive '#{project["uuid"]}'"
         },
+        "isRunningForLong" => isRunningForLong,
         "isDone" => isDone,
         "x-projects:project" => project,
         "x-projects:item" => item,
