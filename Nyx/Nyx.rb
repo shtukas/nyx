@@ -392,8 +392,8 @@ class NyxOps
             .sort
     end
 
-    # NyxOps::getPointsForTag(taxo)
-    def self.getPointsForTag(taxo)
+    # NyxOps::getPointsForTaxo(taxo)
+    def self.getPointsForTaxo(taxo)
         NyxPoints::points().select{|point|
             point["taxonomy"].include?(taxo)
         }

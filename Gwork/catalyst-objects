@@ -66,15 +66,16 @@ DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(objectuuid(), 6*3600, [1, 2
 
 # -------------------------------------------------------------------------
 
-isRunning = Runner::isRunning(objectuuid())
-
 timeInBank = Bank::total(objectuuid())
-negativeTimesMetric = 0.72 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
-positiveTimeMetric  = 0.72*Math.exp(-timeInBank.to_f/3600)
-metric = timeInBank < 0 ? negativeTimesMetric : positiveTimeMetric
+isRunning = Runner::isRunning(objectuuid())
+metric = 
+    if timeInBank < 0 then
+        0.72 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
+    else
+        0.72*Math.exp(-timeInBank.to_f/3600)
+    end
 metric = isRunning ? 1 : metric
-
-isDone = isRunning and timeInBank >= 0
+isDone = (isRunning and timeInBank >= 0)
 
 object = {
     "uuid"            => objectuuid(),

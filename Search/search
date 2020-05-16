@@ -53,45 +53,31 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
 
 =end
 
-require_relative "Nyx.rb"
-
 # --------------------------------------------------------------------
 
-def transform(item)
-    itemToDescription = lambda{|item|
-        if item["type"] == "point" then
-            return item["point"]["description"]
-        end
-        if item["type"] == "taxo" then
-            return item["taxo"]
-        end
-    }
-
-    itemToUniqueId = lambda{|item|
-        if item["type"] == "point" then
-            return "pointuuid:#{item["point"]["uuid"]}"
-        end
-        if item["type"] == "taxo" then
-            return "taxo:#{item["taxo"]}"
-        end
-    }
-
-    {
-        # {"type"=>"taxo", "taxo"=>"Pascal Guardian Open Cycles"}
-        "subsystem"   => "Nyx",
-        "description" => itemToDescription.call(item),
-        "uniqueId"    => itemToUniqueId.call(item)
-    }
+def visitSearchResult(searchResult)
+    # {"subsystem"=>"Nyx", "description"=>"Pascal on naming things", "uniqueId"=>"pointuuid:f270920f-9426-4710-8a24-6ba02e0bccbd"}
+    if searchResult["subsystem"] == "Nyx" then
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/search-entity-visit #{searchResult["uniqueId"]}")
+        return
+    end
+    raise "I do not know how to contact subsystem #{searchResult["subsystem"]}"
 end
 
-searchResults = []
-searchPattern = ARGV[0]
-if searchPattern then
-    globalss = NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(searchPattern)
-    globalss.each{|item|
-        searchResults << transform(item)
+loop {
+    tostring = lambda {|searchResult|
+        # {"subsystem"=>"Nyx", "description"=>"Pascal on naming things", "uniqueId"=>"pointuuid:f270920f-9426-4710-8a24-6ba02e0bccbd"}
+        "[#{searchResult["subsystem"]}] #{searchResult["description"]}"
     }
-end
-puts JSON.generate(searchResults)
+
+    pattern = LucilleCore::askQuestionAnswerAsString("search pattern: ")
+    break if pattern == ""
+    searchResults = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/search #{pattern}`)
+    result = LucilleCore::selectEntityFromListOfEntitiesOrNull("result", searchResults, tostring)
+    break if result.nil?
+    visitSearchResult(result)
+    LucilleCore::pressEnterToContinue()
+}
+
 exit
 

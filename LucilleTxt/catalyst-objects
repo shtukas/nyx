@@ -99,27 +99,28 @@ objectuuid = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
 
 DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(objectuuid, 2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
 
-isRunning = Runner::isRunning(objectuuid)
-
 timeInBank = Bank::total(objectuuid)
-negativeTimesMetric = 0.70 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
-positiveTimeMetric  = 0.70*Math.exp(-timeInBank.to_f/3600)
-metric = timeInBank < 0 ? negativeTimesMetric : positiveTimeMetric
+isRunning = Runner::isRunning(objectuuid)
+metric = 
+    if timeInBank < 0 then
+        0.70 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
+    else
+        0.70*Math.exp(-timeInBank.to_f/3600)
+    end
 metric = isRunning ? 1 : metric
-
-isDone = isRunning and timeInBank >= 0
+isDone = (isRunning and timeInBank >= 0)
 
 content = IO.read(PATH_TO_DESKTOP_FILE)
             .lines
             .select{|line| line.strip.size>0 }
             .first(10)
-            .map{|line| "              #{line}" }
             .join()
 
 content = [
-            "Lucille 🔥\n",
-            "(bank: #{(timeInBank.to_f/3600).round(2)} hours)\n",
-            Runner::runTimeInSecondsOrNull(objectuuid) ? "(running for #{(Runner::runTimeInSecondsOrNull(objectuuid).to_f/3600).round(2)} hours)\n" : "",
+            "Lucille 🔥",
+            " (bank: #{(timeInBank.to_f/3600).round(2)} hours)",
+            Runner::runTimeInSecondsOrNull(objectuuid) ? " (running for #{(Runner::runTimeInSecondsOrNull(objectuuid).to_f/3600).round(2)} hours)" : "",
+            "\n\n",
             content
           ].join()
 

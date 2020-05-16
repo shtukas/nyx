@@ -77,7 +77,7 @@ Thread.new {
             .select{|object| object["isDone"] }
             .first(1)
             .each{|object|
-                NSXMiscUtils::onScreenNotification("Catalyst Interface", "One object is potentially done")
+                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object #{object["uuid"]} is potentially done")
             }
     }
 }

@@ -57,41 +57,30 @@ require_relative "Nyx.rb"
 
 # --------------------------------------------------------------------
 
-def transform(item)
-    itemToDescription = lambda{|item|
-        if item["type"] == "point" then
-            return item["point"]["description"]
-        end
-        if item["type"] == "taxo" then
-            return item["taxo"]
-        end
-    }
+=begin
+{
+    "subsystem"   => "Nyx",
+    "description" => String,
+    "uniqueId"    => UniqueId
+}
 
-    itemToUniqueId = lambda{|item|
-        if item["type"] == "point" then
-            return "pointuuid:#{item["point"]["uuid"]}"
-        end
-        if item["type"] == "taxo" then
-            return "taxo:#{item["taxo"]}"
-        end
-    }
+UniqueId = 
+    "pointuuid:<nyxPointUUID>"
+    "taxo:<taxo>"
+=end
 
-    {
-        # {"type"=>"taxo", "taxo"=>"Pascal Guardian Open Cycles"}
-        "subsystem"   => "Nyx",
-        "description" => itemToDescription.call(item),
-        "uniqueId"    => itemToUniqueId.call(item)
-    }
+uniqueId = ARGV[0]
+exit if uniqueId.nil?
+if uniqueId.start_with?("pointuuid:") then
+    pointuuid = uniqueId[10, 999].strip
+    point = NyxPoints::getPointByUUIDOrNUll(pointuuid)
+    exit if point.nil?
+    NyxUserInterface::pointDive(point)
 end
-
-searchResults = []
-searchPattern = ARGV[0]
-if searchPattern then
-    globalss = NyxSearch::nextGenSearchFragmentToGlobalSearchStructure(searchPattern)
-    globalss.each{|item|
-        searchResults << transform(item)
-    }
+if uniqueId.start_with?("taxo:") then
+    taxo = uniqueId[5, 999].strip
+    points = NyxOps::getPointsForTaxo(taxo)
+    NyxUserInterface::pointsDive(points)
 end
-puts JSON.generate(searchResults)
 exit
 
