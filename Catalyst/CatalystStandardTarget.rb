@@ -115,35 +115,8 @@ end
 
 class CatalystStandardTarget
 
-    # CatalystStandardTarget::locationToFileOrFolderTarget(location)
-    def self.locationToFileOrFolderTarget(location)
-        raise "f8e3b314" if !File.exists?(location)
-        if File.file?(location) then
-            filepath1 = location
-            filename1 = File.basename(filepath1)
-            filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
-            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
-            FileUtils.mv(filepath1, filepath2)
-            CoreDataFile::copyFileToRepository(filepath2)
-            return {
-                "uuid"     => SecureRandom.uuid,
-                "type"     => "file",
-                "filename" => filename2
-            }
-        else
-            folderpath1 = location
-            foldername1 = File.basename(folderpath1)
-            foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
-            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
-            FileUtils.mv(folderpath1, folderpath2)
-            CoreDataDirectory::copyFolderToRepository(folderpath2)
-            return {
-                "uuid"       => SecureRandom.uuid,
-                "type"       => "folder",
-                "foldername" => foldername2
-            }
-        end
-    end
+    # --------------------------------------------------
+    # Makers
 
     # CatalystStandardTarget::selectOneFilepathOnTheDesktopOrNull()
     def self.selectOneFilepathOnTheDesktopOrNull()
@@ -284,6 +257,38 @@ class CatalystStandardTarget
             return CatalystStandardTarget::makeTargetDirectoryMarkInteractively()
         end
     end
+
+    # CatalystStandardTarget::locationToFileOrFolderTarget(location)
+    def self.locationToFileOrFolderTarget(location)
+        raise "f8e3b314" if !File.exists?(location)
+        if File.file?(location) then
+            filepath1 = location
+            filename1 = File.basename(filepath1)
+            filename2 = "#{NyxMiscUtils::l22()}-#{filename1}"
+            filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
+            FileUtils.mv(filepath1, filepath2)
+            CoreDataFile::copyFileToRepository(filepath2)
+            return {
+                "uuid"     => SecureRandom.uuid,
+                "type"     => "file",
+                "filename" => filename2
+            }
+        else
+            folderpath1 = location
+            foldername1 = File.basename(folderpath1)
+            foldername2 = "#{NyxMiscUtils::l22()}-#{foldername1}"
+            folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
+            FileUtils.mv(folderpath1, folderpath2)
+            CoreDataDirectory::copyFolderToRepository(folderpath2)
+            return {
+                "uuid"       => SecureRandom.uuid,
+                "type"       => "folder",
+                "foldername" => foldername2
+            }
+        end
+    end
+
+    # --------------------------------------------------
 
     # CatalystStandardTarget::targetToString(target)
     def self.targetToString(target)

@@ -1,0 +1,12 @@
+
+DataPoints are objects of the form
+
+```
+{
+    uuid              : String
+    creationTimestamp : Float # Unixtime with decimals
+    description       : String
+    targets           : Array[CatalystStandardTarget]
+    tags              : Array[String]
+}
+```

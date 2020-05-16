@@ -13,39 +13,10 @@ Nyx Points are objects of the form
     uuid
     creationTimestamp: Float
     description
-    targets          : String JSON Array[NyxTarget]
+    targets          : String JSON Array[CatalystStandardTarget]
     taxonomy         : String JSON Array[String]
 }
 ```
-
-
-`NyxTarget` is a union of the following types
-
-    ```
-    {
-        "type" : "url"
-        "url"  : <url>
-    }
-    {
-        "uuid"     : String UUID
-        "type"     : "file"
-        "filename" : String
-    }
-    {
-        "type" : "unique-name"
-        "name" : String
-    }
-    {
-        "uuid" : String
-        "type" : "directory-mark"
-        "mark" : String # UUID
-    }
-    {
-        "uuid"       : String UUID
-        "type"       : "folder"
-        "foldername" : String # Should be unique # Preferred L22
-    }
-    ```
 
 ## Tags
 
