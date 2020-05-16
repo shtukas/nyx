@@ -168,6 +168,9 @@ class CatalystStandardTarget
 
     # CatalystStandardTarget::fsckTarget(target)
     def self.fsckTarget(target)
+        if target["uuid"].nil? then
+            raise "target as no uuid"
+        end
         if target["type"].nil? then
             puts target
             raise "target as no type"
