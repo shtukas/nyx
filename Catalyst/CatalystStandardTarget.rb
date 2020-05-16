@@ -34,6 +34,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CoreData.
     CoreDataDirectory::openFolder(foldername)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/AtlasCore.rb"
+
 # -----------------------------------------------------------------
 
 class CatalystStandardTarget
@@ -138,8 +140,15 @@ class CatalystStandardTarget
             return
         end
         if target["type"] == "unique-name" then
-            puts "Catalyst Standard Target doesn't yet know how to open unique-name. Please write the code."
-            LucilleCore::pressEnterToContinue()
+            uniquename = target["uniquename"]
+            location = AtlasCore::uniqueStringToLocationOrNull(uniquename)
+            if location then
+                puts "opening: #{location}"
+                system("open '#{location}'")
+            else
+                puts "I could not determine the location of unique name: #{uniquename}"
+                LucilleCore::pressEnterToContinue()
+            end
             return
         end
         if target["type"] == "directory-mark" then
