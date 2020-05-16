@@ -3,26 +3,32 @@ A CatalystStandardTarget is an object of the form
 
 ```
 {
-    "type"       : "line"
-    "line"       : String
+    "uuid" : String
+    "type" : "line"
+    "line" : String
 }
 {
-    "type"       : "url"
-    "url"        : String
+    "uuid" : String
+    "type" : "url"
+    "url"  : String
 }
 {
-    "type"       : "file"
-    "filename"   : String (CoreData managed)
+    "uuid"     : String
+    "type"     : "file"
+    "filename" : String (CoreData managed)
 }
 {
+    "uuid"       : String
     "type"       : "folder"
     "foldername" : String (CoreData managed)
 }
 {
+    "uuid" : String
     "type" : "unique-name"
     "name" : String # Use Atlas to find them
 }
 {
+    "uuid" : String
     "type" : "directory-mark"
     "mark" : String # Use Atlas to find them.
                     # Atlas also supports findind directory marks.
