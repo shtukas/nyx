@@ -412,6 +412,7 @@ class NyxOps
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         return {
+            "uuid"     => SecureRandom.uuid,
             "type"     => "file",
             "filename" => filename2
         }
@@ -425,6 +426,7 @@ class NyxOps
         if option == "mark file already exists" then
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "directory-mark",
                 "mark" => mark
             }
@@ -444,6 +446,7 @@ class NyxOps
                 break
             }
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "directory-mark",
                 "mark" => mark
             }
@@ -468,6 +471,7 @@ class NyxOps
         return nil if targetType.nil?
         if targetType == "url" then
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "url",
                 "url"  => LucilleCore::askQuestionAnswerAsString("url: ").strip
             }
@@ -477,6 +481,7 @@ class NyxOps
         end
         if targetType == "unique-name" then
             return {
+                "uuid" => SecureRandom.uuid,
                 "type" => "unique-name",
                 "name" => LucilleCore::askQuestionAnswerAsString("uniquename: ").strip
             }
@@ -500,6 +505,7 @@ class NyxOps
                 LucilleCore::removeFileSystemLocation(desktoplocation)
             }
             return {
+                "uuid"       => SecureRandom.uuid,
                 "type"       => "folder",
                 "foldername" => foldername2
             }
@@ -797,7 +803,7 @@ class NyxUserInterface
                 toStringLambda = lambda { |target| NyxOps::nyxTargetToString(target) }
                 target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", point["targets"], toStringLambda)
                 next if target.nil?
-                point["targets"] = point["targets"].reject{|t| t.to_s == target.to_s }
+                point["targets"] = point["targets"].reject{|t| t["uuid"] == target["uuid"] }
                 NyxPoints::save(point)
                 NyxOps::destroyNyxTargetAttempt(target)
             end
