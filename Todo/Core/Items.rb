@@ -44,7 +44,8 @@ class Items
                 "start",
                 "open",
                 "done",
-                "set description"
+                "set description",
+                "send target to a datapoint at starlight (and done item)"
             ]
             if Runner::isRunning(item["uuid"]) then
                 options.delete("start")
@@ -72,6 +73,17 @@ class Items
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
                 Items::save(item)
+            end
+            if option == "send target to a datapoint at starlight (and done item)" then
+                starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                next if starlightnode.nil?
+                datapoints = StarlightDataClaims::getDataPointsForNode(starlightnode)
+                datapoint = DataPoints::selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
+                next if datapoint.nil?
+                target = item["target"]
+                datapoint["targets"] << target # Adding the todo item to the datapoint target.
+                # datapoint can now be sent to disk
+                DataPoints::save(datapoint)
             end
         }
     end
