@@ -292,19 +292,19 @@ class CatalystStandardTargets
             return target["line"]
         end
         if target["type"] == "file" then
-            return "CoreData file: #{target["filename"]}"
+            return "[coredata file] #{target["filename"]}"
         end
         if target["type"] == "url" then
             return target["url"]
         end
         if target["type"] == "folder" then
-            return "CoreData folder: #{target["foldername"]}"
+            return "[coredata folder] #{target["foldername"]}"
         end
         if target["type"] == "unique-name" then
-            return "unique name: #{target["name"]}"
+            return "[unique name] #{target["name"]}"
         end
         if target["type"] == "directory-mark" then
-            return "directory mark: #{target["mark"]}"
+            return "[directory mark] #{target["mark"]}"
         end
         raise "Catalyst Standard Target error 3c7968e4"
     end
