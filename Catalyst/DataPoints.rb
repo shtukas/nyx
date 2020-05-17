@@ -95,6 +95,19 @@ class DataPoints
     # ------------------------------------------------------------------------
     # User Interface
 
+    # DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
+    def self.selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
+        return nil if datapoints.empty?
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", datapoints, lambda { |datapoint| DataPoints::datapointToString(datapoint) })
+    end
+
+    # DataPoints::selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
+    def self.selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
+        datapoint = DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
+        return datapoint if datapoint
+        DataPoints::makeDataPointInteractivelyOrNull()
+    end
+
     # DataPoints::datapointToString(datapoint)
     def self.datapointToString(datapoint)
         "datapoint #{datapoint["description"]} (#{datapoint["targets"].size}) [#{datapoint["uuid"][0, 4]}]"
