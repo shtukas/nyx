@@ -110,10 +110,11 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
+                "OpenCycles",
                 "Data Navigation And Search",
+                "Todo",
                 "Calendar",
                 "Wave",
-                "Todo",
                 "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -166,6 +167,9 @@ class NSXGeneralCommandHandler
             end
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")
+            end
+            if option == "OpenCycles" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
             end
             return
         end
