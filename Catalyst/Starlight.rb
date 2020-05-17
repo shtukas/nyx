@@ -65,6 +65,13 @@ class StartlightNodes
         LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
     end
 
+    # StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+    def self.selectNodePossiblyMakeANewOneOrNull()
+        node = StartlightNodes::selectNodeOrNull()
+        return node if node
+        StartlightNodes::makeNodeInteractivelyOrNull()
+    end
+
     # StartlightNodes::nodeManagement(node)
     def self.nodeManagement(node)
         loop {
