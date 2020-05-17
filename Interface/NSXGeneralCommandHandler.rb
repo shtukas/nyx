@@ -156,7 +156,7 @@ class NSXGeneralCommandHandler
                 }
             end
             if option == "Todo" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/projects")
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
             end
             if option == "Calendar" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")

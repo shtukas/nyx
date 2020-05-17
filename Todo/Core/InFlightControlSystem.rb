@@ -89,11 +89,18 @@ class InFlightControlSystem
         return 1 if Runner::isRunning(uuid)
         return 0 if InFlightControlSystem::getClaimOrdinalOrNull(uuid) >= 4 # we only want 0 (Guardian) and 1, 2, 3
         timeInHours = Bank::total(uuid).to_f/3600
-        timeInQuarterOfHours = timeInHours*4
-        if timeInHours > 0 then
-            0.70*Math.exp(-timeInHours)
+        if 0 < timeInHours then
+            0.70*Math.exp(-timeInHours) # We decrease rapidely to 0
         else
-            0.70 + 0.05*(1-Math.exp(timeInHours))
+            # negative
+            if -0.5 < timeInHours then
+                # we are between -0.5 and 0
+                0.4 + 0.4*(-timeInHours) 
+                    # at  0   -> 0.4
+                    # at -0.5 -> 0.4 + 0.4*(0.5) = 0.6
+            else
+                0.70 + 0.05*(1-Math.exp(timeInHours))
+            end
         end
     end
 
