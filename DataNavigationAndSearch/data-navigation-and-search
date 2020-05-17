@@ -188,16 +188,26 @@ class DataNavigationAndSearch
             system("clear")
             puts "Data Navigation And Search 🗺️"
             operations = [
-                "starlight management",
-                "datapoints search"
+
+                # Navigation
+                "startlight navigation",
+
+                # Search
+                "datapoints search",
+
+                # Management
+                "starlight management"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "starlight management" then
-                StarlightX::userInterface()
+            if operation == "startlight navigation" then
+                StarlightUserInterfaceRoots::navigation()
             end
             if operation == "datapoints search" then
                 DataPointsSearch::search()
+            end
+            if operation == "starlight management" then
+                StarlightUserInterfaceRoots::management()
             end
         }
     end

@@ -264,6 +264,7 @@ class CatalystStandardTargets
             filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
             FileUtils.mv(filepath1, filepath2)
             CoreDataFile::copyFileToRepository(filepath2)
+            FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             return {
                 "uuid"     => SecureRandom.uuid,
                 "type"     => "file",
@@ -276,6 +277,7 @@ class CatalystStandardTargets
             folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
             FileUtils.mv(folderpath1, folderpath2)
             CoreDataDirectory::copyFolderToRepository(folderpath2)
+            FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             return {
                 "uuid"       => SecureRandom.uuid,
                 "type"       => "folder",
@@ -405,7 +407,9 @@ class CatalystStandardTargets
         puts "-> target:"
         puts JSON.pretty_generate(target)
         puts CatalystStandardTargets::targetToString(target)
-        LucilleCore::pressEnterToContinue()
+        if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
+            CatalystStandardTargets::openTarget(target)
+        end
     end
 
     # CatalystStandardTargets::targetsDive(targets)

@@ -110,7 +110,7 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "DataNavigationAndSearch",
+                "Data Navigation And Search",
                 "Calendar",
                 "Wave",
                 "Todo",
@@ -161,7 +161,7 @@ class NSXGeneralCommandHandler
             if option == "Calendar" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")
             end
-            if option == "DataNavigationAndSearch" then
+            if option == "Data Navigation And Search" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNavigationAndSearch/data-navigation-and-search")
             end
             if option == "Wave" then

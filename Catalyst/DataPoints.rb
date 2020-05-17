@@ -147,13 +147,16 @@ class DataPoints
             DataPoints::printPointDetails(point)
             operations = [
                 "open",
-                "edit description",
                 "target(s) dive",
+                nil,
+                "edit description",
                 "targets (add new)",
                 "targets (select and remove)",
                 "tags (add new)",
                 "tags (remove)",
+                nil,
                 "add to starlight node",
+                nil,
                 "destroy datapoint"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -231,17 +234,16 @@ class DataPoints
             system("clear")
             puts "DataPoints"
             operations = [
-                # View
                 "show newly created datapoints",
                 "datapoint dive (uuid)",
 
-                # Make or modify
+                nil,
                 "make new datapoint",
 
-                # Special operations
+                nil,
                 "rename tag",
 
-                # Repair and Destroy
+                nil,
                 "repair json (uuid)",
                 "datapoint destroy (uuid)",
             ]
