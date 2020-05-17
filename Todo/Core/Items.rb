@@ -76,13 +76,22 @@ class Items
         }
     end
 
-    # Items::receiveRunTimespan(item, timespan)
-    def self.receiveRunTimespan(item, timespan)
+    # Items::receiveRunTimespan(item, timespan, verbose = false)
+    def self.receiveRunTimespan(item, timespan, verbose = false)
         itemuuid = item["uuid"]
         projectuuid = item["projectuuid"]
+        if verbose then
+            puts "Bank: putting #{timespan} into itemuuid: #{itemuuid}"
+        end
         Bank::put(itemuuid, timespan, CatalystCommon::bankRetainPeriodInSeconds())
+        if verbose then
+            puts "Bank: putting #{timespan} into projectuuid: #{projectuuid}"
+        end
         Bank::put(projectuuid, timespan, CatalystCommon::bankRetainPeriodInSeconds())
         InFlightControlSystem::getClaimsByItemUUID(itemuuid).each{|claim|
+            if verbose then
+                puts "Bank: putting #{timespan} into claimuuid: #{claim["uuid"]}"
+            end
             Bank::put(claim["uuid"], timespan, CatalystCommon::bankRetainPeriodInSeconds())
         }
     end
