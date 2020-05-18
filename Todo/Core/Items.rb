@@ -13,6 +13,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require 'colorize'
+
 class Items
 
     # Items::itemBestDescription(item)
