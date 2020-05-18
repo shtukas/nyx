@@ -40,7 +40,7 @@ class NSXDisplayUtils
             commands = commands.reject{|c| c == defaultCommand }
         end
         [
-            (object["contentItem"]["type"] != "block" ? FlamePadding : nil),
+            FlamePadding[0, FlamePadding.size-1],
             defaultCommand ? "#{defaultCommand.green}" : nil,
             commands.join(" "),
             NSXDisplayUtils::defaultCatalystObjectCommands().join(" ")
@@ -65,7 +65,7 @@ class NSXDisplayUtils
                 return [contentItem["line"]] + contentItem["body"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
             end
             if contentItem["type"] == "block" then
-                return [ "\n"+contentItem["block"].yellow ]
+                return [ (contentItem["block"].lines.map.with_index{|line, indx| indx == 0 ? line : "              #{line}" }.join()+"\n").yellow ]
             end
             [ "I don't know how to contentItemToCoreLines: #{contentItem}" ]
         }

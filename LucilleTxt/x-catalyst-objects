@@ -40,9 +40,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
-# SectionsType0141::contentToSection(text)
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
 =begin 
     Runner::isRunning(uuid)
@@ -61,91 +58,81 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyNegativeTimes.rb"
 
-# -----------------------------------------------------------------------------
-
-getNextLocationAtTheInboxOrNull = lambda {
-    Dir.entries("/Users/pascal/Desktop/Lucille-Inbox")
-        .reject{|filename| filename[0, 1] == '.' }
-        .map{|filename| "/Users/pascal/Desktop/Lucille-Inbox/#{filename}" }
-        .first
-}
-
-while (location = getNextLocationAtTheInboxOrNull.call()) do
-
-    if File.basename(location).include?("'") then
-        basename2 = File.basename(location).gsub("'", ",")
-        location2 = "#{File.dirname(location)}/#{basename2}"
-        FileUtils.mv(location, location2)
-        next
-    end
-
-    target = CatalystStandardTargets::locationToFileOrFolderTarget(location)
-    item = {
-        "uuid"         => SecureRandom.uuid,
-        "creationtime" => Time.new.to_f,
-        "projectname"  => "Inbox",
-        "projectuuid"  => "44caf74675ceb79ba5cc13bafa102509369c2b53",
-        "description"  => File.basename(location),
-        "target"       => target
-    }
-    puts JSON.pretty_generate(item)
-    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{item["uuid"]}.json"
-    File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
-    LucilleCore::removeFileSystemLocation(location)
-end
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
+# SectionsType0141::contentToSections(text)
 
 # -----------------------------------------------------------------------------
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-objectuuid = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
+LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
 
-DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(objectuuid, 2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
+def section2sectionUuid(section)
+    "2c84d63c-1a2a-4b0c-ae39-638acbfb9da1:#{Digest::SHA1.hexdigest(section)}"
+end
 
-timeInBank = Bank::total(objectuuid)
-isRunning = Runner::isRunning(objectuuid)
-metric = 
-    if timeInBank < 0 then
-        0.70 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
-    else
-        0.70*Math.exp(-timeInBank.to_f/3600)
-    end
-metric = isRunning ? 1 : metric
-isRunningForLong = (Runner::runTimeInSecondsOrNull(objectuuid) || 0) > 3600
-isDone = (isRunning and (timeInBank+(Runner::runTimeInSecondsOrNull(objectuuid) || 0)) >= 0)
+def lucilleGlobalStats()
+    timeInBank = Bank::total(LUCILLE_UUID)
+    isRunning = Runner::isRunning(LUCILLE_UUID)
+    metric = 
+        if timeInBank < 0 then
+            0.70 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
+        else
+            0.70*Math.exp(-timeInBank.to_f/3600)
+        end
+    metric = isRunning ? 1 : metric
+    isRunningForLong = (Runner::runTimeInSecondsOrNull(LUCILLE_UUID) || 0) > 3600
+    isDone = (isRunning and (timeInBank+(Runner::runTimeInSecondsOrNull(LUCILLE_UUID) || 0)) >= 0)
+    [timeInBank, metric, isRunning, isRunningForLong, isDone]
+end
 
-content = IO.read(PATH_TO_DESKTOP_FILE)
-            .lines
-            .select{|line| line.strip.size>0 }
-            .first(10)
-            .join()
+# -----------------------------------------------------------------------------
 
-content = [
-            "Lucille",
-            " (bank: #{(timeInBank.to_f/3600).round(2)} hours)",
-            Runner::runTimeInSecondsOrNull(objectuuid) ? " (running for #{(Runner::runTimeInSecondsOrNull(objectuuid).to_f/3600).round(2)} hours)" : "",
-            "\n\n",
-            content
-          ].join()
+DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(LUCILLE_UUID, 2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
 
-objects = [
-    {
-        "uuid"           => objectuuid,
-        "contentItem"    => {
-            "type" => "block",
-            "block" => content
+timeInBank, metric, isRunning, isRunningForLong, isDone = lucilleGlobalStats()
+
+objects = []
+
+if !isRunning then
+    object = {
+        "uuid" => LUCILLE_UUID,
+        "contentItem" => {
+            "type" => "line",
+            "line" => "Lucille.txt (Bank: #{(timeInBank.to_f/3600).round(2)} hours)"
         },
-        "metric"          => metric,
-        "commands"        => ["stop"],
-        "defaultCommand"  => isRunning ? "[]" : "start",
-        "isRunning" => isRunning,
-        "isRunningForLong" => isRunningForLong,
-        "isDone" => isDone,
+        "metric" => metric,
+        "commands" => [],
+        "defaultCommand" => "start",
         "shell-redirects" => {
             "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start",
-            "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop",
         }
     }
-]
+    objects << object
+else
+    SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
+        .first(1)
+        .each_with_index{|section, indx|
+            uuid = section2sectionUuid(section)
+            object = {
+                "uuid" => uuid,
+                "contentItem" => {
+                    "type" => "block",
+                    "block" => section.strip
+                },
+                "metric" => metric - indx.to_f/1000,
+                "commands" => ["done"],
+                "defaultCommand" => isRunning ? "stop" : "start",
+                "isRunning" => isRunning,
+                "isRunningForLong" => isRunningForLong,
+                "isDone" => isDone,
+                "shell-redirects" => {
+                    "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop",
+                    "done" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing done '#{uuid}'"
+                }
+            }
+            objects << object
+        }
+end
 
 puts JSON.generate(objects)

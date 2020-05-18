@@ -92,7 +92,7 @@ class DataPoints
         }
         puts JSON.pretty_generate(datapoint)
         DataPoints::save(datapoint)
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ?") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
             xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
             if xnode then
                 StarlightDataClaims::makeClaimGivenNodeAndDataPoint(xnode, datapoint)

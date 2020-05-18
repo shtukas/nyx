@@ -46,19 +46,33 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
+# SectionsType0141::contentToSections(text)
+
 # --------------------------------------------------------------------
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-objectuuid = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
+LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
+
+def section2sectionUuid(section)
+    "2c84d63c-1a2a-4b0c-ae39-638acbfb9da1:#{Digest::SHA1.hexdigest(section)}"
+end
 
 if ARGV[0] == "start" then
-    Runner::start(objectuuid)
+    Runner::start(LUCILLE_UUID)
 end
 
 if ARGV[0] == "stop" then
-    timespan = Runner::stop(objectuuid)
+    timespan = Runner::stop(LUCILLE_UUID)
     exit if timespan.nil?
-    puts "LucilleTxt: pushing #{timespan.to_i} seconds to ping"
-    Bank::put(objectuuid, timespan, 86400) # run items individually but contribute to the group
+    puts "LucilleTxt: pushing #{timespan.to_i} seconds to Bank"
+    Bank::put(LUCILLE_UUID, timespan, 86400)
+end
+
+if ARGV[0] == "done" and ARGV[1] then
+    uuid = ARGV[1]
+    CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
+    newsections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE)).reject{|section| section2sectionUuid(section) == uuid }
+    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts( newsections.map{|section| section.strip }.join("\n\n") ) }
 end
