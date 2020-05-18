@@ -139,8 +139,8 @@ end
 if ARGV[0] == "ifcs-done" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
 
     timespan = Runner::stop(uuid)
     if !timespan.nil? then
@@ -148,9 +148,11 @@ if ARGV[0] == "ifcs-done" and ARGV[1] then
 
         item = Items::getOrNull(claim["itemuuid"])
         if item.nil? then
+            puts "Sending #{timespan} to item #{item["uuid"]}"
             Items::receiveRunTimespan(item, timespan, true)
         end
     end
 
-    Items::destroy(item["uuid"])
+    Items::destroy(claim["itemuuid"])
+    InFlightControlSystem::destroy(uuid)
 end
