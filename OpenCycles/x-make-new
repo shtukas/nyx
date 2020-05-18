@@ -35,6 +35,4 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint
 datapoint = DataPoints::issueDataPointInteractivelyOrNull()
 exit if datapoint.nil?
 FileUtils.touch("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{datapoint["uuid"]}")
-puts "datapoint:#{datapoint["uuid"]}"
-LucilleCore::pressEnterToContinue()
 
