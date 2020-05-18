@@ -81,15 +81,17 @@ class DataPoints
         tags
     end
 
-    # DataPoints::makeDataPointInteractivelyOrNull()
-    def self.makeDataPointInteractivelyOrNull()
-        {
+    # DataPoints::issueDataPointInteractivelyOrNull()
+    def self.issueDataPointInteractivelyOrNull()
+        datapoint = {
             "uuid"              => SecureRandom.uuid,
             "creationTimestamp" => Time.new.to_f,
             "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
             "targets"           => DataPoints::makeCatalystStandardTargetsInteractively(),
             "tags"              => DataPoints::makeTagsInteractively()
         }
+        DataPoints::save(datapoint)
+        datapoint
     end
 
     # ------------------------------------------------------------------------
@@ -105,7 +107,7 @@ class DataPoints
     def self.selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
         datapoint = DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
         return datapoint if datapoint
-        DataPoints::makeDataPointInteractivelyOrNull()
+        DataPoints::issueDataPointInteractivelyOrNull()
     end
 
     # DataPoints::datapointToString(datapoint)
@@ -118,12 +120,14 @@ class DataPoints
         puts "DataPoint:"
         puts "    uuid: #{point["uuid"]}"
         puts "    description: #{point["description"].green}"
+        puts ""
 
         puts "    targets:"
         point["targets"]
             .each{|target|
                 puts "        #{CatalystStandardTargets::targetToString(target)}"
             }
+        puts ""
 
         if point["tags"].empty? then
             puts "    tags: (empty set)"
@@ -133,6 +137,7 @@ class DataPoints
                 puts "        #{item}"
             }
         end
+        puts ""
 
         starlightnodes = StarlightDataClaims::getNodesForDataPoint(point)
         if starlightnodes.empty? then
@@ -318,7 +323,7 @@ class DataPoints
                 end
             end
             if operation == "make new datapoint" then
-                DataPoints::makeDataPointInteractivelyOrNull()
+                DataPoints::issueDataPointInteractivelyOrNull()
             end
             if operation == "show newly created datapoints" then
                 points = DataPoints::datapoints()

@@ -63,8 +63,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyNega
 
 # -----------------------------------------------------------------------------
 
+# With the exception of the toString which shown the uuid, the code
+# here is totally identical to that of OpenCycles.
+
+
 def getOpenCyclesIds()
-    Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
+    Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/DataReferences")
         .select{|filename| filename[0, 1] != '.' }
 end
 
@@ -77,7 +81,7 @@ end
 
 loop {
     system("clear")
-    datapoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", getDataPoints(), lambda{|datapoint| DataPoints::datapointToString(datapoint) })
+    datapoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", getDataPoints(), lambda{|datapoint| "[#{datapoint["uuid"]}] #{DataPoints::datapointToString(datapoint)}" })
     break if datapoint.nil?
     DataPoints::pointDive(datapoint)
 }

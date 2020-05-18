@@ -110,14 +110,49 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "OpenCycles",
+                "Make new [something]",
                 "Data Navigation And Search",
+                "DataReferences",
+                "OpenCycles",
                 "Todo",
                 "Calendar",
                 "Wave",
                 "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+
+            if option == "Todo" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
+            end
+            if option == "Calendar" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")
+            end
+            if option == "Data Navigation And Search" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNavigationAndSearch/data-navigation-and-search")
+            end
+            if option == "Wave" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")
+            end
+            if option == "OpenCycles" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
+            end
+            if option == "DataReferences" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataReferences/references")
+            end
+            if option == "Make new [something]" then
+                options = [
+                    "DataReference",
+                    "OpenCycle"
+                ]
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+                return if option.nil?
+                if option == "DataReference" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataReferences/x-make-new")
+                end
+                if option == "OpenCycle" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new")
+                end
+            end
             if option == "Catalyst" then
                 loop {
                     options = [
@@ -155,21 +190,6 @@ class NSXGeneralCommandHandler
                         LucilleCore::pressEnterToContinue()
                     end
                 }
-            end
-            if option == "Todo" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
-            end
-            if option == "Calendar" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")
-            end
-            if option == "Data Navigation And Search" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataNavigationAndSearch/data-navigation-and-search")
-            end
-            if option == "Wave" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")
-            end
-            if option == "OpenCycles" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
             end
             return
         end

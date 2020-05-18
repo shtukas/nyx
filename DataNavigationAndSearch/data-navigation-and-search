@@ -191,9 +191,12 @@ class DataNavigationAndSearch
 
                 # Navigation
                 "startlight navigation",
+                "open dive datapoint by uuid",
+                nil,
 
                 # Search
                 "datapoints search",
+                nil,
 
                 # Management
                 "starlight management"
@@ -202,6 +205,12 @@ class DataNavigationAndSearch
             break if operation.nil?
             if operation == "startlight navigation" then
                 StarlightUserInterfaceRoots::navigation()
+            end
+            if operation == "open dive datapoint by uuid" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                datapoint = DataPoints::getOrNull(uuid)
+                next if datapoint.nil?
+                DataPoints::pointDive(datapoint)
             end
             if operation == "datapoints search" then
                 DataPointsSearch::search()
