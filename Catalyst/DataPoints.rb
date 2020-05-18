@@ -90,7 +90,14 @@ class DataPoints
             "targets"           => DataPoints::makeCatalystStandardTargetsInteractively(),
             "tags"              => DataPoints::makeTagsInteractively()
         }
+        puts JSON.pretty_generate(datapoint)
         DataPoints::save(datapoint)
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ?") then
+            xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
+            if xnode then
+                StarlightDataClaims::makeClaimGivenNodeAndDataPoint(xnode, datapoint)
+            end
+        end
         datapoint
     end
 
@@ -196,12 +203,13 @@ class DataPoints
                 DataPoints::openPoint(point)
             end
             if operation == "edit description" then
-                point["description"] = CatalystCommon::editTextUsingTextmate(point["description"]).strip
+                description = CatalystCommon::editTextUsingTextmate(point["description"]).strip
                 if description == "" or description.lines.to_a.size != 1 then
                     puts "Descriptions should be one non empty line"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
+                point["description"] = description
                 DataPoints::save(point)
             end
             if operation == "target(s) dive" then

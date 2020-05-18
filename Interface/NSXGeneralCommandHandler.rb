@@ -31,6 +31,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+
 class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::helpLines()
@@ -142,7 +144,8 @@ class NSXGeneralCommandHandler
             if option == "Make new [something]" then
                 options = [
                     "DataReference",
-                    "OpenCycle"
+                    "OpenCycle",
+                    "DataPoint"
                 ]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                 return if option.nil?
@@ -151,6 +154,9 @@ class NSXGeneralCommandHandler
                 end
                 if option == "OpenCycle" then
                     system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new")
+                end
+                if option == "DataPoint" then
+                    DataPoints::issueDataPointInteractivelyOrNull()
                 end
             end
             if option == "Catalyst" then

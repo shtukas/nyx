@@ -233,6 +233,7 @@ class CatalystStandardTargets
 
     # CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
     def self.makeNewTargetInteractivelyOrNull()
+        puts "Making a new Catalyst Standard Target..."
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?

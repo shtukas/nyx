@@ -48,6 +48,7 @@ class StartlightNodes
 
     # StartlightNodes::makeNodeInteractivelyOrNull()
     def self.makeNodeInteractivelyOrNull()
+        puts "Making a new Starlight node..."
         node = {
             "uuid" => SecureRandom.uuid,
             "creationTimestamp" => Time.new.to_f,
