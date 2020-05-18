@@ -49,6 +49,11 @@ class NSXCatalystUI
         verticalSpaceLeft
     end
 
+    # NSXCatalystUI::shouldNotDisplayInterfaceTop(displayObjects)
+    def self.shouldNotDisplayInterfaceTop(displayObjects)
+        displayObjects.any?{|object| object["x-interface:isWave"] }
+    end
+
     # NSXCatalystUI::performInterfaceDisplay(displayObjects)
     def self.performInterfaceDisplay(displayObjects)
 
@@ -59,7 +64,7 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
         content = IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt").strip
-        if content.size > 0 then
+        if content.size > 0 and !NSXCatalystUI::shouldNotDisplayInterfaceTop(displayObjects) then
             content = content.lines.select{|line| line.strip.size > 0 }.join().green
             puts ""
             puts content

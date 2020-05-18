@@ -48,11 +48,21 @@ class StartlightNodes
 
     # StartlightNodes::makeNodeInteractivelyOrNull()
     def self.makeNodeInteractivelyOrNull()
-        {
+        node = {
             "uuid" => SecureRandom.uuid,
             "creationTimestamp" => Time.new.to_f,
             "name" => LucilleCore::askQuestionAnswerAsString("nodename: ")
         }
+        StartlightNodes::save(node)
+        puts JSON.pretty_generate(node)
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
+            xnodes = StartlightNodes::nodes().reject{|n| n["uuid"] == node["uuid"] }
+            xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", xnodes, lambda {|node| StartlightNodes::nodeToString(node) })
+            if xnode then
+                StartlightPaths::makePathFromFirstNodeToSecondNode(xnode, node)
+            end
+        end
+        node
     end
 
     # StartlightNodes::nodeToString(node)
@@ -161,8 +171,8 @@ class StartlightPaths
         }
     end
 
-    # StartlightPaths::makePathFromNodes(node1, node2)
-    def self.makePathFromNodes(node1, node2)
+    # StartlightPaths::makePathFromFirstNodeToSecondNode(node1, node2)
+    def self.makePathFromFirstNodeToSecondNode(node1, node2)
         {
             "uuid"        => SecureRandom.uuid,
             "creationTimestamp" => Time.new.to_f,
@@ -366,7 +376,7 @@ class StarlightUserInterfaceRoots
                 next if node1.nil?
                 node2 = StartlightNodes::selectNodeOrNull()
                 next if node2.nil?
-                path = StartlightPaths::makePathFromNodes(node1, node2)
+                path = StartlightPaths::makePathFromFirstNodeToSecondNode(node1, node2)
                 puts JSON.pretty_generate(path)
                 StartlightPaths::save(path)
             end

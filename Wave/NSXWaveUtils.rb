@@ -252,6 +252,7 @@ class NSXWaveUtils
             "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing recast '#{uuid}'",
             "destroy"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing destroy '#{uuid}'"
         }
+        object["x-interface:isWave"] = true
         object
     end
 

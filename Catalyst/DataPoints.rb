@@ -118,17 +118,29 @@ class DataPoints
         puts "DataPoint:"
         puts "    uuid: #{point["uuid"]}"
         puts "    description: #{point["description"].green}"
+
         puts "    targets:"
         point["targets"]
             .each{|target|
                 puts "        #{CatalystStandardTargets::targetToString(target)}"
             }
+
         if point["tags"].empty? then
-            puts "    tags: (empty set)".green
+            puts "    tags: (empty set)"
         else
             puts "    tags"
             point["tags"].each{|item|
-                puts "        #{item}".green
+                puts "        #{item}"
+            }
+        end
+
+        starlightnodes = StarlightDataClaims::getNodesForDataPoint(point)
+        if starlightnodes.empty? then
+            puts "    starlightnodes: (empty set)"
+        else
+            puts "    starlightnodes"
+            starlightnodes.each{|node|
+                puts "        #{StartlightNodes::nodeToString(node)}"
             }
         end
     end
@@ -158,6 +170,7 @@ class DataPoints
         loop {
             system("clear")
             DataPoints::printPointDetails(point)
+            puts ""
             operations = [
                 "open",
                 "target(s) dive",
@@ -217,7 +230,7 @@ class DataPoints
                 DataPoints::save(point)
             end
             if operation == "add to starlight node" then
-                node = StartlightNodes::selectNodeOrNull()
+                node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
                 next if node.nil?
                 dataclaim = StarlightDataClaims::makeClaimGivenNodeAndDataPoint(node, point)
                 StarlightDataClaims::save(dataclaim)
