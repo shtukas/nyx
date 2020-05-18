@@ -79,13 +79,22 @@ Thread.new {
             .each{|object|
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object #{object["uuid"]} is done")
             }
+
         sleep 12
+
         NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             .select{|object| object["isRunningForLong"] }
             .first(1)
             .each{|object|
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object #{object["uuid"]} is running for long")
             }
+
+        sleep 12
+
+        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        if !objects.empty? and objects[0]["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and objects[0]["isRunning"] and objects.any?{|object| object["x-interface:isWave"] } then
+            NSXMiscUtils::onScreenNotification("Catalyst Interface", "Priority items over Gwork")
+        end
     }
 
     sleep 10
