@@ -101,6 +101,12 @@ class DataPoints
         datapoint
     end
 
+    # DataPoints::getDataPointsByTag(tag)
+    def self.getDataPointsByTag(tag)
+        DataPoints::datapoints()
+            .select{|datapoint| datapoint["tags"].include?(tag) }
+    end
+
     # ------------------------------------------------------------------------
     # User Interface
 
