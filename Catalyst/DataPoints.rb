@@ -51,6 +51,13 @@ class DataPoints
         JSON.parse(IO.read(filepath))
     end
 
+    # DataPoints::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "#{DataPoints::pathToRepository()}/#{uuid}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
     # DataPoints::datapoints()
     def self.datapoints()
         Dir.entries(DataPoints::pathToRepository())
@@ -257,8 +264,7 @@ class DataPoints
             end
             if operation == "destroy datapoint" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                    puts "Well, this operation has not been implemented yet (^^)"
-                    LucilleCore::pressEnterToContinue()
+                    DataPoints::destroy(point["uuid"])
                     return
                 end
             end
