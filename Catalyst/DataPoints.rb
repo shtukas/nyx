@@ -179,6 +179,7 @@ class DataPoints
         else
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", point["targets"], lambda{|target| CatalystStandardTargets::targetToString(target) })
         end
+        return if target.nil?
         puts JSON.pretty_generate(target)
         CatalystStandardTargets::openTarget(target)
     end

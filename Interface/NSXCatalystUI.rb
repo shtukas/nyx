@@ -168,7 +168,7 @@ class NSXCatalystUI
             .sort
             .each{|tag|
                 next if KeyValueStore::flagIsTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
-                if LucilleCore::askQuestionAnswerAsBoolean("Make tag '#{tag}' into Starlight node ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Make tag '#{tag}' into Starlight node ? ", false) then
                     datapoints = DataPoints::getDataPointsByTag(tag)
                     node = {
                         "uuid" => SecureRandom.uuid,
@@ -181,6 +181,7 @@ class NSXCatalystUI
                         puts datapoint
                         StarlightDataClaims::makeClaimGivenNodeAndDataPoint(node, datapoint)
                     }
+                    KeyValueStore::setFlagTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
                     return
                 end
                 KeyValueStore::setFlagTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
