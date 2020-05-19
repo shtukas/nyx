@@ -48,11 +48,13 @@ class DailyNegativeTimes
 
     # DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(uuid, timeInSeconds, allowedDayIndices)
     def self.addNegativeTimeToBankOrDoNothing(uuid, timeInSeconds, allowedDayIndices)
-        return if !allowedDayIndices.include?(Time.new.wday)
-        return if Bank::total(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
-        return if Time.new.hour < 6
-        return if Time.new.hour > 12
+        return if !allowedDayIndices.include?(Time.new.wday)
+        if Bank::total(uuid) < -3600 then 
+            # This value allows small targets to get some time and the big ones not to become overwelming
+            KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
+            return
+        end
         Bank::put(uuid, -timeInSeconds, CatalystCommon::bankRetainPeriodInSeconds())
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
