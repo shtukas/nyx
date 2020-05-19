@@ -274,6 +274,9 @@ end
 
 class StarlightNavigation
 
+    # ----------------------------------------------
+    # Navigation Utils
+
     # StarlightNavigation::getStarlightNetworkParentNodes(node)
     def self.getStarlightNetworkParentNodes(node)
         StartlightPaths::getPathsWithGivenTarget(node["uuid"])
@@ -287,6 +290,15 @@ class StarlightNavigation
             .map{|path| StartlightNodes::getOrNull(path["targetuuid"]) }
             .compact
     end
+
+    # StarlightNavigation::getRootNodes()
+    def self.getRootNodes()
+        StartlightNodes::nodes()
+            .select{|node| StarlightNavigation::getStarlightNetworkParentNodes(node).empty? }
+    end
+
+    # ----------------------------------------------
+    # Navigation User Interface
 
     # StarlightNavigation::nagivateNode(node)
     def self.nagivateNode(node)
@@ -335,28 +347,29 @@ class StarlightNavigation
             break if !status
         }
     end
-end
 
-class StarlightUserInterfaceRoots
-
-    # StarlightUserInterfaceRoots::navigation()
+    # StarlightNavigation::navigation()
     def self.navigation()
         loop {
             system("clear")
             puts "Starlight Navigation (root)"
             operations = [
-                "navigate from Guardian (temporary)",
+                "navigate from root nodes",
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "navigate from Guardian (temporary)" then
-                node = StartlightNodes::getOrNull("0d23dbf7-2527-4f28-98fa-33e03ab9668d")
+            if operation == "navigate from root nodes" then
+                node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StarlightNavigation::getRootNodes(), lambda{|node| StartlightNodes::nodeToString(node) })
+                next if node.nil?
                 StarlightNavigation::nagivateNode(node)
             end
         }
     end
 
-    # StarlightUserInterfaceRoots::management()
+end
+
+class StarlightManagement
+    # StarlightManagement::management()
     def self.management()
         loop {
             system("clear")

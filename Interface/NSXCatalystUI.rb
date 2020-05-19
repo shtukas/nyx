@@ -161,6 +161,8 @@ class NSXCatalystUI
 
     # NSXCatalystUI::curation()
     def self.curation()
+        system("clear")
+        puts "#Curation"
         DataPoints::datapoints()
             .map{|datapoint| datapoint["tags"] }
             .flatten
@@ -168,7 +170,7 @@ class NSXCatalystUI
             .sort
             .each{|tag|
                 next if KeyValueStore::flagIsTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
-                if LucilleCore::askQuestionAnswerAsBoolean("Make tag '#{tag}' into Starlight node ? ", false) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Make tag '#{tag}' ( #{DataPoints::getDataPointsByTag(tag).size} ) into Starlight node ? ", false) then
                     datapoints = DataPoints::getDataPointsByTag(tag)
                     node = {
                         "uuid" => SecureRandom.uuid,

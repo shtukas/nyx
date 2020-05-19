@@ -180,33 +180,28 @@ class DataPointsSearch
     end
 end
 
-class DataNavigationAndSearch
+class DataExplorer
 
-    # DataNavigationAndSearch::userinterface()
+    # DataExplorer::userinterface()
     def self.userinterface()
         loop {
             system("clear")
             puts "Data Navigation And Search 🗺️"
             operations = [
-
-                # Navigation
                 "startlight navigation",
-                "open dive datapoint by uuid",
+                "starlight management",
                 nil,
 
                 # Search
                 "datapoints search",
-                nil,
-
-                # Management
-                "starlight management"
+                "datapoint dive (uuid)",
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "startlight navigation" then
-                StarlightUserInterfaceRoots::navigation()
+                StarlightNavigation::navigation()
             end
-            if operation == "open dive datapoint by uuid" then
+            if operation == "dive datapoint by uuid" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 datapoint = DataPoints::getOrNull(uuid)
                 next if datapoint.nil?
@@ -216,11 +211,11 @@ class DataNavigationAndSearch
                 DataPointsSearch::search()
             end
             if operation == "starlight management" then
-                StarlightUserInterfaceRoots::management()
+                StarlightManagement::management()
             end
         }
     end
 end
 
-DataNavigationAndSearch::userinterface()
+DataExplorer::userinterface()
 
