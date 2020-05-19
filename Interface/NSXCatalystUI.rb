@@ -27,32 +27,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight
 
 class NSXCatalystUI
 
-    # NSXCatalystUI::printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
-    def self.printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
-
-        return verticalSpaceLeft if displayObjectsForListing.empty?
-
-        while displayObjectsForListing.size>0 do
-
-            # Position and Focus Management
-            position = position + 1
-            object = displayObjectsForListing.shift
-
-            # Space and Priorities Management
-            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 1, position)
-            verticalSize = NSXDisplayUtils::verticalSize(displayStr)
-            break if (position > 1) and (verticalSpaceLeft < verticalSize) and (displayObjectsForListing + [object]).none?{|object| object["isRunning"] }
-
-            # Display
-            puts displayStr
-            verticalSpaceLeft = verticalSpaceLeft - verticalSize
-
-            break if verticalSpaceLeft<=0 and displayObjectsForListing.none?{|object| object["isRunning"] }
-        end
-
-        verticalSpaceLeft
-    end
-
     # NSXCatalystUI::performInterfaceDisplay(displayObjects)
     def self.performInterfaceDisplay(displayObjects)
 
@@ -74,8 +48,6 @@ class NSXCatalystUI
         displayObjectsForListing = displayObjects.map{|object| object.clone }
         focusobject = displayObjectsForListing.first
 
-        position = 0
-
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""
@@ -86,7 +58,15 @@ class NSXCatalystUI
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-        verticalSpaceLeft = NSXCatalystUI::printDisplayObjects(displayObjectsForListing, position, verticalSpaceLeft)
+
+        position = 0
+        while !displayObjectsForListing[position].nil? and ( verticalSpaceLeft > 0 or displayObjectsForListing.any?{|object| object["isRunning"] } ) do
+            object = displayObjectsForListing[position-1]
+            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 0, position+1)
+            puts displayStr
+            verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
+            position = position + 1
+        end
 
         if displayObjects.size==0 then
             puts ""
@@ -154,37 +134,6 @@ class NSXCatalystUI
         end
     end
 
-    # NSXCatalystUI::curation()
-    def self.curation()
-        system("clear")
-        puts "#Curation"
-        DataPoints::datapoints()
-            .map{|datapoint| datapoint["tags"] }
-            .flatten
-            .uniq
-            .sort
-            .each{|tag|
-                next if KeyValueStore::flagIsTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
-                if LucilleCore::askQuestionAnswerAsBoolean("Make tag '#{tag}' ( #{DataPoints::getDataPointsByTag(tag).size} ) into Starlight node ? ", false) then
-                    datapoints = DataPoints::getDataPointsByTag(tag)
-                    node = {
-                        "uuid" => SecureRandom.uuid,
-                        "creationTimestamp" => Time.new.to_f,
-                        "name" => tag
-                    }
-                    puts node
-                    StartlightNodes::save(node)
-                    datapoints.each{|datapoint|
-                        puts datapoint
-                        StarlightDataClaims::makeClaimGivenNodeAndDataPoint(node, datapoint)
-                    }
-                    KeyValueStore::setFlagTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
-                    return
-                end
-                KeyValueStore::setFlagTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
-            }
-    end
-
     # NSXCatalystUI::standardUILoop()
     def self.standardUILoop()
         loop {
@@ -193,7 +142,7 @@ class NSXCatalystUI
                 return
             end
             NSXCatalystUI::importFromLucilleInbox()
-            NSXCatalystUI::curation()
+            NSXCuration::curation()
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
             NSXCatalystUI::performInterfaceDisplay(objects)
         }
