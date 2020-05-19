@@ -32,7 +32,7 @@ class NSXCatalystObjectsOperator
                                         "type" => "line",
                                         "line" => "Problems extracting catalyst objects at '#{source}'"
                                     },
-                                    "metric"          => 1,
+                                    "metric"          => 1.1,
                                     "commands"        => []
                                 }
                             ]
@@ -41,26 +41,18 @@ class NSXCatalystObjectsOperator
                     .flatten
 
         objects = objects
-                    .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
-                    .sort{|o1, o2| 
-                        o1["metric"]<=>o2["metric"] }
-                    .reverse
+                    .select{|object| object['metric'] >= 0.2 }
 
         objects = objects
-            .select{|object|
-                b1 = object['metric'] >= 0.2
-                b2 = object["isRunning"]
-                b1 or b2
-            }
-            .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
-            .reverse
+                    .select{|object| DoNotShowUntil::isVisible(object["uuid"]) or object["isRunning"] }
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
 
-        while !objects.empty? and objects[0]["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and objects[0]["isRunning"] and objects.any?{|object| object["x-interface:isWave"] } do
-            objects[0]["metric"] = objects[0]["metric"] - 0.01
+        while objects[0]["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and objects[0]["isRunning"] and objects.any?{|object| object["x-interface:isWave"] } do
+            objects[0]["metric"] = objects[0]["metric"] - 0.1
             objects = objects
-                        .sort{|o1, o2| 
-                            o1["metric"]<=>o2["metric"] }
-                        .reverse
+                    .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
+                    .reverse
         end
 
         objects

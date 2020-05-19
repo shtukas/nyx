@@ -93,8 +93,10 @@ Thread.new {
         sleep 12
 
         objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-        if !objects.empty? and objects[0]["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and objects[0]["isRunning"] and objects.any?{|object| object["x-interface:isWave"] } then
-            NSXMiscUtils::onScreenNotification("Catalyst Interface", "Priority items over Gwork")
+        hasRunningGwork = objects.any?{|object| object["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and object["isRunning"] }
+        hasWaveItems    = objects.any?{|object| object["x-interface:isWave"] }
+        if hasRunningGwork and hasWaveItems then
+            NSXMiscUtils::onScreenNotification("Catalyst Interface", "Wave items during Gwork")
         end
     }
 

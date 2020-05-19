@@ -181,7 +181,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::isInteger(str)
     def self.isInteger(str)
-        str = str.to_i.to_s
+        str == str.to_i.to_s
     end
 
 end

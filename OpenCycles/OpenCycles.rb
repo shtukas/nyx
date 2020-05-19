@@ -32,19 +32,19 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint
 
 # -----------------------------------------------------------------------------
 
+=begin
+{
+    "datapointuuid": "aedbda15-4227-4652-9e4b-b443d38da538",
+    "creationTimestamp": 9
+}
+=end
+
 class OpenCycles
-
-    # OpenCycles::getOpenCyclesIds()
-    def self.getOpenCyclesIds()
+    # OpenCycles::getOpenCyclesItems()
+    def self.getOpenCyclesItems()
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
-            .select{|filename| filename[0, 1] != '.' }
-    end
-
-    # OpenCycles::getDataPoints()
-    def self.getDataPoints()
-        OpenCycles::getOpenCyclesIds()
-            .map{|uuid| DataPoints::getOrNull(uuid) }
-            .compact
+            .select{|filename| filename[-5, 5] == '.json' }
+            .map{|filename| JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
             .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
     end
 end

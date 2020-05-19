@@ -42,7 +42,7 @@ class NSXCatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        opencycles = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-data`)
+        opencycles = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-datapoints`)
         opencycles.each{|datapoint|
             puts "[#{position.to_s.rjust(3)}] [opencycle] " + DataPoints::datapointToString(datapoint)[10, 999]
             verticalSpaceLeft = verticalSpaceLeft - 1
@@ -58,8 +58,6 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 1 )
         end
 
-        focusobject = displayObjects[0]
-
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""
@@ -71,16 +69,14 @@ class NSXCatalystUI
         verticalSpaceLeft = verticalSpaceLeft - 1
 
         firstPositionForCatalystObjects = position
-        while !displayObjects[position].nil? and ( verticalSpaceLeft > 0 or displayObjects.any?{|object| object["isRunning"] } ) do
-            object = displayObjects[position-1]
+        while !displayObjects[position].nil? and verticalSpaceLeft > 0 do
+            object = displayObjects[position-firstPositionForCatalystObjects]
             displayItems[position] = ["catalyst-objects", object]
-            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == firstPositionForCatalystObjects, position+1)
+            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == firstPositionForCatalystObjects, position)
             puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
             position = position + 1
         end
-
-        # -----------------------------------------------------------------------------------
 
         puts ""
         print "--> "
@@ -91,8 +87,6 @@ class NSXCatalystUI
             end
             return
         end
-
-        # -----------------------------------------------------------------------------------
 
         if NSXMiscUtils::isInteger(command) then
             position = command.to_i

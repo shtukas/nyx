@@ -36,5 +36,8 @@ require_relative "OpenCycles.rb"
 
 datapoint = DataPoints::issueDataPointInteractivelyOrNull()
 exit if datapoint.nil?
-FileUtils.touch("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{datapoint["uuid"]}")
-
+item = {
+    "datapointuuid" => datapoint["uuid"],
+    "creationTimestamp" => Time.new.to_f
+}
+FileUtils.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{datapoint["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }

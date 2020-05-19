@@ -36,7 +36,10 @@ require_relative "OpenCycles.rb"
 
 loop {
     system("clear")
-    datapoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", OpenCycles::getDataPoints(), lambda{|datapoint| DataPoints::datapointToString(datapoint) })
+    datapoints = OpenCycles::getOpenCyclesItems()
+                .select{|item| !DataPoints::getOrNull(item["datapointuuid"]).nil? }
+                .map{|item| DataPoints::getOrNull(item["datapointuuid"]) }
+    datapoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", datapoints, lambda{|datapoint| DataPoints::datapointToString(datapoint) })
     break if datapoint.nil?
     DataPoints::pointDive(datapoint)
 }

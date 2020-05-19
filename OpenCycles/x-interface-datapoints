@@ -34,4 +34,11 @@ require_relative "OpenCycles.rb"
 
 # -----------------------------------------------------------------------------
 
-puts JSON.generate(OpenCycles::getDataPoints())
+puts JSON.generate(
+        OpenCycles::getOpenCyclesItems()
+            .map{|item|
+                DataPoints::getOrNull(item["datapointuuid"])
+            }
+            .compact
+            .last(10)
+     )
