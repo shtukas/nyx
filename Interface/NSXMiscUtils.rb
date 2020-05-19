@@ -179,4 +179,9 @@ class NSXMiscUtils
         NSXMiscUtils::setXNote(uuid, text)
     end
 
+    # NSXMiscUtils::isInteger(str)
+    def self.isInteger(str)
+        str = str.to_i.to_s
+    end
+
 end

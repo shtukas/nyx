@@ -34,7 +34,21 @@ class NSXCatalystUI
 
         system("clear")
 
+        displayItems = []
+
+        position = 0
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
+        opencycles = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-data`)
+        opencycles.each{|datapoint|
+            puts "[#{position.to_s.rjust(3)}] [opencycle] " + DataPoints::datapointToString(datapoint)[10, 999]
+            verticalSpaceLeft = verticalSpaceLeft - 1
+            displayItems[position] = ["datapoint", datapoint]
+            position = position + 1
+        }
 
         content = IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt").strip
         if content.size > 0 then
@@ -44,37 +58,26 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 1 )
         end
 
-        # displayObjectsForListing is being consumed while displayObjects should remain static
-        displayObjectsForListing = displayObjects.map{|object| object.clone }
-        focusobject = displayObjectsForListing.first
+        focusobject = displayObjects[0]
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""
-            puts "🗓️"
             puts calendarreport
-            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 2 )
+            verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 1 )
         end
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        position = 0
-        while !displayObjectsForListing[position].nil? and ( verticalSpaceLeft > 0 or displayObjectsForListing.any?{|object| object["isRunning"] } ) do
-            object = displayObjectsForListing[position-1]
-            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == 0, position+1)
+        firstPositionForCatalystObjects = position
+        while !displayObjects[position].nil? and ( verticalSpaceLeft > 0 or displayObjects.any?{|object| object["isRunning"] } ) do
+            object = displayObjects[position-1]
+            displayItems[position] = ["catalyst-objects", object]
+            displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == firstPositionForCatalystObjects, position+1)
             puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
             position = position + 1
-        end
-
-        if displayObjects.size==0 then
-            puts ""
-            puts "No objects found"
-            print "--> "
-            command = STDIN.gets().strip
-            NSXGeneralCommandHandler::processCatalystCommandManager(nil, command)
-            return
         end
 
         # -----------------------------------------------------------------------------------
@@ -91,16 +94,19 @@ class NSXCatalystUI
 
         # -----------------------------------------------------------------------------------
 
-        if command.start_with?("'") then
-            position = command[1,9].strip.to_i
-            return if position==0
-            return if position > displayObjects.size
-            object = displayObjects[position-1]
-            NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)
+        if NSXMiscUtils::isInteger(command) then
+            position = command.to_i
+            item = displayItems[position]
+            if item[0] == "datapoint" then
+                DataPoints::pointDive(item[1])
+            end
+            if item[0] == "catalyst-objects" then
+                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(item[1])
+            end
             return
         end
 
-        NSXGeneralCommandHandler::processCatalystCommandManager(focusobject, command)
+        NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
     end
 
     # NSXCatalystUI::importFromLucilleInbox()

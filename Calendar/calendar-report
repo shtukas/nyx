@@ -47,7 +47,7 @@ require_relative "Calendar.rb"
 dates()
 .each{|date|
     next if date > today()
-    puts date
+    puts "🗓️  "+date
     puts IO.read(dateToFilepath(date))
         .strip
         .lines
