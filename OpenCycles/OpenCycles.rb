@@ -30,13 +30,23 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 
-require_relative "OpenCycles.rb"
-
 # -----------------------------------------------------------------------------
 
-loop {
-    system("clear")
-    datapoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", OpenCycles::getDataPoints(), lambda{|datapoint| DataPoints::datapointToString(datapoint) })
-    break if datapoint.nil?
-    DataPoints::pointDive(datapoint)
-}
+class OpenCycles
+
+    # OpenCycles::getOpenCyclesIds()
+    def self.getOpenCyclesIds()
+        Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
+            .select{|filename| filename[0, 1] != '.' }
+    end
+
+    # OpenCycles::getDataPoints()
+    def self.getDataPoints()
+        OpenCycles::getOpenCyclesIds()
+            .map{|uuid| DataPoints::getOrNull(uuid) }
+            .compact
+            .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
+    end
+end
+
+

@@ -30,6 +30,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCo
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 
+require_relative "OpenCycles.rb"
+
 # -----------------------------------------------------------------------------
 
 datapoint = DataPoints::issueDataPointInteractivelyOrNull()
