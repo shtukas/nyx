@@ -97,16 +97,16 @@ class Items
         if verbose then
             puts "Bank: putting #{timespan} into itemuuid: #{itemuuid}"
         end
-        Bank::put(itemuuid, timespan, CatalystCommon::bankRetainPeriodInSeconds())
+        Bank::put(itemuuid, timespan)
         if verbose then
             puts "Bank: putting #{timespan} into projectuuid: #{projectuuid}"
         end
-        Bank::put(projectuuid, timespan, CatalystCommon::bankRetainPeriodInSeconds())
+        Bank::put(projectuuid, timespan)
         InFlightControlSystem::getClaimsByItemUUID(itemuuid).each{|claim|
             if verbose then
                 puts "Bank: putting #{timespan} into claimuuid: #{claim["uuid"]}"
             end
-            Bank::put(claim["uuid"], timespan, CatalystCommon::bankRetainPeriodInSeconds())
+            Bank::put(claim["uuid"], timespan)
         }
     end
 

@@ -3,7 +3,7 @@
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Bank::put(uuid, weight, validityTimespan)
+    Bank::put(uuid, weight)
     Bank::total(uuid)
 =end
 
@@ -19,13 +19,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/BTreeSets
 
 class Bank
 
-    # Bank::put(setuuid, weight: Float, timespan: Float)
-    def self.put(setuuid, weight, timespan)
+    # Bank::put(setuuid, weight: Float)
+    def self.put(setuuid, weight)
         uuid = Time.new.to_f.to_s
         packet = {
             "uuid" => uuid,
-            "weight" => weight,
-            "deathtime" => Time.new.to_i + timespan
+            "weight" => weight
         }
         BTreeSets::set(nil, "3621f4d3:#{setuuid}", uuid, packet)
     end
@@ -33,7 +32,6 @@ class Bank
     # Bank::total(setuuid)
     def self.total(setuuid)
         BTreeSets::values(nil, "3621f4d3:#{setuuid}")
-            .select{|packet| Time.new.to_i < packet["deathtime"] }
             .map{|packet| packet["weight"] }
             .inject(0, :+)
     end

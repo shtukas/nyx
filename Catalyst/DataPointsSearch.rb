@@ -21,7 +21,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Bank::put(uuid, weight, validityTimespan)
+    Bank::put(uuid, weight)
     Bank::total(uuid)
 =end
 

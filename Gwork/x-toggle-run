@@ -36,7 +36,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Bank::put(uuid, weight, validityTimespan)
+    Bank::put(uuid, weight)
     Bank::total(uuid)
 =end
 
@@ -50,7 +50,7 @@ if Runner::isRunning(objectuuid()) then
     puts "Stopping Gwork"
     timespan = Runner::stop(objectuuid())
     exit if timespan.nil?
-    Bank::put(objectuuid(), timespan, 86400)
+    Bank::put(objectuuid(), timespan)
 else
     puts "Starting Gwork"
     Runner::start(objectuuid())

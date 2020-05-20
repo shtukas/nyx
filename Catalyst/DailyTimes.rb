@@ -21,7 +21,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Bank::put(uuid, weight, validityTimespan)
+    Bank::put(uuid, weight)
     Bank::total(uuid)
 =end
 
@@ -42,7 +42,7 @@ class DailyTimes
         return if Time.new.hour < 6
         return if Time.new.hour > 12
         timespan = DailyTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal) * 3600
-        Bank::put(uuid, -timespan, CatalystCommon::bankRetainPeriodInSeconds())
+        Bank::put(uuid, -timespan)
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 
@@ -55,7 +55,7 @@ class DailyTimes
             KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             return
         end
-        Bank::put(uuid, timeInSeconds, CatalystCommon::bankRetainPeriodInSeconds())
+        Bank::put(uuid, timeInSeconds)
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 end

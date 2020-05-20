@@ -42,7 +42,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
-    Bank::put(uuid, weight, timespan)
+    Bank::put(uuid, weight)
     Bank::total(uuid)
 =end
 
@@ -67,7 +67,7 @@ if ARGV[0] == "stop" then
     timespan = Runner::stop(LUCILLE_UUID)
     exit if timespan.nil?
     puts "LucilleTxt: pushing #{timespan.to_i} seconds to Bank"
-    Bank::put(LUCILLE_UUID, timespan, 86400)
+    Bank::put(LUCILLE_UUID, timespan)
 end
 
 if ARGV[0] == "done" and ARGV[1] then
