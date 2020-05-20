@@ -55,7 +55,7 @@ class NSXCatalystUI
             content = content.lines.select{|line| line.strip.size > 0 }.join().green
             puts ""
             puts content
-            verticalSpaceLeft = verticalSpaceLeft - ( content.lines.to_a.size + 1 )
+            verticalSpaceLeft = verticalSpaceLeft - ( NSXDisplayUtils::verticalSize(content) + 1 )
         end
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
