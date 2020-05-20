@@ -144,7 +144,8 @@ class NSXGeneralCommandHandler
             if option == "Make new [something]" then
                 options = [
                     "DataReference",
-                    "OpenCycle",
+                    "OpenCycle [with existing datapoint]",
+                    "OpenCycle [with new datapoint]",
                     "DataPoint"
                 ]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -152,8 +153,11 @@ class NSXGeneralCommandHandler
                 if option == "DataReference" then
                     system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataReferences/x-make-new")
                 end
-                if option == "OpenCycle" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new")
+                if option == "OpenCycle [with existing datapoint]" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-existing-datapoint")
+                end
+                if option == "OpenCycle [with new datapoint]" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-new-datapoint")
                 end
                 if option == "DataPoint" then
                     DataPoints::issueDataPointInteractivelyOrNull()

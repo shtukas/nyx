@@ -50,8 +50,8 @@ class OpenCycles
             .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
     end
 
-    # OpenCycles::makeNewDataPointAndNewOpenCycle()
-    def self.makeNewDataPointAndNewOpenCycle() 
+    # OpenCycles::makeNewOpenCycleWithNewDataPoint()
+    def self.makeNewOpenCycleWithNewDataPoint() 
         datapoint = DataPoints::issueDataPointInteractivelyOrNull()
         exit if datapoint.nil?
         item = {
@@ -59,6 +59,13 @@ class OpenCycles
             "creationTimestamp" => Time.new.to_f
         }
         FileUtils.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{datapoint["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
+    # OpenCycles::makeNewOpenCycleWithExistingDataPoint()
+    def self.makeNewOpenCycleWithExistingDataPoint()
+        puts "There isn't a way to select from all datapoint, you need to search, and promote"
+        LucilleCore::pressEnterToContinue()
+        DataPointsSearch::search()
     end
 
     # OpenCycles::userInterface()
