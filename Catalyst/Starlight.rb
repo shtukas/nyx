@@ -166,20 +166,22 @@ class StartlightPaths
     # StartlightPaths::makePathInteractivelyOrNull()
     def self.makePathInteractivelyOrNull()
         {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"         => SecureRandom.uuid,
+            "catalystType" => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
-            "sourceuuid"  => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
-            "targetuuid"  => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
+            "sourceuuid"   => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
+            "targetuuid"   => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
     end
 
     # StartlightPaths::makePathFromFirstNodeToSecondNode(node1, node2)
     def self.makePathFromFirstNodeToSecondNode(node1, node2)
         {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"         => SecureRandom.uuid,
+            "catalystType" => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
-            "sourceuuid"  => node1["uuid"],
-            "targetuuid"  => node2["uuid"]
+            "sourceuuid"   => node1["uuid"],
+            "targetuuid"   => node2["uuid"]
         }
     end
 

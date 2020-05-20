@@ -30,6 +30,7 @@ StartlightNode {
 
 StarlightPath {
     "uuid"        : String
+    "catalystType"      : "catalyst-type:starlight-path"
     "creationTimestamp" : Float # Unixtime with decimals
     "sourceuuid"  : String # uuid of a StartlightNode
     "targetuuid"  : String # uuid of a StartlightNode
