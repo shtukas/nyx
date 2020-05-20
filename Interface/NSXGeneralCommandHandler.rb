@@ -93,6 +93,11 @@ class NSXGeneralCommandHandler
             return
         end
 
+        if command == '>>' then
+            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-toggle-run")
+            return
+        end
+
         if command == "[]" then
             rewriteFile = lambda {|filepath|
                 CatalystCommon::copyLocationToCatalystBin(filepath)
