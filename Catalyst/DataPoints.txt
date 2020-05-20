@@ -4,6 +4,7 @@ DataPoints are objects of the form
 ```
 {
     uuid              : String
+    catalystType      : "catalyst-type:datapoint"
     creationTimestamp : Float # Unixtime with decimals
     description       : String
     targets           : Array[CatalystStandardTarget]

@@ -92,6 +92,7 @@ class DataPoints
     def self.issueDataPointInteractivelyOrNull()
         datapoint = {
             "uuid"              => SecureRandom.uuid,
+            "catalystType"      => "catalyst-type:datapoint",
             "creationTimestamp" => Time.new.to_f,
             "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
             "targets"           => DataPoints::makeCatalystStandardTargetsInteractively(),
