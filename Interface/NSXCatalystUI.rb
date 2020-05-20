@@ -88,8 +88,8 @@ class NSXCatalystUI
             return
         end
 
-        if NSXMiscUtils::isInteger(command) then
-            position = command.to_i
+        if command[0,1] == "'" and  NSXMiscUtils::isInteger(command[1,999]) then
+            position = command[1,999].to_i
             item = displayItems[position]
             if item[0] == "datapoint" then
                 DataPoints::pointDive(item[1])
