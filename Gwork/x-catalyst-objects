@@ -64,7 +64,7 @@ def objectuuid()
     "39909ff4-e102-45c2-ace9-21be21572772"
 end
 
-DailyTimes::putTimeToBankNoOftenThanOnceADay(objectuuid(), 6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
+DailyTimes::putTimeToBankNoOftenThanOnceADay(objectuuid(), -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
 timeInBank = Bank::total(objectuuid())
 isRunning = Runner::isRunning(objectuuid())

@@ -88,7 +88,7 @@ end
 
 # -----------------------------------------------------------------------------
 
-DailyTimes::putTimeToBankNoOftenThanOnceADay(LUCILLE_UUID, 2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
+DailyTimes::putTimeToBankNoOftenThanOnceADay(LUCILLE_UUID, -2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
 
 timeInBank, metric, isRunning, isRunningForLong, isDone = lucilleGlobalStats()
 

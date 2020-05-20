@@ -55,7 +55,7 @@ class DailyTimes
             KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
             return
         end
-        Bank::put(uuid, -timeInSeconds, CatalystCommon::bankRetainPeriodInSeconds())
+        Bank::put(uuid, timeInSeconds, CatalystCommon::bankRetainPeriodInSeconds())
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 end
