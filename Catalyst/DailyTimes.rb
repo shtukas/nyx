@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyNegativeTimes.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyTimes.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -27,27 +27,27 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 # -----------------------------------------------------------------
 
-class DailyNegativeTimes
+class DailyTimes
 
-    # DailyNegativeTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal)
+    # DailyTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal)
     def self.getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal)
         referenceTimeInHours * (1.to_f / 2**(ordinal+1))
     end
 
-    # DailyNegativeTimes::addNegativeTimePerOrdinalToBankOrDoNothing(uuid, referenceTimeInHours, ordinal, allowedDayIndices)
+    # DailyTimes::addNegativeTimePerOrdinalToBankOrDoNothing(uuid, referenceTimeInHours, ordinal, allowedDayIndices)
     def self.addNegativeTimePerOrdinalToBankOrDoNothing(uuid, referenceTimeInHours, ordinal, allowedDayIndices)
         return if !allowedDayIndices.include?(Time.new.wday)
         return if Bank::total(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
         return if Time.new.hour < 6
         return if Time.new.hour > 12
-        timespan = DailyNegativeTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal) * 3600
+        timespan = DailyTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal) * 3600
         Bank::put(uuid, -timespan, CatalystCommon::bankRetainPeriodInSeconds())
         KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
     end
 
-    # DailyNegativeTimes::addNegativeTimeToBankOrDoNothing(uuid, timeInSeconds, allowedDayIndices)
-    def self.addNegativeTimeToBankOrDoNothing(uuid, timeInSeconds, allowedDayIndices)
+    # DailyTimes::putTimeToBankNoOftenThanOnceADay(uuid, timeInSeconds, allowedDayIndices)
+    def self.putTimeToBankNoOftenThanOnceADay(uuid, timeInSeconds, allowedDayIndices)
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
         return if !allowedDayIndices.include?(Time.new.wday)
         if Bank::total(uuid) < -3600 then 

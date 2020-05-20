@@ -78,7 +78,7 @@ class InFlightControlSystem
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hour)" : ""
         position = claim["position"]
         ordinal = InFlightControlSystem::getClaimOrdinalOrNull(uuid)
-        timeexpectation = DailyNegativeTimes::getItem24HoursTimeExpectationInHours(DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal)
+        timeexpectation = DailyTimes::getItem24HoursTimeExpectationInHours(DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal)
         timeInBank = Bank::total(uuid)
         "[ifcs] (pos: #{claim["position"]}, time exp.: #{timeexpectation.round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) [item] #{Items::itemBestDescription(item)}#{runningSuffix}"
     end

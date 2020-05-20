@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyNegativeTimes.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyTimes.rb"
 
 DAILY_TOTAL_ORDINAL_TIME_IN_HOURS = 3
 
