@@ -44,7 +44,7 @@ class NSXCatalystUI
 
         opencycles = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-datapoints`)
         opencycles.each{|datapoint|
-            puts "[#{position.to_s.rjust(3)}] [opencycle] " + DataPoints::datapointToString(datapoint)[10, 999]
+            puts ("[#{position.to_s.rjust(3)}] [opencycle] " + DataPoints::datapointToString(datapoint)[10, 999]).yellow
             verticalSpaceLeft = verticalSpaceLeft - 1
             displayItems[position] = ["datapoint", datapoint]
             position = position + 1
