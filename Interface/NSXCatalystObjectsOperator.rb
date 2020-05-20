@@ -49,7 +49,7 @@ class NSXCatalystObjectsOperator
                     .reverse
 
         while objects[0]["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and objects[0]["isRunning"] and objects.any?{|object| object["x-interface:isWave"] } do
-            objects[0]["metric"] = objects[0]["metric"] - 0.1
+            objects[0]["metric"] = objects[0]["metric"] - 0.0001
             objects = objects
                     .sort{|o1, o2| o1["metric"]<=>o2["metric"] }
                     .reverse
