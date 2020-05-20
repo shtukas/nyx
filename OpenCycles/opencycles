@@ -34,12 +34,4 @@ require_relative "OpenCycles.rb"
 
 # -----------------------------------------------------------------------------
 
-loop {
-    system("clear")
-    datapoints = OpenCycles::getOpenCyclesItems()
-                .select{|item| !DataPoints::getOrNull(item["datapointuuid"]).nil? }
-                .map{|item| DataPoints::getOrNull(item["datapointuuid"]) }
-    datapoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", datapoints, lambda{|datapoint| DataPoints::datapointToString(datapoint) })
-    break if datapoint.nil?
-    DataPoints::pointDive(datapoint)
-}
+OpenCycles::userInterface()

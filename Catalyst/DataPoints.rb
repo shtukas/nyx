@@ -208,6 +208,7 @@ class DataPoints
                 "tags (remove)",
                 nil,
                 "add to starlight node",
+                "register as open cycle",
                 nil,
                 "destroy datapoint"
             ]
@@ -261,6 +262,14 @@ class DataPoints
                 next if node.nil?
                 dataclaim = StarlightDataClaims::makeClaimGivenNodeAndDataPoint(node, point)
                 StarlightDataClaims::save(dataclaim)
+            end
+            if operation == "register as open cycle" then
+                item = {
+                    "datapointuuid" => point["uuid"],
+                    "creationTimestamp" => Time.new.to_f
+                }
+                puts JSON.pretty_generate(item)
+                File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{point["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
             end
             if operation == "destroy datapoint" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
