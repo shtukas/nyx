@@ -82,7 +82,7 @@ object = {
     "uuid"            => objectuuid(),
     "contentItem"     => {
         "type" => "line",
-        "line" => "Guardian Work (bank: #{(timeInBank.to_f/3600).round(2)} hours)#{isRunning ? " (running for #{Runner::runTimeInSecondsOrNull(objectuuid()).to_f/3600} hours)" : ""}"
+        "line" => "Guardian Work (bank: #{(timeInBank.to_f/3600).round(2)} hours)#{isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(objectuuid()).to_f/3600).round(2)} hours)" : ""}"
     },
     "metric"          => metric,
     "commands"        => [],
@@ -93,7 +93,8 @@ object = {
     "shell-redirects" => {
         "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-catalyst-objects-processing start",
         "stop" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-catalyst-objects-processing stop"
-    }
+    },
+    "x-bank-time" => timeInBank
 }
 puts JSON.generate([object])
 
