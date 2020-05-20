@@ -40,5 +40,4 @@ puts JSON.generate(
                 DataPoints::getOrNull(item["datapointuuid"])
             }
             .compact
-            .last(10)
      )
