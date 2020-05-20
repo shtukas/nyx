@@ -23,6 +23,7 @@ The navigation network is a semantic network of nodes and the paths between them
 ```
 StartlightNode {
     "uuid"              : String
+    "catalystType"      : "catalyst-type:starlight-node"
     "creationTimestamp" : Float # Unixtime with decimals
     "name"              : String
 }

@@ -51,6 +51,7 @@ class StartlightNodes
         puts "Making a new Starlight node..."
         node = {
             "uuid" => SecureRandom.uuid,
+            "catalystType" => "catalyst-type:starlight-node",
             "creationTimestamp" => Time.new.to_f,
             "name" => LucilleCore::askQuestionAnswerAsString("nodename: ")
         }
