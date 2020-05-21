@@ -113,6 +113,32 @@ end
 
 class CatalystStandardTargets
 
+    # CatalystStandardTargets::pathToRepository()
+    def self.pathToRepository()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/CatalystStandardTargets"
+    end
+
+    # CatalystStandardTargets::save(target)
+    def self.save(target)
+        filepath = "#{CatalystStandardTargets::pathToRepository()}/#{target["uuid"]}.json"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(target)) }
+    end
+
+    # CatalystStandardTargets::getOrNull(uuid)
+    def self.getOrNull(uuid)
+        filepath = "#{CatalystStandardTargets::pathToRepository()}/#{uuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # CatalystStandardTargets::targets()
+    def self.targets()
+        Dir.entries(CatalystStandardTargets::pathToRepository())
+            .select{|filename| filename[-5, 5] == ".json" }
+            .map{|filename| "#{DataPoints::pathToRepository()}/#{filename}" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -137,7 +163,7 @@ class CatalystStandardTargets
     # CatalystStandardTargets::makeTargetLineInteractively()
     def self.makeTargetLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
-        return {
+        target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
@@ -145,12 +171,14 @@ class CatalystStandardTargets
             "type" => "line",
             "line" => line
         }
+        CatalystStandardTargets::save(target)
+        target
     end
 
     # CatalystStandardTargets::makeTargetUrlInteractively()
     def self.makeTargetUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
-        return {
+        target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
@@ -158,6 +186,8 @@ class CatalystStandardTargets
             "type" => "url",
             "url"  => url
         }
+        CatalystStandardTargets::save(target)
+        target
     end
 
     # CatalystStandardTargets::makeTargetFileInteractivelyOrNull()
@@ -169,7 +199,7 @@ class CatalystStandardTargets
         filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
-        return {
+        target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
@@ -177,6 +207,8 @@ class CatalystStandardTargets
             "type"     => "file",
             "filename" => filename2
         }
+        CatalystStandardTargets::save(target)
+        target
     end
 
     # CatalystStandardTargets::makeTargetFolderInteractivelyOrNull()
@@ -188,7 +220,7 @@ class CatalystStandardTargets
         folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
         FileUtils.mv(folderpath1, folderpath2)
         CoreDataDirectory::copyFolderToRepository(folderpath2)
-        return {
+        target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
@@ -196,12 +228,14 @@ class CatalystStandardTargets
             "type"       => "folder",
             "foldername" => foldername2
         }
+        CatalystStandardTargets::save(target)
+        target
     end
 
     # CatalystStandardTargets::makeTargetUniqueNameInteractively()
     def self.makeTargetUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
-        return {
+        target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
@@ -209,6 +243,8 @@ class CatalystStandardTargets
             "type" => "unique-name",
             "name" => uniquename
         }
+        CatalystStandardTargets::save(target)
+        target
     end
 
     # CatalystStandardTargets::makeTargetDirectoryMarkInteractively()
@@ -218,7 +254,7 @@ class CatalystStandardTargets
         return nil if option.nil?
         if option == "mark file already exists" then
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
-            return {
+            target = {
                 "catalystType"      => "catalyst-type:catalyst-standard-target",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
@@ -226,6 +262,8 @@ class CatalystStandardTargets
                 "type" => "directory-mark",
                 "mark" => mark
             }
+            CatalystStandardTargets::save(target)
+            return target
         end
         if option == "mark file should be created" then
             mark = nil
@@ -241,7 +279,7 @@ class CatalystStandardTargets
                 File.open(markFilepath, "w"){|f| f.write(mark) }
                 break
             }
-            return {
+            target = {
                 "catalystType"      => "catalyst-type:catalyst-standard-target",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
@@ -249,6 +287,8 @@ class CatalystStandardTargets
                 "type" => "directory-mark",
                 "mark" => mark
             }
+            CatalystStandardTargets::save(target)
+            return target
         end
     end
 
@@ -289,7 +329,7 @@ class CatalystStandardTargets
             FileUtils.mv(filepath1, filepath2)
             CoreDataFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            return {
+            target = {
                 "catalystType"      => "catalyst-type:catalyst-standard-target",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
@@ -297,6 +337,8 @@ class CatalystStandardTargets
                 "type"     => "file",
                 "filename" => filename2
             }
+            CatalystStandardTargets::save(target)
+            target
         else
             folderpath1 = location
             foldername1 = File.basename(folderpath1)
@@ -305,7 +347,7 @@ class CatalystStandardTargets
             FileUtils.mv(folderpath1, folderpath2)
             CoreDataDirectory::copyFolderToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
-            return {
+            target = {
                 "catalystType"      => "catalyst-type:catalyst-standard-target",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
@@ -313,6 +355,8 @@ class CatalystStandardTargets
                 "type"       => "folder",
                 "foldername" => foldername2
             }
+            CatalystStandardTargets::save(target)
+            target
         end
     end
 

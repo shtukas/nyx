@@ -1,5 +1,11 @@
 
-A Catalyst Standard Target is an immutable object of the form
+A Catalyst Standard Target is an immutable object. The current ones are listed below.
+
+Immutability means that it is possible to have one's local version of any target. At the time these lines are written, DataPoints carry their own copy of targets [1]. 
+
+[1] Actually, at first, targets were only carried by DataPoints, we gave them their own
+storage when we started targetting them from Starlight Nodes or Open Cycles.
+
 
 ```
 {
