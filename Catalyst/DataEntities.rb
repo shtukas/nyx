@@ -32,7 +32,7 @@ class DataEntities
 
     # DataEntities::getDataEntityByUuidOrNull(uuid)
     def self.getDataEntityByUuidOrNull(uuid)
-        target = nil # getTargetOrnull(uuid)
+        target = CatalystStandardTargets::getOrNull(uuid)
         return target if target
         datapoint = DataPoints::getOrNull(uuid)
         return datapoint if datapoint
@@ -43,6 +43,7 @@ class DataEntities
 
     # DataEntities::dataEntityToString(dataentity)
     def self.dataEntityToString(dataentity)
+        puts JSON.generate([dataentity])
         if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
             return CatalystStandardTargets::targetToString(dataentity)
         end

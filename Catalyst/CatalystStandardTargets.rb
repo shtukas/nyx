@@ -365,22 +365,22 @@ class CatalystStandardTargets
     # CatalystStandardTargets::targetToString(target)
     def self.targetToString(target)
         if target["type"] == "line" then
-            return target["line"]
+            return "[std target] [line] #{target["line"]}"
         end
         if target["type"] == "file" then
-            return "[coredata file] #{target["filename"]}"
+            return "[std target] [file] #{target["filename"]}"
         end
         if target["type"] == "url" then
-            return target["url"]
+            return "[std target] [url] #{target["url"]}"
         end
         if target["type"] == "folder" then
-            return "[coredata folder] #{target["foldername"]}"
+            return "[std target] [folder] #{target["foldername"]}"
         end
         if target["type"] == "unique-name" then
-            return "[unique name] #{target["name"]}"
+            return "[std target] [unique name] #{target["name"]}"
         end
         if target["type"] == "directory-mark" then
-            return "[directory mark] #{target["mark"]}"
+            return "[std target] [directory mark] #{target["mark"]}"
         end
         raise "Catalyst Standard Target error 3c7968e4"
     end

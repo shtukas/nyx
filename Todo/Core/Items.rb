@@ -110,7 +110,6 @@ class Items
                 starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
                 puts JSON.pretty_generate(starlightnode)
                 next if starlightnode.nil?
-                target = item["target"]
                 claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, target)
                 puts JSON.pretty_generate(claim)
             end
