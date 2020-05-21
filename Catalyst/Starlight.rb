@@ -247,6 +247,7 @@ class StarlightOwnershipClaims
             "targetuuid" => datapoint["uuid"]
         }
         StarlightOwnershipClaims::save(claim)
+        claim
     end
 
     # StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
@@ -260,6 +261,7 @@ class StarlightOwnershipClaims
             "targetuuid" => target["uuid"]
         }
         StarlightOwnershipClaims::save(claim)
+        claim
     end
 
     # StarlightOwnershipClaims::claimToString(dataclaim)
@@ -318,6 +320,7 @@ class StarlightNavigation
         loop {
             system("clear")
             puts "Starlight Node Navigation"
+            puts "uuid: #{node["uuid"]}"
             puts "Location: #{StartlightNodes::nodeToString(node)}"
             items = []
             StarlightNavigation::getStarlightNetworkChildNodes(node)

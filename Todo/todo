@@ -54,7 +54,13 @@ loop {
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
     if option == "items dive" then
-        puts "not implemented yet"
-        LucilleCore::pressEnterToContinue()
+        loop {
+            projectname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Items::projectNames())
+            break if projectname.nil?
+            items = Items::itemsForProjectName(projectname)
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Items::itemToString(item) })
+            Items::diveItem(item)
+        }
+        
     end
 }

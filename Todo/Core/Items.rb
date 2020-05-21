@@ -13,6 +13,16 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+
 require 'colorize'
 
 class Items
@@ -39,7 +49,9 @@ class Items
     def self.diveItem(item)
         loop {
             system("clear")
+            puts "uuid: #{item["uuid"]}"
             puts Items::itemToString(item).green
+            puts "ifcs claims:"
             puts JSON.pretty_generate(InFlightControlSystem::getClaimsByItemUUID(item["uuid"]))
             puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green
             options = [
@@ -47,7 +59,8 @@ class Items
                 "open",
                 "done",
                 "set description",
-                "send target to a datapoint at starlight (and done item)"
+                "send target to a datapoint at starlight (and done item)",
+                "attach target to starlight node (and done item)"
             ]
             if Runner::isRunning(item["uuid"]) then
                 options.delete("start")
@@ -81,7 +94,11 @@ class Items
                 next if starlightnode.nil?
                 datapoints = StarlightOwnershipClaims::getDataEntitiesForNode(starlightnode)
                                 .select{|dataentity| dataentity["catalystType"] == "catalyst-type:datapoint" }
-                next if datapoints.size == 0
+                if datapoints.size == 0 then
+                    puts "I could not find data points fot this node. Aborting operation."
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
                 datapoint = DataPoints::selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
                 next if datapoint.nil?
                 target = item["target"]
@@ -91,9 +108,11 @@ class Items
             end
             if option == "attach target to starlight node (and done item)" then
                 starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                puts JSON.pretty_generate(starlightnode)
                 next if starlightnode.nil?
                 target = item["target"]
-                StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, target)
+                claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, target)
+                puts JSON.pretty_generate(claim)
             end
         }
     end
@@ -170,6 +189,13 @@ class Items
     # Items::selectProjectNameInteractivelyOrNull()
     def self.selectProjectNameInteractivelyOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("project", Items::projectNames().sort)
+    end
+
+    # Items::itemsForProjectName(projectname)
+    def self.itemsForProjectName(projectname)
+        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+        return [] if projectuuid.nil?
+        Items::items().select{|item| item["projectuuid"] == projectuuid }
     end
 
 end
