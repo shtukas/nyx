@@ -123,7 +123,6 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "Structure Builder",
                 "DataExplorer",
                 "OpenCycles",
                 "Todo",
@@ -132,9 +131,6 @@ class NSXGeneralCommandHandler
                 "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option == "Structure Builder" then
-                NSXStructureBuilder::main()
-            end
             if option == "DataExplorer" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataExplorer/dataexplorer")
             end

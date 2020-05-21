@@ -47,13 +47,14 @@ class OpenCycles
     def self.getOpenCyclesClaims()
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
             .select{|filename| filename[-5, 5] == '.json' }
-            .map{|filename| JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
+            .map{|filename|
+                JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
             .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
     end
 
     # OpenCycles::saveClaim(claim)
     def self.saveClaim(claim)
-        FileUtils.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
     end
 
     # OpenCycles::makeNewOpenCycleWithNewDataPoint()

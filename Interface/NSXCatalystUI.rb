@@ -36,7 +36,7 @@ class NSXCatalystUI
 
         system("clear")
 
-        displayItems = []
+        executors = []
 
         position = 0
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
@@ -44,11 +44,21 @@ class NSXCatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
+        NSXStructureBuilder::structure().each{|item|
+            puts "[#{position.to_s.rjust(3)}] #{item["text"]}"
+            executors[position] = item["lambda"]
+            position = position + 1
+            verticalSpaceLeft = verticalSpaceLeft - 1
+        }
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+
         dataentities = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-dataentities`)
         dataentities.each{|dataentity|
             puts ("[#{position.to_s.rjust(3)}] [dataentity] #{DataEntities::dataEntityToString(dataentity)}").yellow
+            executors[position] = lambda { DataEntities::dataEntityDive(dataentity) }
             verticalSpaceLeft = verticalSpaceLeft - 1
-            displayItems[position] = ["dataentity", dataentity]
             position = position + 1
         }
 
@@ -73,7 +83,7 @@ class NSXCatalystUI
         firstPositionForCatalystObjects = position
         while !displayObjects[position].nil? and verticalSpaceLeft > 0 do
             object = displayObjects[position-firstPositionForCatalystObjects]
-            displayItems[position] = ["catalyst-objects", object]
+            executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
             displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, position == firstPositionForCatalystObjects, position)
             puts displayStr
             verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
@@ -92,13 +102,7 @@ class NSXCatalystUI
 
         if command[0,1] == "'" and  NSXMiscUtils::isInteger(command[1,999]) then
             position = command[1,999].to_i
-            item = displayItems[position]
-            if item[0] == "dataentity" then
-                DataEntities::dataEntityDive(item[1])
-            end
-            if item[0] == "catalyst-objects" then
-                NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(item[1])
-            end
+            executors[position].call()
             return
         end
 
