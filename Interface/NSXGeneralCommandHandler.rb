@@ -33,6 +33,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+
+# -------------------------------------------------------------------------
+
 class NSXGeneralCommandHandler
 
     # NSXGeneralCommandHandler::helpLines()
@@ -149,10 +155,11 @@ class NSXGeneralCommandHandler
             if option == "Make new [something]" then
                 options = [
                     "DataReference",
+                    "Standard Target as Starlight node",
+                    "DataPoint",
                     "OpenCycle [with new standard target]",
                     "OpenCycle [with existing datapoint]",
                     "OpenCycle [with new datapoint]",
-                    "DataPoint"
                 ]
                 option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
                 return if option.nil?
@@ -170,6 +177,14 @@ class NSXGeneralCommandHandler
                 end
                 if option == "DataPoint" then
                     DataPoints::issueDataPointInteractivelyOrNull()
+                end
+                if option == "Standard Target as Starlight node" then
+                    target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+                    return if target.nil?
+                    node = StartlightNodes::selectNodeOrNull()
+                    return if node.nil?
+                    claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
+                    puts JSON.pretty_generate(claim)
                 end
             end
             if option == "Catalyst" then
