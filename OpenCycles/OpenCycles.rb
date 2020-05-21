@@ -42,6 +42,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint
 =end
 
 class OpenCycles
+
     # OpenCycles::getOpenCyclesClaims()
     def self.getOpenCyclesClaims()
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
@@ -54,6 +55,12 @@ class OpenCycles
     # OpenCycles::saveClaim(claim)
     def self.saveClaim(claim)
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+    end
+
+    # OpenCycles::destroy(claim)
+    def self.destroy(claim)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json"
+        FileUtils.rm(filepath)
     end
 
     # OpenCycles::dataPointNewThenRegisterAsOpenCycle()
@@ -70,13 +77,27 @@ class OpenCycles
 
     # OpenCycles::claimDive(claim)
     def self.claimDive(claim)
-        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-        if dataentity.nil? then
-            puts "Could not determine dataentity for claim #{claim}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        DataEntities::dataEntityDive(entity)
+        loop {
+            dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+            if dataentity.nil? then
+                puts "Could not determine dataentity for claim #{claim}"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            options = [
+                "dive into dataentity",
+                "destroy claim"
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            break if option.nil?
+            if option == "dive into dataentity" then
+                DataEntities::dataEntityDive(entity)
+            end
+            if option == "destroy claim" then
+                OpenCycles::destroy(claim)
+                return
+            end
+        }
     end
 end
 

@@ -94,12 +94,12 @@ class NSXStructureBuilder
 
     # NSXStructureBuilder::standardTargetNewThenAttachToStarlightNode()
     def self.standardTargetNewThenAttachToStarlightNode()
-            target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
-            return if target.nil?
-            node = StartlightNodes::selectNodeOrNull()
-            return if node.nil?
-            claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
-            puts JSON.pretty_generate(claim)
+        target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+        return if target.nil?
+        node = StartlightNodes::selectNodeOrNull()
+        return if node.nil?
+        claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
+        puts JSON.pretty_generate(claim)
     end
 
     # NSXStructureBuilder::structure()
@@ -107,7 +107,16 @@ class NSXStructureBuilder
         [
             {
                 "text"   => "standard target (new) -> OpenCycle",
-                "lambda" => lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-new-standard-target") }
+                "lambda" => lambda { 
+                    target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+                    exit if target.nil?
+                    claim = {
+                        "uuid"              => SecureRandom.uuid,
+                        "creationTimestamp" => Time.new.to_f,
+                        "entityuuid"        => target["uuid"]
+                    }
+                    OpenCycles::saveClaim(claim)
+                }
             },
             {
                 "text"   => "standard target (new) -> Starlight Node",
