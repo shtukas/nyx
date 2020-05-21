@@ -91,9 +91,10 @@ class DataPoints
     # DataPoints::issueDataPointInteractivelyOrNull()
     def self.issueDataPointInteractivelyOrNull()
         datapoint = {
-            "uuid"              => SecureRandom.uuid,
             "catalystType"      => "catalyst-type:datapoint",
             "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
             "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
             "targets"           => DataPoints::makeCatalystStandardTargetsInteractively(),
             "tags"              => DataPoints::makeTagsInteractively()
@@ -103,7 +104,7 @@ class DataPoints
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
             xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
             if xnode then
-                StarlightDataClaims::makeClaimGivenNodeAndDataPoint(xnode, datapoint)
+                StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(xnode, datapoint)
             end
         end
         datapoint
@@ -133,7 +134,7 @@ class DataPoints
 
     # DataPoints::datapointToString(datapoint)
     def self.datapointToString(datapoint)
-        "datapoint #{datapoint["description"]} (#{datapoint["targets"].size}) [#{datapoint["uuid"][0, 4]}]"
+        "[datapoint] #{datapoint["description"]} [#{datapoint["uuid"][0, 4]}] (#{datapoint["targets"].size})"
     end
 
     # DataPoints::printPointDetails(uuid)
@@ -160,7 +161,7 @@ class DataPoints
         end
         puts ""
 
-        starlightnodes = StarlightDataClaims::getNodesForDataPoint(point)
+        starlightnodes = StarlightOwnershipClaims::getNodesForDataPoint(point)
         if starlightnodes.empty? then
             puts "    starlightnodes: (empty set)"
         else
@@ -261,8 +262,7 @@ class DataPoints
             if operation == "add to starlight node" then
                 node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
                 next if node.nil?
-                dataclaim = StarlightDataClaims::makeClaimGivenNodeAndDataPoint(node, point)
-                StarlightDataClaims::save(dataclaim)
+                StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, point)
             end
             if operation == "register as open cycle" then
                 item = {

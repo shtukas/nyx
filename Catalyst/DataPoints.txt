@@ -3,11 +3,12 @@ DataPoints are objects of the form
 
 ```
 {
-    uuid              : String
     catalystType      : "catalyst-type:datapoint"
     creationTimestamp : Float # Unixtime with decimals
+    uuid              : String
+
     description       : String
     targets           : Array[CatalystStandardTarget]
     tags              : Array[String]
-}
+} extends DataEntity
 ```

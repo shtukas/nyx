@@ -79,13 +79,21 @@ class Items
             if option == "send target to a datapoint at starlight (and done item)" then
                 starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
                 next if starlightnode.nil?
-                datapoints = StarlightDataClaims::getDataPointsForNode(starlightnode)
+                datapoints = StarlightOwnershipClaims::getDataEntitiesForNode(starlightnode)
+                                .select{|dataentity| dataentity["catalystType"] == "catalyst-type:datapoint" }
+                next if datapoints.size == 0
                 datapoint = DataPoints::selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
                 next if datapoint.nil?
                 target = item["target"]
                 datapoint["targets"] << target # Adding the todo item to the datapoint target.
                 # datapoint can now be sent to disk
                 DataPoints::save(datapoint)
+            end
+            if option == "attach target to starlight node (and done item)" then
+                starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                next if starlightnode.nil?
+                target = item["target"]
+                StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, target)
             end
         }
     end

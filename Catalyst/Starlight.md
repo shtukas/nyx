@@ -22,24 +22,28 @@ The navigation network is a semantic network of nodes and the paths between them
 
 ```
 StartlightNode {
-    "uuid"              : String
     "catalystType"      : "catalyst-type:starlight-node"
     "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String
+
     "name"              : String
-}
+} extends DataEntity
 
 StarlightPath {
     "uuid"        : String
     "catalystType"      : "catalyst-type:starlight-path"
     "creationTimestamp" : Float # Unixtime with decimals
+
     "sourceuuid"  : String # uuid of a StartlightNode
     "targetuuid"  : String # uuid of a StartlightNode
 }
 
 StarlightDataClaim {
-    "uuid"      : String
+    "uuid"         : String
+    "catalystType" : "catalyst-type:starlight-node-ownership-claim"
     "creationTimestamp" : Float # Unixtime with decimals
-    "nodeuuid"  : String
-    "pointuuid" : String
+
+    "nodeuuid"   : String
+    "targetuuid" : String # DataPoint uuid or a CatalystStandardTarget uuid
 }
 ```

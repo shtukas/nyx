@@ -42,11 +42,11 @@ class NSXCatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        opencycles = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-datapoints`)
-        opencycles.each{|datapoint|
-            puts ("[#{position.to_s.rjust(3)}] [opencycle] " + DataPoints::datapointToString(datapoint)[10, 999]).yellow
+        dataentities = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-dataentities`)
+        dataentities.each{|dataentity|
+            puts ("[#{position.to_s.rjust(3)}] [dataentity] #{DataEntities::dataEntityToString(dataentity)}").yellow
             verticalSpaceLeft = verticalSpaceLeft - 1
-            displayItems[position] = ["datapoint", datapoint]
+            displayItems[position] = ["dataentity", dataentity]
             position = position + 1
         }
 
@@ -91,8 +91,8 @@ class NSXCatalystUI
         if command[0,1] == "'" and  NSXMiscUtils::isInteger(command[1,999]) then
             position = command[1,999].to_i
             item = displayItems[position]
-            if item[0] == "datapoint" then
-                DataPoints::pointDive(item[1])
+            if item[0] == "dataentity" then
+                DataEntities::dataEntityDive(item[1])
             end
             if item[0] == "catalyst-objects" then
                 NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(item[1])

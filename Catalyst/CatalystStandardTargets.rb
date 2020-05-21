@@ -138,7 +138,10 @@ class CatalystStandardTargets
     def self.makeTargetLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         return {
-            "uuid" => SecureRandom.uuid,
+            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
             "type" => "line",
             "line" => line
         }
@@ -148,7 +151,10 @@ class CatalystStandardTargets
     def self.makeTargetUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         return {
-            "uuid" => SecureRandom.uuid,
+            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
             "type" => "url",
             "url"  => url
         }
@@ -164,7 +170,10 @@ class CatalystStandardTargets
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         return {
-            "uuid"     => SecureRandom.uuid,
+            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
             "type"     => "file",
             "filename" => filename2
         }
@@ -180,7 +189,10 @@ class CatalystStandardTargets
         FileUtils.mv(folderpath1, folderpath2)
         CoreDataDirectory::copyFolderToRepository(folderpath2)
         return {
-            "uuid"       => SecureRandom.uuid,
+            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
             "type"       => "folder",
             "foldername" => foldername2
         }
@@ -190,7 +202,10 @@ class CatalystStandardTargets
     def self.makeTargetUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         return {
-            "uuid" => SecureRandom.uuid,
+            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
             "type" => "unique-name",
             "name" => uniquename
         }
@@ -204,7 +219,10 @@ class CatalystStandardTargets
         if option == "mark file already exists" then
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             return {
-                "uuid" => SecureRandom.uuid,
+                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "creationTimestamp" => Time.new.to_f,
+                "uuid"              => SecureRandom.uuid,
+
                 "type" => "directory-mark",
                 "mark" => mark
             }
@@ -224,7 +242,10 @@ class CatalystStandardTargets
                 break
             }
             return {
-                "uuid" => SecureRandom.uuid,
+                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "creationTimestamp" => Time.new.to_f,
+                "uuid"              => SecureRandom.uuid,
+
                 "type" => "directory-mark",
                 "mark" => mark
             }
@@ -269,7 +290,10 @@ class CatalystStandardTargets
             CoreDataFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             return {
-                "uuid"     => SecureRandom.uuid,
+                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "creationTimestamp" => Time.new.to_f,
+                "uuid"              => SecureRandom.uuid,
+
                 "type"     => "file",
                 "filename" => filename2
             }
@@ -282,7 +306,10 @@ class CatalystStandardTargets
             CoreDataDirectory::copyFolderToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             return {
-                "uuid"       => SecureRandom.uuid,
+                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "creationTimestamp" => Time.new.to_f,
+                "uuid"              => SecureRandom.uuid,
+
                 "type"       => "folder",
                 "foldername" => foldername2
             }
@@ -362,6 +389,12 @@ class CatalystStandardTargets
 
     # CatalystStandardTargets::fsckTarget(target)
     def self.fsckTarget(target)
+        if target["catalystType"].nil? then
+            raise "target as no catalystType"
+        end
+        if target["creationTimestamp"].nil? then
+            raise "target as no creationTimestamp"
+        end
         if target["uuid"].nil? then
             raise "target as no uuid"
         end

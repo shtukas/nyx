@@ -15,6 +15,8 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataEntities.rb"
+
 # -----------------------------------------------------------------
 
 class StartlightNodes
@@ -50,9 +52,10 @@ class StartlightNodes
     def self.makeNodeInteractivelyOrNull()
         puts "Making a new Starlight node..."
         node = {
-            "uuid" => SecureRandom.uuid,
-            "catalystType" => "catalyst-type:starlight-node",
+            "catalystType"      => "catalyst-type:starlight-node",
             "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
             "name" => LucilleCore::askQuestionAnswerAsString("nodename: ")
         }
         StartlightNodes::save(node)
@@ -166,22 +169,23 @@ class StartlightPaths
     # StartlightPaths::makePathInteractivelyOrNull()
     def self.makePathInteractivelyOrNull()
         {
-            "uuid"         => SecureRandom.uuid,
-            "catalystType" => "catalyst-type:starlight-path",
+            "catalystType"      => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
-            "sourceuuid"   => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
-            "targetuuid"   => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
+            "uuid"              => SecureRandom.uuid,
+
+            "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
+            "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
     end
 
     # StartlightPaths::makePathFromFirstNodeToSecondNode(node1, node2)
     def self.makePathFromFirstNodeToSecondNode(node1, node2)
         {
-            "uuid"         => SecureRandom.uuid,
-            "catalystType" => "catalyst-type:starlight-path",
+            "catalystType"      => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
-            "sourceuuid"   => node1["uuid"],
-            "targetuuid"   => node2["uuid"]
+            "uuid"              => SecureRandom.uuid,
+            "sourceuuid" => node1["uuid"],
+            "targetuuid" => node2["uuid"]
         }
     end
 
@@ -203,72 +207,78 @@ class StartlightPaths
     end
 end
 
-class StarlightDataClaims
+class StarlightOwnershipClaims
 
-    # StarlightDataClaims::path()
+    # StarlightOwnershipClaims::path()
     def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Starlight/dataclaims"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Starlight/ownershipclaims"
     end
 
-    # StarlightDataClaims::save(dataclaim)
+    # StarlightOwnershipClaims::save(dataclaim)
     def self.save(dataclaim)
-        filepath = "#{StarlightDataClaims::path()}/#{dataclaim["uuid"]}.json"
+        filepath = "#{StarlightOwnershipClaims::path()}/#{dataclaim["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(dataclaim)) }
     end
 
-    # StarlightDataClaims::getOrNull(uuid)
+    # StarlightOwnershipClaims::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{StarlightDataClaims::path()}/#{uuid}.json"
+        filepath = "#{StarlightOwnershipClaims::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # StarlightDataClaims::dataclaims()
-    def self.dataclaims()
-        Dir.entries(StarlightDataClaims::path())
+    # StarlightOwnershipClaims::claims()
+    def self.claims()
+        Dir.entries(StarlightOwnershipClaims::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{StarlightDataClaims::path()}/#{filename}" }
+            .map{|filename| "#{StarlightOwnershipClaims::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # StarlightDataClaims::makeClaimInteractivelyOrNull()
-    def self.makeDataClaimInteractivelyOrNull()
-        {
-            "uuid"       => SecureRandom.uuid,
+    # StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+    def self.issueClaimGivenNodeAndDataPoint(node, datapoint)
+        claim = {
+            "catalystType"      => "catalyst-type:starlight-node-ownership-claim",
             "creationTimestamp" => Time.new.to_f,
-            "nodeuuid"   => LucilleCore::askQuestionAnswerAsString("nodeuuid: "),
-            "pointuuid"  => LucilleCore::askQuestionAnswerAsString("pointuuid: ")
-        }
-    end
+            "uuid"              => SecureRandom.uuid,
 
-    # StarlightDataClaims::makeClaimGivenNodeAndDataPoint(node, datapoint)
-    def self.makeClaimGivenNodeAndDataPoint(node, datapoint)
-        {
-            "uuid"       => SecureRandom.uuid,
-            "creationTimestamp" => Time.new.to_f,
             "nodeuuid"   => node["uuid"],
-            "pointuuid"  => datapoint["uuid"]
+            "targetuuid" => datapoint["uuid"]
         }
+        StarlightOwnershipClaims::save(claim)
     end
 
-    # StarlightDataClaims::dataclaimToString(dataclaim)
-    def self.dataclaimToString(dataclaim)
-        "[starlight dataclaim] #{dataclaim["nodeuuid"]} -> #{dataclaim["pointuuid"]}"
+    # StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
+    def self.issueClaimGivenNodeAndCatalystStandardTarget(node, target)
+        claim = {
+            "catalystType"      => "catalyst-type:starlight-node-ownership-claim",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
+            "nodeuuid"   => node["uuid"],
+            "targetuuid" => target["uuid"]
+        }
+        StarlightOwnershipClaims::save(claim)
     end
 
-    # StarlightDataClaims::getDataPointsForNode(node)
-    def self.getDataPointsForNode(node)
-        StarlightDataClaims::dataclaims()
+    # StarlightOwnershipClaims::claimToString(dataclaim)
+    def self.claimToString(dataclaim)
+        "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["targetuuid"]}"
+    end
+
+    # StarlightOwnershipClaims::getDataEntitiesForNode(node)
+    def self.getDataEntitiesForNode(node)
+        StarlightOwnershipClaims::claims()
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
-            .map{|claim| DataPoints::getOrNull(claim["pointuuid"]) }
+            .map{|claim| DataEntities::getDataEntityByUuidOrNull(claim["targetuuid"]) }
             .compact
     end
 
-    # StarlightDataClaims::getNodesForDataPoint(datapoint)
+    # StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
     def self.getNodesForDataPoint(datapoint)
-        StarlightDataClaims::dataclaims()
-            .select{|claim| claim["pointuuid"] == datapoint["uuid"] }
+        StarlightOwnershipClaims::claims()
+            .select{|claim| claim["targetuuid"] == datapoint["uuid"] }
             .map{|claim| StartlightNodes::getOrNull(claim["nodeuuid"]) }
             .compact
     end
@@ -312,20 +322,34 @@ class StarlightNavigation
             items = []
             StarlightNavigation::getStarlightNetworkChildNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["network child : #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
+                .each{|n| items << ["[network child] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
 
             items << nil
-            StarlightDataClaims::getDataPointsForNode(node)
-                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
-                .each{|datapoint| items << ["datapoint     : #{DataPoints::datapointToString(datapoint)}", lambda{ StarlightNavigation::nagivateDataPoint(datapoint) }] }
+            StarlightOwnershipClaims::getDataEntitiesForNode(node)
+                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
+                .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ StarlightNavigation::nagivateDataEntity(dataentity) }] }
 
             items << nil
             StarlightNavigation::getStarlightNetworkParentNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["network parent: #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
+                .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
+    end
+
+    # StarlightNavigation::nagivateDataEntity(dataentity)
+    def self.nagivateDataEntity(dataentity)
+        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
+            return CatalystStandardTargets::targetDive(dataentity)
+        end
+        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
+            return StarlightNavigation::nagivateDataPoint(dataentity)
+        end
+        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
+            return StarlightNavigation::nagivateNode(dataentity)
+        end
+        raise "StarlightNavigation::nagivateDataEntity, Error: 26ba9943"
     end
 
     # StarlightNavigation::nagivateDataPoint(datapoint)
@@ -339,12 +363,12 @@ class StarlightNavigation
             items << nil
 
             datapoint["targets"]
-                .each{|target| items << ["catalyst standard target: #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] }
+                .each{|target| items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] }
 
             items << nil
-            StarlightDataClaims::getNodesForDataPoint(datapoint)
+            StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["node owner    : #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
+                .each{|n| items << ["[node owner] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
@@ -362,9 +386,13 @@ class StarlightNavigation
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "navigate from root nodes" then
-                node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StarlightNavigation::getRootNodes(), lambda{|node| StartlightNodes::nodeToString(node) })
-                next if node.nil?
-                StarlightNavigation::nagivateNode(node)
+                loop {
+                    system("clear")
+                    puts "Navigation from root nodes"
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StarlightNavigation::getRootNodes(), lambda{|node| StartlightNodes::nodeToString(node) })
+                    break if node.nil?
+                    StarlightNavigation::nagivateNode(node)
+                }
             end
         }
     end

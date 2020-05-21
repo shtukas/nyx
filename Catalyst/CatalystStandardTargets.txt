@@ -3,35 +3,58 @@ A Catalyst Standard Target is an immutable object of the form
 
 ```
 {
-    "uuid" : String
+    "catalystType"      : "catalyst-type:catalyst-standard-target"
+    "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String
+
     "type" : "line"
     "line" : String
-}
+} extends DataEntity
+
 {
-    "uuid" : String
+    "catalystType"      : "catalyst-type:catalyst-standard-target"
+    "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String
+
     "type" : "url"
     "url"  : String
-}
+} extends DataEntity
+
 {
-    "uuid"     : String
+    "catalystType"      : "catalyst-type:catalyst-standard-target"
+    "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String
+
     "type"     : "file"
     "filename" : String (CoreData managed)
-}
+} extends DataEntity
+
 {
-    "uuid"       : String
+    "catalystType"      : "catalyst-type:catalyst-standard-target"
+    "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String
+
     "type"       : "folder"
     "foldername" : String (CoreData managed)
-}
+} extends DataEntity
+
 {
-    "uuid" : String
+    "catalystType"      : "catalyst-type:catalyst-standard-target"
+    "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String
+
     "type" : "unique-name"
     "name" : String # Use Atlas to find them
-}
+} extends DataEntity
+
 {
-    "uuid" : String
+    "catalystType"      : "catalyst-type:catalyst-standard-target"
+    "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String
+
     "type" : "directory-mark"
     "mark" : String # Use Atlas to find them.
-                    # Atlas also supports findind directory marks.
-                    # `Nyx-Directory-Mark.txt` files with a unique name inside.
-}
+                # Atlas also supports findind directory marks.
+                # `Nyx-Directory-Mark.txt` files with a unique name inside.
+} extends DataEntity
 ```
