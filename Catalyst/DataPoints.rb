@@ -70,7 +70,7 @@ class DataPoints
     def self.makeCatalystStandardTargetsInteractively()
         targets = []
         loop {
-            target = CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
+            target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
             break if target.nil?
             targets << target
         }
@@ -237,7 +237,7 @@ class DataPoints
                 end
             end
             if operation == "targets (add new)" then
-                target = CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
+                target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
                 next if target.nil?
                 point["targets"] << target
                 DataPoints::save(point)

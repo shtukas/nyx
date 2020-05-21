@@ -149,6 +149,7 @@ class NSXGeneralCommandHandler
             if option == "Make new [something]" then
                 options = [
                     "DataReference",
+                    "OpenCycle [with new standard target]",
                     "OpenCycle [with existing datapoint]",
                     "OpenCycle [with new datapoint]",
                     "DataPoint"
@@ -157,6 +158,9 @@ class NSXGeneralCommandHandler
                 return if option.nil?
                 if option == "DataReference" then
                     system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataReferences/x-make-new")
+                end
+                if option == "OpenCycle [with existing standard target]" then
+                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-new-standard-target")
                 end
                 if option == "OpenCycle [with existing datapoint]" then
                     system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-existing-datapoint")

@@ -43,7 +43,6 @@ class DataEntities
 
     # DataEntities::dataEntityToString(dataentity)
     def self.dataEntityToString(dataentity)
-        puts JSON.generate([dataentity])
         if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
             return CatalystStandardTargets::targetToString(dataentity)
         end

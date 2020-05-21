@@ -160,8 +160,8 @@ class CatalystStandardTargets
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # CatalystStandardTargets::makeTargetLineInteractively()
-    def self.makeTargetLineInteractively()
+    # CatalystStandardTargets::issueTargetLineInteractively()
+    def self.issueTargetLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
@@ -175,8 +175,8 @@ class CatalystStandardTargets
         target
     end
 
-    # CatalystStandardTargets::makeTargetUrlInteractively()
-    def self.makeTargetUrlInteractively()
+    # CatalystStandardTargets::issueTargetUrlInteractively()
+    def self.issueTargetUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
@@ -190,8 +190,8 @@ class CatalystStandardTargets
         target
     end
 
-    # CatalystStandardTargets::makeTargetFileInteractivelyOrNull()
-    def self.makeTargetFileInteractivelyOrNull()
+    # CatalystStandardTargets::issueTargetFileInteractivelyOrNull()
+    def self.issueTargetFileInteractivelyOrNull()
         filepath1 = CatalystStandardTargets::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
@@ -211,8 +211,8 @@ class CatalystStandardTargets
         target
     end
 
-    # CatalystStandardTargets::makeTargetFolderInteractivelyOrNull()
-    def self.makeTargetFolderInteractivelyOrNull()
+    # CatalystStandardTargets::issueTargetFolderInteractivelyOrNull()
+    def self.issueTargetFolderInteractivelyOrNull()
         folderpath1 = CatalystStandardTargets::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
@@ -232,8 +232,8 @@ class CatalystStandardTargets
         target
     end
 
-    # CatalystStandardTargets::makeTargetUniqueNameInteractively()
-    def self.makeTargetUniqueNameInteractively()
+    # CatalystStandardTargets::issueTargetUniqueNameInteractively()
+    def self.issueTargetUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         target = {
             "catalystType"      => "catalyst-type:catalyst-standard-target",
@@ -247,8 +247,8 @@ class CatalystStandardTargets
         target
     end
 
-    # CatalystStandardTargets::makeTargetDirectoryMarkInteractively()
-    def self.makeTargetDirectoryMarkInteractively()
+    # CatalystStandardTargets::issueTargetDirectoryMarkInteractively()
+    def self.issueTargetDirectoryMarkInteractively()
         options = ["mark file already exists", "mark file should be created"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         return nil if option.nil?
@@ -292,29 +292,29 @@ class CatalystStandardTargets
         end
     end
 
-    # CatalystStandardTargets::makeNewTargetInteractivelyOrNull()
-    def self.makeNewTargetInteractivelyOrNull()
+    # CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+    def self.issueNewTargetInteractivelyOrNull()
         puts "Making a new Catalyst Standard Target..."
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
-            return CatalystStandardTargets::makeTargetLineInteractively()
+            return CatalystStandardTargets::issueTargetLineInteractively()
         end
         if type == "url" then
-            return CatalystStandardTargets::makeTargetUrlInteractively()
+            return CatalystStandardTargets::issueTargetUrlInteractively()
         end
         if type == "file" then
-            return CatalystStandardTargets::makeTargetFileInteractivelyOrNull()
+            return CatalystStandardTargets::issueTargetFileInteractivelyOrNull()
         end
         if type == "folder" then
-            return CatalystStandardTargets::makeTargetFolderInteractivelyOrNull()
+            return CatalystStandardTargets::issueTargetFolderInteractivelyOrNull()
         end
         if type == "unique-name" then
-            return CatalystStandardTargets::makeTargetUniqueNameInteractively()
+            return CatalystStandardTargets::issueTargetUniqueNameInteractively()
         end
         if type == "directory-mark" then
-            return CatalystStandardTargets::makeTargetDirectoryMarkInteractively()
+            return CatalystStandardTargets::issueTargetDirectoryMarkInteractively()
         end
     end
 
