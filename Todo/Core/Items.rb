@@ -59,7 +59,6 @@ class Items
                 "open",
                 "done",
                 "set description",
-                "send target to a datapoint at starlight (and done item)",
                 "attach target to starlight node (and done item)"
             ]
             if Runner::isRunning(item["uuid"]) then
@@ -89,29 +88,22 @@ class Items
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
                 Items::save(item)
             end
-            if option == "send target to a datapoint at starlight (and done item)" then
-                starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
-                next if starlightnode.nil?
-                datapoints = StarlightOwnershipClaims::getDataEntitiesForNode(starlightnode)
-                                .select{|dataentity| dataentity["catalystType"] == "catalyst-type:datapoint" }
-                if datapoints.size == 0 then
-                    puts "I could not find data points fot this node. Aborting operation."
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                datapoint = DataPoints::selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
-                next if datapoint.nil?
-                target = item["target"]
-                datapoint["targets"] << target # Adding the todo item to the datapoint target.
-                # datapoint can now be sent to disk
-                DataPoints::save(datapoint)
-            end
             if option == "attach target to starlight node (and done item)" then
+                # Selecting the Starlight Node
                 starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
                 puts JSON.pretty_generate(starlightnode)
                 next if starlightnode.nil?
+
+                # Attaching the target to the node
                 claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, target)
                 puts JSON.pretty_generate(claim)
+
+                timespan = Runner::stop(item["uuid"])
+                if !timespan.nil? then
+                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+                    Items::receiveRunTimespan(item, timespan, true)
+                end
+                Items::destroy(item["uuid"])
             end
         }
     end
