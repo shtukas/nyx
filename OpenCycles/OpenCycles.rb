@@ -42,23 +42,30 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint
 =end
 
 class OpenCycles
-    # OpenCycles::getOpenCyclesItems()
-    def self.getOpenCyclesItems()
+
+    # OpenCycles::getOpenCyclesClaims()
+    def self.getOpenCyclesClaims()
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
             .select{|filename| filename[-5, 5] == '.json' }
             .map{|filename| JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
             .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
     end
 
+    # OpenCycles::saveClaim(claim)
+    def self.saveClaim(claim)
+        FileUtils.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+    end
+
     # OpenCycles::makeNewOpenCycleWithNewDataPoint()
     def self.makeNewOpenCycleWithNewDataPoint() 
         datapoint = DataPoints::issueDataPointInteractivelyOrNull()
         exit if datapoint.nil?
-        item = {
-            "datapointuuid" => datapoint["uuid"],
-            "creationTimestamp" => Time.new.to_f
+        claim = {
+            "uuid"              => SecureRandom.uuid,
+            "creationTimestamp" => Time.new.to_f,
+            "entityuuid"        => datapoint["uuid"]
         }
-        FileUtils.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{datapoint["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+        OpenCycles::saveClaim(claim)
     end
 
     # OpenCycles::makeNewOpenCycleWithExistingDataPoint()
@@ -76,16 +83,15 @@ class OpenCycles
                 "dive into open cycles",
                 "create new open cycle from existing datapoint"
             ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", options)
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
             if option == "dive into open cycles" then
                 loop {
-                    datapoints = OpenCycles::getOpenCyclesItems()
-                                .select{|item| !DataPoints::getOrNull(item["datapointuuid"]).nil? }
-                                .map{|item| DataPoints::getOrNull(item["datapointuuid"]) }
-                    datapoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", datapoints, lambda{|datapoint| DataPoints::datapointToString(datapoint) })
-                    break if datapoint.nil?
-                    DataPoints::pointDive(datapoint)
+                    entities = OpenCycles::getOpenCyclesClaims()
+                                .map{|claim| DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"]) }
+                    entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("data entity", entities, lambda{|entity| DataEntities::dataEntityToString(entity) })
+                    break if entity.nil?
+                    DataEntities::dataEntityDive(entity)
                 }
             end
             if option == "create new open cycle from existing datapoint" then
