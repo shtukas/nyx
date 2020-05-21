@@ -123,9 +123,8 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "Make new [something]",
+                "Structure Builder",
                 "DataExplorer",
-                "DataReferences",
                 "OpenCycles",
                 "Todo",
                 "Calendar",
@@ -133,59 +132,23 @@ class NSXGeneralCommandHandler
                 "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-
+            if option == "Structure Builder" then
+                NSXStructureBuilder::main()
+            end
+            if option == "DataExplorer" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataExplorer/dataexplorer")
+            end
+            if option == "OpenCycles" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
+            end
             if option == "Todo" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
             end
             if option == "Calendar" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")
             end
-            if option == "DataExplorer" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataExplorer/dataexplorer")
-            end
             if option == "Wave" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")
-            end
-            if option == "OpenCycles" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
-            end
-            if option == "DataReferences" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataReferences/references")
-            end
-            if option == "Make new [something]" then
-                options = [
-                    "DataReference",
-                    "Standard Target as Starlight node",
-                    "DataPoint",
-                    "OpenCycle [with new standard target]",
-                    "OpenCycle [with existing datapoint]",
-                    "OpenCycle [with new datapoint]",
-                ]
-                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                return if option.nil?
-                if option == "DataReference" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataReferences/x-make-new")
-                end
-                if option == "OpenCycle [with existing standard target]" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-new-standard-target")
-                end
-                if option == "OpenCycle [with existing datapoint]" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-existing-datapoint")
-                end
-                if option == "OpenCycle [with new datapoint]" then
-                    system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-new-datapoint")
-                end
-                if option == "DataPoint" then
-                    DataPoints::issueDataPointInteractivelyOrNull()
-                end
-                if option == "Standard Target as Starlight node" then
-                    target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
-                    return if target.nil?
-                    node = StartlightNodes::selectNodeOrNull()
-                    return if node.nil?
-                    claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
-                    puts JSON.pretty_generate(claim)
-                end
             end
             if option == "Catalyst" then
                 loop {

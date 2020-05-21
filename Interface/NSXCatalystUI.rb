@@ -23,6 +23,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
+require_relative "NSXStructureBuilder.rb"
+
 # ------------------------------------------------------------------------
 
 class NSXCatalystUI
