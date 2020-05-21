@@ -34,4 +34,7 @@ require_relative "OpenCycles.rb"
 
 # -----------------------------------------------------------------------------
 
-OpenCycles::makeNewOpenCycleWithExistingDataPoint()
+claimuuid = ARGV[0]
+exit if claimuuid.nil?
+
+

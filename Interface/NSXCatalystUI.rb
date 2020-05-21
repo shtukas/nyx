@@ -23,6 +23,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
+require_relative "../OpenCycles/OpenCycles.rb"
+
 require_relative "NSXStructureBuilder.rb"
 
 # ------------------------------------------------------------------------
@@ -54,10 +56,11 @@ class NSXCatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        dataentities = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-interface-dataentities`)
-        dataentities.each{|dataentity|
+        OpenCycles::getOpenCyclesClaims().each{|claim|
+            dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+            next if dataentity.nil?
             puts ("[#{position.to_s.rjust(3)}] [dataentity] #{DataEntities::dataEntityToString(dataentity)}").yellow
-            executors[position] = lambda { DataEntities::dataEntityDive(dataentity) }
+            executors[position] = lambda { OpenCycles::claimDive(claim) }
             verticalSpaceLeft = verticalSpaceLeft - 1
             position = position + 1
         }

@@ -42,7 +42,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint
 =end
 
 class OpenCycles
-
     # OpenCycles::getOpenCyclesClaims()
     def self.getOpenCyclesClaims()
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
@@ -57,8 +56,8 @@ class OpenCycles
         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
     end
 
-    # OpenCycles::makeNewOpenCycleWithNewDataPoint()
-    def self.makeNewOpenCycleWithNewDataPoint() 
+    # OpenCycles::dataPointNewThenRegisterAsOpenCycle()
+    def self.dataPointNewThenRegisterAsOpenCycle() 
         datapoint = DataPoints::issueDataPointInteractivelyOrNull()
         exit if datapoint.nil?
         claim = {
@@ -69,38 +68,15 @@ class OpenCycles
         OpenCycles::saveClaim(claim)
     end
 
-    # OpenCycles::makeNewOpenCycleWithExistingDataPoint()
-    def self.makeNewOpenCycleWithExistingDataPoint()
-        puts "There isn't a way to select from all datapoint, you need to search, and promote"
-        LucilleCore::pressEnterToContinue()
-        DataPointsSearch::search()
-    end
-
-    # OpenCycles::userInterface()
-    def self.userInterface()
-        system("clear")
-        loop {
-            options = [
-                "dive into open cycles",
-                "create new open cycle from existing datapoint"
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            break if option.nil?
-            if option == "dive into open cycles" then
-                loop {
-                    entities = OpenCycles::getOpenCyclesClaims()
-                                .map{|claim| DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"]) }
-                    entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("data entity", entities, lambda{|entity| DataEntities::dataEntityToString(entity) })
-                    break if entity.nil?
-                    DataEntities::dataEntityDive(entity)
-                }
-            end
-            if option == "create new open cycle from existing datapoint" then
-                puts "There isn't a way to select from all datapoint, you need to search, and promote"
-                LucilleCore::pressEnterToContinue()
-                DataPointsSearch::search()
-            end
-        }
+    # OpenCycles::claimDive(claim)
+    def self.claimDive(claim)
+        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+        if dataentity.nil? then
+            puts "Could not determine dataentity for claim #{claim}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        DataEntities::dataEntityDive(entity)
     end
 end
 

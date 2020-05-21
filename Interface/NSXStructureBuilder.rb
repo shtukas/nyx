@@ -81,8 +81,8 @@ class NSXStructureBuilder
         node
     end
 
-    # NSXStructureBuilder::newOrExistingStartLightNodeBuildAroundReturnNode()
-    def self.newOrExistingStartLightNodeBuildAroundReturnNode()
+    # NSXStructureBuilder::startLightNodeNewOrExistingThenBuildAroundThenReturnNode()
+    def self.startLightNodeNewOrExistingThenBuildAroundThenReturnNode()
         node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
@@ -92,8 +92,8 @@ class NSXStructureBuilder
         node
     end
 
-    # NSXStructureBuilder::standardTargetNewToStarlightNode()
-    def self.standardTargetNewToStarlightNode()
+    # NSXStructureBuilder::standardTargetNewThenAttachToStarlightNode()
+    def self.standardTargetNewThenAttachToStarlightNode()
             target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
             return if target.nil?
             node = StartlightNodes::selectNodeOrNull()
@@ -111,7 +111,7 @@ class NSXStructureBuilder
             },
             {
                 "text"   => "standard target (new) -> Starlight Node",
-                "lambda" => lambda { NSXStructureBuilder::standardTargetNewToStarlightNode() }
+                "lambda" => lambda { NSXStructureBuilder::standardTargetNewThenAttachToStarlightNode() }
             },
             {
                 "text"   => "datapoint (new)",
@@ -119,15 +119,19 @@ class NSXStructureBuilder
             },
             {
                 "text"   => "datapoint (existing) -> OpenCycle",
-                "lambda" => lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-existing-datapoint") }
+                "lambda" => lambda {
+                    puts "Look search for datapoint and promote to opencycle"
+                    LucilleCore::pressEnterToContinue()
+                    DataPointsSearch::search()
+                }
             },
             {
                 "text"   => "datapoint (new) -> OpenCycle",
-                "lambda" => lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/x-make-new-with-new-datapoint") }
+                "lambda" => lambda { OpenCycles::dataPointNewThenRegisterAsOpenCycle() }
             },
             {
                 "text"   => "starlight node (new or existing) + build around",
-                "lambda" => lambda { NSXStructureBuilder::newOrExistingStartLightNodeBuildAroundReturnNode() }
+                "lambda" => lambda { NSXStructureBuilder::startLightNodeNewOrExistingThenBuildAroundThenReturnNode() }
             }
         ]
     end
