@@ -1,6 +1,13 @@
 
 # encoding: UTF-8
 
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'colorize'
+
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation, key)
@@ -23,9 +30,23 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
-require 'colorize'
+# -----------------------------------------------------------------------
 
 class Items
+
+    # Items::issueNewItem(projectname, projectuuid, description, target)
+    def self.issueNewItem(projectname, projectuuid, description, target)
+        item = {
+            "uuid"         => SecureRandom.uuid,
+            "creationtime" => Time.new.to_f,
+            "projectname"  => projectname,
+            "projectuuid"  => projectuuid,
+            "description"  => description,
+            "target"       => target
+        }
+        Items::save(item)
+        item
+    end
 
     # Items::itemBestDescription(item)
     def self.itemBestDescription(item)

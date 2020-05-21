@@ -25,6 +25,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Core/Items.rb"
+
 # ------------------------------------------------------------------------
 
 class NSXStructureBuilder
@@ -106,10 +108,27 @@ class NSXStructureBuilder
     def self.structure()
         [
             {
+                "text"   => "standard target (new) -> Todo",
+                "lambda" => lambda {
+                    projectname = Items::selectProjectNameInteractivelyOrNull()
+                    projectuuid = nil
+                    if projectname.nil? then
+                        projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
+                        projectuuid = SecureRandom.uuid
+                    else
+                        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+                        return if projectuuid.nil?
+                    end
+                    description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
+                    target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+                    Items::issueNewItem(projectname, projectuuid, description, target)
+                }
+            },
+            {
                 "text"   => "standard target (new) -> OpenCycle",
                 "lambda" => lambda { 
                     target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
-                    exit if target.nil?
+                    return if target.nil?
                     claim = {
                         "uuid"              => SecureRandom.uuid,
                         "creationTimestamp" => Time.new.to_f,
