@@ -88,8 +88,8 @@ class DataPoints
         tags
     end
 
-    # DataPoints::issueDataPointInteractivelyOrNull()
-    def self.issueDataPointInteractivelyOrNull()
+    # DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
+    def self.issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
         datapoint = {
             "catalystType"      => "catalyst-type:datapoint",
             "creationTimestamp" => Time.new.to_f,
@@ -102,9 +102,9 @@ class DataPoints
         puts JSON.pretty_generate(datapoint)
         DataPoints::save(datapoint)
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
-            xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
-            if xnode then
-                StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(xnode, datapoint)
+            node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+            if node then
+                StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
             end
         end
         datapoint
@@ -129,7 +129,7 @@ class DataPoints
     def self.selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
         datapoint = DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
         return datapoint if datapoint
-        DataPoints::issueDataPointInteractivelyOrNull()
+        DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
     end
 
     # DataPoints::datapointToString(datapoint)
@@ -354,7 +354,7 @@ class DataPoints
                 end
             end
             if operation == "make new datapoint" then
-                DataPoints::issueDataPointInteractivelyOrNull()
+                DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
             end
             if operation == "show newly created datapoints" then
                 points = DataPoints::datapoints()

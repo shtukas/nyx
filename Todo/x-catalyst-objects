@@ -138,7 +138,7 @@ objects = []
 Items::items()
     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or Runner::isRunning(item["uuid"]) }
     .reduce([]){|items, item|
-        if items.size < 6 then
+        if items.size < 32 then
             items << item
         else
             if Runner::isRunning(item["uuid"]) then

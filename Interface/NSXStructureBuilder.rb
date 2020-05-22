@@ -70,7 +70,7 @@ class NSXStructureBuilder
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build datapoints for '#{StartlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new datapoint..."
-                datapoint = DataPoints::issueDataPointInteractivelyOrNull()
+                datapoint = DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
                 if datapoint.nil? then
                     puts "Did not make a datapoint for '#{StartlightNodes::nodeToString(node)}'. Aborting datapoint building."
                     break
@@ -142,7 +142,7 @@ class NSXStructureBuilder
             {
                 "text"   => "datapoint (new) -> { OpenCycle, Starlight Node (existing or new) }",
                 "lambda" => lambda { 
-                    datapoint = DataPoints::issueDataPointInteractivelyOrNull()
+                    datapoint = DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
                     return if datapoint.nil?
 
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])

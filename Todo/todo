@@ -49,10 +49,27 @@ loop {
     system("clear")
     puts "Todo 👩‍💻"
     options = [
+        "create new item",
         "items dive"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
+    if option == "create new item" then
+        target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+        next if target.nil?
+        projectname = Items::selectProjectNameInteractivelyOrNull()
+        projectuuid = nil
+        if projectname.nil? then
+            projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
+            projectuuid = SecureRandom.uuid
+        else
+            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            # We are not considering the case null
+        end
+        description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
+        item = Items::issueNewItem(projectname, projectuuid, description, target)
+        puts JSON.pretty_generate(item)
+    end
     if option == "items dive" then
         loop {
             projectname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Items::projectNames())
@@ -61,6 +78,5 @@ loop {
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Items::itemToString(item) })
             Items::diveItem(item)
         }
-        
     end
 }
