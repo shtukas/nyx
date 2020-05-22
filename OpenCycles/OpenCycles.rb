@@ -63,18 +63,6 @@ class OpenCycles
         FileUtils.rm(filepath)
     end
 
-    # OpenCycles::dataPointNewThenRegisterAsOpenCycle()
-    def self.dataPointNewThenRegisterAsOpenCycle() 
-        datapoint = DataPoints::issueDataPointInteractivelyOrNull()
-        exit if datapoint.nil?
-        claim = {
-            "uuid"              => SecureRandom.uuid,
-            "creationTimestamp" => Time.new.to_f,
-            "entityuuid"        => datapoint["uuid"]
-        }
-        OpenCycles::saveClaim(claim)
-    end
-
     # OpenCycles::claimDive(claim)
     def self.claimDive(claim)
         loop {

@@ -94,9 +94,8 @@ class NSXStructureBuilder
         node
     end
 
-    # NSXStructureBuilder::standardTargetNewThenAttachToStarlightNode()
-    def self.standardTargetNewThenAttachToStarlightNode()
-        target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+    # NSXStructureBuilder::attachTargetToStarlightNode(target)
+    def self.attachTargetToStarlightNode(target)
         return if target.nil?
         node = StartlightNodes::selectNodeOrNull()
         return if node.nil?
@@ -108,53 +107,59 @@ class NSXStructureBuilder
     def self.structure()
         [
             {
-                "text"   => "standard target (new) -> Todo",
+                "text"   => "standard target (new) -> { Todo, OpenCycle, Starlight Node }",
                 "lambda" => lambda {
-                    projectname = Items::selectProjectNameInteractivelyOrNull()
-                    projectuuid = nil
-                    if projectname.nil? then
-                        projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
-                        projectuuid = SecureRandom.uuid
-                    else
-                        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
-                        return if projectuuid.nil?
-                    end
-                    description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
-                    target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
-                    Items::issueNewItem(projectname, projectuuid, description, target)
-                }
-            },
-            {
-                "text"   => "standard target (new) -> OpenCycle",
-                "lambda" => lambda { 
                     target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
                     return if target.nil?
-                    claim = {
-                        "uuid"              => SecureRandom.uuid,
-                        "creationTimestamp" => Time.new.to_f,
-                        "entityuuid"        => target["uuid"]
-                    }
-                    OpenCycles::saveClaim(claim)
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Starlight Node"])
+                    return if whereTo.nil?
+                    if whereTo == "Todo" then
+                        projectname = Items::selectProjectNameInteractivelyOrNull()
+                        projectuuid = nil
+                        if projectname.nil? then
+                            projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
+                            projectuuid = SecureRandom.uuid
+                        else
+                            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+                            return if projectuuid.nil?
+                        end
+                        description = LucilleCore::askQuestionAnswerAsString("todo item description: ")
+                        Items::issueNewItem(projectname, projectuuid, description, target)
+                    end
+                    if whereTo == "OpenCycle" then
+                        claim = {
+                            "uuid"              => SecureRandom.uuid,
+                            "creationTimestamp" => Time.new.to_f,
+                            "entityuuid"        => target["uuid"]
+                        }
+                        OpenCycles::saveClaim(claim)
+                    end
+                    if whereTo == "Starlight Node" then
+                        NSXStructureBuilder::attachTargetToStarlightNode(target)
+                    end
                 }
             },
             {
-                "text"   => "standard target (new) -> Starlight Node",
-                "lambda" => lambda { NSXStructureBuilder::standardTargetNewThenAttachToStarlightNode() }
-            },
-            {
-                "text"   => "datapoint (new)",
-                "lambda" => lambda { DataPoints::issueDataPointInteractivelyOrNull() }
-            },
-            {
-                "text"   => "datapoint (new) -> OpenCycle",
-                "lambda" => lambda { OpenCycles::dataPointNewThenRegisterAsOpenCycle() }
-            },
-            {
-                "text"   => "datapoint (existing) -> OpenCycle",
-                "lambda" => lambda {
-                    puts "Look search for datapoint and promote to opencycle"
-                    LucilleCore::pressEnterToContinue()
-                    DataPointsSearch::search()
+                "text"   => "datapoint (new) -> { OpenCycle, Starlight Node }",
+                "lambda" => lambda { 
+                    datapoint = DataPoints::issueDataPointInteractivelyOrNull()
+                    return if datapoint.nil?
+
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
+                    return if whereTo.nil?
+                    if whereTo == "OpenCycle" then
+                        claim = {
+                            "uuid"              => SecureRandom.uuid,
+                            "creationTimestamp" => Time.new.to_f,
+                            "entityuuid"        => datapoint["uuid"]
+                        }
+                        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+                    end
+                    if whereTo == "Starlight Node" then
+                        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                        return if node.nil?
+                        StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                    end
                 }
             },
             {
