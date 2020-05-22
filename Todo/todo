@@ -41,6 +41,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueS
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
+=begin 
+    Bank::put(uuid, weight)
+    Bank::total(uuid)
+=end
+
 require_relative "Core/Core.rb"
 
 # --------------------------------------------------------------------
@@ -50,7 +56,8 @@ loop {
     puts "Todo 👩‍💻"
     options = [
         "create new item",
-        "items dive"
+        "items dive",
+        "time report"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
@@ -78,5 +85,12 @@ loop {
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Items::itemToString(item) })
             Items::diveItem(item)
         }
+    end
+    if option == "time report" then
+        Items::projectNames().each{|projectname|
+            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            puts "#{projectname.ljust(50)} #{(Bank::total(projectuuid).to_f/3600).round(2)} hours"
+        }
+        LucilleCore::pressEnterToContinue()
     end
 }

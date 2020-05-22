@@ -54,6 +54,7 @@ if ARGV[0] == 'open' and ARGV[1] then
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
         NSXWaveUtils::performDone2(claim)
         timespan = Time.new.to_f - time1
+        timespan = [timespan, 1200].min # (20 mins) To avoid problems after leaving things running
         puts "Pushing #{timespan} seconds to Bank(LUCILLE)"
         Bank::put(LUCILLE_UUID, timespan)
     end

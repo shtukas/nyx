@@ -48,6 +48,14 @@ if ARGV[0] == "start" and ARGV[1] then
 
     Runner::start(uuid)
     CatalystStandardTargets::openTarget(item["target"])
+
+    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
+        timespan = Runner::stop(uuid)
+        exit if timespan.nil?
+        timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
+        Items::receiveRunTimespan(item, timespan, true)
+        Items::destroy(item["uuid"])
+    end
 end
 
 if ARGV[0] == "open" and ARGV[1] then
@@ -55,7 +63,6 @@ if ARGV[0] == "open" and ARGV[1] then
     exit if uuid.nil?
     item = Items::getOrNull(uuid)
     exit if item.nil?
-
     CatalystStandardTargets::openTarget(item["target"])
 end
 

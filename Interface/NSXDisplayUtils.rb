@@ -78,7 +78,7 @@ class NSXDisplayUtils
         else
             firstdisplayline = displaylines.shift
             line0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstdisplayline.green : firstdisplayline)
-            line0
+            line0[0, NSXMiscUtils::screenWidth()-1]
         end
     end
 
