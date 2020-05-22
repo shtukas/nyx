@@ -83,8 +83,8 @@ class NSXStructureBuilder
         node
     end
 
-    # NSXStructureBuilder::startLightNodeNewOrExistingThenBuildAroundThenReturnNode()
-    def self.startLightNodeNewOrExistingThenBuildAroundThenReturnNode()
+    # NSXStructureBuilder::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
+    def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
         node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
@@ -94,10 +94,10 @@ class NSXStructureBuilder
         node
     end
 
-    # NSXStructureBuilder::attachTargetToStarlightNode(target)
-    def self.attachTargetToStarlightNode(target)
+    # NSXStructureBuilder::attachTargetToStarlightNodeExistingOrNew(target)
+    def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = StartlightNodes::selectNodeOrNull()
+        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
         return if node.nil?
         claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
         puts JSON.pretty_generate(claim)
@@ -107,7 +107,7 @@ class NSXStructureBuilder
     def self.structure()
         [
             {
-                "text"   => "standard target (new) -> { Todo, OpenCycle, Starlight Node }",
+                "text"   => "standard target (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }",
                 "lambda" => lambda {
                     target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
                     return if target.nil?
@@ -135,12 +135,12 @@ class NSXStructureBuilder
                         OpenCycles::saveClaim(claim)
                     end
                     if whereTo == "Starlight Node" then
-                        NSXStructureBuilder::attachTargetToStarlightNode(target)
+                        NSXStructureBuilder::attachTargetToStarlightNodeExistingOrNew(target)
                     end
                 }
             },
             {
-                "text"   => "datapoint (new) -> { OpenCycle, Starlight Node }",
+                "text"   => "datapoint (new) -> { OpenCycle, Starlight Node (existing or new) }",
                 "lambda" => lambda { 
                     datapoint = DataPoints::issueDataPointInteractivelyOrNull()
                     return if datapoint.nil?
@@ -163,8 +163,8 @@ class NSXStructureBuilder
                 }
             },
             {
-                "text"   => "starlight node (new or existing) + build around",
-                "lambda" => lambda { NSXStructureBuilder::startLightNodeNewOrExistingThenBuildAroundThenReturnNode() }
+                "text"   => "starlight node (existing or new) + build around",
+                "lambda" => lambda { NSXStructureBuilder::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             }
         ]
     end
