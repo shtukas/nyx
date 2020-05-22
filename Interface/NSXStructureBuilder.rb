@@ -146,16 +146,16 @@ class NSXStructureBuilder
                 "lambda" => lambda { DataPoints::issueDataPointInteractivelyOrNull() }
             },
             {
+                "text"   => "datapoint (new) -> OpenCycle",
+                "lambda" => lambda { OpenCycles::dataPointNewThenRegisterAsOpenCycle() }
+            },
+            {
                 "text"   => "datapoint (existing) -> OpenCycle",
                 "lambda" => lambda {
                     puts "Look search for datapoint and promote to opencycle"
                     LucilleCore::pressEnterToContinue()
                     DataPointsSearch::search()
                 }
-            },
-            {
-                "text"   => "datapoint (new) -> OpenCycle",
-                "lambda" => lambda { OpenCycles::dataPointNewThenRegisterAsOpenCycle() }
             },
             {
                 "text"   => "starlight node (new or existing) + build around",

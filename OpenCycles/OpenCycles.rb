@@ -91,7 +91,13 @@ class OpenCycles
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
             if option == "dive into dataentity" then
-                DataEntities::dataEntityDive(entity)
+                dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+                if dataentity.nil? then
+                    puts "I could not find a dataentity for his: #{claim}"
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+                DataEntities::dataEntityDive(dataentity)
             end
             if option == "destroy claim" then
                 OpenCycles::destroy(claim)
