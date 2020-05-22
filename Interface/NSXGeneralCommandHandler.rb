@@ -204,11 +204,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "note" then
-            NSXMiscUtils::editXNote(object["uuid"])
-            return
-        end
-
         if command == "++" then
             NSXGeneralCommandHandler::processCatalystCommandCore(object, "+1 hour")
             return

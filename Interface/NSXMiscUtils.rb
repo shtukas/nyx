@@ -153,32 +153,6 @@ class NSXMiscUtils
             .strip
     end
 
-    # NSXMiscUtils::getXNoteOrNull(uuid)
-    def self.getXNoteOrNull(uuid)
-        KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/XNotes", uuid)
-    end
-
-    # NSXMiscUtils::setXNote(uuid, text)
-    def self.setXNote(uuid, text)
-        if text.strip.size == 0 then
-            KeyValueStore::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/XNotes", uuid)
-            return
-        end
-        KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/XNotes", uuid, text)
-    end
-
-    # NSXMiscUtils::hasXNote(uuid)
-    def self.hasXNote(uuid)
-        !NSXMiscUtils::getXNoteOrNull(uuid).nil?
-    end
-
-    # NSXMiscUtils::editXNote(uuid)
-    def self.editXNote(uuid)
-        text = NSXMiscUtils::getXNoteOrNull(uuid) || ""
-        text = NSXMiscUtils::editTextUsingTextmate(text)
-        NSXMiscUtils::setXNote(uuid, text)
-    end
-
     # NSXMiscUtils::isInteger(str)
     def self.isInteger(str)
         str == str.to_i.to_s

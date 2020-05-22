@@ -50,7 +50,7 @@ class NSXDisplayUtils
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
         # NSXMiscUtils::screenWidth()
-        contentItemToCoreLines = lambda {|contentItem|
+        contentItemToDisplayLines = lambda {|contentItem|
             if contentItem["type"] == "line" then
                 return [contentItem["line"]]
             end
@@ -67,27 +67,18 @@ class NSXDisplayUtils
             if contentItem["type"] == "block" then
                 return [ (contentItem["block"].lines.map.with_index{|line, indx| indx == 0 ? line : "              #{line}" }.join()).yellow ]
             end
-            [ "I don't know how to contentItemToCoreLines: #{contentItem}" ]
+            [ "I don't know how to contentItemToDisplayLines: #{contentItem}" ]
         }
-        getNoteLines = lambda{|objectuuid|
-            if NSXMiscUtils::hasXNote(objectuuid) then
-                [ "-- note ---------------------------------------" ] +
-                NSXMiscUtils::getXNoteOrNull(object["uuid"]).lines.first(10).map{|line| line[0, line.size-1] } +
-                [ "-----------------------------------------------" ]
-            else
-                []
-            end
-        }
-        corelines = contentItemToCoreLines.call(object["contentItem"].clone)
+        displaylines = contentItemToDisplayLines.call(object["contentItem"].clone)
         if isFocus then
-            firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
-            answerline0 = "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
-            answerlinesOnePlus = corelines.map{|line| FlamePadding + (object["isRunning"] ? line.green : line) }
-            ([ answerline0 ] +  getNoteLines.call(object["uuid"]).map{|line| FlamePadding + line } + answerlinesOnePlus + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
+            firstdisplayline = displaylines.shift
+            line0 = "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstdisplayline.green : firstdisplayline)
+            lines1 = displaylines.map{|line| FlamePadding + (object["isRunning"] ? line.green : line) }
+            ([ line0 ] + lines1 + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
         else
-            firstcoreline = corelines.shift + (NSXMiscUtils::hasXNote(object["uuid"]) ? " [note]" : "")
-            answerline0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstcoreline.green : firstcoreline)
-            answerline0
+            firstdisplayline = displaylines.shift
+            line0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstdisplayline.green : firstdisplayline)
+            line0
         end
     end
 
