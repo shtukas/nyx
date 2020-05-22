@@ -77,7 +77,15 @@ class StartlightNodes
 
     # StartlightNodes::selectNodeOrNull()
     def self.selectNodeOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
+        # Version 1
+        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
+
+        # Version 2
+        nodestrings = StartlightNodes::nodes().map{|node| StartlightNodes::nodeToString(node) }
+        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
+        StartlightNodes::nodes()
+            .select{|node| StartlightNodes::nodeToString(node) == nodestring }
+            .first
     end
 
     # StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
