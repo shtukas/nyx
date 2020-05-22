@@ -91,7 +91,7 @@ SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
     .each_with_index{|section, indx|
         uuid = section2sectionUuid(section)
         isRunning = Runner::isRunning(uuid)
-        isRunningForLong = (Bank::total(LUCILLE_UUID)+(Runner::runTimeInSecondsOrNull(uuid) || 0)) >= 0
+        isRunningForLong = isRunning and (Bank::total(LUCILLE_UUID)+(Runner::runTimeInSecondsOrNull(uuid) || 0)) >= 0
         metric = lucilleMetric() - indx.to_f/1000
         object = {
             "uuid" => uuid,

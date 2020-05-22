@@ -134,16 +134,16 @@ class Items
         itemuuid = item["uuid"]
         projectuuid = item["projectuuid"]
         if verbose then
-            puts "Bank: putting #{timespan} into itemuuid: #{itemuuid}"
+            puts "Bank: putting #{timespan.round(2)} secs into itemuuid: #{itemuuid}"
         end
         Bank::put(itemuuid, timespan)
         if verbose then
-            puts "Bank: putting #{timespan} into projectuuid: #{projectuuid}"
+            puts "Bank: putting #{timespan.round(2)} secs into projectuuid: #{projectuuid}"
         end
         Bank::put(projectuuid, timespan)
         InFlightControlSystem::getClaimsByItemUUID(itemuuid).each{|claim|
             if verbose then
-                puts "Bank: putting #{timespan} into claimuuid: #{claim["uuid"]}"
+                puts "Bank: putting #{timespan.round(2)} secs into claimuuid: #{claim["uuid"]}"
             end
             Bank::put(claim["uuid"], timespan)
         }

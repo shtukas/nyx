@@ -78,7 +78,7 @@ Thread.new {
             .select{|object| object["isDone"] }
             .first(1)
             .each{|object|
-                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object is done")
+                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object (#{NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 0)}) is done")
             }
 
         sleep 12
@@ -87,7 +87,7 @@ Thread.new {
             .select{|object| object["isRunningForLong"] }
             .first(1)
             .each{|object|
-                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object is running for long")
+                NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object (#{NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 0)}) is running for long")
             }
 
         sleep 12
