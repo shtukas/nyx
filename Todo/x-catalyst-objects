@@ -154,6 +154,8 @@ Items::items()
 InFlightControlSystem::claimsOrdered()
     .each{|claim|
 
+        next if Items::getOrNull(claim["itemuuid"]).nil?
+
         defaultCommand = lambda {|isRunning|
             isRunning ? "stop" : "start"
         }

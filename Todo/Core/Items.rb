@@ -116,7 +116,7 @@ class Items
                 next if starlightnode.nil?
 
                 # Attaching the target to the node
-                claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, target)
+                claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, item["target"])
                 puts JSON.pretty_generate(claim)
 
                 timespan = Runner::stop(item["uuid"])

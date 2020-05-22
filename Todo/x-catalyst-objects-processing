@@ -130,10 +130,10 @@ if ARGV[0] == "ifcs-stop" and ARGV[1] then
     exit if timespan.nil?
 
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-
     item = Items::getOrNull(claim["itemuuid"])
+
     exit if item.nil?
-    Items::receiveRunTimespan(item, timespan)
+    Items::receiveRunTimespan(item, timespan, true)
 end
 
 if ARGV[0] == "ifcs-done" and ARGV[1] then
@@ -148,7 +148,6 @@ if ARGV[0] == "ifcs-done" and ARGV[1] then
 
         item = Items::getOrNull(claim["itemuuid"])
         if item.nil? then
-            puts "Sending #{timespan} to item #{item["uuid"]}"
             Items::receiveRunTimespan(item, timespan, true)
         end
     end

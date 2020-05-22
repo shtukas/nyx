@@ -65,7 +65,7 @@ class InFlightControlSystem
 
     # InFlightControlSystem::getClaimsByItemUUID(itemuuid)
     def self.getClaimsByItemUUID(itemuuid)
-        BTreeSets::values("/Users/pascal/Galaxy/DataBank/Catalyst/Todo/ifcs-claims", "236EA361-84E5-4DC3-9077-20D173DC73A3")
+        InFlightControlSystem::claimsOrdered()
             .select{|claim| claim["itemuuid"] == itemuuid }
     end
 
