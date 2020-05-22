@@ -8,7 +8,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation, key)
     KeyValueStore::setFlagFalse(repositorylocation, key)

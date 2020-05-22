@@ -6,7 +6,7 @@
 
 require 'time'
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::set(repositorylocation or nil, key, value)
     KeyValueStore::getOrNull(repositorylocation or nil, key)

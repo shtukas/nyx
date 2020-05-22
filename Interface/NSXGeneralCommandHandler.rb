@@ -17,7 +17,7 @@ require 'securerandom'
 	# The command is "special" and going to be captured and executed at some point along the code
 	# The command is handled by an agent and the signal forwarded to the NSXCatalystObjectsOperator
 
-require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
     KeyValueStore::setFlagTrue(repositorylocation or nil, key)
     KeyValueStore::setFlagFalse(repositorylocation or nil, key)
