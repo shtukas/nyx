@@ -14,11 +14,17 @@ require 'fileutils'
 
 require "/Users/pascal/Galaxy/LucilleOS/Software-Common/Ruby-Libraries/LucilleCore.rb"
 
-# --------------------------------------------------------------------
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
+=begin 
+    Bank::put(uuid, weight)
+    Bank::total(uuid)
+=end
 
 require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
+
+LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
 
 def openItem(claim)
     text = claim["description"]
@@ -41,11 +47,15 @@ end
 if ARGV[0] == 'open' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
+    time1 = Time.new.to_f
     claim = WaveNextGen::getClaimByUUIDOrNUll(uuid)
     exit if claim.nil?
     openItem(claim)
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
         NSXWaveUtils::performDone2(claim)
+        timespan = Time.new.to_f - time1
+        puts "Pushing #{timespan} seconds to Bank(LUCILLE)"
+        Bank::put(LUCILLE_UUID, timespan)
     end
     exit
 end

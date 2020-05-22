@@ -83,14 +83,15 @@ class NSXCatalystUI
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
-        firstPositionForCatalystObjects = position
         displayObjects.each_with_index{|object, indx|
             break if object.nil?
+            break if verticalSpaceLeft <= 0
             displayStr = NSXDisplayUtils::objectDisplayStringForCatalystListing(object, indx==0, position)
             puts displayStr
             executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
             verticalSpaceLeft = verticalSpaceLeft - NSXDisplayUtils::verticalSize(displayStr)
             position = position + 1
+            break if ( verticalSpaceLeft - NSXDisplayUtils::verticalSize(NSXDisplayUtils::objectDisplayStringForCatalystListing(displayObjects[indx+1], indx==0, position)) ) < 0
         }
 
         puts ""
