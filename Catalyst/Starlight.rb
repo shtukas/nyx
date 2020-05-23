@@ -64,7 +64,7 @@ class StartlightNodes
             xnodes = StartlightNodes::nodes().reject{|n| n["uuid"] == node["uuid"] }
             xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", xnodes, lambda {|node| StartlightNodes::nodeToString(node) })
             if xnode then
-                StartlightPaths::makePathFromFirstNodeToSecondNode(xnode, node)
+                StartlightPaths::issuePathFromFirstNodeToSecondNode(xnode, node)
             end
         end
         node
@@ -174,9 +174,9 @@ class StartlightPaths
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # StartlightPaths::makePathInteractivelyOrNull()
-    def self.makePathInteractivelyOrNull()
-        {
+    # StartlightPaths::issuePathInteractivelyOrNull()
+    def self.issuePathInteractivelyOrNull()
+        path = {
             "catalystType"      => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
@@ -184,17 +184,21 @@ class StartlightPaths
             "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
             "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
+        StartlightPaths::save(path)
+        path
     end
 
-    # StartlightPaths::makePathFromFirstNodeToSecondNode(node1, node2)
-    def self.makePathFromFirstNodeToSecondNode(node1, node2)
-        {
+    # StartlightPaths::issuePathFromFirstNodeToSecondNode(node1, node2)
+    def self.issuePathFromFirstNodeToSecondNode(node1, node2)
+        path = {
             "catalystType"      => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
             "sourceuuid" => node1["uuid"],
             "targetuuid" => node2["uuid"]
         }
+        StartlightPaths::save(path)
+        path
     end
 
     # StartlightPaths::getPathsWithGivenTarget(targetuuid)
@@ -432,7 +436,7 @@ class StarlightManagement
                 next if node1.nil?
                 node2 = StartlightNodes::selectNodeOrNull()
                 next if node2.nil?
-                path = StartlightPaths::makePathFromFirstNodeToSecondNode(node1, node2)
+                path = StartlightPaths::issuePathFromFirstNodeToSecondNode(node1, node2)
                 puts JSON.pretty_generate(path)
                 StartlightPaths::save(path)
             end

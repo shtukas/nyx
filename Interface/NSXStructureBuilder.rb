@@ -47,7 +47,7 @@ class NSXStructureBuilder
                     puts "Did not determine a parent for '#{StartlightNodes::nodeToString(node)}'. Aborting parent determination."
                     break
                 end
-                StartlightPaths::makePathFromFirstNodeToSecondNode(parent, node)
+                StartlightPaths::issuePathFromFirstNodeToSecondNode(parent, node)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ")
             }
             puts "Completed determining parents for '#{StartlightNodes::nodeToString(node)}'"
@@ -61,7 +61,9 @@ class NSXStructureBuilder
                     puts "Did not make a child for '#{StartlightNodes::nodeToString(node)}'. Aborting child building."
                     break
                 end
-                StartlightPaths::makePathFromFirstNodeToSecondNode(node, child)
+                puts JSON.pretty_generate(child)
+                path = StartlightPaths::issuePathFromFirstNodeToSecondNode(node, child)
+                puts JSON.pretty_generate(path)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{StartlightNodes::nodeToString(node)}' ? ")
             }
             puts "Completed building children for '#{StartlightNodes::nodeToString(node)}'"
@@ -70,12 +72,14 @@ class NSXStructureBuilder
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build datapoints for '#{StartlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new datapoint..."
-                datapoint = DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
+                datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
                 if datapoint.nil? then
                     puts "Did not make a datapoint for '#{StartlightNodes::nodeToString(node)}'. Aborting datapoint building."
                     break
                 end
-                StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                puts JSON.pretty_generate(datapoint)
+                claim = StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                puts JSON.pretty_generate(claim)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new datapoint for '#{StartlightNodes::nodeToString(node)}' ? ")
             }
         end
@@ -142,7 +146,7 @@ class NSXStructureBuilder
             {
                 "text"   => "datapoint (new) -> { OpenCycle, Starlight Node (existing or new) }",
                 "lambda" => lambda { 
-                    datapoint = DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
+                    datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
                     return if datapoint.nil?
 
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])

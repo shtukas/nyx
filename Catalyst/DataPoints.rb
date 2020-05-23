@@ -88,8 +88,8 @@ class DataPoints
         tags
     end
 
-    # DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
-    def self.issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
+    # DataPoints::issueDataPointInteractivelyOrNull(shouldStarlightNodeInvite)
+    def self.issueDataPointInteractivelyOrNull(shouldStarlightNodeInvite)
         datapoint = {
             "catalystType"      => "catalyst-type:datapoint",
             "creationTimestamp" => Time.new.to_f,
@@ -101,7 +101,7 @@ class DataPoints
         }
         puts JSON.pretty_generate(datapoint)
         DataPoints::save(datapoint)
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
+        if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
             node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
             if node then
                 StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
@@ -129,7 +129,7 @@ class DataPoints
     def self.selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
         datapoint = DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
         return datapoint if datapoint
-        DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
+        DataPoints::issueDataPointInteractivelyOrNull(true)
     end
 
     # DataPoints::datapointToString(datapoint)
@@ -354,7 +354,7 @@ class DataPoints
                 end
             end
             if operation == "make new datapoint" then
-                DataPoints::issueDataPointInteractivelyWithStarlightNodeInviteOrNull()
+                DataPoints::issueDataPointInteractivelyOrNull(true)
             end
             if operation == "show newly created datapoints" then
                 points = DataPoints::datapoints()
