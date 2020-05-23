@@ -86,9 +86,6 @@ objects = []
 InFlightControlSystem::claimsOrdered()
     .each{|claim|
 
-        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["itemuuid"])
-        next if dataentity.nil?
-
         defaultCommand = lambda {|isRunning|
             isRunning ? "stop" : "start"
         }

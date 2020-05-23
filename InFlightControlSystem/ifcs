@@ -1,0 +1,60 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require 'find'
+
+require 'json'
+# JSON.pretty_generate
+
+require 'time'
+
+require 'colorize'
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(5) #=> "eb693"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+# LucilleCore::askQuestionAnswerAsString(question)
+# LucilleCore::askQuestionAnswerAsBoolean(announce, defaultValue = nil)
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation, key)
+    KeyValueStore::setFlagFalse(repositorylocation, key)
+    KeyValueStore::flagIsTrue(repositorylocation, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+
+require_relative "InFlightControlSystem.rb"
+
+# --------------------------------------------------------------------
+
+puts "ifcs claims"
+InFlightControlSystem::claimsOrdered()
+    .each{|claim|
+        uuid = claim["uuid"]
+        puts "    - #{("%5.3f" % claim["position"])} #{InFlightControlSystem::claimToStringOrNull(claim)}"
+    }
+
+LucilleCore::pressEnterToContinue()
+

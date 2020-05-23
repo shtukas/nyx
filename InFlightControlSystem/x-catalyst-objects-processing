@@ -69,7 +69,6 @@ require_relative "InFlightControlSystem.rb"
 # -----------------------------------------------------------------------------
 
 def stop(claim)
-
     uuid = claim["uuid"]
     timespan = Runner::stop(uuid)
     return if timespan.nil?
@@ -87,11 +86,10 @@ def stop(claim)
     Mercury::postValue("00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD", message)
 end
 
-def open(claim)
+def open_(claim)
     itemuuid = claim["itemuuid"]
-    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{itemuuid}.json"
-    return nil if !File.exists?(filepath)
-    todo = JSON.parse(IO.read(filepath))
+    item = InFlightControlSystem::getTodoItemOrNull(itemuuid)
+    return if item.nil?
     CatalystStandardTargets::openTarget(todo["target"])
 end
 
@@ -102,7 +100,7 @@ if ARGV[0] == "start" and ARGV[1] then
     exit if claim.nil?
 
     Runner::start(uuid)
-    open(claim)
+    open_(claim)
 end
 
 if ARGV[0] == "open" and ARGV[1] then
@@ -111,7 +109,7 @@ if ARGV[0] == "open" and ARGV[1] then
     claim = InFlightControlSystem::getOrNull(uuid)
     exit if claim.nil?
 
-    open(claim)
+    open_(claim)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then

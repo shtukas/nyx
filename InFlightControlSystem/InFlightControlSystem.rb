@@ -56,6 +56,7 @@ class InFlightControlSystem
             .select{|filename| filename[-5, 5] == ".json" }
             .map{|filename| "#{InFlightControlSystem::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .select{|claim| !InFlightControlSystem::getTodoItemOrNull(claim["itemuuid"]).nil? }
             .sort{|c1, c2| c1["position"] <=> c2["position"] }
     end
 
@@ -75,8 +76,7 @@ class InFlightControlSystem
 
     # InFlightControlSystem::claimToStringOrNull(claim)
     def self.claimToStringOrNull(claim)
-        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["itemuuid"])
-        dataentityString = DataEntities::dataEntityToString(dataentity) || "(Could not find DataEntity target)"
+        todoitem = InFlightControlSystem::getTodoItemOrNull(claim["itemuuid"])
         uuid = claim["uuid"]
         isRunning = Runner::isRunning(uuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hour)" : ""
@@ -84,7 +84,7 @@ class InFlightControlSystem
         ordinal = InFlightControlSystem::getClaimOrdinalOrNull(uuid)
         timeexpectation = DailyTimes::getItem24HoursTimeExpectationInHours(DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal)
         timeInBank = Bank::total(uuid)
-        "[ifcs] (pos: #{claim["position"]}, time exp.: #{timeexpectation.round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) #{dataentityString}"
+        "[ifcs] (pos: #{claim["position"]}, time exp.: #{timeexpectation.round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) [todo item] #{todoitem ? todoitem["description"] : "(Could not extract todo item)"}"
     end
 
     # InFlightControlSystem::metric(claim)
@@ -111,7 +111,7 @@ class InFlightControlSystem
     # Presents the current priority list of the caller and let them enter a number that is then returned
     # InFlightControlSystem::interactiveChoiceOfIfcsPosition()
     def self.interactiveChoiceOfIfcsPosition() # Float
-        puts "Items"
+        puts "ifcs claims"
         InFlightControlSystem::claimsOrdered()
             .each{|claim|
                 uuid = claim["uuid"]
@@ -131,5 +131,12 @@ class InFlightControlSystem
             .select{|pair| pair[0]["uuid"] == uuid }
             .map{|pair| pair[1] }
             .first
+    end
+
+    # InFlightControlSystem::getTodoItemOrNull(itemuuid)
+    def self.getTodoItemOrNull(itemuuid)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{itemuuid}.json"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
     end
 end

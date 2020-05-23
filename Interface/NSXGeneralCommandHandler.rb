@@ -112,6 +112,7 @@ class NSXGeneralCommandHandler
             options = [
                 "DataExplorer",
                 "OpenCycles",
+                "InFlightControlSystem",
                 "Todo",
                 "Calendar",
                 "Wave",
@@ -123,6 +124,9 @@ class NSXGeneralCommandHandler
             end
             if option == "OpenCycles" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
+            end
+            if option == "InFlightControlSystem" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs")
             end
             if option == "Todo" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
