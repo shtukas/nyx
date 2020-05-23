@@ -99,6 +99,7 @@ if ARGV[0] == "done" and ARGV[1] then
     end
 
     Items::destroy(item["uuid"])
+    puts "Adding 1 to todo items done today"
     Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
 end
 
@@ -168,6 +169,7 @@ if ARGV[0] == "ifcs-done" and ARGV[1] then
     end
 
     Items::destroy(claim["itemuuid"])
+    puts "Adding 1 to todo items done today"
     Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
     InFlightControlSystem::destroy(uuid)
 end

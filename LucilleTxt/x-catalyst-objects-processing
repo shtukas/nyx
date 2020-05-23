@@ -78,6 +78,7 @@ def done(uuid)
     CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
     newsections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE)).reject{|section| section2sectionUuid(section) == uuid }
     File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts( newsections.map{|section| section.strip }.join("\n\n") ) }
+    puts "Adding 1 to todo items done today"
     Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
 end
 
