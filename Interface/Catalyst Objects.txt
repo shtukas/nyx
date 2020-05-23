@@ -33,19 +33,10 @@ ContentItem
 }
 
 {
-    "type"  : "lines"
-    "lines" : Array[String] # each string carries a single line
-}
-
-{
     "type"    : "listing-and-focus"
     "listing" : String # carries a single line.
     "focus"   : String
 }
 
-{
-    "type"  : "block"
-    "block" : String # Multiline
-} 
 # Note that the block is displayed both in focus and unfocused mode, 
 # That's the difference with type: lines.

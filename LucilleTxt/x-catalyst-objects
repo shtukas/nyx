@@ -97,7 +97,7 @@ SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
             "uuid" => uuid,
             "contentItem" => {
                 "type"    => "listing-and-focus",
-                "listing" => "LucilleTxt: #{section.lines.to_a.first}",
+                "listing" => "LucilleTxt: #{section.lines.to_a.first.strip}",
                 "focus"   => "LucilleTxt: #{section.strip}"
             },
             "metric" => isRunning ? 1 : (lucilleMetric() - indx.to_f/1000),

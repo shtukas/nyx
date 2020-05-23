@@ -10,14 +10,8 @@ class NSXDisplayUtils
         if item["type"] == "line" then
             return item["line"]
         end
-        if item["type"] == "lines" then
-            return (item["lines"][0] || "contentItem of type lines needs at least one line")
-        end
         if item["type"] == "listing-and-focus" then
             return item["listing"]
-        end
-        if item["type"] == "block" then
-            return "\n"+item["block"]
         end
         "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
     end
@@ -54,18 +48,8 @@ class NSXDisplayUtils
             if contentItem["type"] == "line" then
                 return [contentItem["line"]]
             end
-            if contentItem["type"] == "lines" then
-                lines = contentItem["lines"]
-                if lines.size == 0 then
-                    lines << "contentItem of type lines needs at least one line"
-                end 
-                return lines
-            end
             if contentItem["type"] == "listing-and-focus" then
-                return contentItem["focus"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
-            end
-            if contentItem["type"] == "block" then
-                return [ contentItem["block"].lines.map.with_index{|line, indx| indx == 0 ? line : "              #{line}" }.join() ]
+                return contentItem["focus"].lines.map{|line| line.rstrip }
             end
             [ "I don't know how to contentItemToDisplayLines: #{contentItem}" ]
         }
