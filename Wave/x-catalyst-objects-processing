@@ -20,6 +20,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::total24hours(uuid)
+    Ping::totalToday(uuid)
+=end
+
 require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
@@ -55,8 +62,10 @@ if ARGV[0] == 'open' and ARGV[1] then
         NSXWaveUtils::performDone2(claim)
         timespan = Time.new.to_f - time1
         timespan = [timespan, 1200].min # (20 mins) To avoid problems after leaving things running
-        puts "Pushing #{timespan} seconds to Bank(LUCILLE)"
+        puts "Pushing #{timespan.round(2)} seconds to Bank(LUCILLE)"
         Bank::put(LUCILLE_UUID, timespan)
+        puts "putting #{timespan.round(2)} seconds into catalyst measured times"
+        Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
     end
     exit
 end

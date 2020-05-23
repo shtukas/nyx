@@ -34,6 +34,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::total24hours(uuid)
+    Ping::totalToday(uuid)
+=end
+
 # --------------------------------------------------------------------
 
 require_relative "Core/Core.rb"
@@ -92,6 +99,7 @@ if ARGV[0] == "done" and ARGV[1] then
     end
 
     Items::destroy(item["uuid"])
+    Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
 end
 
 if ARGV[0] == "dive" and ARGV[1] then
@@ -160,5 +168,6 @@ if ARGV[0] == "ifcs-done" and ARGV[1] then
     end
 
     Items::destroy(claim["itemuuid"])
+    Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
     InFlightControlSystem::destroy(uuid)
 end

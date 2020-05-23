@@ -49,6 +49,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
 # SectionsType0141::contentToSections(text)
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::total24hours(uuid)
+    Ping::totalToday(uuid)
+=end
+
+
 # --------------------------------------------------------------------
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
@@ -62,8 +70,10 @@ end
 def stop_uuid(uuid)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
-    puts "LucilleTxt: pushing #{timespan} seconds to Bank"
+    puts "LucilleTxt: pushing #{timespan.round(2)} seconds to Bank"
     Bank::put(LUCILLE_UUID, timespan)
+    puts "putting #{timespan.round(2)} seconds into catalyst measured times"
+    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
 end
 
 if ARGV[0] == "start" and ARGV[1] then

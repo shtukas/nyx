@@ -30,6 +30,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::total24hours(uuid)
+    Ping::totalToday(uuid)
+=end
+
 # -----------------------------------------------------------------------
 
 class Items
@@ -147,6 +154,9 @@ class Items
             end
             Bank::put(claim["uuid"], timespan)
         }
+
+        puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
+        Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", weight)
     end
 
     # Items::pathToRepository()

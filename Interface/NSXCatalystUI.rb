@@ -23,6 +23,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::total24hours(uuid)
+    Ping::totalToday(uuid)
+=end
+
 require_relative "../OpenCycles/OpenCycles.rb"
 
 require_relative "NSXStructureBuilder.rb"
@@ -44,8 +51,12 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
         puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
+        puts "-> Todo items done today: #{Ping::totalToday("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A")}"
+        puts "-> Diligence (24h): #{(100*Ping::totalToday("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%"
+        verticalSpaceLeft = verticalSpaceLeft - 3
 
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
         NSXStructureBuilder::structure().each{|item|
             puts "[#{position.to_s.rjust(3)}] #{item["text"]}"
             executors[position] = item["lambda"]
