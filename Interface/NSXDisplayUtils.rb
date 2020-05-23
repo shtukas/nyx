@@ -13,8 +13,8 @@ class NSXDisplayUtils
         if item["type"] == "lines" then
             return (item["lines"][0] || "contentItem of type lines needs at least one line")
         end
-        if item["type"] == "line-and-body" then
-            return item["line"]
+        if item["type"] == "listing-and-focus" then
+            return item["listing"]
         end
         if item["type"] == "block" then
             return "\n"+item["block"]
@@ -61,11 +61,11 @@ class NSXDisplayUtils
                 end 
                 return lines
             end
-            if contentItem["type"] == "line-and-body" then
-                return [contentItem["line"]] + contentItem["body"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
+            if contentItem["type"] == "listing-and-focus" then
+                return contentItem["focus"].lines.map{|line| line[0, line.size-1] } # the map is to remove the ending line return
             end
             if contentItem["type"] == "block" then
-                return [ (contentItem["block"].lines.map.with_index{|line, indx| indx == 0 ? line : "              #{line}" }.join()).yellow ]
+                return [ contentItem["block"].lines.map.with_index{|line, indx| indx == 0 ? line : "              #{line}" }.join() ]
             end
             [ "I don't know how to contentItemToDisplayLines: #{contentItem}" ]
         }

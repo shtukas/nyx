@@ -96,8 +96,9 @@ SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
         object = {
             "uuid" => uuid,
             "contentItem" => {
-                "type" => "block",
-                "block" => section.strip
+                "type"    => "listing-and-focus",
+                "listing" => "LucilleTxt: #{section.lines.to_a.first}",
+                "focus"   => "LucilleTxt: #{section.strip}"
             },
             "metric" => isRunning ? 1 : (lucilleMetric() - indx.to_f/1000),
             "commands" => ["done"],

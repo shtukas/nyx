@@ -51,8 +51,8 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
         puts ""
-        puts "-> Todo items done today: #{Ping::totalToday("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A")}"
-        puts "-> Diligence (24h): #{(100*Ping::totalToday("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%"
+        puts "-> Todo items done today: #{Ping::totalToday("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A")}".green
+        puts "-> Diligence (24h): #{(100*Ping::totalToday("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
         verticalSpaceLeft = verticalSpaceLeft - 3
 
         puts ""

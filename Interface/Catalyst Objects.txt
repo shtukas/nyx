@@ -38,9 +38,9 @@ ContentItem
 }
 
 {
-    "type" : "line-and-body"
-    "line" : String # carries a single line.
-    "body" : String
+    "type"    : "listing-and-focus"
+    "listing" : String # carries a single line.
+    "focus"   : String
 }
 
 {
