@@ -31,7 +31,7 @@ require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
 
-LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
+LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
 
 def openItem(claim)
     text = claim["description"]

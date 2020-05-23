@@ -65,11 +65,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
-
-def section2sectionUuid(section)
-    "2c84d63c-1a2a-4b0c-ae39-638acbfb9da1:#{Digest::SHA1.hexdigest(section)}"
-end
+LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
 
 def lucilleMetric()
     timeInBank = Bank::total(LUCILLE_UUID)
@@ -85,34 +81,40 @@ end
 
 DailyTimes::putTimeToBankNoOftenThanOnceADay(LUCILLE_UUID, -2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
 
-objects = []
+defaultCommand = lambda {|isRunning|
+    isRunning ? "stop" : "start"
+}
 
-SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
-    .each_with_index{|section, indx|
-        uuid = section2sectionUuid(section)
-        isRunning = Runner::isRunning(uuid)
-        isRunningForLong = (isRunning and (Bank::total(LUCILLE_UUID)+(Runner::runTimeInSecondsOrNull(uuid) || 0)) >= 0)
-        metric = lucilleMetric() - indx.to_f/1000
-        object = {
-            "uuid" => uuid,
-            "contentItem" => {
-                "type"    => "listing-and-focus",
-                "listing" => "LucilleTxt: #{section.lines.to_a.first.strip}",
-                "focus"   => "LucilleTxt: #{section.strip}"
-            },
-            "metric" => isRunning ? 1 : (lucilleMetric() - indx.to_f/1000),
-            "commands" => ["done"],
-            "defaultCommand" => isRunning ? "stop" : "start",
-            "isRunning" => isRunning,
-            "isRunningForLong" => isRunningForLong,
-            "shell-redirects" => {
-                "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start '#{uuid}'",
-                "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop '#{uuid}'",
-                "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing done '#{uuid}'"
-            },
-            "x-LucilleTxt:BankTotal" => Bank::total(LUCILLE_UUID)
+isRunning = Runner::isRunning(LUCILLE_UUID)
+isRunningForLong = ((Runner::runTimeInSecondsOrNull(LUCILLE_UUID) || 0) > 3600)
+
+contentItem = 
+    if isRunning then
+        {
+            "type"    => "listing-and-focus",
+            "listing" => "LucilleTxt",
+            "focus"   => IO.read(PATH_TO_DESKTOP_FILE).lines.first(10).join()
         }
-        objects << object
-    }
+    else
+        {
+            "type"    => "line",
+            "line" => "LucilleTxt",
+        }
+    end
 
-puts JSON.generate(objects)
+object = {
+    "uuid" => LUCILLE_UUID,
+    "contentItem" => contentItem,
+    "metric" => isRunning ? 1 : lucilleMetric(),
+    "commands" => ["done"],
+    "defaultCommand" => isRunning ? "stop" : "start",
+    "isRunning" => isRunning,
+    "isRunningForLong" => isRunningForLong,
+    "shell-redirects" => {
+        "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start",
+        "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop",
+    },
+    "x-LucilleTxt:BankTotal" => Bank::total(LUCILLE_UUID)
+}
+
+puts JSON.generate([object])

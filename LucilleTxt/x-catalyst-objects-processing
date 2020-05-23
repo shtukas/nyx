@@ -58,51 +58,18 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 
 # --------------------------------------------------------------------
 
-PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
+LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
 
-LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c201b"
+if ARGV[0] == "start" then
+    Runner::start(LUCILLE_UUID)
 
-def section2sectionUuid(section)
-    "2c84d63c-1a2a-4b0c-ae39-638acbfb9da1:#{Digest::SHA1.hexdigest(section)}"
 end
 
-def stop_uuid(uuid)
-    timespan = Runner::stop(uuid)
-    return if timespan.nil?
+if ARGV[0] == "stop" then
+    timespan = Runner::stop(LUCILLE_UUID)
+    exit if timespan.nil?
     puts "LucilleTxt: pushing #{timespan.round(2)} seconds to Bank"
     Bank::put(LUCILLE_UUID, timespan)
     puts "putting #{timespan.round(2)} seconds into catalyst measured times"
 end
 
-def done(uuid)
-    CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
-    newsections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE)).reject{|section| section2sectionUuid(section) == uuid }
-    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts( newsections.map{|section| section.strip }.join("\n\n") ) }
-    puts "Adding 1 to todo items done today"
-    Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
-end
-
-if ARGV[0] == "start" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    Runner::start(uuid)
-    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-        stop_uuid(uuid)
-        done(uuid)
-    end
-
-end
-
-if ARGV[0] == "stop" then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    stop_uuid(uuid)
-end
-
-if ARGV[0] == "done" and ARGV[1] then
-    uuid = ARGV[1]
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    stop_uuid(uuid)
-    done(uuid)
-end
