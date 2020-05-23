@@ -28,8 +28,7 @@
         0.68         Project "Inbox"
 
 👩‍💻 🛩
-        0.66 -> 0.20 Todo
-        0.60 -> 0    LucilleTxt [bottom]
+        0.66 -> 0.26 Todo
         0.50         Backups Monitor
 
         0.20 ------- Water level ------------------------------

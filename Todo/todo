@@ -87,9 +87,8 @@ loop {
         }
     end
     if option == "time report" then
-        Items::projectNames().each{|projectname|
-            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
-            puts "#{projectname.ljust(50)} #{(Bank::total(projectuuid).to_f/3600).round(2)} hours"
+        Items::projectsTimeDistribution().each{|item|
+            puts "#{item["projectname"].ljust(50)} #{item["timeInHours"].round(2)} hours"
         }
         LucilleCore::pressEnterToContinue()
     end

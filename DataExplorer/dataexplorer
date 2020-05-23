@@ -48,30 +48,27 @@ class DataExplorer
             system("clear")
             puts "Data Navigation And Search 🗺️"
             operations = [
-                "startlight navigation",
+                "Navigation",
+                "Search",
                 "starlight management",
-                nil,
-
-                # Search
-                "datapoints search",
                 "datapoint dive (uuid)",
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "startlight navigation" then
+            if operation == "Navigation" then
                 StarlightNavigation::navigation()
+            end
+            if operation == "Search" then
+                DataPointsSearch::search()
+            end
+            if operation == "starlight management" then
+                StarlightManagement::management()
             end
             if operation == "dive datapoint by uuid" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 datapoint = DataPoints::getOrNull(uuid)
                 next if datapoint.nil?
                 DataPoints::pointDive(datapoint)
-            end
-            if operation == "datapoints search" then
-                DataPointsSearch::search()
-            end
-            if operation == "starlight management" then
-                StarlightManagement::management()
             end
         }
     end

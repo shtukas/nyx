@@ -400,7 +400,7 @@ class StarlightNavigation
                 loop {
                     system("clear")
                     puts "Navigation from root nodes"
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StarlightNavigation::getRootNodes(), lambda{|node| StartlightNodes::nodeToString(node) })
+                    node = StartlightNodes::selectNodeOrNull()
                     break if node.nil?
                     StarlightNavigation::nagivateNode(node)
                 }

@@ -210,4 +210,16 @@ class Items
         Items::items().select{|item| item["projectuuid"] == projectuuid }
     end
 
+    # Items::projectsTimeDistribution()
+    def self.projectsTimeDistribution()
+        Items::projectNames().map{|projectname|
+            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            {
+                "projectname" => projectname,
+                "projectuuid" => projectuuid,
+                "timeInHours" => Bank::total(projectuuid).to_f/3600
+            }
+        }
+    end
+
 end

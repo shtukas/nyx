@@ -135,21 +135,36 @@ InFlightControlSystem::claimsOrdered()
 
 objects = []
 
+# -------------------------------------------------------------------------
 Items::items()
-    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or Runner::isRunning(item["uuid"]) }
-    .reduce([]){|items, item|
-        if items.size < 32 then
-            items << item
-        else
-            if Runner::isRunning(item["uuid"]) then
-                items << item
-            end
-        end
-        items
-    }
+    .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" }
+    .select{|item| InFlightControlSystem::getClaimsByItemUUID(item["uuid"]).empty? }
+    .sort{|i1, i2| i1["creationtime"] <=> i2["creationtime"] }
     .each_with_index {|item, indx|
-        objects << itemToCatalystObject(item, 0.666, indx+1)
+        objects << itemToCatalystObject(item, 0.68, indx)
     }
+
+# -------------------------------------------------------------------------
+
+focus = Items::projectsTimeDistribution()
+            .sort{|i1, i2|
+                i1["timeInHours"] <=> i2["timeInHours"]
+            }
+            .first
+
+items1 = Items::items().select{|item| Runner::isRunning(item["uuid"]) }
+items2 = Items::items()
+            .select{|item| InFlightControlSystem::getClaimsByItemUUID(item["uuid"]).empty? }
+            .select{|item| item["projectuuid"] == focus["projectuuid"] }
+            .sort{|i1, i2| i1["creationtime"] <=> i2["creationtime"] }
+            .first(16)
+
+(items1+items2)
+    .each_with_index {|item, indx|
+        objects << itemToCatalystObject(item, 0.66 - 0.40*(Time.new.hour.to_f/12), indx)
+    }
+
+# -------------------------------------------------------------------------
 
 InFlightControlSystem::claimsOrdered()
     .each{|claim|
