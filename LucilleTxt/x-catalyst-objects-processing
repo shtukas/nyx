@@ -76,10 +76,21 @@ def stop_uuid(uuid)
     Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
 end
 
+def done(uuid)
+    CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
+    newsections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE)).reject{|section| section2sectionUuid(section) == uuid }
+    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts( newsections.map{|section| section.strip }.join("\n\n") ) }
+end
+
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     Runner::start(uuid)
+    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
+        stop_uuid(uuid)
+        done(uuid)
+    end
+
 end
 
 if ARGV[0] == "stop" then
@@ -93,7 +104,5 @@ if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     stop_uuid(uuid)
-    CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
-    newsections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE)).reject{|section| section2sectionUuid(section) == uuid }
-    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts( newsections.map{|section| section.strip }.join("\n\n") ) }
+    done(uuid)
 end
