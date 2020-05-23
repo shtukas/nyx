@@ -127,7 +127,7 @@ if ARGV[0] == "done" and ARGV[1] then
     exit if claim.nil?
 
     stop(claim)
-    InFlightControlSystem::destroy(uuid)
+    InFlightControlSystem::destroy(claim)
 
     puts "Adding 1 to todo items done today"
     Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)

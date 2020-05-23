@@ -11,6 +11,21 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyTimes.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::getFirstValueOrNull(channel)
+    Mercury::deleteFirstValue(channel)
+
+    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
+    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
+
+    Mercury::getQueueSize(channel)
+    Mercury::getAllValues(channel)
+=end
+
+# -----------------------------------------------------------
+
 DAILY_TOTAL_ORDINAL_TIME_IN_HOURS = 3
 
 class InFlightControlSystem
@@ -43,11 +58,14 @@ class InFlightControlSystem
         JSON.parse(IO.read(filepath))
     end
 
-    # InFlightControlSystem::destroy(uuid)
-    def self.destroy(uuid)
+    # InFlightControlSystem::destroy(claim)
+    def self.destroy(claim)
+        uuid = claim["uuid"]
         filepath = "#{InFlightControlSystem::path()}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
+
+        Mercury::postValue("A6711E39-E69E-4A36-A9FA-C8BA1030118E", claim["itemuuid"])
     end
 
     # InFlightControlSystem::claimsOrdered()

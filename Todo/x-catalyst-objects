@@ -140,6 +140,11 @@ while (packet = Mercury::getFirstValueOrNull("00E77F58-3E94-45BF-B42C-4CFEC2CBB8
     Mercury::deleteFirstValue("00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD")
 end
 
+while (itemuuid = Mercury::getFirstValueOrNull("A6711E39-E69E-4A36-A9FA-C8BA1030118E")) do
+    Items::destroy(itemuuid)
+    Mercury::deleteFirstValue("A6711E39-E69E-4A36-A9FA-C8BA1030118E")
+end
+
 # -------------------------------------------------------------------------
 
 objects = []

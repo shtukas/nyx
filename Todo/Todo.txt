@@ -13,9 +13,15 @@ Special Circumstances ProjectUUIDs
     "0219fd54bd5841008b18c414a5b2dea331bad1c5" Infinity (gets links from Vienna)
 
 Mercury Channels
+
     F771D7FE-1802-409D-B009-5EB95BA89D86 : Where vienna posts links for Todo
+        String
+
     00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD : Where IFCS posts time updates for todo items
         {
             "itemuuid" : String
             "timespan" : Float
         }
+
+    A6711E39-E69E-4A36-A9FA-C8BA1030118E : Where IFCS posts done commands for todo items
+        String

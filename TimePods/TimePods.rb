@@ -80,7 +80,7 @@ class TimePods
     def self.metric(pod)
         uuid = pod["uuid"]
         timeBank = Bank::total(uuid)
-        return 0 if (timeBank >= 3600*pod["timeCommitmentInHours"]) # Todo: we might want to destroy them, but fine for the moment
+        return -1 if (timeBank >= 3600*pod["timeCommitmentInHours"]) # Todo: we might want to destroy them, but fine for the moment
         if TimePods::actualCompletionPercentage(pod) < TimePods::idealCompletionPercentage(pod) then
             0.77 + 0.001*(TimePods::idealCompletionPercentage(pod) - TimePods::actualCompletionPercentage(pod)).to_f
         else
