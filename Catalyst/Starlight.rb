@@ -339,12 +339,10 @@ class StarlightNavigation
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network child] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
 
-            items << nil
             StarlightOwnershipClaims::getDataEntitiesForNode(node)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
                 .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ StarlightNavigation::nagivateDataEntity(dataentity) }] }
 
-            items << nil
             StarlightNavigation::getStarlightNetworkParentNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
@@ -375,12 +373,12 @@ class StarlightNavigation
 
             items = []
             items << ["datapoint dive", lambda{ DataPoints::pointDive(datapoint) }]
-            items << nil
 
             datapoint["targets"]
-                .each{|target| items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] }
+                .each{|target| 
+                    items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] 
+                }
 
-            items << nil
             StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[node owner] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }

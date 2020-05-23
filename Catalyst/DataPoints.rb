@@ -202,16 +202,13 @@ class DataPoints
             operations = [
                 "open",
                 "target(s) dive",
-                nil,
                 "edit description",
                 "targets (add new)",
                 "targets (select and remove)",
                 "tags (add new)",
                 "tags (remove)",
-                nil,
                 "add to starlight node",
                 "register as open cycle",
-                nil,
                 "destroy datapoint"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -298,14 +295,8 @@ class DataPoints
             operations = [
                 "show newly created datapoints",
                 "datapoint dive (uuid)",
-
-                nil,
                 "make new datapoint",
-
-                nil,
                 "rename tag",
-
-                nil,
                 "repair json (uuid)",
                 "datapoint destroy (uuid)",
             ]
