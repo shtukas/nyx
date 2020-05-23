@@ -56,7 +56,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::totalToday(uuid)
 =end
 
-
 # --------------------------------------------------------------------
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
@@ -73,13 +72,13 @@ def stop_uuid(uuid)
     puts "LucilleTxt: pushing #{timespan.round(2)} seconds to Bank"
     Bank::put(LUCILLE_UUID, timespan)
     puts "putting #{timespan.round(2)} seconds into catalyst measured times"
-    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
 end
 
 def done(uuid)
     CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
     newsections = SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE)).reject{|section| section2sectionUuid(section) == uuid }
     File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts( newsections.map{|section| section.strip }.join("\n\n") ) }
+    Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
