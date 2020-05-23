@@ -41,79 +41,96 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::totalToday(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.rb"
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::getFirstValueOrNull(channel)
+    Mercury::deleteFirstValue(channel)
+
+    Mercury::discardFirstElementsToEnforeQueueSize(channel, size)
+    Mercury::discardFirstElementsToEnforceTimeHorizon(channel, unixtime)
+
+    Mercury::getQueueSize(channel)
+    Mercury::getAllValues(channel)
+=end
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =begin 
     Bank::put(uuid, weight)
     Bank::total(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+
 # --------------------------------------------------------------------
 
-require_relative "Core/Core.rb"
+require_relative "InFlightControlSystem.rb"
 
 # -----------------------------------------------------------------------------
 
-def stop(uuid)
+def stop(claim)
+
+    uuid = claim["uuid"]
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    Items::itemReceivesRunTimespan(item, timespan, true)
 
-    puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
-    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", weight)
+    puts "Sending #{timespan} seconds to ifcs #{uuid}"
+    Bank::put(uuid, timespan)
+
+    message = {
+        "itemuuid" => claim["itemuuid"],
+        "timespan" => timespan
+    }
+
+    puts "Posting message: 00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD / #{message}"
+    Mercury::postValue("00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD", message)
+end
+
+def open(claim)
+    itemuuid = claim["itemuuid"]
+    filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{itemuuid}.json"
+    return nil if !File.exists?(filepath)
+    todo = JSON.parse(IO.read(filepath))
+    CatalystStandardTargets::openTarget(todo["target"])
 end
 
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
 
     Runner::start(uuid)
-    CatalystStandardTargets::openTarget(item["target"])
-
-    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
-        stop(uuid)
-        Items::destroy(item["uuid"])
-    end
+    open(claim)
 end
 
 if ARGV[0] == "open" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
 
-    CatalystStandardTargets::openTarget(item["target"])
+    open(claim)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
-
-    stop(uuid)
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
+    stop(claim)
 end
 
 if ARGV[0] == "done" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
+    claim = InFlightControlSystem::getOrNull(uuid)
+    exit if claim.nil?
 
-    stop(uuid)
+    stop(claim)
+    InFlightControlSystem::destroy(uuid)
 
-    Items::destroy(item["uuid"])
     puts "Adding 1 to todo items done today"
     Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
-end
-
-if ARGV[0] == "dive" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
-
-    Items::diveItem(item)
 end

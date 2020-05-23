@@ -49,7 +49,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 # --------------------------------------------------------------------
 
-require_relative "Core/Core.rb"
+require_relative "TimePods.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -57,63 +57,22 @@ def stop(uuid)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    Items::itemReceivesRunTimespan(item, timespan, true)
-
-    puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
-    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", weight)
+    Bank::put(uuid, timespan)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
+    pod = TimePods::getOrNull(uuid)
+    exit if pod.nil?
 
     Runner::start(uuid)
-    CatalystStandardTargets::openTarget(item["target"])
-
-    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
-        stop(uuid)
-        Items::destroy(item["uuid"])
-    end
-end
-
-if ARGV[0] == "open" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
-
-    CatalystStandardTargets::openTarget(item["target"])
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
-
+    pod = TimePods::getOrNull(uuid)
+    exit if pod.nil?
     stop(uuid)
-end
-
-if ARGV[0] == "done" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
-
-    stop(uuid)
-
-    Items::destroy(item["uuid"])
-    puts "Adding 1 to todo items done today"
-    Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
-end
-
-if ARGV[0] == "dive" and ARGV[1] then
-    uuid = ARGV[1]
-    exit if uuid.nil?
-    item = Items::getOrNull(uuid)
-    exit if item.nil?
-
-    Items::diveItem(item)
 end

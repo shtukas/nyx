@@ -1,0 +1,15 @@
+InFlighControlSystemClaim
+{
+    "uuid"             : String
+    "position"         : Float  # Unixtime with decimals
+    "itemuuid"         : String # uuid of a Todo
+}
+
+There is no mechanism to issue an ifcs claim manually. They are generated automatically by the interface when a todo item is taking too long. If you need a boost for anything, then use a TimePod.
+
+Mercury Channels
+    00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD : Where IFCS posts time updates for todo items
+        {
+            "itemuuid" : String
+            "timespan" : Float
+        }

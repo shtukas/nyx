@@ -14,6 +14,8 @@
         0.80+        Wave every-this-day-of-the-month / every-this-day-of-the-week
         0.78+        Wave every-n-hours / every-n-days
 
+        0.77 ->      TimePods (late)
+
 🗞️
         0.77 -> 0.72 Gwork
 
@@ -29,6 +31,7 @@
 
 👩‍💻 🛩
         0.66 -> 0.26 Todo
+        0.60 ->      TimePods (ahead)
         0.50         Backups Monitor
 
         0.20 ------- Water level ------------------------------

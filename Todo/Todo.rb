@@ -37,6 +37,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::totalToday(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
+=begin 
+    Bank::put(uuid, weight)
+    Bank::total(uuid)
+=end
+
 # -----------------------------------------------------------------------
 
 class Items
@@ -79,8 +85,6 @@ class Items
             system("clear")
             puts "uuid: #{item["uuid"]}"
             puts Items::itemToString(item).green
-            puts "ifcs claims:"
-            puts JSON.pretty_generate(InFlightControlSystem::getClaimsByItemUUID(item["uuid"]))
             puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green
             options = [
                 "start",
@@ -93,9 +97,6 @@ class Items
                 options.delete("start")
             else
                 options.delete("stop")
-            end
-            if InFlightControlSystem::getClaimsByItemUUID(item["uuid"]).empty? then
-                options.delete("dive ifcs claims")
             end
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
@@ -129,34 +130,27 @@ class Items
                 timespan = Runner::stop(item["uuid"])
                 if !timespan.nil? then
                     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                    Items::receiveRunTimespan(item, timespan, true)
+                    Items::itemReceivesRunTimespan(item, timespan, true)
                 end
                 Items::destroy(item["uuid"])
             end
         }
     end
 
-    # Items::receiveRunTimespan(item, timespan, verbose = false)
-    def self.receiveRunTimespan(item, timespan, verbose = false)
+    # Items::itemReceivesRunTimespan(item, timespan, verbose = false)
+    def self.itemReceivesRunTimespan(item, timespan, verbose = false)
         itemuuid = item["uuid"]
         projectuuid = item["projectuuid"]
+
         if verbose then
             puts "Bank: putting #{timespan.round(2)} secs into itemuuid: #{itemuuid}"
         end
         Bank::put(itemuuid, timespan)
+
         if verbose then
             puts "Bank: putting #{timespan.round(2)} secs into projectuuid: #{projectuuid}"
         end
         Bank::put(projectuuid, timespan)
-        InFlightControlSystem::getClaimsByItemUUID(itemuuid).each{|claim|
-            if verbose then
-                puts "Bank: putting #{timespan.round(2)} secs into claimuuid: #{claim["uuid"]}"
-            end
-            Bank::put(claim["uuid"], timespan)
-        }
-
-        puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
-        Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", weight)
     end
 
     # Items::pathToRepository()

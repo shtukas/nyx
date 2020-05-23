@@ -9,11 +9,15 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
     BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyTimes.rb"
+
+DAILY_TOTAL_ORDINAL_TIME_IN_HOURS = 3
+
 class InFlightControlSystem
 
     # InFlightControlSystem::path()
     def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/ifcs-claims2"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/InFlightControlSystem/ifcs-claims2"
     end
 
     # InFlightControlSystem::save(item)
@@ -46,7 +50,7 @@ class InFlightControlSystem
         FileUtils.rm(filepath)
     end
 
-    # InFlightControlSystem::claimsOrdered() # Array[ (ifcs claim, ordinal: Int) ]
+    # InFlightControlSystem::claimsOrdered()
     def self.claimsOrdered()
         Dir.entries(InFlightControlSystem::path())
             .select{|filename| filename[-5, 5] == ".json" }
@@ -71,8 +75,8 @@ class InFlightControlSystem
 
     # InFlightControlSystem::claimToStringOrNull(claim)
     def self.claimToStringOrNull(claim)
-        item = Items::getOrNull(claim["itemuuid"])
-        return nil if item.nil?
+        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["itemuuid"])
+        dataentityString = DataEntities::dataEntityToString(dataentity) || "(Could not find DataEntity target)"
         uuid = claim["uuid"]
         isRunning = Runner::isRunning(uuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hour)" : ""
@@ -80,16 +84,16 @@ class InFlightControlSystem
         ordinal = InFlightControlSystem::getClaimOrdinalOrNull(uuid)
         timeexpectation = DailyTimes::getItem24HoursTimeExpectationInHours(DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal)
         timeInBank = Bank::total(uuid)
-        "[ifcs] (pos: #{claim["position"]}, time exp.: #{timeexpectation.round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) [item] #{Items::itemBestDescription(item)}#{runningSuffix}"
+        "[ifcs] (pos: #{claim["position"]}, time exp.: #{timeexpectation.round(2)} hours, bank: #{(timeInBank.to_f/3600).round(2)} hours) #{dataentityString}"
     end
 
-    # InFlightControlSystem::claimMetric(ifcsclaim)
-    def self.claimMetric(ifcsclaim)
-        uuid = ifcsclaim["uuid"]
+    # InFlightControlSystem::metric(claim)
+    def self.metric(claim)
+        uuid = claim["uuid"]
         return 1 if Runner::isRunning(uuid)
         return 0 if InFlightControlSystem::getClaimOrdinalOrNull(uuid) >= 4 # we only want 0 (Guardian) and 1, 2, 3
         timeInHours = Bank::total(uuid).to_f/3600
-        if 0 < timeInHours then
+        if 0 <= timeInHours then
             0.70*Math.exp(-timeInHours) # We decrease rapidely to 0
         else
             # negative

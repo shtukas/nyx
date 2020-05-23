@@ -66,7 +66,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require_relative "Core/Core.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
+=begin 
+    Bank::put(uuid, weight)
+    Bank::total(uuid)
+=end
+
+require_relative "Todo.rb"
 
 # -------------------------------------------------------------------------
 
@@ -124,21 +130,24 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
-InFlightControlSystem::claimsOrdered()
-    .each{|claim|
-        uuid = claim["uuid"]
-        ordinal = InFlightControlSystem::getClaimOrdinalOrNull(uuid)
-        DailyTimes::addNegativeTimePerOrdinalToBankOrDoNothing(uuid, DAILY_TOTAL_ORDINAL_TIME_IN_HOURS, ordinal, [1,2,3,4,5,6]) # 3 hours in total, Monday to Saturday
-    }
+while (packet = Mercury::getFirstValueOrNull("00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD")) do
+    itemuuid = packet["itemuuid"]
+    timespan = packet["timespan"]
+    item = Items::getOrNull(itemuuid)
+    if item then
+        Items::itemReceivesRunTimespan(item, timespan, false)
+    end
+    Mercury::deleteFirstValue("00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD")
+end
 
 # -------------------------------------------------------------------------
 
 objects = []
 
 # -------------------------------------------------------------------------
+
 Items::items()
     .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" }
-    .select{|item| InFlightControlSystem::getClaimsByItemUUID(item["uuid"]).empty? }
     .sort{|i1, i2| i1["creationtime"] <=> i2["creationtime"] }
     .each_with_index {|item, indx|
         objects << itemToCatalystObject(item, 0.68, indx)
@@ -154,7 +163,6 @@ focus = Items::projectsTimeDistribution()
 
 items1 = Items::items().select{|item| Runner::isRunning(item["uuid"]) }
 items2 = Items::items()
-            .select{|item| InFlightControlSystem::getClaimsByItemUUID(item["uuid"]).empty? }
             .select{|item| item["projectuuid"] == focus["projectuuid"] }
             .sort{|i1, i2| i1["creationtime"] <=> i2["creationtime"] }
             .first(16)
@@ -162,43 +170,6 @@ items2 = Items::items()
 (items1+items2)
     .each_with_index {|item, indx|
         objects << itemToCatalystObject(item, 0.66 - 0.40*(Time.new.hour.to_f/12), indx)
-    }
-
-# -------------------------------------------------------------------------
-
-InFlightControlSystem::claimsOrdered()
-    .each{|claim|
-
-        next if Items::getOrNull(claim["itemuuid"]).nil?
-
-        defaultCommand = lambda {|isRunning|
-            isRunning ? "stop" : "start"
-        }
-
-        uuid = claim["uuid"]
-        isRunning = Runner::isRunning(uuid)
-        isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
-
-        objects << {
-            "uuid"           => uuid,
-            "contentItem"    => {
-                "type" => "line",
-                "line" => (InFlightControlSystem::claimToStringOrNull(claim) || "ifcs claim default toString")
-            },
-            "metric"         => InFlightControlSystem::claimMetric(claim),
-            "commands"       => ["start", "open", "stop", "done", "dive"],
-            "defaultCommand" => defaultCommand.call(isRunning),
-            "isRunning"      => isRunning,
-            "shell-redirects" => {
-                "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-start '#{uuid}'",
-                "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-open '#{uuid}'",
-                "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-stop '#{uuid}'",
-                "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing ifcs-done '#{uuid}'",
-                "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing dive '#{claim["itemuuid"]}'"
-            },
-            "isRunningForLong" => isRunningForLong,
-            "x-todo:claim" => claim
-        }
     }
 
 puts JSON.generate(objects)

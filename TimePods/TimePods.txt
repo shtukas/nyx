@@ -1,0 +1,13 @@
+TimePods
+{
+    "uuid"                  : String
+    "description"           : String
+    "startUnixtime"         : Unixtime
+    "endUnixtime"           : Unixtime
+    "timeCommitmentInHours" : Float
+}
+
+TimePoint = {
+    "unixtime" : Unixtime
+    "timespan" : Float
+}

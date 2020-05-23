@@ -24,8 +24,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
-
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Core/Items.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
 
 # ------------------------------------------------------------------------
 
@@ -110,6 +110,15 @@ class NSXStructureBuilder
     # NSXStructureBuilder::structure()
     def self.structure()
         [
+            {
+                "text"   => "timepod",
+                "lambda" => lambda { 
+                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                    timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+                    timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
+                    TimePods::issue(description, timeCommitmentInHours, Time.new.to_i, Time.new.to_i + timespanInDays*86400)
+                }
+            },
             {
                 "text"   => "standard target (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }",
                 "lambda" => lambda {

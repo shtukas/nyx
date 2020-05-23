@@ -15,11 +15,18 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/InFlightControlSystem.rb"
+
 class NSXCatalystObjectsOperator
+
+    # NSXCatalystObjectsOperator::applicationNames()
+    def self.applicationNames()
+        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "InFlightControlSystem", "LucilleTxt", "TimePods", "Todo", "Vienna", "Wave", "YouTubeVideoStream"]
+    end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
     def self.getCatalystListingObjectsOrdered()
-        objects = ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "LucilleTxt", "Todo", "Vienna", "Wave", "YouTubeVideoStream"]
+        objects = NSXCatalystObjectsOperator::applicationNames()
                     .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                     .map{|source|
                         begin

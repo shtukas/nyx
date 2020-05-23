@@ -76,14 +76,6 @@ class NSXCatalystUI
             position = position + 1
         }
 
-        content = IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt").strip
-        if content.size > 0 then
-            content = content.lines.select{|line| line.strip.size > 0 }.join().green
-            puts ""
-            puts content
-            verticalSpaceLeft = verticalSpaceLeft - ( NSXDisplayUtils::verticalSize(content) + 1 )
-        end
-
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""

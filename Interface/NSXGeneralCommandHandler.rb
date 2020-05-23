@@ -48,8 +48,7 @@ class NSXGeneralCommandHandler
             "\n",
             [
                 "help",
-                "/                    General Menu",
-                "::                   Open Interface-Top.txt"
+                "/                    General Menu"
             ].map{|command| "        "+command }.join("\n"),
             "\n",
             "Special Object Commands:",
@@ -93,12 +92,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == '::' then
-            system("open '/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt'")
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if command == '>>' then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-toggle-run")
             return
@@ -111,13 +104,7 @@ class NSXGeneralCommandHandler
                 content = NSXMiscUtils::applyNextTransformationToContent(content)
                 File.open(filepath, "w"){|f| f.puts(content) }
             }
-            interfaceTopFilepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Interface/Interface-Top.txt"
-            interfaceContents = IO.read(interfaceTopFilepath).strip
-            if interfaceContents.size > 0 then
-                rewriteFile.call(interfaceTopFilepath)
-            else
-                rewriteFile.call("/Users/pascal/Desktop/Lucille.txt")
-            end
+            rewriteFile.call("/Users/pascal/Desktop/Lucille.txt")
             return
         end
 
@@ -156,7 +143,7 @@ class NSXGeneralCommandHandler
                     break if option.nil?
                     if option == "Applications generation speed" then
                         puts "Applications generation speed report"
-                        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "LucilleTxt", "Todo", "Vienna", "Wave", "YouTubeVideoStream"]
+                        NSXCatalystObjectsOperator::applicationNames()
                             .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                             .map{|source|
                                 t1 = Time.new.to_f

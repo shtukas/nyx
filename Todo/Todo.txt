@@ -8,12 +8,14 @@ Item {
     "target"       : CatalystStandardTarget
 }
 
-"44caf74675ceb79ba5cc13bafa102509369c2b53" Inbox (gets items from Lucille-Inbox)
-"0219fd54bd5841008b18c414a5b2dea331bad1c5" Infinity (gets links from Vienna)
+Special Circumstances ProjectUUIDs
+    "44caf74675ceb79ba5cc13bafa102509369c2b53" Inbox (gets items from Lucille-Inbox)
+    "0219fd54bd5841008b18c414a5b2dea331bad1c5" Infinity (gets links from Vienna)
 
-InFlighControlSystemClaim
-{
-    "uuid"             : String
-    "position"         : Float # Unixtime with decimals
-    "itemuuid"         : String
-}
+Mercury Channels
+    F771D7FE-1802-409D-B009-5EB95BA89D86 : Where vienna posts links for Todo
+    00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD : Where IFCS posts time updates for todo items
+        {
+            "itemuuid" : String
+            "timespan" : Float
+        }
