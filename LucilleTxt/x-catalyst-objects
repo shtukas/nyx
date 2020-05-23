@@ -91,7 +91,7 @@ SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
     .each_with_index{|section, indx|
         uuid = section2sectionUuid(section)
         isRunning = Runner::isRunning(uuid)
-        isRunningForLong = isRunning and (Bank::total(LUCILLE_UUID)+(Runner::runTimeInSecondsOrNull(uuid) || 0)) >= 0
+        isRunningForLong = (isRunning and (Bank::total(LUCILLE_UUID)+(Runner::runTimeInSecondsOrNull(uuid) || 0)) >= 0)
         metric = lucilleMetric() - indx.to_f/1000
         object = {
             "uuid" => uuid,
@@ -109,7 +109,8 @@ SectionsType0141::contentToSections(IO.read(PATH_TO_DESKTOP_FILE))
                 "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start '#{uuid}'",
                 "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop '#{uuid}'",
                 "done"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing done '#{uuid}'"
-            }
+            },
+            "x-LucilleTxt:BankTotal" => Bank::total(LUCILLE_UUID)
         }
         objects << object
     }
