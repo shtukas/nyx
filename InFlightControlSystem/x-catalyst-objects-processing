@@ -74,8 +74,11 @@ def stop(claim)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
 
-    puts "Sending #{timespan} seconds to ifcs #{uuid}"
+    puts "Sending #{timespan.round(2)} seconds to ifcs #{uuid}"
     Bank::put(uuid, timespan)
+
+    puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
+    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", weight)
 
     message = {
         "itemuuid" => claim["itemuuid"],
