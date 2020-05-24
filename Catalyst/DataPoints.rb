@@ -102,7 +102,7 @@ class DataPoints
         puts JSON.pretty_generate(datapoint)
         DataPoints::save(datapoint)
         if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
-            node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+            node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
             if node then
                 StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
             end
@@ -257,7 +257,7 @@ class DataPoints
                 DataPoints::save(point)
             end
             if operation == "add to starlight node" then
-                node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
                 next if node.nil?
                 StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, point)
             end

@@ -119,7 +119,7 @@ class Items
             end
             if option == "attach target to starlight node (and done item)" then
                 # Selecting the Starlight Node
-                starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
                 puts JSON.pretty_generate(starlightnode)
                 next if starlightnode.nil?
 

@@ -48,8 +48,8 @@ class StartlightNodes
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # StartlightNodes::makeNodeInteractivelyOrNull()
-    def self.makeNodeInteractivelyOrNull()
+    # StartlightNodes::makeNodeInteractivelyOrNull(canAskToMakeAParent)
+    def self.makeNodeInteractivelyOrNull(canAskToMakeAParent)
         puts "Making a new Starlight node..."
         node = {
             "catalystType"      => "catalyst-type:starlight-node",
@@ -60,11 +60,10 @@ class StartlightNodes
         }
         StartlightNodes::save(node)
         puts JSON.pretty_generate(node)
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
-            xnodes = StartlightNodes::nodes().reject{|n| n["uuid"] == node["uuid"] }
-            xnode = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", xnodes, lambda {|node| StartlightNodes::nodeToString(node) })
+        if canAskToMakeAParent and LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
+            xnode = StartlightNodes::selectNodeOrNull()
             if xnode then
-                StartlightPaths::issuePathFromFirstNodeToSecondNode(xnode, node)
+                StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(xnode, node)
             end
         end
         node
@@ -88,11 +87,11 @@ class StartlightNodes
             .first
     end
 
-    # StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
-    def self.selectNodePossiblyMakeANewOneOrNull()
+    # StartlightNodes::selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
+    def self.selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
         node = StartlightNodes::selectNodeOrNull()
         return node if node
-        StartlightNodes::makeNodeInteractivelyOrNull()
+        StartlightNodes::makeNodeInteractivelyOrNull(canAskToMakeAParent)
     end
 
     # StartlightNodes::nodeManagement(node)
@@ -188,8 +187,9 @@ class StartlightPaths
         path
     end
 
-    # StartlightPaths::issuePathFromFirstNodeToSecondNode(node1, node2)
-    def self.issuePathFromFirstNodeToSecondNode(node1, node2)
+    # StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+    def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+        return nil if node1["uuid"] == node2["uuid"]
         path = {
             "catalystType"      => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
@@ -425,7 +425,7 @@ class StarlightManagement
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "make starlight node" then
-                node = StartlightNodes::makeNodeInteractivelyOrNull()
+                node = StartlightNodes::makeNodeInteractivelyOrNull(true)
                 puts JSON.pretty_generate(node)
                 StartlightNodes::save(node)
             end
@@ -434,7 +434,7 @@ class StarlightManagement
                 next if node1.nil?
                 node2 = StartlightNodes::selectNodeOrNull()
                 next if node2.nil?
-                path = StartlightPaths::issuePathFromFirstNodeToSecondNode(node1, node2)
+                path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
                 StartlightPaths::save(path)
             end

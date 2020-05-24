@@ -42,12 +42,12 @@ class NSXStructureBuilder
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                parent = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
                 if parent.nil? then
                     puts "Did not determine a parent for '#{StartlightNodes::nodeToString(node)}'. Aborting parent determination."
                     break
                 end
-                StartlightPaths::issuePathFromFirstNodeToSecondNode(parent, node)
+                StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ")
             }
             puts "Completed determining parents for '#{StartlightNodes::nodeToString(node)}'"
@@ -56,13 +56,13 @@ class NSXStructureBuilder
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{StartlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = StartlightNodes::makeNodeInteractivelyOrNull()
+                child = StartlightNodes::makeNodeInteractivelyOrNull(false)
                 if child.nil? then
                     puts "Did not make a child for '#{StartlightNodes::nodeToString(node)}'. Aborting child building."
                     break
                 end
                 puts JSON.pretty_generate(child)
-                path = StartlightPaths::issuePathFromFirstNodeToSecondNode(node, child)
+                path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
                 puts JSON.pretty_generate(path)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{StartlightNodes::nodeToString(node)}' ? ")
             }
@@ -89,7 +89,7 @@ class NSXStructureBuilder
 
     # NSXStructureBuilder::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
             return
@@ -101,7 +101,7 @@ class NSXStructureBuilder
     # NSXStructureBuilder::attachTargetToStarlightNodeExistingOrNew(target)
     def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
         return if node.nil?
         claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
         puts JSON.pretty_generate(claim)
@@ -169,7 +169,7 @@ class NSXStructureBuilder
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Starlight Node" then
-                        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull()
+                        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
                         return if node.nil?
                         StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
                     end
