@@ -98,11 +98,12 @@ TimePods::getTimePods()
             "commands"       => ["start", "stop"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
+            "isRunningForLong" => isRunningForLong,
             "shell-redirects" => {
                 "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing start '#{uuid}'",
                 "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing stop '#{uuid}'",
             },
-            "isRunningForLong" => isRunningForLong
+            "x-running-for:" => Runner::runTimeInSecondsOrNull(uuid)
         }
     }
 
