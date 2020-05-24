@@ -24,6 +24,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Mercury.r
     Mercury::getAllValues(channel)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
+=end
+
 # -----------------------------------------------------------
 
 DAILY_TOTAL_ORDINAL_TIME_IN_HOURS = 3
