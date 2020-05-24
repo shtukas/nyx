@@ -75,7 +75,10 @@ if ARGV[0] == "start" and ARGV[1] then
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
         stop(uuid, item)
         Items::destroy(item["uuid"])
+        puts "Adding 1 to todo items done today"
+        Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
     else
+        stop(uuid, item)
         if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
             puts "Item was not immediately done, we need to classify it."
             Items::recast(item)
@@ -99,6 +102,11 @@ if ARGV[0] == "stop" and ARGV[1] then
     exit if item.nil?
 
     stop(uuid, item)
+
+    if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
+        puts "Item was not immediately done, we need to classify it."
+        Items::recast(item)
+    end
 end
 
 if ARGV[0] == "done" and ARGV[1] then

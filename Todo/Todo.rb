@@ -43,6 +43,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SearchX.rb"
+
 # -----------------------------------------------------------------------
 
 class Items
@@ -77,64 +79,6 @@ class Items
         isRunning = Runner::isRunning(itemuuid)
         runningSuffix = isRunning ? " (running for #{(Runner::runTimeInSecondsOrNull(itemuuid).to_f/3600).round(2)} hour)" : ""
         "[todo item] (bank: #{(Bank::total(itemuuid).to_f/3600).round(2)} hours) [#{item["projectname"].yellow}] [#{item["target"]["type"]}] #{Items::itemBestDescription(item)}#{runningSuffix}"
-    end
-
-    # Items::diveItem(item)
-    def self.diveItem(item)
-        loop {
-            system("clear")
-            puts "uuid: #{item["uuid"]}"
-            puts Items::itemToString(item).green
-            puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green
-            options = [
-                "start",
-                "open",
-                "done",
-                "set description",
-                "attach target to starlight node (and done item)"
-            ]
-            if Runner::isRunning(item["uuid"]) then
-                options.delete("start")
-            else
-                options.delete("stop")
-            end
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            break if option.nil?
-            if option == "start" then
-                Runner::start(item["uuid"])
-            end
-            if option == "stop" then
-                Runner::stop(item["uuid"])
-            end
-            if option == "open" then
-                CatalystStandardTargets::openTarget(item["target"])
-            end
-            if option == "done" then
-                Items::destroy(item["uuid"])
-                return
-            end
-            if option == "set description" then
-                item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-                Items::save(item)
-            end
-            if option == "attach target to starlight node (and done item)" then
-                # Selecting the Starlight Node
-                starlightnode = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
-                puts JSON.pretty_generate(starlightnode)
-                next if starlightnode.nil?
-
-                # Attaching the target to the node
-                claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(starlightnode, item["target"])
-                puts JSON.pretty_generate(claim)
-
-                timespan = Runner::stop(item["uuid"])
-                if !timespan.nil? then
-                    timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-                    Items::itemReceivesRunTimespan(item, timespan, true)
-                end
-                Items::destroy(item["uuid"])
-            end
-        }
     end
 
     # Items::itemReceivesRunTimespan(item, timespan, verbose = false)
@@ -229,12 +173,75 @@ class Items
     # Items::recast(item)
     def self.recast(item)
         projectname = Items::selectProjectNameInteractivelyOrNull()
-        return if projectname.nil?
-        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
-        return if projectuuid.nil?
+        projectuuid = nil
+        if projectname.nil? then
+            projectname = LucilleCore::askQuestionAnswerAsString("project name? ")
+            return if projectname == ""
+            projectuuid = SecureRandom.uuid
+        else
+            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            return if projectuuid.nil?
+        end
         item["projectname"] = projectname
         item["projectuuid"] = projectuuid
         Items::save(item)
+    end
+
+    # Items::promote(item)
+    def self.promote(item)
+        puts "Promotion means: attaching the target to a { new or existing } { datapoint or starlight node } and done'ing as a Todo item"
+        puts "Not implemented yet"
+        LucilleCore::pressEnterToContinue()
+        return
+        dataentity = SearchX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
+    end
+
+    # Items::diveItem(item)
+    def self.diveItem(item)
+        loop {
+            system("clear")
+            puts "uuid: #{item["uuid"]}"
+            puts Items::itemToString(item).green
+            puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green
+            options = [
+                "start",
+                "open",
+                "done",
+                "set description",
+                "recast",
+                "promote from Todo to Data"
+            ]
+            if Runner::isRunning(item["uuid"]) then
+                options.delete("start")
+            else
+                options.delete("stop")
+            end
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+            break if option.nil?
+            if option == "start" then
+                Runner::start(item["uuid"])
+            end
+            if option == "stop" then
+                Runner::stop(item["uuid"])
+            end
+            if option == "open" then
+                CatalystStandardTargets::openTarget(item["target"])
+            end
+            if option == "done" then
+                Items::destroy(item["uuid"])
+                return
+            end
+            if option == "set description" then
+                item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
+                Items::save(item)
+            end
+            if option == "recast" then
+                Items::recast(item)
+            end
+            if option == "promote from Todo to Data" then
+                Items::promote(item)
+            end
+        }
     end
 
 end

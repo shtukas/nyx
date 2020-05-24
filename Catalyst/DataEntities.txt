@@ -3,6 +3,8 @@ A Data Entity is any if the four type of elements
      2. DataPoint ( "catalyst-type:datapoint" )
      3. Starlight Node ( "catalyst-type:starlight-node" )
 
+DataEntityType = "catalyst-type:catalyst-standard-target" | "catalyst-type:datapoint" | "catalyst-type:starlight-node"
+
 All Data Entities carry
     "catalystType"      : String
     "creationTimestamp" : Float # Unixtime with decimals
