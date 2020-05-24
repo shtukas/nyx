@@ -226,7 +226,7 @@ class NSXWaveUtils
 
     # NSXWaveUtils::defaultCommand(announce)
     def self.defaultCommand(announce)
-        "open"
+        "start"
     end
 
     # NSXWaveUtils::claimToCatalystObject(claim)
@@ -242,10 +242,11 @@ class NSXWaveUtils
         object['uuid'] = uuid
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
-        object["commands"] = ["open", "edit", "done", "description", "recast", "destroy"]
+        object["commands"] = ["start", "open", "edit", "done", "description", "recast", "destroy"]
         object["defaultCommand"] = NSXWaveUtils::defaultCommand(announce)
         object['schedule'] = schedule
         object["shell-redirects"] = {
+            "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing start '#{uuid}'",
             "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing open '#{uuid}'",
             "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing done '#{uuid}'",
             "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/x-catalyst-objects-processing description '#{uuid}'",
