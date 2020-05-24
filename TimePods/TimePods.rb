@@ -64,15 +64,25 @@ class TimePods
         operationTimeInSeconds = 0.9*(pod["endUnixtime"] - pod["startUnixtime"])
                                     # We compute on the basis of completing in  90%% of the allocated time
         timeSinceStart = Time.new.to_i - pod["startUnixtime"]
-        timeSinceStart.to_f/operationTimeInSeconds
+        [timeSinceStart.to_f/operationTimeInSeconds, 1].min
+    end
+
+    # TimePods::idealTime(pod)
+    def self.idealTime(pod)
+        TimePods::idealCompletionRatio(pod)*(3600*pod["timeCommitmentInHours"])
+    end
+
+    # TimePods::liveTime(pod)
+    def self.liveTime(pod)
+        uuid = pod["uuid"]
+        x1 = Bank::total(uuid)
+        x2 = Runner::runTimeInSecondsOrNull(uuid) || 0
+        x1+x2
     end
 
     # TimePods::actualCompletionRatio(pod)
     def self.actualCompletionRatio(pod)
-        uuid = pod["uuid"]
-        x1 = Bank::total(uuid)
-        x2 = Runner::runTimeInSecondsOrNull(uuid) || 0
-        (x1+x2).to_f/(3600*pod["timeCommitmentInHours"])
+        TimePods::liveTime(pod).to_f/(3600*pod["timeCommitmentInHours"])
     end
 
     # TimePods::metric(pod)

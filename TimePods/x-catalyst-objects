@@ -99,9 +99,9 @@ TimePods::getTimePods()
             "uuid"           => uuid,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "[timepod] #{timepod["description"]} (time commitment: #{timepod["timeCommitmentInHours"]} hours, completion: #{(100*TimePods::actualCompletionRatio(timepod)).round(2)} %)#{runningString}"
+                "line" => "[timepod] #{timepod["description"]} (completion: #{(100*TimePods::actualCompletionRatio(timepod)).round(2)} %) (time commitment: #{timepod["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(timepod).to_f/3600).round(2)} hours, ideal: #{(TimePods::idealTime(timepod).to_f/3600).round(2)} hours)#{runningString}"
             },
-            "metric"         => TimePods::metric(timepod),
+            "metric"         => isRunning ? 1 : TimePods::metric(timepod),
             "commands"       => ["start", "stop"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
