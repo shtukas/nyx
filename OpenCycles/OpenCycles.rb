@@ -64,6 +64,13 @@ class OpenCycles
         FileUtils.rm(filepath)
     end
 
+    # OpenCycles::openClaimTarget(claim)
+    def self.openClaimTarget(claim)
+        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+        return if dataentity.nil?
+        DataEntities::visitDataEntity(dataentity)
+    end
+
     # OpenCycles::claimDive(claim)
     def self.claimDive(claim)
         loop {

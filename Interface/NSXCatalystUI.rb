@@ -71,7 +71,7 @@ class NSXCatalystUI
             dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
             next if dataentity.nil?
             puts ("[#{position.to_s.rjust(3)}] [opencycle] #{DataEntities::dataEntityToString(dataentity)}").yellow
-            executors[position] = lambda { OpenCycles::claimDive(claim) }
+            executors[position] = lambda { OpenCycles::openClaimTarget(claim) }
             verticalSpaceLeft = verticalSpaceLeft - 1
             position = position + 1
         }

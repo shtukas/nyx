@@ -68,4 +68,24 @@ class DataEntities
         end
         raise "DataEntities::dataEntityToString, Error: 2f28f27d"
     end
+
+    # DataEntities::visitDataEntity(dataentity)
+    def self.visitDataEntity(dataentity)
+        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
+            target = dataentity
+            CatalystStandardTargets::openTarget(target)
+            return
+        end
+        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
+            point = dataentity
+            DataPoints::openPoint(point)
+            return
+        end
+        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
+           node = dataentity
+           StartlightNodes::nodeDive(node)
+           return
+        end
+        raise "DataEntities::dataEntityToString, Error: 2f28f27d"
+    end
 end
