@@ -49,7 +49,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 # --------------------------------------------------------------------
 
-require_relative "Core/Core.rb"
+require_relative "Todo.rb"
 
 # -----------------------------------------------------------------------------
 
