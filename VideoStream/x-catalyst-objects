@@ -47,36 +47,36 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
     Ping::totalToday(uuid)
 =end
 
-require_relative "YouTubeVideoStream.rb"
+require_relative "VideoStream.rb"
 
 # -------------------------------------------------------------------------
 
 loop {
-    break if YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath()).size >= 40
-    break if YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::energyGridFolderpath()).size == 0
-    filepath = YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::energyGridFolderpath()).first
+    break if VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath()).size >= 40
+    break if VideoStream::videoFolderpathsAtFolder(VideoStream::energyGridFolderpath()).size == 0
+    filepath = VideoStream::videoFolderpathsAtFolder(VideoStream::energyGridFolderpath()).first
     filename = File.basename(filepath)
-    targetFilepath = "#{YouTubeVideoStream::spaceFolderpath()}/#{filename}"
+    targetFilepath = "#{VideoStream::spaceFolderpath()}/#{filename}"
     FileUtils.mv(filepath, targetFilepath)
     break if !File.exists?(targetFilepath)
 }
 
-if !File.exists?(YouTubeVideoStream::spaceFolderpath()) then
+if !File.exists?(VideoStream::spaceFolderpath()) then
     puts "[]"
     exit
 end
 
 def metric(indx)
-    0.60 - indx.to_f/1000 - (0.4/25)*Ping::total24hours("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01") # We go down by 0.4 after 25, we do over 24 hours
+    0.60 - indx.to_f/1000 - (0.4/25)*Ping::total24hours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01") # We go down by 0.4 after 25, we do over 24 hours
 end
 
 objects = []
 
-YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath())
+VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
 .first(3)
 .map
 .with_index{|filepath, indx|
-    uuid = YouTubeVideoStream::filepathToVideoUUID(filepath)
+    uuid = VideoStream::filepathToVideoUUID(filepath)
     objects << {
         "uuid"           => uuid,
         "contentItem"    => {
@@ -87,8 +87,8 @@ YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath
         "commands"       => ["delete"],
         "defaultCommand" => "play",
         "shell-redirects" => {
-            "play"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/x-catalyst-objects-processing play '#{uuid}'",
-            "delete" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/YouTubeVideoStream/x-catalyst-objects-processing delete '#{uuid}'"
+            "play"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/x-catalyst-objects-processing play '#{uuid}'",
+            "delete" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/x-catalyst-objects-processing delete '#{uuid}'"
         }
     }
 }

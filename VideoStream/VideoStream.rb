@@ -24,19 +24,19 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShow
 
 # -----------------------------------------------------------------
 
-class YouTubeVideoStream
+class VideoStream
 
-    # YouTubeVideoStream::spaceFolderpath()
+    # VideoStream::spaceFolderpath()
     def self.spaceFolderpath()
         "/Users/pascal/x-space/YouTube Videos"
     end
 
-    # YouTubeVideoStream::energyGridFolderpath()
+    # VideoStream::energyGridFolderpath()
     def self.energyGridFolderpath()
         "/Volumes/EnergyGrid/Data/Pascal/YouTube-Videos"
     end
 
-    # YouTubeVideoStream::videoFolderpathsAtFolder(folderpath)
+    # VideoStream::videoFolderpathsAtFolder(folderpath)
     def self.videoFolderpathsAtFolder(folderpath)
         return [] if !File.exists?(folderpath)
         Dir.entries(folderpath)
@@ -45,15 +45,15 @@ class YouTubeVideoStream
             .sort
     end
 
-    # YouTubeVideoStream::filepathToVideoUUID(filepath)
+    # VideoStream::filepathToVideoUUID(filepath)
     def self.filepathToVideoUUID(filepath)
         Digest::SHA1.hexdigest("cec985f2-3287-4d3a-b4f8-a05f30a6cc52:#{filepath}")
     end
 
-    # YouTubeVideoStream::getVideoFilepathByUUIDOrNull(uuid)
+    # VideoStream::getVideoFilepathByUUIDOrNull(uuid)
     def self.getVideoFilepathByUUIDOrNull(uuid)
-        YouTubeVideoStream::videoFolderpathsAtFolder(YouTubeVideoStream::spaceFolderpath())
-            .select{|filepath| YouTubeVideoStream::filepathToVideoUUID(filepath) == uuid }
+        VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
+            .select{|filepath| VideoStream::filepathToVideoUUID(filepath) == uuid }
             .first
     end
 end

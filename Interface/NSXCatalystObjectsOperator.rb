@@ -21,7 +21,7 @@ class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::applicationNames()
     def self.applicationNames()
-        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "InFlightControlSystem", "LucilleTxt", "TimePods", "Todo", "Vienna", "Wave", "YouTubeVideoStream"]
+        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "InFlightControlSystem", "LucilleTxt", "TimePods", "Todo", "Vienna", "Wave", "VideoStream"]
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()

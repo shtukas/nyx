@@ -217,7 +217,7 @@ class CatalystStandardTargets
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
-        folderpath2 = "#{File.dirname(foldername1)}/#{foldername2}"
+        folderpath2 = "#{File.dirname(folderpath1)}/#{foldername2}"
         FileUtils.mv(folderpath1, folderpath2)
         CoreDataDirectory::copyFolderToRepository(folderpath2)
         target = {
