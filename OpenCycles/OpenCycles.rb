@@ -47,8 +47,8 @@ class OpenCycles
     def self.getOpenCyclesClaims()
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
             .select{|filename| filename[-5, 5] == '.json' }
-            .map{|filename|
-                JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
+            .map{|filename| JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
+            .select{|claim| !DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"]).nil? }
             .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
     end
 
@@ -69,6 +69,12 @@ class OpenCycles
         dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
         return if dataentity.nil?
         DataEntities::visitDataEntity(dataentity)
+    end
+
+    # OpenCycles::claimToString(claim)
+    def self.claimToString(claim)
+        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+        "[opencycle] #{dataentity ? DataEntities::dataEntityToString(dataentity) : "data entity not found"}"
     end
 
     # OpenCycles::claimDive(claim)
@@ -99,6 +105,16 @@ class OpenCycles
                 OpenCycles::destroy(claim)
                 return
             end
+        }
+    end
+
+    # OpenCycles::management()
+    def self.management()
+        loop {
+            system("OpenCycles 🗃️")
+            claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", OpenCycles::getOpenCyclesClaims(), lambda {|claim| OpenCycles::claimToString(claim) })
+            break if claim.nil?
+            OpenCycles::claimDive(claim)
         }
     end
 end
