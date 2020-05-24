@@ -262,12 +262,13 @@ class DataPoints
                 StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, point)
             end
             if operation == "register as open cycle" then
-                item = {
-                    "datapointuuid" => point["uuid"],
-                    "creationTimestamp" => Time.new.to_f
+                claim = {
+                    "uuid"              => SecureRandom.uuid,
+                    "creationTimestamp" => Time.new.to_f,
+                    "entityuuid"        => point["uuid"],
                 }
-                puts JSON.pretty_generate(item)
-                File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{point["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(item)) }
+                puts JSON.pretty_generate(claim)
+                File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
             end
             if operation == "destroy datapoint" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
