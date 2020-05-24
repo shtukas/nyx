@@ -14,7 +14,12 @@ require 'fileutils'
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
-require_relative "../Catalyst/TwentyFourHoursCounterMetricHelper.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::total24hours(uuid)
+    Ping::totalToday(uuid)
+=end
 
 require_relative "YouTubeVideoStream.rb"
 
@@ -35,7 +40,7 @@ if ARGV[0] == "play" then
     if LucilleCore::askQuestionAnswerAsBoolean("-> delete? ") then
         FileUtils.rm(filepath)
     end
-    Bank::put("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
+    Ping::put("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
 end
 
 if ARGV[0] == "delete" then
@@ -45,5 +50,5 @@ if ARGV[0] == "delete" then
     exit if filepath.nil?
     puts filepath
     FileUtils.rm(filepath)
-    Bank::put("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
+    Ping::put("YouTubeVideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
 end
