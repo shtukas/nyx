@@ -176,7 +176,7 @@ items2 = Items::items()
 
 (items1+items2)
     .each_with_index {|item, indx|
-        objects << itemToCatalystObject(item, 0.66 - 0.40*(Time.new.hour.to_f/12), indx)
+        objects << itemToCatalystObject(item, 0.66 - 0.46*(Time.new.hour.to_f/24), indx)
     }
 
 puts JSON.generate(objects)
