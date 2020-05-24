@@ -87,12 +87,19 @@ TimePods::getTimePods()
         uuid = timepod["uuid"]
         isRunning = Runner::isRunning(uuid)
         isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
+        runningString = 
+            if isRunning then
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+
 
         objects << {
             "uuid"           => uuid,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "[timepod] #{timepod["description"]} (time commitment: #{timepod["timeCommitmentInHours"]} hours, completion: #{TimePods::actualCompletionPercentage(timepod).round(2)} %)"
+                "line" => "[timepod] #{timepod["description"]} (time commitment: #{timepod["timeCommitmentInHours"]} hours, completion: #{(100*TimePods::actualCompletionRatio(timepod)).round(2)} %)#{runningString}"
             },
             "metric"         => TimePods::metric(timepod),
             "commands"       => ["start", "stop"],

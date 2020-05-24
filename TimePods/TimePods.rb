@@ -59,17 +59,16 @@ class TimePods
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # TimePods::idealCompletionPercentage(pod)
-    def self.idealCompletionPercentage(pod)
+    # TimePods::idealCompletionRatio(pod)
+    def self.idealCompletionRatio(pod)
         operationTimeInSeconds = 0.9*(pod["endUnixtime"] - pod["startUnixtime"])
                                     # We compute on the basis of completing in  90%% of the allocated time
         timeSinceStart = Time.new.to_i - pod["startUnixtime"]
-        timeRatioSinceStart = timeSinceStart.to_f/operationTimeInSeconds
-        100*timeRatioSinceStart
+        timeSinceStart.to_f/operationTimeInSeconds
     end
 
-    # TimePods::actualCompletionPercentage(pod)
-    def self.actualCompletionPercentage(pod)
+    # TimePods::actualCompletionRatio(pod)
+    def self.actualCompletionRatio(pod)
         uuid = pod["uuid"]
         x1 = Bank::total(uuid)
         x2 = Runner::runTimeInSecondsOrNull(uuid) || 0
@@ -81,10 +80,10 @@ class TimePods
         uuid = pod["uuid"]
         timeBank = Bank::total(uuid)
         return -1 if (timeBank >= 3600*pod["timeCommitmentInHours"]) # Todo: we might want to destroy them, but fine for the moment
-        if TimePods::actualCompletionPercentage(pod) < TimePods::idealCompletionPercentage(pod) then
-            0.77 + 0.001*(TimePods::idealCompletionPercentage(pod) - TimePods::actualCompletionPercentage(pod)).to_f
+        if TimePods::actualCompletionRatio(pod) < TimePods::idealCompletionRatio(pod) then
+            0.77 + 0.001*(TimePods::idealCompletionRatio(pod) - TimePods::actualCompletionRatio(pod)).to_f
         else
-            0.60 - 0.01*(TimePods::actualCompletionPercentage(pod) - TimePods::idealCompletionPercentage(pod)).to_f
+            0.60 - 0.01*(TimePods::actualCompletionRatio(pod) - TimePods::idealCompletionRatio(pod)).to_f
         end
     end
 end
