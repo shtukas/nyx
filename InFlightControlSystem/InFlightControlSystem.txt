@@ -16,4 +16,4 @@ Mercury Channels
         }
 
     A6711E39-E69E-4A36-A9FA-C8BA1030118E : Where IFCS posts done commands for todo items
-        String
+        String # Todo item uuid

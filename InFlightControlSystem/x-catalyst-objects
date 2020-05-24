@@ -101,14 +101,14 @@ InFlightControlSystem::claimsOrdered()
                 "line" => (InFlightControlSystem::claimToStringOrNull(claim) || "ifcs claim default toString")
             },
             "metric"         => InFlightControlSystem::metric(claim),
-            "commands"       => ["start", "open", "stop", "done", "dive"],
+            "commands"       => ["start", "open", "stop", "completed", "dive"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
             "shell-redirects" => {
                 "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/x-catalyst-objects-processing start '#{uuid}'",
                 "open"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/x-catalyst-objects-processing open '#{uuid}'",
                 "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/x-catalyst-objects-processing stop '#{uuid}'",
-                "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/x-catalyst-objects-processing done '#{uuid}'"
+                "completed"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/x-catalyst-objects-processing completed '#{uuid}'"
             },
             "isRunningForLong" => isRunningForLong,
             "x-ifcs:claim" => claim,

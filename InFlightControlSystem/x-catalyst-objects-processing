@@ -78,7 +78,7 @@ def stop(claim)
     Bank::put(uuid, timespan)
 
     puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
-    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", weight)
+    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
 
     message = {
         "itemuuid" => claim["itemuuid"],
@@ -123,14 +123,16 @@ if ARGV[0] == "stop" and ARGV[1] then
     stop(claim)
 end
 
-if ARGV[0] == "done" and ARGV[1] then
+if ARGV[0] == "completed" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     claim = InFlightControlSystem::getOrNull(uuid)
     exit if claim.nil?
 
     stop(claim)
-    InFlightControlSystem::destroy(claim)
+
+
+    InFlightControlSystem::destroyClaimAndTarget(claim)
 
     puts "Adding 1 to todo items done today"
     Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)

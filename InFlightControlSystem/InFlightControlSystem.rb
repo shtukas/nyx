@@ -66,8 +66,8 @@ class InFlightControlSystem
         JSON.parse(IO.read(filepath))
     end
 
-    # InFlightControlSystem::destroy(claim)
-    def self.destroy(claim)
+    # InFlightControlSystem::destroyClaimAndTarget(claim)
+    def self.destroyClaimAndTarget(claim)
         uuid = claim["uuid"]
         filepath = "#{InFlightControlSystem::path()}/#{uuid}.json"
         return if !File.exists?(filepath)
