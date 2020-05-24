@@ -60,6 +60,7 @@ class OpenCycles
     # OpenCycles::destroy(claim)
     def self.destroy(claim)
         filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json"
+        return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
