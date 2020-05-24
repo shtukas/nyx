@@ -53,14 +53,14 @@ require_relative "Todo.rb"
 
 # -----------------------------------------------------------------------------
 
-def stop(uuid)
+def stop(uuid, item)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
     Items::itemReceivesRunTimespan(item, timespan, true)
 
     puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
-    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", weight)
+    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
 end
 
 if ARGV[0] == "start" and ARGV[1] then
@@ -73,7 +73,7 @@ if ARGV[0] == "start" and ARGV[1] then
     CatalystStandardTargets::openTarget(item["target"])
 
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
-        stop(uuid)
+        stop(uuid, item)
         Items::destroy(item["uuid"])
     end
 end
@@ -93,7 +93,7 @@ if ARGV[0] == "stop" and ARGV[1] then
     item = Items::getOrNull(uuid)
     exit if item.nil?
 
-    stop(uuid)
+    stop(uuid, item)
 end
 
 if ARGV[0] == "done" and ARGV[1] then
@@ -102,7 +102,7 @@ if ARGV[0] == "done" and ARGV[1] then
     item = Items::getOrNull(uuid)
     exit if item.nil?
 
-    stop(uuid)
+    stop(uuid, item)
 
     Items::destroy(item["uuid"])
     puts "Adding 1 to todo items done today"
