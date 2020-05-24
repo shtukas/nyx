@@ -226,4 +226,15 @@ class Items
         }
     end
 
+    # Items::recast(item)
+    def self.recast(item)
+        projectname = Items::selectProjectNameInteractivelyOrNull()
+        return if projectname.nil?
+        projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+        return if projectuuid.nil?
+        item["projectname"] = projectname
+        item["projectuuid"] = projectuuid
+        Items::save(item)
+    end
+
 end

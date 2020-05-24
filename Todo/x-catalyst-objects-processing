@@ -78,13 +78,7 @@ if ARGV[0] == "start" and ARGV[1] then
     else
         if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
             puts "Item was not immediately done, we need to classify it."
-            projectname = Items::selectProjectNameInteractivelyOrNull()
-            exit if projectname.nil?
-            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
-            exit if projectuuid.nil?
-            item["projectname"] = projectname
-            item["projectuuid"] = projectuuid
-            Items::save(item)
+            Items::recast(item)
         end
     end
 end
@@ -118,6 +112,25 @@ if ARGV[0] == "done" and ARGV[1] then
     Items::destroy(item["uuid"])
     puts "Adding 1 to todo items done today"
     Ping::put("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A", 1)
+end
+
+if ARGV[0] == "description" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    item = Items::getOrNull(uuid)
+    exit if item.nil?
+
+    item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
+    Items::save(item)
+end
+
+if ARGV[0] == "recast" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    item = Items::getOrNull(uuid)
+    exit if item.nil?
+
+    Items::recast(item)
 end
 
 if ARGV[0] == "dive" and ARGV[1] then
