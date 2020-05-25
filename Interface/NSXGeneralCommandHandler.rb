@@ -120,8 +120,6 @@ class NSXGeneralCommandHandler
 
         if command == "/" then
             options = [
-                "DataExplorer",
-                "NavigateOrSearchOrBuildAndSelectX (test)",
                 "TimePods",
                 "InFlightControlSystem",
                 "Todo",
@@ -131,14 +129,6 @@ class NSXGeneralCommandHandler
                 "Catalyst",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option == "DataExplorer" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataExplorer/dataexplorer")
-            end
-            if option == "NavigateOrSearchOrBuildAndSelectX (test)" then
-                selectedEntity = NavigateOrSearchOrBuildAndSelectX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
-                puts JSON.pretty_generate([selectedEntity])
-                LucilleCore::pressEnterToContinue()
-            end
             if option == "OpenCycles" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
             end

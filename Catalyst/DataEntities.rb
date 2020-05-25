@@ -61,10 +61,10 @@ class DataEntities
             return CatalystStandardTargets::targetDive(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:datapoint"  then
-            return DataPoints::pointDive(dataentity)
+            return DataPointsEvolved::navigateDataPoint(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
-            return StartlightNodes::nodeDive(dataentity)
+            return StarlightNetwork::navigateNode(dataentity)
         end
         raise "DataEntities::dataEntityToString, Error: 2f28f27d"
     end
@@ -83,24 +83,27 @@ class DataEntities
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
            node = dataentity
-           StartlightNodes::nodeDive(node)
+           StarlightNetwork::navigateNode(node)
            return
         end
         raise "DataEntities::dataEntityToString, Error: 2f28f27d"
     end
 
-    # DataEntities::nagivateDataEntity(dataentity)
-    def self.nagivateDataEntity(dataentity)
+    # DataEntities::navigateDataEntity(dataentity)
+    def self.navigateDataEntity(dataentity)
         if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
-            return CatalystStandardTargets::targetDive(dataentity)
+            CatalystStandardTargets::targetDive(dataentity)
+            return
         end
         if dataentity["catalystType"] == "catalyst-type:datapoint"  then
-            return DataPointsNavigationAndBuilding::nagivateDataPoint(dataentity)
+            DataPointsEvolved::navigateDataPoint(dataentity)
+            return
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
-            return StarlightNavigationAndBuilding::nagivateNode(dataentity)
+            StarlightNetwork::navigateNode(dataentity)
+            return
         end
-        raise "DataEntities::nagivateDataEntity, Error: 26ba9943"
+        raise "DataEntities::navigateDataEntity, Error: 26ba9943"
     end
 
 end

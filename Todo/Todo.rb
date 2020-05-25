@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/NavigateOrSearchOrBuildAndSelectX.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/EvolutionsGetX.rb"
 
 # -----------------------------------------------------------------------
 
@@ -193,13 +193,12 @@ class Items
         puts "Not implemented yet"
         LucilleCore::pressEnterToContinue()
         return
-        dataentity = NavigateOrSearchOrBuildAndSelectX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
+        dataentity = EvolutionsGetX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
     end
 
     # Items::diveItem(item)
     def self.diveItem(item)
         loop {
-            system("clear")
             puts "uuid: #{item["uuid"]}"
             puts Items::itemToString(item).green
             puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green

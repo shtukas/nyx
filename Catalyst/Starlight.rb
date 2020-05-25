@@ -61,7 +61,7 @@ class StartlightNodes
         StartlightNodes::save(node)
         puts JSON.pretty_generate(node)
         if canAskToMakeAParent and LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
-            xnode = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
+            xnode = StarlightNetwork::selectOrNull()
             if xnode then
                 StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(xnode, node)
             end
@@ -72,49 +72,6 @@ class StartlightNodes
     # StartlightNodes::nodeToString(node)
     def self.nodeToString(node)
         "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
-    end
-
-    # StartlightNodes::nodeManagement(node)
-    def self.nodeManagement(node)
-        loop {
-            puts JSON.pretty_generate(node)
-            operations = [
-                "rename"
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            return if operation.nil?
-            if operation == "rename" then
-                node["description"] = CatalystCommon::editTextUsingTextmate(node["description"]).strip
-                StartlightNodes::save(node)
-            end
-        }
-    end
-
-    # StartlightNodes::nodeDive(node)
-    def self.nodeDive(node)
-        loop {
-            puts JSON.pretty_generate(node)
-            puts StartlightNodes::nodeToString(node).green
-            puts "Network:"
-
-            puts "    Parents"
-            StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node).each{|n|
-                puts "        #{StartlightNodes::nodeToString(n)}"
-            }
-
-            puts "    Children"
-            StarlightNavigationAndBuilding::getStarlightNetworkChildNodes(node).each{|n|
-                puts "        #{StartlightNodes::nodeToString(n)}"
-            }
-            operations = [
-                "node management"
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            return if operation.nil?
-            if operation == "node management" then
-                StartlightNodes::nodeManagement(node)
-            end
-        }
     end
 
     # StartlightNodes::nodesDive()
@@ -198,6 +155,20 @@ class StartlightPaths
     def self.pathToString(path)
         "[starlight path] #{path["sourceuuid"]} -> #{path["targetuuid"]}"
     end
+
+    # StartlightPaths::getParentNodes(node)
+    def self.getParentNodes(node)
+        StartlightPaths::getPathsWithGivenTarget(node["uuid"])
+            .map{|path| StartlightNodes::getOrNull(path["sourceuuid"]) }
+            .compact
+    end
+
+    # StartlightPaths::getChildNodes(node)
+    def self.getChildNodes(node)
+        StartlightPaths::getPathsWithGivenSource(node["uuid"])
+            .map{|path| StartlightNodes::getOrNull(path["targetuuid"]) }
+            .compact
+    end
 end
 
 class StarlightOwnershipClaims
@@ -277,11 +248,11 @@ class StarlightOwnershipClaims
             .map{|claim| StartlightNodes::getOrNull(claim["nodeuuid"]) }
             .compact
     end
-
 end
 
-class StarlightManagement
-    # StarlightManagement::management()
+class StarlightNetwork
+
+    # StarlightNetwork::management()
     def self.management()
         loop {
             system("clear")
@@ -298,9 +269,9 @@ class StarlightManagement
                 StartlightNodes::save(node)
             end
             if operation == "make starlight path" then
-                node1 = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
+                node1 = StarlightNetwork::selectOrNull()
                 next if node1.nil?
-                node2 = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
+                node2 = StarlightNetwork::selectOrNull()
                 next if node2.nil?
                 path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
@@ -308,92 +279,55 @@ class StarlightManagement
             end
         }
     end
-end
 
-class StarlightNavigationAndBuilding
-
-    # ----------------------------------------------
-    # Navigation Utils
-
-    # StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node)
-    def self.getStarlightNetworkParentNodes(node)
-        StartlightPaths::getPathsWithGivenTarget(node["uuid"])
-            .map{|path| StartlightNodes::getOrNull(path["sourceuuid"]) }
-            .compact
-    end
-
-    # StarlightNavigationAndBuilding::getStarlightNetworkChildNodes(node)
-    def self.getStarlightNetworkChildNodes(node)
-        StartlightPaths::getPathsWithGivenSource(node["uuid"])
-            .map{|path| StartlightNodes::getOrNull(path["targetuuid"]) }
-            .compact
-    end
-
-    # StarlightNavigationAndBuilding::getRootNodes()
-    def self.getRootNodes()
-        StartlightNodes::nodes()
-            .select{|node| StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node).empty? }
-    end
-
-    # ----------------------------------------------
-    # Navigation User Interface
-
-    # StarlightNavigationAndBuilding::nagivateNode(node)
-    def self.nagivateNode(node)
+    # StarlightNetwork::navigateNode(node)
+    def self.navigateNode(node)
         loop {
-            system("clear")
-            puts "Starlight Node Navigation"
             puts "uuid: #{node["uuid"]}"
-            puts "Location: #{StartlightNodes::nodeToString(node)}"
+            puts StartlightNodes::nodeToString(node).green
             items = []
-            StarlightNavigationAndBuilding::getStarlightNetworkChildNodes(node)
+            items << ["rename", lambda{ 
+                node["description"] = CatalystCommon::editTextUsingTextmate(node["description"]).strip
+                StartlightNodes::save(node)
+            }]
+            StartlightPaths::getChildNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigationAndBuilding::nagivateNode(n) }] }
+                .each{|n| items << ["[network child] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
 
             StarlightOwnershipClaims::getDataEntitiesForNode(node)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
-                .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ DataEntities::nagivateDataEntity(dataentity) }] }
+                .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ DataEntities::navigateDataEntity(dataentity) }] }
 
-            StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node)
+            StartlightPaths::getParentNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigationAndBuilding::nagivateNode(n) }] }
+                .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
+
+            items << ["select", lambda{ $EvolutionsGetXSingleton = node }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
     end
 
-    # StarlightNavigationAndBuilding::navigation()
-    def self.navigation()
-        loop {
-            system("clear")
-            puts "Starlight Navigation"
-            node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
-            break if node.nil?
-            StarlightNavigationAndBuilding::nagivateNode(node)
-        }
-    end
-
-end
-
-class StarlightNodeNavigateOrSearchOrBuildAndSelect
-    # StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
-    def self.selectNodeOrNull()
+    # StarlightNetwork::selectOrNull()
+    def self.selectOrNull()
         # Version 1
         # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
 
         # Version 2
         nodestrings = StartlightNodes::nodes().map{|node| StartlightNodes::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        StartlightNodes::nodes()
+        node = StartlightNodes::nodes()
             .select{|node| StartlightNodes::nodeToString(node) == nodestring }
             .first
-    end
-
-    # StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
-    def self.selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
-        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
-        return node if node
-        StartlightNodes::makeNodeInteractivelyOrNull(canAskToMakeAParent)
+        StarlightNetwork::navigateNode(node)
+        return $EvolutionsGetXSingleton if $EvolutionsGetXSingleton
+        if LucilleCore::askQuestionAnswerAsBoolean("StarlightNetwork: Would you like to make a new node and return it ? ", false) then
+            return StartlightNodes::makeNodeInteractivelyOrNull(true)
+        end
+        if LucilleCore::askQuestionAnswerAsBoolean("StarlightNetwork: There is no selection, would you like to return null ? ", true) then
+            return nil
+        end
+        StarlightNetwork::selectOrNull()
     end
 end
 

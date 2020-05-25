@@ -29,20 +29,20 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
 
 # ------------------------------------------------------------------------
 
-class NSXStructureBuilder
+class NSXOperationalMenu
 
-    # NSXStructureBuilder::makeStandardTarget()
+    # NSXOperationalMenu::makeStandardTarget()
     def self.makeStandardTarget()
         CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
     end
 
-    # NSXStructureBuilder::startlightNodeBuildAround(node)
+    # NSXOperationalMenu::startlightNodeBuildAround(node)
     def self.startlightNodeBuildAround(node)
 
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
+                parent = StarlightNetwork::selectOrNull()
                 if parent.nil? then
                     puts "Did not determine a parent for '#{StartlightNodes::nodeToString(node)}'. Aborting parent determination."
                     break
@@ -87,31 +87,63 @@ class NSXStructureBuilder
         node
     end
 
-    # NSXStructureBuilder::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
+    # NSXOperationalMenu::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
+        node = StarlightNetwork::selectOrNull()
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
             return
         end
-        node = NSXStructureBuilder::startlightNodeBuildAround(node)
+        node = NSXOperationalMenu::startlightNodeBuildAround(node)
         node
     end
 
-    # NSXStructureBuilder::attachTargetToStarlightNodeExistingOrNew(target)
+    # NSXOperationalMenu::attachTargetToStarlightNodeExistingOrNew(target)
     def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
+        node = StarlightNetwork::selectOrNull()
         return if node.nil?
         claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
         puts JSON.pretty_generate(claim)
     end
 
-    # NSXStructureBuilder::structure()
+    # NSXOperationalMenu::structure()
     def self.structure()
         [
             {
-                "text"   => "timepod",
+                "text"   => "starlight management",
+                "lambda" => lambda {
+                    StarlightNetwork::management()
+                }
+            },
+            {
+                "text"   => "startlight nodes listing",
+                "lambda" => lambda {
+                    puts "Latest Starlight Nodes"
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("starlight node", StartlightNodes::nodes(), lambda{|node| StartlightNodes::nodeToString(node) })
+                    break if node.nil?
+                    StarlightNetwork::navigateNode(node)
+                }
+            },
+            {
+                "text"   => "datapoints listing",
+                "lambda" => lambda {
+                    puts "Latest DataPoints"
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("data points", DataPoints::datapoints(), lambda{|datapoint| DataPoints::datapointToString(datapoint) })
+                    break if node.nil?
+                    StarlightNetwork::navigateNode(node)
+                }
+            },
+            {
+                "text"   => "EvolutionsGetX (test)",
+                "lambda" => lambda {
+                    selectedEntity = EvolutionsGetX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
+                    puts JSON.pretty_generate([selectedEntity])
+                    LucilleCore::pressEnterToContinue()
+                }
+            },
+            {
+                "text"   => "new timepod",
                 "lambda" => lambda {
                     targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["self", "LucilleTxt"])
                     return if targetType.nil?
@@ -129,7 +161,6 @@ class NSXStructureBuilder
                     timespanToDeadlineInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
                     timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
                     TimePods::issue(target, Time.new.to_i, timespanToDeadlineInDays, timeCommitmentInHours)
-
                 }
             },
             {
@@ -161,7 +192,7 @@ class NSXStructureBuilder
                         OpenCycles::saveClaim(claim)
                     end
                     if whereTo == "Starlight Node" then
-                        NSXStructureBuilder::attachTargetToStarlightNodeExistingOrNew(target)
+                        NSXOperationalMenu::attachTargetToStarlightNodeExistingOrNew(target)
                     end
                 }
             },
@@ -182,7 +213,7 @@ class NSXStructureBuilder
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Starlight Node" then
-                        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
+                        node = StarlightNetwork::selectOrNull()
                         return if node.nil?
                         StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
                     end
@@ -190,7 +221,7 @@ class NSXStructureBuilder
             },
             {
                 "text"   => "starlight node (existing or new) + build around",
-                "lambda" => lambda { NSXStructureBuilder::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
+                "lambda" => lambda { NSXOperationalMenu::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             }
         ]
     end

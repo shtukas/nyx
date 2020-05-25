@@ -32,7 +32,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 
 require_relative "../OpenCycles/OpenCycles.rb"
 
-require_relative "NSXStructureBuilder.rb"
+require_relative "NSXOperationalMenu.rb"
 
 # ------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ class NSXCatalystUI
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-        NSXStructureBuilder::structure().each{|item|
+        NSXOperationalMenu::structure().each{|item|
             puts "[#{position.to_s.rjust(3)}] #{item["text"]}"
             executors[position] = item["lambda"]
             position = position + 1
