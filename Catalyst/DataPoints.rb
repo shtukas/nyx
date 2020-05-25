@@ -59,11 +59,13 @@ class DataPoints
     end
 
     # DataPoints::datapoints()
+    # datapoints are given in the increasing creation order.
     def self.datapoints()
         Dir.entries(DataPoints::pathToRepository())
             .select{|filename| filename[-5, 5] == ".json" }
             .map{|filename| "#{DataPoints::pathToRepository()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
     # DataPoints::makeCatalystStandardTargetsInteractively()

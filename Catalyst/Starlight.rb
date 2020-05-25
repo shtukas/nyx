@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 # require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
@@ -40,6 +39,7 @@ class StartlightNodes
     end
 
     # StartlightNodes::nodes()
+    # Nodes are given in increasing creation timestamp
     def self.nodes()
         Dir.entries(StartlightNodes::path())
             .select{|filename| filename[-5, 5] == ".json" }

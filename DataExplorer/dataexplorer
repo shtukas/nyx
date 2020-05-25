@@ -50,6 +50,8 @@ class DataExplorer
             operations = [
                 "Navigation",
                 "Search",
+                "latest startlight nodes",
+                "latest datapoints",
                 "starlight management",
                 "datapoint dive (uuid)",
             ]
@@ -60,6 +62,22 @@ class DataExplorer
             end
             if operation == "Search" then
                 DataPointsSearch::search()
+            end
+            if operation == "latest startlight nodes" then
+                loop {
+                    puts "Latest Starlight Nodes"
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("starlight node", StartlightNodes::nodes().last(25), lambda{|node| StartlightNodes::nodeToString(node) })
+                    break if node.nil?
+                    StartlightNodes::nodeDive(node)
+                }
+            end
+            if operation == "latest datapoints" then
+                loop {
+                    puts "Latest DataPoints"
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("data points", DataPoints::datapoints().last(25), lambda{|datapoint| DataPoints::datapointToString(datapoint) })
+                    break if node.nil?
+                    StartlightNodes::nodeDive(node)
+                }
             end
             if operation == "starlight management" then
                 StarlightManagement::management()
