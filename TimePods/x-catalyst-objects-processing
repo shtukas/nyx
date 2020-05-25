@@ -92,5 +92,6 @@ if ARGV[0] == "destroy" and ARGV[1] then
     pod = TimePods::getOrNull(uuid)
     exit if pod.nil?
 
+    stop(uuid)
     TimePods::destroy(uuid)
 end
