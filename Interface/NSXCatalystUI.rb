@@ -84,14 +84,14 @@ class NSXCatalystUI
         end
 
         lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-        if lucille != "" then
-            contents = lucille
-                            .lines
-                            .select{|line|  line.strip != ""}
-                            .take_while{|line| line.strip != "@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610" }
-                            .map{|line| "              #{line}" }
-                            .join()
-                            .rstrip
+        contents = lucille
+                        .lines
+                        .select{|line|  line.strip != ""}
+                        .take_while{|line| line.strip != "@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610" }
+                        .map{|line| "              |#{line}" }
+                        .join()
+                        .rstrip
+        if contents != "" then
             puts ""
             puts "Lucille.txt ☀️"
             puts contents.green
