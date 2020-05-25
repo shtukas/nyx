@@ -88,12 +88,18 @@ defaultCommand = lambda {|isRunning|
 isRunning = Runner::isRunning(LUCILLE_UUID)
 isRunningForLong = ((Runner::runTimeInSecondsOrNull(LUCILLE_UUID) || 0) > 3600)
 
+lucilletext = IO.read(PATH_TO_DESKTOP_FILE)
+                .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")[1]
+                .lines
+                .first(10)
+                .join()
+
 contentItem = 
     if isRunning then
         {
             "type"    => "listing-and-focus",
             "listing" => "LucilleTxt",
-            "focus"   => IO.read(PATH_TO_DESKTOP_FILE).lines.first(10).join()
+            "focus"   => lucilletext
         }
     else
         {

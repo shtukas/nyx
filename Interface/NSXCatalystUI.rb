@@ -52,7 +52,7 @@ class NSXCatalystUI
 
         puts ""
         puts "-> Todo items done today: #{Ping::totalToday("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A")}".green
-        puts "-> Diligence (24h): #{(100*Ping::totalToday("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
+        puts "-> Diligence (24h): #{(100*Ping::total24hours("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
         verticalSpaceLeft = verticalSpaceLeft - 3
 
         puts ""
@@ -81,6 +81,21 @@ class NSXCatalystUI
             puts ""
             puts calendarreport
             verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 1 )
+        end
+
+        lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
+        if lucille != "" then
+            contents = lucille
+                            .lines
+                            .select{|line|  line.strip != ""}
+                            .take_while{|line| line.strip != "@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610" }
+                            .map{|line| "              #{line}" }
+                            .join()
+                            .rstrip
+            puts ""
+            puts "Lucille.txt"
+            puts contents.green
+            verticalSpaceLeft = verticalSpaceLeft - ( NSXDisplayUtils::verticalSize(contents) + 1 )
         end
 
         puts ""

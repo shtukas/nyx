@@ -61,7 +61,7 @@ class StartlightNodes
         StartlightNodes::save(node)
         puts JSON.pretty_generate(node)
         if canAskToMakeAParent and LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
-            xnode = StartlightNodes::selectNodeOrNull()
+            xnode = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
             if xnode then
                 StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(xnode, node)
             end
@@ -72,26 +72,6 @@ class StartlightNodes
     # StartlightNodes::nodeToString(node)
     def self.nodeToString(node)
         "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
-    end
-
-    # StartlightNodes::selectNodeOrNull()
-    def self.selectNodeOrNull()
-        # Version 1
-        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
-
-        # Version 2
-        nodestrings = StartlightNodes::nodes().map{|node| StartlightNodes::nodeToString(node) }
-        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        StartlightNodes::nodes()
-            .select{|node| StartlightNodes::nodeToString(node) == nodestring }
-            .first
-    end
-
-    # StartlightNodes::selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
-    def self.selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
-        node = StartlightNodes::selectNodeOrNull()
-        return node if node
-        StartlightNodes::makeNodeInteractivelyOrNull(canAskToMakeAParent)
     end
 
     # StartlightNodes::nodeManagement(node)
@@ -118,12 +98,12 @@ class StartlightNodes
             puts "Network:"
 
             puts "    Parents"
-            StarlightNavigation::getStarlightNetworkParentNodes(node).each{|n|
+            StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node).each{|n|
                 puts "        #{StartlightNodes::nodeToString(n)}"
             }
 
             puts "    Children"
-            StarlightNavigation::getStarlightNetworkChildNodes(node).each{|n|
+            StarlightNavigationAndBuilding::getStarlightNetworkChildNodes(node).each{|n|
                 puts "        #{StartlightNodes::nodeToString(n)}"
             }
             operations = [
@@ -142,6 +122,7 @@ class StartlightNodes
         puts "StartlightNodes::nodesDive() not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
+
 end
 
 class StartlightPaths
@@ -299,119 +280,6 @@ class StarlightOwnershipClaims
 
 end
 
-class StarlightNavigation
-
-    # ----------------------------------------------
-    # Navigation Utils
-
-    # StarlightNavigation::getStarlightNetworkParentNodes(node)
-    def self.getStarlightNetworkParentNodes(node)
-        StartlightPaths::getPathsWithGivenTarget(node["uuid"])
-            .map{|path| StartlightNodes::getOrNull(path["sourceuuid"]) }
-            .compact
-    end
-
-    # StarlightNavigation::getStarlightNetworkChildNodes(node)
-    def self.getStarlightNetworkChildNodes(node)
-        StartlightPaths::getPathsWithGivenSource(node["uuid"])
-            .map{|path| StartlightNodes::getOrNull(path["targetuuid"]) }
-            .compact
-    end
-
-    # StarlightNavigation::getRootNodes()
-    def self.getRootNodes()
-        StartlightNodes::nodes()
-            .select{|node| StarlightNavigation::getStarlightNetworkParentNodes(node).empty? }
-    end
-
-    # ----------------------------------------------
-    # Navigation User Interface
-
-    # StarlightNavigation::nagivateNode(node)
-    def self.nagivateNode(node)
-        loop {
-            system("clear")
-            puts "Starlight Node Navigation"
-            puts "uuid: #{node["uuid"]}"
-            puts "Location: #{StartlightNodes::nodeToString(node)}"
-            items = []
-            StarlightNavigation::getStarlightNetworkChildNodes(node)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
-
-            StarlightOwnershipClaims::getDataEntitiesForNode(node)
-                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
-                .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ StarlightNavigation::nagivateDataEntity(dataentity) }] }
-
-            StarlightNavigation::getStarlightNetworkParentNodes(node)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
-            break if !status
-        }
-    end
-
-    # StarlightNavigation::nagivateDataEntity(dataentity)
-    def self.nagivateDataEntity(dataentity)
-        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
-            return CatalystStandardTargets::targetDive(dataentity)
-        end
-        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
-            return StarlightNavigation::nagivateDataPoint(dataentity)
-        end
-        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
-            return StarlightNavigation::nagivateNode(dataentity)
-        end
-        raise "StarlightNavigation::nagivateDataEntity, Error: 26ba9943"
-    end
-
-    # StarlightNavigation::nagivateDataPoint(datapoint)
-    def self.nagivateDataPoint(datapoint)
-        loop {
-            system("clear")
-            puts "Starlight DataPoint Navigation"
-
-            items = []
-            items << ["datapoint dive", lambda{ DataPoints::pointDive(datapoint) }]
-
-            datapoint["targets"]
-                .each{|target| 
-                    items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] 
-                }
-
-            StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[node owner] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigation::nagivateNode(n) }] }
-
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
-            break if !status
-        }
-    end
-
-    # StarlightNavigation::navigation()
-    def self.navigation()
-        loop {
-            system("clear")
-            puts "Starlight Navigation (root)"
-            operations = [
-                "navigate from root nodes",
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            break if operation.nil?
-            if operation == "navigate from root nodes" then
-                loop {
-                    system("clear")
-                    puts "Navigation from root nodes"
-                    node = StartlightNodes::selectNodeOrNull()
-                    break if node.nil?
-                    StarlightNavigation::nagivateNode(node)
-                }
-            end
-        }
-    end
-
-end
-
 class StarlightManagement
     # StarlightManagement::management()
     def self.management()
@@ -430,15 +298,102 @@ class StarlightManagement
                 StartlightNodes::save(node)
             end
             if operation == "make starlight path" then
-                node1 = StartlightNodes::selectNodeOrNull()
+                node1 = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
                 next if node1.nil?
-                node2 = StartlightNodes::selectNodeOrNull()
+                node2 = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
                 next if node2.nil?
                 path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
                 StartlightPaths::save(path)
             end
         }
+    end
+end
+
+class StarlightNavigationAndBuilding
+
+    # ----------------------------------------------
+    # Navigation Utils
+
+    # StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node)
+    def self.getStarlightNetworkParentNodes(node)
+        StartlightPaths::getPathsWithGivenTarget(node["uuid"])
+            .map{|path| StartlightNodes::getOrNull(path["sourceuuid"]) }
+            .compact
+    end
+
+    # StarlightNavigationAndBuilding::getStarlightNetworkChildNodes(node)
+    def self.getStarlightNetworkChildNodes(node)
+        StartlightPaths::getPathsWithGivenSource(node["uuid"])
+            .map{|path| StartlightNodes::getOrNull(path["targetuuid"]) }
+            .compact
+    end
+
+    # StarlightNavigationAndBuilding::getRootNodes()
+    def self.getRootNodes()
+        StartlightNodes::nodes()
+            .select{|node| StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node).empty? }
+    end
+
+    # ----------------------------------------------
+    # Navigation User Interface
+
+    # StarlightNavigationAndBuilding::nagivateNode(node)
+    def self.nagivateNode(node)
+        loop {
+            system("clear")
+            puts "Starlight Node Navigation"
+            puts "uuid: #{node["uuid"]}"
+            puts "Location: #{StartlightNodes::nodeToString(node)}"
+            items = []
+            StarlightNavigationAndBuilding::getStarlightNetworkChildNodes(node)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[network child] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigationAndBuilding::nagivateNode(n) }] }
+
+            StarlightOwnershipClaims::getDataEntitiesForNode(node)
+                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
+                .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ DataEntities::nagivateDataEntity(dataentity) }] }
+
+            StarlightNavigationAndBuilding::getStarlightNetworkParentNodes(node)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigationAndBuilding::nagivateNode(n) }] }
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            break if !status
+        }
+    end
+
+    # StarlightNavigationAndBuilding::navigation()
+    def self.navigation()
+        loop {
+            system("clear")
+            puts "Starlight Navigation"
+            node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
+            break if node.nil?
+            StarlightNavigationAndBuilding::nagivateNode(node)
+        }
+    end
+
+end
+
+class StarlightNodeNavigateOrSearchOrBuildAndSelect
+    # StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
+    def self.selectNodeOrNull()
+        # Version 1
+        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
+
+        # Version 2
+        nodestrings = StartlightNodes::nodes().map{|node| StartlightNodes::nodeToString(node) }
+        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
+        StartlightNodes::nodes()
+            .select{|node| StartlightNodes::nodeToString(node) == nodestring }
+            .first
+    end
+
+    # StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
+    def self.selectNodePossiblyMakeANewOneOrNull(canAskToMakeAParent)
+        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodeOrNull()
+        return node if node
+        StartlightNodes::makeNodeInteractivelyOrNull(canAskToMakeAParent)
     end
 end
 

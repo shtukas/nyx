@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SearchX.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/NavigateOrSearchOrBuildAndSelectX.rb"
 
 # -----------------------------------------------------------------------
 
@@ -193,7 +193,7 @@ class Items
         puts "Not implemented yet"
         LucilleCore::pressEnterToContinue()
         return
-        dataentity = SearchX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
+        dataentity = NavigateOrSearchOrBuildAndSelectX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
     end
 
     # Items::diveItem(item)

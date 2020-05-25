@@ -98,21 +98,33 @@ class NSXGeneralCommandHandler
         end
 
         if command == "[]" then
-            rewriteFile = lambda {|filepath|
+            rewriteLucilleTxtFile = lambda {|filepath|
                 CatalystCommon::copyLocationToCatalystBin(filepath)
-                content = IO.read(filepath)
-                content = NSXMiscUtils::applyNextTransformationToContent(content)
+
+                parts = IO.read(filepath)
+                    .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
+                    .map{|part| part.strip }
+
+                if parts[0] != "" then
+                    parts[0] = NSXMiscUtils::applyNextTransformationToContent(parts[0])
+                else
+                    parts[1] = NSXMiscUtils::applyNextTransformationToContent(parts[1])
+                end
+
+                content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
                 File.open(filepath, "w"){|f| f.puts(content) }
             }
-            rewriteFile.call("/Users/pascal/Desktop/Lucille.txt")
+            rewriteLucilleTxtFile.call("/Users/pascal/Desktop/Lucille.txt")
             return
         end
 
         if command == "/" then
             options = [
                 "DataExplorer",
+                "NavigateOrSearchOrBuildAndSelectX (test)",
                 "OpenCycles",
                 "InFlightControlSystem",
+                "TimePods",
                 "Todo",
                 "Calendar",
                 "Wave",
@@ -122,8 +134,16 @@ class NSXGeneralCommandHandler
             if option == "DataExplorer" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/DataExplorer/dataexplorer")
             end
+            if option == "NavigateOrSearchOrBuildAndSelectX (test)" then
+                selectedEntity = NavigateOrSearchOrBuildAndSelectX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
+                puts JSON.pretty_generate([selectedEntity])
+                LucilleCore::pressEnterToContinue()
+            end
             if option == "OpenCycles" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
+            end
+            if option == "TimePods" then
+                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods")
             end
             if option == "InFlightControlSystem" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs")

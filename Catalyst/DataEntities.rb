@@ -88,4 +88,19 @@ class DataEntities
         end
         raise "DataEntities::dataEntityToString, Error: 2f28f27d"
     end
+
+    # DataEntities::nagivateDataEntity(dataentity)
+    def self.nagivateDataEntity(dataentity)
+        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
+            return CatalystStandardTargets::targetDive(dataentity)
+        end
+        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
+            return DataPointsNavigationAndBuilding::nagivateDataPoint(dataentity)
+        end
+        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
+            return StarlightNavigationAndBuilding::nagivateNode(dataentity)
+        end
+        raise "DataEntities::nagivateDataEntity, Error: 26ba9943"
+    end
+
 end

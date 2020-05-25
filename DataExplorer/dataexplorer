@@ -29,14 +29,9 @@ require 'find'
 require 'thread'
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
-
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPointsSearch.rb"
 
 # --------------------------------------------------------------------
 
@@ -48,20 +43,19 @@ class DataExplorer
             system("clear")
             puts "Data Navigation And Search 🗺️"
             operations = [
-                "Navigation",
-                "Search",
+                "Starlight Navigation",
+                "DataPoint Navigation",
                 "latest startlight nodes",
                 "latest datapoints",
                 "starlight management",
-                "datapoint dive (uuid)",
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "Navigation" then
-                StarlightNavigation::navigation()
+            if operation == "Starlight Navigation" then
+                StarlightNavigationAndBuilding::navigation()
             end
-            if operation == "Search" then
-                DataPointsSearch::search()
+            if operation == "DataPoint Navigation" then
+                DataPointsNavigationAndBuilding::navigation()
             end
             if operation == "latest startlight nodes" then
                 loop {
@@ -81,12 +75,6 @@ class DataExplorer
             end
             if operation == "starlight management" then
                 StarlightManagement::management()
-            end
-            if operation == "dive datapoint by uuid" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                datapoint = DataPoints::getOrNull(uuid)
-                next if datapoint.nil?
-                DataPoints::pointDive(datapoint)
             end
         }
     end

@@ -104,7 +104,7 @@ class DataPoints
         puts JSON.pretty_generate(datapoint)
         DataPoints::save(datapoint)
         if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
-            node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
+            node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
             if node then
                 StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
             end
@@ -259,7 +259,7 @@ class DataPoints
                 DataPoints::save(point)
             end
             if operation == "add to starlight node" then
-                node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
+                node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
                 next if node.nil?
                 StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, point)
             end
@@ -370,4 +370,329 @@ class DataPoints
         }
     end
 
+end
+
+class DataPointsNavigationAndBuilding
+
+    # DataPointsNavigationAndBuilding::tags()
+    def self.tags()
+        DataPoints::datapoints()
+            .map{|point| point["tags"] }
+            .flatten
+            .uniq
+            .sort
+    end
+
+    # DataPointsNavigationAndBuilding::getPointsForTag(tag)
+    def self.getPointsForTag(tag)
+        DataPoints::datapoints().select{|point|
+            point["tags"].include?(tag)
+        }
+    end
+
+    # DataPointsNavigationAndBuilding::selectDataPointOrNull(points)
+    def self.selectDataPointOrNull(points)
+        descriptionXp = lambda { |point|
+            "#{point["description"]} (#{point["uuid"][0,4]})"
+        }
+        descriptionsxp = points.map{|point| descriptionXp.call(point) }
+        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select datapoint (empty for null)", [""] + descriptionsxp)
+        return nil if selectedDescriptionxp == ""
+        point = points.select{|point| descriptionXp.call(point) == selectedDescriptionxp }.first
+        return nil if point.nil?
+        point
+    end
+
+    # DataPointsNavigationAndBuilding::pointsDive(points)
+    def self.pointsDive(points)
+        loop {
+            point = DataPointsNavigationAndBuilding::selectDataPointOrNull(points)
+            break if point.nil?
+            DataPoints::pointDive(point)
+        }
+    end
+
+    # DataPointsNavigationAndBuilding::tagDive(tag)
+    def self.tagDive(tag)
+        loop {
+            system('clear')
+            puts "Data Points Tag Diving: #{tag}"
+            items = []
+            DataPoints::datapoints()
+                .select{|point| point["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
+                .each{|point|
+                    items << [ point["description"] , lambda { DataPoints::pointDive(point) } ]
+                }
+            break if items.empty?
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # DataPointsNavigationAndBuilding::searchPatternToTags(searchPattern)
+    def self.searchPatternToTags(searchPattern)
+        DataPointsNavigationAndBuilding::tags()
+            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
+    end
+
+    # DataPointsNavigationAndBuilding::searchPatternToPoints(searchPattern)
+    def self.searchPatternToPoints(searchPattern)
+        DataPoints::datapoints()
+            .select{|point| point["description"].downcase.include?(searchPattern.downcase) }
+    end
+
+    # DataPointsNavigationAndBuilding::navigationPatternToDataPointsDescriptions(searchPattern)
+    def self.searchPatternToDataPointsDescriptions(searchPattern)
+        DataPointsNavigationAndBuilding::searchPatternToPoints(searchPattern)
+            .map{|point| point["description"] }
+            .uniq
+            .sort
+    end
+
+    # DataPointsNavigationAndBuilding::nextGenGetSearchFragmentOrNull()
+    def self.nextGenGetSearchFragmentOrNull() # () -> String
+        LucilleCore::askQuestionAnswerAsString("search fragment: ")
+    end
+
+    # DataPointsNavigationAndBuilding::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+    # Objects returned by the function: they are essentially search results.
+    # {
+    #     "type" => "point",
+    #     "point" => point
+    # }
+    # {
+    #     "type" => "tag",
+    #     "tag" => tag
+    # }
+    def self.nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        objs1 = DataPointsNavigationAndBuilding::searchPatternToPoints(fragment)
+                    .map{|point| 
+                        {
+                            "type" => "point",
+                            "point" => point
+                        }
+                    }
+        objs2 = DataPointsNavigationAndBuilding::searchPatternToTags(fragment)
+                    .map{|tag|
+                        {
+                            "type" => "tag",
+                            "tag" => tag
+                        }
+                    }
+        objs1 + objs2
+    end
+
+    # DataPointsNavigationAndBuilding::globalSearchStructureDive(globalss)
+    def self.globalSearchStructureDive(globalss)
+        loop {
+            system("clear")
+            globalssObjectToMenuItemOrNull = lambda {|object|
+                if object["type"] == "point" then
+                    point = object["point"]
+                    return [ "datapoint: #{point["description"]}" , lambda { DataPoints::pointDive(point) } ]
+                end
+                if object["type"] == "tag" then
+                    tag = object["tag"]
+                    return [ "tag: #{tag}" , lambda { DataPointsNavigationAndBuilding::tagDive(tag) } ]
+                end
+                nil
+            }
+            items = globalss
+                .map{|object| globalssObjectToMenuItemOrNull.call(object) }
+                .compact
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # DataPointsNavigationAndBuilding::nagivateDataPoint(datapoint)
+    def self.nagivateDataPoint(datapoint)
+        loop {
+            system("clear")
+            puts "Starlight DataPoint Navigation"
+
+            items = []
+            items << ["datapoint dive", lambda{ DataPoints::pointDive(datapoint) }]
+
+            datapoint["targets"]
+                .each{|target| 
+                    items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] 
+                }
+
+            StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[node owner] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNavigationAndBuilding::nagivateNode(n) }] }
+
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            break if !status
+        }
+    end
+
+    # DataPointsNavigationAndBuilding::navigation()
+    def self.navigation()
+        loop {
+            system("clear")
+            puts "DataPoints Navigation"
+            operations = [
+                "search and navigate",
+                "dive datapoint by uuid"
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            break if operation.nil?
+            if operation == "search and navigate" then
+                fragment = DataPointsNavigationAndBuilding::nextGenGetSearchFragmentOrNull()
+                return if fragment.nil?
+                globalss = DataPointsNavigationAndBuilding::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+                DataPointsNavigationAndBuilding::globalSearchStructureDive(globalss)
+            end
+            if operation == "dive datapoint by uuid" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                datapoint = DataPoints::getOrNull(uuid)
+                next if datapoint.nil?
+                DataPoints::pointDive(datapoint)
+            end
+        }
+    end
+end
+
+class DataPointsNavigateOrSearchOrBuildAndSelect
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::tags()
+    def self.tags()
+        DataPoints::datapoints()
+            .map{|point| point["tags"] }
+            .flatten
+            .uniq
+            .sort
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::getPointsForTag(tag)
+    def self.getPointsForTag(tag)
+        DataPoints::datapoints().select{|point|
+            point["tags"].include?(tag)
+        }
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::selectDataPointOrNull(points)
+    def self.selectDataPointOrNull(points)
+        descriptionXp = lambda { |point|
+            "#{point["description"]} (#{point["uuid"][0,4]})"
+        }
+        descriptionsxp = points.map{|point| descriptionXp.call(point) }
+        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select datapoint (empty for null)", [""] + descriptionsxp)
+        return nil if selectedDescriptionxp == ""
+        point = points.select{|point| descriptionXp.call(point) == selectedDescriptionxp }.first
+        return nil if point.nil?
+        point
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::pointsDive(points)
+    def self.pointsDive(points)
+        loop {
+            point = DataPointsNavigateOrSearchOrBuildAndSelect::selectDataPointOrNull(points)
+            break if point.nil?
+            DataPoints::pointDive(point)
+        }
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::tagDive(tag)
+    def self.tagDive(tag)
+        loop {
+            system('clear')
+            puts "Data Points Tag Diving: #{tag}"
+            items = []
+            DataPoints::datapoints()
+                .select{|point| point["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
+                .each{|point|
+                    items << [ point["description"] , lambda { DataPoints::pointDive(point) } ]
+                }
+            break if items.empty?
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::searchPatternToTags(searchPattern)
+    def self.searchPatternToTags(searchPattern)
+        DataPointsNavigateOrSearchOrBuildAndSelect::tags()
+            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::searchPatternToPoints(searchPattern)
+    def self.searchPatternToPoints(searchPattern)
+        DataPoints::datapoints()
+            .select{|point| point["description"].downcase.include?(searchPattern.downcase) }
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::searchAndSelectOrNullPatternToDataPointsDescriptions(searchPattern)
+    def self.searchPatternToDataPointsDescriptions(searchPattern)
+        DataPointsNavigateOrSearchOrBuildAndSelect::searchPatternToPoints(searchPattern)
+            .map{|point| point["description"] }
+            .uniq
+            .sort
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::nextGenGetSearchFragmentOrNull()
+    def self.nextGenGetSearchFragmentOrNull() # () -> String
+        LucilleCore::askQuestionAnswerAsString("search fragment: ")
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+    # Objects returned by the function: they are essentially search results.
+    # {
+    #     "type" => "point",
+    #     "point" => point
+    # }
+    # {
+    #     "type" => "tag",
+    #     "tag" => tag
+    # }
+    def self.nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        objs1 = DataPointsNavigateOrSearchOrBuildAndSelect::searchPatternToPoints(fragment)
+                    .map{|point| 
+                        {
+                            "type" => "point",
+                            "point" => point
+                        }
+                    }
+        objs2 = DataPointsNavigateOrSearchOrBuildAndSelect::searchPatternToTags(fragment)
+                    .map{|tag|
+                        {
+                            "type" => "tag",
+                            "tag" => tag
+                        }
+                    }
+        objs1 + objs2
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::globalSearchStructureDive(globalss)
+    def self.globalSearchStructureDive(globalss)
+        loop {
+            system("clear")
+            globalssObjectToMenuItemOrNull = lambda {|object|
+                if object["type"] == "point" then
+                    point = object["point"]
+                    return [ "datapoint: #{point["description"]}" , lambda { DataPoints::pointDive(point) } ]
+                end
+                if object["type"] == "tag" then
+                    tag = object["tag"]
+                    return [ "tag: #{tag}" , lambda { DataPointsNavigateOrSearchOrBuildAndSelect::tagDive(tag) } ]
+                end
+                nil
+            }
+            items = globalss
+                .map{|object| globalssObjectToMenuItemOrNull.call(object) }
+                .compact
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # DataPointsNavigateOrSearchOrBuildAndSelect::searchAndSelectOrNull()
+    def self.searchAndSelectOrNull()
+        fragment = DataPointsNavigateOrSearchOrBuildAndSelect::nextGenGetSearchFragmentOrNull()
+        return nil if fragment.nil?
+        globalss = DataPointsNavigateOrSearchOrBuildAndSelect::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        DataPointsNavigateOrSearchOrBuildAndSelect::globalSearchStructureDive(globalss)
+    end
 end

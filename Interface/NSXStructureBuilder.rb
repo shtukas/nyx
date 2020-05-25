@@ -42,7 +42,7 @@ class NSXStructureBuilder
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
+                parent = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
                 if parent.nil? then
                     puts "Did not determine a parent for '#{StartlightNodes::nodeToString(node)}'. Aborting parent determination."
                     break
@@ -89,7 +89,7 @@ class NSXStructureBuilder
 
     # NSXStructureBuilder::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
+        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
             return
@@ -101,7 +101,7 @@ class NSXStructureBuilder
     # NSXStructureBuilder::attachTargetToStarlightNodeExistingOrNew(target)
     def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
+        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
         return if node.nil?
         claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
         puts JSON.pretty_generate(claim)
@@ -169,7 +169,7 @@ class NSXStructureBuilder
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Starlight Node" then
-                        node = StartlightNodes::selectNodePossiblyMakeANewOneOrNull(false)
+                        node = StarlightNodeNavigateOrSearchOrBuildAndSelect::selectNodePossiblyMakeANewOneOrNull(false)
                         return if node.nil?
                         StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
                     end
