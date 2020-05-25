@@ -93,9 +93,9 @@ class NSXCatalystUI
                             .join()
                             .rstrip
             puts ""
-            puts "Lucille.txt"
+            puts "Lucille.txt ☀️"
             puts contents.green
-            verticalSpaceLeft = verticalSpaceLeft - ( NSXDisplayUtils::verticalSize(contents) + 1 )
+            verticalSpaceLeft = verticalSpaceLeft - ( NSXDisplayUtils::verticalSize(contents) + 2 )
         end
 
         puts ""

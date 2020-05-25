@@ -112,11 +112,24 @@ class NSXStructureBuilder
         [
             {
                 "text"   => "timepod",
-                "lambda" => lambda { 
-                    description = LucilleCore::askQuestionAnswerAsString("description: ")
+                "lambda" => lambda {
+                    targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["self", "LucilleTxt"])
+                    return if targetType.nil?
+                    if targetType == "self" then
+                        target = {
+                            "type"        => "self",
+                            "description" => LucilleCore::askQuestionAnswerAsString("description: ")
+                        }
+                    end
+                    if targetType == "LucilleTxt" then
+                        target = {
+                            "type"        => "LucilleTxt"
+                        }
+                    end
+                    timespanToDeadlineInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
                     timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                    timespanInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
-                    TimePods::issue(description, timeCommitmentInHours, Time.new.to_i, Time.new.to_i + timespanInDays*86400)
+                    TimePods::issue(target, Time.new.to_i, timespanToDeadlineInDays, timeCommitmentInHours)
+
                 }
             },
             {

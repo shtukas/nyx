@@ -57,10 +57,10 @@ def stop(uuid)
     timespan = Runner::stop(uuid)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
-    puts "Bank: putting #{timespan.round(2)} secs into pod (#{uuid})"
+    puts "[timepod] Bank: putting #{timespan.round(2)} secs into pod (#{uuid})"
     Bank::put(uuid, timespan)
 
-    puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
+    puts "[timepod] Ping: putting #{timespan.round(2)} secs into catalyst measured times"
     Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
 end
 
@@ -71,6 +71,10 @@ if ARGV[0] == "start" and ARGV[1] then
     exit if pod.nil?
 
     Runner::start(uuid)
+
+    if pod["target"]["type"] == "LucilleTxt" then
+        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start")
+    end
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
@@ -78,5 +82,15 @@ if ARGV[0] == "stop" and ARGV[1] then
     exit if uuid.nil?
     pod = TimePods::getOrNull(uuid)
     exit if pod.nil?
+
     stop(uuid)
+end
+
+if ARGV[0] == "destroy" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    pod = TimePods::getOrNull(uuid)
+    exit if pod.nil?
+
+    TimePods::destroy(uuid)
 end

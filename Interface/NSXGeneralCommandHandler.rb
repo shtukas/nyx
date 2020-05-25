@@ -122,10 +122,10 @@ class NSXGeneralCommandHandler
             options = [
                 "DataExplorer",
                 "NavigateOrSearchOrBuildAndSelectX (test)",
-                "OpenCycles",
-                "InFlightControlSystem",
                 "TimePods",
+                "InFlightControlSystem",
                 "Todo",
+                "OpenCycles",
                 "Calendar",
                 "Wave",
                 "Catalyst",

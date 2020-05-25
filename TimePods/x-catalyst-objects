@@ -78,37 +78,31 @@ require_relative "TimePods.rb"
 objects = []
 
 TimePods::getTimePods()
-    .each{|timepod|
+    .each{|pod|
 
         defaultCommand = lambda {|isRunning|
             isRunning ? "stop" : "start"
         }
 
-        uuid = timepod["uuid"]
+        uuid = pod["uuid"]
         isRunning = Runner::isRunning(uuid)
         isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
-        runningString = 
-            if isRunning then
-                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
-            else
-                ""
-            end
-
 
         objects << {
             "uuid"           => uuid,
             "contentItem"    => {
                 "type" => "line",
-                "line" => "[timepod] #{timepod["description"]} (completion: #{(100*TimePods::actualCompletionRatio(timepod)).round(2)} %) (time commitment: #{timepod["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(timepod).to_f/3600).round(2)} hours, ideal: #{(TimePods::idealTime(timepod).to_f/3600).round(2)} hours)#{runningString}"
+                "line" => TimePods::toString(pod)
             },
-            "metric"         => isRunning ? 1 : TimePods::metric(timepod),
-            "commands"       => ["start", "stop"],
+            "metric"         => isRunning ? 0.999 : TimePods::metric(pod), # 0.999 because it may have started something else
+            "commands"       => ["start", "stop", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,
             "isRunningForLong" => isRunningForLong,
             "shell-redirects" => {
-                "start"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing start '#{uuid}'",
-                "stop"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing stop '#{uuid}'",
+                "start"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing start '#{uuid}'",
+                "stop"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing stop '#{uuid}'",
+                "destroy" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/x-catalyst-objects-processing destroy '#{uuid}'",
             },
             "x-running-for:" => Runner::runTimeInSecondsOrNull(uuid)
         }

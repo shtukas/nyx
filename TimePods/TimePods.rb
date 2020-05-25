@@ -24,14 +24,14 @@ class TimePods
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # TimePods::issue(description, timeCommitmentInHours, startUnixtime, endUnixtime)
-    def self.issue(description, timeCommitmentInHours, startUnixtime, endUnixtime)
+    # TimePods::issue(target, startUnixtime, timespanToDeadlineInDays, timeCommitmentInHours)
+    def self.issue(target, startUnixtime, timespanToDeadlineInDays, timeCommitmentInHours)
         pod = {
-            "uuid"                  => SecureRandom.uuid,
-            "description"           => description,
-            "timeCommitmentInHours" => timeCommitmentInHours,
-            "startUnixtime"         => startUnixtime,
-            "endUnixtime"           => endUnixtime
+            "uuid"                     => SecureRandom.uuid,
+            "target"                   => target,
+            "startUnixtime"            => startUnixtime,
+            "timespanToDeadlineInDays" => timespanToDeadlineInDays,
+            "timeCommitmentInHours"    => timeCommitmentInHours,
         }
         TimePods::save(pod)
         pod
@@ -61,10 +61,10 @@ class TimePods
 
     # TimePods::idealCompletionRatio(pod)
     def self.idealCompletionRatio(pod)
-        operationTimeInSeconds = 0.9*(pod["endUnixtime"] - pod["startUnixtime"])
+        timespanToDeadlineInSeconds = 0.9*pod["timespanToDeadlineInDays"]*86400
                                     # We compute on the basis of completing in  90%% of the allocated time
         timeSinceStart = Time.new.to_i - pod["startUnixtime"]
-        [timeSinceStart.to_f/operationTimeInSeconds, 1].min
+        [timeSinceStart.to_f/timespanToDeadlineInSeconds, 1].min
     end
 
     # TimePods::idealTime(pod)
@@ -96,4 +96,26 @@ class TimePods
             0.60 - 0.01*(TimePods::actualCompletionRatio(pod) - TimePods::idealCompletionRatio(pod)).to_f
         end
     end
+
+    # TimePods::toString(pod)
+    def self.toString(pod)
+        uuid = pod["uuid"]
+        isRunning = Runner::isRunning(uuid)
+        runningString = 
+            if isRunning then
+                " (running for #{(Runner::runTimeInSecondsOrNull(uuid).to_f/3600).round(2)} hours)"
+            else
+                ""
+            end
+        metrics = "(completion: #{(100*TimePods::actualCompletionRatio(pod)).round(2)} %) (time commitment: #{pod["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::idealTime(pod).to_f/3600).round(2)} hours)#{runningString}"
+        target = pod["target"]
+        if target["type"] == "self" then
+            return "[timepod/self] #{target["description"]} #{metrics}"
+        end
+        if target["type"] == "LucilleTxt" then
+            return "[timepod] LucilleTxt #{metrics}"
+        end
+        raise "[TimePods] error: CE8497BB"
+    end
 end
+

@@ -1,13 +1,18 @@
-TimePods
+TimePod
 {
-    "uuid"                  : String
-    "description"           : String
-    "startUnixtime"         : Unixtime
-    "endUnixtime"           : Unixtime
-    "timeCommitmentInHours" : Float
+    "uuid"                     : String
+    "target"                   : TimePodTarget
+    "description"              : String
+    "startUnixtime"            : Unixtime
+    "timespanToDeadlineInDays" : Float
+    "timeCommitmentInHours"    : Float
 }
 
-TimePoint = {
-    "unixtime" : Unixtime
-    "timespan" : Float
+TimePodTarget {
+    "type"        : "self"
+    "description" : String
+}
+
+TimePodTarget {
+    "type"        : "LucilleTxt"
 }
