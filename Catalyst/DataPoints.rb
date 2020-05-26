@@ -118,9 +118,6 @@ class DataPoints
             .select{|datapoint| datapoint["tags"].include?(tag) }
     end
 
-    # ------------------------------------------------------------------------
-    # User Interface
-
     # DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
     def self.selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
         return nil if datapoints.empty?

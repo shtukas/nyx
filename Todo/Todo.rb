@@ -187,13 +187,23 @@ class Items
         Items::save(item)
     end
 
-    # Items::promote(item)
-    def self.promote(item)
-        puts "Promotion means: attaching the target to a { new or existing } { datapoint or starlight node } and done'ing as a Todo item"
-        puts "Not implemented yet"
-        LucilleCore::pressEnterToContinue()
-        return
-        dataentity = EvolutionsFindX::selectOrNull()
+    # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
+    def self.promote(item) # Boolean # Indicates whether a promotion was acheived
+        newowner = EvolutionsFindX::selectOrNull()
+        return false if newowner.nil?
+        if newowner["catalystType"] == "catalyst-type:starlight-node" then
+            node = newowner
+            StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, item["target"])
+            return true
+        end
+        if newowner["catalystType"] == "catalyst-type:datapoint" then
+            datapoint = newowner
+            datapoint = DataPoints::getOrNull(datapoint["uuid"])
+            datapoint["targets"] << item["target"]
+            DataPoints::save(datapoint)
+            return true
+        end
+        raise "Todo: error: d089decd"
     end
 
     # Items::diveItem(item)
@@ -238,7 +248,10 @@ class Items
                 Items::recast(item)
             end
             if option == "promote from Todo to Data" then
-                Items::promote(item)
+                status = Items::promote(item)
+                next if !status
+                Items::destroy(item["uuid"])
+                return
             end
         }
     end
