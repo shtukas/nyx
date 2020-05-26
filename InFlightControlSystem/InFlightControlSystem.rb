@@ -34,7 +34,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
 
 # -----------------------------------------------------------
 
-DAILY_TOTAL_ORDINAL_TIME_IN_HOURS = 3
+DAILY_TOTAL_ORDINAL_TIME_IN_HOURS = 2
 
 class InFlightControlSystem
 

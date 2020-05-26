@@ -1,4 +1,4 @@
 
 Gwork                 : 6 hours
-InFlightControlSystem : 3 hours
-LucilleTxt            : 2 hours
+InFlightControlSystem : 2 hours
+LucilleTxt            : 3 hours

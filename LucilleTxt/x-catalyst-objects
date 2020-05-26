@@ -79,7 +79,7 @@ end
 
 # -----------------------------------------------------------------------------
 
-DailyTimes::putTimeToBankNoOftenThanOnceADay(LUCILLE_UUID, -2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
+DailyTimes::putTimeToBankNoOftenThanOnceADay(LUCILLE_UUID, -3*3600, [1, 2, 3, 4, 5, 6]) # 3 hours, Monday to Saturday
 
 defaultCommand = lambda {|isRunning|
     isRunning ? "stop" : "start"
