@@ -89,6 +89,9 @@ def itemToCatalystObject(item, basemetric, indx)
     metric = basemetric - indx.to_f/1000
     metric = 1 if Runner::isRunning(uuid)
 
+    KeyValueStore::set(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{uuid}", Items::itemToString(item))
+        # Used by TimePods
+
     {
         "uuid"           => uuid,
         "contentItem"    => {
@@ -130,21 +133,6 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
     }
     Items::save(item)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
-end
-
-while (packet = Mercury::getFirstValueOrNull("00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD")) do
-    itemuuid = packet["itemuuid"]
-    timespan = packet["timespan"]
-    item = Items::getOrNull(itemuuid)
-    if item then
-        Items::itemReceivesRunTimespan(item, timespan, false)
-    end
-    Mercury::deleteFirstValue("00E77F58-3E94-45BF-B42C-4CFEC2CBB8CD")
-end
-
-while (itemuuid = Mercury::getFirstValueOrNull("A6711E39-E69E-4A36-A9FA-C8BA1030118E")) do
-    Items::destroy(itemuuid)
-    Mercury::deleteFirstValue("A6711E39-E69E-4A36-A9FA-C8BA1030118E")
 end
 
 # -------------------------------------------------------------------------

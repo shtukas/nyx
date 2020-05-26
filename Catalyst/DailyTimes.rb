@@ -34,18 +34,6 @@ class DailyTimes
         referenceTimeInHours * (1.to_f / 2**(ordinal+1))
     end
 
-    # DailyTimes::addNegativeTimePerOrdinalToBankOrDoNothing(uuid, referenceTimeInHours, ordinal, allowedDayIndices)
-    def self.addNegativeTimePerOrdinalToBankOrDoNothing(uuid, referenceTimeInHours, ordinal, allowedDayIndices)
-        return if !allowedDayIndices.include?(Time.new.wday)
-        return if Bank::total(uuid) < -3600 # This values allows small targets to get some time and the big ones not to become overwelming
-        return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
-        return if Time.new.hour < 6
-        return if Time.new.hour > 12
-        timespan = DailyTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal) * 3600
-        Bank::put(uuid, -timespan)
-        KeyValueStore::setFlagTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")
-    end
-
     # DailyTimes::putTimeToBankNoOftenThanOnceADay(uuid, timeInSeconds, allowedDayIndices)
     def self.putTimeToBankNoOftenThanOnceADay(uuid, timeInSeconds, allowedDayIndices)
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")

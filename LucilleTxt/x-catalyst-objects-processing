@@ -58,18 +58,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 
 # --------------------------------------------------------------------
 
-LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
-
 if ARGV[0] == "start" then
-    Runner::start(LUCILLE_UUID)
+    Runner::start("e287b121-9ee9-4fc5-81ba-ef1c956c202b")
 
 end
 
 if ARGV[0] == "stop" then
-    timespan = Runner::stop(LUCILLE_UUID)
-    exit if timespan.nil?
-    puts "LucilleTxt: pushing #{timespan.round(2)} seconds to Bank"
-    Bank::put(LUCILLE_UUID, timespan)
-    puts "putting #{timespan.round(2)} seconds into catalyst measured times"
+    Runner::stop("e287b121-9ee9-4fc5-81ba-ef1c956c202b")
 end
 

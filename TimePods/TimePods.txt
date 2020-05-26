@@ -1,18 +1,37 @@
 TimePod
 {
-    "uuid"                     : String
-    "target"                   : TimePodTarget
-    "description"              : String
-    "startUnixtime"            : Unixtime
-    "timespanToDeadlineInDays" : Float
-    "timeCommitmentInHours"    : Float
+    "uuid"             : String
+    "creationUnixtime" : Float # Unixtime with decimals
+    "passenger"        : TimePodPassenger
+    "engine"           : TimePodEngine
 }
 
-TimePodTarget {
-    "type"        : "self"
-    "description" : String
-}
+TimePodPassenger
+    {
+        "type"        : "description"
+        "description" : String
+    }
+    {
+        "type" : "special-circumstances"
+        "name" : String
+    }
+    {
+        "type" : "todo-item"
+        "uuid" : String
+    }
 
-TimePodTarget {
-    "type"        : "LucilleTxt"
-}
+special-circumstances
+    -
+        name: "LucilleTxt"
+        uuid: "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8"
+
+TimePodEngine
+    {
+        "type"                  : "time-commitment-on-curve"
+        "startUnixtime"         : Unixtime
+        "periodInDays"          : Float
+        "timeCommitmentInHours" : Float
+    }
+    {
+        "type"                  : "bank-account"
+    }

@@ -11,6 +11,26 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DailyTimes.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
+
 class TimePods
 
     # TimePods::path()
@@ -24,14 +44,13 @@ class TimePods
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # TimePods::issue(target, startUnixtime, timespanToDeadlineInDays, timeCommitmentInHours)
-    def self.issue(target, startUnixtime, timespanToDeadlineInDays, timeCommitmentInHours)
+    # TimePods::issue(passenger, engine)
+    def self.issue(passenger, engine)
         pod = {
-            "uuid"                     => SecureRandom.uuid,
-            "target"                   => target,
-            "startUnixtime"            => startUnixtime,
-            "timespanToDeadlineInDays" => timespanToDeadlineInDays,
-            "timeCommitmentInHours"    => timeCommitmentInHours,
+            "uuid"      => SecureRandom.uuid,
+            "creationUnixtime" => Time.new.to_f,
+            "passenger" => passenger,
+            "engine"    => engine
         }
         TimePods::save(pod)
         pod
@@ -59,19 +78,6 @@ class TimePods
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # TimePods::idealCompletionRatio(pod)
-    def self.idealCompletionRatio(pod)
-        timespanToDeadlineInSeconds = 0.9*pod["timespanToDeadlineInDays"]*86400
-                                    # We compute on the basis of completing in  90%% of the allocated time
-        timeSinceStart = Time.new.to_i - pod["startUnixtime"]
-        [timeSinceStart.to_f/timespanToDeadlineInSeconds, 1].min
-    end
-
-    # TimePods::idealTime(pod)
-    def self.idealTime(pod)
-        TimePods::idealCompletionRatio(pod)*(3600*pod["timeCommitmentInHours"])
-    end
-
     # TimePods::liveTime(pod)
     def self.liveTime(pod)
         uuid = pod["uuid"]
@@ -80,21 +86,69 @@ class TimePods
         x1+x2
     end
 
-    # TimePods::actualCompletionRatio(pod)
-    def self.actualCompletionRatio(pod)
-        TimePods::liveTime(pod).to_f/(3600*pod["timeCommitmentInHours"])
-    end
-
     # TimePods::metric(pod)
     def self.metric(pod)
         uuid = pod["uuid"]
-        timeBank = Bank::total(uuid)
-        return -1 if (timeBank >= 3600*pod["timeCommitmentInHours"]) # Todo: we might want to destroy them, but fine for the moment
-        if TimePods::actualCompletionRatio(pod) < TimePods::idealCompletionRatio(pod) then
-            0.77 + 0.001*(TimePods::idealCompletionRatio(pod) - TimePods::actualCompletionRatio(pod)).to_f
-        else
-            0.60 - 0.01*(TimePods::actualCompletionRatio(pod) - TimePods::idealCompletionRatio(pod)).to_f
+
+        return 0.999 if Runner::isRunning(uuid)
+
+        engine = pod["engine"]
+
+        if engine["type"] == "time-commitment-on-curve" then
+            timeBank = Bank::total(uuid)
+            return -1 if (timeBank >= 3600*pod["engine"]["timeCommitmentInHours"])
+            if TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) < TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) then
+                return 0.76 + 0.001*(TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).to_f
+            else
+                return 0.60 - 0.01*(TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod) - TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)).to_f
+            end
         end
+
+        if engine["type"] == "bank-account" then
+            timeBank = Bank::total(uuid)
+            if timeBank >= 0 then
+                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+            else
+                return 0.70 + 0.1*(-timeBank.to_f/86400)
+            end
+        end
+
+        raise "[TimePods] error: 46b84bdb"
+
+    end
+
+    # TimePods::toStringPassengerFragment(pod)
+    def self.toStringPassengerFragment(pod)
+        passenger = pod["passenger"]
+        if passenger["type"] == "description" then
+            return "[timepod]"
+        end
+        if passenger["type"] == "special-circumstances" then
+            return "[timepod] [special-circumstances] #{passenger["name"]}"
+        end
+        if passenger["type"] == "todo-item" then
+            return "[timepod] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
+        end
+        raise "[TimePods] error: CE8497BB"
+    end
+
+    # TimePods::toStringEngineFragment(pod)
+    def self.toStringEngineFragment(pod)
+
+        uuid = pod["uuid"]
+
+        engine = pod["engine"]
+
+        if engine["type"] == "time-commitment-on-curve" then
+            return "(completion: #{(100*TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::timeCommitmentOnCurve_idealTime(pod).to_f/3600).round(2)} hours)"
+        end
+
+        if engine["type"] == "bank-account" then
+            return "(bank account: #{(Bank::total(uuid).to_f/3600).round(2)} hours)"
+        end
+
+        raise "[TimePods] error: 46b84bdb"
+
     end
 
     # TimePods::toString(pod)
@@ -107,15 +161,41 @@ class TimePods
             else
                 ""
             end
-        metrics = "(completion: #{(100*TimePods::actualCompletionRatio(pod)).round(2)} %) (time commitment: #{pod["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::idealTime(pod).to_f/3600).round(2)} hours)#{runningString}"
-        target = pod["target"]
-        if target["type"] == "self" then
-            return "[timepod/self] #{target["description"]} #{metrics}"
+        "#{TimePods::toStringPassengerFragment(pod)} #{TimePods::toStringEngineFragment(pod)}#{runningString}"
+
+    end
+
+    # TimePods::timePodIsStillRelevant(pod)
+    def self.timePodIsStillRelevant(pod)
+        uuid = pod["uuid"]
+        engine = pod["engine"]
+        if engine["type"] == "time-commitment-on-curve" then
+            return false if (Bank::total(uuid) >= 3600*pod["engine"]["timeCommitmentInHours"])
         end
-        if target["type"] == "LucilleTxt" then
-            return "[timepod] LucilleTxt #{metrics}"
-        end
-        raise "[TimePods] error: CE8497BB"
+        true
+    end
+
+    # --------------------------------------------------------------------
+
+    # TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)
+    def self.timeCommitmentOnCurve_idealCompletionRatio(pod)
+        raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
+        periodInSeconds = 0.9*pod["engine"]["periodInDays"]*86400
+                                        # We compute on the basis of completing in 90%% of the allocated time
+        timeSinceStart = Time.new.to_i - pod["engine"]["startUnixtime"]
+        [timeSinceStart.to_f/periodInSeconds, 1].min
+    end
+
+    # TimePods::timeCommitmentOnCurve_idealTime(pod)
+    def self.timeCommitmentOnCurve_idealTime(pod)
+        raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
+        TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)*(3600*pod["engine"]["timeCommitmentInHours"])
+    end
+
+    # TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)
+    def self.timeCommitmentOnCurve_actualCompletionRatio(pod)
+        raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
+        TimePods::liveTime(pod).to_f/(3600*pod["engine"]["timeCommitmentInHours"])
     end
 end
 

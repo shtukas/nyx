@@ -73,6 +73,33 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =end
 
 require_relative "TimePods.rb"
+
+# -------------------------------------------------------------------------
+
+# Garbage Collection
+TimePods::getTimePods()
+    .each{|pod|
+        if !TimePods::timePodIsStillRelevant(pod) then
+            TimePods::destroy(pod["uuid"])
+        end
+    }
+
+# LucilleTxt
+DailyTimes::putTimeToBankNoOftenThanOnceADay("cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8", -2*3600, [1, 2, 3, 4, 5, 6]) # 2 hours, Monday to Saturday
+
+# Guardian Work
+DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -7*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
+
+# We need to split 2 hours amoung the first three non "special-circumstances"/"bank-account"
+TimePods::getTimePods()
+    .select{|pod| ["description", "todo-item"].include?(pod["passenger"]["type"]) }
+    .select{|pod| ["bank-account"].include?(pod["engine"]["type"]) }
+    .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+    .first(3)
+    .each{|pod|
+        DailyTimes::putTimeToBankNoOftenThanOnceADay(pod["uuid"], -(2.to_f/3)*3600, [1, 2, 3, 4, 5, 6])
+    }
+
 # -------------------------------------------------------------------------
 
 objects = []

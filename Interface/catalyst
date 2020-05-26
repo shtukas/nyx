@@ -93,10 +93,10 @@ Thread.new {
         sleep 12
 
         objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-        hasRunningGwork = objects.any?{|object| object["uuid"] == "39909ff4-e102-45c2-ace9-21be21572772" and object["isRunning"] }
-        hasWaveItems    = objects.any?{|object| object["x-interface:isWave"] }
-        if hasRunningGwork and hasWaveItems then
-            NSXMiscUtils::onScreenNotification("Catalyst Interface", "Wave items during Gwork")
+        hasRunningGuardianWork = objects.any?{|object| object["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" and object["isRunning"] }
+        hasWaveItems = objects.any?{|object| object["x-interface:isWave"] }
+        if hasRunningGuardianWork and hasWaveItems then
+            NSXMiscUtils::onScreenNotification("Catalyst Interface", "Wave items during Guardian Work")
         end
     }
 

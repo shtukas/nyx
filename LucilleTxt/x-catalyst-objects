@@ -65,28 +65,16 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
-
-def lucilleMetric()
-    timeInBank = Bank::total(LUCILLE_UUID)
-    isRunning = Runner::isRunning(LUCILLE_UUID)
-    if timeInBank < 0 then
-        0.70 + 0.05*(1-Math.exp(timeInBank.to_f/3600))
-    else
-        0.70*Math.exp(-timeInBank.to_f/3600)
-    end
-end
+uuid = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
 
 # -----------------------------------------------------------------------------
-
-DailyTimes::putTimeToBankNoOftenThanOnceADay(LUCILLE_UUID, -3*3600, [1, 2, 3, 4, 5, 6]) # 3 hours, Monday to Saturday
 
 defaultCommand = lambda {|isRunning|
     isRunning ? "stop" : "start"
 }
 
-isRunning = Runner::isRunning(LUCILLE_UUID)
-isRunningForLong = ((Runner::runTimeInSecondsOrNull(LUCILLE_UUID) || 0) > 3600)
+isRunning = Runner::isRunning(uuid)
+isRunningForLong = ((Runner::runTimeInSecondsOrNull(uuid) || 0) > 3600)
 
 lucilletext = IO.read(PATH_TO_DESKTOP_FILE)
                 .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")[1]
@@ -109,9 +97,9 @@ contentItem =
     end
 
 object = {
-    "uuid" => LUCILLE_UUID,
+    "uuid" => uuid,
     "contentItem" => contentItem,
-    "metric" => isRunning ? 1 : lucilleMetric(),
+    "metric" => isRunning ? 1 : 0, # The item is started by a timepod
     "commands" => ["done"],
     "defaultCommand" => isRunning ? "stop" : "start",
     "isRunning" => isRunning,
@@ -119,8 +107,7 @@ object = {
     "shell-redirects" => {
         "start" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start",
         "stop"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop",
-    },
-    "x-LucilleTxt:BankTotal" => Bank::total(LUCILLE_UUID)
+    }
 }
 
 puts JSON.generate([object])

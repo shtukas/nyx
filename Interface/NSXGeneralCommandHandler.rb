@@ -92,11 +92,6 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == '>>' then
-            system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Gwork/x-toggle-run")
-            return
-        end
-
         if command == "[]" then
             rewriteLucilleTxtFile = lambda {|filepath|
                 CatalystCommon::copyLocationToCatalystBin(filepath)
@@ -121,7 +116,6 @@ class NSXGeneralCommandHandler
         if command == "/" then
             options = [
                 "TimePods",
-                "InFlightControlSystem",
                 "Todo",
                 "OpenCycles",
                 "Calendar",
@@ -134,9 +128,6 @@ class NSXGeneralCommandHandler
             end
             if option == "TimePods" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods")
-            end
-            if option == "InFlightControlSystem" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/ifcs")
             end
             if option == "Todo" then
                 system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")

@@ -31,8 +31,6 @@ require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
 
-LUCILLE_UUID = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
-
 def openItem(claim)
     text = claim["description"]
     puts text
@@ -62,8 +60,6 @@ if ARGV[0] == 'start' and ARGV[1] then
         NSXWaveUtils::performDone2(claim)
         timespan = Time.new.to_f - time1
         timespan = [timespan, 1200].min # (20 mins) To avoid problems after leaving things running
-        puts "Pushing #{timespan.round(2)} seconds to Bank(LUCILLE)"
-        Bank::put(LUCILLE_UUID, timespan)
         puts "putting #{timespan.round(2)} seconds into catalyst measured times"
         Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
     end

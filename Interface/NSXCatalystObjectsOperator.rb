@@ -15,13 +15,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/InFlightControlSystem/InFlightControlSystem.rb"
-
 class NSXCatalystObjectsOperator
 
     # NSXCatalystObjectsOperator::applicationNames()
     def self.applicationNames()
-        ["Anniversaries", "BackupsMonitor", "Calendar", "Gwork", "InFlightControlSystem", "LucilleTxt", "TimePods", "Todo", "Vienna", "Wave", "VideoStream"]
+        ["Anniversaries", "BackupsMonitor", "Calendar", "LucilleTxt", "TimePods", "Todo", "Vienna", "Wave", "VideoStream"]
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()

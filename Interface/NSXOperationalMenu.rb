@@ -160,22 +160,20 @@ class NSXOperationalMenu
             {
                 "text"   => "new timepod",
                 "lambda" => lambda {
-                    targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", ["self", "LucilleTxt"])
-                    return if targetType.nil?
-                    if targetType == "self" then
-                        target = {
-                            "type"        => "self",
-                            "description" => LucilleCore::askQuestionAnswerAsString("description: ")
-                        }
-                    end
-                    if targetType == "LucilleTxt" then
-                        target = {
-                            "type"        => "LucilleTxt"
-                        }
-                    end
-                    timespanToDeadlineInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
+                    passenger = {
+                        "type"        => "self",
+                        "description" => LucilleCore::askQuestionAnswerAsString("description: ")
+                    }
+                    # For the moment we default to timed curve
+                    periodInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
                     timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                    TimePods::issue(target, Time.new.to_i, timespanToDeadlineInDays, timeCommitmentInHours)
+                    engine = {
+                        "type"                  => "time-commitment-on-curve",
+                        "startUnixtime"         => Time.new.to_i,
+                        "periodInDays"          => periodInDays,
+                        "timeCommitmentInHours" => timeCommitmentInHours
+                    }
+                    TimePods::issue(passenger, engine)
                 }
             },
             {
