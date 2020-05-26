@@ -302,7 +302,7 @@ class StarlightNetwork
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
 
-            items << ["select", lambda{ $EvolutionsGetXSingleton = node }]
+            items << ["select", lambda{ $EvolutionsFindXSingleton = node }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
@@ -320,7 +320,7 @@ class StarlightNetwork
             .select{|node| StartlightNodes::nodeToString(node) == nodestring }
             .first
         StarlightNetwork::navigateNode(node)
-        return $EvolutionsGetXSingleton if $EvolutionsGetXSingleton
+        return $EvolutionsFindXSingleton if $EvolutionsFindXSingleton
         if LucilleCore::askQuestionAnswerAsBoolean("StarlightNetwork: Would you like to make a new node and return it ? ", false) then
             return StartlightNodes::makeNodeInteractivelyOrNull(true)
         end

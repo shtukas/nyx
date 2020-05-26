@@ -135,9 +135,18 @@ class NSXOperationalMenu
                 }
             },
             {
-                "text"   => "EvolutionsGetX (test)",
+                "text"   => "datapoint visit (uuid)",
                 "lambda" => lambda {
-                    selectedEntity = EvolutionsGetX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
+                    uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                    datapoint = DataPoints::getOrNull(uuid)
+                    return if datapoint.nil?
+                    DataPointsEvolved::navigateDataPoint(datapoint)
+                }
+            },
+            {
+                "text"   => "EvolutionsFindX (test)",
+                "lambda" => lambda {
+                    selectedEntity = EvolutionsFindX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
                 }

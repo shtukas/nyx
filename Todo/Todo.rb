@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/EvolutionsGetX.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/EvolutionsFindX.rb"
 
 # -----------------------------------------------------------------------
 
@@ -193,7 +193,7 @@ class Items
         puts "Not implemented yet"
         LucilleCore::pressEnterToContinue()
         return
-        dataentity = EvolutionsGetX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
+        dataentity = EvolutionsFindX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
     end
 
     # Items::diveItem(item)

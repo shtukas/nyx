@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/EvolutionsGetX.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/EvolutionsFindX.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -29,23 +29,23 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight
 
 # -----------------------------------------------------------------
 
-$EvolutionsGetXSingleton = nil 
+$EvolutionsFindXSingleton = nil 
     # This is the global variable that contains the most recently selected entity
     # For the moment we limit to data entities
 
-class EvolutionsGetX
+class EvolutionsFindX
 
-    # EvolutionsGetX is very simple. We want to be able to find things and return them.
+    # EvolutionsFindX is very simple. We want to be able to find things and return them.
     # The search should be clever in the sense that we want to be able to modify and add things while searching before returning
     # We can return any of: CatalystStandardTarget, DataPoint, StarlightNode
     # One can specify which type they limit their search to
 
-    # EvolutionsGetX::selectOrNull(types)
+    # EvolutionsFindX::selectOrNull(types)
     # types = Array[DataEntityType]
     # DataEntityType = "catalyst-type:catalyst-standard-target" | "catalyst-type:datapoint" | "catalyst-type:starlight-node"
-    # EvolutionsGetX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
+    # EvolutionsFindX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
     def self.selectOrNull(types)
-        $EvolutionsGetXSingleton = nil
+        $EvolutionsFindXSingleton = nil
         options = [
             "select starlight node",
             "select datapoint",
@@ -64,15 +64,15 @@ class EvolutionsGetX
                 return datapoint
             end
         end
-        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsGetX: Would you like to make a new node and return it ? ", false) then
+        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: Would you like to make a new node and return it ? ", false) then
             return StartlightNodes::makeNodeInteractivelyOrNull(true)
         end
-        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsGetX: Would you like to make a new datapoint and return it ? ", false) then
+        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: Would you like to make a new datapoint and return it ? ", false) then
             return DataPoints::issueDataPointInteractivelyOrNull(true)
         end
-        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsGetX: No selection. Return null ? ", true) then
+        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: No selection. Return null ? ", true) then
             return nil
         end
-        EvolutionsGetX::selectOrNull(types)
+        EvolutionsFindX::selectOrNull(types)
     end
 end

@@ -505,7 +505,7 @@ class DataPointsEvolved
             StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[node owner] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
-            items << ["select", lambda{ $EvolutionsGetXSingleton = datapoint }]
+            items << ["select", lambda{ $EvolutionsFindXSingleton = datapoint }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
@@ -517,6 +517,6 @@ class DataPointsEvolved
         return nil if fragment.nil?
         globalss = DataPointsEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
         DataPointsEvolved::globalSearchStructureDive(globalss)
-        return $EvolutionsGetXSingleton
+        return $EvolutionsFindXSingleton
     end
 end
