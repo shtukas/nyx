@@ -519,4 +519,12 @@ class DataPointsEvolved
         DataPointsEvolved::globalSearchStructureDive(globalss)
         return $EvolutionsFindXSingleton
     end
+
+    # DataPointsEvolved::navigate()
+    def self.navigate()
+        fragment = DataPointsEvolved::nextGenGetSearchFragmentOrNull()
+        return nil if fragment.nil?
+        globalss = DataPointsEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        DataPointsEvolved::globalSearchStructureDive(globalss)
+    end
 end

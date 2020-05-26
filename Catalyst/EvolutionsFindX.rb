@@ -36,15 +36,9 @@ $EvolutionsFindXSingleton = nil
 class EvolutionsFindX
 
     # EvolutionsFindX is very simple. We want to be able to find things and return them.
-    # The search should be clever in the sense that we want to be able to modify and add things while searching before returning
     # We can return any of: CatalystStandardTarget, DataPoint, StarlightNode
-    # One can specify which type they limit their search to
-
-    # EvolutionsFindX::selectOrNull(types)
-    # types = Array[DataEntityType]
-    # DataEntityType = "catalyst-type:catalyst-standard-target" | "catalyst-type:datapoint" | "catalyst-type:starlight-node"
-    # EvolutionsFindX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
-    def self.selectOrNull(types)
+    # EvolutionsFindX::selectOrNull()
+    def self.selectOrNull()
         $EvolutionsFindXSingleton = nil
         options = [
             "select starlight node",
@@ -73,6 +67,22 @@ class EvolutionsFindX
         if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: No selection. Return null ? ", true) then
             return nil
         end
-        EvolutionsFindX::selectOrNull(types)
+        EvolutionsFindX::selectOrNull()
+    end
+
+    # EvolutionsFindX::navigate()
+    def self.navigate()
+        options = [
+            "select starlight node",
+            "select datapoint",
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
+        return nil if option.nil? 
+        if option == "select starlight node" then
+            StarlightNetwork::navigate()
+        end
+        if option == "select datapoint" then
+            DataPointsEvolved::navigate()
+        end
     end
 end

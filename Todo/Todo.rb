@@ -193,7 +193,7 @@ class Items
         puts "Not implemented yet"
         LucilleCore::pressEnterToContinue()
         return
-        dataentity = EvolutionsFindX::selectOrNull(["catalyst-type:datapoint", "catalyst-type:starlight-node"])
+        dataentity = EvolutionsFindX::selectOrNull()
     end
 
     # Items::diveItem(item)

@@ -329,5 +329,19 @@ class StarlightNetwork
         end
         StarlightNetwork::selectOrNull()
     end
+
+    # StarlightNetwork::navigate()
+    def self.navigate()
+        # Version 1
+        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
+
+        # Version 2
+        nodestrings = StartlightNodes::nodes().map{|node| StartlightNodes::nodeToString(node) }
+        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
+        node = StartlightNodes::nodes()
+            .select{|node| StartlightNodes::nodeToString(node) == nodestring }
+            .first
+        StarlightNetwork::navigateNode(node)
+    end
 end
 

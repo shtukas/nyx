@@ -144,9 +144,15 @@ class NSXOperationalMenu
                 }
             },
             {
-                "text"   => "EvolutionsFindX (test)",
+                "text"   => "EvolutionsFindX::navigate()",
                 "lambda" => lambda {
-                    selectedEntity = EvolutionsFindX::selectOrNull(["catalyst-type:catalyst-standard-target", "catalyst-type:datapoint", "catalyst-type:starlight-node"])
+                    EvolutionsFindX::navigate()
+                }
+            },
+            {
+                "text"   => "EvolutionsFindX::selectOrNull() (test)",
+                "lambda" => lambda {
+                    selectedEntity = EvolutionsFindX::selectOrNull()
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
                 }
