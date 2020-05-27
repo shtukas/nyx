@@ -22,7 +22,7 @@ class Timelines
 
     # Timelines::path()
     def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/nodes"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/timelines"
     end
 
     # Timelines::save(node)
@@ -63,7 +63,7 @@ class Timelines
         if canAskToMakeAParent and LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
             xnode = StarlightNetwork::selectOrNull()
             if xnode then
-                StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(xnode, node)
+                Stargates::issuePathFromFirstNodeToSecondNodeOrNull(xnode, node)
             end
         end
         node
@@ -71,40 +71,40 @@ class Timelines
 
     # Timelines::timelineToString(node)
     def self.timelineToString(node)
-        "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
+        "[timeline] #{node["name"]} (#{node["uuid"][0, 4]})"
     end
 end
 
-class StartlightPaths
+class Stargates
 
-    # StartlightPaths::path()
+    # Stargates::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/paths"
     end
 
-    # StartlightPaths::save(path)
+    # Stargates::save(path)
     def self.save(path)
-        filepath = "#{StartlightPaths::path()}/#{path["uuid"]}.json"
+        filepath = "#{Stargates::path()}/#{path["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(path)) }
     end
 
-    # StartlightPaths::getOrNull(uuid)
+    # Stargates::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{StartlightPaths::path()}/#{uuid}.json"
+        filepath = "#{Stargates::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # StartlightPaths::paths()
+    # Stargates::paths()
     def self.paths()
-        Dir.entries(StartlightPaths::path())
+        Dir.entries(Stargates::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{StartlightPaths::path()}/#{filename}" }
+            .map{|filename| "#{Stargates::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # StartlightPaths::issuePathInteractivelyOrNull()
+    # Stargates::issuePathInteractivelyOrNull()
     def self.issuePathInteractivelyOrNull()
         path = {
             "catalystType"      => "catalyst-type:starlight-path",
@@ -114,11 +114,11 @@ class StartlightPaths
             "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
             "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
-        StartlightPaths::save(path)
+        Stargates::save(path)
         path
     end
 
-    # StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+    # Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
     def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
         return nil if node1["uuid"] == node2["uuid"]
         path = {
@@ -128,37 +128,37 @@ class StartlightPaths
             "sourceuuid" => node1["uuid"],
             "targetuuid" => node2["uuid"]
         }
-        StartlightPaths::save(path)
+        Stargates::save(path)
         path
     end
 
-    # StartlightPaths::getPathsWithGivenTarget(targetuuid)
+    # Stargates::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        StartlightPaths::paths()
+        Stargates::paths()
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
-    # StartlightPaths::getPathsWithGivenSource(sourceuuid)
+    # Stargates::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        StartlightPaths::paths()
+        Stargates::paths()
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 
-    # StartlightPaths::pathToString(path)
+    # Stargates::pathToString(path)
     def self.pathToString(path)
-        "[starlight path] #{path["sourceuuid"]} -> #{path["targetuuid"]}"
+        "[stargate] #{path["sourceuuid"]} -> #{path["targetuuid"]}"
     end
 
-    # StartlightPaths::getParentNodes(node)
+    # Stargates::getParentNodes(node)
     def self.getParentNodes(node)
-        StartlightPaths::getPathsWithGivenTarget(node["uuid"])
+        Stargates::getPathsWithGivenTarget(node["uuid"])
             .map{|path| Timelines::getOrNull(path["sourceuuid"]) }
             .compact
     end
 
-    # StartlightPaths::getChildNodes(node)
+    # Stargates::getChildNodes(node)
     def self.getChildNodes(node)
-        StartlightPaths::getPathsWithGivenSource(node["uuid"])
+        Stargates::getPathsWithGivenSource(node["uuid"])
             .map{|path| Timelines::getOrNull(path["targetuuid"]) }
             .compact
     end
@@ -266,9 +266,9 @@ class StarlightNetwork
                 next if node1.nil?
                 node2 = StarlightNetwork::selectOrNull()
                 next if node2.nil?
-                path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
-                StartlightPaths::save(path)
+                Stargates::save(path)
             end
         }
     end
@@ -284,7 +284,7 @@ class StarlightNetwork
                 node["description"] = CatalystCommon::editTextUsingTextmate(node["description"]).strip
                 Timelines::save(node)
             }]
-            StartlightPaths::getChildNodes(node)
+            Stargates::getChildNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
 
@@ -292,7 +292,7 @@ class StarlightNetwork
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
                 .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ DataEntities::navigateDataEntity(dataentity) }] }
 
-            StartlightPaths::getParentNodes(node)
+            Stargates::getParentNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
 

@@ -185,7 +185,7 @@ class NSXMiscUtils
                     puts "Did not determine a parent for '#{Timelines::timelineToString(node)}'. Aborting parent determination."
                     break
                 end
-                StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
+                Stargates::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{Timelines::timelineToString(node)}' ? ")
             }
             puts "Completed determining parents for '#{Timelines::timelineToString(node)}'"
@@ -200,7 +200,7 @@ class NSXMiscUtils
                     break
                 end
                 puts JSON.pretty_generate(child)
-                path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
+                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
                 puts JSON.pretty_generate(path)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{Timelines::timelineToString(node)}' ? ")
             }
