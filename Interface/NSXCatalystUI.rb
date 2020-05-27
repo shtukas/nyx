@@ -55,7 +55,7 @@ class NSXCatalystUI
                 "starlight nodes listing", 
                 lambda {
                     puts "Latest Starlight Nodes"
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("starlight node", Timelines::nodes(), lambda{|node| Timelines::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("starlight node", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
                     return if node.nil?
                     StarlightNetwork::navigateNode(node)
                 }

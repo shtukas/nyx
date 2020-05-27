@@ -43,7 +43,7 @@ class DataEntities
             return DataPoints::datapointToString(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
-            return Timelines::nodeToString(dataentity)
+            return Timelines::timelineToString(dataentity)
         end
         raise "DataEntities::dataEntityToString, Error: abb2f0dd-5772"
     end

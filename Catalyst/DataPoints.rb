@@ -166,7 +166,7 @@ class DataPoints
         else
             puts "    starlightnodes"
             starlightnodes.each{|node|
-                puts "        #{Timelines::nodeToString(node)}"
+                puts "        #{Timelines::timelineToString(node)}"
             }
         end
     end
@@ -501,7 +501,7 @@ class DataPointsEvolved
 
             StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[node owner] #{Timelines::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
+                .each{|n| items << ["[node owner] #{Timelines::timelineToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
             items << ["select", lambda{ $EvolutionsFindXSingleton = datapoint }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status

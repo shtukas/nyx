@@ -59,7 +59,7 @@ class EvolutionsFindX
             end
         end
         if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: Would you like to make a new node and return it ? ", false) then
-            return Timelines::makeNodeInteractivelyOrNull(true)
+            return Timelines::makeTimelineInteractivelyOrNull(true)
         end
         if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: Would you like to make a new datapoint and return it ? ", false) then
             return DataPoints::issueDataPointInteractivelyOrNull(true)
