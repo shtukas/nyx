@@ -6,10 +6,10 @@ Guardian Work    : 6 hours Mon-Fri
 
 TimePods (top 3) : 2 hours (2/3 hours each) Mon-Sat
 
-LucilleTxt       : 2 hours Mon-Sat 
+LucilleTxt1       : 2 hours Mon-Sat 
     TimePod
     special-circumstances
-    "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8"
+    "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
 
 
 

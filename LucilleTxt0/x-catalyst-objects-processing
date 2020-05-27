@@ -1,0 +1,75 @@
+#!/Users/pascal/.rvm/rubies/ruby-2.5.1/bin/ruby
+
+# encoding: UTF-8
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv 'oldname', 'newname'
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
+# SectionsType0141::contentToSections(text)
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation, setuuid: String, valueuuid: String)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb"
+=begin 
+    Runner::isRunning(uuid)
+    Runner::runTimeInSecondsOrNull(uuid) # null | Float
+    Runner::start(uuid)
+    Runner::stop(uuid) # null | Float
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
+=begin 
+    Bank::put(uuid, weight)
+    Bank::total(uuid)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
+=begin 
+    Ping::put(uuid, weight)
+    Ping::total24hours(uuid)
+    Ping::totalToday(uuid)
+=end
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
+# SectionsType0141::contentToSections(text)
+# SectionsType0141::applyNextTransformationToContent(content)
+
+# --------------------------------------------------------------------
+
+PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
+
+if ARGV[0] == "sections-type-0141-done-deep-task" then
+    CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
+
+    parts = IO.read(PATH_TO_DESKTOP_FILE)
+        .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
+        .map{|part| part.strip }
+
+    parts[0] = SectionsType0141::applyNextTransformationToContent(parts[0])
+
+    content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
+    File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts(content) }
+end

@@ -182,21 +182,6 @@ class NSXCatalystUI
             verticalSpaceLeft = verticalSpaceLeft - ( calendarreport.lines.to_a.size + 1 )
         end
 
-        lucille = IO.read("/Users/pascal/Desktop/Lucille.txt").strip
-        contents = lucille
-                        .lines
-                        .select{|line|  line.strip != ""}
-                        .take_while{|line| line.strip != "@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610" }
-                        .map{|line| "              |#{line}" }
-                        .join()
-                        .rstrip
-        if contents != "" then
-            puts ""
-            puts "Lucille.txt ☀️"
-            puts contents.green
-            verticalSpaceLeft = verticalSpaceLeft - ( NSXDisplayUtils::verticalSize(contents) + 2 )
-        end
-
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
 
@@ -223,21 +208,6 @@ class NSXCatalystUI
             position = command[1,999].to_i
             executors[position].call()
             return
-        end
-
-        if command == '[]' then
-            filepath = "/Users/pascal/Desktop/Lucille.txt"
-            CatalystCommon::copyLocationToCatalystBin(filepath)
-            parts = IO.read(filepath)
-                .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
-                .map{|part| part.strip }
-
-            if parts[0].strip.size > 0 then
-                parts[0] = SectionsType0141::applyNextTransformationToContent(parts[0])
-                content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
-                File.open(filepath, "w"){|f| f.puts(content) }
-                return
-            end
         end
 
         if command == "/" then

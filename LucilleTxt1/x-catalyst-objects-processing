@@ -61,13 +61,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-if ARGV[0] == "start" then
-    Runner::start("e287b121-9ee9-4fc5-81ba-ef1c956c202b")
+uuid = "e287b121-9ee9-4fc5-81ba-ef1c956c202b"
 
+if ARGV[0] == "start" then
+    Runner::start(uuid)
 end
 
 if ARGV[0] == "stop" then
-    Runner::stop("e287b121-9ee9-4fc5-81ba-ef1c956c202b")
+    Runner::stop(uuid)
 end
 
 if ARGV[0] == "rotate" then
@@ -79,7 +80,8 @@ if ARGV[0] == "rotate" then
 
     sections = SectionsType0141::contentToSections(parts[1])
     section  = sections.shift
-    sections = sections + [ section ]
+
+    
 
     parts[1] = sections.map{|section| section.strip }.join("\n\n")
 
@@ -94,11 +96,7 @@ if ARGV[0] == "sections-type-0141-done-deep-task" then
         .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
         .map{|part| part.strip }
 
-    if parts[0] != "" then
-        parts[0] = SectionsType0141::applyNextTransformationToContent(parts[0])
-    else
-        parts[1] = SectionsType0141::applyNextTransformationToContent(parts[1])
-    end
+    parts[1] = SectionsType0141::applyNextTransformationToContent(parts[1])
 
     content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
     File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts(content) }

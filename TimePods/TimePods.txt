@@ -20,14 +20,14 @@ TimePodPassenger
         "uuid" : String
     }
     {
-        "type"       : "text" # pieces of text coming from LucilleTxt
+        "type"       : "text" # pieces of text coming from LucilleTxt1
         "uuid"       : String # essentially the first part of the filename <uuid>.txt
         "description": String
     }
 
 special-circumstances
     -
-        name: "LucilleTxt"
+        name: "LucilleTxt1"
         uuid: "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8"
 
 TimePodEngine

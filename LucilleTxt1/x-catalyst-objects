@@ -81,18 +81,19 @@ lucilletext = IO.read(PATH_TO_DESKTOP_FILE)
                 .lines
                 .first(10)
                 .join()
+                .strip
 
 contentItem = 
     if isRunning then
         {
             "type"    => "listing-and-focus",
-            "listing" => "LucilleTxt",
+            "listing" => "LucilleTxt1",
             "focus"   => lucilletext
         }
     else
         {
             "type"    => "line",
-            "line" => "LucilleTxt",
+            "line" => "LucilleTxt1",
         }
     end
 
@@ -105,10 +106,10 @@ object = {
     "isRunning" => isRunning,
     "isRunningForLong" => isRunningForLong,
     "shell-redirects" => {
-        "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing start",
-        "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing stop",
-        "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing sections-type-0141-done-deep-task",
-        "rotate" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing rotate",
+        "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing start",
+        "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing stop",
+        "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing sections-type-0141-done-deep-task",
+        "rotate" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing rotate",
     }
 }
 
