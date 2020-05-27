@@ -45,141 +45,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 
 class NSXGeneralCommandHandler
 
-    # NSXGeneralCommandHandler::helpLines()
-    def self.helpLines()
-        [
-            "Special General Commands:",
-            "\n",
-            [
-                "help",
-                "/                    General Menu"
-            ].map{|command| "        "+command }.join("\n"),
-            "\n",
-            "Special Object Commands:",
-            "\n",
-            [
-                "..                   default command",
-                "+datetimecode",
-                "++                   +1 hour",
-                "+<weekdayname>",
-                "+<integer>day(s)",
-                "+<integer>hour(s)",
-                "+YYYY-MM-DD",
-                "+1@23:45",
-                "expose"
-            ].map{|command| "        "+command }.join("\n")
-        ]
-    end
-
     # NSXGeneralCommandHandler::processCatalystCommandCore(object, command)
     def self.processCatalystCommandCore(object, command)
 
         return false if command.nil?
 
-        # ---------------------------------------
-        # General Command
-        # ---------------------------------------
-
         if command == "" then
             return
         end
-
-        if command == 'help' then
-            puts NSXGeneralCommandHandler::helpLines().join()
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if command == '' then
-            puts NSXGeneralCommandHandler::helpLines().join()
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if command == '[]' then
-            filepath = "/Users/pascal/Desktop/Lucille.txt"
-            CatalystCommon::copyLocationToCatalystBin(filepath)
-            parts = IO.read(filepath)
-                .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
-                .map{|part| part.strip }
-
-            if parts[0].strip.size > 0 then
-                parts[0] = SectionsType0141::applyNextTransformationToContent(parts[0])
-                content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
-                File.open(filepath, "w"){|f| f.puts(content) }
-                return
-            end
-        end
-
-        if command == "/" then
-            options = [
-                "TimePods",
-                "Todo",
-                "OpenCycles",
-                "Calendar",
-                "Wave",
-                "Catalyst",
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option == "OpenCycles" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles")
-            end
-            if option == "TimePods" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods")
-            end
-            if option == "Todo" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo")
-            end
-            if option == "Calendar" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar")
-            end
-            if option == "Wave" then
-                system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave")
-            end
-            if option == "Catalyst" then
-                loop {
-                    options = [
-                        "Applications generation speed",
-                        "UI generation speed"
-                    ]
-                    option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-                    break if option.nil?
-                    if option == "Applications generation speed" then
-                        puts "Applications generation speed report"
-                        NSXCatalystObjectsOperator::applicationNames()
-                            .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
-                            .map{|source|
-                                t1 = Time.new.to_f
-                                JSON.parse(`#{source}`)
-                                t2 = Time.new.to_f
-                                {
-                                    "source" => source,
-                                    "timespan" => t2-t1 
-                                }
-                            }
-                            .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
-                            .reverse
-                            .each{|object|
-                                puts "    - #{object["source"]}: #{"%.3f" % object["timespan"]}"
-                            }
-                        LucilleCore::pressEnterToContinue()
-                    end
-                    if option == "UI generation speed" then
-                        t1 = Time.new.to_f
-                        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                            .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
-                        t2 = Time.new.to_f
-                        puts "UI generation speed: #{(t2-t1).round(3)} seconds"
-                        LucilleCore::pressEnterToContinue()
-                    end
-                }
-            end
-            return
-        end
-
-        # ---------------------------------------
-        # General Utility Command Against Object
-        # ---------------------------------------
 
         return false if object.nil?
 

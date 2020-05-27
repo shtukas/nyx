@@ -126,4 +126,35 @@ class NSXMiscUtils
         str == str.to_i.to_s
     end
 
+    # NSXMiscUtils::importFromLucilleInbox()
+    def self.importFromLucilleInbox()
+        getNextLocationAtTheInboxOrNull = lambda {
+            Dir.entries("/Users/pascal/Desktop/Lucille-Inbox")
+                .reject{|filename| filename[0, 1] == '.' }
+                .map{|filename| "/Users/pascal/Desktop/Lucille-Inbox/#{filename}" }
+                .first
+        }
+        while (location = getNextLocationAtTheInboxOrNull.call()) do
+            if File.basename(location).include?("'") then
+                basename2 = File.basename(location).gsub("'", ",")
+                location2 = "#{File.dirname(location)}/#{basename2}"
+                FileUtils.mv(location, location2)
+                next
+            end
+            target = CatalystStandardTargets::locationToFileOrFolderTarget(location)
+            item = {
+                "uuid"         => SecureRandom.uuid,
+                "creationtime" => Time.new.to_f,
+                "projectname"  => "Inbox",
+                "projectuuid"  => "44caf74675ceb79ba5cc13bafa102509369c2b53",
+                "description"  => File.basename(location),
+                "target"       => target
+            }
+            puts JSON.pretty_generate(item)
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{item["uuid"]}.json"
+            File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
+            LucilleCore::removeFileSystemLocation(location)
+        end
+    end
+
 end

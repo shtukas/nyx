@@ -38,35 +38,105 @@ require_relative "NSXOperationalMenu.rb"
 
 class NSXCatalystUI
 
-    # NSXCatalystUI::performInterfaceDisplay(displayObjects)
-    def self.performInterfaceDisplay(displayObjects)
+    # NSXCatalystUI::performBackopsDisplay()
+    def self.performBackopsDisplay()
+        loop {
+            system("clear")
+
+            items = []
+
+            NSXOperationalMenu::structure().each{|item|
+                items << [item["text"], item["lambda"]]
+            }
+
+            items << nil
+
+            items << [
+                "TimePods", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
+            ]
+
+            items << [
+                "Todo", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
+            ]
+
+            items << [
+                "OpenCycles", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
+            ]
+
+            items << [
+                "Calendar", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
+            ]
+
+            items << [
+                "Wave", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
+            ]
+
+            items << nil
+
+            items << [
+                "Applications generation speed", 
+                lambda { 
+                    puts "Applications generation speed report"
+                    NSXCatalystObjectsOperator::applicationNames()
+                        .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
+                        .map{|source|
+                            t1 = Time.new.to_f
+                            JSON.parse(`#{source}`)
+                            t2 = Time.new.to_f
+                            {
+                                "source" => source,
+                                "timespan" => t2-t1 
+                            }
+                        }
+                        .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
+                        .reverse
+                        .each{|object|
+                            puts "    - #{object["source"]}: #{"%.3f" % object["timespan"]}"
+                        }
+                    LucilleCore::pressEnterToContinue()
+                }
+            ]
+
+            items << [
+                "UI generation speed", 
+                lambda { 
+                    t1 = Time.new.to_f
+                    NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                        .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
+                    t2 = Time.new.to_f
+                    puts "UI generation speed: #{(t2-t1).round(3)} seconds"
+                    LucilleCore::pressEnterToContinue()
+                }
+            ]
+
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # NSXCatalystUI::performStandardDisplay(displayObjects)
+    def self.performStandardDisplay(displayObjects)
 
         displayTime = Time.new.to_f
 
         system("clear")
 
-        executors = []
-
         position = 0
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
 
         puts ""
-        puts "-> Todo items done today: #{Ping::totalToday("AEBAFC58-A70B-4623-A9C9-A00FF6BAAD0A")}".green
-        puts "-> Diligence (24h): #{(100*Ping::total24hours("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
-        verticalSpaceLeft = verticalSpaceLeft - 3
+        puts "Diligence (24h): #{(100*Ping::total24hours("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
+        verticalSpaceLeft = verticalSpaceLeft - 2
+
+        executors = []
 
         puts ""
         verticalSpaceLeft = verticalSpaceLeft - 1
-        NSXOperationalMenu::structure().each{|item|
-            puts "[#{position.to_s.rjust(3)}] #{item["text"]}"
-            executors[position] = item["lambda"]
-            position = position + 1
-            verticalSpaceLeft = verticalSpaceLeft - 1
-        }
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-
         OpenCycles::getOpenCyclesClaims().each{|claim|
             dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
             next if dataentity.nil?
@@ -117,9 +187,6 @@ class NSXCatalystUI
         print "--> "
         command = STDIN.gets().strip
         if command=='' then
-            if (Time.new.to_f - displayTime) < 5 then
-                return NSXCatalystUI::performInterfaceDisplay(displayObjects)
-            end
             return
         end
 
@@ -129,38 +196,27 @@ class NSXCatalystUI
             return
         end
 
-        NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
-    end
+        if command == '[]' then
+            filepath = "/Users/pascal/Desktop/Lucille.txt"
+            CatalystCommon::copyLocationToCatalystBin(filepath)
+            parts = IO.read(filepath)
+                .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
+                .map{|part| part.strip }
 
-    # NSXCatalystUI::importFromLucilleInbox()
-    def self.importFromLucilleInbox()
-        getNextLocationAtTheInboxOrNull = lambda {
-            Dir.entries("/Users/pascal/Desktop/Lucille-Inbox")
-                .reject{|filename| filename[0, 1] == '.' }
-                .map{|filename| "/Users/pascal/Desktop/Lucille-Inbox/#{filename}" }
-                .first
-        }
-        while (location = getNextLocationAtTheInboxOrNull.call()) do
-            if File.basename(location).include?("'") then
-                basename2 = File.basename(location).gsub("'", ",")
-                location2 = "#{File.dirname(location)}/#{basename2}"
-                FileUtils.mv(location, location2)
-                next
+            if parts[0].strip.size > 0 then
+                parts[0] = SectionsType0141::applyNextTransformationToContent(parts[0])
+                content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
+                File.open(filepath, "w"){|f| f.puts(content) }
+                return
             end
-            target = CatalystStandardTargets::locationToFileOrFolderTarget(location)
-            item = {
-                "uuid"         => SecureRandom.uuid,
-                "creationtime" => Time.new.to_f,
-                "projectname"  => "Inbox",
-                "projectuuid"  => "44caf74675ceb79ba5cc13bafa102509369c2b53",
-                "description"  => File.basename(location),
-                "target"       => target
-            }
-            puts JSON.pretty_generate(item)
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{item["uuid"]}.json"
-            File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
-            LucilleCore::removeFileSystemLocation(location)
         end
+
+        if command == "/" then
+            NSXCatalystUI::performBackopsDisplay()
+            return
+        end
+
+        NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
     end
 
     # NSXCatalystUI::standardUILoop()
@@ -170,10 +226,14 @@ class NSXCatalystUI
                 puts "Code change detected. Exiting."
                 return
             end
-            NSXCatalystUI::importFromLucilleInbox()
+
+            # Some Admin
+            NSXMiscUtils::importFromLucilleInbox()
             NSXCuration::curation()
+
+            # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-            NSXCatalystUI::performInterfaceDisplay(objects)
+            NSXCatalystUI::performStandardDisplay(objects)
         }
     end
 end
