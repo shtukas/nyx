@@ -193,24 +193,10 @@ class TimelineOwnership
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
-    def self.issueClaimGivenTimelineAndClique(node, datapoint)
+    # TimelineOwnership::issueClaimGivenTimelineAndEntity(node, target)
+    def self.issueClaimGivenTimelineAndEntity(node, target)
         claim = {
-            "catalystType"      => "catalyst-type:starlight-node-ownership-claim",
-            "creationTimestamp" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
-
-            "nodeuuid"   => node["uuid"],
-            "targetuuid" => datapoint["uuid"]
-        }
-        TimelineOwnership::save(claim)
-        claim
-    end
-
-    # TimelineOwnership::issueClaimGivenTimelineAndDataPoint(node, target)
-    def self.issueClaimGivenTimelineAndDataPoint(node, target)
-        claim = {
-            "catalystType"      => "catalyst-type:starlight-node-ownership-claim",
+            "catalystType"      => "catalyst-type:time-ownership-claim",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -234,10 +220,10 @@ class TimelineOwnership
             .compact
     end
 
-    # TimelineOwnership::getTimelinesForEntity(datapoint)
-    def self.getTimelinesForEntity(datapoint)
+    # TimelineOwnership::getTimelinesForEntity(clique)
+    def self.getTimelinesForEntity(clique)
         TimelineOwnership::claims()
-            .select{|claim| claim["targetuuid"] == datapoint["uuid"] }
+            .select{|claim| claim["targetuuid"] == clique["uuid"] }
             .map{|claim| Timelines::getOrNull(claim["nodeuuid"]) }
             .compact
     end

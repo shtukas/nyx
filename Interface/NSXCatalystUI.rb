@@ -20,7 +20,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
@@ -67,30 +67,30 @@ class NSXCatalystUI
             ]
 
             items << [
-                "datapoints listing",
+                "cliques listing",
                 lambda {
-                    puts "Latest DataPoints"
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("data points", DataPoints::datapoints(), lambda{|datapoint| DataPoints::datapointToString(datapoint) })
+                    puts "Latest Cliques"
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("data points", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if node.nil?
                     Multiverse::visitTimeline(node)
                 }
             ]
 
             items << [
-                "datapoint visit (uuid)", 
+                "clique visit (uuid)", 
                 lambda {
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                    datapoint = DataPoints::getOrNull(uuid)
-                    return if datapoint.nil?
-                    DataPointsEvolved::navigateDataPoint(datapoint)
+                    clique = Cliques::getOrNull(uuid)
+                    return if clique.nil?
+                    CliquesEvolved::navigateClique(clique)
                 }
             ]
 
             items << [
-                "datapoint (new) -> { OpenCycle, Starlight Node (existing or new) }", 
+                "clique (new) -> { OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
-                    datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
-                    return if datapoint.nil?
+                    clique = Cliques::issueCliqueInteractivelyOrNull(false)
+                    return if clique.nil?
 
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
                     return if whereTo.nil?
@@ -98,14 +98,14 @@ class NSXCatalystUI
                         claim = {
                             "uuid"              => SecureRandom.uuid,
                             "creationTimestamp" => Time.new.to_f,
-                            "entityuuid"        => datapoint["uuid"]
+                            "entityuuid"        => clique["uuid"]
                         }
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Starlight Node" then
                         node = Multiverse::selectOrNull()
                         return if node.nil?
-                        TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
+                        TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                     end
                 }
             ]
@@ -249,7 +249,7 @@ class NSXCatalystUI
 
             items << nil
 
-            NSXMiscUtils::datapointsAndStarlightNodes()
+            NSXMiscUtils::cliquesAndStarlightNodes()
                 .last(20)
                 .each{|item|
                     items << [

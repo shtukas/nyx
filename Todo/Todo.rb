@@ -224,14 +224,14 @@ class Items
         return false if newowner.nil?
         if newowner["catalystType"] == "catalyst-type:starlight-node" then
             node = newowner
-            TimelineOwnership::issueClaimGivenTimelineAndDataPoint(node, item["target"])
+            TimelineOwnership::issueClaimGivenTimelineAndEntity(node, item["target"])
             return true
         end
-        if newowner["catalystType"] == "catalyst-type:datapoint" then
-            datapoint = newowner
-            datapoint = DataPoints::getOrNull(datapoint["uuid"])
-            datapoint["targets"] << item["target"]
-            DataPoints::save(datapoint)
+        if newowner["catalystType"] == "catalyst-type:clique" then
+            clique = newowner
+            clique = Cliques::getOrNull(clique["uuid"])
+            clique["targets"] << item["target"]
+            Cliques::save(clique)
             return true
         end
         raise "Todo: error: d089decd"

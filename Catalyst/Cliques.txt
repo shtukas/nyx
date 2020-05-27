@@ -1,9 +1,9 @@
 
-DataPoints are objects of the form
+Cliques are objects of the form
 
 ```
 {
-    catalystType      : "catalyst-type:datapoint"
+    catalystType      : "catalyst-type:clique"
     creationTimestamp : Float # Unixtime with decimals
     uuid              : String
 

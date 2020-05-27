@@ -135,7 +135,7 @@ class CatalystStandardTargets
     def self.targets()
         Dir.entries(CatalystStandardTargets::pathToRepository())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{DataPoints::pathToRepository()}/#{filename}" }
+            .map{|filename| "#{Cliques::pathToRepository()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 

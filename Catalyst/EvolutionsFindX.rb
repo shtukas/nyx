@@ -24,7 +24,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 
 # -----------------------------------------------------------------
@@ -36,13 +36,13 @@ $EvolutionsFindXSingleton = nil
 class EvolutionsFindX
 
     # EvolutionsFindX is very simple. We want to be able to find things and return them.
-    # We can return any of: CatalystStandardTarget, DataPoint, StarlightNode
+    # We can return any of: CatalystStandardTarget, Clique, StarlightNode
     # EvolutionsFindX::selectOrNull()
     def self.selectOrNull()
         $EvolutionsFindXSingleton = nil
         options = [
             "select starlight node",
-            "select datapoint",
+            "select clique",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
         return nil if option.nil? 
@@ -52,17 +52,17 @@ class EvolutionsFindX
                 return node
             end
         end
-        if option == "select datapoint" then
-            datapoint = DataPointsEvolved::searchDiveAndSelect()
-            if datapoint then
-                return datapoint
+        if option == "select clique" then
+            clique = CliquesEvolved::searchDiveAndSelect()
+            if clique then
+                return clique
             end
         end
         if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: Would you like to make a new node and return it ? ", false) then
             return Timelines::makeTimelineInteractivelyOrNull(true)
         end
-        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: Would you like to make a new datapoint and return it ? ", false) then
-            return DataPoints::issueDataPointInteractivelyOrNull(true)
+        if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: Would you like to make a new clique and return it ? ", false) then
+            return Cliques::issueCliqueInteractivelyOrNull(true)
         end
         if LucilleCore::askQuestionAnswerAsBoolean("EvolutionsFindX: No selection. Return null ? ", true) then
             return nil
@@ -74,15 +74,15 @@ class EvolutionsFindX
     def self.navigate()
         options = [
             "select starlight node",
-            "select datapoint",
+            "select clique",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
         return nil if option.nil? 
         if option == "select starlight node" then
             Multiverse::navigate()
         end
-        if option == "select datapoint" then
-            DataPointsEvolved::navigate()
+        if option == "select clique" then
+            CliquesEvolved::navigate()
         end
     end
 end

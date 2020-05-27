@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -21,54 +21,54 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multivers
 
 # -----------------------------------------------------------------
 
-class DataPoints
+class Cliques
 
-    # DataPoints::pathToRepository()
+    # Cliques::pathToRepository()
     def self.pathToRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/DataPoints"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Cliques"
     end
 
-    # DataPoints::fsckDataPointExplode(datapoint)
-    def self.fsckDataPointExplode(datapoint)
-        raise "DataPoints::fsckDataPointExplode [uuid] {#{datapoint}}" if datapoint["uuid"].nil?
-        raise "DataPoints::fsckDataPointExplode [creationTimestamp] {#{datapoint}}" if datapoint["creationTimestamp"].nil?
-        raise "DataPoints::fsckDataPointExplode [description] {#{datapoint}}" if datapoint["description"].nil?
-        raise "DataPoints::fsckDataPointExplode [targets] {#{datapoint}}" if datapoint["targets"].nil?
-        raise "DataPoints::fsckDataPointExplode [tags] {#{datapoint}}" if datapoint["tags"].nil?
+    # Cliques::fsckExplodeIfFail(clique)
+    def self.fsckExplodeIfFail(clique)
+        raise "Cliques::fsckExplodeIfFail [uuid] {#{clique}}" if clique["uuid"].nil?
+        raise "Cliques::fsckExplodeIfFail [creationTimestamp] {#{clique}}" if clique["creationTimestamp"].nil?
+        raise "Cliques::fsckExplodeIfFail [description] {#{clique}}" if clique["description"].nil?
+        raise "Cliques::fsckExplodeIfFail [targets] {#{clique}}" if clique["targets"].nil?
+        raise "Cliques::fsckExplodeIfFail [tags] {#{clique}}" if clique["tags"].nil?
     end
 
-    # DataPoints::save(datapoint)
-    def self.save(datapoint)
-        DataPoints::fsckDataPointExplode(datapoint)
-        filepath = "#{DataPoints::pathToRepository()}/#{datapoint["uuid"]}.json"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(datapoint)) }
+    # Cliques::save(clique)
+    def self.save(clique)
+        Cliques::fsckExplodeIfFail(clique)
+        filepath = "#{Cliques::pathToRepository()}/#{clique["uuid"]}.json"
+        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(clique)) }
     end
 
-    # DataPoints::getOrNull(uuid)
+    # Cliques::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{DataPoints::pathToRepository()}/#{uuid}.json"
+        filepath = "#{Cliques::pathToRepository()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # DataPoints::destroy(uuid)
+    # Cliques::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "#{DataPoints::pathToRepository()}/#{uuid}.json"
+        filepath = "#{Cliques::pathToRepository()}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # DataPoints::datapoints()
-    # datapoints are given in the increasing creation order.
-    def self.datapoints()
-        Dir.entries(DataPoints::pathToRepository())
+    # Cliques::cliques()
+    # cliques are given in the increasing creation order.
+    def self.cliques()
+        Dir.entries(Cliques::pathToRepository())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{DataPoints::pathToRepository()}/#{filename}" }
+            .map{|filename| "#{Cliques::pathToRepository()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # DataPoints::makeCatalystStandardTargetsInteractively()
+    # Cliques::makeCatalystStandardTargetsInteractively()
     def self.makeCatalystStandardTargetsInteractively()
         targets = []
         loop {
@@ -79,7 +79,7 @@ class DataPoints
         targets
     end
 
-    # DataPoints::makeTagsInteractively()
+    # Cliques::makeTagsInteractively()
     def self.makeTagsInteractively()
         tags = []
         loop {
@@ -90,55 +90,42 @@ class DataPoints
         tags
     end
 
-    # DataPoints::issueDataPointInteractivelyOrNull(shouldStarlightNodeInvite)
-    def self.issueDataPointInteractivelyOrNull(shouldStarlightNodeInvite)
-        datapoint = {
-            "catalystType"      => "catalyst-type:datapoint",
+    # Cliques::issueCliqueInteractivelyOrNull(shouldStarlightNodeInvite)
+    def self.issueCliqueInteractivelyOrNull(shouldStarlightNodeInvite)
+        clique = {
+            "catalystType"      => "catalyst-type:clique",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
             "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"           => DataPoints::makeCatalystStandardTargetsInteractively(),
-            "tags"              => DataPoints::makeTagsInteractively()
+            "targets"           => Cliques::makeCatalystStandardTargetsInteractively(),
+            "tags"              => Cliques::makeTagsInteractively()
         }
-        puts JSON.pretty_generate(datapoint)
-        DataPoints::save(datapoint)
-        if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
+        puts JSON.pretty_generate(clique)
+        Cliques::save(clique)
+        if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
             node = Multiverse::selectOrNull()
             if node then
-                TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
+                TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
             end
         end
-        datapoint
+        clique
     end
 
-    # DataPoints::getDataPointsByTag(tag)
-    def self.getDataPointsByTag(tag)
-        DataPoints::datapoints()
-            .select{|datapoint| datapoint["tags"].include?(tag) }
+    # Cliques::getCliquesByTag(tag)
+    def self.getCliquesByTag(tag)
+        Cliques::cliques()
+            .select{|clique| clique["tags"].include?(tag) }
     end
 
-    # DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
-    def self.selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
-        return nil if datapoints.empty?
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", datapoints, lambda { |datapoint| DataPoints::datapointToString(datapoint) })
+    # Cliques::cliqueToString(clique)
+    def self.cliqueToString(clique)
+        "[clique] #{clique["description"]} [#{clique["uuid"][0, 4]}] (#{clique["targets"].size})"
     end
 
-    # DataPoints::selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
-    def self.selectDataPointFromGivenSetOfDatPointsOrMakeANewOneOrNull(datapoints)
-        datapoint = DataPoints::selectDataPointFromGivenSetOfDataPointsOrNull(datapoints)
-        return datapoint if datapoint
-        DataPoints::issueDataPointInteractivelyOrNull(true)
-    end
-
-    # DataPoints::datapointToString(datapoint)
-    def self.datapointToString(datapoint)
-        "[datapoint] #{datapoint["description"]} [#{datapoint["uuid"][0, 4]}] (#{datapoint["targets"].size})"
-    end
-
-    # DataPoints::printPointDetails(uuid)
-    def self.printPointDetails(point)
-        puts "DataPoint:"
+    # Cliques::printCliqueDetails(uuid)
+    def self.printCliqueDetails(point)
+        puts "Clique:"
         puts "    uuid: #{point["uuid"]}"
         puts "    description: #{point["description"].green}"
         puts ""
@@ -160,24 +147,24 @@ class DataPoints
         end
         puts ""
 
-        starlightnodes = TimelineOwnership::getTimelinesForEntity(point)
-        if starlightnodes.empty? then
-            puts "    starlightnodes: (empty set)"
+        timelines = TimelineOwnership::getTimelinesForEntity(point)
+        if timelines.empty? then
+            puts "    timelines: (empty set)"
         else
-            puts "    starlightnodes"
-            starlightnodes.each{|node|
+            puts "    timelines"
+            timelines.each{|node|
                 puts "        #{Timelines::timelineToString(node)}"
             }
         end
     end
 
-    # DataPoints::openPoint(point)
-    def self.openPoint(point)
-        DataPoints::printPointDetails(point)
+    # Cliques::openClique(point)
+    def self.openClique(point)
+        Cliques::printCliqueDetails(point)
         puts "    -> Opening..."
         if point["targets"].size == 0 then
-            if LucilleCore::askQuestionAnswerAsBoolean("I could not find target for this datapoint. Dive? ") then
-                DataPointsEvolved::navigateDataPoint(point)
+            if LucilleCore::askQuestionAnswerAsBoolean("I could not find target for this clique. Dive? ") then
+                CliquesEvolved::navigateClique(point)
             end
             return
         end
@@ -192,27 +179,27 @@ class DataPoints
         CatalystStandardTargets::openTarget(target)
     end
 
-    # DataPoints::pointsDive(points)
-    def self.pointsDive(points)
+    # Cliques::cliquesDive(points)
+    def self.cliquesDive(points)
         loop {
-            point = LucilleCore::selectEntityFromListOfEntitiesOrNull("datapoint", points, lambda{|point| DataPoints::datapointToString(point) })
+            point = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", points, lambda{|point| Cliques::cliqueToString(point) })
             break if point.nil?
-            DataPointsEvolved::navigateDataPoint(point)
+            CliquesEvolved::navigateClique(point)
         }
     end
 
-    # DataPoints::userInterface()
+    # Cliques::userInterface()
     def self.userInterface()
         loop {
             system("clear")
-            puts "DataPoints"
+            puts "Cliques"
             operations = [
-                "show newly created datapoints",
-                "datapoint dive (uuid)",
-                "make new datapoint",
+                "show newly created cliques",
+                "clique dive (uuid)",
+                "make new clique",
                 "rename tag",
                 "repair json (uuid)",
-                "datapoint destroy (uuid)",
+                "clique destroy (uuid)",
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
@@ -227,50 +214,50 @@ class DataPoints
                     end
                     tag
                 }
-                DataPoints::datapoints()
+                Cliques::cliques()
                     .each{|point|
                         uuid = point["uuid"]
                         tags1 = point["tags"]
                         tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
                         if tags1.join(':') != tags2.join(':') then
                             point["tags"] = tags2
-                            DataPoints::save(point)
+                            Cliques::save(point)
                         end
                     }
             end
-            if operation == "datapoint dive (uuid)" then
+            if operation == "clique dive (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                point = DataPoints::getOrNull(uuid)
+                point = Cliques::getOrNull(uuid)
                 if point then
-                    DataPointsEvolved::navigateDataPoint(point)
+                    CliquesEvolved::navigateClique(point)
                 else
-                    puts "Could not find datapoint for uuid (#{uuid})"
+                    puts "Could not find clique for uuid (#{uuid})"
                 end
             end
             if operation == "repair json (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                point = DataPoints::getOrNull(uuid)
+                point = Cliques::getOrNull(uuid)
                 if point then
                     pointjson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(point))
                     point = JSON.parse(pointjson)
-                    DataPoints::save(point)
+                    Cliques::save(point)
                 else
-                    puts "Could not find datapoint for uuid (#{uuid})"
+                    puts "Could not find clique for uuid (#{uuid})"
                 end
             end
-            if operation == "make new datapoint" then
-                DataPoints::issueDataPointInteractivelyOrNull(true)
+            if operation == "make new clique" then
+                Cliques::issueCliqueInteractivelyOrNull(true)
             end
-            if operation == "show newly created datapoints" then
-                points = DataPoints::datapoints()
+            if operation == "show newly created cliques" then
+                points = Cliques::cliques()
                             .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
                             .reverse
                             .first(20)
-                DataPoints::pointsDive(points)
+                Cliques::cliquesDive(points)
             end
-            if operation == "datapoint destroy (uuid)" then
+            if operation == "clique destroy (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                point = DataPoints::getOrNull(uuid)
+                point = Cliques::getOrNull(uuid)
                 next if point.nil?
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
                     puts "Well, this operation has not been implemented yet"
@@ -283,56 +270,49 @@ class DataPoints
 
 end
 
-class DataPointsEvolved
+class CliquesEvolved
 
-    # DataPointsEvolved::tags()
+    # CliquesEvolved::tags()
     def self.tags()
-        DataPoints::datapoints()
+        Cliques::cliques()
             .map{|point| point["tags"] }
             .flatten
             .uniq
             .sort
     end
 
-    # DataPointsEvolved::getPointsForTag(tag)
-    def self.getPointsForTag(tag)
-        DataPoints::datapoints().select{|point|
-            point["tags"].include?(tag)
-        }
-    end
-
-    # DataPointsEvolved::selectDataPointOrNull(points)
-    def self.selectDataPointOrNull(points)
+    # CliquesEvolved::selectCliqueOrNull(points)
+    def self.selectCliqueOrNull(points)
         descriptionXp = lambda { |point|
             "#{point["description"]} (#{point["uuid"][0,4]})"
         }
         descriptionsxp = points.map{|point| descriptionXp.call(point) }
-        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select datapoint (empty for null)", [""] + descriptionsxp)
+        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
         point = points.select{|point| descriptionXp.call(point) == selectedDescriptionxp }.first
         return nil if point.nil?
         point
     end
 
-    # DataPointsEvolved::pointsDive(points)
-    def self.pointsDive(points)
+    # CliquesEvolved::cliquesDive(points)
+    def self.cliquesDive(points)
         loop {
-            point = DataPointsEvolved::selectDataPointOrNull(points)
+            point = CliquesEvolved::selectCliqueOrNull(points)
             break if point.nil?
-            DataPointsEvolved::navigateDataPoint(point)
+            CliquesEvolved::navigateClique(point)
         }
     end
 
-    # DataPointsEvolved::tagDive(tag)
+    # CliquesEvolved::tagDive(tag)
     def self.tagDive(tag)
         loop {
             system('clear')
             puts "Data Points Tag Diving: #{tag}"
             items = []
-            DataPoints::datapoints()
+            Cliques::cliques()
                 .select{|point| point["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|point|
-                    items << [ point["description"] , lambda { DataPointsEvolved::navigateDataPoint(point) } ]
+                    items << [ point["description"] , lambda { CliquesEvolved::navigateClique(point) } ]
                 }
             break if items.empty?
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -340,32 +320,32 @@ class DataPointsEvolved
         }
     end
 
-    # DataPointsEvolved::searchPatternToTags(searchPattern)
+    # CliquesEvolved::searchPatternToTags(searchPattern)
     def self.searchPatternToTags(searchPattern)
-        DataPointsEvolved::tags()
+        CliquesEvolved::tags()
             .select{|tag| tag.downcase.include?(searchPattern.downcase) }
     end
 
-    # DataPointsEvolved::searchPatternToPoints(searchPattern)
-    def self.searchPatternToPoints(searchPattern)
-        DataPoints::datapoints()
+    # CliquesEvolved::searchPatternToCliques(searchPattern)
+    def self.searchPatternToCliques(searchPattern)
+        Cliques::cliques()
             .select{|point| point["description"].downcase.include?(searchPattern.downcase) }
     end
 
-    # DataPointsEvolved::searchDiveAndSelectPatternToDataPointsDescriptions(searchPattern)
-    def self.searchPatternToDataPointsDescriptions(searchPattern)
-        DataPointsEvolved::searchPatternToPoints(searchPattern)
+    # CliquesEvolved::searchDiveAndSelectPatternToCliquesDescriptions(searchPattern)
+    def self.searchPatternToCliquesDescriptions(searchPattern)
+        CliquesEvolved::searchPatternToCliques(searchPattern)
             .map{|point| point["description"] }
             .uniq
             .sort
     end
 
-    # DataPointsEvolved::nextGenGetSearchFragmentOrNull()
+    # CliquesEvolved::nextGenGetSearchFragmentOrNull()
     def self.nextGenGetSearchFragmentOrNull() # () -> String
         LucilleCore::askQuestionAnswerAsString("search fragment: ")
     end
 
-    # DataPointsEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+    # CliquesEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
     # Objects returned by the function: they are essentially search results.
     # {
     #     "type" => "point",
@@ -376,14 +356,14 @@ class DataPointsEvolved
     #     "tag" => tag
     # }
     def self.nextGenSearchFragmentToGlobalSearchStructure(fragment)
-        objs1 = DataPointsEvolved::searchPatternToPoints(fragment)
+        objs1 = CliquesEvolved::searchPatternToCliques(fragment)
                     .map{|point| 
                         {
                             "type" => "point",
                             "point" => point
                         }
                     }
-        objs2 = DataPointsEvolved::searchPatternToTags(fragment)
+        objs2 = CliquesEvolved::searchPatternToTags(fragment)
                     .map{|tag|
                         {
                             "type" => "tag",
@@ -393,17 +373,17 @@ class DataPointsEvolved
         objs1 + objs2
     end
 
-    # DataPointsEvolved::globalSearchStructureDive(globalss)
+    # CliquesEvolved::globalSearchStructureDive(globalss)
     def self.globalSearchStructureDive(globalss)
         loop {
             globalssObjectToMenuItemOrNull = lambda {|object|
                 if object["type"] == "point" then
                     point = object["point"]
-                    return [ "datapoint: #{point["description"]}" , lambda { DataPointsEvolved::navigateDataPoint(point) } ]
+                    return [ "clique: #{point["description"]}" , lambda { CliquesEvolved::navigateClique(point) } ]
                 end
                 if object["type"] == "tag" then
                     tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { DataPointsEvolved::tagDive(tag) } ]
+                    return [ "tag: #{tag}" , lambda { CliquesEvolved::tagDive(tag) } ]
                 end
                 nil
             }
@@ -415,35 +395,35 @@ class DataPointsEvolved
         }
     end
 
-    # DataPointsEvolved::navigateDataPoint(datapoint)
-    def self.navigateDataPoint(datapoint)
+    # CliquesEvolved::navigateClique(clique)
+    def self.navigateClique(clique)
         loop {
             puts ""
-            datapoint = DataPoints::getOrNull(datapoint["uuid"]) # useful if we have modified it
-            return if datapoint.nil? # useful if we have just destroyed it
+            clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
+            return if clique.nil? # useful if we have just destroyed it
 
             items = []
 
-            items << ["open", lambda{  DataPoints::openPoint(datapoint) }]
+            items << ["open", lambda{  Cliques::openClique(clique) }]
             items << [
                 "edit description", 
                 lambda{
-                    description = CatalystCommon::editTextUsingTextmate(datapoint["description"]).strip
+                    description = CatalystCommon::editTextUsingTextmate(clique["description"]).strip
                     if description == "" or description.lines.to_a.size != 1 then
                         puts "Descriptions should be one non empty line"
                         LucilleCore::pressEnterToContinue()
                         return
                     end
                     point["description"] = description
-                    DataPoints::save(datapoint)
+                    Cliques::save(clique)
                 }]
             items << [
                 "targets (add new)", 
                 lambda{
                     target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
                     next if target.nil?
-                    datapoint["targets"] << target
-                    DataPoints::save(datapoint)
+                    clique["targets"] << target
+                    Cliques::save(clique)
                 }]
             items << [
                 "targets (select and remove)", 
@@ -451,29 +431,29 @@ class DataPointsEvolved
                     toStringLambda = lambda { |target| CatalystStandardTargets::targetToString(target) }
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", point["targets"], toStringLambda)
                     next if target.nil?
-                    datapoint["targets"] = datapoint["targets"].reject{|t| t["uuid"] == target["uuid"] }
-                    DataPoints::save(datapoint)
+                    clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
+                    Cliques::save(clique)
                 }]
             items << [
                 "tags (add new)", 
                 lambda{
-                    datapoint["tags"] << LucilleCore::askQuestionAnswerAsString("tag: ")
-                    DataPoints::save(datapoint)
+                    clique["tags"] << LucilleCore::askQuestionAnswerAsString("tag: ")
+                    Cliques::save(clique)
                 }]
             items << [
                 "tags (remove)", 
                 lambda{
-                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", datapoint["tags"])
+                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", clique["tags"])
                     next if tag.nil?
-                    datapoint["tags"] = datapoint["tags"].reject{|t| t == tag }
-                    DataPoints::save(datapoint)
+                    clique["tags"] = clique["tags"].reject{|t| t == tag }
+                    Cliques::save(clique)
                 }]
             items << [
                 "add to starlight node", 
                 lambda{
                     node = Multiverse::selectOrNull()
                     next if node.nil?
-                    TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
+                    TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                 }]
             items << [
                 "register as open cycle", 
@@ -481,47 +461,47 @@ class DataPointsEvolved
                     claim = {
                         "uuid"              => SecureRandom.uuid,
                         "creationTimestamp" => Time.new.to_f,
-                        "entityuuid"        => datapoint["uuid"],
+                        "entityuuid"        => clique["uuid"],
                     }
                     puts JSON.pretty_generate(claim)
                     File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                 }]
             items << [
-                "destroy datapoint", 
+                "destroy clique", 
                 lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                        DataPoints::destroy(datapoint["uuid"])
+                        Cliques::destroy(clique["uuid"])
                         return
                     end
                 }]
-            datapoint["targets"]
+            clique["targets"]
                 .each{|target| 
                     items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] 
                 }
 
-            TimelineOwnership::getTimelinesForEntity(datapoint)
+            TimelineOwnership::getTimelinesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[node owner] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
-            items << ["select", lambda{ $EvolutionsFindXSingleton = datapoint }]
+            items << ["select", lambda{ $EvolutionsFindXSingleton = clique }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
     end
 
-    # DataPointsEvolved::searchDiveAndSelect()
+    # CliquesEvolved::searchDiveAndSelect()
     def self.searchDiveAndSelect()
-        fragment = DataPointsEvolved::nextGenGetSearchFragmentOrNull()
+        fragment = CliquesEvolved::nextGenGetSearchFragmentOrNull()
         return nil if fragment.nil?
-        globalss = DataPointsEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
-        DataPointsEvolved::globalSearchStructureDive(globalss)
+        globalss = CliquesEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        CliquesEvolved::globalSearchStructureDive(globalss)
         return $EvolutionsFindXSingleton
     end
 
-    # DataPointsEvolved::navigate()
+    # CliquesEvolved::navigate()
     def self.navigate()
-        fragment = DataPointsEvolved::nextGenGetSearchFragmentOrNull()
+        fragment = CliquesEvolved::nextGenGetSearchFragmentOrNull()
         return nil if fragment.nil?
-        globalss = DataPointsEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
-        DataPointsEvolved::globalSearchStructureDive(globalss)
+        globalss = CliquesEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
+        CliquesEvolved::globalSearchStructureDive(globalss)
     end
 end

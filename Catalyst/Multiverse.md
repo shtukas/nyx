@@ -40,10 +40,10 @@ StarlightPath {
 
 StarlightDataClaim {
     "uuid"         : String
-    "catalystType" : "catalyst-type:starlight-node-ownership-claim"
+    "catalystType" : "catalyst-type:time-ownership-claim"
     "creationTimestamp" : Float # Unixtime with decimals
 
     "nodeuuid"   : String
-    "targetuuid" : String # DataPoint uuid or a CatalystStandardTarget uuid
+    "targetuuid" : String # Clique uuid or a CatalystStandardTarget uuid
 }
 ```

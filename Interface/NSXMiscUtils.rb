@@ -14,7 +14,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
@@ -168,9 +168,9 @@ class NSXMiscUtils
         end
     end
 
-    # NSXMiscUtils::datapointsAndStarlightNodes()
-    def self.datapointsAndStarlightNodes()
-        (DataPoints::datapoints() + Timelines::timelines())
+    # NSXMiscUtils::cliquesAndStarlightNodes()
+    def self.cliquesAndStarlightNodes()
+        (Cliques::cliques() + Timelines::timelines())
             .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
     end
 
@@ -207,18 +207,18 @@ class NSXMiscUtils
             puts "Completed building children for '#{Timelines::timelineToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build datapoints for '#{Timelines::timelineToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{Timelines::timelineToString(node)}' ? ") then
             loop {
-                puts "Making new datapoint..."
-                datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
-                if datapoint.nil? then
-                    puts "Did not make a datapoint for '#{Timelines::timelineToString(node)}'. Aborting datapoint building."
+                puts "Making new clique..."
+                clique = Cliques::issueCliqueInteractivelyOrNull(false)
+                if clique.nil? then
+                    puts "Did not make a clique for '#{Timelines::timelineToString(node)}'. Aborting clique building."
                     break
                 end
-                puts JSON.pretty_generate(datapoint)
-                claim = TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
+                puts JSON.pretty_generate(clique)
+                claim = TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                 puts JSON.pretty_generate(claim)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new datapoint for '#{Timelines::timelineToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new clique for '#{Timelines::timelineToString(node)}' ? ")
             }
         end
 
@@ -241,7 +241,7 @@ class NSXMiscUtils
         return if target.nil?
         node = Multiverse::selectOrNull()
         return if node.nil?
-        claim = TimelineOwnership::issueClaimGivenTimelineAndDataPoint(node, target)
+        claim = TimelineOwnership::issueClaimGivenTimelineAndEntity(node, target)
         puts JSON.pretty_generate(claim)
     end
 

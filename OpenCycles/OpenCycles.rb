@@ -28,16 +28,9 @@ require 'find'
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 
 # -----------------------------------------------------------------------------
-
-=begin
-{
-    "datapointuuid": "aedbda15-4227-4652-9e4b-b443d38da538",
-    "creationTimestamp": 9
-}
-=end
 
 class OpenCycles
 

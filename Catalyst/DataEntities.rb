@@ -16,7 +16,7 @@ require 'securerandom'
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 
 # -----------------------------------------------------------------
@@ -27,8 +27,8 @@ class DataEntities
     def self.getDataEntityByUuidOrNull(uuid)
         target = CatalystStandardTargets::getOrNull(uuid)
         return target if target
-        datapoint = DataPoints::getOrNull(uuid)
-        return datapoint if datapoint
+        clique = Cliques::getOrNull(uuid)
+        return clique if clique
         starlightnode = Timelines::getOrNull(uuid)
         retun starlightnode if starlightnode
         nil
@@ -39,8 +39,8 @@ class DataEntities
         if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
             return CatalystStandardTargets::targetToString(dataentity)
         end
-        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
-            return DataPoints::datapointToString(dataentity)
+        if dataentity["catalystType"] == "catalyst-type:clique"  then
+            return Cliques::cliqueToString(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
             return Timelines::timelineToString(dataentity)
@@ -53,8 +53,8 @@ class DataEntities
         if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
             return CatalystStandardTargets::targetDive(dataentity)
         end
-        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
-            return DataPointsEvolved::navigateDataPoint(dataentity)
+        if dataentity["catalystType"] == "catalyst-type:clique"  then
+            return CliquesEvolved::navigateClique(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
             return Multiverse::visitTimeline(dataentity)
@@ -69,9 +69,9 @@ class DataEntities
             CatalystStandardTargets::openTarget(target)
             return
         end
-        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
+        if dataentity["catalystType"] == "catalyst-type:clique"  then
             point = dataentity
-            DataPoints::openPoint(point)
+            Cliques::openClique(point)
             return
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
@@ -88,8 +88,8 @@ class DataEntities
             CatalystStandardTargets::targetDive(dataentity)
             return
         end
-        if dataentity["catalystType"] == "catalyst-type:datapoint"  then
-            DataPointsEvolved::navigateDataPoint(dataentity)
+        if dataentity["catalystType"] == "catalyst-type:clique"  then
+            CliquesEvolved::navigateClique(dataentity)
             return
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
