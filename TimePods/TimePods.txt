@@ -16,8 +16,13 @@ TimePodPassenger
         "name" : String
     }
     {
-        "type" : "todo-item"
+        "type" : "todo-item" # automatically created when a todo item has more than one hour in the bank
         "uuid" : String
+    }
+    {
+        "type"       : "text" # pieces of text coming from LucilleTxt
+        "uuid"       : String # essentially the first part of the filename <uuid>.txt
+        "description": String
     }
 
 special-circumstances

@@ -33,14 +33,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class TimePods
 
-    # TimePods::path()
-    def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods"
+    # TimePods::pathToPodsRepository()
+    def self.pathToPodsRepository()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/pods"
     end
 
     # TimePods::save(item)
     def self.save(item)
-        filepath = "#{TimePods::path()}/#{item["uuid"]}.json"
+        filepath = "#{TimePods::pathToPodsRepository()}/#{item["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
@@ -58,24 +58,25 @@ class TimePods
 
     # TimePods::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{TimePods::path()}/#{uuid}.json"
+        filepath = "#{TimePods::pathToPodsRepository()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
     # TimePods::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "#{TimePods::path()}/#{uuid}.json"
+        filepath = "#{TimePods::pathToPodsRepository()}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
     # TimePods::getTimePods()
     def self.getTimePods()
-        Dir.entries(TimePods::path())
+        Dir.entries(TimePods::pathToPodsRepository())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{TimePods::path()}/#{filename}" }
+            .map{|filename| "#{TimePods::pathToPodsRepository()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     end
 
     # TimePods::liveTime(pod)
@@ -128,6 +129,9 @@ class TimePods
         end
         if passenger["type"] == "todo-item" then
             return "[timepod] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
+        end
+        if passenger["type"] == "text" then
+            return "[timepod] [text] #{passenger["description"]}"
         end
         raise "[TimePods] error: CE8497BB"
     end

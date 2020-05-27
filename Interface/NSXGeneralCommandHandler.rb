@@ -37,6 +37,10 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystS
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsType0141.rb"
+# SectionsType0141::contentToSections(text)
+# SectionsType0141::applyNextTransformationToContent(content)
+
 # -------------------------------------------------------------------------
 
 class NSXGeneralCommandHandler
@@ -92,25 +96,19 @@ class NSXGeneralCommandHandler
             return
         end
 
-        if command == "[]" then
-            rewriteLucilleTxtFile = lambda {|filepath|
-                CatalystCommon::copyLocationToCatalystBin(filepath)
+        if command == '[]' then
+            filepath = "/Users/pascal/Desktop/Lucille.txt"
+            CatalystCommon::copyLocationToCatalystBin(filepath)
+            parts = IO.read(filepath)
+                .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
+                .map{|part| part.strip }
 
-                parts = IO.read(filepath)
-                    .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
-                    .map{|part| part.strip }
-
-                if parts[0] != "" then
-                    parts[0] = NSXMiscUtils::applyNextTransformationToContent(parts[0])
-                else
-                    parts[1] = NSXMiscUtils::applyNextTransformationToContent(parts[1])
-                end
-
+            if parts[0].strip.size > 0 then
+                parts[0] = SectionsType0141::applyNextTransformationToContent(parts[0])
                 content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
                 File.open(filepath, "w"){|f| f.puts(content) }
-            }
-            rewriteLucilleTxtFile.call("/Users/pascal/Desktop/Lucille.txt")
-            return
+                return
+            end
         end
 
         if command == "/" then
