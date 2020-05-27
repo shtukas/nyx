@@ -117,13 +117,17 @@ class NSXOperationalMenu
                 }
             },
             {
-                "text"   => "startlight nodes listing",
+                "text"   => "starlight nodes listing",
                 "lambda" => lambda {
                     puts "Latest Starlight Nodes"
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("starlight node", StartlightNodes::nodes(), lambda{|node| StartlightNodes::nodeToString(node) })
                     break if node.nil?
                     StarlightNetwork::navigateNode(node)
                 }
+            },
+            {
+                "text"   => "starlight node (existing or new) + build around",
+                "lambda" => lambda { NSXOperationalMenu::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             },
             {
                 "text"   => "datapoints listing",
@@ -144,6 +148,29 @@ class NSXOperationalMenu
                 }
             },
             {
+                "text"   => "datapoint (new) -> { OpenCycle, Starlight Node (existing or new) }",
+                "lambda" => lambda { 
+                    datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
+                    return if datapoint.nil?
+
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
+                    return if whereTo.nil?
+                    if whereTo == "OpenCycle" then
+                        claim = {
+                            "uuid"              => SecureRandom.uuid,
+                            "creationTimestamp" => Time.new.to_f,
+                            "entityuuid"        => datapoint["uuid"]
+                        }
+                        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+                    end
+                    if whereTo == "Starlight Node" then
+                        node = StarlightNetwork::selectOrNull()
+                        return if node.nil?
+                        StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                    end
+                }
+            },
+            {
                 "text"   => "EvolutionsFindX::navigate()",
                 "lambda" => lambda {
                     EvolutionsFindX::navigate()
@@ -155,25 +182,6 @@ class NSXOperationalMenu
                     selectedEntity = EvolutionsFindX::selectOrNull()
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
-                }
-            },
-            {
-                "text"   => "new timepod",
-                "lambda" => lambda {
-                    passenger = {
-                        "type"        => "self",
-                        "description" => LucilleCore::askQuestionAnswerAsString("description: ")
-                    }
-                    # For the moment we default to timed curve
-                    periodInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
-                    timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-                    engine = {
-                        "type"                  => "time-commitment-on-curve",
-                        "startUnixtime"         => Time.new.to_i,
-                        "periodInDays"          => periodInDays,
-                        "timeCommitmentInHours" => timeCommitmentInHours
-                    }
-                    TimePods::issue(passenger, engine)
                 }
             },
             {
@@ -209,33 +217,6 @@ class NSXOperationalMenu
                     end
                 }
             },
-            {
-                "text"   => "datapoint (new) -> { OpenCycle, Starlight Node (existing or new) }",
-                "lambda" => lambda { 
-                    datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
-                    return if datapoint.nil?
-
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
-                    return if whereTo.nil?
-                    if whereTo == "OpenCycle" then
-                        claim = {
-                            "uuid"              => SecureRandom.uuid,
-                            "creationTimestamp" => Time.new.to_f,
-                            "entityuuid"        => datapoint["uuid"]
-                        }
-                        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
-                    end
-                    if whereTo == "Starlight Node" then
-                        node = StarlightNetwork::selectOrNull()
-                        return if node.nil?
-                        StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
-                    end
-                }
-            },
-            {
-                "text"   => "starlight node (existing or new) + build around",
-                "lambda" => lambda { NSXOperationalMenu::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
-            }
         ]
     end
 end

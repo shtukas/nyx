@@ -59,53 +59,28 @@ loop {
     }
     puts ""
     options = [
-        "select and destroy",
-        "make special circumstances bank-account",
-        "make text time-commitment-on-curve"
+        "make new pod",
+        "select and destroy"
     ]
     option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
     break if option.nil?
-    if option == "select and destroy" then
-        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", TimePods::getTimePods(), lambda{|pod| TimePods::toString(pod) })
-        next if timepod.nil?
-        TimePods::destroy(timepod["uuid"])
-    end
-    if option == "make special circumstances bank-account" then
+    if option == "make new pod" then
+        passenger = TimePods::makePassengerOrNull()
+        next if passenger.nil?
+        engine = TimePods::makeEngineOrNull()
+        next if engine.nil?
         timepod = {
-            "uuid" => SecureRandom.uuid,
+            "uuid"             => SecureRandom.uuid,
             "creationUnixtime" => Time.new.to_f,
-            "passenger" => {
-                "type" => "special-circumstances",
-                "name" => LucilleCore::askQuestionAnswerAsString("name: ")
-            },
-            "engine" => {
-                "type" => "bank-account"
-            }
+            "passenger"        => passenger,
+            "engine"           => engine
         }
         puts JSON.pretty_generate(timepod)
         TimePods::save(timepod)
     end
-    if option == "make text time-commitment-on-curve" then
-        text = CatalystCommon::editTextUsingTextmate("")
-        uuid = CatalystCommon::l22()
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/text/#{uuid}.txt"
-        File.open(filepath, "w"){|f| f.puts(text) }
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        passenger = {
-            "type" => "text",
-            "uuid" => uuid,
-            "description" => description
-        }
-        # For the moment we default to timed curve
-        periodInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
-        timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
-        engine = {
-            "type"                  => "time-commitment-on-curve",
-            "startUnixtime"         => Time.new.to_i,
-            "periodInDays"          => periodInDays,
-            "timeCommitmentInHours" => timeCommitmentInHours
-        }
-        pod = TimePods::issue(passenger, engine)
-        puts JSON.pretty_generate(pod)
+    if option == "select and destroy" then
+        timepod = LucilleCore::selectEntityFromListOfEntitiesOrNull("timepod", TimePods::getTimePods(), lambda{|pod| TimePods::toString(pod) })
+        next if timepod.nil?
+        TimePods::destroy(timepod["uuid"])
     end
 }

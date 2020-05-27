@@ -179,6 +179,55 @@ class TimePods
         true
     end
 
+    # TimePods::makePassengerOrNull()
+    def self.makePassengerOrNull()
+        options = [
+            "text",
+            "special-circumstances"
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        return nil if option.nil?
+        if option == "text" then
+            text = CatalystCommon::editTextUsingTextmate("")
+            uuid = CatalystCommon::l22()
+            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/text/#{uuid}.txt"
+            File.open(filepath, "w"){|f| f.puts(text) }
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            return {
+                "type"        => "text",
+                "uuid"        => uuid,
+                "description" => description
+            }
+        end
+        if option == "special-circumstances" then
+            return {
+                "type" => "special-circumstances",
+                "name" => LucilleCore::askQuestionAnswerAsString("name: ")
+            }
+        end
+        nil
+    end
+
+    # TimePods::makeEngineOrNull()
+    def self.makeEngineOrNull()
+        options = [
+            "time-commitment-on-curve"
+        ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        return nil if option.nil?
+        if option == "time-commitment-on-curve" then
+            periodInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
+            timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
+            return {
+                "type"                  => "time-commitment-on-curve",
+                "startUnixtime"         => Time.new.to_i,
+                "periodInDays"          => periodInDays,
+                "timeCommitmentInHours" => timeCommitmentInHours
+            }
+        end
+        nil
+    end
+
     # --------------------------------------------------------------------
 
     # TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)
