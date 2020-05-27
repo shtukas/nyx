@@ -57,7 +57,7 @@ class DataEntities
             return DataPointsEvolved::navigateDataPoint(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
-            return StarlightNetwork::navigateNode(dataentity)
+            return Multiverse::visitTimeline(dataentity)
         end
         raise "DataEntities::dataEntityToString, Error: 2f28f27d"
     end
@@ -76,7 +76,7 @@ class DataEntities
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
            node = dataentity
-           StarlightNetwork::navigateNode(node)
+           Multiverse::visitTimeline(node)
            return
         end
         raise "DataEntities::dataEntityToString, Error: 2f28f27d"
@@ -93,7 +93,7 @@ class DataEntities
             return
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
-            StarlightNetwork::navigateNode(dataentity)
+            Multiverse::visitTimeline(dataentity)
             return
         end
         raise "DataEntities::navigateDataEntity, Error: 26ba9943"

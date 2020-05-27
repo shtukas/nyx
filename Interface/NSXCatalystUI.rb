@@ -48,7 +48,7 @@ class NSXCatalystUI
 
             items << [
                 "starlight management",
-                lambda { StarlightNetwork::management() }
+                lambda { Multiverse::management() }
             ]
 
             items << [
@@ -57,7 +57,7 @@ class NSXCatalystUI
                     puts "Latest Starlight Nodes"
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("starlight node", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
                     return if node.nil?
-                    StarlightNetwork::navigateNode(node)
+                    Multiverse::visitTimeline(node)
                 }
             ]
 
@@ -72,7 +72,7 @@ class NSXCatalystUI
                     puts "Latest DataPoints"
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("data points", DataPoints::datapoints(), lambda{|datapoint| DataPoints::datapointToString(datapoint) })
                     break if node.nil?
-                    StarlightNetwork::navigateNode(node)
+                    Multiverse::visitTimeline(node)
                 }
             ]
 
@@ -103,9 +103,9 @@ class NSXCatalystUI
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Starlight Node" then
-                        node = StarlightNetwork::selectOrNull()
+                        node = Multiverse::selectOrNull()
                         return if node.nil?
-                        StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                        TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
                     end
                 }
             ]

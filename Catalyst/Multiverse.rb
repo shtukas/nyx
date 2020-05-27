@@ -61,7 +61,7 @@ class Timelines
         Timelines::save(node)
         puts JSON.pretty_generate(node)
         if canAskToMakeAParent and LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
-            xnode = StarlightNetwork::selectOrNull()
+            xnode = Multiverse::selectOrNull()
             if xnode then
                 Stargates::issuePathFromFirstNodeToSecondNodeOrNull(xnode, node)
             end
@@ -164,37 +164,37 @@ class Stargates
     end
 end
 
-class StarlightOwnershipClaims
+class TimelineOwnership
 
-    # StarlightOwnershipClaims::path()
+    # TimelineOwnership::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/ownershipclaims"
     end
 
-    # StarlightOwnershipClaims::save(dataclaim)
+    # TimelineOwnership::save(dataclaim)
     def self.save(dataclaim)
-        filepath = "#{StarlightOwnershipClaims::path()}/#{dataclaim["uuid"]}.json"
+        filepath = "#{TimelineOwnership::path()}/#{dataclaim["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(dataclaim)) }
     end
 
-    # StarlightOwnershipClaims::getOrNull(uuid)
+    # TimelineOwnership::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{StarlightOwnershipClaims::path()}/#{uuid}.json"
+        filepath = "#{TimelineOwnership::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # StarlightOwnershipClaims::claims()
+    # TimelineOwnership::claims()
     def self.claims()
-        Dir.entries(StarlightOwnershipClaims::path())
+        Dir.entries(TimelineOwnership::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{StarlightOwnershipClaims::path()}/#{filename}" }
+            .map{|filename| "#{TimelineOwnership::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
-    def self.issueClaimGivenNodeAndDataPoint(node, datapoint)
+    # TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
+    def self.issueClaimGivenTimelineAndClique(node, datapoint)
         claim = {
             "catalystType"      => "catalyst-type:starlight-node-ownership-claim",
             "creationTimestamp" => Time.new.to_f,
@@ -203,12 +203,12 @@ class StarlightOwnershipClaims
             "nodeuuid"   => node["uuid"],
             "targetuuid" => datapoint["uuid"]
         }
-        StarlightOwnershipClaims::save(claim)
+        TimelineOwnership::save(claim)
         claim
     end
 
-    # StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
-    def self.issueClaimGivenNodeAndCatalystStandardTarget(node, target)
+    # TimelineOwnership::issueClaimGivenTimelineAndDataPoint(node, target)
+    def self.issueClaimGivenTimelineAndDataPoint(node, target)
         claim = {
             "catalystType"      => "catalyst-type:starlight-node-ownership-claim",
             "creationTimestamp" => Time.new.to_f,
@@ -217,35 +217,35 @@ class StarlightOwnershipClaims
             "nodeuuid"   => node["uuid"],
             "targetuuid" => target["uuid"]
         }
-        StarlightOwnershipClaims::save(claim)
+        TimelineOwnership::save(claim)
         claim
     end
 
-    # StarlightOwnershipClaims::claimToString(dataclaim)
+    # TimelineOwnership::claimToString(dataclaim)
     def self.claimToString(dataclaim)
         "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["targetuuid"]}"
     end
 
-    # StarlightOwnershipClaims::getDataEntitiesForNode(node)
-    def self.getDataEntitiesForNode(node)
-        StarlightOwnershipClaims::claims()
+    # TimelineOwnership::getTimelineEntities(node)
+    def self.getTimelineEntities(node)
+        TimelineOwnership::claims()
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
             .map{|claim| DataEntities::getDataEntityByUuidOrNull(claim["targetuuid"]) }
             .compact
     end
 
-    # StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
-    def self.getNodesForDataPoint(datapoint)
-        StarlightOwnershipClaims::claims()
+    # TimelineOwnership::getTimelinesForEntity(datapoint)
+    def self.getTimelinesForEntity(datapoint)
+        TimelineOwnership::claims()
             .select{|claim| claim["targetuuid"] == datapoint["uuid"] }
             .map{|claim| Timelines::getOrNull(claim["nodeuuid"]) }
             .compact
     end
 end
 
-class StarlightNetwork
+class Multiverse
 
-    # StarlightNetwork::management()
+    # Multiverse::management()
     def self.management()
         loop {
             system("clear")
@@ -262,9 +262,9 @@ class StarlightNetwork
                 Timelines::save(node)
             end
             if operation == "make starlight path" then
-                node1 = StarlightNetwork::selectOrNull()
+                node1 = Multiverse::selectOrNull()
                 next if node1.nil?
-                node2 = StarlightNetwork::selectOrNull()
+                node2 = Multiverse::selectOrNull()
                 next if node2.nil?
                 path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
@@ -273,8 +273,8 @@ class StarlightNetwork
         }
     end
 
-    # StarlightNetwork::navigateNode(node)
-    def self.navigateNode(node)
+    # Multiverse::visitTimeline(node)
+    def self.visitTimeline(node)
         loop {
             puts ""
             puts "uuid: #{node["uuid"]}"
@@ -286,15 +286,15 @@ class StarlightNetwork
             }]
             Stargates::getChildNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
+                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
 
-            StarlightOwnershipClaims::getDataEntitiesForNode(node)
+            TimelineOwnership::getTimelineEntities(node)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
                 .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ DataEntities::navigateDataEntity(dataentity) }] }
 
             Stargates::getParentNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
+                .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
 
             items << ["select", lambda{ $EvolutionsFindXSingleton = node }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
@@ -302,7 +302,7 @@ class StarlightNetwork
         }
     end
 
-    # StarlightNetwork::selectOrNull()
+    # Multiverse::selectOrNull()
     def self.selectOrNull()
         # Version 1
         # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Timelines::timelines(), lambda {|node| Timelines::timelineToString(node) })
@@ -313,18 +313,18 @@ class StarlightNetwork
         node = Timelines::timelines()
             .select{|node| Timelines::timelineToString(node) == nodestring }
             .first
-        StarlightNetwork::navigateNode(node)
+        Multiverse::visitTimeline(node)
         return $EvolutionsFindXSingleton if $EvolutionsFindXSingleton
-        if LucilleCore::askQuestionAnswerAsBoolean("StarlightNetwork: Would you like to make a new node and return it ? ", false) then
+        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: Would you like to make a new node and return it ? ", false) then
             return Timelines::makeTimelineInteractivelyOrNull(true)
         end
-        if LucilleCore::askQuestionAnswerAsBoolean("StarlightNetwork: There is no selection, would you like to return null ? ", true) then
+        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: There is no selection, would you like to return null ? ", true) then
             return nil
         end
-        StarlightNetwork::selectOrNull()
+        Multiverse::selectOrNull()
     end
 
-    # StarlightNetwork::navigate()
+    # Multiverse::navigate()
     def self.navigate()
         # Version 1
         # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Timelines::timelines(), lambda {|node| Timelines::timelineToString(node) })
@@ -335,7 +335,7 @@ class StarlightNetwork
         node = Timelines::timelines()
             .select{|node| Timelines::timelineToString(node) == nodestring }
             .first
-        StarlightNetwork::navigateNode(node)
+        Multiverse::visitTimeline(node)
     end
 end
 

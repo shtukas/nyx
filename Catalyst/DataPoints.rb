@@ -104,9 +104,9 @@ class DataPoints
         puts JSON.pretty_generate(datapoint)
         DataPoints::save(datapoint)
         if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this datapoint to a Starlight node ? ") then
-            node = StarlightNetwork::selectOrNull()
+            node = Multiverse::selectOrNull()
             if node then
-                StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
             end
         end
         datapoint
@@ -160,7 +160,7 @@ class DataPoints
         end
         puts ""
 
-        starlightnodes = StarlightOwnershipClaims::getNodesForDataPoint(point)
+        starlightnodes = TimelineOwnership::getTimelinesForEntity(point)
         if starlightnodes.empty? then
             puts "    starlightnodes: (empty set)"
         else
@@ -471,9 +471,9 @@ class DataPointsEvolved
             items << [
                 "add to starlight node", 
                 lambda{
-                    node = StarlightNetwork::selectOrNull()
+                    node = Multiverse::selectOrNull()
                     next if node.nil?
-                    StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                    TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
                 }]
             items << [
                 "register as open cycle", 
@@ -499,9 +499,9 @@ class DataPointsEvolved
                     items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] 
                 }
 
-            StarlightOwnershipClaims::getNodesForDataPoint(datapoint)
+            TimelineOwnership::getTimelinesForEntity(datapoint)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[node owner] #{Timelines::timelineToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
+                .each{|n| items << ["[node owner] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
             items << ["select", lambda{ $EvolutionsFindXSingleton = datapoint }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status

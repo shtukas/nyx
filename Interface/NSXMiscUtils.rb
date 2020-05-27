@@ -180,7 +180,7 @@ class NSXMiscUtils
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Timelines::timelineToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = StarlightNetwork::selectOrNull()
+                parent = Multiverse::selectOrNull()
                 if parent.nil? then
                     puts "Did not determine a parent for '#{Timelines::timelineToString(node)}'. Aborting parent determination."
                     break
@@ -216,7 +216,7 @@ class NSXMiscUtils
                     break
                 end
                 puts JSON.pretty_generate(datapoint)
-                claim = StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                claim = TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
                 puts JSON.pretty_generate(claim)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new datapoint for '#{Timelines::timelineToString(node)}' ? ")
             }
@@ -227,7 +227,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = StarlightNetwork::selectOrNull()
+        node = Multiverse::selectOrNull()
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
             return
@@ -239,9 +239,9 @@ class NSXMiscUtils
     # NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
     def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = StarlightNetwork::selectOrNull()
+        node = Multiverse::selectOrNull()
         return if node.nil?
-        claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
+        claim = TimelineOwnership::issueClaimGivenTimelineAndDataPoint(node, target)
         puts JSON.pretty_generate(claim)
     end
 

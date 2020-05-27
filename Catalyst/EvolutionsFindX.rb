@@ -47,7 +47,7 @@ class EvolutionsFindX
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
         return nil if option.nil? 
         if option == "select starlight node" then
-            node = StarlightNetwork::selectOrNull()
+            node = Multiverse::selectOrNull()
             if node then
                 return node
             end
@@ -79,7 +79,7 @@ class EvolutionsFindX
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
         return nil if option.nil? 
         if option == "select starlight node" then
-            StarlightNetwork::navigate()
+            Multiverse::navigate()
         end
         if option == "select datapoint" then
             DataPointsEvolved::navigate()

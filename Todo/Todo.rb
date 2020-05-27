@@ -224,7 +224,7 @@ class Items
         return false if newowner.nil?
         if newowner["catalystType"] == "catalyst-type:starlight-node" then
             node = newowner
-            StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, item["target"])
+            TimelineOwnership::issueClaimGivenTimelineAndDataPoint(node, item["target"])
             return true
         end
         if newowner["catalystType"] == "catalyst-type:datapoint" then

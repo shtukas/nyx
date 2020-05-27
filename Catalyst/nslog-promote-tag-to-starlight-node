@@ -59,7 +59,7 @@ puts node
 Timelines::save(node)
 datapoints.each{|datapoint|
     puts datapoint
-    StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+    TimelineOwnership::issueClaimGivenTimelineAndClique(node, datapoint)
 }
 KeyValueStore::setFlagTrue(nil, "8a17aa35-9789-455c-97a9-59c1337fb00f:#{tag}")
 
