@@ -22,7 +22,7 @@ class Timelines
 
     # Timelines::path()
     def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Starlight/nodes"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/nodes"
     end
 
     # Timelines::save(node)
@@ -86,7 +86,7 @@ class StartlightPaths
 
     # StartlightPaths::path()
     def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Starlight/paths"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/paths"
     end
 
     # StartlightPaths::save(path)
@@ -175,7 +175,7 @@ class StarlightOwnershipClaims
 
     # StarlightOwnershipClaims::path()
     def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Starlight/ownershipclaims"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/ownershipclaims"
     end
 
     # StarlightOwnershipClaims::save(dataclaim)
