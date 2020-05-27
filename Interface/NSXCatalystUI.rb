@@ -261,9 +261,36 @@ class NSXCatalystUI
             items << nil
 
             items << [
+                "TimePods", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
+            ]
+
+            items << [
+                "Todo", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
+            ]
+
+            items << [
+                "OpenCycles", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
+            ]
+
+            items << [
+                "Calendar", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
+            ]
+
+            items << [
+                "Wave", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
+            ]
+
+            items << [
                 "EvolutionsFindX::navigate()",
                 lambda { EvolutionsFindX::navigate() }
             ]
+
+            items << nil
 
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status

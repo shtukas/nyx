@@ -101,15 +101,15 @@ object = {
     "uuid" => uuid,
     "contentItem" => contentItem,
     "metric" => isRunning ? 1 : 0, # The item is started by a timepod
-    "commands" => ["done", "[]", "rotate"],
+    "commands" => ["done", "[]", "dispatch"],
     "defaultCommand" => isRunning ? "stop" : "start",
     "isRunning" => isRunning,
     "isRunningForLong" => isRunningForLong,
     "shell-redirects" => {
-        "start"  => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing start",
-        "stop"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing stop",
-        "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing sections-type-0141-done-deep-task",
-        "rotate" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing rotate",
+        "start"    => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing start",
+        "stop"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing stop",
+        "[]"       => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing sections-type-0141-done-deep-task",
+        "dispatch" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing dispatch",
     }
 }
 

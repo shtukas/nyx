@@ -63,6 +63,35 @@ class Items
         item
     end
 
+    # Items::selectProjectNameUuidPair()
+    def self.selectProjectNameUuidPair()
+        projectname = Items::selectProjectNameInteractivelyOrNull()
+        projectuuid = nil
+        if projectname.nil? then
+            projectname = LucilleCore::askQuestionAnswerAsString("project name: ")
+            projectuuid = SecureRandom.uuid
+        else
+            projectuuid = Items::projectname2projectuuidOrNUll(projectname)
+            # We are not considering the case null
+        end
+        [projectname, projectuuid]
+    end
+
+    # Items::issueNewItemInteractivelyX1(description, target)
+    def self.issueNewItemInteractivelyX1(description, target)
+        projectname, projectuuid = Items::selectProjectNameUuidPair()
+        item = {
+            "uuid"         => SecureRandom.uuid,
+            "creationtime" => Time.new.to_f,
+            "projectname"  => projectname,
+            "projectuuid"  => projectuuid,
+            "description"  => description,
+            "target"       => target
+        }
+        Items::save(item)
+        item
+    end
+
     # Items::itemBestDescription(item)
     def self.itemBestDescription(item)
         item["description"] || CatalystStandardTargets::targetToString(item["target"])
@@ -155,7 +184,9 @@ class Items
     def self.itemsForProjectName(projectname)
         projectuuid = Items::projectname2projectuuidOrNUll(projectname)
         return [] if projectuuid.nil?
-        Items::items().select{|item| item["projectuuid"] == projectuuid }
+        Items::items()
+            .select{|item| item["projectuuid"] == projectuuid }
+            .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
     end
 
     # Items::projectsTimeDistribution()
@@ -209,6 +240,7 @@ class Items
     # Items::diveItem(item)
     def self.diveItem(item)
         loop {
+            puts ""
             puts "uuid: #{item["uuid"]}"
             puts Items::itemToString(item).green
             puts "project time: #{Bank::total(item["projectuuid"].to_f/3600)} hours".green
@@ -255,5 +287,4 @@ class Items
             end
         }
     end
-
 end

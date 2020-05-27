@@ -418,7 +418,7 @@ class DataPointsEvolved
     # DataPointsEvolved::navigateDataPoint(datapoint)
     def self.navigateDataPoint(datapoint)
         loop {
-
+            puts ""
             datapoint = DataPoints::getOrNull(datapoint["uuid"]) # useful if we have modified it
             return if datapoint.nil? # useful if we have just destroyed it
 

@@ -283,6 +283,7 @@ class StarlightNetwork
     # StarlightNetwork::navigateNode(node)
     def self.navigateNode(node)
         loop {
+            puts ""
             puts "uuid: #{node["uuid"]}"
             puts StartlightNodes::nodeToString(node).green
             items = []

@@ -57,6 +57,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 # SectionsType0141::contentToSections(text)
 # SectionsType0141::applyNextTransformationToContent(content)
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Dispatch.rb"
+
 # --------------------------------------------------------------------
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
@@ -71,7 +73,7 @@ if ARGV[0] == "stop" then
     Runner::stop(uuid)
 end
 
-if ARGV[0] == "rotate" then
+if ARGV[0] == "dispatch" then
     CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
 
     parts = IO.read(PATH_TO_DESKTOP_FILE)
@@ -81,7 +83,7 @@ if ARGV[0] == "rotate" then
     sections = SectionsType0141::contentToSections(parts[1])
     section  = sections.shift
 
-    
+    Dispatch::textDispatch(section)
 
     parts[1] = sections.map{|section| section.strip }.join("\n\n")
 

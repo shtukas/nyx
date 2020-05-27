@@ -211,6 +211,25 @@ class CatalystStandardTargets
         target
     end
 
+    # CatalystStandardTargets::issueTargetFile(filepath)
+    def self.issueTargetFile(filepath1)
+        filename1 = File.basename(filepath1)
+        filename2 = "#{CatalystCommon::l22()}-#{filename1}"
+        filepath2 = "#{File.dirname(filepath1)}/#{filename2}"
+        FileUtils.mv(filepath1, filepath2)
+        CoreDataFile::copyFileToRepository(filepath2)
+        target = {
+            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
+            "type"     => "file",
+            "filename" => filename2
+        }
+        CatalystStandardTargets::save(target)
+        target
+    end
+
     # CatalystStandardTargets::issueTargetFolderInteractivelyOrNull()
     def self.issueTargetFolderInteractivelyOrNull()
         folderpath1 = CatalystStandardTargets::selectOneFolderpathOnTheDesktopOrNull()
