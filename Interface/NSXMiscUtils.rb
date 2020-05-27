@@ -170,55 +170,55 @@ class NSXMiscUtils
 
     # NSXMiscUtils::datapointsAndStarlightNodes()
     def self.datapointsAndStarlightNodes()
-        (DataPoints::datapoints() + StartlightNodes::nodes())
+        (DataPoints::datapoints() + Timelines::nodes())
             .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
     end
 
     # NSXMiscUtils::startlightNodeBuildAround(node)
     def self.startlightNodeBuildAround(node)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Timelines::nodeToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
                 parent = StarlightNetwork::selectOrNull()
                 if parent.nil? then
-                    puts "Did not determine a parent for '#{StartlightNodes::nodeToString(node)}'. Aborting parent determination."
+                    puts "Did not determine a parent for '#{Timelines::nodeToString(node)}'. Aborting parent determination."
                     break
                 end
                 StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{Timelines::nodeToString(node)}' ? ")
             }
-            puts "Completed determining parents for '#{StartlightNodes::nodeToString(node)}'"
+            puts "Completed determining parents for '#{Timelines::nodeToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{StartlightNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{Timelines::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = StartlightNodes::makeNodeInteractivelyOrNull(false)
+                child = Timelines::makeNodeInteractivelyOrNull(false)
                 if child.nil? then
-                    puts "Did not make a child for '#{StartlightNodes::nodeToString(node)}'. Aborting child building."
+                    puts "Did not make a child for '#{Timelines::nodeToString(node)}'. Aborting child building."
                     break
                 end
                 puts JSON.pretty_generate(child)
                 path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
                 puts JSON.pretty_generate(path)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{StartlightNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{Timelines::nodeToString(node)}' ? ")
             }
-            puts "Completed building children for '#{StartlightNodes::nodeToString(node)}'"
+            puts "Completed building children for '#{Timelines::nodeToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build datapoints for '#{StartlightNodes::nodeToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build datapoints for '#{Timelines::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new datapoint..."
                 datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
                 if datapoint.nil? then
-                    puts "Did not make a datapoint for '#{StartlightNodes::nodeToString(node)}'. Aborting datapoint building."
+                    puts "Did not make a datapoint for '#{Timelines::nodeToString(node)}'. Aborting datapoint building."
                     break
                 end
                 puts JSON.pretty_generate(datapoint)
                 claim = StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
                 puts JSON.pretty_generate(claim)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new datapoint for '#{StartlightNodes::nodeToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new datapoint for '#{Timelines::nodeToString(node)}' ? ")
             }
         end
 

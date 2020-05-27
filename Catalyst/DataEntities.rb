@@ -29,7 +29,7 @@ class DataEntities
         return target if target
         datapoint = DataPoints::getOrNull(uuid)
         return datapoint if datapoint
-        starlightnode = StartlightNodes::getOrNull(uuid)
+        starlightnode = Timelines::getOrNull(uuid)
         retun starlightnode if starlightnode
         nil
     end
@@ -43,7 +43,7 @@ class DataEntities
             return DataPoints::datapointToString(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
-            return StartlightNodes::nodeToString(dataentity)
+            return Timelines::nodeToString(dataentity)
         end
         raise "DataEntities::dataEntityToString, Error: abb2f0dd-5772"
     end

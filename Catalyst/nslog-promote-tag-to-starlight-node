@@ -56,7 +56,7 @@ node = {
     "name" => tag
 }
 puts node
-StartlightNodes::save(node)
+Timelines::save(node)
 datapoints.each{|datapoint|
     puts datapoint
     StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)

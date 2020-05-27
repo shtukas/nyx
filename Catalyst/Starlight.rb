@@ -18,37 +18,37 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataEntit
 
 # -----------------------------------------------------------------
 
-class StartlightNodes
+class Timelines
 
-    # StartlightNodes::path()
+    # Timelines::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Starlight/nodes"
     end
 
-    # StartlightNodes::save(node)
+    # Timelines::save(node)
     def self.save(node)
-        filepath = "#{StartlightNodes::path()}/#{node["uuid"]}.json"
+        filepath = "#{Timelines::path()}/#{node["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(node)) }
     end
 
-    # StartlightNodes::getOrNull(uuid)
+    # Timelines::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{StartlightNodes::path()}/#{uuid}.json"
+        filepath = "#{Timelines::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # StartlightNodes::nodes()
+    # Timelines::nodes()
     # Nodes are given in increasing creation timestamp
     def self.nodes()
-        Dir.entries(StartlightNodes::path())
+        Dir.entries(Timelines::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{StartlightNodes::path()}/#{filename}" }
+            .map{|filename| "#{Timelines::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # StartlightNodes::makeNodeInteractivelyOrNull(canAskToMakeAParent)
+    # Timelines::makeNodeInteractivelyOrNull(canAskToMakeAParent)
     def self.makeNodeInteractivelyOrNull(canAskToMakeAParent)
         puts "Making a new Starlight node..."
         node = {
@@ -58,7 +58,7 @@ class StartlightNodes
 
             "name" => LucilleCore::askQuestionAnswerAsString("nodename: ")
         }
-        StartlightNodes::save(node)
+        Timelines::save(node)
         puts JSON.pretty_generate(node)
         if canAskToMakeAParent and LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
             xnode = StarlightNetwork::selectOrNull()
@@ -69,14 +69,14 @@ class StartlightNodes
         node
     end
 
-    # StartlightNodes::nodeToString(node)
+    # Timelines::nodeToString(node)
     def self.nodeToString(node)
         "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
     end
 
-    # StartlightNodes::nodesDive()
+    # Timelines::nodesDive()
     def self.nodesDive()
-        puts "StartlightNodes::nodesDive() not implemented yet"
+        puts "Timelines::nodesDive() not implemented yet"
         LucilleCore::pressEnterToContinue()
     end
 
@@ -159,14 +159,14 @@ class StartlightPaths
     # StartlightPaths::getParentNodes(node)
     def self.getParentNodes(node)
         StartlightPaths::getPathsWithGivenTarget(node["uuid"])
-            .map{|path| StartlightNodes::getOrNull(path["sourceuuid"]) }
+            .map{|path| Timelines::getOrNull(path["sourceuuid"]) }
             .compact
     end
 
     # StartlightPaths::getChildNodes(node)
     def self.getChildNodes(node)
         StartlightPaths::getPathsWithGivenSource(node["uuid"])
-            .map{|path| StartlightNodes::getOrNull(path["targetuuid"]) }
+            .map{|path| Timelines::getOrNull(path["targetuuid"]) }
             .compact
     end
 end
@@ -245,7 +245,7 @@ class StarlightOwnershipClaims
     def self.getNodesForDataPoint(datapoint)
         StarlightOwnershipClaims::claims()
             .select{|claim| claim["targetuuid"] == datapoint["uuid"] }
-            .map{|claim| StartlightNodes::getOrNull(claim["nodeuuid"]) }
+            .map{|claim| Timelines::getOrNull(claim["nodeuuid"]) }
             .compact
     end
 end
@@ -264,9 +264,9 @@ class StarlightNetwork
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "make starlight node" then
-                node = StartlightNodes::makeNodeInteractivelyOrNull(true)
+                node = Timelines::makeNodeInteractivelyOrNull(true)
                 puts JSON.pretty_generate(node)
-                StartlightNodes::save(node)
+                Timelines::save(node)
             end
             if operation == "make starlight path" then
                 node1 = StarlightNetwork::selectOrNull()
@@ -285,15 +285,15 @@ class StarlightNetwork
         loop {
             puts ""
             puts "uuid: #{node["uuid"]}"
-            puts StartlightNodes::nodeToString(node).green
+            puts Timelines::nodeToString(node).green
             items = []
             items << ["rename", lambda{ 
                 node["description"] = CatalystCommon::editTextUsingTextmate(node["description"]).strip
-                StartlightNodes::save(node)
+                Timelines::save(node)
             }]
             StartlightPaths::getChildNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
+                .each{|n| items << ["[network child] #{Timelines::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
 
             StarlightOwnershipClaims::getDataEntitiesForNode(node)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
@@ -301,7 +301,7 @@ class StarlightNetwork
 
             StartlightPaths::getParentNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{StartlightNodes::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
+                .each{|n| items << ["[network parent] #{Timelines::nodeToString(n)}", lambda{ StarlightNetwork::navigateNode(n) }] }
 
             items << ["select", lambda{ $EvolutionsFindXSingleton = node }]
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
@@ -312,18 +312,18 @@ class StarlightNetwork
     # StarlightNetwork::selectOrNull()
     def self.selectOrNull()
         # Version 1
-        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
+        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Timelines::nodes(), lambda {|node| Timelines::nodeToString(node) })
 
         # Version 2
-        nodestrings = StartlightNodes::nodes().map{|node| StartlightNodes::nodeToString(node) }
+        nodestrings = Timelines::nodes().map{|node| Timelines::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = StartlightNodes::nodes()
-            .select{|node| StartlightNodes::nodeToString(node) == nodestring }
+        node = Timelines::nodes()
+            .select{|node| Timelines::nodeToString(node) == nodestring }
             .first
         StarlightNetwork::navigateNode(node)
         return $EvolutionsFindXSingleton if $EvolutionsFindXSingleton
         if LucilleCore::askQuestionAnswerAsBoolean("StarlightNetwork: Would you like to make a new node and return it ? ", false) then
-            return StartlightNodes::makeNodeInteractivelyOrNull(true)
+            return Timelines::makeNodeInteractivelyOrNull(true)
         end
         if LucilleCore::askQuestionAnswerAsBoolean("StarlightNetwork: There is no selection, would you like to return null ? ", true) then
             return nil
@@ -334,13 +334,13 @@ class StarlightNetwork
     # StarlightNetwork::navigate()
     def self.navigate()
         # Version 1
-        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", StartlightNodes::nodes(), lambda {|node| StartlightNodes::nodeToString(node) })
+        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Timelines::nodes(), lambda {|node| Timelines::nodeToString(node) })
 
         # Version 2
-        nodestrings = StartlightNodes::nodes().map{|node| StartlightNodes::nodeToString(node) }
+        nodestrings = Timelines::nodes().map{|node| Timelines::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = StartlightNodes::nodes()
-            .select{|node| StartlightNodes::nodeToString(node) == nodestring }
+        node = Timelines::nodes()
+            .select{|node| Timelines::nodeToString(node) == nodestring }
             .first
         StarlightNetwork::navigateNode(node)
     end
