@@ -119,6 +119,46 @@ class NSXCatalystUI
         }
     end
 
+    # NSXCatalystUI::performDataDisplay()
+    def self.performDataDisplay()
+        loop {
+            system("clear")
+
+            items = []
+
+            OpenCycles::getOpenCyclesClaims()
+                .each{|claim|
+                    dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+                    next if dataentity.nil?
+                    items << [ 
+                        DataEntities::dataEntityToString(dataentity).yellow,
+                        lambda { OpenCycles::openClaimTarget(claim) }
+                    ]
+                }
+
+            items << nil
+
+            NSXMiscUtils::datapointsAndStarlightNodes()
+                .last(20)
+                .each{|item|
+                    items << [
+                        DataEntities::dataEntityToString(item),
+                        lambda { DataEntities::visitDataEntity(item) }
+                    ]
+                }
+
+            items << nil
+
+            items << [
+                "EvolutionsFindX::navigate()",
+                lambda { EvolutionsFindX::navigate() }
+            ]
+
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
     # NSXCatalystUI::performStandardDisplay(displayObjects)
     def self.performStandardDisplay(displayObjects)
 
@@ -134,17 +174,6 @@ class NSXCatalystUI
         verticalSpaceLeft = verticalSpaceLeft - 2
 
         executors = []
-
-        puts ""
-        verticalSpaceLeft = verticalSpaceLeft - 1
-        OpenCycles::getOpenCyclesClaims().each{|claim|
-            dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-            next if dataentity.nil?
-            puts ("[#{position.to_s.rjust(3)}] [opencycle] #{DataEntities::dataEntityToString(dataentity)}").yellow
-            executors[position] = lambda { OpenCycles::openClaimTarget(claim) }
-            verticalSpaceLeft = verticalSpaceLeft - 1
-            position = position + 1
-        }
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
@@ -212,7 +241,16 @@ class NSXCatalystUI
         end
 
         if command == "/" then
-            NSXCatalystUI::performBackopsDisplay()
+            items = []
+            items << [
+                "Data", 
+                lambda { NSXCatalystUI::performDataDisplay() }
+            ]
+            items << [
+                "Backops", 
+                lambda { NSXCatalystUI::performBackopsDisplay() }
+            ]
+            LucilleCore::menuItemsWithLambdas(items)
             return
         end
 

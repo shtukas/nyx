@@ -157,4 +157,9 @@ class NSXMiscUtils
         end
     end
 
+    # NSXMiscUtils::datapointsAndStarlightNodes()
+    def self.datapointsAndStarlightNodes()
+        (DataPoints::datapoints() + StartlightNodes::nodes())
+            .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
+    end
 end

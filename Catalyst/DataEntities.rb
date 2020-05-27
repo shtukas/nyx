@@ -23,13 +23,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight
 
 class DataEntities
 
-    # This is a copy of the DataEntities.txt
-    
-    # A Data Entity is any if the four type of elements
-    #     1. CatalystStandardTarget ( "catalyst-type:catalyst-standard-target" )
-    #     2. DataPoint ( "catalyst-type:datapoint" )
-    #     3. Starlight Node ( "catalyst-type:starlight-node" )
-
     # DataEntities::getDataEntityByUuidOrNull(uuid)
     def self.getDataEntityByUuidOrNull(uuid)
         target = CatalystStandardTargets::getOrNull(uuid)
