@@ -13,6 +13,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoints.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
+
 class NSXMiscUtils
  
     # NSXMiscUtils::nDaysInTheFuture(n)
@@ -161,5 +167,76 @@ class NSXMiscUtils
     def self.datapointsAndStarlightNodes()
         (DataPoints::datapoints() + StartlightNodes::nodes())
             .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
+    end
+
+    # NSXMiscUtils::startlightNodeBuildAround(node)
+    def self.startlightNodeBuildAround(node)
+
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ") then
+            loop {
+                puts "Selecting new parent..."
+                parent = StarlightNetwork::selectOrNull()
+                if parent.nil? then
+                    puts "Did not determine a parent for '#{StartlightNodes::nodeToString(node)}'. Aborting parent determination."
+                    break
+                end
+                StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{StartlightNodes::nodeToString(node)}' ? ")
+            }
+            puts "Completed determining parents for '#{StartlightNodes::nodeToString(node)}'"
+        end
+
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{StartlightNodes::nodeToString(node)}' ? ") then
+            loop {
+                puts "Making new child..."
+                child = StartlightNodes::makeNodeInteractivelyOrNull(false)
+                if child.nil? then
+                    puts "Did not make a child for '#{StartlightNodes::nodeToString(node)}'. Aborting child building."
+                    break
+                end
+                puts JSON.pretty_generate(child)
+                path = StartlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
+                puts JSON.pretty_generate(path)
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{StartlightNodes::nodeToString(node)}' ? ")
+            }
+            puts "Completed building children for '#{StartlightNodes::nodeToString(node)}'"
+        end
+
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build datapoints for '#{StartlightNodes::nodeToString(node)}' ? ") then
+            loop {
+                puts "Making new datapoint..."
+                datapoint = DataPoints::issueDataPointInteractivelyOrNull(false)
+                if datapoint.nil? then
+                    puts "Did not make a datapoint for '#{StartlightNodes::nodeToString(node)}'. Aborting datapoint building."
+                    break
+                end
+                puts JSON.pretty_generate(datapoint)
+                claim = StarlightOwnershipClaims::issueClaimGivenNodeAndDataPoint(node, datapoint)
+                puts JSON.pretty_generate(claim)
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new datapoint for '#{StartlightNodes::nodeToString(node)}' ? ")
+            }
+        end
+
+        node
+    end
+
+    # NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
+    def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
+        node = StarlightNetwork::selectOrNull()
+        if node.nil? then
+            puts "Could not determine a Startlight node. Aborting build sequence."
+            return
+        end
+        node = NSXMiscUtils::startlightNodeBuildAround(node)
+        node
+    end
+
+    # NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
+    def self.attachTargetToStarlightNodeExistingOrNew(target)
+        return if target.nil?
+        node = StarlightNetwork::selectOrNull()
+        return if node.nil?
+        claim = StarlightOwnershipClaims::issueClaimGivenNodeAndCatalystStandardTarget(node, target)
+        puts JSON.pretty_generate(claim)
     end
 end
