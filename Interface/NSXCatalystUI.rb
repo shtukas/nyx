@@ -47,7 +47,7 @@ class NSXCatalystUI
             items = []
 
             items << [
-                "starlight management",
+                "timeline management",
                 lambda { Multiverse::management() }
             ]
 
@@ -125,7 +125,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "standard target (new) -> { Todo, OpenCycle, Timeline (existing or new) }", 
+                "A10495 (new) -> { Todo, OpenCycle, Timeline (existing or new) }", 
                 lambda {
                     target = A10495::issueNewTargetInteractivelyOrNull()
                     return if target.nil?

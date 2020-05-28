@@ -478,7 +478,7 @@ class CliquesEvolved
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[catalyst standard target] #{A10495::targetToString(target)}", lambda{ A10495::targetDive(target)}] 
+                    items << ["[catalyst A10495] #{A10495::targetToString(target)}", lambda{ A10495::targetDive(target)}] 
                 }
 
             TimelineOwnership::getTimelinesForEntity(clique)

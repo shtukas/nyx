@@ -6,17 +6,15 @@ Starlight is the navigation network built on the top of the Catalyst data points
 
 The data hierarchy of Catalyst goes as follows:
 
-At the bottom we have files and folders, they are managed through a simple interface by **CoreData**, which is integrated in **A10495s**.
+At the bottom we have files and folders, they are managed through a simple interface by **CoreData**, which is integrated in **A10495**s.
 
-The Standard Targets represent pieces of data (six types at the time those lines are written). They represent where and how Pascal likes storing information (sometimes pointers to other data sources).
+The A10495s represent pieces of data (six types at the time those lines are written). They represent where and how Pascal likes storing information (sometimes pointers to other data sources).
 
-**Cliques** are collections of standard targets with some metadata.
-
-In practice both standard targets and data points are mentally thought of atomic information.
+**Cliques** are collections of A10495s with some metadata.
 
 ### Navigation Network
 
-The navigation network is a semantic network of nodes and the paths between them. Each node is a portal to a collection of Cliques.
+The navigation network is a semantic network of timelines and the paths between them. Each timeline carries a collection of Cliques.
 
 ## Multiverse
 
