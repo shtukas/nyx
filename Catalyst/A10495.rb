@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -111,29 +111,29 @@ class CoreDataDirectory
     end
 end
 
-class CatalystStandardTargets
+class A10495
 
-    # CatalystStandardTargets::pathToRepository()
+    # A10495::pathToRepository()
     def self.pathToRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/CatalystStandardTargets"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/A10495"
     end
 
-    # CatalystStandardTargets::save(target)
+    # A10495::save(target)
     def self.save(target)
-        filepath = "#{CatalystStandardTargets::pathToRepository()}/#{target["uuid"]}.json"
+        filepath = "#{A10495::pathToRepository()}/#{target["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(target)) }
     end
 
-    # CatalystStandardTargets::getOrNull(uuid)
+    # A10495::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{CatalystStandardTargets::pathToRepository()}/#{uuid}.json"
+        filepath = "#{A10495::pathToRepository()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # CatalystStandardTargets::targets()
+    # A10495::targets()
     def self.targets()
-        Dir.entries(CatalystStandardTargets::pathToRepository())
+        Dir.entries(A10495::pathToRepository())
             .select{|filename| filename[-5, 5] == ".json" }
             .map{|filename| "#{Cliques::pathToRepository()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
@@ -142,7 +142,7 @@ class CatalystStandardTargets
     # --------------------------------------------------
     # Makers
 
-    # CatalystStandardTargets::selectOneFilepathOnTheDesktopOrNull()
+    # A10495::selectOneFilepathOnTheDesktopOrNull()
     def self.selectOneFilepathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -151,7 +151,7 @@ class CatalystStandardTargets
         LucilleCore::selectEntityFromListOfEntitiesOrNull("filepath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # CatalystStandardTargets::selectOneFolderpathOnTheDesktopOrNull()
+    # A10495::selectOneFolderpathOnTheDesktopOrNull()
     def self.selectOneFolderpathOnTheDesktopOrNull()
         desktopLocations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop")
                             .select{|filepath| filepath[0,1] != '.' }
@@ -160,7 +160,7 @@ class CatalystStandardTargets
         LucilleCore::selectEntityFromListOfEntitiesOrNull("folderpath", desktopLocations, lambda{ |location| File.basename(location) })
     end
 
-    # CatalystStandardTargets::issueTargetLineInteractively()
+    # A10495::issueTargetLineInteractively()
     def self.issueTargetLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         target = {
@@ -171,11 +171,11 @@ class CatalystStandardTargets
             "type" => "line",
             "line" => line
         }
-        CatalystStandardTargets::save(target)
+        A10495::save(target)
         target
     end
 
-    # CatalystStandardTargets::issueTargetUrlInteractively()
+    # A10495::issueTargetUrlInteractively()
     def self.issueTargetUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         target = {
@@ -186,13 +186,13 @@ class CatalystStandardTargets
             "type" => "url",
             "url"  => url
         }
-        CatalystStandardTargets::save(target)
+        A10495::save(target)
         target
     end
 
-    # CatalystStandardTargets::issueTargetFileInteractivelyOrNull()
+    # A10495::issueTargetFileInteractivelyOrNull()
     def self.issueTargetFileInteractivelyOrNull()
-        filepath1 = CatalystStandardTargets::selectOneFilepathOnTheDesktopOrNull()
+        filepath1 = A10495::selectOneFilepathOnTheDesktopOrNull()
         return nil if filepath1.nil?
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
@@ -207,11 +207,11 @@ class CatalystStandardTargets
             "type"     => "file",
             "filename" => filename2
         }
-        CatalystStandardTargets::save(target)
+        A10495::save(target)
         target
     end
 
-    # CatalystStandardTargets::issueTargetFile(filepath)
+    # A10495::issueTargetFile(filepath)
     def self.issueTargetFile(filepath1)
         filename1 = File.basename(filepath1)
         filename2 = "#{CatalystCommon::l22()}-#{filename1}"
@@ -226,13 +226,13 @@ class CatalystStandardTargets
             "type"     => "file",
             "filename" => filename2
         }
-        CatalystStandardTargets::save(target)
+        A10495::save(target)
         target
     end
 
-    # CatalystStandardTargets::issueTargetFolderInteractivelyOrNull()
+    # A10495::issueTargetFolderInteractivelyOrNull()
     def self.issueTargetFolderInteractivelyOrNull()
-        folderpath1 = CatalystStandardTargets::selectOneFolderpathOnTheDesktopOrNull()
+        folderpath1 = A10495::selectOneFolderpathOnTheDesktopOrNull()
         return nil if folderpath1.nil?
         foldername1 = File.basename(folderpath1)
         foldername2 = "#{CatalystCommon::l22()}-#{foldername1}"
@@ -247,11 +247,11 @@ class CatalystStandardTargets
             "type"       => "folder",
             "foldername" => foldername2
         }
-        CatalystStandardTargets::save(target)
+        A10495::save(target)
         target
     end
 
-    # CatalystStandardTargets::issueTargetUniqueNameInteractively()
+    # A10495::issueTargetUniqueNameInteractively()
     def self.issueTargetUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         target = {
@@ -262,11 +262,11 @@ class CatalystStandardTargets
             "type" => "unique-name",
             "name" => uniquename
         }
-        CatalystStandardTargets::save(target)
+        A10495::save(target)
         target
     end
 
-    # CatalystStandardTargets::issueTargetDirectoryMarkInteractively()
+    # A10495::issueTargetDirectoryMarkInteractively()
     def self.issueTargetDirectoryMarkInteractively()
         options = ["mark file already exists", "mark file should be created"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
@@ -281,7 +281,7 @@ class CatalystStandardTargets
                 "type" => "directory-mark",
                 "mark" => mark
             }
-            CatalystStandardTargets::save(target)
+            A10495::save(target)
             return target
         end
         if option == "mark file should be created" then
@@ -306,38 +306,38 @@ class CatalystStandardTargets
                 "type" => "directory-mark",
                 "mark" => mark
             }
-            CatalystStandardTargets::save(target)
+            A10495::save(target)
             return target
         end
     end
 
-    # CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+    # A10495::issueNewTargetInteractivelyOrNull()
     def self.issueNewTargetInteractivelyOrNull()
         puts "Making a new Catalyst Standard Target..."
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
         if type == "line" then
-            return CatalystStandardTargets::issueTargetLineInteractively()
+            return A10495::issueTargetLineInteractively()
         end
         if type == "url" then
-            return CatalystStandardTargets::issueTargetUrlInteractively()
+            return A10495::issueTargetUrlInteractively()
         end
         if type == "file" then
-            return CatalystStandardTargets::issueTargetFileInteractivelyOrNull()
+            return A10495::issueTargetFileInteractivelyOrNull()
         end
         if type == "folder" then
-            return CatalystStandardTargets::issueTargetFolderInteractivelyOrNull()
+            return A10495::issueTargetFolderInteractivelyOrNull()
         end
         if type == "unique-name" then
-            return CatalystStandardTargets::issueTargetUniqueNameInteractively()
+            return A10495::issueTargetUniqueNameInteractively()
         end
         if type == "directory-mark" then
-            return CatalystStandardTargets::issueTargetDirectoryMarkInteractively()
+            return A10495::issueTargetDirectoryMarkInteractively()
         end
     end
 
-    # CatalystStandardTargets::locationToFileOrFolderTarget(location)
+    # A10495::locationToFileOrFolderTarget(location)
     def self.locationToFileOrFolderTarget(location)
         raise "f8e3b314" if !File.exists?(location)
         if File.file?(location) then
@@ -356,7 +356,7 @@ class CatalystStandardTargets
                 "type"     => "file",
                 "filename" => filename2
             }
-            CatalystStandardTargets::save(target)
+            A10495::save(target)
             target
         else
             folderpath1 = location
@@ -374,14 +374,14 @@ class CatalystStandardTargets
                 "type"       => "folder",
                 "foldername" => foldername2
             }
-            CatalystStandardTargets::save(target)
+            A10495::save(target)
             target
         end
     end
 
     # --------------------------------------------------
 
-    # CatalystStandardTargets::targetToString(target)
+    # A10495::targetToString(target)
     def self.targetToString(target)
         if target["type"] == "line" then
             return "[std target] [line] #{target["line"]}"
@@ -404,7 +404,7 @@ class CatalystStandardTargets
         raise "Catalyst Standard Target error 3c7968e4"
     end
 
-    # CatalystStandardTargets::openTarget(target)
+    # A10495::openTarget(target)
     def self.openTarget(target)
         if target["type"] == "line" then
             puts target["line"]
@@ -450,7 +450,7 @@ class CatalystStandardTargets
         raise "Catalyst Standard Target error 160050-490261"
     end
 
-    # CatalystStandardTargets::fsckTarget(target)
+    # A10495::fsckTarget(target)
     def self.fsckTarget(target)
         if target["catalystType"].nil? then
             raise "target as no catalystType"
@@ -501,21 +501,21 @@ class CatalystStandardTargets
         end
     end
 
-    # CatalystStandardTargets::targetDive(target)
+    # A10495::targetDive(target)
     def self.targetDive(target)
         puts "-> target:"
         puts JSON.pretty_generate(target)
-        puts CatalystStandardTargets::targetToString(target)
+        puts A10495::targetToString(target)
         if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
-            CatalystStandardTargets::openTarget(target)
+            A10495::openTarget(target)
         end
     end
 
-    # CatalystStandardTargets::targetsDive(targets)
+    # A10495::targetsDive(targets)
     def self.targetsDive(targets)
-        toStringLambda = lambda { |target| CatalystStandardTargets::targetToString(target) }
+        toStringLambda = lambda { |target| A10495::targetToString(target) }
         target = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose target", targets, toStringLambda)
         return if target.nil?
-        CatalystStandardTargets::targetDive(target)
+        A10495::targetDive(target)
     end
 end

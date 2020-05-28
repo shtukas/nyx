@@ -15,7 +15,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 
@@ -25,7 +25,7 @@ class DataEntities
 
     # DataEntities::getDataEntityByUuidOrNull(uuid)
     def self.getDataEntityByUuidOrNull(uuid)
-        target = CatalystStandardTargets::getOrNull(uuid)
+        target = A10495::getOrNull(uuid)
         return target if target
         clique = Cliques::getOrNull(uuid)
         return clique if clique
@@ -37,7 +37,7 @@ class DataEntities
     # DataEntities::dataEntityToString(dataentity)
     def self.dataEntityToString(dataentity)
         if dataentity["catalystType"] == "catalyst-type:10014e93" then
-            return CatalystStandardTargets::targetToString(dataentity)
+            return A10495::targetToString(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:clique"  then
             return Cliques::cliqueToString(dataentity)
@@ -51,7 +51,7 @@ class DataEntities
     # DataEntities::dataEntityDive(dataentity)
     def self.dataEntityDive(dataentity)
         if dataentity["catalystType"] == "catalyst-type:10014e93" then
-            return CatalystStandardTargets::targetDive(dataentity)
+            return A10495::targetDive(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:clique"  then
             return CliquesEvolved::navigateClique(dataentity)
@@ -66,7 +66,7 @@ class DataEntities
     def self.visitDataEntity(dataentity)
         if dataentity["catalystType"] == "catalyst-type:10014e93" then
             target = dataentity
-            CatalystStandardTargets::openTarget(target)
+            A10495::openTarget(target)
             return
         end
         if dataentity["catalystType"] == "catalyst-type:clique"  then
@@ -85,7 +85,7 @@ class DataEntities
     # DataEntities::navigateDataEntity(dataentity)
     def self.navigateDataEntity(dataentity)
         if dataentity["catalystType"] == "catalyst-type:10014e93" then
-            CatalystStandardTargets::targetDive(dataentity)
+            A10495::targetDive(dataentity)
             return
         end
         if dataentity["catalystType"] == "catalyst-type:clique"  then

@@ -94,12 +94,12 @@ class Items
 
     # Items::itemBestDescription(item)
     def self.itemBestDescription(item)
-        item["description"] || CatalystStandardTargets::targetToString(item["target"])
+        item["description"] || A10495::targetToString(item["target"])
     end
 
     # Items::openItem(item)
     def self.openItem(item)
-        CatalystStandardTargets::openTarget(item["target"])
+        A10495::openTarget(item["target"])
     end
 
     # Items::itemToString(item)
@@ -266,7 +266,7 @@ class Items
                 Runner::stop(item["uuid"])
             end
             if option == "open" then
-                CatalystStandardTargets::openTarget(item["target"])
+                A10495::openTarget(item["target"])
             end
             if option == "done" then
                 Items::destroy(item["uuid"])

@@ -13,7 +13,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
@@ -152,7 +152,7 @@ class NSXMiscUtils
                 FileUtils.mv(location, location2)
                 next
             end
-            target = CatalystStandardTargets::locationToFileOrFolderTarget(location)
+            target = A10495::locationToFileOrFolderTarget(location)
             item = {
                 "uuid"         => SecureRandom.uuid,
                 "creationtime" => Time.new.to_f,

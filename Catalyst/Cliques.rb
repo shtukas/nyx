@@ -15,7 +15,7 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 
@@ -68,11 +68,11 @@ class Cliques
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # Cliques::makeCatalystStandardTargetsInteractively()
-    def self.makeCatalystStandardTargetsInteractively()
+    # Cliques::makeA10495Interactively()
+    def self.makeA10495Interactively()
         targets = []
         loop {
-            target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+            target = A10495::issueNewTargetInteractivelyOrNull()
             break if target.nil?
             targets << target
         }
@@ -98,7 +98,7 @@ class Cliques
             "uuid"              => SecureRandom.uuid,
 
             "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"           => Cliques::makeCatalystStandardTargetsInteractively(),
+            "targets"           => Cliques::makeA10495Interactively(),
             "tags"              => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
@@ -133,7 +133,7 @@ class Cliques
         puts "    targets:"
         point["targets"]
             .each{|target|
-                puts "        #{CatalystStandardTargets::targetToString(target)}"
+                puts "        #{A10495::targetToString(target)}"
             }
         puts ""
 
@@ -172,11 +172,11 @@ class Cliques
         if point["targets"].size == 1 then
             target = point["targets"].first
         else
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", point["targets"], lambda{|target| CatalystStandardTargets::targetToString(target) })
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", point["targets"], lambda{|target| A10495::targetToString(target) })
         end
         return if target.nil?
         puts JSON.pretty_generate(target)
-        CatalystStandardTargets::openTarget(target)
+        A10495::openTarget(target)
     end
 
     # Cliques::cliquesDive(points)
@@ -420,7 +420,7 @@ class CliquesEvolved
             items << [
                 "targets (add new)", 
                 lambda{
-                    target = CatalystStandardTargets::issueNewTargetInteractivelyOrNull()
+                    target = A10495::issueNewTargetInteractivelyOrNull()
                     next if target.nil?
                     clique["targets"] << target
                     Cliques::save(clique)
@@ -428,7 +428,7 @@ class CliquesEvolved
             items << [
                 "targets (select and remove)", 
                 lambda{
-                    toStringLambda = lambda { |target| CatalystStandardTargets::targetToString(target) }
+                    toStringLambda = lambda { |target| A10495::targetToString(target) }
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", point["targets"], toStringLambda)
                     next if target.nil?
                     clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
@@ -476,7 +476,7 @@ class CliquesEvolved
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[catalyst standard target] #{CatalystStandardTargets::targetToString(target)}", lambda{ CatalystStandardTargets::targetDive(target)}] 
+                    items << ["[catalyst standard target] #{A10495::targetToString(target)}", lambda{ A10495::targetDive(target)}] 
                 }
 
             TimelineOwnership::getTimelinesForEntity(clique)

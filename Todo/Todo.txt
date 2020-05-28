@@ -5,7 +5,7 @@ Item {
     "projectname"  : String
     "projectuuid"  : String
     "description"  : null | String
-    "target"       : CatalystStandardTarget
+    "target"       : A10495
 }
 
 Special Circumstances ProjectUUIDs

@@ -23,7 +23,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 
@@ -36,7 +36,7 @@ $EvolutionsFindXSingleton = nil
 class EvolutionsFindX
 
     # EvolutionsFindX is very simple. We want to be able to find things and return them.
-    # We can return any of: CatalystStandardTarget, Clique, StarlightNode
+    # We can return any of: A10495, Clique, StarlightNode
     # EvolutionsFindX::selectOrNull()
     def self.selectOrNull()
         $EvolutionsFindXSingleton = nil

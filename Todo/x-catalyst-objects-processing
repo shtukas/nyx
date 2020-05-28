@@ -70,7 +70,7 @@ if ARGV[0] == "start" and ARGV[1] then
     exit if item.nil?
 
     Runner::start(uuid)
-    CatalystStandardTargets::openTarget(item["target"])
+    A10495::openTarget(item["target"])
 
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
@@ -92,7 +92,7 @@ if ARGV[0] == "open" and ARGV[1] then
     item = Items::getOrNull(uuid)
     exit if item.nil?
 
-    CatalystStandardTargets::openTarget(item["target"])
+    A10495::openTarget(item["target"])
 end
 
 if ARGV[0] == "stop" and ARGV[1] then

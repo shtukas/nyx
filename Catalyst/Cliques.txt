@@ -8,7 +8,7 @@ Cliques are objects of the form
     uuid              : String
 
     description       : String
-    targets           : Array[CatalystStandardTarget]
+    targets           : Array[A10495]
     tags              : Array[String]
 } extends DataEntity
 ```

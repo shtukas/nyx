@@ -10,7 +10,7 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/CatalystStandardTargets.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
 
@@ -39,7 +39,7 @@ class Dispatch
             File.open(filepath, "w"){|f| f.puts(text) }
 
             # Make target
-            target = CatalystStandardTargets::issueTargetFile(filepath)
+            target = A10495::issueTargetFile(filepath)
             puts JSON.pretty_generate(target)
 
             # Make Todo item

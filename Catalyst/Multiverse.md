@@ -44,6 +44,6 @@ StarlightDataClaim {
     "creationTimestamp" : Float # Unixtime with decimals
 
     "nodeuuid"   : String
-    "targetuuid" : String # Clique uuid or a CatalystStandardTarget uuid
+    "targetuuid" : String # Clique uuid or a A10495 uuid
 }
 ```
