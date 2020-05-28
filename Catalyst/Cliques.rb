@@ -307,7 +307,7 @@ class CliquesEvolved
     def self.tagDive(tag)
         loop {
             system('clear')
-            puts "Data Points Tag Diving: #{tag}"
+            puts "Cliques Tag Diving: #{tag}"
             items = []
             Cliques::cliques()
                 .select{|point| point["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }

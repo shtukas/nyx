@@ -313,7 +313,7 @@ class A10495
 
     # A10495::issueNewTargetInteractivelyOrNull()
     def self.issueNewTargetInteractivelyOrNull()
-        puts "Making a new Catalyst Standard Target..."
+        puts "Making a new A10495..."
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
@@ -384,24 +384,24 @@ class A10495
     # A10495::targetToString(target)
     def self.targetToString(target)
         if target["type"] == "line" then
-            return "[std target] [line] #{target["line"]}"
+            return "[line] #{target["line"]}"
         end
         if target["type"] == "file" then
-            return "[std target] [file] #{target["filename"]}"
+            return "[file] #{target["filename"]}"
         end
         if target["type"] == "url" then
-            return "[std target] [url] #{target["url"]}"
+            return "[url] #{target["url"]}"
         end
         if target["type"] == "folder" then
-            return "[std target] [folder] #{target["foldername"]}"
+            return "[folder] #{target["foldername"]}"
         end
         if target["type"] == "unique-name" then
-            return "[std target] [unique name] #{target["name"]}"
+            return "[unique name] #{target["name"]}"
         end
         if target["type"] == "directory-mark" then
-            return "[std target] [directory mark] #{target["mark"]}"
+            return "[directory mark] #{target["mark"]}"
         end
-        raise "Catalyst Standard Target error 3c7968e4"
+        raise "A10495 error 3c7968e4"
     end
 
     # A10495::openTarget(target)
@@ -447,7 +447,7 @@ class A10495
             end
             return
         end
-        raise "Catalyst Standard Target error 160050-490261"
+        raise "A10495 error 160050-490261"
     end
 
     # A10495::fsckTarget(target)
