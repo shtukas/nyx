@@ -304,12 +304,22 @@ class NSXCatalystUI
 
         position = 0
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
+        executors = []
+
+        puts "Diligence (24h): #{(100*Ping::total24hours("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
+        verticalSpaceLeft = verticalSpaceLeft - 1
 
         puts ""
-        puts "Diligence (24h): #{(100*Ping::total24hours("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
-        verticalSpaceLeft = verticalSpaceLeft - 2
-
-        executors = []
+        verticalSpaceLeft = verticalSpaceLeft - 1
+        OpenCycles::getOpenCyclesClaims()
+            .each{|claim|
+                dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
+                next if dataentity.nil?
+                puts DataEntities::dataEntityToString(dataentity).yellow
+                executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
+                verticalSpaceLeft = verticalSpaceLeft - 1
+                position = position + 1
+            }
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
