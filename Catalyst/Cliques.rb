@@ -147,12 +147,12 @@ class Cliques
     def self.visitTag(tag)
         loop {
             system('clear')
-            puts "Cliques Tag Diving: #{tag}"
+            puts "Cliques: Tag Diving: #{tag}"
             items = []
             Cliques::cliques()
                 .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|clique|
-                    items << [ clique["description"] , lambda { Cliques::visitClique(clique) } ]
+                    items << [ Cliques::cliqueToString(clique) , lambda { Cliques::visitClique(clique) } ]
                 }
             break if items.empty?
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -467,7 +467,7 @@ class CliquesSearch
             itemsObjectToMenuItemOrNull = lambda {|object|
                 if object["type"] == "clique" then
                     clique = object["clique"]
-                    return [ "clique: #{clique["description"]}" , lambda { Cliques::visitClique(clique) } ]
+                    return [ Cliques::cliqueToString(clique) , lambda { Cliques::visitClique(clique) } ]
                 end
                 if object["type"] == "tag" then
                     tag = object["tag"]
@@ -475,10 +475,10 @@ class CliquesSearch
                 end
                 nil
             }
-            items = items
-                .map{|object| itemsObjectToMenuItemOrNull.call(object) }
-                .compact
-            status = LucilleCore::menuItemsWithLambdas(items)
+            items2 = items
+                        .map{|object| itemsObjectToMenuItemOrNull.call(object) }
+                        .compact
+            status = LucilleCore::menuItemsWithLambdas(items2)
             break if !status
         }
     end
