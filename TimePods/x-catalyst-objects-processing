@@ -69,31 +69,7 @@ end
 if ARGV[0] == "start" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    pod = TimePods::getOrNull(uuid)
-    exit if pod.nil?
-
-    Runner::start(uuid)
-
-    if pod["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
-        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing start")
-    end
-
-    if pod["passenger"]["type"] == "todo-item" then
-        system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{pod["passenger"]["uuid"]}'")
-    end
-
-    if pod["passenger"]["type"] == "catalyst-standard-target" then
-        targetuuid = pod["passenger"]["uuid"]
-        target = A10495::getOrNull(targetuuid)
-        exit if target.nil?
-        A10495::openTarget(target)
-    end
-
-    if pod["passenger"]["type"] == "text" then
-        passengeruuid = pod["passenger"]["uuid"]
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/text/#{passengeruuid}.txt"
-        system("open '#{filepath}'")
-    end
+    TimePods::startPod(uuid)
 end
 
 if ARGV[0] == "stop" and ARGV[1] then
