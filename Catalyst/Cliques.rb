@@ -449,7 +449,7 @@ class CliquesEvolved
                     Cliques::save(clique)
                 }]
             items << [
-                "add to starlight node", 
+                "add to timeline", 
                 lambda{
                     node = Multiverse::selectOrNull()
                     next if node.nil?

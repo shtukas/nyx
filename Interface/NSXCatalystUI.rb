@@ -52,17 +52,17 @@ class NSXCatalystUI
             ]
 
             items << [
-                "starlight nodes listing", 
+                "timelines listing", 
                 lambda {
                     puts "Latest Starlight Nodes"
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("starlight node", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
                     return if node.nil?
                     Multiverse::visitTimeline(node)
                 }
             ]
 
             items << [
-                "starlight node (existing or new) + build around",
+                "timeline (existing or new) + build around",
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 

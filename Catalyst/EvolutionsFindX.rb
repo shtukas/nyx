@@ -41,12 +41,12 @@ class EvolutionsFindX
     def self.selectOrNull()
         $EvolutionsFindXSingleton = nil
         options = [
-            "select starlight node",
+            "select timeline",
             "select clique",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
         return nil if option.nil? 
-        if option == "select starlight node" then
+        if option == "select timeline" then
             node = Multiverse::selectOrNull()
             if node then
                 return node
@@ -73,12 +73,12 @@ class EvolutionsFindX
     # EvolutionsFindX::navigate()
     def self.navigate()
         options = [
-            "select starlight node",
+            "select timeline",
             "select clique",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
         return nil if option.nil? 
-        if option == "select starlight node" then
+        if option == "select timeline" then
             Multiverse::navigate()
         end
         if option == "select clique" then

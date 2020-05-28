@@ -237,12 +237,12 @@ class Multiverse
             system("clear")
             puts "Starlight Management (root)"
             operations = [
-                "make starlight node",
+                "make timeline",
                 "make starlight path"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "make starlight node" then
+            if operation == "make timeline" then
                 node = Timelines::makeTimelineInteractivelyOrNull(true)
                 puts JSON.pretty_generate(node)
                 Timelines::save(node)
