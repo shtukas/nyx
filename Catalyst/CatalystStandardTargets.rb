@@ -164,7 +164,7 @@ class CatalystStandardTargets
     def self.issueTargetLineInteractively()
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         target = {
-            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "catalystType"      => "catalyst-type:10014e93",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -179,7 +179,7 @@ class CatalystStandardTargets
     def self.issueTargetUrlInteractively()
         url = LucilleCore::askQuestionAnswerAsString("url: ")
         target = {
-            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "catalystType"      => "catalyst-type:10014e93",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -200,7 +200,7 @@ class CatalystStandardTargets
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         target = {
-            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "catalystType"      => "catalyst-type:10014e93",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -219,7 +219,7 @@ class CatalystStandardTargets
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         target = {
-            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "catalystType"      => "catalyst-type:10014e93",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -240,7 +240,7 @@ class CatalystStandardTargets
         FileUtils.mv(folderpath1, folderpath2)
         CoreDataDirectory::copyFolderToRepository(folderpath2)
         target = {
-            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "catalystType"      => "catalyst-type:10014e93",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -255,7 +255,7 @@ class CatalystStandardTargets
     def self.issueTargetUniqueNameInteractively()
         uniquename = LucilleCore::askQuestionAnswerAsString("unique name: ")
         target = {
-            "catalystType"      => "catalyst-type:catalyst-standard-target",
+            "catalystType"      => "catalyst-type:10014e93",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
@@ -274,7 +274,7 @@ class CatalystStandardTargets
         if option == "mark file already exists" then
             mark = LucilleCore::askQuestionAnswerAsString("mark: ")
             target = {
-                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "catalystType"      => "catalyst-type:10014e93",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 
@@ -299,7 +299,7 @@ class CatalystStandardTargets
                 break
             }
             target = {
-                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "catalystType"      => "catalyst-type:10014e93",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 
@@ -349,7 +349,7 @@ class CatalystStandardTargets
             CoreDataFile::copyFileToRepository(filepath2)
             FileUtils.mv(filepath2, filepath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             target = {
-                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "catalystType"      => "catalyst-type:10014e93",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 
@@ -367,7 +367,7 @@ class CatalystStandardTargets
             CoreDataDirectory::copyFolderToRepository(folderpath2)
             FileUtils.mv(folderpath2, folderpath1) # putting thing back so that the location doesn't disappear under the nose of the caller
             target = {
-                "catalystType"      => "catalyst-type:catalyst-standard-target",
+                "catalystType"      => "catalyst-type:10014e93",
                 "creationTimestamp" => Time.new.to_f,
                 "uuid"              => SecureRandom.uuid,
 

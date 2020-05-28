@@ -1,9 +1,9 @@
 A Data Entity is any if the four type of elements
-     1. CatalystStandardTarget ( "catalyst-type:catalyst-standard-target" )
+     1. CatalystStandardTarget ( "catalyst-type:10014e93" )
      2. Clique ( "catalyst-type:clique" )
-     3. Starlight Node ( "catalyst-type:starlight-node" )
+     3. Starlight Node ( "catalyst-type:timeline" )
 
-DataEntityType = "catalyst-type:catalyst-standard-target" | "catalyst-type:clique" | "catalyst-type:starlight-node"
+DataEntityType = "catalyst-type:10014e93" | "catalyst-type:clique" | "catalyst-type:timeline"
 
 All Data Entities carry
     "catalystType"      : String

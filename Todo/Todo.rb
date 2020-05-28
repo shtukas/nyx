@@ -222,7 +222,7 @@ class Items
     def self.promote(item) # Boolean # Indicates whether a promotion was acheived
         newowner = EvolutionsFindX::selectOrNull()
         return false if newowner.nil?
-        if newowner["catalystType"] == "catalyst-type:starlight-node" then
+        if newowner["catalystType"] == "catalyst-type:timeline" then
             node = newowner
             TimelineOwnership::issueClaimGivenTimelineAndEntity(node, item["target"])
             return true

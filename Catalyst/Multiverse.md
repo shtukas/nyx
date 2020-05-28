@@ -22,7 +22,7 @@ The navigation network is a semantic network of nodes and the paths between them
 
 ```
 StartlightNode {
-    "catalystType"      : "catalyst-type:starlight-node"
+    "catalystType"      : "catalyst-type:timeline"
     "creationTimestamp" : Float # Unixtime with decimals
     "uuid"              : String
 

@@ -52,7 +52,7 @@ class Timelines
     def self.makeTimelineInteractivelyOrNull(canAskToMakeAParent)
         puts "Making a new Starlight node..."
         node = {
-            "catalystType"      => "catalyst-type:starlight-node",
+            "catalystType"      => "catalyst-type:timeline",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 

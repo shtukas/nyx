@@ -36,13 +36,13 @@ class DataEntities
 
     # DataEntities::dataEntityToString(dataentity)
     def self.dataEntityToString(dataentity)
-        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
+        if dataentity["catalystType"] == "catalyst-type:10014e93" then
             return CatalystStandardTargets::targetToString(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:clique"  then
             return Cliques::cliqueToString(dataentity)
         end
-        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
+        if dataentity["catalystType"] == "catalyst-type:timeline"  then
             return Timelines::timelineToString(dataentity)
         end
         raise "DataEntities::dataEntityToString, Error: abb2f0dd-5772"
@@ -50,13 +50,13 @@ class DataEntities
 
     # DataEntities::dataEntityDive(dataentity)
     def self.dataEntityDive(dataentity)
-        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
+        if dataentity["catalystType"] == "catalyst-type:10014e93" then
             return CatalystStandardTargets::targetDive(dataentity)
         end
         if dataentity["catalystType"] == "catalyst-type:clique"  then
             return CliquesEvolved::navigateClique(dataentity)
         end
-        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
+        if dataentity["catalystType"] == "catalyst-type:timeline"  then
             return Multiverse::visitTimeline(dataentity)
         end
         raise "DataEntities::dataEntityToString, Error: 2f28f27d"
@@ -64,7 +64,7 @@ class DataEntities
 
     # DataEntities::visitDataEntity(dataentity)
     def self.visitDataEntity(dataentity)
-        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
+        if dataentity["catalystType"] == "catalyst-type:10014e93" then
             target = dataentity
             CatalystStandardTargets::openTarget(target)
             return
@@ -74,7 +74,7 @@ class DataEntities
             Cliques::openClique(point)
             return
         end
-        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
+        if dataentity["catalystType"] == "catalyst-type:timeline"  then
            node = dataentity
            Multiverse::visitTimeline(node)
            return
@@ -84,7 +84,7 @@ class DataEntities
 
     # DataEntities::navigateDataEntity(dataentity)
     def self.navigateDataEntity(dataentity)
-        if dataentity["catalystType"] == "catalyst-type:catalyst-standard-target" then
+        if dataentity["catalystType"] == "catalyst-type:10014e93" then
             CatalystStandardTargets::targetDive(dataentity)
             return
         end
@@ -92,7 +92,7 @@ class DataEntities
             CliquesEvolved::navigateClique(dataentity)
             return
         end
-        if dataentity["catalystType"] == "catalyst-type:starlight-node"  then
+        if dataentity["catalystType"] == "catalyst-type:timeline"  then
             Multiverse::visitTimeline(dataentity)
             return
         end
