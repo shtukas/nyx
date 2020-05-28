@@ -49,6 +49,7 @@ objects = []
 if !Anniversaries::getNs1203WithOutstandingSequenceElements().empty? then
     objects << {
         "uuid"           => "eace4480-b93c-4b2f-bfb4-600f300812d3",
+        "application"    => "Anniversaries",
         "contentItem"    => {
             "type" => "line",
             "line" => "anniversaries"

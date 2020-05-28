@@ -114,6 +114,13 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        sleep 600
+        $CE605907 = {}
+    }
+}
+
 NSXCatalystUI::standardUILoop()
 
 # -------------------------------------------------------------------------

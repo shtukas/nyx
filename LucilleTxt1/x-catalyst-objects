@@ -99,6 +99,7 @@ contentItem =
 
 object = {
     "uuid" => uuid,
+    "application" => "LucilleTxt1",
     "contentItem" => contentItem,
     "metric" => isRunning ? 1 : 0, # The item is started by a timepod
     "commands" => ["done", "[]", "dispatch"],

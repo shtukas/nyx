@@ -309,8 +309,9 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         executors = []
 
+        puts ""
         puts "Diligence (24h): #{(100*Ping::total24hours("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
-        verticalSpaceLeft = verticalSpaceLeft - 1
+        verticalSpaceLeft = verticalSpaceLeft - 2
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
@@ -392,7 +393,7 @@ class NSXCatalystUI
             NSXCuration::curation()
 
             # Displays
-            objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+            objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
             NSXCatalystUI::performStandardDisplay(objects)
         }
     end

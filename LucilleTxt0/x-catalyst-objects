@@ -89,6 +89,7 @@ contentItem =         {
 
 object = {
     "uuid" => uuid,
+    "application" => "LucilleTxt0",
     "contentItem" => contentItem,
     "metric" => 2,
     "commands" => [],

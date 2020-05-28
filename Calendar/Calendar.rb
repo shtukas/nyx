@@ -24,6 +24,7 @@ def filePathToCatalystObject(date, indx)
     uuid = "8413-9d175a593282-#{date}"
     {
         "uuid"            => uuid,
+        "application"     => "Calendar",
         "contentItem"     => {
             "type"    => "listing-and-focus",
             "listing" => "🗓️  " + date,

@@ -94,6 +94,7 @@ def itemToCatalystObject(item, basemetric, indx)
 
     {
         "uuid"           => uuid,
+        "application"    => "Todo",
         "contentItem"    => {
             "type" => "line",
             "line" => Items::itemToString(item)

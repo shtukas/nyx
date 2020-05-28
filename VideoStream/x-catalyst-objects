@@ -79,6 +79,7 @@ VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
     uuid = VideoStream::filepathToVideoUUID(filepath)
     objects << {
         "uuid"           => uuid,
+        "application"    => "VideoStream",
         "contentItem"    => {
             "type" => "line",
             "line" => "[VideoStream] #{File.basename(filepath)}"

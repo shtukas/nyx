@@ -117,6 +117,7 @@ TimePods::getTimePods()
 
         objects << {
             "uuid"           => uuid,
+            "application"    => "TimePods",
             "contentItem"    => {
                 "type" => "line",
                 "line" => TimePods::toString(pod)

@@ -48,13 +48,13 @@ class NSXGeneralCommandHandler
     # NSXGeneralCommandHandler::processCatalystCommandCore(object, command)
     def self.processCatalystCommandCore(object, command)
 
+        return false if object.nil?
+
         return false if command.nil?
 
-        if command == "" then
-            return
-        end
+        return if command == ""
 
-        return false if object.nil?
+        $CE605907[object["application"]] = nil
 
         if command == '..' and object["defaultCommand"] then
             NSXGeneralCommandHandler::processCatalystCommandManager(object, object["defaultCommand"])
@@ -77,10 +77,6 @@ class NSXGeneralCommandHandler
             DoNotShowUntil::setUnixtime(object["uuid"], unixtime)
             return
         end
-
-        # ---------------------------------------
-        # shell-redirects
-        # ---------------------------------------
 
         if object and object["shell-redirects"] and object["shell-redirects"][command] then
             shellpath = object["shell-redirects"][command]

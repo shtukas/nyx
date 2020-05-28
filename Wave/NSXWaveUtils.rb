@@ -240,6 +240,7 @@ class NSXWaveUtils
         }
         object = {}
         object['uuid'] = uuid
+        object["application"] = "Wave"
         object["contentItem"] = contentItem
         object["metric"] = NSXWaveUtils::scheduleToMetric(schedule)
         object["commands"] = ["start", "open", "edit", "done", "description", "recast", "destroy"]

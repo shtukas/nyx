@@ -10,6 +10,10 @@ require 'fileutils'
 # FileUtils.rm(path_to_image)
 # FileUtils.rm_rf('dir/to/remove')
 
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
 # -----------------------------------------------------------------
 
 class CatalystCommon
@@ -85,11 +89,6 @@ class CatalystCommon
         File.open("#{folder3}/#{filename}", "w"){|f| f.puts(text) }
     end
 
-    # CatalystCommon::bankRetainPeriodInSeconds()
-    def self.bankRetainPeriodInSeconds()
-        (365.24/4)*86400 # Number of seconds in a quarter of a year
-    end
-
     # CatalystCommon::levenshteinDistance(s, t)
     def self.levenshteinDistance(s, t)
       # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
@@ -123,4 +122,5 @@ class CatalystCommon
         return 1 if str2.size == 0
         CatalystCommon::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
     end
+
 end
