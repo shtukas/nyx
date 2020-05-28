@@ -318,6 +318,7 @@ class Multiverse
         # Version 2
         nodestrings = Timelines::timelines().map{|node| Timelines::timelineToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
+        return if nodestring.strip.size == 0
         node = Timelines::timelines()
             .select{|node| Timelines::timelineToString(node) == nodestring }
             .first
