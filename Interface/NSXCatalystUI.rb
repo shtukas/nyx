@@ -160,7 +160,7 @@ class NSXCatalystUI
             ]
 
             items << [
-                "cliques mamangement", 
+                "cliques management", 
                 lambda { Cliques::main() }
             ]
 
