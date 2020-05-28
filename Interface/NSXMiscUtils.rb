@@ -180,7 +180,7 @@ class NSXMiscUtils
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Timelines::timelineToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = Multiverse::selectOrNull()
+                parent = Multiverse::selectTimelineOrNull()
                 if parent.nil? then
                     puts "Did not determine a parent for '#{Timelines::timelineToString(node)}'. Aborting parent determination."
                     break
@@ -194,7 +194,7 @@ class NSXMiscUtils
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{Timelines::timelineToString(node)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = Timelines::makeTimelineInteractivelyOrNull(false)
+                child = Timelines::makeTimelineInteractivelyOrNull()
                 if child.nil? then
                     puts "Did not make a child for '#{Timelines::timelineToString(node)}'. Aborting child building."
                     break
@@ -227,7 +227,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = Multiverse::selectOrNull()
+        node = Multiverse::selectTimelineOrNull()
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
             return
@@ -239,7 +239,7 @@ class NSXMiscUtils
     # NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
     def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = Multiverse::selectOrNull()
+        node = Multiverse::selectTimelineOrNull()
         return if node.nil?
         claim = TimelineOwnership::issueClaimGivenTimelineAndEntity(node, target)
         puts JSON.pretty_generate(claim)

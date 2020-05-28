@@ -1,5 +1,5 @@
 
-OpenCycles manages a collection of DataEntities, the target entities are identified with claims
+OpenCycles manages a collection of GenericEntity, the target entities are identified with claims
 
 OpenCycleClaim {
     "uuid"              : String

@@ -501,8 +501,8 @@ class A10495
         end
     end
 
-    # A10495::targetDive(target)
-    def self.targetDive(target)
+    # A10495::visitTarget(target)
+    def self.visitTarget(target)
         puts "-> target:"
         puts JSON.pretty_generate(target)
         puts A10495::targetToString(target)
@@ -511,11 +511,27 @@ class A10495
         end
     end
 
-    # A10495::targetsDive(targets)
-    def self.targetsDive(targets)
+    # A10495::visitGivenTargets(targets)
+    def self.visitGivenTargets(targets)
         toStringLambda = lambda { |target| A10495::targetToString(target) }
         target = LucilleCore::selectEntityFromListOfEntitiesOrNull("Choose target", targets, toStringLambda)
         return if target.nil?
-        A10495::targetDive(target)
+        A10495::visitTarget(target)
+    end
+
+    # --------------------------------------------------
+
+    # A10495::selectSomethingOrNull()
+    def self.selectSomethingOrNull()
+        puts "-> You are on a selection Quest".green
+        puts "-> But there is not a way to specifically select a A10495, or navigate from it."
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # A10495::onASomethingSelectionQuest(target)
+    def self.onASomethingSelectionQuest(target)
+        puts "-> You are on a selection Quest".green
+        puts "-> But there is not a way to specifically select a A10495, or navigate from it."
+        LucilleCore::pressEnterToContinue()
     end
 end

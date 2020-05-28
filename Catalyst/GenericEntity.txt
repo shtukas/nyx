@@ -1,0 +1,9 @@
+A GenericEntity is any of:
+     1. A10495   ( "catalyst-type:10014e93" )
+     2. Clique   ( "catalyst-type:clique" )
+     3. Timeline ( "catalyst-type:timeline" )
+
+All GenericEntities carry
+    "catalystType"      : String
+    "creationTimestamp" : Float # Unixtime with decimals
+    "uuid"              : String

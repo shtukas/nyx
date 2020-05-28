@@ -47,7 +47,7 @@ class NSXCatalystUI
             items = []
 
             items << [
-                "timeline management",
+                "timelines management",
                 lambda { Multiverse::management() }
             ]
 
@@ -66,11 +66,23 @@ class NSXCatalystUI
             ]
 
             items << [
+                "cliques mamangement", 
+                lambda { Cliques::main() }
+            ]
+
+
+            items << [
+                "cliques search and visit", 
+                lambda { CliquesSearch::searchAndVisit() }
+            ]
+
+
+            items << [
                 "cliques listing",
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if clique.nil?
-                    CliquesEvolved::navigateClique(clique)
+                    Cliques::visitClique(clique)
                 }
             ]
 
@@ -80,7 +92,7 @@ class NSXCatalystUI
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                     clique = Cliques::getOrNull(uuid)
                     return if clique.nil?
-                    CliquesEvolved::navigateClique(clique)
+                    Cliques::visitClique(clique)
                 }
             ]
 
@@ -101,7 +113,7 @@ class NSXCatalystUI
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Timeline" then
-                        node = Multiverse::selectOrNull()
+                        node = Multiverse::selectTimelineOrNull()
                         return if node.nil?
                         TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                     end
@@ -109,16 +121,9 @@ class NSXCatalystUI
             ]
 
             items << [
-                "EvolutionsFindX::navigate()", 
+                "GenericEntity::selectSomethingOrNull() (test)",
                 lambda {
-                    EvolutionsFindX::navigate()
-                }
-            ]
-
-            items << [
-                "EvolutionsFindX::selectOrNull() (test)", 
-                lambda {
-                    selectedEntity = EvolutionsFindX::selectOrNull()
+                    selectedEntity = GenericEntity::selectSomethingOrNull()
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
                 }
@@ -237,10 +242,10 @@ class NSXCatalystUI
 
             OpenCycles::getOpenCyclesClaims()
                 .each{|claim|
-                    dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-                    next if dataentity.nil?
+                    something = GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"])
+                    next if something.nil?
                     items << [ 
-                        DataEntities::dataEntityToString(dataentity).yellow,
+                        GenericEntity::somethingToString(something).yellow,
                         lambda { OpenCycles::openClaimTarget(claim) }
                     ]
                 }
@@ -251,8 +256,8 @@ class NSXCatalystUI
                 .last(20)
                 .each{|item|
                     items << [
-                        DataEntities::dataEntityToString(item),
-                        lambda { DataEntities::visitDataEntity(item) }
+                        GenericEntity::somethingToString(item),
+                        lambda { GenericEntity::openSomething(item) }
                     ]
                 }
 
@@ -283,13 +288,6 @@ class NSXCatalystUI
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
             ]
 
-            items << [
-                "EvolutionsFindX::navigate()",
-                lambda { EvolutionsFindX::navigate() }
-            ]
-
-            items << nil
-
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status
         }
@@ -313,11 +311,11 @@ class NSXCatalystUI
         verticalSpaceLeft = verticalSpaceLeft - 1
         OpenCycles::getOpenCyclesClaims()
             .each{|claim|
-                dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-                next if dataentity.nil?
-                puts "[#{position.to_s.rjust(3)}] [opencycle] #{DataEntities::dataEntityToString(dataentity).yellow}"
+                something = GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"])
+                next if something.nil?
+                puts "[#{position.to_s.rjust(3)}] [opencycle] #{GenericEntity::somethingToString(something).yellow}"
                 executors[position] = lambda { 
-                    DataEntities::dataEntityDive(dataentity)
+                    GenericEntity::visitSomething(something)
                 }
                 verticalSpaceLeft = verticalSpaceLeft - 1
                 position = position + 1

@@ -14,7 +14,9 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataEntities.rb"
+require 'colorize'
+
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GenericEntity.rb"
 
 # -----------------------------------------------------------------
 
@@ -48,8 +50,8 @@ class Timelines
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # Timelines::makeTimelineInteractivelyOrNull(canAskToMakeAParent)
-    def self.makeTimelineInteractivelyOrNull(canAskToMakeAParent)
+    # Timelines::makeTimelineInteractivelyOrNull()
+    def self.makeTimelineInteractivelyOrNull()
         puts "Making a new Starlight node..."
         node = {
             "catalystType"      => "catalyst-type:timeline",
@@ -60,12 +62,6 @@ class Timelines
         }
         Timelines::save(node)
         puts JSON.pretty_generate(node)
-        if canAskToMakeAParent and LucilleCore::askQuestionAnswerAsBoolean("Would you like to give a parent to this new node ? ") then
-            xnode = Multiverse::selectOrNull()
-            if xnode then
-                Stargates::issuePathFromFirstNodeToSecondNodeOrNull(xnode, node)
-            end
-        end
         node
     end
 
@@ -216,7 +212,7 @@ class TimelineOwnership
     def self.getTimelineEntities(node)
         TimelineOwnership::claims()
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
-            .map{|claim| DataEntities::getDataEntityByUuidOrNull(claim["targetuuid"]) }
+            .map{|claim| GenericEntity::getSomethingByUuidOrNull(claim["targetuuid"]) }
             .compact
     end
 
@@ -231,32 +227,10 @@ end
 
 class Multiverse
 
-    # Multiverse::management()
-    def self.management()
-        loop {
-            system("clear")
-            puts "Starlight Management (root)"
-            operations = [
-                "make timeline",
-                "make starlight path"
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            break if operation.nil?
-            if operation == "make timeline" then
-                node = Timelines::makeTimelineInteractivelyOrNull(true)
-                puts JSON.pretty_generate(node)
-                Timelines::save(node)
-            end
-            if operation == "make starlight path" then
-                node1 = Multiverse::selectOrNull()
-                next if node1.nil?
-                node2 = Multiverse::selectOrNull()
-                next if node2.nil?
-                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
-                puts JSON.pretty_generate(path)
-                Stargates::save(path)
-            end
-        }
+    # Multiverse::openTimeline(timeline)
+    def self.openTimeline(timeline)
+        # Here there isn't much to open per say, so we default to visiting 
+        Multiverse::visitTimeline(timeline)
     end
 
     # Multiverse::visitTimeline(node)
@@ -270,59 +244,148 @@ class Multiverse
                 node["description"] = CatalystCommon::editTextUsingTextmate(node["description"]).strip
                 Timelines::save(node)
             }]
-            Stargates::getChildNodes(node)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
-
-            TimelineOwnership::getTimelineEntities(node)
-                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
-                .each{|dataentity| items << ["[dataentity] #{DataEntities::dataEntityToString(dataentity)}", lambda{ DataEntities::navigateDataEntity(dataentity) }] }
 
             Stargates::getParentNodes(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
 
-            items << ["select", lambda{ $EvolutionsFindXSingleton = node }]
+            TimelineOwnership::getTimelineEntities(node)
+                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
+                .each{|something| items << ["[something] #{GenericEntity::somethingToString(something)}", lambda{ GenericEntity::visitSomething(something) }] }
+
+            Stargates::getChildNodes(node)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
+
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
     end
 
-    # Multiverse::selectOrNull()
-    def self.selectOrNull()
-        # Version 1
-        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Timelines::timelines(), lambda {|node| Timelines::timelineToString(node) })
+    # Multiverse::selectTimelineOrNull()
+    def self.selectTimelineOrNull()
+        loop {
+            puts "-> You are selecting a Timeline"
+            LucilleCore::pressEnterToContinue()
 
-        # Version 2
-        nodestrings = Timelines::timelines().map{|node| Timelines::timelineToString(node) }
-        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = Timelines::timelines()
-            .select{|node| Timelines::timelineToString(node) == nodestring }
-            .first
-        Multiverse::visitTimeline(node)
-        return $EvolutionsFindXSingleton if $EvolutionsFindXSingleton
-        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: Would you like to make a new node and return it ? ", false) then
-            return Timelines::makeTimelineInteractivelyOrNull(true)
-        end
-        if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: There is no selection, would you like to return null ? ", true) then
-            return nil
-        end
-        Multiverse::selectOrNull()
+            # Version 1
+            # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Timelines::timelines(), lambda {|node| Timelines::timelineToString(node) })
+
+            # Version 2
+            nodestrings = Timelines::timelines().map{|node| Timelines::timelineToString(node) }
+            nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
+            node = Timelines::timelines()
+                    .select{|node| Timelines::timelineToString(node) == nodestring }
+                    .first
+            return node if node
+            if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: You are being selecting a timeline but did not select any of the existing ones. Would you like to make a new node and return it ? ") then
+                return Timelines::makeTimelineInteractivelyOrNull()
+            end
+            if LucilleCore::askQuestionAnswerAsBoolean("Multiverse: There is no selection, would you like to return null ? ", true) then
+                return nil
+            end
+        }
     end
 
-    # Multiverse::navigate()
-    def self.navigate()
-        # Version 1
-        # LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Timelines::timelines(), lambda {|node| Timelines::timelineToString(node) })
+    # Multiverse::management()
+    def self.management()
+        loop {
+            system("clear")
+            puts "Starlight Management (root)"
+            operations = [
+                "make timeline",
+                "make starlight path"
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            break if operation.nil?
+            if operation == "make timeline" then
+                node = Timelines::makeTimelineInteractivelyOrNull()
+                puts JSON.pretty_generate(node)
+                Timelines::save(node)
+            end
+            if operation == "make starlight path" then
+                node1 = Multiverse::selectTimelineOrNull()
+                next if node1.nil?
+                node2 = Multiverse::selectTimelineOrNull()
+                next if node2.nil?
+                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+                puts JSON.pretty_generate(path)
+                Stargates::save(path)
+            end
+        }
+    end
 
-        # Version 2
-        nodestrings = Timelines::timelines().map{|node| Timelines::timelineToString(node) }
-        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        return if nodestring.strip.size == 0
-        node = Timelines::timelines()
-            .select{|node| Timelines::timelineToString(node) == nodestring }
-            .first
-        Multiverse::visitTimeline(node)
+    # --------------------------------------------------
+
+    # Multiverse::selectSomethingOrNull()
+    def self.selectSomethingOrNull()
+        puts "-> You are on a selection Quest [selecting a timeline]".green
+        timeline = Multiverse::selectTimelineOrNull()
+        return nil if timeline.nil?
+        Multiverse::onASomethingSelectionQuest(timeline)
+    end
+
+    # Multiverse::onASomethingSelectionQuest(timeline)
+    def self.onASomethingSelectionQuest(timeline)
+        puts "-> You are on a selection Quest [visiting timeline]".green
+        loop {
+            puts ""
+            puts "uuid: #{timeline["uuid"]}"
+
+            puts Timelines::timelineToString(timeline).green
+
+            items = []
+
+            items << ["rename", lambda{
+                timeline["description"] = CatalystCommon::editTextUsingTextmate(timeline["description"]).strip
+                Timelines::save(timeline)
+            }]
+
+            Stargates::getParentNodes(timeline)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ 
+                    something = Multiverse::onASomethingSelectionQuest(n) 
+                    if something then
+                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
+                    end
+                }] }
+
+            TimelineOwnership::getTimelineEntities(timeline)
+                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
+                .each{|something| items << ["[something] #{GenericEntity::somethingToString(something)}", lambda{ 
+                    s =  GenericEntity::onASomethingSelectionQuest(something)
+                    if s then
+                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(s))
+                    end
+                }] }
+
+            Stargates::getChildNodes(timeline)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{
+                    something = Multiverse::onASomethingSelectionQuest(n) 
+                    if something then
+                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
+                    end
+                }] }
+
+            items << [
+                "return(this)", 
+                lambda{
+                    KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(timeline))
+                }]
+
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            
+            break if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) # a selection has been made, either something from visiting a timeline or self.
+
+            break if !status
+        }
+
+        if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) then
+            return JSON.parse(KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey))
+        end
+
+        nil
     end
 end
 

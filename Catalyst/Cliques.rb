@@ -15,9 +15,23 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "eb693123"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
+require 'colorize'
+
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+=begin
+    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
+    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
+    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+
+    KeyValueStore::set(repositorylocation or nil, key, value)
+    KeyValueStore::getOrNull(repositorylocation or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorylocation or nil, key)
+=end
 
 # -----------------------------------------------------------------
 
@@ -104,7 +118,7 @@ class Cliques
         puts JSON.pretty_generate(clique)
         Cliques::save(clique)
         if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
-            node = Multiverse::selectOrNull()
+            node = Multiverse::selectTimelineOrNull()
             if node then
                 TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
             end
@@ -116,6 +130,34 @@ class Cliques
     def self.getCliquesByTag(tag)
         Cliques::cliques()
             .select{|clique| clique["tags"].include?(tag) }
+    end
+
+    # Cliques::tags()
+    def self.tags()
+        Cliques::cliques()
+            .map{|clique| clique["tags"] }
+            .flatten
+            .uniq
+            .sort
+    end
+
+    # ------------------------------------------------------------
+
+    # Cliques::visitTag(tag)
+    def self.visitTag(tag)
+        loop {
+            system('clear')
+            puts "Cliques Tag Diving: #{tag}"
+            items = []
+            Cliques::cliques()
+                .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
+                .each{|clique|
+                    items << [ clique["description"] , lambda { Cliques::visitClique(clique) } ]
+                }
+            break if items.empty?
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
     end
 
     # Cliques::cliqueToString(clique)
@@ -163,240 +205,28 @@ class Cliques
         Cliques::printCliqueDetails(clique)
         puts "    -> Opening..."
         if clique["targets"].size == 0 then
-            if LucilleCore::askQuestionAnswerAsBoolean("I could not find target for this clique. Dive? ") then
-                CliquesEvolved::navigateClique(clique)
+            if LucilleCore::askQuestionAnswerAsBoolean("I could not find any target for this clique. Dive? ") then
+                Cliques::visitClique(clique)
             end
             return
         end
-        target = nil
-        if clique["targets"].size == 1 then
-            target = clique["targets"].first
-        else
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| A10495::targetToString(target) })
+        target = 
+            if clique["targets"].size == 1 then
+                clique["targets"].first
+            else
+                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| A10495::targetToString(target) })
+            end
+        if target.nil? then
+            puts "No target was selected for this clique. Aborting opening."
+            LucilleCore::pressEnterToContinue()
+            return
         end
-        return if target.nil?
         puts JSON.pretty_generate(target)
         A10495::openTarget(target)
     end
 
-    # Cliques::cliquesDive(cliques)
-    def self.cliquesDive(cliques)
-        loop {
-            clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", cliques, lambda{|clique| Cliques::cliqueToString(clique) })
-            break if clique.nil?
-            CliquesEvolved::navigateClique(clique)
-        }
-    end
-
-    # Cliques::userInterface()
-    def self.userInterface()
-        loop {
-            system("clear")
-            puts "Cliques"
-            operations = [
-                "show newly created cliques",
-                "clique dive (uuid)",
-                "make new clique",
-                "rename tag",
-                "repair json (uuid)",
-                "clique destroy (uuid)",
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            break if operation.nil?
-            if operation == "rename tag" then
-                oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
-                next if oldname.size == 0
-                newname = LucilleCore::askQuestionAnswerAsString("new name: ")
-                next if newname.size == 0
-                renameTagIfNeeded = lambda {|tag, oldname, newname|
-                    if tag.downcase == oldname.downcase then
-                        tag = newname
-                    end
-                    tag
-                }
-                Cliques::cliques()
-                    .each{|clique|
-                        uuid = clique["uuid"]
-                        tags1 = clique["tags"]
-                        tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
-                        if tags1.join(':') != tags2.join(':') then
-                            clique["tags"] = tags2
-                            Cliques::save(clique)
-                        end
-                    }
-            end
-            if operation == "clique dive (uuid)" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                clique = Cliques::getOrNull(uuid)
-                if clique then
-                    CliquesEvolved::navigateClique(clique)
-                else
-                    puts "Could not find clique for uuid (#{uuid})"
-                end
-            end
-            if operation == "repair json (uuid)" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                clique = Cliques::getOrNull(uuid)
-                if clique then
-                    cliquejson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(clique))
-                    clique = JSON.parse(cliquejson)
-                    Cliques::save(clique)
-                else
-                    puts "Could not find clique for uuid (#{uuid})"
-                end
-            end
-            if operation == "make new clique" then
-                Cliques::issueCliqueInteractivelyOrNull(true)
-            end
-            if operation == "show newly created cliques" then
-                cliques = Cliques::cliques()
-                            .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
-                            .reverse
-                            .first(20)
-                Cliques::cliquesDive(cliques)
-            end
-            if operation == "clique destroy (uuid)" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                clique = Cliques::getOrNull(uuid)
-                next if clique.nil?
-                if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                    puts "Well, this operation has not been implemented yet"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-            end
-        }
-    end
-
-end
-
-class CliquesEvolved
-
-    # CliquesEvolved::tags()
-    def self.tags()
-        Cliques::cliques()
-            .map{|clique| clique["tags"] }
-            .flatten
-            .uniq
-            .sort
-    end
-
-    # CliquesEvolved::selectCliqueOrNull(cliques)
-    def self.selectCliqueOrNull(cliques)
-        descriptionXp = lambda { |clique|
-            "#{clique["description"]} (#{clique["uuid"][0,4]})"
-        }
-        descriptionsxp = cliques.map{|clique| descriptionXp.call(clique) }
-        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
-        return nil if selectedDescriptionxp == ""
-        clique = cliques.select{|clique| descriptionXp.call(clique) == selectedDescriptionxp }.first
-        return nil if clique.nil?
-        clique
-    end
-
-    # CliquesEvolved::cliquesDive(cliques)
-    def self.cliquesDive(cliques)
-        loop {
-            clique = CliquesEvolved::selectCliqueOrNull(cliques)
-            break if clique.nil?
-            CliquesEvolved::navigateClique(clique)
-        }
-    end
-
-    # CliquesEvolved::tagDive(tag)
-    def self.tagDive(tag)
-        loop {
-            system('clear')
-            puts "Cliques Tag Diving: #{tag}"
-            items = []
-            Cliques::cliques()
-                .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
-                .each{|clique|
-                    items << [ clique["description"] , lambda { CliquesEvolved::navigateClique(clique) } ]
-                }
-            break if items.empty?
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # CliquesEvolved::searchPatternToTags(searchPattern)
-    def self.searchPatternToTags(searchPattern)
-        CliquesEvolved::tags()
-            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
-    end
-
-    # CliquesEvolved::searchPatternToCliques(searchPattern)
-    def self.searchPatternToCliques(searchPattern)
-        Cliques::cliques()
-            .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
-    end
-
-    # CliquesEvolved::searchDiveAndSelectPatternToCliquesDescriptions(searchPattern)
-    def self.searchPatternToCliquesDescriptions(searchPattern)
-        CliquesEvolved::searchPatternToCliques(searchPattern)
-            .map{|clique| clique["description"] }
-            .uniq
-            .sort
-    end
-
-    # CliquesEvolved::nextGenGetSearchFragmentOrNull()
-    def self.nextGenGetSearchFragmentOrNull() # () -> String
-        LucilleCore::askQuestionAnswerAsString("search fragment: ")
-    end
-
-    # CliquesEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
-    # Objects returned by the function: they are essentially search results.
-    # {
-    #     "type" => "clique",
-    #     "clique" => clique
-    # }
-    # {
-    #     "type" => "tag",
-    #     "tag" => tag
-    # }
-    def self.nextGenSearchFragmentToGlobalSearchStructure(fragment)
-        objs1 = CliquesEvolved::searchPatternToCliques(fragment)
-                    .map{|clique| 
-                        {
-                            "type" => "clique",
-                            "clique" => clique
-                        }
-                    }
-        objs2 = CliquesEvolved::searchPatternToTags(fragment)
-                    .map{|tag|
-                        {
-                            "type" => "tag",
-                            "tag" => tag
-                        }
-                    }
-        objs1 + objs2
-    end
-
-    # CliquesEvolved::globalSearchStructureDive(globalss)
-    def self.globalSearchStructureDive(globalss)
-        loop {
-            globalssObjectToMenuItemOrNull = lambda {|object|
-                if object["type"] == "clique" then
-                    clique = object["clique"]
-                    return [ "clique: #{clique["description"]}" , lambda { CliquesEvolved::navigateClique(clique) } ]
-                end
-                if object["type"] == "tag" then
-                    tag = object["tag"]
-                    return [ "tag: #{tag}" , lambda { CliquesEvolved::tagDive(tag) } ]
-                end
-                nil
-            }
-            items = globalss
-                .map{|object| globalssObjectToMenuItemOrNull.call(object) }
-                .compact
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # CliquesEvolved::navigateClique(clique)
-    def self.navigateClique(clique)
+    # Cliques::visitClique(clique)
+    def self.visitClique(clique)
         loop {
             puts ""
             clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
@@ -453,7 +283,7 @@ class CliquesEvolved
             items << [
                 "add to timeline", 
                 lambda{
-                    node = Multiverse::selectOrNull()
+                    node = Multiverse::selectTimelineOrNull()
                     next if node.nil?
                     TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                 }]
@@ -478,32 +308,326 @@ class CliquesEvolved
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495::targetDive(target)}] 
+                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495::visitTarget(target) }] 
                 }
 
             TimelineOwnership::getTimelinesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[node owner] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
-            items << ["select", lambda{ $EvolutionsFindXSingleton = clique }]
+                .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ Multiverse::visitTimeline(timeline) }] }
+
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
     end
 
-    # CliquesEvolved::searchDiveAndSelect()
-    def self.searchDiveAndSelect()
-        fragment = CliquesEvolved::nextGenGetSearchFragmentOrNull()
-        return nil if fragment.nil?
-        globalss = CliquesEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
-        CliquesEvolved::globalSearchStructureDive(globalss)
-        return $EvolutionsFindXSingleton
+    # Cliques::visitGivenCliques(cliques)
+    def self.visitGivenCliques(cliques)
+        loop {
+            clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", cliques, lambda{|clique| Cliques::cliqueToString(clique) })
+            break if clique.nil?
+            Cliques::visitClique(clique)
+        }
     end
 
-    # CliquesEvolved::navigate()
-    def self.navigate()
-        fragment = CliquesEvolved::nextGenGetSearchFragmentOrNull()
-        return nil if fragment.nil?
-        globalss = CliquesEvolved::nextGenSearchFragmentToGlobalSearchStructure(fragment)
-        CliquesEvolved::globalSearchStructureDive(globalss)
+    # Cliques::main()
+    def self.main()
+        loop {
+            system("clear")
+            puts "Cliques"
+            operations = [
+                "show newly created cliques",
+                "clique dive (uuid)",
+                "make new clique",
+                "rename tag",
+                "repair json (uuid)",
+                "clique destroy (uuid)",
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            break if operation.nil?
+            if operation == "rename tag" then
+                oldname = LucilleCore::askQuestionAnswerAsString("old name (capilisation doesn't matter): ")
+                next if oldname.size == 0
+                newname = LucilleCore::askQuestionAnswerAsString("new name: ")
+                next if newname.size == 0
+                renameTagIfNeeded = lambda {|tag, oldname, newname|
+                    if tag.downcase == oldname.downcase then
+                        tag = newname
+                    end
+                    tag
+                }
+                Cliques::cliques()
+                    .each{|clique|
+                        uuid = clique["uuid"]
+                        tags1 = clique["tags"]
+                        tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
+                        if tags1.join(':') != tags2.join(':') then
+                            clique["tags"] = tags2
+                            Cliques::save(clique)
+                        end
+                    }
+            end
+            if operation == "clique dive (uuid)" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                clique = Cliques::getOrNull(uuid)
+                if clique then
+                    Cliques::visitClique(clique)
+                else
+                    puts "Could not find clique for uuid (#{uuid})"
+                end
+            end
+            if operation == "repair json (uuid)" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                clique = Cliques::getOrNull(uuid)
+                if clique then
+                    cliquejson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(clique))
+                    clique = JSON.parse(cliquejson)
+                    Cliques::save(clique)
+                else
+                    puts "Could not find clique for uuid (#{uuid})"
+                end
+            end
+            if operation == "make new clique" then
+                Cliques::issueCliqueInteractivelyOrNull(true)
+            end
+            if operation == "show newly created cliques" then
+                cliques = Cliques::cliques()
+                            .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
+                            .reverse
+                            .first(20)
+                Cliques::visitGivenCliques(cliques)
+            end
+            if operation == "clique destroy (uuid)" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                clique = Cliques::getOrNull(uuid)
+                next if clique.nil?
+                if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
+                    puts "Well, this operation has not been implemented yet"
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+            end
+        }
     end
+
+end
+
+class CliquesSearch
+
+    # CliquesSearch::searchPatternToTags(searchPattern)
+    def self.searchPatternToTags(searchPattern)
+        Cliques::tags()
+            .select{|tag| tag.downcase.include?(searchPattern.downcase) }
+    end
+
+    # CliquesSearch::searchPatternToCliques(searchPattern)
+    def self.searchPatternToCliques(searchPattern)
+        Cliques::cliques()
+            .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
+    end
+
+    # CliquesSearch::selectSomethingOrNullPatternToCliquesDescriptions(searchPattern)
+    def self.searchPatternToCliquesDescriptions(searchPattern)
+        CliquesSearch::searchPatternToCliques(searchPattern)
+            .map{|clique| clique["description"] }
+            .uniq
+            .sort
+    end
+
+    # CliquesSearch::search(fragment)
+    # Objects returned by the function: they are essentially search results.
+    # {
+    #     "type" => "clique",
+    #     "clique" => clique
+    # }
+    # {
+    #     "type" => "tag",
+    #     "tag" => tag
+    # }
+    def self.search(fragment)
+        objs1 = CliquesSearch::searchPatternToCliques(fragment)
+                    .map{|clique| 
+                        {
+                            "type" => "clique",
+                            "clique" => clique
+                        }
+                    }
+        objs2 = CliquesSearch::searchPatternToTags(fragment)
+                    .map{|tag|
+                        {
+                            "type" => "tag",
+                            "tag" => tag
+                        }
+                    }
+        objs1 + objs2
+    end
+
+    # CliquesSearch::visits(items)
+    def self.visits(items)
+        loop {
+            itemsObjectToMenuItemOrNull = lambda {|object|
+                if object["type"] == "clique" then
+                    clique = object["clique"]
+                    return [ "clique: #{clique["description"]}" , lambda { Cliques::visitClique(clique) } ]
+                end
+                if object["type"] == "tag" then
+                    tag = object["tag"]
+                    return [ "tag: #{tag}" , lambda { Cliques::visitTag(tag) } ]
+                end
+                nil
+            }
+            items = items
+                .map{|object| itemsObjectToMenuItemOrNull.call(object) }
+                .compact
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # CliquesSearch::searchAndVisit()
+    def self.searchAndVisit()
+        fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
+        return nil if fragment.nil?
+        items = CliquesSearch::search(fragment)
+        CliquesSearch::visits(items)
+    end
+
+    # --------------------------------------------------
+
+    # CliquesSearch::selectSomethingOrNull()
+    def self.selectSomethingOrNull()
+        puts "-> You are on a selection Quest [selecting a clique]".green
+        LucilleCore::pressEnterToContinue()
+        descriptionXp = lambda { |clique|
+            "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
+        }
+        cliques = Cliques::cliques()
+        descriptionsxp = cliques.reverse.map{|clique| descriptionXp.call(clique) }
+        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
+        return nil if selectedDescriptionxp == ""
+        clique = cliques.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
+        return nil if clique.nil?
+        return CliquesSearch::onASomethingSelectionQuest(clique)
+    end
+
+    # CliquesSearch::onASomethingSelectionQuest(clique)
+    def self.onASomethingSelectionQuest(clique)
+        loop {
+
+            puts "-> You are on a selection Quest [visiting a clique]".green
+            puts ""
+
+            clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
+
+            return nil if clique.nil? # useful if we have just destroyed it
+
+            Cliques::printCliqueDetails(clique)
+
+            items = []
+
+            items << ["open", lambda{  Cliques::openClique(clique) }]
+            items << [
+                "edit description", 
+                lambda{
+                    description = CatalystCommon::editTextUsingTextmate(clique["description"]).strip
+                    if description == "" or description.lines.to_a.size != 1 then
+                        puts "Descriptions should be one non empty line"
+                        LucilleCore::pressEnterToContinue()
+                        return
+                    end
+                    clique["description"] = description
+                    Cliques::save(clique)
+                }]
+            items << [
+                "A10495 (add new)", 
+                lambda{
+                    target = A10495::issueNewTargetInteractivelyOrNull()
+                    next if target.nil?
+                    clique["targets"] << target
+                    Cliques::save(clique)
+                }]
+            items << [
+                "A10495 (select and remove)", 
+                lambda{
+                    toStringLambda = lambda { |target| A10495::targetToString(target) }
+                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
+                    next if target.nil?
+                    clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
+                    Cliques::save(clique)
+                }]
+            items << [
+                "tags (add new)", 
+                lambda{
+                    clique["tags"] << LucilleCore::askQuestionAnswerAsString("tag: ")
+                    Cliques::save(clique)
+                }]
+            items << [
+                "tags (remove)", 
+                lambda{
+                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", clique["tags"])
+                    next if tag.nil?
+                    clique["tags"] = clique["tags"].reject{|t| t == tag }
+                    Cliques::save(clique)
+                }]
+            items << [
+                "add to timeline", 
+                lambda{
+                    node = Multiverse::selectTimelineOrNull()
+                    next if node.nil?
+                    TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
+                }]
+            items << [
+                "register as open cycle", 
+                lambda{
+                    claim = {
+                        "uuid"              => SecureRandom.uuid,
+                        "creationTimestamp" => Time.new.to_f,
+                        "entityuuid"        => clique["uuid"],
+                    }
+                    puts JSON.pretty_generate(claim)
+                    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+                }]
+            items << [
+                "destroy clique", 
+                lambda{
+                    if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
+                        Cliques::destroy(clique["uuid"])
+                        return nil
+                    end
+                }]
+            clique["targets"]
+                .each{|target| 
+                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ 
+                        A10495::onASomethingSelectionQuest(target)
+                    }] 
+                }
+
+            TimelineOwnership::getTimelinesForEntity(clique)
+                .sort{|n1, n2| n1["name"] <=> n2["name"] }
+                .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ 
+                    something = Multiverse::onASomethingSelectionQuest(timeline) 
+                    if something then
+                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
+                    end
+                }] }
+
+            items << [
+                "return(this)", 
+                lambda{
+                    KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(clique))
+                }]
+
+            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
+            
+            break if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) # a selection has been made, either something from visiting a timeline or self.
+
+            break if !status
+        }
+
+        if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) then
+            return JSON.parse(KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey))
+        end
+
+        nil
+    end
+
 end

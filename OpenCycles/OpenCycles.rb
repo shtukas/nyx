@@ -39,7 +39,7 @@ class OpenCycles
         Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
             .select{|filename| filename[-5, 5] == '.json' }
             .map{|filename| JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
-            .select{|claim| !DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"]).nil? }
+            .select{|claim| !GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"]).nil? }
             .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
     end
 
@@ -57,40 +57,40 @@ class OpenCycles
 
     # OpenCycles::openClaimTarget(claim)
     def self.openClaimTarget(claim)
-        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-        return if dataentity.nil?
-        DataEntities::visitDataEntity(dataentity)
+        something = GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"])
+        return if something.nil?
+        GenericEntity::openSomething(something)
     end
 
     # OpenCycles::claimToString(claim)
     def self.claimToString(claim)
-        dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-        "[opencycle] #{dataentity ? DataEntities::dataEntityToString(dataentity) : "data entity not found"}"
+        something = GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"])
+        "[opencycle] #{something ? GenericEntity::somethingToString(something) : "data entity not found"}"
     end
 
     # OpenCycles::claimDive(claim)
     def self.claimDive(claim)
         loop {
-            dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-            if dataentity.nil? then
-                puts "Could not determine dataentity for claim #{claim}"
+            something = GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"])
+            if something.nil? then
+                puts "Could not determine something for claim #{claim}"
                 LucilleCore::pressEnterToContinue()
                 return
             end
             options = [
-                "access dataentity",
+                "access something",
                 "destroy claim"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
-            if option == "access dataentity" then
-                dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
-                if dataentity.nil? then
-                    puts "I could not find a dataentity for his: #{claim}"
+            if option == "access something" then
+                something = GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"])
+                if something.nil? then
+                    puts "I could not find a something for his: #{claim}"
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                DataEntities::dataEntityDive(dataentity)
+                GenericEntity::visitSomething(something)
             end
             if option == "destroy claim" then
                 OpenCycles::destroy(claim)

@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/EvolutionsFindX.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GenericEntity.rb"
 
 # -----------------------------------------------------------------------
 
@@ -220,7 +220,7 @@ class Items
 
     # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
     def self.promote(item) # Boolean # Indicates whether a promotion was acheived
-        newowner = EvolutionsFindX::selectOrNull()
+        newowner = GenericEntity::selectSomethingOrNull()
         return false if newowner.nil?
         if newowner["catalystType"] == "catalyst-type:timeline" then
             node = newowner
@@ -234,6 +234,7 @@ class Items
             Cliques::save(clique)
             return true
         end
+        puts newowner
         raise "Todo: error: d089decd"
     end
 
