@@ -1,7 +1,7 @@
 A Data Entity is any if the four type of elements
      1. A10495 ( "catalyst-type:10014e93" )
      2. Clique ( "catalyst-type:clique" )
-     3. Starlight Node ( "catalyst-type:timeline" )
+     3. Timeline ( "catalyst-type:timeline" )
 
 DataEntityType = "catalyst-type:10014e93" | "catalyst-type:clique" | "catalyst-type:timeline"
 

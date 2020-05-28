@@ -54,7 +54,6 @@ class NSXCatalystUI
             items << [
                 "timelines listing", 
                 lambda {
-                    puts "Latest Starlight Nodes"
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
                     return if node.nil?
                     Multiverse::visitTimeline(node)
@@ -69,10 +68,9 @@ class NSXCatalystUI
             items << [
                 "cliques listing",
                 lambda {
-                    puts "Latest Cliques"
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("data points", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
-                    break if node.nil?
-                    Multiverse::visitTimeline(node)
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
+                    break if clique.nil?
+                    CliquesEvolved::navigateClique(clique)
                 }
             ]
 
@@ -87,12 +85,12 @@ class NSXCatalystUI
             ]
 
             items << [
-                "clique (new) -> { OpenCycle, Starlight Node (existing or new) }", 
+                "clique (new) -> { OpenCycle, Timeline (existing or new) }", 
                 lambda {
                     clique = Cliques::issueCliqueInteractivelyOrNull(false)
                     return if clique.nil?
 
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Timeline"])
                     return if whereTo.nil?
                     if whereTo == "OpenCycle" then
                         claim = {
@@ -102,7 +100,7 @@ class NSXCatalystUI
                         }
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
-                    if whereTo == "Starlight Node" then
+                    if whereTo == "Timeline" then
                         node = Multiverse::selectOrNull()
                         return if node.nil?
                         TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
@@ -127,11 +125,11 @@ class NSXCatalystUI
             ]
 
             items << [
-                "standard target (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
+                "standard target (new) -> { Todo, OpenCycle, Timeline (existing or new) }", 
                 lambda {
                     target = A10495::issueNewTargetInteractivelyOrNull()
                     return if target.nil?
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Starlight Node"])
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Timeline"])
                     return if whereTo.nil?
                     if whereTo == "Todo" then
                         projectname = Items::selectProjectNameInteractivelyOrNull()
@@ -154,7 +152,7 @@ class NSXCatalystUI
                         }
                         OpenCycles::saveClaim(claim)
                     end
-                    if whereTo == "Starlight Node" then
+                    if whereTo == "Timeline" then
                         NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
                     end
                 }
