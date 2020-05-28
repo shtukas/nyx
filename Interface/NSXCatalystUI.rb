@@ -315,8 +315,10 @@ class NSXCatalystUI
             .each{|claim|
                 dataentity = DataEntities::getDataEntityByUuidOrNull(claim["entityuuid"])
                 next if dataentity.nil?
-                puts DataEntities::dataEntityToString(dataentity).yellow
-                executors[position] = lambda { NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object) }
+                puts "[#{position.to_s.rjust(3)}] [opencycle] #{DataEntities::dataEntityToString(dataentity).yellow}"
+                executors[position] = lambda { 
+                    DataEntities::dataEntityDive(dataentity)
+                }
                 verticalSpaceLeft = verticalSpaceLeft - 1
                 position = position + 1
             }

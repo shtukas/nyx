@@ -420,7 +420,7 @@ class CliquesEvolved
                     Cliques::save(clique)
                 }]
             items << [
-                "targets (add new)", 
+                "A10495 (add new)", 
                 lambda{
                     target = A10495::issueNewTargetInteractivelyOrNull()
                     next if target.nil?
@@ -428,7 +428,7 @@ class CliquesEvolved
                     Cliques::save(clique)
                 }]
             items << [
-                "targets (select and remove)", 
+                "A10495 (select and remove)", 
                 lambda{
                     toStringLambda = lambda { |target| A10495::targetToString(target) }
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
@@ -478,7 +478,7 @@ class CliquesEvolved
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[catalyst A10495] #{A10495::targetToString(target)}", lambda{ A10495::targetDive(target)}] 
+                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495::targetDive(target)}] 
                 }
 
             TimelineOwnership::getTimelinesForEntity(clique)
