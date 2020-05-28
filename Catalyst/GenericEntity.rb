@@ -82,12 +82,15 @@ class GenericEntity
     def self.visitSomething(something)
         if something["catalystType"] == "catalyst-type:10014e93" then
             A10495::visitTarget(something)
+            return
         end
         if something["catalystType"] == "catalyst-type:clique"  then
             Cliques::visitClique(something)
+            return
         end
         if something["catalystType"] == "catalyst-type:timeline"  then
             Multiverse::visitTimeline(something)
+            return
         end
         raise "GenericEntity::somethingToString, Error: cf25ea33"
     end
@@ -139,6 +142,7 @@ class GenericEntity
         if something["catalystType"] == "catalyst-type:timeline"  then
             return Multiverse::onASomethingSelectionQuest(something)
         end
-        raise "GenericEntity::somethingToString, Error: cf25ea33"
+        puts something
+        raise "GenericEntity::somethingToString, Error: bc9fd6cb"
     end
 end

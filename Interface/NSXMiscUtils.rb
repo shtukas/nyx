@@ -168,12 +168,6 @@ class NSXMiscUtils
         end
     end
 
-    # NSXMiscUtils::cliquesAndStarlightNodes()
-    def self.cliquesAndStarlightNodes()
-        (Cliques::cliques() + Timelines::timelines())
-            .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
-    end
-
     # NSXMiscUtils::startlightNodeBuildAround(node)
     def self.startlightNodeBuildAround(node)
 
