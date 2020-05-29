@@ -79,9 +79,19 @@ if ARGV[0] == "start" and ARGV[1] then
     end
 
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-        puts "Item was not immediately done, we need to classify it."
         stop(uuid, item)
-        Items::recast(item)
+        puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
+
+        options = ["recast", "promote"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        if option == "recast" then
+            Items::recast(item)
+        end
+        if option == "promote" then
+            status = Items::promote(item)
+            exit if !status
+            Items::destroy(item["uuid"])
+        end
     end
 end
 

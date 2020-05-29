@@ -346,7 +346,6 @@ class NSXCatalystUI
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
-
             items << nil
 
             items << [

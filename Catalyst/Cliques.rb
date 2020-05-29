@@ -82,12 +82,13 @@ class Cliques
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # Cliques::makeA10495Interactively()
-    def self.makeA10495Interactively()
+    # Cliques::makeA10495sInteractively()
+    def self.makeA10495sInteractively()
         targets = []
         loop {
             target = A10495::issueNewTargetInteractivelyOrNull()
             break if target.nil?
+            puts JSON.pretty_generate(target)
             targets << target
         }
         targets
@@ -112,7 +113,7 @@ class Cliques
             "uuid"              => SecureRandom.uuid,
 
             "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"           => Cliques::makeA10495Interactively(),
+            "targets"           => Cliques::makeA10495sInteractively(),
             "tags"              => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
