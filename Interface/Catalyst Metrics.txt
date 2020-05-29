@@ -7,6 +7,9 @@
         0.95          Anniversaries
         0.93          Calendar [ack]
 
+📬
+        0.85          Project "Inbox"
+
 💫
         0.82+         Wave sticky
         0.80+         Wave every-this-day-of-the-month / every-this-day-of-the-week
@@ -15,9 +18,6 @@
         0.76  ->      TimePods (time-commitment-on-curve)
 
         0.70+ -> 0.20 TimePods (bank-account)
-
-📬
-        0.68          Project "Inbox"
 
 👩‍💻 🛩
         0.66  -> 0.26 Todo
