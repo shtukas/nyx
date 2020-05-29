@@ -17,7 +17,7 @@
 
         0.76  ->      TimePods (time-commitment-on-curve)
 
-        0.70+ -> 0.20 TimePods (bank-account)
+        0.70+ -> 0.20 TimePods (bank-account, on-going-project)
 
 👩‍💻 🛩
         0.66  -> 0.26 Todo

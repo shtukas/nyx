@@ -114,8 +114,16 @@ class TimePods
             end
         end
 
-        raise "[TimePods] error: 46b84bdb"
+        if engine["type"] == "on-going-project" then
+            timeBank = TimePods::onGoingProjectAdaptedBankTime(pod)
+            if timeBank >= 0 then
+                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+            else
+                return 0.70 + 0.1*(-timeBank.to_f/86400)
+            end
+        end
 
+        raise "[TimePods] error: 46b84bdb"
     end
 
     # TimePods::toStringPassengerFragment(pod)
@@ -144,15 +152,18 @@ class TimePods
         engine = pod["engine"]
 
         if engine["type"] == "time-commitment-on-curve" then
-            return "(completion: #{(100*TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::timeCommitmentOnCurve_idealTime(pod).to_f/3600).round(2)} hours)"
+            return "[time-commitment-on-curve] (completion: #{(100*TimePods::timeCommitmentOnCurve_actualCompletionRatio(pod)).round(2)} %) (time commitment: #{engine["timeCommitmentInHours"]} hours, done: #{(TimePods::liveTime(pod).to_f/3600).round(2)} hours, ideal: #{(TimePods::timeCommitmentOnCurve_idealTime(pod).to_f/3600).round(2)} hours)"
         end
 
         if engine["type"] == "bank-account" then
-            return "(bank account: #{(Bank::total(uuid).to_f/3600).round(2)} hours)"
+            return "[bank-account] (bank account: #{(Bank::total(uuid).to_f/3600).round(2)} hours)"
+        end
+
+        if engine["type"] == "on-going-project" then
+            return "[on-going-project] (bank account (adapted): #{(TimePods::onGoingProjectAdaptedBankTime(pod).to_f/3600).round(2)} hours)"
         end
 
         raise "[TimePods] error: 46b84bdb"
-
     end
 
     # TimePods::toString(pod)
@@ -166,7 +177,6 @@ class TimePods
                 ""
             end
         "#{TimePods::toStringPassengerFragment(pod)} #{TimePods::toStringEngineFragment(pod)}#{runningString}"
-
     end
 
     # TimePods::timePodIsStillRelevant(pod)
@@ -183,23 +193,23 @@ class TimePods
     def self.makePassengerOrNull()
         options = [
             "text",
-            "special-circumstances"
+            "special-circumstances (do not use unless you know what you are doing)"
         ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("passenger type", options)
         return nil if option.nil?
         if option == "text" then
             text = CatalystCommon::editTextUsingTextmate("")
             uuid = CatalystCommon::l22()
             filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/text/#{uuid}.txt"
             File.open(filepath, "w"){|f| f.puts(text) }
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            description = LucilleCore::askQuestionAnswerAsString("timepod description: ")
             return {
                 "type"        => "text",
                 "uuid"        => uuid,
                 "description" => description
             }
         end
-        if option == "special-circumstances" then
+        if option == "special-circumstances (do not use unless you know what you are doing)" then
             return {
                 "type" => "special-circumstances",
                 "name" => LucilleCore::askQuestionAnswerAsString("name: ")
@@ -211,9 +221,10 @@ class TimePods
     # TimePods::makeEngineOrNull()
     def self.makeEngineOrNull()
         options = [
-            "time-commitment-on-curve"
+            "time-commitment-on-curve",
+            "on-going-project"
         ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
         return nil if option.nil?
         if option == "time-commitment-on-curve" then
             periodInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
@@ -225,6 +236,15 @@ class TimePods
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
+        if option == "on-going-project" then
+            timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
+            return     {
+                "type"                         => "on-going-project",
+                "referencetUnixtime"           => Time.new.to_i,
+                "timeCommitmentInHoursPerWeek" => timeCommitmentInHoursPerWeek
+            }
+        end
+
         nil
     end
 
@@ -256,6 +276,7 @@ class TimePods
             system("open '#{filepath}'")
         end
     end
+
     # --------------------------------------------------------------------
 
     # TimePods::timeCommitmentOnCurve_idealCompletionRatio(pod)
@@ -278,5 +299,17 @@ class TimePods
         raise "[error c2cb9a0f]" if pod["engine"]["type"] != "time-commitment-on-curve"
         TimePods::liveTime(pod).to_f/(3600*pod["engine"]["timeCommitmentInHours"])
     end
+
+    # --------------------------------------------------------------------
+
+    # TimePods::onGoingProjectAdaptedBankTime(pod)
+    def self.onGoingProjectAdaptedBankTime(pod)
+        uuid = pod["uuid"]
+        engine = pod["engine"]
+        timeBank = Bank::total(uuid)
+        timeIdealInSecond = ((Time.new.to_i - engine["referencetUnixtime"]).to_f/(86400*7))*engine["timeCommitmentInHoursPerWeek"]*3600
+        timeBank - timeIdealInSecond
+    end 
+
 end
 

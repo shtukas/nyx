@@ -40,3 +40,8 @@ TimePodEngine
     {
         "type"                  : "bank-account"
     }
+    {
+        "type"                         : "on-going-project"
+        "referencetUnixtime"           : Unixtime
+        "timeCommitmentInHoursPerWeek" : Float
+    }

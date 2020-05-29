@@ -346,6 +346,26 @@ class NSXCatalystUI
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
+            items <<  nil
+
+            items << [
+                "timepod (new)", 
+                lambda { 
+                    passenger = TimePods::makePassengerOrNull()
+                    next if passenger.nil?
+                    engine = TimePods::makeEngineOrNull()
+                    next if engine.nil?
+                    timepod = {
+                        "uuid"             => SecureRandom.uuid,
+                        "creationUnixtime" => Time.new.to_f,
+                        "passenger"        => passenger,
+                        "engine"           => engine
+                    }
+                    puts JSON.pretty_generate(timepod)
+                    TimePods::save(timepod)
+                }
+            ]
+
             items << nil
 
             items << [
