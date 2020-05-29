@@ -72,17 +72,16 @@ if ARGV[0] == "start" and ARGV[1] then
     Runner::start(uuid)
     A10495::openTarget(item["target"])
 
+    if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
+        stop(uuid, item)
+        Items::destroy(item["uuid"])
+        exit
+    end
+
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-        if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", false) then
-            stop(uuid, item)
-            Items::destroy(item["uuid"])
-        else
-            stop(uuid, item)
-            if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
-                puts "Item was not immediately done, we need to classify it."
-                Items::recast(item)
-            end
-        end
+        puts "Item was not immediately done, we need to classify it."
+        stop(uuid, item)
+        Items::recast(item)
     end
 end
 

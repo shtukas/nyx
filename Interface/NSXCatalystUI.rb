@@ -39,6 +39,98 @@ require_relative "../OpenCycles/OpenCycles.rb"
 
 class NSXCatalystUI
 
+    # NSXCatalystUI::performGeneralNavigationDisplay()
+    def self.performGeneralNavigationDisplay()
+        loop {
+            system("clear")
+
+            items = []
+
+            items << [
+                "navigate timelines", 
+                lambda { MultiverseNavigation::generalNavigation() }
+            ]
+
+            items << [
+                "navigate cliques", 
+                lambda { CliquesNavigation::generalNavigation() }
+            ]
+
+            items << nil
+
+            items << [
+                "timelines listing", 
+                lambda {
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
+                    return if node.nil?
+                    Multiverse::visitTimeline(node)
+                }
+            ]
+            items << [
+                "cliques search and visit", 
+                lambda { CliquesSearch::searchAndVisit() }
+            ]
+
+            items << [
+                "cliques listing",
+                lambda {
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
+                    break if clique.nil?
+                    Cliques::visitClique(clique)
+                }
+            ]
+
+            items << [
+                "clique visit (uuid)", 
+                lambda {
+                    uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                    clique = Cliques::getOrNull(uuid)
+                    return if clique.nil?
+                    Cliques::visitClique(clique)
+                }
+            ]
+
+            items << [
+                "GenericEntitySearch::selectSomethingOrNull() (test)",
+                lambda {
+                    selectedEntity = GenericEntitySearch::selectSomethingOrNull()
+                    puts JSON.pretty_generate([selectedEntity])
+                    LucilleCore::pressEnterToContinue()
+                }
+            ]
+
+            items << nil
+
+            items << [
+                "TimePods", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
+            ]
+
+            items << [
+                "Todo", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
+            ]
+
+            items << [
+                "OpenCycles", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
+            ]
+
+            items << [
+                "Calendar", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
+            ]
+
+            items << [
+                "Wave", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
+            ]
+
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
     # NSXCatalystUI::performOpenCyclesDisplay()
     def self.performOpenCyclesDisplay()
         system("clear")
@@ -90,55 +182,42 @@ class NSXCatalystUI
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
             ]
 
-            items << nil
-
-            items << [
-                "Applications generation speed", 
-                lambda { 
-                    puts "Applications generation speed report"
-                    NSXCatalystObjectsCommon::applicationNames()
-                        .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
-                        .map{|source|
-                            t1 = Time.new.to_f
-                            JSON.parse(`#{source}`)
-                            t2 = Time.new.to_f
-                            {
-                                "source" => source,
-                                "timespan" => t2-t1 
-                            }
-                        }
-                        .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
-                        .reverse
-                        .each{|object|
-                            puts "    - #{object["source"]}: #{"%.3f" % object["timespan"]}"
-                        }
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            items << [
-                "UI generation speed", 
-                lambda { 
-                    t1 = Time.new.to_f
-                    NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                        .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
-                    t2 = Time.new.to_f
-                    puts "UI generation speed: #{(t2-t1).round(3)} seconds"
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status
         }
     end
 
-    # NSXCatalystUI::performManagementAndMakersDisplay()
-    def self.performManagementAndMakersDisplay()
+    # NSXCatalystUI::performManagementDisplay()
+    def self.performManagementDisplay()
         loop {
             system("clear")
 
             items = []
+
+            items << [
+                "TimePods", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
+            ]
+
+            items << [
+                "Todo", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
+            ]
+
+            items << [
+                "OpenCycles", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
+            ]
+
+            items << [
+                "Calendar", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
+            ]
+
+            items << [
+                "Wave", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
+            ]
 
             items << [
                 "timelines management",
@@ -152,11 +231,6 @@ class NSXCatalystUI
                     return if node.nil?
                     Multiverse::visitTimeline(node)
                 }
-            ]
-
-            items << [
-                "timeline (existing or new) + build around",
-                lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
             items << [
@@ -189,30 +263,6 @@ class NSXCatalystUI
             ]
 
             items << [
-                "clique (new) -> { OpenCycle, Timeline (existing or new) }", 
-                lambda {
-                    clique = Cliques::issueCliqueInteractivelyOrNull(false)
-                    return if clique.nil?
-
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Timeline"])
-                    return if whereTo.nil?
-                    if whereTo == "OpenCycle" then
-                        claim = {
-                            "uuid"              => SecureRandom.uuid,
-                            "creationTimestamp" => Time.new.to_f,
-                            "entityuuid"        => clique["uuid"]
-                        }
-                        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
-                    end
-                    if whereTo == "Timeline" then
-                        node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
-                        return if node.nil?
-                        TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
-                    end
-                }
-            ]
-
-            items << [
                 "GenericEntitySearch::selectSomethingOrNull() (test)",
                 lambda {
                     selectedEntity = GenericEntitySearch::selectSomethingOrNull()
@@ -220,6 +270,18 @@ class NSXCatalystUI
                     LucilleCore::pressEnterToContinue()
                 }
             ]
+
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # NSXCatalystUI::performMakersDisplay()
+    def self.performMakersDisplay()
+        loop {
+            system("clear")
+
+            items = []
 
             items << [
                 "A10495 (new) -> { Todo, OpenCycle, Timeline (existing or new) }", 
@@ -253,6 +315,63 @@ class NSXCatalystUI
                         NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
                     end
                 }
+            ]
+
+            items << [
+                "clique (new) -> { OpenCycle, Timeline (existing or new) }", 
+                lambda {
+                    clique = Cliques::issueCliqueInteractivelyOrNull(false)
+                    return if clique.nil?
+
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Timeline"])
+                    return if whereTo.nil?
+                    if whereTo == "OpenCycle" then
+                        claim = {
+                            "uuid"              => SecureRandom.uuid,
+                            "creationTimestamp" => Time.new.to_f,
+                            "entityuuid"        => clique["uuid"]
+                        }
+                        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+                    end
+                    if whereTo == "Timeline" then
+                        node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                        return if node.nil?
+                        TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
+                    end
+                }
+            ]
+
+            items << [
+                "timeline (existing or new) + build around",
+                lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
+            ]
+
+
+            items << nil
+
+            items << [
+                "TimePods", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
+            ]
+
+            items << [
+                "Todo", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
+            ]
+
+            items << [
+                "OpenCycles", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
+            ]
+
+            items << [
+                "Calendar", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
+            ]
+
+            items << [
+                "Wave", 
+                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
             ]
 
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -349,36 +468,83 @@ class NSXCatalystUI
         end
 
         if command == "/" then
-            system("clear")
-            items = []
+            loop {
+                system("clear")
+                items = []
 
-            items << [
-                "OpenCycles", 
-                lambda { NSXCatalystUI::performOpenCyclesDisplay() }
-            ]
-            items << [
-                "General Something Navigation", 
-                lambda { GenericEntityNavigation::generalNavigation() }
-            ]
-            items << [
-                "Management and Makers", 
-                lambda { NSXCatalystUI::performManagementAndMakersDisplay() }
-            ]
-            items << [
-                "Latest Timelines", 
-                lambda { NSXCatalystUI::performLastestTimelinesDisplay() }
-            ]
-            items << [
-                "Latest Cliques", 
-                lambda { NSXCatalystUI::performLastestCliquesDisplay() }
-            ]
-            items << [
-                "Applications", 
-                lambda { NSXCatalystUI::performAppsDisplay() }
-            ]
+                items << [
+                    "OpenCycles", 
+                    lambda { NSXCatalystUI::performOpenCyclesDisplay() }
+                ]
+                items << [
+                    "Latest Timelines", 
+                    lambda { NSXCatalystUI::performLastestTimelinesDisplay() }
+                ]
+                items << [
+                    "Latest Cliques", 
+                    lambda { NSXCatalystUI::performLastestCliquesDisplay() }
+                ]
+                items << [
+                    "General Navigation", 
+                    lambda { NSXCatalystUI::performGeneralNavigationDisplay() }
+                ]
 
-            LucilleCore::menuItemsWithLambdas(items)
-            return
+                items << [
+                    "Makers", 
+                    lambda { NSXCatalystUI::performMakersDisplay() }
+                ]
+
+                items << [
+                    "Management", 
+                    lambda { NSXCatalystUI::performManagementDisplay() }
+                ]
+
+                items << [
+                    "Applications", 
+                    lambda { NSXCatalystUI::performAppsDisplay() }
+                ]
+
+                items << nil
+
+                items << [
+                    "Applications generation speed", 
+                    lambda { 
+                        puts "Applications generation speed report"
+                        NSXCatalystObjectsCommon::applicationNames()
+                            .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
+                            .map{|source|
+                                t1 = Time.new.to_f
+                                JSON.parse(`#{source}`)
+                                t2 = Time.new.to_f
+                                {
+                                    "source" => source,
+                                    "timespan" => t2-t1 
+                                }
+                            }
+                            .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
+                            .reverse
+                            .each{|object|
+                                puts "    - #{object["source"]}: #{"%.3f" % object["timespan"]}"
+                            }
+                        LucilleCore::pressEnterToContinue()
+                    }
+                ]
+
+                items << [
+                    "UI generation speed", 
+                    lambda { 
+                        t1 = Time.new.to_f
+                        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                            .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
+                        t2 = Time.new.to_f
+                        puts "UI generation speed: #{(t2-t1).round(3)} seconds"
+                        LucilleCore::pressEnterToContinue()
+                    }
+                ]
+
+                status = LucilleCore::menuItemsWithLambdas(items)
+                break if !status
+            }
         end
 
         NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
