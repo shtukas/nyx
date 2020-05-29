@@ -53,7 +53,7 @@ class NSXCatalystObjectsCommon
                     "application"     => "Interface",
                     "contentItem"     => {
                         "type" => "line",
-                        "line" => "Problems extracting catalyst objects at '#{source}'"
+                        "line" => "Problems extracting catalyst objects at '#{scriptfilepath}'"
                     },
                     "metric"          => 1.1,
                     "commands"        => []

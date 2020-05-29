@@ -146,7 +146,8 @@ objects = []
 
 Items::items()
     .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
-    .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
+    .sort{|i1, i2| 
+        i1["referencetime"] <=> i2["referencetime"] }
     .each_with_index {|item, indx|
         objects << itemToCatalystObject(item, 0.85, indx)
     }

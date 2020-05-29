@@ -52,6 +52,7 @@ class Items
     # Items::issueNewItem(projectname, projectuuid, description, target)
     def self.issueNewItem(projectname, projectuuid, description, target)
         item = {
+            "catalystType"  => "todo-item-827b58bb",
             "uuid"          => SecureRandom.uuid,
             "creationtime"  => Time.new.to_f,
             "referencetime" => Time.new.to_f,
@@ -82,6 +83,7 @@ class Items
     def self.issueNewItemInteractivelyX1(description, target)
         projectname, projectuuid = Items::selectProjectNameUuidPair()
         item = {
+            "catalystType"  => "todo-item-827b58bb",
             "uuid"          => SecureRandom.uuid,
             "creationtime"  => Time.new.to_f,
             "referencetime" => Time.new.to_f,

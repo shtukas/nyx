@@ -154,12 +154,14 @@ class NSXMiscUtils
             end
             target = A10495::locationToFileOrFolderTarget(location)
             item = {
-                "uuid"         => SecureRandom.uuid,
-                "creationtime" => Time.new.to_f,
-                "projectname"  => "Inbox",
-                "projectuuid"  => "44caf74675ceb79ba5cc13bafa102509369c2b53",
-                "description"  => File.basename(location),
-                "target"       => target
+                "catalystType"  => "todo-item-827b58bb",
+                "uuid"          => SecureRandom.uuid,
+                "creationtime"  => Time.new.to_f,
+                "referencetime" => Time.new.to_f,
+                "projectname"   => "Inbox",
+                "projectuuid"   => "44caf74675ceb79ba5cc13bafa102509369c2b53",
+                "description"   => File.basename(location),
+                "target"        => target
             }
             puts JSON.pretty_generate(item)
             filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2/#{item["uuid"]}.json"
