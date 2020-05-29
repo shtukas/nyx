@@ -95,9 +95,50 @@ class GenericEntity
         raise "GenericEntity::somethingToString, Error: cf25ea33"
     end
 
-    # --------------------------------------------------
+end
 
-    # GenericEntity::selectSomethingOrNull()
+class GenericEntityNavigation
+
+    # GenericEntityNavigation::generalNavigation()
+    def self.generalNavigation()
+        loop {
+            options = [
+                "navigate timelines",
+                "navigate cliques",
+            ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
+            return if option.nil?
+            if option == "navigate timelines" then
+                MultiverseNavigation::generalNavigation()
+            end
+            if option == "start at cliques" then
+                CliquesSelection::generalNavigation()
+            end
+        }
+    end
+
+    # GenericEntityNavigation::visit(something)
+    def self.visit(something)
+        if something["catalystType"] == "catalyst-type:10014e93" then
+            target = something
+            return A10495Navigation::visit(target)
+        end
+        if something["catalystType"] == "catalyst-type:clique"  then
+            clique = something
+            return CliquesSelection::onASomethingSelectionQuest(clique)
+        end
+        if something["catalystType"] == "catalyst-type:timeline"  then
+            timeline = something
+            return MultiverseSelection::onASomethingSelectionQuest(timeline)
+        end
+        puts something
+        raise "GenericEntity::somethingToString, Error: f17aba25"
+    end
+end
+
+class GenericEntitySearch
+
+    # GenericEntitySearch::selectSomethingOrNull()
     def self.selectSomethingOrNull()
         loop {
             $GenericEntityQuestSelectionKey = SecureRandom.hex
@@ -115,13 +156,13 @@ class GenericEntity
                 end
             end
             if option == "start at timelines" then
-                something = Multiverse::selectSomethingOrNull()
+                something = MultiverseSelection::selectSomethingOrNull()
                 if something then
                     return something
                 end
             end
             if option == "start at cliques" then
-                something = CliquesSearch::selectSomethingOrNull()
+                something = CliquesSelection::selectSomethingOrNull()
                 if something then
                     return something
                 end
@@ -129,18 +170,18 @@ class GenericEntity
         }
     end
 
-    # GenericEntity::onASomethingSelectionQuest(something)
+    # GenericEntitySearch::onASomethingSelectionQuest(something)
     def self.onASomethingSelectionQuest(something)
         puts "-> You are on a selection Quest".green
         # We either return null of a something
         if something["catalystType"] == "catalyst-type:10014e93" then
-            return A10495::onASomethingSelectionQuest(something)
+            return A10495Selection::onASomethingSelectionQuest(something)
         end
         if something["catalystType"] == "catalyst-type:clique"  then
-            return CliquesSearch::onASomethingSelectionQuest(something)
+            return CliquesSelection::onASomethingSelectionQuest(something)
         end
         if something["catalystType"] == "catalyst-type:timeline"  then
-            return Multiverse::onASomethingSelectionQuest(something)
+            return MultiverseSelection::onASomethingSelectionQuest(something)
         end
         puts something
         raise "GenericEntity::somethingToString, Error: bc9fd6cb"

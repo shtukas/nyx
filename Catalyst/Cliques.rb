@@ -118,7 +118,7 @@ class Cliques
         puts JSON.pretty_generate(clique)
         Cliques::save(clique)
         if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
-            node = Multiverse::selectTimelineOrNull()
+            node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
             if node then
                 TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
             end
@@ -228,6 +228,7 @@ class Cliques
     # Cliques::visitClique(clique)
     def self.visitClique(clique)
         loop {
+            system("clear")
             puts ""
             clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
             return if clique.nil? # useful if we have just destroyed it
@@ -283,7 +284,7 @@ class Cliques
             items << [
                 "add to timeline", 
                 lambda{
-                    node = Multiverse::selectTimelineOrNull()
+                    node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
                     next if node.nil?
                     TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                 }]
@@ -308,12 +309,12 @@ class Cliques
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495::visitTarget(target) }] 
+                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495Navigation::visit(target) }] 
                 }
 
             TimelineOwnership::getTimelinesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ Multiverse::visitTimeline(timeline) }] }
+                .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ MultiverseNavigation::visit(timeline) }] }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
@@ -425,7 +426,7 @@ class CliquesSearch
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 
-    # CliquesSearch::selectSomethingOrNullPatternToCliquesDescriptions(searchPattern)
+    # CliquesSelection::selectSomethingOrNullPatternToCliquesDescriptions(searchPattern)
     def self.searchPatternToCliquesDescriptions(searchPattern)
         CliquesSearch::searchPatternToCliques(searchPattern)
             .map{|clique| clique["description"] }
@@ -461,8 +462,8 @@ class CliquesSearch
         objs1 + objs2
     end
 
-    # CliquesSearch::visits(items)
-    def self.visits(items)
+    # CliquesSearch::diveSearchResults(items)
+    def self.diveSearchResults(items)
         loop {
             itemsObjectToMenuItemOrNull = lambda {|object|
                 if object["type"] == "clique" then
@@ -488,12 +489,26 @@ class CliquesSearch
         fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
         return nil if fragment.nil?
         items = CliquesSearch::search(fragment)
-        CliquesSearch::visits(items)
+        CliquesSearch::diveSearchResults(items)
+    end
+end
+
+class CliquesNavigation
+
+    # CliquesSelection::generalNavigation()
+    def self.generalNavigation()
+        CliquesSearch::searchAndVisit()
     end
 
-    # --------------------------------------------------
+    # CliquesSelection::visit(clique)
+    def self.visit(clique)
+        Cliques::visitClique(clique)
+    end
+end
 
-    # CliquesSearch::selectSomethingOrNull()
+class CliquesSelection
+
+    # CliquesSelection::selectSomethingOrNull()
     def self.selectSomethingOrNull()
         puts "-> You are on a selection Quest [selecting a clique]".green
         LucilleCore::pressEnterToContinue()
@@ -506,10 +521,10 @@ class CliquesSearch
         return nil if selectedDescriptionxp == ""
         clique = cliques.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
         return nil if clique.nil?
-        return CliquesSearch::onASomethingSelectionQuest(clique)
+        return CliquesSelection::onASomethingSelectionQuest(clique)
     end
 
-    # CliquesSearch::onASomethingSelectionQuest(clique)
+    # CliquesSelection::onASomethingSelectionQuest(clique)
     def self.onASomethingSelectionQuest(clique)
         loop {
 
@@ -571,7 +586,7 @@ class CliquesSearch
             items << [
                 "add to timeline", 
                 lambda{
-                    node = Multiverse::selectTimelineOrNull()
+                    node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
                     next if node.nil?
                     TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                 }]
@@ -597,14 +612,14 @@ class CliquesSearch
             clique["targets"]
                 .each{|target| 
                     items << ["[A10495] #{A10495::targetToString(target)}", lambda{ 
-                        A10495::onASomethingSelectionQuest(target)
+                        A10495Selection::onASomethingSelectionQuest(target)
                     }] 
                 }
 
             TimelineOwnership::getTimelinesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ 
-                    something = Multiverse::onASomethingSelectionQuest(timeline) 
+                    something = MultiverseSelection::onASomethingSelectionQuest(timeline) 
                     if something then
                         KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
                     end
@@ -629,5 +644,4 @@ class CliquesSearch
 
         nil
     end
-
 end

@@ -233,39 +233,54 @@ class Multiverse
         Multiverse::visitTimeline(timeline)
     end
 
-    # Multiverse::visitTimeline(node)
-    def self.visitTimeline(node)
+    # Multiverse::visitTimeline(timeline)
+    def self.visitTimeline(timeline)
         loop {
+            system("clear")
             puts ""
-            puts "uuid: #{node["uuid"]}"
-            puts Timelines::timelineToString(node).green
+            puts "uuid: #{timeline["uuid"]}"
+            puts Timelines::timelineToString(timeline).green
             items = []
             items << ["rename", lambda{ 
-                node["description"] = CatalystCommon::editTextUsingTextmate(node["description"]).strip
-                Timelines::save(node)
+                timeline["description"] = CatalystCommon::editTextUsingTextmate(timeline["description"]).strip
+                Timelines::save(timeline)
             }]
 
-            Stargates::getParentNodes(node)
+            Stargates::getParentNodes(timeline)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
+                .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ MultiverseNavigation::visit(n) }] }
 
-            TimelineOwnership::getTimelineEntities(node)
+            TimelineOwnership::getTimelineEntities(timeline)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
-                .each{|something| items << ["[something] #{GenericEntity::somethingToString(something)}", lambda{ GenericEntity::visitSomething(something) }] }
+                .each{|something| items << ["[something] #{GenericEntity::somethingToString(something)}", lambda{ GenericEntityNavigation::visit(something) }] }
 
-            Stargates::getChildNodes(node)
+            Stargates::getChildNodes(timeline)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ Multiverse::visitTimeline(n) }] }
+                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ MultiverseNavigation::visit(n) }] }
+
+            items << ["add parent timeline", lambda{ 
+                timeline0 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(timeline0, timeline)
+                puts JSON.pretty_generate(path)
+                Stargates::save(path)
+            }]
+
+            items << ["add child timeline", lambda{ 
+                timeline2 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(timeline, timeline2)
+                puts JSON.pretty_generate(path)
+                Stargates::save(path)
+            }]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
     end
 
-    # Multiverse::selectTimelineOrNull()
-    def self.selectTimelineOrNull()
+    # Multiverse::selectTimelinePossiblyCreateOneOrNull()
+    def self.selectTimelinePossiblyCreateOneOrNull()
         loop {
-            puts "-> You are selecting a Timeline"
+            puts "-> You are selecting a timeline (possibly will create one)"
             LucilleCore::pressEnterToContinue()
 
             # Version 1
@@ -304,9 +319,9 @@ class Multiverse
                 Timelines::save(node)
             end
             if operation == "make starlight path" then
-                node1 = Multiverse::selectTimelineOrNull()
+                node1 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
                 next if node1.nil?
-                node2 = Multiverse::selectTimelineOrNull()
+                node2 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
                 next if node2.nil?
                 path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
@@ -315,17 +330,34 @@ class Multiverse
         }
     end
 
-    # --------------------------------------------------
+end
 
-    # Multiverse::selectSomethingOrNull()
-    def self.selectSomethingOrNull()
-        puts "-> You are on a selection Quest [selecting a timeline]".green
-        timeline = Multiverse::selectTimelineOrNull()
-        return nil if timeline.nil?
-        Multiverse::onASomethingSelectionQuest(timeline)
+class MultiverseNavigation
+
+    # MultiverseNavigation::generalNavigation()
+    def self.generalNavigation()
+        timeline = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+        return if timeline.nil?
+        MultiverseNavigation::visit(timeline)
     end
 
-    # Multiverse::onASomethingSelectionQuest(timeline)
+    # MultiverseNavigation::visit(timeline)
+    def self.visit(timeline)
+        Multiverse::visitTimeline(timeline)
+    end
+end
+
+class MultiverseSelection
+
+    # MultiverseSelection::selectSomethingOrNull()
+    def self.selectSomethingOrNull()
+        puts "-> You are on a selection Quest [selecting a timeline]".green
+        timeline = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+        return nil if timeline.nil?
+        MultiverseSelection::onASomethingSelectionQuest(timeline)
+    end
+
+    # MultiverseSelection::onASomethingSelectionQuest(timeline)
     def self.onASomethingSelectionQuest(timeline)
         puts "-> You are on a selection Quest [visiting timeline]".green
         loop {
@@ -344,7 +376,7 @@ class Multiverse
             Stargates::getParentNodes(timeline)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ 
-                    something = Multiverse::onASomethingSelectionQuest(n) 
+                    something = MultiverseSelection::onASomethingSelectionQuest(n) 
                     if something then
                         KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
                     end
@@ -353,7 +385,7 @@ class Multiverse
             TimelineOwnership::getTimelineEntities(timeline)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
                 .each{|something| items << ["[something] #{GenericEntity::somethingToString(something)}", lambda{ 
-                    s =  GenericEntity::onASomethingSelectionQuest(something)
+                    s =  GenericEntitySearch::onASomethingSelectionQuest(something)
                     if s then
                         KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(s))
                     end
@@ -362,7 +394,7 @@ class Multiverse
             Stargates::getChildNodes(timeline)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{
-                    something = Multiverse::onASomethingSelectionQuest(n) 
+                    something = MultiverseSelection::onASomethingSelectionQuest(n) 
                     if something then
                         KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
                     end

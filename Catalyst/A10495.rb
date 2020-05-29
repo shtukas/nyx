@@ -519,16 +519,30 @@ class A10495
         A10495::visitTarget(target)
     end
 
-    # --------------------------------------------------
+end
 
-    # A10495::selectSomethingOrNull()
+class A10495Navigation
+    def self.generalNavigation()
+        puts "-> But there is no general navigation of A10495"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # A10495Navigation::visit(target)
+    def self.visit(target)
+        A10495::visitTarget(target)
+    end
+end
+
+class A10495Selection
+
+    # A10495Selection::selectSomethingOrNull()
     def self.selectSomethingOrNull()
         puts "-> You are on a selection Quest".green
         puts "-> But there is not a way to specifically select a A10495, or navigate from it."
         LucilleCore::pressEnterToContinue()
     end
 
-    # A10495::onASomethingSelectionQuest(target)
+    # A10495Selection::onASomethingSelectionQuest(target)
     def self.onASomethingSelectionQuest(target)
         puts "-> You are on a selection Quest".green
         puts "-> But there is not a way to specifically select a A10495, or navigate from it."

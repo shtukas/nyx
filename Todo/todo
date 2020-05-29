@@ -87,9 +87,11 @@ loop {
         }
     end
     if option == "time report" then
-        Items::projectsTimeDistribution().each{|item|
-            puts "#{item["projectname"].ljust(50)} #{item["timeInHours"].round(2)} hours"
-        }
+        Items::projectsTimeDistribution()
+            .sort{|i1, i2| i1["timeInHours"] <=> i2["timeInHours"] }
+            .each{|item|
+                puts "#{item["projectname"].ljust(50)} #{item["timeInHours"].round(2)} hours"
+            }
         LucilleCore::pressEnterToContinue()
     end
 }

@@ -205,7 +205,7 @@ class NSXCatalystUI
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Timeline" then
-                        node = Multiverse::selectTimelineOrNull()
+                        node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
                         return if node.nil?
                         TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
                     end
@@ -213,9 +213,9 @@ class NSXCatalystUI
             ]
 
             items << [
-                "GenericEntity::selectSomethingOrNull() (test)",
+                "GenericEntitySearch::selectSomethingOrNull() (test)",
                 lambda {
-                    selectedEntity = GenericEntity::selectSomethingOrNull()
+                    selectedEntity = GenericEntitySearch::selectSomethingOrNull()
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
                 }
@@ -354,7 +354,11 @@ class NSXCatalystUI
 
             items << [
                 "OpenCycles", 
-                lambda { NSXCatalystUI::performOpenCyclesDisplay()}
+                lambda { NSXCatalystUI::performOpenCyclesDisplay() }
+            ]
+            items << [
+                "General Something Navigation", 
+                lambda { GenericEntityNavigation::generalNavigation() }
             ]
             items << [
                 "Management and Makers", 

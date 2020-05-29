@@ -220,7 +220,7 @@ class Items
 
     # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
     def self.promote(item) # Boolean # Indicates whether a promotion was acheived
-        newowner = GenericEntity::selectSomethingOrNull()
+        newowner = GenericEntitySearch::selectSomethingOrNull()
         return false if newowner.nil?
         if newowner["catalystType"] == "catalyst-type:timeline" then
             node = newowner
