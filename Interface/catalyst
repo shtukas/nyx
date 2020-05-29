@@ -61,7 +61,7 @@ require_relative "NSXMiscUtils.rb"
 # -------------------------------------------------------------------------
 
 CATALYST_RUN_HASH = SecureRandom.hex
-CATALYST_CODE_FOLDERPATH = File.dirname(__FILE__) 
+CATALYST_CODE_FOLDERPATH = File.dirname(File.dirname(__FILE__)) 
 STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH)
 
 # -------------------------------------------------------------------------
