@@ -72,52 +72,42 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 NSXEstateServices::binTimelineGarbageCollectionEnvelop(true)
 
 Thread.new {
+    loop {
+        sleep 120
 
-    if STARTING_CODE_HASH != NSXEstateServices::locationHashRecursively(CATALYST_CODE_FOLDERPATH) then
-        puts "Code change detected. Exiting."
-        return
-    end
+        NSXCatalystObjectsOperator::cacheUpdate()
 
-    checkOveruns = lambda{
-        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
             .select{|object| object["isDone"] }
             .first(1)
             .each{|object|
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object is done: #{NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 0)[18, 30]}")
             }
 
-        sleep 12
+        sleep 5
 
-        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
             .select{|object| object["isRunningForLong"] }
             .first(1)
             .each{|object|
                 NSXMiscUtils::onScreenNotification("Catalyst Interface", "Object is running for long: #{NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 0)[18, 30]}")
             }
 
-        sleep 12
+        sleep 5
 
-        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+        objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
         hasRunningGuardianWork = objects.any?{|object| object["uuid"] == "5c81927e-c4fb-4f8d-adae-228c346c8c7d" and object["isRunning"] }
         hasWaveItems = objects.any?{|object| object["x-interface:isWave"] }
         if hasRunningGuardianWork and hasWaveItems then
             NSXMiscUtils::onScreenNotification("Catalyst Interface", "Wave items during Guardian Work")
         end
     }
-
-    sleep 10
-
-    checkOveruns.call()
-    loop {
-        sleep 120
-        checkOveruns.call()
-    }
 }
 
 Thread.new {
     loop {
         sleep 600
-        $CE605907 = {}
+        NSXCatalystObjectsOperator::cacheUpdate()
     }
 }
 

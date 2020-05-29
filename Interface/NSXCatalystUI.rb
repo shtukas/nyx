@@ -96,7 +96,7 @@ class NSXCatalystUI
                 "Applications generation speed", 
                 lambda { 
                     puts "Applications generation speed report"
-                    NSXCatalystObjectsOperator::applicationNames()
+                    NSXCatalystObjectsCommon::applicationNames()
                         .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
                         .map{|source|
                             t1 = Time.new.to_f

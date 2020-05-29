@@ -71,26 +71,20 @@ class NSXCatalystObjectsOperator
     def self.getCatalystListingObjectsOrdered()
         objects = NSXCatalystObjectsCommon::applicationNames()
                     .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
-                    .map{|source|
-                        begin
-                            JSON.parse(`#{source}`)
-                        rescue
-                            [
-                                {
-                                    "uuid"            => SecureRandom.hex,
-                                    "contentItem"     => {
-                                        "type" => "line",
-                                        "line" => "Problems extracting catalyst objects at '#{source}'"
-                                    },
-                                    "metric"          => 1.1,
-                                    "commands"        => []
-                                }
-                            ]
-                        end
+                    .map{|scriptfilepath|
+                        NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
                     }
                     .flatten
-
         NSXCatalystObjectsCommon::processing(objects)
+    end
+
+    # NSXCatalystObjectsOperator::cacheUpdate()
+    def self.cacheUpdate()
+        NSXCatalystObjectsCommon::applicationNames()
+            .each{|appname| 
+                scriptfilepath = "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" 
+                $CE605907[appname] = NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
+            }
     end
 
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
