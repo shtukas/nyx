@@ -1,11 +1,12 @@
 
 Item {
-    "uuid"         : String
-    "creationtime" : Float
-    "projectname"  : String
-    "projectuuid"  : String
-    "description"  : null | String
-    "target"       : A10495
+    "uuid"          : String
+    "creationtime"  : Float
+    "referencetime" : Float
+    "projectname"   : String
+    "projectuuid"   : String
+    "description"   : null | String
+    "target"        : A10495
 }
 
 Special Circumstances ProjectUUIDs

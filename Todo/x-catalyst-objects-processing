@@ -145,7 +145,19 @@ if ARGV[0] == "recast" and ARGV[1] then
     item = Items::getOrNull(uuid)
     exit if item.nil?
 
+    stop(uuid, item)
     Items::recast(item)
+end
+
+if ARGV[0] == "push" and ARGV[1] then
+    uuid = ARGV[1]
+    exit if uuid.nil?
+    item = Items::getOrNull(uuid)
+    exit if item.nil?
+
+    stop(uuid, item)
+    item["referencetime"] = Time.new.to_f
+    Items::save(item)
 end
 
 if ARGV[0] == "dive" and ARGV[1] then

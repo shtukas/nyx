@@ -100,7 +100,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "line" => Items::itemToString(item)
         },
         "metric"         => metric,
-        "commands"       => ["start", "open", "stop", "done", "description", "dive", "recast"],
+        "commands"       => ["start", "open", "stop", "done", "description", "dive", "recast", "push"],
         "defaultCommand" => defaultCommand.call(isRunning),
         "isRunning"      => isRunning,
         "shell-redirects" => {
@@ -110,6 +110,7 @@ def itemToCatalystObject(item, basemetric, indx)
             "done"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing done '#{uuid}'",
             "description" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing description '#{uuid}'",
             "recast"      => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing recast '#{uuid}'",
+            "push"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing push '#{uuid}'",
             "dive"        => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing dive '#{uuid}'"
         },
         "isRunningForLong" => isRunningForLong,
@@ -125,12 +126,13 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
         "url"  => link
     }
     item = {
-        "uuid"         => SecureRandom.uuid,
-        "creationtime" => Time.new.to_f,
-        "projectname"  => "Infinity",
-        "projectuuid"  => "0219fd54bd5841008b18c414a5b2dea331bad1c5",
-        "description"  => link,
-        "target"       => target
+        "uuid"          => SecureRandom.uuid,
+        "creationtime"  => Time.new.to_f,
+        "referencetime" => Time.new.to_f,
+        "projectname"   => "Infinity",
+        "projectuuid"   => "0219fd54bd5841008b18c414a5b2dea331bad1c5",
+        "description"   => link,
+        "target"        => target
     }
     Items::save(item)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
@@ -144,7 +146,7 @@ objects = []
 
 Items::items()
     .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
-    .sort{|i1, i2| i1["creationtime"] <=> i2["creationtime"] }
+    .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
     .each_with_index {|item, indx|
         objects << itemToCatalystObject(item, 0.85, indx)
     }
@@ -160,7 +162,7 @@ focus = Items::projectsTimeDistribution()
 items1 = Items::items().select{|item| Runner::isRunning(item["uuid"]) }
 items2 = Items::items()
             .select{|item| item["projectuuid"] == focus["projectuuid"] }
-            .sort{|i1, i2| i1["creationtime"] <=> i2["creationtime"] }
+            .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
             .first(16)
 
 (items1+items2)

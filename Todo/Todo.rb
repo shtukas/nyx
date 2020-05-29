@@ -52,12 +52,13 @@ class Items
     # Items::issueNewItem(projectname, projectuuid, description, target)
     def self.issueNewItem(projectname, projectuuid, description, target)
         item = {
-            "uuid"         => SecureRandom.uuid,
-            "creationtime" => Time.new.to_f,
-            "projectname"  => projectname,
-            "projectuuid"  => projectuuid,
-            "description"  => description,
-            "target"       => target
+            "uuid"          => SecureRandom.uuid,
+            "creationtime"  => Time.new.to_f,
+            "referencetime" => Time.new.to_f,
+            "projectname"   => projectname,
+            "projectuuid"   => projectuuid,
+            "description"   => description,
+            "target"        => target
         }
         Items::save(item)
         item
@@ -81,12 +82,13 @@ class Items
     def self.issueNewItemInteractivelyX1(description, target)
         projectname, projectuuid = Items::selectProjectNameUuidPair()
         item = {
-            "uuid"         => SecureRandom.uuid,
-            "creationtime" => Time.new.to_f,
-            "projectname"  => projectname,
-            "projectuuid"  => projectuuid,
-            "description"  => description,
-            "target"       => target
+            "uuid"          => SecureRandom.uuid,
+            "creationtime"  => Time.new.to_f,
+            "referencetime" => Time.new.to_f,
+            "projectname"   => projectname,
+            "projectuuid"   => projectuuid,
+            "description"   => description,
+            "target"        => target
         }
         Items::save(item)
         item
@@ -186,7 +188,7 @@ class Items
         return [] if projectuuid.nil?
         Items::items()
             .select{|item| item["projectuuid"] == projectuuid }
-            .sort{|i1, i2| i1["creationtime"]<=>i2["creationtime"] }
+            .sort{|i1, i2| i1["referencetime"]<=>i2["referencetime"] }
     end
 
     # Items::projectsTimeDistribution()
@@ -251,6 +253,7 @@ class Items
                 "done",
                 "set description",
                 "recast",
+                "push",
                 "promote from Todo to Data"
             ]
             if Runner::isRunning(item["uuid"]) then
@@ -279,6 +282,10 @@ class Items
             end
             if option == "recast" then
                 Items::recast(item)
+            end
+            if option == "push" then
+                item["referencetime"] = Time.new.to_f
+                Items::save(item)
             end
             if option == "promote from Todo to Data" then
                 status = Items::promote(item)
