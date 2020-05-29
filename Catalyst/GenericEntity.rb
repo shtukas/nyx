@@ -111,7 +111,7 @@ class GenericEntityNavigation
             if option == "navigate timelines" then
                 MultiverseNavigation::generalNavigation()
             end
-            if option == "start at cliques" then
+            if option == "navigate cliques" then
                 CliquesSelection::generalNavigation()
             end
         }
