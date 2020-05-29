@@ -102,7 +102,8 @@ class OpenCycles
     # OpenCycles::management()
     def self.management()
         loop {
-            system("OpenCycles 🗃️")
+            system("clear")
+            puts "OpenCycles 🗃️"
             claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", OpenCycles::getOpenCyclesClaims(), lambda {|claim| OpenCycles::claimToString(claim) })
             break if claim.nil?
             OpenCycles::claimDive(claim)

@@ -236,7 +236,6 @@ class Multiverse
     # Multiverse::visitTimeline(timeline)
     def self.visitTimeline(timeline)
         loop {
-            system("clear")
             puts ""
             puts "uuid: #{timeline["uuid"]}"
             puts Timelines::timelineToString(timeline).green

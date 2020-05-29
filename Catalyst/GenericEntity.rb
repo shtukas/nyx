@@ -112,7 +112,7 @@ class GenericEntityNavigation
                 MultiverseNavigation::generalNavigation()
             end
             if option == "navigate cliques" then
-                CliquesSelection::generalNavigation()
+                CliquesNavigation::generalNavigation()
             end
         }
     end

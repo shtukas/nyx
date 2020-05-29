@@ -228,7 +228,6 @@ class Cliques
     # Cliques::visitClique(clique)
     def self.visitClique(clique)
         loop {
-            system("clear")
             puts ""
             clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
             return if clique.nil? # useful if we have just destroyed it
@@ -495,12 +494,12 @@ end
 
 class CliquesNavigation
 
-    # CliquesSelection::generalNavigation()
+    # CliquesNavigation::generalNavigation()
     def self.generalNavigation()
         CliquesSearch::searchAndVisit()
     end
 
-    # CliquesSelection::visit(clique)
+    # CliquesNavigation::visit(clique)
     def self.visit(clique)
         Cliques::visitClique(clique)
     end
