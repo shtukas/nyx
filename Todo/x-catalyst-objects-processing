@@ -139,7 +139,7 @@ if ARGV[0] == "description" and ARGV[1] then
     Items::save(item)
 end
 
-if ARGV[0] == "recast" and ARGV[1] then
+if ARGV[0] == "change-project" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     item = Items::getOrNull(uuid)
@@ -149,7 +149,7 @@ if ARGV[0] == "recast" and ARGV[1] then
     Items::recast(item)
 end
 
-if ARGV[0] == "promote" and ARGV[1] then
+if ARGV[0] == "recast-as-clique" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     item = Items::getOrNull(uuid)
@@ -161,7 +161,7 @@ if ARGV[0] == "promote" and ARGV[1] then
     Items::destroy(item["uuid"])
 end
 
-if ARGV[0] == "push" and ARGV[1] then
+if ARGV[0] == "reset-reference-time" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     item = Items::getOrNull(uuid)
