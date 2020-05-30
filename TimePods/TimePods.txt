@@ -12,23 +12,11 @@ TimePodPassenger
         "description" : String
     }
     {
-        "type" : "special-circumstances" # Was created for LucilleTxt and Gwork
-        "name" : String
-    }
-    {
         "type" : "todo-item"
         "uuid" : String
+                    # automatically created when a 
+                    # todo item gets more than one hour in the bank
     }
-    {
-        "type"       : "text" # pieces of text coming from LucilleTxt1
-        "uuid"       : String # essentially the first part of the filename <uuid>.txt
-        "description": String
-    }
-
-special-circumstances
-    -
-        name: "LucilleTxt1"
-        uuid: "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8"
 
 TimePodEngine
     {
@@ -38,10 +26,17 @@ TimePodEngine
         "timeCommitmentInHours" : Float
     }
     {
-        "type"                  : "bank-account"
-    }
-    {
         "type"                         : "on-going-project"
         "referencetUnixtime"           : Unixtime
         "timeCommitmentInHoursPerWeek" : Float
+    }
+    {
+        "type" : "bank-account" # automatically created when a 
+                                # todo item gets more than one hour in the bank
+    }
+    {
+        "type" : "bank-account-special-circumstances" 
+                                # LucilleTxt and Gwork
+                                # Totally exceptional
+                                # Created by hand
     }

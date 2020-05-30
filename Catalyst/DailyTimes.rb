@@ -29,11 +29,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 class DailyTimes
 
-    # DailyTimes::getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal)
-    def self.getItem24HoursTimeExpectationInHours(referenceTimeInHours, ordinal)
-        referenceTimeInHours * (1.to_f / 2**(ordinal+1))
-    end
-
     # DailyTimes::putTimeToBankNoOftenThanOnceADay(uuid, timeInSeconds, allowedDayIndices)
     def self.putTimeToBankNoOftenThanOnceADay(uuid, timeInSeconds, allowedDayIndices)
         return if KeyValueStore::flagIsTrue(nil, "2f6255ce-e877-4122-817b-b657c2b0eb29:#{uuid}:#{Time.new.to_s[0, 10]}")

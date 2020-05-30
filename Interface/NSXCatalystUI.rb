@@ -351,9 +351,9 @@ class NSXCatalystUI
             items << [
                 "timepod (new)", 
                 lambda { 
-                    passenger = TimePods::makePassengerOrNull()
+                    passenger = TimePods::makePassengerInteractivelyOrNull()
                     next if passenger.nil?
-                    engine = TimePods::makeEngineOrNull()
+                    engine = TimePods::makeEngineInteractivelyOrNull()
                     next if engine.nil?
                     timepod = {
                         "uuid"             => SecureRandom.uuid,

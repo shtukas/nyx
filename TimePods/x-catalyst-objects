@@ -90,9 +90,8 @@ DailyTimes::putTimeToBankNoOftenThanOnceADay("e287b121-9ee9-4fc5-81ba-ef1c956c20
 # Guardian Work
 DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
-# We need to split 2 hours amoung the first three non "special-circumstances"/"bank-account"
+
 TimePods::getTimePods()
-    .select{|pod| ["description", "todo-item"].include?(pod["passenger"]["type"]) }
     .select{|pod| ["bank-account"].include?(pod["engine"]["type"]) }
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     .first(3)

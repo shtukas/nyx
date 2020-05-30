@@ -114,6 +114,15 @@ class TimePods
             end
         end
 
+        if engine["type"] == "bank-account-special-circumstances" then
+            timeBank = Bank::total(uuid)
+            if timeBank >= 0 then
+                return 0.20 + 0.5*Math.exp(-timeBank.to_f/3600) # rapidly drop from 0.7 to 0.2
+            else
+                return 0.70 + 0.1*(-timeBank.to_f/86400)
+            end
+        end
+
         if engine["type"] == "on-going-project" then
             timeBank = TimePods::onGoingProjectAdaptedBankTime(pod)
             if timeBank >= 0 then
@@ -132,14 +141,8 @@ class TimePods
         if passenger["type"] == "description" then
             return "[timepod]"
         end
-        if passenger["type"] == "special-circumstances" then
-            return "[timepod] [special-circumstances] #{passenger["name"]}"
-        end
         if passenger["type"] == "todo-item" then
             return "[timepod] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
-        end
-        if passenger["type"] == "text" then
-            return "[timepod] [text] #{passenger["description"]}"
         end
         raise "[TimePods] error: CE8497BB"
     end
@@ -157,6 +160,10 @@ class TimePods
 
         if engine["type"] == "bank-account" then
             return "[bank-account] (bank account: #{(Bank::total(uuid).to_f/3600).round(2)} hours)"
+        end
+
+        if engine["type"] == "bank-account-special-circumstances" then
+            return "[bank-account-special-circumstances] (bank account: #{(Bank::total(uuid).to_f/3600).round(2)} hours)"
         end
 
         if engine["type"] == "on-going-project" then
@@ -189,37 +196,24 @@ class TimePods
         true
     end
 
-    # TimePods::makePassengerOrNull()
-    def self.makePassengerOrNull()
+    # TimePods::makePassengerInteractivelyOrNull()
+    def self.makePassengerInteractivelyOrNull()
         options = [
-            "text",
-            "special-circumstances (do not use unless you know what you are doing)"
+            "description",
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("passenger type", options)
         return nil if option.nil?
-        if option == "text" then
-            text = CatalystCommon::editTextUsingTextmate("")
-            uuid = CatalystCommon::l22()
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/text/#{uuid}.txt"
-            File.open(filepath, "w"){|f| f.puts(text) }
-            description = LucilleCore::askQuestionAnswerAsString("timepod description: ")
+        if option == "description" then
             return {
-                "type"        => "text",
-                "uuid"        => uuid,
+                "type"        => "description",
                 "description" => description
-            }
-        end
-        if option == "special-circumstances (do not use unless you know what you are doing)" then
-            return {
-                "type" => "special-circumstances",
-                "name" => LucilleCore::askQuestionAnswerAsString("name: ")
             }
         end
         nil
     end
 
-    # TimePods::makeEngineOrNull()
-    def self.makeEngineOrNull()
+    # TimePods::makeEngineInteractivelyOrNull()
+    def self.makeEngineInteractivelyOrNull()
         options = [
             "time-commitment-on-curve",
             "on-going-project"
@@ -256,24 +250,12 @@ class TimePods
         Runner::start(uuid)
 
         if pod["uuid"] == "cd112847-59f1-4e5a-83aa-1a6a3fcaa0f8" then
+            # LucilleTxt1
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt1/x-catalyst-objects-processing start")
         end
 
         if pod["passenger"]["type"] == "todo-item" then
             system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/x-catalyst-objects-processing start '#{pod["passenger"]["uuid"]}'")
-        end
-
-        if pod["passenger"]["type"] == "catalyst-standard-target" then
-            targetuuid = pod["passenger"]["uuid"]
-            target = A10495::getOrNull(targetuuid)
-            exit if target.nil?
-            A10495::openTarget(target)
-        end
-
-        if pod["passenger"]["type"] == "text" then
-            passengeruuid = pod["passenger"]["uuid"]
-            filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/text/#{passengeruuid}.txt"
-            system("open '#{filepath}'")
         end
     end
 

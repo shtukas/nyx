@@ -54,6 +54,9 @@ class DataIntegrityOfficer
             .each{|clique|
                 next if !GlobalNavigationNetworkContents::getNodesForEntity(clique).empty?
 
+                system("clear")
+                puts "[DataIntegrityOfficer] Clique '#{clique["description"]}' doesn't have a Global Navigation Network parent, please make and/or select one".green
+
                 if clique["tags"].include?("Pascal Address Book Archives") then
                     node = GlobalNavigationNetworkNodes::getOrNull("2ec5eda3-7d52-4b5f-8622-df3494280fd9") # Pascal Address Book Archives
                     if node.nil? then
@@ -64,8 +67,16 @@ class DataIntegrityOfficer
                     return
                 end
 
-                system("clear")
-                puts "[DataIntegrityOfficer] Clique '#{clique["description"]}' doesn't have a Global Navigation Network parent, please make and/or select one".green
+                if clique["tags"].include?("Talks") then
+                    node = GlobalNavigationNetworkNodes::getOrNull("7c9172cb-f672-4cd9-aeb0-e00e0a2ba620") # Talks
+                    if node.nil? then
+                        puts "error: a6301551"
+                        exit
+                    end
+                    GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                    return
+                end
+
                 puts "First I am going to show it to you and then you will add it to a node"
 
                 Cliques::cliqueDive(clique)
