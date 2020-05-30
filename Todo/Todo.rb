@@ -128,6 +128,11 @@ class Items
             puts "Bank: putting #{timespan.round(2)} secs into projectuuid: #{projectuuid}"
         end
         Bank::put(projectuuid, timespan)
+
+        if verbose then
+            puts "Ping: putting #{timespan.round(2)} secs into Todo application [uuid: ed4a67ee-c205-4ea4-a135-f10ea7782a7f]"
+        end
+        Ping::put("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", timespan)
     end
 
     # Items::pathToRepository()

@@ -190,9 +190,18 @@ items2 = Items::items()
             .first(3)
             .sort{|i1, i2| Bank::total(i1["uuid"]) <=> Bank::total(i2["uuid"]) }
 
+timeInPingInHours = Ping::total24hours("ed4a67ee-c205-4ea4-a135-f10ea7782a7f").to_f/3600
+basemetric = 
+    if timeInPingInHours < 1 then
+        0.66 - 0.10*timeInPingInHours # 0.66 -> 0.56 after one hour
+    else
+        timeInPingInHours = timeInPingInHours - 1
+        0.2 + 0.36*Math.exp(-timeInPingInHours) # 0.56 -> 0.20 landing
+    end
+
 (items1+items2)
     .each_with_index {|item, indx|
-        objects << itemToCatalystObject(item, 0.66 - 0.46*(Time.new.hour.to_f/24), indx)
+        objects << itemToCatalystObject(item, basemetric, indx)
     }
 
 puts JSON.generate(objects)
