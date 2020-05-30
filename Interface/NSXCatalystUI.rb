@@ -26,7 +26,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNav
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
     Ping::put(uuid, weight)
-    Ping::total24hours(uuid)
+    Ping::totalOverTimespan(uuid, timespanInSeconds)
     Ping::totalToday(uuid)
 =end
 
@@ -76,7 +76,7 @@ class NSXCatalystUI
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if clique.nil?
-                    Cliques::visitClique(clique)
+                    Cliques::cliqueDive(clique)
                 }
             ]
 
@@ -86,7 +86,7 @@ class NSXCatalystUI
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                     clique = Cliques::getOrNull(uuid)
                     return if clique.nil?
-                    Cliques::visitClique(clique)
+                    Cliques::cliqueDive(clique)
                 }
             ]
 
@@ -248,7 +248,7 @@ class NSXCatalystUI
                 lambda {
                     clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if clique.nil?
-                    Cliques::visitClique(clique)
+                    Cliques::cliqueDive(clique)
                 }
             ]
 
@@ -258,7 +258,7 @@ class NSXCatalystUI
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                     clique = Cliques::getOrNull(uuid)
                     return if clique.nil?
-                    Cliques::visitClique(clique)
+                    Cliques::cliqueDive(clique)
                 }
             ]
 
@@ -448,7 +448,7 @@ class NSXCatalystUI
         executors = []
 
         puts ""
-        puts "Diligence (24h): #{(100*Ping::total24hours("DC9DF253-01B5-4EF8-88B1-CA0250096471").to_f/86400).round(2)}%".green
+        puts "Diligence (24h): #{(100*Ping::totalOverTimespan("DC9DF253-01B5-4EF8-88B1-CA0250096471", 86400).to_f/86400).round(2)}%".green
         verticalSpaceLeft = verticalSpaceLeft - 2
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
@@ -579,6 +579,7 @@ class NSXCatalystUI
 
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
+            DataIntegrityOfficer::interfaceLoopOperations()
 
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()

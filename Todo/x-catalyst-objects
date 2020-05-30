@@ -190,7 +190,7 @@ items2 = Items::items()
             .first(3)
             .sort{|i1, i2| Bank::total(i1["uuid"]) <=> Bank::total(i2["uuid"]) }
 
-timeInPingInHours = Ping::total24hours("ed4a67ee-c205-4ea4-a135-f10ea7782a7f").to_f/3600
+timeInPingInHours = Ping::totalOverTimespan("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", 86400).to_f/3600
 basemetric = 
     if timeInPingInHours < 1 then
         0.66 - 0.10*timeInPingInHours # 0.66 -> 0.56 after one hour

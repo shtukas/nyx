@@ -78,7 +78,7 @@ class PrimaryNetwork
             return
         end
         if something["catalystType"] == "catalyst-type:clique"  then
-            Cliques::visitClique(something)
+            Cliques::cliqueDive(something)
             return
         end
         if something["catalystType"] == "global-navigation-network-node-4597539c"  then
@@ -117,7 +117,7 @@ class PrimaryNetworkNavigation
         end
         if something["catalystType"] == "catalyst-type:clique"  then
             clique = something
-            return CliquesNavigation::visit(clique)
+            return Cliques::cliqueDive(clique)
         end
         if something["catalystType"] == "global-navigation-network-node-4597539c"  then
             node = something

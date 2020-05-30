@@ -112,7 +112,7 @@ Thread.new {
     }
 }
 
-DataIntegrityOfficer::survey()
+DataIntegrityOfficer::startSurvey()
 
 NSXCatalystUI::standardUILoop()
 

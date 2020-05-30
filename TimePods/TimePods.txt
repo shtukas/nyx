@@ -16,7 +16,7 @@ TimePodPassenger
         "name" : String
     }
     {
-        "type" : "todo-item" # Use only in exceptional cases (eg: when a particular item needs a special boost)
+        "type" : "todo-item"
         "uuid" : String
     }
     {

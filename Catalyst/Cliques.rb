@@ -181,7 +181,7 @@ class Cliques
             Cliques::cliques()
                 .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|clique|
-                    items << [ Cliques::cliqueToString(clique) , lambda { Cliques::visitClique(clique) } ]
+                    items << [ Cliques::cliqueToString(clique) , lambda { Cliques::cliqueDive(clique) } ]
                 }
             break if items.empty?
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -235,7 +235,7 @@ class Cliques
         puts "    -> Opening..."
         if clique["targets"].size == 0 then
             if LucilleCore::askQuestionAnswerAsBoolean("I could not find any target for this clique. Dive? ") then
-                Cliques::visitClique(clique)
+                Cliques::cliqueDive(clique)
             end
             return
         end
@@ -254,8 +254,8 @@ class Cliques
         A10495::openTarget(target)
     end
 
-    # Cliques::visitClique(clique)
-    def self.visitClique(clique)
+    # Cliques::cliqueDive(clique)
+    def self.cliqueDive(clique)
         loop {
             puts ""
             clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
@@ -310,7 +310,7 @@ class Cliques
                     Cliques::save(clique)
                 }]
             items << [
-                "add to node", 
+                "add to Global Navigation Network Node", 
                 lambda{
                     node = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                     next if node.nil?
@@ -354,7 +354,7 @@ class Cliques
         loop {
             clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("clique", cliques, lambda{|clique| Cliques::cliqueToString(clique) })
             break if clique.nil?
-            Cliques::visitClique(clique)
+            Cliques::cliqueDive(clique)
         }
     end
 
@@ -399,7 +399,7 @@ class Cliques
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
                 clique = Cliques::getOrNull(uuid)
                 if clique then
-                    Cliques::visitClique(clique)
+                    Cliques::cliqueDive(clique)
                 else
                     puts "Could not find clique for uuid (#{uuid})"
                 end
@@ -496,7 +496,7 @@ class CliquesSearch
             itemsObjectToMenuItemOrNull = lambda {|object|
                 if object["type"] == "clique" then
                     clique = object["clique"]
-                    return [ Cliques::cliqueToString(clique) , lambda { Cliques::visitClique(clique) } ]
+                    return [ Cliques::cliqueToString(clique) , lambda { Cliques::cliqueDive(clique) } ]
                 end
                 if object["type"] == "tag" then
                     tag = object["tag"]
@@ -521,11 +521,6 @@ class CliquesNavigation
         return nil if fragment.nil?
         items = CliquesSearch::search(fragment)
         CliquesSearch::diveSearchResults(items)
-    end
-
-    # CliquesNavigation::visit(clique)
-    def self.visit(clique)
-        Cliques::visitClique(clique)
     end
 end
 
@@ -552,7 +547,7 @@ class CliquesMakeAndOrSelectQuest
                 return clique
             end
             if option == option2 then
-                Cliques::visitClique(clique)
+                Cliques::cliqueDive(clique)
                 return clique
             end
         end

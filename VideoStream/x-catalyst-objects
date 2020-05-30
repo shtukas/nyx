@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
     Ping::put(uuid, weight)
-    Ping::total24hours(uuid)
+    Ping::totalOverTimespan(uuid, timespanInSeconds)
     Ping::totalToday(uuid)
 =end
 
@@ -67,7 +67,7 @@ if !File.exists?(VideoStream::spaceFolderpath()) then
 end
 
 def metric(indx)
-    0.60 - indx.to_f/1000 - (0.4/25)*Ping::total24hours("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01") # We go down by 0.4 after 25, we do over 24 hours
+    0.60 - indx.to_f/1000 - (0.4/25)*Ping::totalOverTimespan("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 86400) # We go down by 0.4 after 25, we do over 24 hours
 end
 
 objects = []

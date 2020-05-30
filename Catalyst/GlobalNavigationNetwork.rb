@@ -189,15 +189,15 @@ class GlobalNavigationNetworkContents
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, target)
-    def self.issueClaimGivenNodeAndEntity(node, target)
+    # GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, something)
+    def self.issueClaimGivenNodeAndEntity(node, something)
         claim = {
             "catalystType"      => "catalyst-type:time-ownership-claim",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
             "nodeuuid"   => node["uuid"],
-            "targetuuid" => target["uuid"]
+            "targetuuid" => something["uuid"]
         }
         GlobalNavigationNetworkContents::save(claim)
         claim
@@ -294,7 +294,7 @@ class GlobalNavigationNetworkUserInterface
 
     # GlobalNavigationNetworkUserInterface::mainNavigation()
     def self.mainNavigation()
-        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
+        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingNodes()
         return if node.nil?
         GlobalNavigationNetworkUserInterface::nodeDive(node)
     end

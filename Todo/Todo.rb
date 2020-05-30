@@ -33,7 +33,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNav
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
     Ping::put(uuid, weight)
-    Ping::total24hours(uuid)
+    Ping::totalOverTimespan(uuid, timespanInSeconds)
     Ping::totalToday(uuid)
 =end
 

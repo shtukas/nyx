@@ -17,7 +17,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
     Ping::put(uuid, weight)
-    Ping::total24hours(uuid)
+    Ping::totalOverTimespan(uuid, timespanInSeconds)
     Ping::totalToday(uuid)
 =end
 
@@ -39,6 +39,7 @@ if ARGV[0] == "play" then
     system("open '#{filepath}'")
     if LucilleCore::askQuestionAnswerAsBoolean("-> completed? ", true) then
         FileUtils.rm(filepath)
+        sleep 1
     end
     puts "Sending ping unit"
     Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
