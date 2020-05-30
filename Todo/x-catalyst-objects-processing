@@ -78,10 +78,14 @@ if ARGV[0] == "start" and ARGV[1] then
         exit
     end
 
+    if item["description"].nil? then
+        item["description"] = LucilleCore::askQuestionAnswerAsString("description: ")
+        Items::save(item)
+    end
+
     if item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" then
         stop(uuid, item)
         puts "Item was not immediately done, we need to recast it in another project or promote it to the data network"
-
         options = ["recast", "promote"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", options)
         if option == "recast" then
