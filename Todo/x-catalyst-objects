@@ -145,6 +145,8 @@ objects = []
 
 # -------------------------------------------------------------------------
 
+# First, we display all the Inbox items in order.
+
 Items::items()
     .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
     .sort{|i1, i2| 
@@ -155,17 +157,27 @@ Items::items()
 
 # -------------------------------------------------------------------------
 
+# Now we select a project and work with the first 3 items
+
 focus = Items::projectsTimeDistribution()
             .sort{|i1, i2|
                 i1["timeInHours"] <=> i2["timeInHours"]
             }
             .first
 
+# focus : {
+#     "projectname" : String,
+#     "projectuuid" : String,
+#     "timeInHours" : Float
+# }
+
 items1 = Items::items().select{|item| Runner::isRunning(item["uuid"]) }
 items2 = Items::items()
             .select{|item| item["projectuuid"] == focus["projectuuid"] }
+            .select{|item| !Runner::isRunning(item["uuid"]) } # running object have already been taken in items1
             .sort{|i1, i2| i1["referencetime"] <=> i2["referencetime"] }
-            .first(16)
+            .first(3)
+            .sort{|i1, i2| Bank::total(i1["uuid"]) <=> Bank::total(i2["uuid"]) }
 
 (items1+items2)
     .each_with_index {|item, indx|

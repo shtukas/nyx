@@ -12,11 +12,11 @@ TimePodPassenger
         "description" : String
     }
     {
-        "type" : "special-circumstances"
+        "type" : "special-circumstances" # Was created for LucilleTxt and Gwork
         "name" : String
     }
     {
-        "type" : "todo-item" # automatically created when a todo item has more than one hour in the bank
+        "type" : "todo-item" # Use only in exceptional cases (eg: when a particular item needs a special boost)
         "uuid" : String
     }
     {
