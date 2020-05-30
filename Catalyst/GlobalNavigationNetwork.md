@@ -14,13 +14,13 @@ The A10495s represent pieces of data (six types at the time those lines are writ
 
 ### Navigation Network
 
-The navigation network is a semantic network of timelines and the paths between them. Each timeline carries a collection of Cliques.
+The navigation network is a semantic network of nodes and the paths between them. Each node carries a collection of Cliques.
 
 ## Multiverse
 
 ```
-Timeline {
-    "catalystType"      : "catalyst-type:timeline"
+Global Navigation Network Node {
+    "catalystType"      : "global-navigation-network-node-4597539c"
     "creationTimestamp" : Float # Unixtime with decimals
     "uuid"              : String
 
@@ -32,11 +32,11 @@ Stargate {
     "catalystType"      : "catalyst-type:starlight-path"
     "creationTimestamp" : Float # Unixtime with decimals
 
-    "sourceuuid"        : String # uuid of a Timeline
-    "targetuuid"        : String # uuid of a Timeline
+    "sourceuuid"        : String # uuid of a Global Navigation Network Node
+    "targetuuid"        : String # uuid of a Global Navigation Network Node
 }
 
-TimelineContentClaim {
+GlobalNavigationNetworkContentsClaim {
     "uuid"              : String
     "catalystType"      : "catalyst-type:time-ownership-claim"
     "creationTimestamp" : Float # Unixtime with decimals

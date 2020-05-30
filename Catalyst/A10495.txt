@@ -4,7 +4,7 @@ A A10495 is an immutable object. The current ones are listed below.
 Immutability means that it is possible to have one's local version of any target. At the time these lines are written, Cliques carry their own copy of targets [1]. 
 
 [1] Actually, at first, targets were only carried by Cliques, we gave them their own
-storage when we started targetting them from Timelines or Open Cycles.
+storage when we started targetting them from Golbal Navigation Nodes or Open Cycles.
 
 
 ```

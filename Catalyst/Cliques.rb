@@ -19,7 +19,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
@@ -135,9 +135,9 @@ class Cliques
         puts JSON.pretty_generate(clique)
         Cliques::save(clique)
         if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
-            node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+            node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
             if node then
-                TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
+                GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
             end
         end
         clique
@@ -218,13 +218,13 @@ class Cliques
         end
         puts ""
 
-        timelines = TimelineContent::getTimelinesForEntity(clique)
-        if timelines.empty? then
-            puts "    timelines: (empty set)"
+        nodes = GlobalNavigationNetworkContents::getNodesForEntity(clique)
+        if nodes.empty? then
+            puts "    nodes: (empty set)"
         else
-            puts "    timelines"
-            timelines.each{|node|
-                puts "        #{Timelines::timelineToString(node)}"
+            puts "    nodes"
+            nodes.each{|node|
+                puts "        #{GlobalNavigationNetworkNodes::nodeToString(node)}"
             }
         end
     end
@@ -310,11 +310,11 @@ class Cliques
                     Cliques::save(clique)
                 }]
             items << [
-                "add to timeline", 
+                "add to node", 
                 lambda{
-                    node = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+                    node = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                     next if node.nil?
-                    TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
+                    GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
                 }]
             items << [
                 "register as open cycle", 
@@ -340,9 +340,9 @@ class Cliques
                     items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495Navigation::visit(target) }] 
                 }
 
-            TimelineContent::getTimelinesForEntity(clique)
+            GlobalNavigationNetworkContents::getNodesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ MultiverseNavigation::visit(timeline) }] }
+                .each{|node| items << ["[node] #{GlobalNavigationNetworkNodes::nodeToString(node)}", lambda{ GlobalNavigationNetworkUserInterface::nodeDive(node) }] }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
@@ -543,8 +543,8 @@ class CliquesMakeAndOrSelectQuest
             clique = Cliques::issue1CliqueInteractivelyOrNull()
             return nil if clique.nil?
             puts "-> You are on a selection Quest [selecting a clique]"
-            puts "-> You have created '#{timeline["description"]}'"
-            option1 = "quest: return '#{timeline["description"]}' immediately"
+            puts "-> You have created '#{node["description"]}'"
+            option1 = "quest: return '#{node["description"]}' immediately"
             option2 = "quest: dive first"
             options = [ option1, option2 ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)

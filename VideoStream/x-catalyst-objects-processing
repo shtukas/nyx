@@ -44,7 +44,7 @@ if ARGV[0] == "play" then
     Ping::put("VideoStream-3623a0c2-ef0d-47e2-9008-3c1a9fd52c01", 1)
 end
 
-if ARGV[0] == "delete" then
+if ARGV[0] == "completed" then
     uuid = ARGV[1]
     exit if uuid.nil?
     filepath = VideoStream::getVideoFilepathByUUIDOrNull(uuid)

@@ -85,11 +85,11 @@ VideoStream::videoFolderpathsAtFolder(VideoStream::spaceFolderpath())
             "line" => "[VideoStream] #{File.basename(filepath)}"
         },
         "metric"         => metric(indx),
-        "commands"       => ["delete"],
+        "commands"       => ["completed"],
         "defaultCommand" => "play",
         "shell-redirects" => {
             "play"   => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/x-catalyst-objects-processing play '#{uuid}'",
-            "delete" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/x-catalyst-objects-processing delete '#{uuid}'"
+            "completed" => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/VideoStream/x-catalyst-objects-processing completed '#{uuid}'"
         }
     }
 }

@@ -1,13 +1,13 @@
-A PrimaryNetwork is any of:
-     1. A10495   ( "catalyst-type:10014e93" )
-     2. Clique   ( "catalyst-type:clique" )
-     3. Timeline ( "catalyst-type:timeline" )
+A Primary Network Element is any of:
+     1. A10495                         ( "catalyst-type:10014e93" )
+     2. Clique                         ( "catalyst-type:clique" )
+     3. Global Navigation Network Node ( "global-navigation-network-node-4597539c" )
 
 But note that 
     PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
-only select a timeline or a clique
+only select a node or a clique
 
-All GenericEntities carry
+All Primary Network Elements carry
     "catalystType"      : String
     "creationTimestamp" : Float # Unixtime with decimals
     "uuid"              : String

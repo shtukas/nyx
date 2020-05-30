@@ -70,7 +70,7 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 
-NSXEstateServices::binTimelineGarbageCollectionEnvelop(true)
+NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
 
 Thread.new {
     loop {

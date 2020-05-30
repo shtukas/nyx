@@ -23,7 +23,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
 
 # ------------------------------------------------------------------------
 
@@ -32,25 +32,25 @@ class DataIntegrityOfficer
     # DataIntegrityOfficer::survey()
     def self.survey()
 
-        # Ensure that each timeline not the root has a parent
-        Timelines::timelines()
-            .each{|timeline|
-                next if timeline["uuid"] == "3b5b7dbe-442b-4b5b-b681-f61ab598fd63" # root timeline
-                next if !TimelineNetwork::getParents(timeline).empty?
+        # Ensure that each node not the root has a parent
+        GlobalNavigationNetworkNodes::nodes()
+            .each{|node|
+                next if node["uuid"] == "3b5b7dbe-442b-4b5b-b681-f61ab598fd63" # root node
+                next if !GlobalNavigationNetworkPaths::getParents(node).empty?
                 loop {
-                    puts "[DataIntegrityOfficer] Timeline '#{timeline["name"]}' doesn't have a parent, please make and/or select one"
-                    puts JSON.pretty_generate(timeline)
-                    parent = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+                    puts "[DataIntegrityOfficer] Global Navigation Network Node '#{node["name"]}' doesn't have a parent, please make and/or select one"
+                    puts JSON.pretty_generate(node)
+                    parent = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                     next if parent.nil?
-                    next if timeline["uuid"] == parent["uuid"]
-                    object = TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(parent, timeline)
+                    next if node["uuid"] == parent["uuid"]
+                    object = GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
                     next if object.nil?
                     puts JSON.pretty_generate(object)
                     break
                 }
             }
 
-        # Make sure that every Clique is on a timeline
+        # Make sure that every Clique is on a node
     end
 end
 

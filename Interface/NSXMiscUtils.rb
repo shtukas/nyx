@@ -15,7 +15,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/TimePods.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/Todo.rb"
 
@@ -173,48 +173,48 @@ class NSXMiscUtils
     # NSXMiscUtils::startlightNodeBuildAround(node)
     def self.startlightNodeBuildAround(node)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Timelines::timelineToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+                parent = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 if parent.nil? then
-                    puts "Did not determine a parent for '#{Timelines::timelineToString(node)}'. Aborting parent determination."
+                    puts "Did not determine a parent for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'. Aborting parent determination."
                     break
                 end
-                TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{Timelines::timelineToString(node)}' ? ")
+                GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ")
             }
-            puts "Completed determining parents for '#{Timelines::timelineToString(node)}'"
+            puts "Completed determining parents for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{Timelines::timelineToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+                child = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 if child.nil? then
-                    puts "Did not make a child for '#{Timelines::timelineToString(node)}'. Aborting child building."
+                    puts "Did not make a child for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'. Aborting child building."
                     break
                 end
                 puts JSON.pretty_generate(child)
-                path = TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
+                path = GlobalNavigationNetworkPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
                 puts JSON.pretty_generate(path)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{Timelines::timelineToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ")
             }
-            puts "Completed building children for '#{Timelines::timelineToString(node)}'"
+            puts "Completed building children for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'"
         end
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{Timelines::timelineToString(node)}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build cliques for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ") then
             loop {
                 puts "Making new clique..."
                 clique = Cliques::issueCliqueInteractivelyOrNull(false)
                 if clique.nil? then
-                    puts "Did not make a clique for '#{Timelines::timelineToString(node)}'. Aborting clique building."
+                    puts "Did not make a clique for '#{GlobalNavigationNetworkNodes::nodeToString(node)}'. Aborting clique building."
                     break
                 end
                 puts JSON.pretty_generate(clique)
-                claim = TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
+                claim = GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
                 puts JSON.pretty_generate(claim)
-                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new clique for '#{Timelines::timelineToString(node)}' ? ")
+                break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new clique for '#{GlobalNavigationNetworkNodes::nodeToString(node)}' ? ")
             }
         end
 
@@ -223,7 +223,7 @@ class NSXMiscUtils
 
     # NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
     def self.startLightNodeExistingOrNewThenBuildAroundThenReturnNode()
-        node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
         if node.nil? then
             puts "Could not determine a Startlight node. Aborting build sequence."
             return
@@ -235,9 +235,9 @@ class NSXMiscUtils
     # NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
     def self.attachTargetToStarlightNodeExistingOrNew(target)
         return if target.nil?
-        node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+        node = GlobalNavigationNetworkUserInterface::selectNodeFromExistingOrCreateOneOrNull()
         return if node.nil?
-        claim = TimelineContent::issueClaimGivenTimelineAndEntity(node, target)
+        claim = GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, target)
         puts JSON.pretty_generate(claim)
     end
 

@@ -70,39 +70,39 @@ class NSXEstateServices
     end
 
     # -------------------------------------------
-    # Timeline management
+    # Global Navigation Network Node management
 
-    # NSXEstateServices::getArchiveTimelineSizeInMegaBytes()
-    def self.getArchiveTimelineSizeInMegaBytes()
-        LucilleCore::locationRecursiveSize(CatalystCommon::binTimelineFolderpath()).to_f/(1024*1024)
+    # NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()
+    def self.getArchiveT1mel1neSizeInMegaBytes()
+        LucilleCore::locationRecursiveSize(CatalystCommon::binT1mel1neFolderpath()).to_f/(1024*1024)
     end
 
-    # NSXEstateServices::archivesTimelineGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
-    def self.archivesTimelineGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
+    # NSXEstateServices::archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
+    def self.archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
         if sizeEstimationInMegaBytes.nil? then
-            sizeEstimationInMegaBytes = NSXEstateServices::getArchiveTimelineSizeInMegaBytes()
+            sizeEstimationInMegaBytes = NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes()
         end
         return if sizeEstimationInMegaBytes <= 1024
-        location = NSXEstateServices::getFirstDiveFirstLocationAtLocation(CatalystCommon::binTimelineFolderpath())
-        return if location == CatalystCommon::binTimelineFolderpath()
+        location = NSXEstateServices::getFirstDiveFirstLocationAtLocation(CatalystCommon::binT1mel1neFolderpath())
+        return if location == CatalystCommon::binT1mel1neFolderpath()
         if File.file?(location) then
             sizeEstimationInMegaBytes = sizeEstimationInMegaBytes - File.size(location).to_f/(1024*1024)
         end
         puts "garbage collection: #{location}" if verbose
         LucilleCore::removeFileSystemLocation(location)
-        NSXEstateServices::archivesTimelineGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
+        NSXEstateServices::archivesT1mel1neGarbageCollectionCore(sizeEstimationInMegaBytes, verbose)
     end
 
-    # NSXEstateServices::binTimelineGarbageCollectionEnvelop(verbose)
-    def self.binTimelineGarbageCollectionEnvelop(verbose)
-        return if NSXEstateServices::getArchiveTimelineSizeInMegaBytes() <= 1024
+    # NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(verbose)
+    def self.binT1mel1neGarbageCollectionEnvelop(verbose)
+        return if NSXEstateServices::getArchiveT1mel1neSizeInMegaBytes() <= 1024
         loop {
-            location = NSXEstateServices::getLocationFileBiggerThan10MegaBytesOrNull(CatalystCommon::binTimelineFolderpath())
+            location = NSXEstateServices::getLocationFileBiggerThan10MegaBytesOrNull(CatalystCommon::binT1mel1neFolderpath())
             break if location.nil?
             puts "garbage collection (big file): #{location}" if verbose
             LucilleCore::removeFileSystemLocation(location)
         }
-        NSXEstateServices::archivesTimelineGarbageCollectionCore(nil, verbose)
+        NSXEstateServices::archivesT1mel1neGarbageCollectionCore(nil, verbose)
     end
 
 end

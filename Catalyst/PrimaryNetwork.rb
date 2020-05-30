@@ -19,16 +19,11 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
 
 # -----------------------------------------------------------------
 
 class PrimaryNetwork
-
-    # A generic Entity is either:
-    #    - A10495
-    #    - Clique
-    #    - Timeline
 
     # PrimaryNetwork::getSomethingByUuidOrNull(uuid)
     def self.getSomethingByUuidOrNull(uuid)
@@ -36,7 +31,7 @@ class PrimaryNetwork
         return target if target
         clique = Cliques::getOrNull(uuid)
         return clique if clique
-        starlightnode = Timelines::getOrNull(uuid)
+        starlightnode = GlobalNavigationNetworkNodes::getOrNull(uuid)
         retun starlightnode if starlightnode
         nil
     end
@@ -49,8 +44,8 @@ class PrimaryNetwork
         if something["catalystType"] == "catalyst-type:clique"  then
             return Cliques::cliqueToString(something)
         end
-        if something["catalystType"] == "catalyst-type:timeline"  then
-            return Timelines::timelineToString(something)
+        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+            return GlobalNavigationNetworkNodes::nodeToString(something)
         end
         raise "PrimaryNetwork::somethingToString, Error: 056686f0"
     end
@@ -68,9 +63,9 @@ class PrimaryNetwork
             Cliques::openClique(clique)
             return
         end
-        if something["catalystType"] == "catalyst-type:timeline"  then
-           timeline = something
-           Multiverse::openTimeline(timeline)
+        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+           node = something
+           GlobalNavigationNetworkUserInterface::nodeDive(node)
            return
         end
         raise "PrimaryNetwork::somethingToString, Error: 2f28f27d"
@@ -86,8 +81,8 @@ class PrimaryNetwork
             Cliques::visitClique(something)
             return
         end
-        if something["catalystType"] == "catalyst-type:timeline"  then
-            Multiverse::visitTimeline(something)
+        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+            GlobalNavigationNetworkUserInterface::nodeDive(something)
             return
         end
         raise "PrimaryNetwork::somethingToString, Error: cf25ea33"
@@ -100,13 +95,13 @@ class PrimaryNetworkNavigation
     def self.mainNavigation()
         loop {
             options = [
-                "navigate timelines",
+                "navigate nodes",
                 "navigate cliques",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
             return if option.nil?
-            if option == "navigate timelines" then
-                MultiverseNavigation::mainNavigation()
+            if option == "navigate nodes" then
+                GlobalNavigationNetworkUserInterface::mainNavigation()
             end
             if option == "navigate cliques" then
                 CliquesNavigation::mainNavigation()
@@ -124,9 +119,9 @@ class PrimaryNetworkNavigation
             clique = something
             return CliquesNavigation::visit(clique)
         end
-        if something["catalystType"] == "catalyst-type:timeline"  then
-            timeline = something
-            return MultiverseNavigation::visit(timeline)
+        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+            node = something
+            return GlobalNavigationNetworkUserInterface::nodeDive(node)
         end
         raise "PrimaryNetwork::somethingToString, Error: f17aba25"
     end
@@ -137,9 +132,9 @@ class PrimaryNetworkMakeAndOrSelectQuest
     # PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
     def self.makeAndOrSelectSomethingOrNull()
         loop {
-            puts "-> You are on a selection Quest [making and/or selecting a timeline or clique]"
+            puts "-> You are on a selection Quest [making and/or selecting a node or clique]"
             options = [
-                "making and/or selecting a timeline",
+                "making and/or selecting a node",
                 "making and/or selecting a clique",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
@@ -150,12 +145,12 @@ class PrimaryNetworkMakeAndOrSelectQuest
                     next
                 end
             end
-            if option == "making and/or selecting a timeline" then
-                something = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+            if option == "making and/or selecting a node" then
+                something = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 if something then
                     return something
                 else 
-                    puts "You are on a selection Quest, and chose timelines, but didn't select any. back to square one (you can return null there)"
+                    puts "You are on a selection Quest, and chose nodes, but didn't select any. back to square one (you can return null there)"
                     LucilleCore::pressEnterToContinue()
                     next
                 end

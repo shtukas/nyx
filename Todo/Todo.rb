@@ -28,7 +28,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Runner.rb
     Runner::stop(uuid) # null | Float
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -226,9 +226,9 @@ class Items
     def self.promote(item) # Boolean # Indicates whether a promotion was acheived
         newowner = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
         return false if newowner.nil?
-        if newowner["catalystType"] == "catalyst-type:timeline" then
+        if newowner["catalystType"] == "global-navigation-network-node-4597539c" then
             node = newowner
-            TimelineContent::issueClaimGivenTimelineAndEntity(node, item["target"])
+            GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, item["target"])
             return true
         end
         if newowner["catalystType"] == "catalyst-type:clique" then

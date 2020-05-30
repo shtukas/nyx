@@ -21,7 +21,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multiverse.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GlobalNavigationNetwork.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Ping.rb"
 =begin 
@@ -47,8 +47,8 @@ class NSXCatalystUI
             items = []
 
             items << [
-                "navigate timelines", 
-                lambda { MultiverseNavigation::mainNavigation() }
+                "navigate nodes", 
+                lambda { GlobalNavigationNetworkUserInterface::mainNavigation() }
             ]
 
             items << [
@@ -59,11 +59,11 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "timelines listing", 
+                "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", GlobalNavigationNetworkNodes::nodes(), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
                     return if node.nil?
-                    Multiverse::visitTimeline(node)
+                    GlobalNavigationNetworkUserInterface::nodeDive(node)
                 }
             ]
             items << [
@@ -220,16 +220,16 @@ class NSXCatalystUI
             ]
 
             items << [
-                "timelines management",
-                lambda { Multiverse::management() }
+                "nodes management",
+                lambda { GlobalNavigationNetworkUserInterface::management() }
             ]
 
             items << [
-                "timelines listing", 
+                "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("timeline", Timelines::timelines(), lambda{|node| Timelines::timelineToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", GlobalNavigationNetworkNodes::nodes(), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
                     return if node.nil?
-                    Multiverse::visitTimeline(node)
+                    GlobalNavigationNetworkUserInterface::nodeDive(node)
                 }
             ]
 
@@ -284,11 +284,11 @@ class NSXCatalystUI
             items = []
 
             items << [
-                "A10495 (new) -> { Todo, OpenCycle, Timeline (existing or new) }", 
+                "A10495 (new) -> { Todo, OpenCycle, Global Navigation Network Node (existing or new) }", 
                 lambda {
                     target = A10495::issueNewTargetInteractivelyOrNull()
                     return if target.nil?
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Timeline"])
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Global Navigation Network Node"])
                     return if whereTo.nil?
                     if whereTo == "Todo" then
                         projectname = Items::selectProjectNameInteractivelyOrNull()
@@ -311,19 +311,19 @@ class NSXCatalystUI
                         }
                         OpenCycles::saveClaim(claim)
                     end
-                    if whereTo == "Timeline" then
+                    if whereTo == "Global Navigation Network Node" then
                         NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
                     end
                 }
             ]
 
             items << [
-                "clique (new) -> { OpenCycle, Timeline (existing or new) }", 
+                "clique (new) -> { OpenCycle, Global Navigation Network Node (existing or new) }", 
                 lambda {
                     clique = Cliques::issueCliqueInteractivelyOrNull(false)
                     return if clique.nil?
 
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Timeline"])
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Global Navigation Network Node"])
                     return if whereTo.nil?
                     if whereTo == "OpenCycle" then
                         claim = {
@@ -333,16 +333,16 @@ class NSXCatalystUI
                         }
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
-                    if whereTo == "Timeline" then
-                        node = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+                    if whereTo == "Global Navigation Network Node" then
+                        node = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                         return if node.nil?
-                        TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
+                        GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
                     end
                 }
             ]
 
             items << [
-                "timeline (existing or new) + build around",
+                "node (existing or new) + build around",
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
@@ -417,12 +417,12 @@ class NSXCatalystUI
         }
     end
 
-    # NSXCatalystUI::performLastestTimelinesDisplay()
-    def self.performLastestTimelinesDisplay()
+    # NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay()
+    def self.performLatestGlobalNavigationNetworkNodesDisplay()
         loop {
             system("clear")
             items = []
-            Timelines::timelines()
+            GlobalNavigationNetworkNodes::nodes()
                 .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
@@ -496,8 +496,8 @@ class NSXCatalystUI
                     lambda { NSXCatalystUI::performOpenCyclesDisplay() }
                 ]
                 items << [
-                    "Latest Timelines", 
-                    lambda { NSXCatalystUI::performLastestTimelinesDisplay() }
+                    "Latest Global Navigation Network Nodes", 
+                    lambda { NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay() }
                 ]
                 items << [
                     "Latest Cliques", 

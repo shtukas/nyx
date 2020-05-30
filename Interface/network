@@ -70,8 +70,8 @@ loop {
         lambda { NSXCatalystUI::performOpenCyclesDisplay() }
     ]
     items << [
-        "Latest Timelines", 
-        lambda { NSXCatalystUI::performLastestTimelinesDisplay() }
+        "Latest Global Navigation Network Nodes", 
+        lambda { NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay() }
     ]
     items << [
         "Latest Cliques", 

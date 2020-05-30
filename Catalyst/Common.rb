@@ -38,9 +38,9 @@ class CatalystCommon
         "#{CatalystCommon::databankFolderpath()}/Catalyst"
     end
 
-    # CatalystCommon::binTimelineFolderpath()
-    def self.binTimelineFolderpath()
-        "#{CatalystCommon::catalystFolderpath()}/Bin-Timeline"
+    # CatalystCommon::binT1mel1neFolderpath()
+    def self.binT1mel1neFolderpath()
+        "#{CatalystCommon::catalystFolderpath()}/Bin-T1mel1ne"
     end
 
     # CatalystCommon::editTextUsingTextmate(text)
@@ -73,7 +73,7 @@ class CatalystCommon
     def self.copyLocationToCatalystBin(location)
         return if location.nil?
         return if !File.exists?(location)
-        folder1 = "#{CatalystCommon::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{CatalystCommon::binT1mel1neFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkdir(folder3)
@@ -82,7 +82,7 @@ class CatalystCommon
 
     # CatalystCommon::commitTextToCatalystBin(filename, text)
     def self.commitTextToCatalystBin(filename, text)
-        folder1 = "#{CatalystCommon::binTimelineFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
+        folder1 = "#{CatalystCommon::binT1mel1neFolderpath()}/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}/#{Time.new.strftime("%Y-%m-%d")}"
         folder2 = LucilleCore::indexsubfolderpath(folder1)
         folder3 = "#{folder2}/#{LucilleCore::timeStringL22()}"
         FileUtils.mkdir(folder3)
