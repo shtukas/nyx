@@ -48,11 +48,12 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShow
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Common.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataIntegrityOfficer.rb"
+
 # -----------------------------------------------------------------
 
 require_relative "NSXCatalystObjectsOperator.rb"
 require_relative "NSXCatalystUI.rb"
-require_relative "NSXCuration.rb"
 require_relative "NSXDisplayUtils.rb"
 require_relative "NSXGeneralCommandHandler.rb"
 require_relative "NSXEstateServices.rb"

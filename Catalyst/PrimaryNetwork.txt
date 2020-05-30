@@ -1,7 +1,11 @@
-A GenericEntity is any of:
+A PrimaryNetwork is any of:
      1. A10495   ( "catalyst-type:10014e93" )
      2. Clique   ( "catalyst-type:clique" )
      3. Timeline ( "catalyst-type:timeline" )
+
+But note that 
+    PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+only select a timeline or a clique
 
 All GenericEntities carry
     "catalystType"      : String

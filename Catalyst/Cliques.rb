@@ -105,6 +105,22 @@ class Cliques
         tags
     end
 
+    # Cliques::issue1CliqueInteractivelyOrNull()
+    def self.issue1CliqueInteractivelyOrNull()
+        clique = {
+            "catalystType"      => "catalyst-type:clique",
+            "creationTimestamp" => Time.new.to_f,
+            "uuid"              => SecureRandom.uuid,
+
+            "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
+            "targets"           => Cliques::makeA10495sInteractively(),
+            "tags"              => Cliques::makeTagsInteractively()
+        }
+        puts JSON.pretty_generate(clique)
+        Cliques::save(clique)
+        clique
+    end
+
     # Cliques::issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
     def self.issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
         clique = {
@@ -121,7 +137,7 @@ class Cliques
         if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
             node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
             if node then
-                TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
+                TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
             end
         end
         clique
@@ -143,6 +159,18 @@ class Cliques
     end
 
     # ------------------------------------------------------------
+
+    # Cliques::selectCliqueFromExistingOrNull()
+    def self.selectCliqueFromExistingOrNull()
+        descriptionXp = lambda { |clique|
+            "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
+        }
+        cliques = Cliques::cliques()
+        descriptionsxp = cliques.reverse.map{|clique| descriptionXp.call(clique) }
+        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
+        return nil if selectedDescriptionxp == ""
+        cliques.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
+    end
 
     # Cliques::visitTag(tag)
     def self.visitTag(tag)
@@ -170,7 +198,7 @@ class Cliques
     def self.printCliqueDetails(clique)
         puts "Clique:"
         puts "    uuid: #{clique["uuid"]}"
-        puts "    description: #{clique["description"].green}"
+        puts "    description: #{clique["description"]}"
         puts ""
 
         puts "    targets:"
@@ -190,7 +218,7 @@ class Cliques
         end
         puts ""
 
-        timelines = TimelineOwnership::getTimelinesForEntity(clique)
+        timelines = TimelineContent::getTimelinesForEntity(clique)
         if timelines.empty? then
             puts "    timelines: (empty set)"
         else
@@ -284,9 +312,9 @@ class Cliques
             items << [
                 "add to timeline", 
                 lambda{
-                    node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                    node = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
                     next if node.nil?
-                    TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
+                    TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
                 }]
             items << [
                 "register as open cycle", 
@@ -312,7 +340,7 @@ class Cliques
                     items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495Navigation::visit(target) }] 
                 }
 
-            TimelineOwnership::getTimelinesForEntity(clique)
+            TimelineContent::getTimelinesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ MultiverseNavigation::visit(timeline) }] }
 
@@ -426,7 +454,7 @@ class CliquesSearch
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 
-    # CliquesSelection::selectSomethingOrNullPatternToCliquesDescriptions(searchPattern)
+    # CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNullPatternToCliquesDescriptions(searchPattern)
     def self.searchPatternToCliquesDescriptions(searchPattern)
         CliquesSearch::searchPatternToCliques(searchPattern)
             .map{|clique| clique["description"] }
@@ -483,21 +511,16 @@ class CliquesSearch
             break if !status
         }
     end
-
-    # CliquesSearch::searchAndVisit()
-    def self.searchAndVisit()
-        fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
-        return nil if fragment.nil?
-        items = CliquesSearch::search(fragment)
-        CliquesSearch::diveSearchResults(items)
-    end
 end
 
 class CliquesNavigation
 
-    # CliquesNavigation::generalNavigation()
-    def self.generalNavigation()
-        CliquesSearch::searchAndVisit()
+    # CliquesNavigation::mainNavigation()
+    def self.mainNavigation()
+        fragment = LucilleCore::askQuestionAnswerAsString("search and visit: fragment: ")
+        return nil if fragment.nil?
+        items = CliquesSearch::search(fragment)
+        CliquesSearch::diveSearchResults(items)
     end
 
     # CliquesNavigation::visit(clique)
@@ -506,147 +529,32 @@ class CliquesNavigation
     end
 end
 
-class CliquesSelection
+class CliquesMakeAndOrSelectQuest
 
-    # CliquesSelection::selectSomethingOrNull()
-    def self.selectSomethingOrNull()
-        puts "-> You are on a selection Quest [selecting a clique]".green
+    # CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
+    def self.makeAndOrSelectCliqueOrNull()
+        puts "-> You are on a selection Quest [selecting a clique]"
+        puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
         LucilleCore::pressEnterToContinue()
-        descriptionXp = lambda { |clique|
-            "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
-        }
-        cliques = Cliques::cliques()
-        descriptionsxp = cliques.reverse.map{|clique| descriptionXp.call(clique) }
-        selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
-        if selectedDescriptionxp == "" then
-            puts "-> You are on a selection Quest [selecting a clique]".green
-            if LucilleCore::askQuestionAnswerAsBoolean("-> You have not selected any of the existing, would you like to make one ? ") then
-                return Cliques::issueCliqueInteractivelyOrNull(yes)
+        clique = Cliques::selectCliqueFromExistingOrNull()
+        return clique if clique
+        puts "-> You are on a selection Quest [selecting a clique]"
+        if LucilleCore::askQuestionAnswerAsBoolean("-> You have not selected any of the existing, would you like to make one ? ") then
+            clique = Cliques::issue1CliqueInteractivelyOrNull()
+            return nil if clique.nil?
+            puts "-> You are on a selection Quest [selecting a clique]"
+            puts "-> You have created '#{timeline["description"]}'"
+            option1 = "quest: return '#{timeline["description"]}' immediately"
+            option2 = "quest: dive first"
+            options = [ option1, option2 ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
+            if option == option1 then
+                return clique
+            end
+            if option == option2 then
+                Cliques::visitClique(clique)
+                return clique
             end
         end
-        clique = cliques.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
-        return nil if clique.nil?
-        return CliquesSelection::onASomethingSelectionQuest(clique)
-    end
-
-    # CliquesSelection::onASomethingSelectionQuest(clique)
-    def self.onASomethingSelectionQuest(clique)
-        loop {
-
-            puts "-> You are on a selection Quest [visiting a clique]".green
-            puts ""
-
-            clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
-
-            return nil if clique.nil? # useful if we have just destroyed it
-
-            Cliques::printCliqueDetails(clique)
-
-            items = []
-
-            items << ["open", lambda{  Cliques::openClique(clique) }]
-            items << [
-                "edit description", 
-                lambda{
-                    description = CatalystCommon::editTextUsingTextmate(clique["description"]).strip
-                    if description == "" or description.lines.to_a.size != 1 then
-                        puts "Descriptions should be one non empty line"
-                        LucilleCore::pressEnterToContinue()
-                        return
-                    end
-                    clique["description"] = description
-                    Cliques::save(clique)
-                }]
-            items << [
-                "A10495 (add new)", 
-                lambda{
-                    target = A10495::issueNewTargetInteractivelyOrNull()
-                    next if target.nil?
-                    clique["targets"] << target
-                    Cliques::save(clique)
-                }]
-            items << [
-                "A10495 (select and remove)", 
-                lambda{
-                    toStringLambda = lambda { |target| A10495::targetToString(target) }
-                    target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
-                    next if target.nil?
-                    clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
-                    Cliques::save(clique)
-                }]
-            items << [
-                "tags (add new)", 
-                lambda{
-                    clique["tags"] << LucilleCore::askQuestionAnswerAsString("tag: ")
-                    Cliques::save(clique)
-                }]
-            items << [
-                "tags (remove)", 
-                lambda{
-                    tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", clique["tags"])
-                    next if tag.nil?
-                    clique["tags"] = clique["tags"].reject{|t| t == tag }
-                    Cliques::save(clique)
-                }]
-            items << [
-                "add to timeline", 
-                lambda{
-                    node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
-                    next if node.nil?
-                    TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
-                }]
-            items << [
-                "register as open cycle", 
-                lambda{
-                    claim = {
-                        "uuid"              => SecureRandom.uuid,
-                        "creationTimestamp" => Time.new.to_f,
-                        "entityuuid"        => clique["uuid"],
-                    }
-                    puts JSON.pretty_generate(claim)
-                    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
-                }]
-            items << [
-                "destroy clique", 
-                lambda{
-                    if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                        Cliques::destroy(clique["uuid"])
-                        return nil
-                    end
-                }]
-            clique["targets"]
-                .each{|target| 
-                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ 
-                        A10495Selection::onASomethingSelectionQuest(target)
-                    }] 
-                }
-
-            TimelineOwnership::getTimelinesForEntity(clique)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|timeline| items << ["[timeline] #{Timelines::timelineToString(timeline)}", lambda{ 
-                    something = MultiverseSelection::onASomethingSelectionQuest(timeline) 
-                    if something then
-                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
-                    end
-                }] }
-
-            items << [
-                "return(this)", 
-                lambda{
-                    KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(clique))
-                }]
-
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
-            
-            break if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) # a selection has been made, either something from visiting a timeline or self.
-
-            break if !status
-        }
-
-        if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) then
-            return JSON.parse(KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey))
-        end
-
-        nil
     end
 end

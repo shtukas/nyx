@@ -36,7 +36,7 @@ Stargate {
     "targetuuid"        : String # uuid of a Timeline
 }
 
-TimelineOwnershipClaim {
+TimelineContentClaim {
     "uuid"              : String
     "catalystType"      : "catalyst-type:time-ownership-claim"
     "creationTimestamp" : Float # Unixtime with decimals

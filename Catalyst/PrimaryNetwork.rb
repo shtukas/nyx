@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GenericEntity.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
 require 'fileutils'
 # FileUtils.mkpath '/a/b/c'
@@ -23,16 +23,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Multivers
 
 # -----------------------------------------------------------------
 
-$GenericEntityQuestSelectionKey = SecureRandom.hex
-
-class GenericEntity
+class PrimaryNetwork
 
     # A generic Entity is either:
     #    - A10495
     #    - Clique
     #    - Timeline
 
-    # GenericEntity::getSomethingByUuidOrNull(uuid)
+    # PrimaryNetwork::getSomethingByUuidOrNull(uuid)
     def self.getSomethingByUuidOrNull(uuid)
         target = A10495::getOrNull(uuid)
         return target if target
@@ -43,7 +41,7 @@ class GenericEntity
         nil
     end
 
-    # GenericEntity::somethingToString(something)
+    # PrimaryNetwork::somethingToString(something)
     def self.somethingToString(something)
         if something["catalystType"] == "catalyst-type:10014e93" then
             return A10495::targetToString(something)
@@ -54,10 +52,10 @@ class GenericEntity
         if something["catalystType"] == "catalyst-type:timeline"  then
             return Timelines::timelineToString(something)
         end
-        raise "GenericEntity::somethingToString, Error: 056686f0"
+        raise "PrimaryNetwork::somethingToString, Error: 056686f0"
     end
 
-    # GenericEntity::openSomething(something)
+    # PrimaryNetwork::openSomething(something)
     # open means bypass the menu and metadata and give me access to the data as quickly as possible
     def self.openSomething(something)
         if something["catalystType"] == "catalyst-type:10014e93" then
@@ -75,10 +73,10 @@ class GenericEntity
            Multiverse::openTimeline(timeline)
            return
         end
-        raise "GenericEntity::somethingToString, Error: 2f28f27d"
+        raise "PrimaryNetwork::somethingToString, Error: 2f28f27d"
     end
 
-    # GenericEntity::visitSomething(something)
+    # PrimaryNetwork::visitSomething(something)
     def self.visitSomething(something)
         if something["catalystType"] == "catalyst-type:10014e93" then
             A10495::visitTarget(something)
@@ -92,15 +90,14 @@ class GenericEntity
             Multiverse::visitTimeline(something)
             return
         end
-        raise "GenericEntity::somethingToString, Error: cf25ea33"
+        raise "PrimaryNetwork::somethingToString, Error: cf25ea33"
     end
-
 end
 
-class GenericEntityNavigation
+class PrimaryNetworkNavigation
 
-    # GenericEntityNavigation::generalNavigation()
-    def self.generalNavigation()
+    # PrimaryNetworkNavigation::mainNavigation()
+    def self.mainNavigation()
         loop {
             options = [
                 "navigate timelines",
@@ -109,15 +106,15 @@ class GenericEntityNavigation
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
             return if option.nil?
             if option == "navigate timelines" then
-                MultiverseNavigation::generalNavigation()
+                MultiverseNavigation::mainNavigation()
             end
             if option == "navigate cliques" then
-                CliquesNavigation::generalNavigation()
+                CliquesNavigation::mainNavigation()
             end
         }
     end
 
-    # GenericEntityNavigation::visit(something)
+    # PrimaryNetworkNavigation::visit(something)
     def self.visit(something)
         if something["catalystType"] == "catalyst-type:10014e93" then
             target = something
@@ -125,27 +122,25 @@ class GenericEntityNavigation
         end
         if something["catalystType"] == "catalyst-type:clique"  then
             clique = something
-            return CliquesSelection::onASomethingSelectionQuest(clique)
+            return CliquesNavigation::visit(clique)
         end
         if something["catalystType"] == "catalyst-type:timeline"  then
             timeline = something
-            return MultiverseSelection::onASomethingSelectionQuest(timeline)
+            return MultiverseNavigation::visit(timeline)
         end
-        puts something
-        raise "GenericEntity::somethingToString, Error: f17aba25"
+        raise "PrimaryNetwork::somethingToString, Error: f17aba25"
     end
 end
 
-class GenericEntitySearch
+class PrimaryNetworkMakeAndOrSelectQuest
 
-    # GenericEntitySearch::selectSomethingOrNull()
-    def self.selectSomethingOrNull()
+    # PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+    def self.makeAndOrSelectSomethingOrNull()
         loop {
-            $GenericEntityQuestSelectionKey = SecureRandom.hex
-            puts "-> You are on a selection Quest".green
+            puts "-> You are on a selection Quest [making and/or selecting a timeline or clique]"
             options = [
-                "start at timelines",
-                "start at cliques",
+                "making and/or selecting a timeline",
+                "making and/or selecting a clique",
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
             if option.nil? then
@@ -155,35 +150,26 @@ class GenericEntitySearch
                     next
                 end
             end
-            if option == "start at timelines" then
-                something = MultiverseSelection::selectSomethingOrNull()
+            if option == "making and/or selecting a timeline" then
+                something = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
                 if something then
                     return something
+                else 
+                    puts "You are on a selection Quest, and chose timelines, but didn't select any. back to square one (you can return null there)"
+                    LucilleCore::pressEnterToContinue()
+                    next
                 end
             end
-            if option == "start at cliques" then
-                something = CliquesSelection::selectSomethingOrNull()
+            if option == "making and/or selecting a clique" then
+                something = CliquesMakeAndOrSelectQuest::makeAndOrSelectCliqueOrNull()
                 if something then
                     return something
+                else 
+                    puts "You are on a selection Quest, and chose cliques, but didn't select any. back to square one (you can return null there)"
+                    LucilleCore::pressEnterToContinue()
+                    next
                 end
             end
         }
-    end
-
-    # GenericEntitySearch::onASomethingSelectionQuest(something)
-    def self.onASomethingSelectionQuest(something)
-        puts "-> You are on a selection Quest".green
-        # We either return null of a something
-        if something["catalystType"] == "catalyst-type:10014e93" then
-            return A10495Selection::onASomethingSelectionQuest(something)
-        end
-        if something["catalystType"] == "catalyst-type:clique"  then
-            return CliquesSelection::onASomethingSelectionQuest(something)
-        end
-        if something["catalystType"] == "catalyst-type:timeline"  then
-            return MultiverseSelection::onASomethingSelectionQuest(something)
-        end
-        puts something
-        raise "GenericEntity::somethingToString, Error: bc9fd6cb"
     end
 end

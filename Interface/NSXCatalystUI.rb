@@ -48,12 +48,12 @@ class NSXCatalystUI
 
             items << [
                 "navigate timelines", 
-                lambda { MultiverseNavigation::generalNavigation() }
+                lambda { MultiverseNavigation::mainNavigation() }
             ]
 
             items << [
                 "navigate cliques", 
-                lambda { CliquesNavigation::generalNavigation() }
+                lambda { CliquesNavigation::mainNavigation() }
             ]
 
             items << nil
@@ -68,7 +68,7 @@ class NSXCatalystUI
             ]
             items << [
                 "cliques search and visit", 
-                lambda { CliquesSearch::searchAndVisit() }
+                lambda { CliquesNavigation::mainNavigation() }
             ]
 
             items << [
@@ -91,9 +91,9 @@ class NSXCatalystUI
             ]
 
             items << [
-                "GenericEntitySearch::selectSomethingOrNull() (test)",
+                "PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull() (test)",
                 lambda {
-                    selectedEntity = GenericEntitySearch::selectSomethingOrNull()
+                    selectedEntity = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
                 }
@@ -138,11 +138,11 @@ class NSXCatalystUI
             items = []
             OpenCycles::getOpenCyclesClaims()
                 .each{|claim|
-                    something = GenericEntity::getSomethingByUuidOrNull(claim["entityuuid"])
+                    something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
                     next if something.nil?
                     items << [
-                        GenericEntity::somethingToString(something).yellow, 
-                        lambda { GenericEntity::visitSomething(something) }
+                        PrimaryNetwork::somethingToString(something).yellow, 
+                        lambda { PrimaryNetwork::visitSomething(something) }
                     ]
                 }
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -240,7 +240,7 @@ class NSXCatalystUI
 
             items << [
                 "cliques search and visit", 
-                lambda { CliquesSearch::searchAndVisit() }
+                lambda { CliquesNavigation::mainNavigation() }
             ]
 
             items << [
@@ -263,9 +263,9 @@ class NSXCatalystUI
             ]
 
             items << [
-                "GenericEntitySearch::selectSomethingOrNull() (test)",
+                "PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull() (test)",
                 lambda {
-                    selectedEntity = GenericEntitySearch::selectSomethingOrNull()
+                    selectedEntity = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
                     puts JSON.pretty_generate([selectedEntity])
                     LucilleCore::pressEnterToContinue()
                 }
@@ -334,9 +334,9 @@ class NSXCatalystUI
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
                     if whereTo == "Timeline" then
-                        node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                        node = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
                         return if node.nil?
-                        TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
+                        TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
                     end
                 }
             ]
@@ -408,8 +408,8 @@ class NSXCatalystUI
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
                     items << [
-                        GenericEntity::somethingToString(item),
-                        lambda { GenericEntity::openSomething(item) }
+                        PrimaryNetwork::somethingToString(item),
+                        lambda { PrimaryNetwork::openSomething(item) }
                     ]
                 }
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -427,8 +427,8 @@ class NSXCatalystUI
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
                     items << [
-                        GenericEntity::somethingToString(item),
-                        lambda { GenericEntity::openSomething(item) }
+                        PrimaryNetwork::somethingToString(item),
+                        lambda { PrimaryNetwork::openSomething(item) }
                     ]
                 }
             status = LucilleCore::menuItemsWithLambdas(items)
@@ -579,7 +579,6 @@ class NSXCatalystUI
 
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
-            NSXCuration::curation()
 
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()

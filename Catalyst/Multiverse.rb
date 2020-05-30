@@ -16,7 +16,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GenericEntity.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
 # -----------------------------------------------------------------
 
@@ -71,36 +71,36 @@ class Timelines
     end
 end
 
-class Stargates
+class TimelineNetwork
 
-    # Stargates::path()
+    # TimelineNetwork::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/paths"
     end
 
-    # Stargates::save(path)
+    # TimelineNetwork::save(path)
     def self.save(path)
-        filepath = "#{Stargates::path()}/#{path["uuid"]}.json"
+        filepath = "#{TimelineNetwork::path()}/#{path["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(path)) }
     end
 
-    # Stargates::getOrNull(uuid)
+    # TimelineNetwork::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{Stargates::path()}/#{uuid}.json"
+        filepath = "#{TimelineNetwork::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # Stargates::paths()
+    # TimelineNetwork::paths()
     def self.paths()
-        Dir.entries(Stargates::path())
+        Dir.entries(TimelineNetwork::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{Stargates::path()}/#{filename}" }
+            .map{|filename| "#{TimelineNetwork::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # Stargates::issuePathInteractivelyOrNull()
+    # TimelineNetwork::issuePathInteractivelyOrNull()
     def self.issuePathInteractivelyOrNull()
         path = {
             "catalystType"      => "catalyst-type:starlight-path",
@@ -110,86 +110,86 @@ class Stargates
             "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
             "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
-        Stargates::save(path)
+        TimelineNetwork::save(path)
         path
     end
 
-    # Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
-    def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
-        return nil if node1["uuid"] == node2["uuid"]
+    # TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(timeline1, timeline2)
+    def self.issuePathFromFirstNodeToSecondNodeOrNull(timeline1, timeline2)
+        return nil if timeline1["uuid"] == timeline2["uuid"]
         path = {
             "catalystType"      => "catalyst-type:starlight-path",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
-            "sourceuuid" => node1["uuid"],
-            "targetuuid" => node2["uuid"]
+            "sourceuuid" => timeline1["uuid"],
+            "targetuuid" => timeline2["uuid"]
         }
-        Stargates::save(path)
+        TimelineNetwork::save(path)
         path
     end
 
-    # Stargates::getPathsWithGivenTarget(targetuuid)
+    # TimelineNetwork::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        Stargates::paths()
+        TimelineNetwork::paths()
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
-    # Stargates::getPathsWithGivenSource(sourceuuid)
+    # TimelineNetwork::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        Stargates::paths()
+        TimelineNetwork::paths()
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 
-    # Stargates::pathToString(path)
+    # TimelineNetwork::pathToString(path)
     def self.pathToString(path)
         "[stargate] #{path["sourceuuid"]} -> #{path["targetuuid"]}"
     end
 
-    # Stargates::getParentNodes(node)
-    def self.getParentNodes(node)
-        Stargates::getPathsWithGivenTarget(node["uuid"])
+    # TimelineNetwork::getParents(timeline)
+    def self.getParents(timeline)
+        TimelineNetwork::getPathsWithGivenTarget(timeline["uuid"])
             .map{|path| Timelines::getOrNull(path["sourceuuid"]) }
             .compact
     end
 
-    # Stargates::getChildNodes(node)
-    def self.getChildNodes(node)
-        Stargates::getPathsWithGivenSource(node["uuid"])
+    # TimelineNetwork::getChildren(node)
+    def self.getChildren(node)
+        TimelineNetwork::getPathsWithGivenSource(node["uuid"])
             .map{|path| Timelines::getOrNull(path["targetuuid"]) }
             .compact
     end
 end
 
-class TimelineOwnership
+class TimelineContent
 
-    # TimelineOwnership::path()
+    # TimelineContent::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/ownershipclaims"
     end
 
-    # TimelineOwnership::save(dataclaim)
+    # TimelineContent::save(dataclaim)
     def self.save(dataclaim)
-        filepath = "#{TimelineOwnership::path()}/#{dataclaim["uuid"]}.json"
+        filepath = "#{TimelineContent::path()}/#{dataclaim["uuid"]}.json"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(dataclaim)) }
     end
 
-    # TimelineOwnership::getOrNull(uuid)
+    # TimelineContent::getOrNull(uuid)
     def self.getOrNull(uuid)
-        filepath = "#{TimelineOwnership::path()}/#{uuid}.json"
+        filepath = "#{TimelineContent::path()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # TimelineOwnership::claims()
+    # TimelineContent::claims()
     def self.claims()
-        Dir.entries(TimelineOwnership::path())
+        Dir.entries(TimelineContent::path())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{TimelineOwnership::path()}/#{filename}" }
+            .map{|filename| "#{TimelineContent::path()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
     end
 
-    # TimelineOwnership::issueClaimGivenTimelineAndEntity(node, target)
+    # TimelineContent::issueClaimGivenTimelineAndEntity(node, target)
     def self.issueClaimGivenTimelineAndEntity(node, target)
         claim = {
             "catalystType"      => "catalyst-type:time-ownership-claim",
@@ -199,26 +199,26 @@ class TimelineOwnership
             "nodeuuid"   => node["uuid"],
             "targetuuid" => target["uuid"]
         }
-        TimelineOwnership::save(claim)
+        TimelineContent::save(claim)
         claim
     end
 
-    # TimelineOwnership::claimToString(dataclaim)
+    # TimelineContent::claimToString(dataclaim)
     def self.claimToString(dataclaim)
         "[starlight ownership claim] #{dataclaim["nodeuuid"]} -> #{dataclaim["targetuuid"]}"
     end
 
-    # TimelineOwnership::getTimelineEntities(node)
+    # TimelineContent::getTimelineEntities(node)
     def self.getTimelineEntities(node)
-        TimelineOwnership::claims()
+        TimelineContent::claims()
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
-            .map{|claim| GenericEntity::getSomethingByUuidOrNull(claim["targetuuid"]) }
+            .map{|claim| PrimaryNetwork::getSomethingByUuidOrNull(claim["targetuuid"]) }
             .compact
     end
 
-    # TimelineOwnership::getTimelinesForEntity(clique)
+    # TimelineContent::getTimelinesForEntity(clique)
     def self.getTimelinesForEntity(clique)
-        TimelineOwnership::claims()
+        TimelineContent::claims()
             .select{|claim| claim["targetuuid"] == clique["uuid"] }
             .map{|claim| Timelines::getOrNull(claim["nodeuuid"]) }
             .compact
@@ -237,43 +237,53 @@ class Multiverse
     def self.visitTimeline(timeline)
         loop {
             puts ""
+            puts JSON.pretty_generate(timeline)
             puts "uuid: #{timeline["uuid"]}"
             puts Timelines::timelineToString(timeline).green
             items = []
             items << ["rename", lambda{ 
-                timeline["description"] = CatalystCommon::editTextUsingTextmate(timeline["description"]).strip
+                timeline["name"] = CatalystCommon::editTextUsingTextmate(timeline["name"]).strip
                 Timelines::save(timeline)
             }]
 
-            Stargates::getParentNodes(timeline)
+            TimelineNetwork::getParents(timeline)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ MultiverseNavigation::visit(n) }] }
 
-            TimelineOwnership::getTimelineEntities(timeline)
+            TimelineContent::getTimelineEntities(timeline)
                 .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
-                .each{|something| items << ["[something] #{GenericEntity::somethingToString(something)}", lambda{ GenericEntityNavigation::visit(something) }] }
+                .each{|something| items << ["[something] #{PrimaryNetwork::somethingToString(something)}", lambda{ PrimaryNetworkNavigation::visit(something) }] }
 
-            Stargates::getChildNodes(timeline)
+            TimelineNetwork::getChildren(timeline)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
                 .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{ MultiverseNavigation::visit(n) }] }
 
             items << ["add parent timeline", lambda{ 
-                timeline0 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
-                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(timeline0, timeline)
+                timeline0 = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+                path = TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(timeline0, timeline)
                 puts JSON.pretty_generate(path)
-                Stargates::save(path)
+                TimelineNetwork::save(path)
             }]
 
             items << ["add child timeline", lambda{ 
-                timeline2 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
-                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(timeline, timeline2)
+                timeline2 = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+                path = TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(timeline, timeline2)
                 puts JSON.pretty_generate(path)
-                Stargates::save(path)
+                TimelineNetwork::save(path)
             }]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status
         }
+    end
+
+    # Multiverse::selectTimelineFromExistingTimelines()
+    def self.selectTimelineFromExistingTimelines()
+        nodestrings = Timelines::timelines().map{|node| Timelines::timelineToString(node) }
+        nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
+        node = Timelines::timelines()
+                .select{|node| Timelines::timelineToString(node) == nodestring }
+                .first
     end
 
     # Multiverse::selectTimelinePossiblyCreateOneOrNull()
@@ -318,13 +328,13 @@ class Multiverse
                 Timelines::save(node)
             end
             if operation == "make starlight path" then
-                node1 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                node1 = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
                 next if node1.nil?
-                node2 = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                node2 = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
                 next if node2.nil?
-                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
+                path = TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
-                Stargates::save(path)
+                TimelineNetwork::save(path)
             end
         }
     end
@@ -333,8 +343,8 @@ end
 
 class MultiverseNavigation
 
-    # MultiverseNavigation::generalNavigation()
-    def self.generalNavigation()
+    # MultiverseNavigation::mainNavigation()
+    def self.mainNavigation()
         timeline = Multiverse::selectTimelinePossiblyCreateOneOrNull()
         return if timeline.nil?
         MultiverseNavigation::visit(timeline)
@@ -346,76 +356,33 @@ class MultiverseNavigation
     end
 end
 
-class MultiverseSelection
+class MultiverseMakeAndOrSelectQuest
 
-    # MultiverseSelection::selectSomethingOrNull()
-    def self.selectSomethingOrNull()
-        puts "-> You are on a selection Quest [selecting a timeline]".green
-        timeline = Multiverse::selectTimelinePossiblyCreateOneOrNull()
-        return nil if timeline.nil?
-        MultiverseSelection::onASomethingSelectionQuest(timeline)
-    end
-
-    # MultiverseSelection::onASomethingSelectionQuest(timeline)
-    def self.onASomethingSelectionQuest(timeline)
-        puts "-> You are on a selection Quest [visiting timeline]".green
-        loop {
-            puts ""
-            puts "uuid: #{timeline["uuid"]}"
-
-            puts Timelines::timelineToString(timeline).green
-
-            items = []
-
-            items << ["rename", lambda{
-                timeline["description"] = CatalystCommon::editTextUsingTextmate(timeline["description"]).strip
-                Timelines::save(timeline)
-            }]
-
-            Stargates::getParentNodes(timeline)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network parent] #{Timelines::timelineToString(n)}", lambda{ 
-                    something = MultiverseSelection::onASomethingSelectionQuest(n) 
-                    if something then
-                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
-                    end
-                }] }
-
-            TimelineOwnership::getTimelineEntities(timeline)
-                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
-                .each{|something| items << ["[something] #{GenericEntity::somethingToString(something)}", lambda{ 
-                    s =  GenericEntitySearch::onASomethingSelectionQuest(something)
-                    if s then
-                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(s))
-                    end
-                }] }
-
-            Stargates::getChildNodes(timeline)
-                .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|n| items << ["[network child] #{Timelines::timelineToString(n)}", lambda{
-                    something = MultiverseSelection::onASomethingSelectionQuest(n) 
-                    if something then
-                        KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(something))
-                    end
-                }] }
-
-            items << [
-                "return(this)", 
-                lambda{
-                    KeyValueStore::set(nil, $GenericEntityQuestSelectionKey, JSON.generate(timeline))
-                }]
-
-            status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
-            
-            break if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) # a selection has been made, either something from visiting a timeline or self.
-
-            break if !status
-        }
-
-        if KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey) then
-            return JSON.parse(KeyValueStore::getOrNull(nil, $GenericEntityQuestSelectionKey))
+    # MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
+    def self.makeAndOrSelectTimelineOrNull()
+        puts "-> You are on a selection Quest [selecting a timeline]"
+        puts "-> I am going to make you select one from existing and if that doesn't work, I will make you create a new one [with extensions if you want]"
+        LucilleCore::pressEnterToContinue()
+        timeline = Multiverse::selectTimelineFromExistingTimelines()
+        return timeline if timeline
+        puts "-> You are on a selection Quest [selecting a timeline]"
+        if LucilleCore::askQuestionAnswerAsBoolean("-> ...but did not select anything. Do you want to create one ? ") then
+            timeline = Timelines::makeTimelineInteractivelyOrNull()
+            return nil if timeline.nil?
+            puts "-> You are on a selection Quest [selecting a timeline]"
+            puts "-> You have created '#{timeline["name"]}'"
+            option1 = "quest: return '#{timeline["name"]}' immediately"
+            option2 = "quest: dive first"
+            options = [ option1, option2 ]
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
+            if option == option1 then
+                return timeline
+            end
+            if option == option2 then
+                Multiverse::visitTimeline(timeline)
+                return timeline
+            end
         end
-
         nil
     end
 end

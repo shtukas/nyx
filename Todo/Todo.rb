@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
     Bank::total(uuid)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/GenericEntity.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
 # -----------------------------------------------------------------------
 
@@ -224,11 +224,11 @@ class Items
 
     # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
     def self.promote(item) # Boolean # Indicates whether a promotion was acheived
-        newowner = GenericEntitySearch::selectSomethingOrNull()
+        newowner = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
         return false if newowner.nil?
         if newowner["catalystType"] == "catalyst-type:timeline" then
             node = newowner
-            TimelineOwnership::issueClaimGivenTimelineAndEntity(node, item["target"])
+            TimelineContent::issueClaimGivenTimelineAndEntity(node, item["target"])
             return true
         end
         if newowner["catalystType"] == "catalyst-type:clique" then

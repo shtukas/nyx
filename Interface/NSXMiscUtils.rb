@@ -176,12 +176,12 @@ class NSXMiscUtils
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine startlight parents for '#{Timelines::timelineToString(node)}' ? ") then
             loop {
                 puts "Selecting new parent..."
-                parent = Multiverse::selectTimelinePossiblyCreateOneOrNull()
+                parent = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
                 if parent.nil? then
                     puts "Did not determine a parent for '#{Timelines::timelineToString(node)}'. Aborting parent determination."
                     break
                 end
-                Stargates::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
+                TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(parent, node)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to determine a new startlight parents for '#{Timelines::timelineToString(node)}' ? ")
             }
             puts "Completed determining parents for '#{Timelines::timelineToString(node)}'"
@@ -190,13 +190,13 @@ class NSXMiscUtils
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to build starlight children for '#{Timelines::timelineToString(node)}' ? ") then
             loop {
                 puts "Making new child..."
-                child = Timelines::makeTimelineInteractivelyOrNull()
+                child = MultiverseMakeAndOrSelectQuest::makeAndOrSelectTimelineOrNull()
                 if child.nil? then
                     puts "Did not make a child for '#{Timelines::timelineToString(node)}'. Aborting child building."
                     break
                 end
                 puts JSON.pretty_generate(child)
-                path = Stargates::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
+                path = TimelineNetwork::issuePathFromFirstNodeToSecondNodeOrNull(node, child)
                 puts JSON.pretty_generate(path)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new startlight child for '#{Timelines::timelineToString(node)}' ? ")
             }
@@ -212,7 +212,7 @@ class NSXMiscUtils
                     break
                 end
                 puts JSON.pretty_generate(clique)
-                claim = TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
+                claim = TimelineContent::issueClaimGivenTimelineAndEntity(node, clique)
                 puts JSON.pretty_generate(claim)
                 break if !LucilleCore::askQuestionAnswerAsBoolean("Would you like to build a new clique for '#{Timelines::timelineToString(node)}' ? ")
             }
@@ -237,7 +237,7 @@ class NSXMiscUtils
         return if target.nil?
         node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
         return if node.nil?
-        claim = TimelineOwnership::issueClaimGivenTimelineAndEntity(node, target)
+        claim = TimelineContent::issueClaimGivenTimelineAndEntity(node, target)
         puts JSON.pretty_generate(claim)
     end
 
