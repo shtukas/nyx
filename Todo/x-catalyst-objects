@@ -159,11 +159,22 @@ Items::items()
 
 # Now we select a project and work with the first 3 items
 
-focus = Items::projectsTimeDistribution()
-            .sort{|i1, i2|
-                i1["timeInHours"] <=> i2["timeInHours"]
-            }
-            .first
+def getFocus()
+    locationKey = CatalystCommon::getNewValueEveryNSeconds("069aeb21-bce5-4ea2-aa03-230a4c354729", 2.71828*3600) # e hours
+    focus = KeyValueStore::getOrNull(nil, locationKey)
+    if focus then
+        return JSON.parse(focus)
+    end
+    focus = Items::projectsTimeDistribution()
+                .sort{|i1, i2|
+                    i1["timeInHours"] <=> i2["timeInHours"]
+                }
+                .first
+    KeyValueStore::set(nil, locationKey, JSON.generate(focus))
+    focus
+end
+
+focus = getFocus()
 
 # focus : {
 #     "projectname" : String,
