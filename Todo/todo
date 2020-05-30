@@ -79,11 +79,17 @@ loop {
     end
     if option == "items dive" then
         loop {
+            puts "-> Todo items dive"
             projectname = LucilleCore::selectEntityFromListOfEntitiesOrNull("project name", Items::projectNames())
             break if projectname.nil?
-            items = Items::itemsForProjectName(projectname)
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Items::itemToString(item) })
-            Items::diveItem(item)
+            loop {
+                puts "-> Visiting project '#{projectname}'"
+                items = Items::itemsForProjectName(projectname)
+                break if items.empty? # happens when we loop bacl if the one item of the project was deleted
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| Items::itemToString(item) })
+                break if item.nil?
+                Items::diveItem(item)
+            }
         }
     end
     if option == "time report" then
