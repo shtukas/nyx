@@ -105,8 +105,8 @@ class Cliques
         tags
     end
 
-    # Cliques::issueCliqueInteractivelyOrNull(shouldStarlightNodeInvite)
-    def self.issueCliqueInteractivelyOrNull(shouldStarlightNodeInvite)
+    # Cliques::issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
+    def self.issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
         clique = {
             "catalystType"      => "catalyst-type:clique",
             "creationTimestamp" => Time.new.to_f,
@@ -118,7 +118,7 @@ class Cliques
         }
         puts JSON.pretty_generate(clique)
         Cliques::save(clique)
-        if shouldStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
+        if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
             node = Multiverse::selectTimelinePossiblyCreateOneOrNull()
             if node then
                 TimelineOwnership::issueClaimGivenTimelineAndEntity(node, clique)
@@ -518,7 +518,12 @@ class CliquesSelection
         cliques = Cliques::cliques()
         descriptionsxp = cliques.reverse.map{|clique| descriptionXp.call(clique) }
         selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
-        return nil if selectedDescriptionxp == ""
+        if selectedDescriptionxp == "" then
+            puts "-> You are on a selection Quest [selecting a clique]".green
+            if LucilleCore::askQuestionAnswerAsBoolean("-> You have not selected any of the existing, would you like to make one ? ") then
+                return Cliques::issueCliqueInteractivelyOrNull(yes)
+            end
+        end
         clique = cliques.select{|c| descriptionXp.call(c) == selectedDescriptionxp }.first
         return nil if clique.nil?
         return CliquesSelection::onASomethingSelectionQuest(clique)
