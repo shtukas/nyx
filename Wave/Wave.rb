@@ -75,7 +75,7 @@ class Wave
     # Wave::makeScheduleObjectInteractivelyOrNull()
     def self.makeScheduleObjectInteractivelyOrNull()
 
-        scheduleTypes = ['sticky', 'date', 'repeat']
+        scheduleTypes = ['sticky', 'repeat']
         scheduleType = LucilleCore::selectEntityFromListOfEntitiesOrNull("schedule type: ", scheduleTypes, lambda{|entity| entity })
 
         schedule = nil
@@ -221,11 +221,11 @@ class Wave
         "start"
     end
 
-    # Wave::claimToCatalystObject(claim)
-    def self.claimToCatalystObject(claim)
-        uuid = claim["uuid"]
-        schedule = claim["schedule"]
-        announce = Wave::announce(claim["description"], schedule)
+    # Wave::makeCatalystObject(obj)
+    def self.makeCatalystObject(obj)
+        uuid = obj["uuid"]
+        schedule = obj["schedule"]
+        announce = Wave::announce(obj["description"], schedule)
         contentItem = {
             "type" => "line",
             "line" => "💫 "+announce
@@ -250,67 +250,63 @@ class Wave
         object
     end
 
-    # Wave::performDone2(claim)
-    def self.performDone2(claim)
-        unixtime = Wave::scheduleToDoNotShowUnixtime(claim["uuid"], claim['schedule'])
-        DoNotShowUntil::setUnixtime(claim["uuid"], unixtime)
+    # Wave::performDone2(obj)
+    def self.performDone2(obj)
+        unixtime = Wave::scheduleToDoNotShowUnixtime(obj["uuid"], obj['schedule'])
+        DoNotShowUntil::setUnixtime(obj["uuid"], unixtime)
     end
 
     # Wave::getCatalystObjects()
     def self.getCatalystObjects()
-        Wave::claims()
-            .map{|claim| Wave::claimToCatalystObject(claim) }
+        Wave::objects()
+            .map{|obj| Wave::makeCatalystObject(obj) }
     end
 
-    # Wave::claims()
-    def self.claims()
+    # Wave::objects()
+    def self.objects()
         Dir.entries(Wave::pathToClaims())
             .select{|filename| filename[-5, 5] == ".json" }
             .map{|filename| "#{Wave::pathToClaims()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|c1, c2| c1["creationtime"] <=> c2["creationtime"] }
+            .sort{|c1, c2| c1["creationUnixtime"] <=> c2["creationUnixtime"] }
     end
 
-    # Wave::getClaimByUUIDOrNUll(uuid)
-    def self.getClaimByUUIDOrNUll(uuid)
+    # Wave::getObjectByUUIDOrNUll(uuid)
+    def self.getObjectByUUIDOrNUll(uuid)
         filepath = "#{Wave::pathToClaims()}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # Wave::save(claim)
-    def self.save(claim)
-        uuid = claim["uuid"]
-        File.open("#{Wave::pathToClaims()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+    # Wave::save(obj)
+    def self.save(obj)
+        uuid = obj["uuid"]
+        File.open("#{Wave::pathToClaims()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(obj)) }
     end
 
-    # Wave::destroy(claim)
-    def self.destroy(claim)
-        uuid = claim["uuid"]
+    # Wave::destroy(obj)
+    def self.destroy(obj)
+        uuid = obj["uuid"]
         filepath = "#{Wave::pathToClaims()}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # Wave::makeClaim(uuid, description, schedule)
-    def self.makeClaim(uuid, description, schedule)
+    # Wave::makeObject(uuid, description, schedule)
+    def self.makeObject(uuid, description, schedule)
         {
-            "uuid"         => uuid,
-            "creationtime" => Time.new.to_f,
-            "description"  => description,
-            "schedule"     => schedule
+            "uuid"             => uuid,
+            "nyxType"          => "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58",
+            "creationUnixtime" => Time.new.to_f,
+            "description"      => description,
+            "schedule"         => schedule
         }
     end
 
-    # Wave::issue(uuid, description, schedule)
-    def self.issue(uuid, description, schedule)
-        claim = Wave::makeClaim(uuid, description, schedule)
-        Wave::save(claim)
-    end
-
-    # Wave::selectClaimOrNull()
-    def self.selectClaimOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("claim:", Wave::claims(), lambda {|claim| claim["description"] })
+    # Wave::issueObject(uuid, description, schedule)
+    def self.issueObject(uuid, description, schedule)
+        obj = Wave::makeObject(uuid, description, schedule)
+        Wave::save(obj)
     end
 end
 

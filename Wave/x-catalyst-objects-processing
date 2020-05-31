@@ -31,8 +31,8 @@ require_relative "Wave.rb"
 
 # -----------------------------------------------------------------------------
 
-def openItem(claim)
-    text = claim["description"]
+def openItem(obj)
+    text = obj["description"]
     puts text
     if text.lines.to_a.size == 1 and text.start_with?("http") then
         url = text
@@ -53,11 +53,11 @@ if ARGV[0] == 'start' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     time1 = Time.new.to_f
-    claim = Wave::getClaimByUUIDOrNUll(uuid)
-    exit if claim.nil?
-    openItem(claim)
+    obj = Wave::getObjectByUUIDOrNUll(uuid)
+    exit if obj.nil?
+    openItem(obj)
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
-        Wave::performDone2(claim)
+        Wave::performDone2(obj)
         timespan = Time.new.to_f - time1
         timespan = [timespan, 1200].min # (20 mins) To avoid problems after leaving things running
         puts "putting #{timespan.round(2)} seconds into catalyst measured times"
@@ -70,50 +70,50 @@ if ARGV[0] == 'open' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     time1 = Time.new.to_f
-    claim = Wave::getClaimByUUIDOrNUll(uuid)
-    exit if claim.nil?
-    openItem(claim)
+    obj = Wave::getObjectByUUIDOrNUll(uuid)
+    exit if obj.nil?
+    openItem(obj)
     exit
 end
 
 if ARGV[0] == 'done' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = Wave::getClaimByUUIDOrNUll(uuid)
-    exit if claim.nil?
-    Wave::performDone2(claim)
+    obj = Wave::getObjectByUUIDOrNUll(uuid)
+    exit if obj.nil?
+    Wave::performDone2(obj)
     exit
 end
 
 if ARGV[0] == 'recast' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = Wave::getClaimByUUIDOrNUll(uuid)
-    exit if claim.nil?
+    obj = Wave::getObjectByUUIDOrNUll(uuid)
+    exit if obj.nil?
     schedule = Wave::makeScheduleObjectInteractivelyOrNull()
     exit if schedule.nil?
-    claim["schedule"] = schedule
-    Wave::save(claim)
+    obj["schedule"] = schedule
+    Wave::save(obj)
     exit
 end
 
 if ARGV[0] == 'description' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = Wave::getClaimByUUIDOrNUll(uuid)
-    exit if claim.nil?
-    claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
-    Wave::save(claim)
+    obj = Wave::getObjectByUUIDOrNUll(uuid)
+    exit if obj.nil?
+    obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
+    Wave::save(obj)
     exit
 end
 
 if ARGV[0] == 'destroy' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    claim = Wave::getClaimByUUIDOrNUll(uuid)
-    exit if claim.nil?
+    obj = Wave::getObjectByUUIDOrNUll(uuid)
+    exit if obj.nil?
     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-        Wave::destroy(claim)
+        Wave::destroy(obj)
         exit
     end
     exit

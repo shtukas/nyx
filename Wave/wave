@@ -56,23 +56,23 @@ loop {
         line = LucilleCore::askQuestionAnswerAsString("line: ")
         schedule = Wave::makeScheduleObjectInteractivelyOrNull()
         next if schedule.nil?
-        Wave::issue(LucilleCore::timeStringL22(), line, schedule)
+        Wave::issueObject(LucilleCore::timeStringL22(), line, schedule)
     end
     if option == "waves dive" then
-        claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Wave::claims(), lambda {|wave| wave["description"] })
-        next if claim.nil?
+        obj = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Wave::objects(), lambda {|wave| wave["description"] })
+        next if obj.nil?
         ops = ["edit description", "recast"]
         op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
         next if op.nil?
         if op == "edit description" then
-            claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
-            Wave::save(claim)
+            obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
+            Wave::save(obj)
         end
         if op == "recast" then
             schedule = Wave::makeScheduleObjectInteractivelyOrNull()
             next if schedule.nil?
-            claim["schedule"] = schedule
-            Wave::save(claim)
+            obj["schedule"] = schedule
+            Wave::save(obj)
         end
     end
 }
