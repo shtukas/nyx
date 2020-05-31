@@ -43,6 +43,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShow
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
+
 # ----------------------------------------------------------------------
 
 class Wave
@@ -60,16 +62,6 @@ class Wave
     # Wave::isLucille18()
     def self.isLucille18()
         ENV["COMPUTERLUCILLENAME"] == "Lucille18"
-    end
-
-    # Wave::pathToClaims()
-    def self.pathToClaims()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Wave/Claims"
-    end
-
-    # Wave::waveFolderPath()
-    def self.waveFolderPath()
-        "#{CatalystCommon::catalystFolderpath()}/Wave"
     end
 
     # Wave::makeScheduleObjectInteractivelyOrNull()
@@ -256,57 +248,17 @@ class Wave
         DoNotShowUntil::setUnixtime(obj["uuid"], unixtime)
     end
 
-    # Wave::getCatalystObjects()
-    def self.getCatalystObjects()
-        Wave::objects()
-            .map{|obj| Wave::makeCatalystObject(obj) }
-    end
-
-    # Wave::objects()
-    def self.objects()
-        Dir.entries(Wave::pathToClaims())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{Wave::pathToClaims()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|c1, c2| c1["creationUnixtime"] <=> c2["creationUnixtime"] }
-    end
-
-    # Wave::getObjectByUUIDOrNUll(uuid)
-    def self.getObjectByUUIDOrNUll(uuid)
-        filepath = "#{Wave::pathToClaims()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Wave::save(obj)
-    def self.save(obj)
-        uuid = obj["uuid"]
-        File.open("#{Wave::pathToClaims()}/#{uuid}.json", "w"){|f| f.puts(JSON.pretty_generate(obj)) }
-    end
-
-    # Wave::destroy(obj)
-    def self.destroy(obj)
-        uuid = obj["uuid"]
-        filepath = "#{Wave::pathToClaims()}/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # Wave::makeObject(uuid, description, schedule)
-    def self.makeObject(uuid, description, schedule)
-        {
+    # Wave::issueWave(uuid, description, schedule)
+    def self.issueWave(uuid, description, schedule)
+        obj = {
             "uuid"             => uuid,
             "nyxType"          => "wave-12ed27da-b5e4-4e6e-940f-2c84071cca58",
             "creationUnixtime" => Time.new.to_f,
             "description"      => description,
             "schedule"         => schedule
         }
-    end
-
-    # Wave::issueObject(uuid, description, schedule)
-    def self.issueObject(uuid, description, schedule)
-        obj = Wave::makeObject(uuid, description, schedule)
-        Wave::save(obj)
+        NyxNetwork::commitToDisk(obj)
+        obj
     end
 end
 
