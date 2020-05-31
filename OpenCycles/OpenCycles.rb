@@ -30,70 +30,51 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
+
 # -----------------------------------------------------------------------------
 
 class OpenCycles
 
-    # OpenCycles::getOpenCyclesClaims()
-    def self.getOpenCyclesClaims()
-        Dir.entries("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles")
-            .select{|filename| filename[-5, 5] == '.json' }
-            .map{|filename| JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{filename}")) }
-            .select{|claim| !PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"]).nil? }
-            .sort{|d1, d2| d1["creationTimestamp"] <=> d2["creationTimestamp"] }
-    end
-
-    # OpenCycles::saveClaim(claim)
-    def self.saveClaim(claim)
-        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
-    end
-
-    # OpenCycles::destroy(claim)
-    def self.destroy(claim)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # OpenCycles::openClaimTarget(claim)
-    def self.openClaimTarget(claim)
-        something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
+    # OpenCycles::openTarget(opencycle)
+    def self.openTarget(opencycle)
+        something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
         return if something.nil?
         PrimaryNetwork::openSomething(something)
     end
 
-    # OpenCycles::claimToString(claim)
-    def self.claimToString(claim)
-        something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
+    # OpenCycles::opencycleToString(opencycle)
+    def self.opencycleToString(opencycle)
+        something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
         "[opencycle] #{something ? PrimaryNetwork::somethingToString(something) : "data entity not found"}"
     end
 
-    # OpenCycles::claimDive(claim)
-    def self.claimDive(claim)
+    # OpenCycles::opencycleDive(opencycle)
+    def self.opencycleDive(opencycle)
         loop {
-            something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
+            something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
             if something.nil? then
-                puts "Could not determine something for claim #{claim}"
+                puts "Could not determine something for opencycle #{opencycle}"
                 LucilleCore::pressEnterToContinue()
                 return
             end
             options = [
                 "access something",
-                "destroy claim"
+                "destroy opencycle"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
             if option == "access something" then
-                something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
+                something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
                 if something.nil? then
-                    puts "I could not find a something for his: #{claim}"
+                    puts "I could not find a something for his: #{opencycle}"
                     LucilleCore::pressEnterToContinue()
                     return
                 end
                 PrimaryNetwork::visitSomething(something)
             end
-            if option == "destroy claim" then
-                OpenCycles::destroy(claim)
+            if option == "destroy opencycle" then
+                NyxNetwork::destroy(opencycle["uuid"])
                 return
             end
         }
@@ -104,9 +85,9 @@ class OpenCycles
         loop {
             system("clear")
             puts "OpenCycles 🗃️"
-            claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("claim", OpenCycles::getOpenCyclesClaims(), lambda {|claim| OpenCycles::claimToString(claim) })
-            break if claim.nil?
-            OpenCycles::claimDive(claim)
+            opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", NyxNetwork::getObjects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
+            break if opencycle.nil?
+            OpenCycles::opencycleDive(opencycle)
         }
     end
 end

@@ -136,7 +136,7 @@ class NSXCatalystUI
         system("clear")
         loop {
             items = []
-            OpenCycles::getOpenCyclesClaims()
+            NyxNetwork::getObjects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
                 .each{|claim|
                     something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
                     next if something.nil?
@@ -360,7 +360,7 @@ class NSXCatalystUI
                             "creationTimestamp" => Time.new.to_f,
                             "entityuuid"        => target["uuid"]
                         }
-                        OpenCycles::saveClaim(claim)
+                        NyxNetwork::commitToDisk(claim)
                     end
                     if whereTo == "Global Navigation Network Node" then
                         NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
