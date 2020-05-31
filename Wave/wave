@@ -54,25 +54,25 @@ loop {
     break if option.nil?
     if option == "new wave" then
         line = LucilleCore::askQuestionAnswerAsString("line: ")
-        schedule = NSXWaveUtils::makeScheduleObjectInteractivelyOrNull()
+        schedule = Wave::makeScheduleObjectInteractivelyOrNull()
         next if schedule.nil?
-        WaveNextGen::issue(LucilleCore::timeStringL22(), line, schedule)
+        Wave::issue(LucilleCore::timeStringL22(), line, schedule)
     end
     if option == "waves dive" then
-        claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", WaveNextGen::claims(), lambda {|wave| wave["description"] })
+        claim = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Wave::claims(), lambda {|wave| wave["description"] })
         next if claim.nil?
         ops = ["edit description", "recast"]
         op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
         next if op.nil?
         if op == "edit description" then
             claim["description"] = CatalystCommon::editTextUsingTextmate(claim["description"])
-            WaveNextGen::save(claim)
+            Wave::save(claim)
         end
         if op == "recast" then
-            schedule = NSXWaveUtils::makeScheduleObjectInteractivelyOrNull()
+            schedule = Wave::makeScheduleObjectInteractivelyOrNull()
             next if schedule.nil?
             claim["schedule"] = schedule
-            WaveNextGen::save(claim)
+            Wave::save(claim)
         end
     end
 }

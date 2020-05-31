@@ -31,11 +31,6 @@ class NSXMiscUtils
         (Time.now+86400*n).utc.iso8601[0,10]
     end
 
-    # NSXMiscUtils::timeStringL22()
-    def self.timeStringL22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
     # NSXMiscUtils::screenHeight()
     def self.screenHeight()
         `/usr/bin/env tput lines`.to_i
