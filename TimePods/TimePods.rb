@@ -48,6 +48,7 @@ class TimePods
     def self.issue(passenger, engine)
         pod = {
             "uuid"      => SecureRandom.uuid,
+            "nyxType"   => "timepod-99a06996-dcad-49f5-a0ce-02365629e4fc",
             "creationUnixtime" => Time.new.to_f,
             "passenger" => passenger,
             "engine"    => engine
