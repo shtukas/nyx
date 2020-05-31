@@ -45,6 +45,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
+
 # -----------------------------------------------------------------------
 
 class Items
@@ -52,16 +54,15 @@ class Items
     # Items::issueNewItem(projectname, projectuuid, description, target)
     def self.issueNewItem(projectname, projectuuid, description, target)
         item = {
-            "catalystType"  => "todo-item-827b58bb",
-            "uuid"          => SecureRandom.uuid,
-            "creationtime"  => Time.new.to_f,
-            "referencetime" => Time.new.to_f,
-            "projectname"   => projectname,
-            "projectuuid"   => projectuuid,
-            "description"   => description,
-            "target"        => target
+            "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+            "uuid"             => SecureRandom.uuid,
+            "creationUnixtime" => Time.new.to_f,
+            "projectname"      => projectname,
+            "projectuuid"      => projectuuid,
+            "description"      => description,
+            "target"           => target
         }
-        Items::save(item)
+        NyxNetwork::commitToDisk(item)
         item
     end
 
@@ -83,16 +84,15 @@ class Items
     def self.issueNewItemInteractivelyX1(description, target)
         projectname, projectuuid = Items::selectProjectNameUuidPair()
         item = {
-            "catalystType"  => "todo-item-827b58bb",
-            "uuid"          => SecureRandom.uuid,
-            "creationtime"  => Time.new.to_f,
-            "referencetime" => Time.new.to_f,
-            "projectname"   => projectname,
-            "projectuuid"   => projectuuid,
-            "description"   => description,
-            "target"        => target
+            "nyxType"          => "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37",
+            "uuid"             => SecureRandom.uuid,
+            "creationUnixtime" => Time.new.to_f,
+            "projectname"      => projectname,
+            "projectuuid"      => projectuuid,
+            "description"      => description,
+            "target"           => target
         }
-        Items::save(item)
+        NyxNetwork::commitToDisk(item)
         item
     end
 
@@ -135,49 +135,19 @@ class Items
         Ping::put("ed4a67ee-c205-4ea4-a135-f10ea7782a7f", timespan)
     end
 
-    # Items::pathToRepository()
-    def self.pathToRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Todo/items2"
-    end
-
-    # Items::save(item)
-    def self.save(item)
-        filepath = "#{Items::pathToRepository()}/#{item["uuid"]}.json"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # Items::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = "#{Items::pathToRepository()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Items::destroy(itemuuid)
-    def self.destroy(itemuuid)
-        filepath = "#{Items::pathToRepository()}/#{itemuuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # Items::items()
-    def self.items()
-        Dir.entries(Items::pathToRepository())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{Items::pathToRepository()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
     # Items::projectNames()
     def self.projectNames()
-        Items::items().map{|item| item["projectname"] }.uniq.sort
+        NyxNetwork::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+            .map{|item| item["projectname"] }
+            .uniq
+            .sort
     end
 
     # Items::projectname2projectuuidOrNUll(projectname)
     def self.projectname2projectuuidOrNUll(projectname)
         projectuuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}")
         return projectuuid if !projectuuid.nil?
-        projectuuid = Items::items().select{|item| item["projectname"] == projectname }.first["projectuuid"]
+        projectuuid = NyxNetwork::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
         if !projectuuid.nil? then
             KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}", projectuuid)
         end
@@ -193,9 +163,9 @@ class Items
     def self.itemsForProjectName(projectname)
         projectuuid = Items::projectname2projectuuidOrNUll(projectname)
         return [] if projectuuid.nil?
-        Items::items()
+        NyxNetwork::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .select{|item| item["projectuuid"] == projectuuid }
-            .sort{|i1, i2| i1["referencetime"]<=>i2["referencetime"] }
+            .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
     end
 
     # Items::projectsTimeDistribution()
@@ -224,7 +194,7 @@ class Items
         end
         item["projectname"] = projectname
         item["projectuuid"] = projectuuid
-        Items::save(item)
+        NyxNetwork::commitToDisk(item)
     end
 
     # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
@@ -280,24 +250,24 @@ class Items
                 A10495::openTarget(item["target"])
             end
             if option == "done" then
-                Items::destroy(item["uuid"])
+                NyxNetwork::destroy(item["uuid"])
                 return
             end
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-                Items::save(item)
+                NyxNetwork::commitToDisk(item)
             end
             if option == "recast" then
                 Items::recast(item)
             end
             if option == "push" then
-                item["referencetime"] = Time.new.to_f
-                Items::save(item)
+                item["creationUnixtime"] = Time.new.to_f
+                NyxNetwork::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
                 status = Items::promote(item)
                 next if !status
-                Items::destroy(item["uuid"])
+                NyxNetwork::destroy(item["uuid"])
                 return
             end
         }

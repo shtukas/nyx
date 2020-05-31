@@ -1,13 +1,12 @@
 
 Item {
-    "catalystType"  : "todo-item-827b58bb"
-    "uuid"          : String
-    "creationtime"  : Float
-    "referencetime" : Float
-    "projectname"   : String
-    "projectuuid"   : String
-    "description"   : null | String
-    "target"        : A10495
+    "nyxType"          : "todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37"
+    "creationUnixtime" : Float # Unixtime with decimals
+    "uuid"             : String
+    "projectname"      : String
+    "projectuuid"      : String
+    "description"      : null | String
+    "target"           : A10495
 }
 
 Special Circumstances ProjectUUIDs
