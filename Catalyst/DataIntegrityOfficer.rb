@@ -77,6 +77,16 @@ class DataIntegrityOfficer
                     return
                 end
 
+                if clique["tags"].include?("Guardian Digital") then
+                    node = GlobalNavigationNetworkNodes::getOrNull("469556a9-6458-43a4-90a8-75a985466124") # Digital
+                    if node.nil? then
+                        puts "error: a6301551"
+                        exit
+                    end
+                    GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, clique)
+                    return
+                end
+
                 puts "First I am going to show it to you and then you will add it to a node"
 
                 Cliques::cliqueDive(clique)

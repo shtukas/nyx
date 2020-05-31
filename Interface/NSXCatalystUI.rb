@@ -276,12 +276,63 @@ class NSXCatalystUI
         }
     end
 
-    # NSXCatalystUI::performMakersDisplay()
-    def self.performMakersDisplay()
+    # NSXCatalystUI::performLastestCliquesDisplay()
+    def self.performLastestCliquesDisplay()
         loop {
             system("clear")
-
             items = []
+            Cliques::cliques()
+                .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
+                .last(NSXMiscUtils::screenHeight()-3)
+                .each{|item|
+                    items << [
+                        PrimaryNetwork::somethingToString(item),
+                        lambda { PrimaryNetwork::openSomething(item) }
+                    ]
+                }
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay()
+    def self.performLatestGlobalNavigationNetworkNodesDisplay()
+        loop {
+            system("clear")
+            items = []
+            GlobalNavigationNetworkNodes::nodes()
+                .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
+                .last(NSXMiscUtils::screenHeight()-3)
+                .each{|item|
+                    items << [
+                        PrimaryNetwork::somethingToString(item),
+                        lambda { PrimaryNetwork::openSomething(item) }
+                    ]
+                }
+            status = LucilleCore::menuItemsWithLambdas(items)
+            break if !status
+        }
+    end
+
+    # NSXCatalystUI::operations()
+    def self.operations()
+        loop {
+            system("clear")
+            items = []
+
+            items << [
+                "General Navigation", 
+                lambda { NSXCatalystUI::performGeneralNavigationDisplay() }
+            ]
+            items << [
+                "Latest Global Navigation Network Nodes", 
+                lambda { NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay() }
+            ]
+            items << [
+                "Latest Cliques", 
+                lambda { NSXCatalystUI::performLastestCliquesDisplay() }
+            ]
+            items << nil
 
             items << [
                 "A10495 (new) -> { Todo, OpenCycle, Global Navigation Network Node (existing or new) }", 
@@ -346,8 +397,6 @@ class NSXCatalystUI
                 lambda { NSXMiscUtils::startLightNodeExistingOrNewThenBuildAroundThenReturnNode() }
             ]
 
-            items <<  nil
-
             items << [
                 "timepod (new)", 
                 lambda { 
@@ -372,65 +421,71 @@ class NSXCatalystUI
                 "TimePods", 
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
             ]
-
             items << [
                 "Todo", 
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
             ]
-
             items << [
                 "OpenCycles", 
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
             ]
-
             items << [
                 "Calendar", 
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
             ]
-
             items << [
                 "Wave", 
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
             ]
 
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
+            items << nil
 
-    # NSXCatalystUI::performLastestCliquesDisplay()
-    def self.performLastestCliquesDisplay()
-        loop {
-            system("clear")
-            items = []
-            Cliques::cliques()
-                .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
-                .last(NSXMiscUtils::screenHeight()-3)
-                .each{|item|
-                    items << [
-                        PrimaryNetwork::somethingToString(item),
-                        lambda { PrimaryNetwork::openSomething(item) }
-                    ]
-                }
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
+            items << [
+                "Management", 
+                lambda { NSXCatalystUI::performManagementDisplay() }
+            ]
+            items << [
+                "Applications", 
+                lambda { NSXCatalystUI::performAppsDisplay() }
+            ]
 
-    # NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay()
-    def self.performLatestGlobalNavigationNetworkNodesDisplay()
-        loop {
-            system("clear")
-            items = []
-            GlobalNavigationNetworkNodes::nodes()
-                .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
-                .last(NSXMiscUtils::screenHeight()-3)
-                .each{|item|
-                    items << [
-                        PrimaryNetwork::somethingToString(item),
-                        lambda { PrimaryNetwork::openSomething(item) }
-                    ]
+            items << nil
+
+            items << [
+                "Applications generation speed", 
+                lambda { 
+                    puts "Applications generation speed report"
+                    NSXCatalystObjectsCommon::applicationNames()
+                        .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
+                        .map{|source|
+                            t1 = Time.new.to_f
+                            JSON.parse(`#{source}`)
+                            t2 = Time.new.to_f
+                            {
+                                "source" => source,
+                                "timespan" => t2-t1 
+                            }
+                        }
+                        .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
+                        .reverse
+                        .each{|object|
+                            puts "    - #{object["source"]}: #{"%.3f" % object["timespan"]}"
+                        }
+                    LucilleCore::pressEnterToContinue()
                 }
+            ]
+            items << [
+                "UI generation speed", 
+                lambda { 
+                    t1 = Time.new.to_f
+                    NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
+                        .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
+                    t2 = Time.new.to_f
+                    puts "UI generation speed: #{(t2-t1).round(3)} seconds"
+                    LucilleCore::pressEnterToContinue()
+                }
+            ]
+
             status = LucilleCore::menuItemsWithLambdas(items)
             break if !status
         }
@@ -487,83 +542,8 @@ class NSXCatalystUI
         end
 
         if command == "/" then
-            loop {
-                system("clear")
-                items = []
-
-                items << [
-                    "OpenCycles", 
-                    lambda { NSXCatalystUI::performOpenCyclesDisplay() }
-                ]
-                items << [
-                    "Latest Global Navigation Network Nodes", 
-                    lambda { NSXCatalystUI::performLatestGlobalNavigationNetworkNodesDisplay() }
-                ]
-                items << [
-                    "Latest Cliques", 
-                    lambda { NSXCatalystUI::performLastestCliquesDisplay() }
-                ]
-                items << [
-                    "General Navigation", 
-                    lambda { NSXCatalystUI::performGeneralNavigationDisplay() }
-                ]
-
-                items << [
-                    "Makers", 
-                    lambda { NSXCatalystUI::performMakersDisplay() }
-                ]
-
-                items << [
-                    "Management", 
-                    lambda { NSXCatalystUI::performManagementDisplay() }
-                ]
-
-                items << [
-                    "Applications", 
-                    lambda { NSXCatalystUI::performAppsDisplay() }
-                ]
-
-                items << nil
-
-                items << [
-                    "Applications generation speed", 
-                    lambda { 
-                        puts "Applications generation speed report"
-                        NSXCatalystObjectsCommon::applicationNames()
-                            .map{|appname| "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" }
-                            .map{|source|
-                                t1 = Time.new.to_f
-                                JSON.parse(`#{source}`)
-                                t2 = Time.new.to_f
-                                {
-                                    "source" => source,
-                                    "timespan" => t2-t1 
-                                }
-                            }
-                            .sort{|o1, o2| o1["timespan"]<=>o2["timespan"] }
-                            .reverse
-                            .each{|object|
-                                puts "    - #{object["source"]}: #{"%.3f" % object["timespan"]}"
-                            }
-                        LucilleCore::pressEnterToContinue()
-                    }
-                ]
-
-                items << [
-                    "UI generation speed", 
-                    lambda { 
-                        t1 = Time.new.to_f
-                        NSXCatalystObjectsOperator::getCatalystListingObjectsOrdered()
-                            .each{|object| NSXDisplayUtils::objectDisplayStringForCatalystListing(object, true, 1) } # All in focus at position 1
-                        t2 = Time.new.to_f
-                        puts "UI generation speed: #{(t2-t1).round(3)} seconds"
-                        LucilleCore::pressEnterToContinue()
-                    }
-                ]
-
-                status = LucilleCore::menuItemsWithLambdas(items)
-                break if !status
-            }
+            NSXCatalystUI::operations()
+            return
         end
 
         NSXGeneralCommandHandler::processCatalystCommandManager(displayObjects[0], command)
