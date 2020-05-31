@@ -31,18 +31,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
+
 class TimePods
-
-    # TimePods::pathToPodsRepository()
-    def self.pathToPodsRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/TimePods/pods"
-    end
-
-    # TimePods::save(item)
-    def self.save(item)
-        filepath = "#{TimePods::pathToPodsRepository()}/#{item["uuid"]}.json"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
-    end
 
     # TimePods::issue(passenger, engine)
     def self.issue(passenger, engine)
@@ -53,31 +44,8 @@ class TimePods
             "passenger" => passenger,
             "engine"    => engine
         }
-        TimePods::save(pod)
+        NyxNetwork::commitToDisk(pod)
         pod
-    end
-
-    # TimePods::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = "#{TimePods::pathToPodsRepository()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # TimePods::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = "#{TimePods::pathToPodsRepository()}/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # TimePods::getTimePods()
-    def self.getTimePods()
-        Dir.entries(TimePods::pathToPodsRepository())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{TimePods::pathToPodsRepository()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     end
 
     # TimePods::liveTime(pod)
@@ -251,7 +219,7 @@ class TimePods
 
     # TimePods::startPod(uuid)
     def self.startPod(uuid)
-        pod = TimePods::getOrNull(uuid)
+        pod = NyxNetwork::getOrNull(uuid)
         return if pod.nil?
 
         Runner::start(uuid)

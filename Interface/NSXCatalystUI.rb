@@ -412,7 +412,7 @@ class NSXCatalystUI
                         "engine"           => engine
                     }
                     puts JSON.pretty_generate(timepod)
-                    TimePods::save(timepod)
+                    NyxNetwork::commitToDisk(timepod)
                 }
             ]
 

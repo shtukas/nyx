@@ -75,7 +75,7 @@ end
 if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    pod = TimePods::getOrNull(uuid)
+    pod = NyxNetwork::getOrNull(uuid)
     exit if pod.nil?
 
     stop(uuid)
@@ -84,9 +84,9 @@ end
 if ARGV[0] == "destroy" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    pod = TimePods::getOrNull(uuid)
+    pod = NyxNetwork::getOrNull(uuid)
     exit if pod.nil?
 
     stop(uuid)
-    TimePods::destroy(uuid)
+    NyxNetwork::destroy(uuid)
 end
