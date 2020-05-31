@@ -139,7 +139,7 @@ class TimePods
     def self.toStringPassengerFragment(pod)
         passenger = pod["passenger"]
         if passenger["type"] == "description" then
-            return "[timepod]"
+            return "[timepod] #{passenger["description"]}"
         end
         if passenger["type"] == "todo-item" then
             return "[timepod] #{KeyValueStore::getOrDefaultValue(nil, "11e20bd2-ee24-48f3-83bb-485ff9396800:#{passenger["uuid"]}", "[todo item]")}"
@@ -204,6 +204,7 @@ class TimePods
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("passenger type", options)
         return nil if option.nil?
         if option == "description" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             return {
                 "type"        => "description",
                 "description" => description
@@ -215,12 +216,13 @@ class TimePods
     # TimePods::makeEngineInteractivelyOrNull()
     def self.makeEngineInteractivelyOrNull()
         options = [
-            "time-commitment-on-curve",
-            "on-going-project"
+            "time commitment with deadline",
+            "bank managed until completion",
+            "on-going time commitment without deadline"
         ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("engine", options)
         return nil if option.nil?
-        if option == "time-commitment-on-curve" then
+        if option == "time commitment with deadline" then
             periodInDays = LucilleCore::askQuestionAnswerAsString("timespan to deadline in days: ").to_f
             timeCommitmentInHours = LucilleCore::askQuestionAnswerAsString("time commitment in hours: ").to_f
             return {
@@ -230,15 +232,19 @@ class TimePods
                 "timeCommitmentInHours" => timeCommitmentInHours
             }
         end
-        if option == "on-going-project" then
+        if option == "on-going time commitment without deadline" then
             timeCommitmentInHoursPerWeek = LucilleCore::askQuestionAnswerAsString("time commitment in hours per week: ").to_f
-            return     {
+            return {
                 "type"                         => "on-going-project",
                 "referencetUnixtime"           => Time.new.to_i,
                 "timeCommitmentInHoursPerWeek" => timeCommitmentInHoursPerWeek
             }
         end
-
+        if option == "bank managed until completion" then
+            return {
+                "type" => "bank-account"
+            }
+        end
         nil
     end
 

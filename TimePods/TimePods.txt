@@ -31,8 +31,7 @@ TimePodEngine
         "timeCommitmentInHoursPerWeek" : Float
     }
     {
-        "type" : "bank-account" # automatically created when a 
-                                # todo item gets more than one hour in the bank
+        "type" : "bank-account"
     }
     {
         "type" : "bank-account-special-circumstances" 
