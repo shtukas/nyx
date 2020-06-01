@@ -41,7 +41,7 @@ class StarlightNodes
 
     # StarlightNodes::nodeToString(node)
     def self.nodeToString(node)
-        "[node] #{node["name"]} (#{node["uuid"][0, 4]})"
+        "[starlight node] #{node["name"]} (#{node["uuid"][0, 4]})"
     end
 end
 
@@ -187,7 +187,7 @@ class StarlightUserInterface
 
             StarlightContents::getNodeEntities(node)
                 .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
-                .each{|entity| items << ["[entity] #{PrimaryNetwork::entityToString(entity)}", lambda{ PrimaryNetworkNavigation::visit(entity) }] }
+                .each{|entity| items << ["[node content] #{PrimaryNetwork::entityToString(entity)}", lambda{ PrimaryNetworkNavigation::visit(entity) }] }
 
             StarlightPaths::getChildren(node)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }

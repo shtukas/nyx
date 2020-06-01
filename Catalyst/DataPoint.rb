@@ -203,22 +203,22 @@ class DataPoint
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
-        if type == "line" then
+        if type == "[data point] line" then
             return DataPoint::issueDataPointLineInteractively()
         end
-        if type == "url" then
+        if type == "[data point] url" then
             return DataPoint::issueDataPointUrlInteractively()
         end
-        if type == "file" then
+        if type == "[data point] file" then
             return DataPoint::issueDataPointFileInteractivelyOrNull()
         end
-        if type == "folder" then
+        if type == "[data point] folder" then
             return DataPoint::issueDataPointFolderInteractivelyOrNull()
         end
-        if type == "unique-name" then
+        if type == "[data point] unique-name" then
             return DataPoint::issueDataPointUniqueNameInteractively()
         end
-        if type == "directory-mark" then
+        if type == "[data point] directory-mark" then
             return DataPoint::issueDataPointDirectoryMarkInteractively()
         end
     end

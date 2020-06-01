@@ -121,7 +121,7 @@ Nyx::objects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
                 "type" => "line",
                 "line" => TimePods::toString(pod)
             },
-            "metric"         => isRunning ? 0.999 : TimePods::metric(pod), # 0.999 because it may have started something else
+            "metric"         => TimePods::metric(pod), # 0.999 because it may have started something else
             "commands"       => ["start", "stop", "destroy"],
             "defaultCommand" => defaultCommand.call(isRunning),
             "isRunning"      => isRunning,

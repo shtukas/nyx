@@ -298,7 +298,7 @@ class Cliques
 
             StarlightContents::getNodesForEntity(clique)
                 .sort{|n1, n2| n1["name"] <=> n2["name"] }
-                .each{|node| items << ["[node] #{StarlightNodes::nodeToString(node)}", lambda{ StarlightUserInterface::nodeDive(node) }] }
+                .each{|node| items << ["[starlight node] #{StarlightNodes::nodeToString(node)}", lambda{ StarlightUserInterface::nodeDive(node) }] }
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
             break if !status

@@ -197,7 +197,7 @@ class Items
         Nyx::commitToDisk(item)
     end
 
-    # Items::updateProjectOnNyxNetwork(item) # Boolean # Indicates whether a promotion was acheived
+    # Items::recastOnNyxNetwork(item) # Boolean # Indicates whether a promotion was acheived
     def self.recastOnNyxNetwork(item) # Boolean # Indicates whether a promotion was acheived
         newowner = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
         return false if newowner.nil?
@@ -265,7 +265,7 @@ class Items
                 Nyx::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
-                status = Items::updateProjectOnNyxNetwork(item)
+                status = Items::recastOnNyxNetwork(item)
                 next if !status
                 Nyx::destroy(item["uuid"])
                 return

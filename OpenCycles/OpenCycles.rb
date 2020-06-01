@@ -80,14 +80,31 @@ class OpenCycles
         }
     end
 
-    # OpenCycles::management()
-    def self.management()
+    # OpenCycles::main()
+    def self.main()
         loop {
             system("clear")
             puts "OpenCycles 🗃️"
-            opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
-            break if opencycle.nil?
-            OpenCycles::opencycleDive(opencycle)
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", ["dive collection", "make new opencycle"])
+            return if operation.nil?
+            if operation == "dive collection" then
+                loop {
+                    opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
+                    break if opencycle.nil?
+                    OpenCycles::opencycleDive(opencycle)
+                }
+            end
+            if operation == "make new opencycle" then
+                entity = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
+                opencycle = {
+                    "uuid"             => SecureRandom.uuid,
+                    "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
+                    "creationUnixtime" => Time.new.to_f,
+                    "entityuuid"       => entity["uuid"],
+                }
+                puts JSON.pretty_generate(opencycle)
+                Nyx::commitToDisk(opencycle)
+            end
         }
     end
 end

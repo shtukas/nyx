@@ -47,11 +47,26 @@ class NSXCatalystUI
             items = []
 
             Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .each{|opencycle|
-                    entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
                     items << [
                         OpenCycles::opencycleToString(opencycle).yellow, 
-                        lambda { PrimaryNetwork::visitSomething(entity) }
+                        lambda {
+                            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
+                            return if operation.nil?
+                            if operation == "visit target" then
+                                entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                                if entity.nil? then
+                                    puts "I could not find a target for this open cycle"
+                                    LucilleCore::pressEnterToContinue()
+                                    return
+                                end
+                                PrimaryNetwork::visitSomething(entity)
+                            end
+                            if operation == "destroy open cycle" then
+                                Nyx::destroy(opencycle["uuid"])
+                            end
+                        }
                     ]
                 }
 
@@ -324,6 +339,46 @@ class NSXCatalystUI
         position = 0
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         executors = []
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+        Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+            .each{|opencycle|
+                puts "[ #{"%2d" % position}] #{OpenCycles::opencycleToString(opencycle).yellow}"
+                executors[position] = lambda { 
+                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["visit target", "destroy open cycle"])
+                    return if operation.nil?
+                    if operation == "visit target" then
+                        entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                        if entity.nil? then
+                            puts "I could not find a target for this open cycle"
+                            LucilleCore::pressEnterToContinue()
+                            return
+                        end
+                        PrimaryNetwork::visitSomething(entity)
+                    end
+                    if operation == "destroy open cycle" then
+                        Nyx::destroy(opencycle["uuid"])
+                    end
+                }
+                position = position + 1
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            }
+
+        puts ""
+        verticalSpaceLeft = verticalSpaceLeft - 1
+        Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+            .last(5)
+            .each{|item|
+                puts "[ #{"%2d" % position}] #{PrimaryNetwork::entityToString(item).yellow}"
+                executors[position] = lambda { 
+                    PrimaryNetwork::openSomething(item)
+                }
+                position = position + 1
+                verticalSpaceLeft = verticalSpaceLeft - 1
+            }
 
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then

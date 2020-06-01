@@ -144,9 +144,6 @@ class Wave
 
     # Wave::scheduleToMetric(schedule)
     def self.scheduleToMetric(schedule)
-
-        # One Offs
-
         if schedule['@'] == 'sticky' then # shows up once a day
             # Backward compatibility
             if schedule['from-hour'].nil? then
@@ -154,13 +151,9 @@ class Wave
             end
             return Time.new.hour >= schedule['from-hour'] ? ( 0.82 + Wave::traceToMetricShift(schedule["uuid"]) ) : 0
         end
-
-        # Repeats
-
         if schedule['@'] == 'every-this-day-of-the-month' then
             return 0.80 + Wave::traceToMetricShift(schedule["uuid"])
         end
-
         if schedule['@'] == 'every-this-day-of-the-week' then
             return 0.80 + Wave::traceToMetricShift(schedule["uuid"])
         end

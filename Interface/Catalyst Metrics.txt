@@ -8,7 +8,7 @@
 📬
         0.85          Project "Inbox"
 
-        0.83          LucileTxt0
+        0.83          LucileTxt [top]
 
 💫
         0.82+         Wave sticky
@@ -22,5 +22,7 @@
 👩‍💻 🛩
         0.66  -> 0.26 Todo
         0.50          Backups Monitor
+
+        0.40          LucileTxt [bottom] # for the moment
 
         0.20 -------- Water level ------------------------------

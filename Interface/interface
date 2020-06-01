@@ -70,6 +70,11 @@ STARTING_CODE_HASH = NSXEstateServices::locationHashRecursively(CATALYST_CODE_FO
 
 # -------------------------------------------------------------------------
 
+if ARGV[0] and ARGV[0] == "data" then
+    NSXCatalystUI::operations()
+    exit
+end
+
 NSXEstateServices::binT1mel1neGarbageCollectionEnvelop(true)
 
 Thread.new {
@@ -111,8 +116,6 @@ Thread.new {
         NSXCatalystObjectsOperator::cacheUpdate()
     }
 }
-
-DataIntegrityOfficer::startSurvey()
 
 NSXCatalystUI::standardUILoop()
 
