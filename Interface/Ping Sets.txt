@@ -1,5 +1,0 @@
-
-DC9DF253-01B5-4EF8-88B1-CA0250096471 : Measured times (all)
-        TimePods
-        Todo items
-        Wave

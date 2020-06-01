@@ -503,10 +503,6 @@ class NSXCatalystUI
         verticalSpaceLeft = NSXMiscUtils::screenHeight()-3
         executors = []
 
-        puts ""
-        puts "Diligence (24h): #{(100*Ping::totalOverTimespan("DC9DF253-01B5-4EF8-88B1-CA0250096471", 86400).to_f/86400).round(2)}%".green
-        verticalSpaceLeft = verticalSpaceLeft - 2
-
         calendarreport = `/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar-report`.strip
         if calendarreport.size > 0 and (calendarreport.lines.to_a.size + 2) < verticalSpaceLeft then
             puts ""

@@ -58,9 +58,6 @@ def stop(uuid, item)
     return if timespan.nil?
     timespan = [timespan, 3600*2].min # To avoid problems after leaving things running
     Items::itemReceivesRunTimespan(item, timespan, true)
-
-    puts "Ping: putting #{timespan.round(2)} secs into catalyst measured times"
-    Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
 end
 
 if ARGV[0] == "start" and ARGV[1] then

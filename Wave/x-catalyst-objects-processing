@@ -52,16 +52,11 @@ end
 if ARGV[0] == 'start' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    time1 = Time.new.to_f
     obj = Nyx::getOrNull(uuid)
     exit if obj.nil?
     openItem(obj)
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
         Wave::performDone2(obj)
-        timespan = Time.new.to_f - time1
-        timespan = [timespan, 1200].min # (20 mins) To avoid problems after leaving things running
-        puts "putting #{timespan.round(2)} seconds into catalyst measured times"
-        Ping::put("DC9DF253-01B5-4EF8-88B1-CA0250096471", timespan)
     end
     exit
 end
