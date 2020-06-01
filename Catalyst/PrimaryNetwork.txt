@@ -1,7 +1,7 @@
 A Primary Network Element is any of:
      1. A10495                         ( "catalyst-type:10014e93" )
      2. Clique                         ( "catalyst-type:clique" )
-     3. Global Navigation Network Node ( "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" )
+     3. Starlight Node ( "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" )
 
 But note that 
     PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()

@@ -47,44 +47,17 @@ end
 
 class StarlightPaths
 
-    # StarlightPaths::path()
-    def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Global-Navigation-Network/paths"
-    end
-
-    # StarlightPaths::save(path)
-    def self.save(path)
-        filepath = "#{StarlightPaths::path()}/#{path["uuid"]}.json"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(path)) }
-    end
-
-    # StarlightPaths::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = "#{StarlightPaths::path()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # StarlightPaths::paths()
-    def self.paths()
-        Dir.entries(StarlightPaths::path())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{StarlightPaths::path()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
-    end
-
     # StarlightPaths::issuePathInteractivelyOrNull()
     def self.issuePathInteractivelyOrNull()
         path = {
-            "catalystType"      => "catalyst-type:starlight-path",
+            "nyxType"           => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
 
             "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
             "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
-        StarlightPaths::save(path)
+        NyxNetwork::commitToDisk(path)
         path
     end
 
@@ -92,25 +65,25 @@ class StarlightPaths
     def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
         return nil if node1["uuid"] == node2["uuid"]
         path = {
-            "catalystType"      => "catalyst-type:starlight-path",
+            "nyxType"           => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
             "creationTimestamp" => Time.new.to_f,
             "uuid"              => SecureRandom.uuid,
             "sourceuuid" => node1["uuid"],
             "targetuuid" => node2["uuid"]
         }
-        StarlightPaths::save(path)
+        NyxNetwork::commitToDisk(path)
         path
     end
 
     # StarlightPaths::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        StarlightPaths::paths()
+        NyxNetwork::getObjects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
     # StarlightPaths::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        StarlightPaths::paths()
+        NyxNetwork::getObjects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 
@@ -239,14 +212,14 @@ class StarlightUserInterface
                 node0 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node0, node)
                 puts JSON.pretty_generate(path)
-                StarlightPaths::save(path)
+                NyxNetwork::commitToDisk(path)
             }]
 
             items << ["add child node", lambda{ 
                 node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, node2)
                 puts JSON.pretty_generate(path)
-                StarlightPaths::save(path)
+                NyxNetwork::commitToDisk(path)
             }]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
@@ -296,7 +269,7 @@ class StarlightUserInterface
                 next if node2.nil?
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
-                StarlightPaths::save(path)
+                NyxNetwork::commitToDisk(path)
             end
         }
     end

@@ -20,15 +20,6 @@ The navigation network is a semantic network of nodes and the paths between them
 
 ```
 
-Stargate {
-    "uuid"              : String
-    "catalystType"      : "catalyst-type:starlight-path"
-    "creationTimestamp" : Float # Unixtime with decimals
-
-    "sourceuuid"        : String # uuid of a Global Navigation Network Node
-    "targetuuid"        : String # uuid of a Global Navigation Network Node
-}
-
 StarlightContentsClaim {
     "uuid"              : String
     "catalystType"      : "catalyst-type:time-ownership-claim"

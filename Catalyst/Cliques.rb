@@ -310,7 +310,7 @@ class Cliques
                     Cliques::save(clique)
                 }]
             items << [
-                "add to Global Navigation Network Node", 
+                "add to Starlight Node", 
                 lambda{
                     node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                     next if node.nil?

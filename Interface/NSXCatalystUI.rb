@@ -325,7 +325,7 @@ class NSXCatalystUI
                 lambda { NSXCatalystUI::performGeneralNavigationDisplay() }
             ]
             items << [
-                "Latest Global Navigation Network Nodes", 
+                "Latest Starlight Nodes", 
                 lambda { NSXCatalystUI::performLatestStarlightNodesDisplay() }
             ]
             items << [
@@ -335,11 +335,11 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "A10495 (new) -> { Todo, OpenCycle, Global Navigation Network Node (existing or new) }", 
+                "A10495 (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
                     target = A10495::issueNewTargetInteractivelyOrNull()
                     return if target.nil?
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Global Navigation Network Node"])
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Starlight Node"])
                     return if whereTo.nil?
                     if whereTo == "Todo" then
                         projectname = Items::selectProjectNameInteractivelyOrNull()
@@ -362,19 +362,19 @@ class NSXCatalystUI
                         }
                         NyxNetwork::commitToDisk(claim)
                     end
-                    if whereTo == "Global Navigation Network Node" then
+                    if whereTo == "Starlight Node" then
                         NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
                     end
                 }
             ]
 
             items << [
-                "clique (new) -> { OpenCycle, Global Navigation Network Node (existing or new) }", 
+                "clique (new) -> { OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
                     clique = Cliques::issueCliqueInteractivelyOrNull(false)
                     return if clique.nil?
 
-                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Global Navigation Network Node"])
+                    whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
                     return if whereTo.nil?
                     if whereTo == "OpenCycle" then
                         claim = {
@@ -384,7 +384,7 @@ class NSXCatalystUI
                         }
                         File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
                     end
-                    if whereTo == "Global Navigation Network Node" then
+                    if whereTo == "Starlight Node" then
                         node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                         return if node.nil?
                         StarlightContents::issueClaimGivenNodeAndEntity(node, clique)

@@ -36,7 +36,7 @@ class DataIntegrityOfficer
             .each{|node|
                 next if node["uuid"] == "3b5b7dbe-442b-4b5b-b681-f61ab598fd63" # root node
                 next if !StarlightPaths::getParents(node).empty?
-                puts "[DataIntegrityOfficer] Global Navigation Network Node '#{node["name"]}' doesn't have a parent, please make and/or select one".green
+                puts "[DataIntegrityOfficer] Starlight Node '#{node["name"]}' doesn't have a parent, please make and/or select one".green
                 puts JSON.pretty_generate(node)
                 parent = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 next if parent.nil?
@@ -55,7 +55,7 @@ class DataIntegrityOfficer
                 next if !StarlightContents::getNodesForEntity(clique).empty?
 
                 system("clear")
-                puts "[DataIntegrityOfficer] Clique '#{clique["description"]}' doesn't have a Global Navigation Network parent, please make and/or select one".green
+                puts "[DataIntegrityOfficer] Clique '#{clique["description"]}' doesn't have a Starlight parent, please make and/or select one".green
 
                 if clique["tags"].include?("Pascal Address Book Archives") then
                     node = NyxNetwork::getOrNull("2ec5eda3-7d52-4b5f-8622-df3494280fd9") # Pascal Address Book Archives
