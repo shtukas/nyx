@@ -17,7 +17,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
@@ -27,7 +27,7 @@ class PrimaryNetwork
 
     # PrimaryNetwork::getSomethingByUuidOrNull(uuid)
     def self.getSomethingByUuidOrNull(uuid)
-        target = A10495::getOrNull(uuid)
+        target = NyxObjects::getOrNull(uuid)
         return target if target
         clique = NyxObjects::getOrNull(uuid)
         return clique if clique
@@ -38,8 +38,8 @@ class PrimaryNetwork
 
     # PrimaryNetwork::somethingToString(something)
     def self.somethingToString(something)
-        if something["catalystType"] == "catalyst-type:10014e93" then
-            return A10495::targetToString(something)
+        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            return DataPoint::dataPointToString(something)
         end
         if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cliques::cliqueToString(something)
@@ -53,9 +53,9 @@ class PrimaryNetwork
     # PrimaryNetwork::openSomething(something)
     # open means bypass the menu and metadata and give me access to the data as quickly as possible
     def self.openSomething(something)
-        if something["catalystType"] == "catalyst-type:10014e93" then
+        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             target = something
-            A10495::openTarget(target)
+            DataPoint::openDataPoint(target)
             return
         end
         if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
@@ -73,8 +73,8 @@ class PrimaryNetwork
 
     # PrimaryNetwork::visitSomething(something)
     def self.visitSomething(something)
-        if something["catalystType"] == "catalyst-type:10014e93" then
-            A10495::visitTarget(something)
+        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
+            DataPoint::diveDataPoint(something)
             return
         end
         if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
@@ -111,9 +111,9 @@ class PrimaryNetworkNavigation
 
     # PrimaryNetworkNavigation::visit(something)
     def self.visit(something)
-        if something["catalystType"] == "catalyst-type:10014e93" then
+        if something["nyxType"] == "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" then
             target = something
-            return A10495::visitTarget(target)
+            return DataPoint::diveDataPoint(target)
         end
         if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = something

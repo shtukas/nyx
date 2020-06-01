@@ -19,7 +19,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
@@ -282,7 +282,7 @@ class NSXCatalystUI
             system("clear")
             items = []
             NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
-                .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
+                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
                     items << [
@@ -335,9 +335,9 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "A10495 (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
+                "DataPoint (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
-                    target = A10495::issueNewTargetInteractivelyOrNull()
+                    target = DataPoint::issueNewDataPointInteractivelyOrNull()
                     return if target.nil?
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["Todo", "OpenCycle", "Starlight Node"])
                     return if whereTo.nil?
@@ -357,7 +357,7 @@ class NSXCatalystUI
                     if whereTo == "OpenCycle" then
                         claim = {
                             "uuid"              => SecureRandom.uuid,
-                            "creationTimestamp" => Time.new.to_f,
+                            "creationUnixtime" => Time.new.to_f,
                             "entityuuid"        => target["uuid"]
                         }
                         NyxObjects::commitToDisk(claim)
@@ -377,12 +377,12 @@ class NSXCatalystUI
                     whereTo = LucilleCore::selectEntityFromListOfEntitiesOrNull("whereTo?", ["OpenCycle", "Starlight Node"])
                     return if whereTo.nil?
                     if whereTo == "OpenCycle" then
-                        claim = {
+                        object = {
                             "uuid"              => SecureRandom.uuid,
-                            "creationTimestamp" => Time.new.to_f,
+                            "creationUnixtime" => Time.new.to_f,
                             "entityuuid"        => clique["uuid"]
                         }
-                        File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+                        NyxObjects::commitToDisk(object)
                     end
                     if whereTo == "Starlight Node" then
                         node = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()

@@ -1,5 +1,5 @@
 A Primary Network Element is any of:
-     1. A10495         ( "catalyst-type:10014e93" )
+     1. DataPoint      ( "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2" )
      2. Clique         ( "clique-933c2260-92d1-4578-9aaf-cd6557c664c6" )
      3. Starlight Node ( "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" )
 
@@ -8,6 +8,6 @@ But note that
 only select a node or a clique
 
 All Primary Network Elements carry
-    "catalystType"      : String
-    "creationTimestamp" : Float # Unixtime with decimals
+    "nyxType"           : String
+    "creationUnixtime" : Float # Unixtime with decimals
     "uuid"              : String

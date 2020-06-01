@@ -81,7 +81,7 @@ TodoItem {
     "projectname"      : String
     "projectuuid"      : String
     "description"      : null | String
-    "target"           : A10495
+    "target"           : DataPoint
 }
 
 ------------------------------------------------------
@@ -117,7 +117,7 @@ StarlightContentClaim {
     "creationUnixtime" : Float # Unixtime with decimals
 
     "nodeuuid"         : String
-    "targetuuid"       : String # Clique uuid or a A10495 uuid
+    "targetuuid"       : String # Clique uuid or a DataPoint uuid
 }
 
 ------------------------------------------------------
@@ -127,7 +127,7 @@ Clique {
     creationUnixtime : Float # Unixtime with decimals
 
     description       : String
-    targets           : Array[A10495]
+    targets           : Array[DataPoint]
     tags              : Array[String]
 }
 

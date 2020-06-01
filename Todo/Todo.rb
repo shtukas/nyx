@@ -98,12 +98,12 @@ class Items
 
     # Items::itemBestDescription(item)
     def self.itemBestDescription(item)
-        item["description"] || A10495::targetToString(item["target"])
+        item["description"] || DataPoint::dataPointToString(item["target"])
     end
 
     # Items::openItem(item)
     def self.openItem(item)
-        A10495::openTarget(item["target"])
+        DataPoint::openDataPoint(item["target"])
     end
 
     # Items::itemToString(item)
@@ -247,7 +247,7 @@ class Items
                 Runner::stop(item["uuid"])
             end
             if option == "open" then
-                A10495::openTarget(item["target"])
+                DataPoint::openDataPoint(item["target"])
             end
             if option == "done" then
                 NyxObjects::destroy(item["uuid"])

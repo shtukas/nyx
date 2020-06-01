@@ -2,15 +2,15 @@
 
 Starlight is the nickname of Catalyst's global navigation network.
 
-### CoreData, A10495s and Cliques
+### CoreData, DataPoints and Cliques
 
 The data hierarchy of Catalyst goes as follows:
 
-At the bottom we have files and folders, they are managed through a simple interface by **CoreData**, which is integrated in **A10495**s.
+At the bottom we have files and folders, they are managed through a simple interface by **CoreData**, which is integrated in **DataPoint**s.
 
-The A10495s represent pieces of data (six types at the time those lines are written). They represent where and how Pascal likes storing information (sometimes pointers to other data sources).
+The DataPoints represent pieces of data (six types at the time those lines are written). They represent where and how Pascal likes storing information (sometimes pointers to other data sources).
 
-**Cliques** are collections of A10495s with some metadata.
+**Cliques** are collections of DataPoints with some metadata.
 
 ### Navigation Network
 

@@ -36,8 +36,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.r
 
 class OpenCycles
 
-    # OpenCycles::openTarget(opencycle)
-    def self.openTarget(opencycle)
+    # OpenCycles::openDataPoint(opencycle)
+    def self.openDataPoint(opencycle)
         something = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
         return if something.nil?
         PrimaryNetwork::openSomething(something)

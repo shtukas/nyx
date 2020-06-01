@@ -50,9 +50,9 @@ class StarlightPaths
     # StarlightPaths::issuePathInteractivelyOrNull()
     def self.issuePathInteractivelyOrNull()
         path = {
-            "nyxType"           => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
-            "creationTimestamp" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
+            "nyxType"          => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
+            "creationUnixtime" => Time.new.to_f,
+            "uuid"             => SecureRandom.uuid,
 
             "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
             "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
@@ -65,9 +65,9 @@ class StarlightPaths
     def self.issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
         return nil if node1["uuid"] == node2["uuid"]
         path = {
-            "nyxType"           => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
-            "creationTimestamp" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
+            "nyxType"          => "startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e",
+            "creationUnixtime" => Time.new.to_f,
+            "uuid"             => SecureRandom.uuid,
             "sourceuuid" => node1["uuid"],
             "targetuuid" => node2["uuid"]
         }
@@ -186,7 +186,7 @@ class StarlightUserInterface
                 .each{|n| items << ["[network parent] #{StarlightNodes::nodeToString(n)}", lambda{ StarlightUserInterface::nodeDive(n) }] }
 
             StarlightContents::getNodeEntities(node)
-                .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] } # "creationTimestamp" is a common attribute of all data entities
+                .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] } # "creationUnixtime" is a common attribute of all data entities
                 .each{|something| items << ["[something] #{PrimaryNetwork::somethingToString(something)}", lambda{ PrimaryNetworkNavigation::visit(something) }] }
 
             StarlightPaths::getChildren(node)

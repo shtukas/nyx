@@ -17,7 +17,7 @@ require 'securerandom'
 
 require 'colorize'
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/A10495.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataPoint.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Starlight.rb"
 
@@ -37,11 +37,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class Cliques
 
-    # Cliques::makeA10495sInteractively()
-    def self.makeA10495sInteractively()
+    # Cliques::makeDataPointsInteractively()
+    def self.makeDataPointsInteractively()
         targets = []
         loop {
-            target = A10495::issueNewTargetInteractivelyOrNull()
+            target = DataPoint::issueNewDataPointInteractivelyOrNull()
             break if target.nil?
             puts JSON.pretty_generate(target)
             targets << target
@@ -68,7 +68,7 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cliques::makeA10495sInteractively(),
+            "targets"          => Cliques::makeDataPointsInteractively(),
             "tags"             => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
@@ -84,7 +84,7 @@ class Cliques
             "creationUnixtime" => Time.new.to_f,
 
             "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"          => Cliques::makeA10495sInteractively(),
+            "targets"          => Cliques::makeDataPointsInteractively(),
             "tags"             => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
@@ -159,7 +159,7 @@ class Cliques
         puts "    targets:"
         clique["targets"]
             .each{|target|
-                puts "        #{A10495::targetToString(target)}"
+                puts "        #{DataPoint::dataPointToString(target)}"
             }
         puts ""
 
@@ -198,7 +198,7 @@ class Cliques
             if clique["targets"].size == 1 then
                 clique["targets"].first
             else
-                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| A10495::targetToString(target) })
+                LucilleCore::selectEntityFromListOfEntitiesOrNull("target:", clique["targets"], lambda{|target| DataPoint::dataPointToString(target) })
             end
         if target.nil? then
             puts "No target was selected for this clique. Aborting opening."
@@ -206,7 +206,7 @@ class Cliques
             return
         end
         puts JSON.pretty_generate(target)
-        A10495::openTarget(target)
+        DataPoint::openDataPoint(target)
     end
 
     # Cliques::cliqueDive(clique)
@@ -234,17 +234,17 @@ class Cliques
                     NyxObjects::commitToDisk(clique)
                 }]
             items << [
-                "A10495 (add new)", 
+                "DataPoint (add new)", 
                 lambda{
-                    target = A10495::issueNewTargetInteractivelyOrNull()
+                    target = DataPoint::issueNewDataPointInteractivelyOrNull()
                     next if target.nil?
                     clique["targets"] << target
                     NyxObjects::commitToDisk(clique)
                 }]
             items << [
-                "A10495 (select and remove)", 
+                "DataPoint (select and remove)", 
                 lambda{
-                    toStringLambda = lambda { |target| A10495::targetToString(target) }
+                    toStringLambda = lambda { |target| DataPoint::dataPointToString(target) }
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
                     next if target.nil?
                     clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
@@ -275,12 +275,13 @@ class Cliques
                 "register as open cycle", 
                 lambda{
                     claim = {
-                        "uuid"              => SecureRandom.uuid,
-                        "creationTimestamp" => Time.new.to_f,
-                        "entityuuid"        => clique["uuid"],
+                        "uuid"             => SecureRandom.uuid,
+                        "nyxType"          => "open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f",
+                        "creationUnixtime" => Time.new.to_f,
+                        "entityuuid"       => clique["uuid"],
                     }
                     puts JSON.pretty_generate(claim)
-                    File.open("/Users/pascal/Galaxy/DataBank/Catalyst/OpenCycles/#{claim["uuid"]}.json", "w"){|f| f.puts(JSON.pretty_generate(claim)) }
+                    NyxObjects::commitToDisk(claim)
                 }]
             items << [
                 "destroy clique", 
@@ -292,7 +293,7 @@ class Cliques
                 }]
             clique["targets"]
                 .each{|target| 
-                    items << ["[A10495] #{A10495::targetToString(target)}", lambda{ A10495::visitTarget(target) }] 
+                    items << ["[DataPoint] #{DataPoint::dataPointToString(target)}", lambda{ DataPoint::diveDataPoint(target) }] 
                 }
 
             StarlightContents::getNodesForEntity(clique)
@@ -375,7 +376,7 @@ class Cliques
             end
             if operation == "show newly created cliques" then
                 cliques = NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
-                            .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
+                            .sort{|p1, p2| p1["creationUnixtime"] <=> p2["creationUnixtime"] }
                             .reverse
                             .first(20)
                 Cliques::visitGivenCliques(cliques)
