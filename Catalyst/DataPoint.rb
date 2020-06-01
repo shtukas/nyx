@@ -57,7 +57,7 @@ class DataPoint
             "type" => "line",
             "line" => line
         }
-        NyxObjects::commitToDisk(point)
+        Nyx::commitToDisk(point)
         point
     end
 
@@ -72,7 +72,7 @@ class DataPoint
             "type" => "url",
             "url"  => url
         }
-        NyxObjects::commitToDisk(point)
+        Nyx::commitToDisk(point)
         point
     end
 
@@ -93,7 +93,7 @@ class DataPoint
             "type"     => "file",
             "filename" => filename2
         }
-        NyxObjects::commitToDisk(point)
+        Nyx::commitToDisk(point)
         point
     end
 
@@ -112,7 +112,7 @@ class DataPoint
             "type"     => "file",
             "filename" => filename2
         }
-        NyxObjects::commitToDisk(point)
+        Nyx::commitToDisk(point)
         point
     end
 
@@ -133,7 +133,7 @@ class DataPoint
             "type"       => "folder",
             "foldername" => foldername2
         }
-        NyxObjects::commitToDisk(point)
+        Nyx::commitToDisk(point)
         point
     end
 
@@ -148,7 +148,7 @@ class DataPoint
             "type" => "unique-name",
             "name" => uniquename
         }
-        NyxObjects::commitToDisk(point)
+        Nyx::commitToDisk(point)
         point
     end
 
@@ -167,7 +167,7 @@ class DataPoint
                 "type" => "directory-mark",
                 "mark" => mark
             }
-            NyxObjects::commitToDisk(point)
+            Nyx::commitToDisk(point)
             return point
         end
         if option == "mark file should be created" then
@@ -192,7 +192,7 @@ class DataPoint
                 "type" => "directory-mark",
                 "mark" => mark
             }
-            NyxObjects::commitToDisk(point)
+            Nyx::commitToDisk(point)
             return point
         end
     end
@@ -242,7 +242,7 @@ class DataPoint
                 "type"     => "file",
                 "filename" => filename2
             }
-            NyxObjects::commitToDisk(point)
+            Nyx::commitToDisk(point)
             point
         else
             folderpath1 = location
@@ -260,7 +260,7 @@ class DataPoint
                 "type"       => "folder",
                 "foldername" => foldername2
             }
-            NyxObjects::commitToDisk(point)
+            Nyx::commitToDisk(point)
             point
         end
     end

@@ -75,7 +75,7 @@ end
 if ARGV[0] == "stop" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    pod = NyxObjects::getOrNull(uuid)
+    pod = Nyx::getOrNull(uuid)
     exit if pod.nil?
 
     stop(uuid)
@@ -84,9 +84,9 @@ end
 if ARGV[0] == "destroy" and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    pod = NyxObjects::getOrNull(uuid)
+    pod = Nyx::getOrNull(uuid)
     exit if pod.nil?
 
     stop(uuid)
-    NyxObjects::destroy(uuid)
+    Nyx::destroy(uuid)
 end

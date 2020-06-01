@@ -27,11 +27,11 @@ class PrimaryNetwork
 
     # PrimaryNetwork::getSomethingByUuidOrNull(uuid)
     def self.getSomethingByUuidOrNull(uuid)
-        target = NyxObjects::getOrNull(uuid)
+        target = Nyx::getOrNull(uuid)
         return target if target
-        clique = NyxObjects::getOrNull(uuid)
+        clique = Nyx::getOrNull(uuid)
         return clique if clique
-        starlightnode = NyxObjects::getOrNull(uuid)
+        starlightnode = Nyx::getOrNull(uuid)
         retun starlightnode if starlightnode
         nil
     end

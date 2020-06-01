@@ -43,7 +43,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DoNotShow
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # ----------------------------------------------------------------------
 
@@ -257,7 +257,7 @@ class Wave
             "description"      => description,
             "schedule"         => schedule
         }
-        NyxObjects::commitToDisk(obj)
+        Nyx::commitToDisk(obj)
         obj
     end
 end

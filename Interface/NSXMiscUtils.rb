@@ -158,7 +158,7 @@ class NSXMiscUtils
                 "target"           => target
             }
             puts JSON.pretty_generate(item)
-            NyxObjects::commitToDisk(item)
+            Nyx::commitToDisk(item)
             LucilleCore::removeFileSystemLocation(location)
         end
     end

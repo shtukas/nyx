@@ -53,7 +53,7 @@ if ARGV[0] == 'start' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     time1 = Time.new.to_f
-    obj = NyxObjects::getOrNull(uuid)
+    obj = Nyx::getOrNull(uuid)
     exit if obj.nil?
     openItem(obj)
     if LucilleCore::askQuestionAnswerAsBoolean("-> done ? ", true) then
@@ -70,7 +70,7 @@ if ARGV[0] == 'open' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
     time1 = Time.new.to_f
-    obj = NyxObjects::getOrNull(uuid)
+    obj = Nyx::getOrNull(uuid)
     exit if obj.nil?
     openItem(obj)
     exit
@@ -79,7 +79,7 @@ end
 if ARGV[0] == 'done' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    obj = NyxObjects::getOrNull(uuid)
+    obj = Nyx::getOrNull(uuid)
     exit if obj.nil?
     Wave::performDone2(obj)
     exit
@@ -88,32 +88,32 @@ end
 if ARGV[0] == 'recast' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    obj = NyxObjects::getOrNull(uuid)
+    obj = Nyx::getOrNull(uuid)
     exit if obj.nil?
     schedule = Wave::makeScheduleObjectInteractivelyOrNull()
     exit if schedule.nil?
     obj["schedule"] = schedule
-    NyxObjects::commitToDisk(obj)
+    Nyx::commitToDisk(obj)
     exit
 end
 
 if ARGV[0] == 'description' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    obj = NyxObjects::getOrNull(uuid)
+    obj = Nyx::getOrNull(uuid)
     exit if obj.nil?
     obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
-    NyxObjects::commitToDisk(obj)
+    Nyx::commitToDisk(obj)
     exit
 end
 
 if ARGV[0] == 'destroy' and ARGV[1] then
     uuid = ARGV[1]
     exit if uuid.nil?
-    obj = NyxObjects::getOrNull(uuid)
+    obj = Nyx::getOrNull(uuid)
     exit if obj.nil?
     if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this item ? : ") then
-        NyxObjects::destroy(obj["uuid"])
+        Nyx::destroy(obj["uuid"])
         exit
     end
     exit

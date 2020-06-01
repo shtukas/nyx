@@ -1,5 +1,5 @@
 
-NyxObjects
+Nyx
 
 For history and description, see NyxCore.
 

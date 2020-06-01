@@ -135,7 +135,7 @@ while (link = Mercury::getFirstValueOrNull("F771D7FE-1802-409D-B009-5EB95BA89D86
         "description"      => link,
         "target"           => target
     }
-    NyxObjects::commitToDisk(item)
+    Nyx::commitToDisk(item)
     Mercury::deleteFirstValue("F771D7FE-1802-409D-B009-5EB95BA89D86")
 end
 
@@ -147,7 +147,7 @@ objects = []
 
 # First, we display all the Inbox items in order.
 
-NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
     .select{|item| item["projectuuid"] == "44caf74675ceb79ba5cc13bafa102509369c2b53" } # Inbox
     .sort{|i1, i2| 
         i1["creationUnixtime"] <=> i2["creationUnixtime"] }
@@ -182,8 +182,8 @@ focus = getFocus()
 #     "timeInHours" : Float
 # }
 
-items1 = NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| Runner::isRunning(item["uuid"]) }
-items2 = NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+items1 = Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| Runner::isRunning(item["uuid"]) }
+items2 = Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .select{|item| item["projectuuid"] == focus["projectuuid"] }
             .select{|item| !Runner::isRunning(item["uuid"]) } # running object have already been taken in items1
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }

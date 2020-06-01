@@ -18,7 +18,7 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # -----------------------------------------------------------------
 
@@ -34,7 +34,7 @@ class StarlightNodes
 
             "name" => LucilleCore::askQuestionAnswerAsString("nodename: ")
         }
-        NyxObjects::commitToDisk(node)
+        Nyx::commitToDisk(node)
         puts JSON.pretty_generate(node)
         node
     end
@@ -57,7 +57,7 @@ class StarlightPaths
             "sourceuuid" => LucilleCore::askQuestionAnswerAsString("sourceuuid: "),
             "targetuuid" => LucilleCore::askQuestionAnswerAsString("targetuuid: ")
         }
-        NyxObjects::commitToDisk(path)
+        Nyx::commitToDisk(path)
         path
     end
 
@@ -71,19 +71,19 @@ class StarlightPaths
             "sourceuuid" => node1["uuid"],
             "targetuuid" => node2["uuid"]
         }
-        NyxObjects::commitToDisk(path)
+        Nyx::commitToDisk(path)
         path
     end
 
     # StarlightPaths::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        NyxObjects::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        Nyx::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
     # StarlightPaths::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        NyxObjects::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        Nyx::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 
@@ -95,14 +95,14 @@ class StarlightPaths
     # StarlightPaths::getParents(node)
     def self.getParents(node)
         StarlightPaths::getPathsWithGivenTarget(node["uuid"])
-            .map{|path| NyxObjects::getOrNull(path["sourceuuid"]) }
+            .map{|path| Nyx::getOrNull(path["sourceuuid"]) }
             .compact
     end
 
     # StarlightPaths::getChildren(node)
     def self.getChildren(node)
         StarlightPaths::getPathsWithGivenSource(node["uuid"])
-            .map{|path| NyxObjects::getOrNull(path["targetuuid"]) }
+            .map{|path| Nyx::getOrNull(path["targetuuid"]) }
             .compact
     end
 end
@@ -119,7 +119,7 @@ class StarlightContents
             "nodeuuid"   => node["uuid"],
             "targetuuid" => something["uuid"]
         }
-        NyxObjects::commitToDisk(claim)
+        Nyx::commitToDisk(claim)
         claim
     end
 
@@ -130,7 +130,7 @@ class StarlightContents
 
     # StarlightContents::getNodeEntities(node)
     def self.getNodeEntities(node)
-        NyxObjects::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
             .map{|claim| PrimaryNetwork::getSomethingByUuidOrNull(claim["targetuuid"]) }
             .compact
@@ -138,9 +138,9 @@ class StarlightContents
 
     # StarlightContents::getNodesForEntity(clique)
     def self.getNodesForEntity(clique)
-        NyxObjects::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        Nyx::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["targetuuid"] == clique["uuid"] }
-            .map{|claim| NyxObjects::getOrNull(claim["nodeuuid"]) }
+            .map{|claim| Nyx::getOrNull(claim["nodeuuid"]) }
             .compact
     end
 end
@@ -149,9 +149,9 @@ class StarlightUserInterface
 
     # StarlightUserInterface::selectNodeFromExistingNodes()
     def self.selectNodeFromExistingNodes()
-        nodestrings = NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| StarlightNodes::nodeToString(node) }
+        nodestrings = Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| StarlightNodes::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        node = Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
                 .select{|node| StarlightNodes::nodeToString(node) == nodestring }
                 .first
     end
@@ -178,7 +178,7 @@ class StarlightUserInterface
             items = []
             items << ["rename", lambda{ 
                 node["name"] = CatalystCommon::editTextUsingTextmate(node["name"]).strip
-                NyxObjects::commitToDisk(node)
+                Nyx::commitToDisk(node)
             }]
 
             StarlightPaths::getParents(node)
@@ -197,14 +197,14 @@ class StarlightUserInterface
                 node0 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node0, node)
                 puts JSON.pretty_generate(path)
-                NyxObjects::commitToDisk(path)
+                Nyx::commitToDisk(path)
             }]
 
             items << ["add child node", lambda{ 
                 node2 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node, node2)
                 puts JSON.pretty_generate(path)
-                NyxObjects::commitToDisk(path)
+                Nyx::commitToDisk(path)
             }]
 
             status = LucilleCore::menuItemsWithLambdas(items) # Boolean # Indicates whether an item was chosen
@@ -233,7 +233,7 @@ class StarlightUserInterface
             if operation == "make node" then
                 node = StarlightNodes::makeNodeInteractivelyOrNull()
                 puts JSON.pretty_generate(node)
-                NyxObjects::commitToDisk(node)
+                Nyx::commitToDisk(node)
             end
             if operation == "make starlight path" then
                 node1 = StarlightMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
@@ -242,7 +242,7 @@ class StarlightUserInterface
                 next if node2.nil?
                 path = StarlightPaths::issuePathFromFirstNodeToSecondNodeOrNull(node1, node2)
                 puts JSON.pretty_generate(path)
-                NyxObjects::commitToDisk(path)
+                Nyx::commitToDisk(path)
             end
         }
     end

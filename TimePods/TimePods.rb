@@ -31,7 +31,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 class TimePods
 
@@ -44,7 +44,7 @@ class TimePods
             "passenger" => passenger,
             "engine"    => engine
         }
-        NyxObjects::commitToDisk(pod)
+        Nyx::commitToDisk(pod)
         pod
     end
 
@@ -219,7 +219,7 @@ class TimePods
 
     # TimePods::startPod(uuid)
     def self.startPod(uuid)
-        pod = NyxObjects::getOrNull(uuid)
+        pod = Nyx::getOrNull(uuid)
         return if pod.nil?
 
         Runner::start(uuid)

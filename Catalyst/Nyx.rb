@@ -33,61 +33,61 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 # -----------------------------------------------------------------
 
-class NyxObjects
+class Nyx
 
-    # NyxObjects::pathToRepository()
+    # Nyx::pathToRepository()
     def self.pathToRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/NyxObjects/objects"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nyx/objects"
     end
 
-    # NyxObjects::commitToDisk(object)
+    # Nyx::commitToDisk(object)
     def self.commitToDisk(object)
         raise "[02986280]" if object["nyxType"].nil?
         raise "[222C74D4]" if object["uuid"].nil?
-        filepath = "#{NyxObjects::pathToRepository()}/#{object["nyxType"]}/#{object["uuid"]}.json"
+        filepath = "#{Nyx::pathToRepository()}/#{object["nyxType"]}/#{object["uuid"]}.json"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkdir(File.dirname(filepath))
         end
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(object)) }
     end
 
-    # NyxObjects::getOrNullAtType(uuid, nyxtype)
+    # Nyx::getOrNullAtType(uuid, nyxtype)
     def self.getOrNullAtType(uuid, nyxtype)
-        filepath = "#{NyxObjects::pathToRepository()}/#{nyxtype}/#{uuid}.json"
+        filepath = "#{Nyx::pathToRepository()}/#{nyxtype}/#{uuid}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NyxObjects::getNyxTypes()
+    # Nyx::getNyxTypes()
     def self.getNyxTypes()
-        Dir.entries(NyxObjects::pathToRepository())
+        Dir.entries(Nyx::pathToRepository())
             .select{|filename| filename[0, 1] != "." }
     end
 
-    # NyxObjects::getOrNull(uuid)
+    # Nyx::getOrNull(uuid)
     def self.getOrNull(uuid)
-        NyxObjects::getNyxTypes()
-            .map{|nyxtype| NyxObjects::getOrNullAtType(uuid, nyxtype) }
+        Nyx::getNyxTypes()
+            .map{|nyxtype| Nyx::getOrNullAtType(uuid, nyxtype) }
             .compact
             .first
     end
 
-    # NyxObjects::destroyAtType(uuid, nyxtype)
+    # Nyx::destroyAtType(uuid, nyxtype)
     def self.destroyAtType(uuid, nyxtype)
-        filepath = "#{NyxObjects::pathToRepository()}/#{nyxtype}/#{uuid}.json"
+        filepath = "#{Nyx::pathToRepository()}/#{nyxtype}/#{uuid}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # NyxObjects::destroy(uuid)
+    # Nyx::destroy(uuid)
     def self.destroy(uuid)
-        NyxObjects::getNyxTypes()
-            .map{|nyxtype| NyxObjects::destroyAtType(uuid, nyxtype) }
+        Nyx::getNyxTypes()
+            .map{|nyxtype| Nyx::destroyAtType(uuid, nyxtype) }
     end
 
-    # NyxObjects::objects(nyxtype)
+    # Nyx::objects(nyxtype)
     def self.objects(nyxtype)
-        folderpath = "#{NyxObjects::pathToRepository()}/#{nyxtype}"
+        folderpath = "#{Nyx::pathToRepository()}/#{nyxtype}"
         Dir.entries(folderpath)
             .select{|filename| filename[-5, 5] == ".json" }
             .map{|filename| "#{folderpath}/#{filename}" }

@@ -45,7 +45,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # -----------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ class Items
             "description"      => description,
             "target"           => target
         }
-        NyxObjects::commitToDisk(item)
+        Nyx::commitToDisk(item)
         item
     end
 
@@ -92,7 +92,7 @@ class Items
             "description"      => description,
             "target"           => target
         }
-        NyxObjects::commitToDisk(item)
+        Nyx::commitToDisk(item)
         item
     end
 
@@ -137,7 +137,7 @@ class Items
 
     # Items::projectNames()
     def self.projectNames()
-        NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .map{|item| item["projectname"] }
             .uniq
             .sort
@@ -147,7 +147,7 @@ class Items
     def self.projectname2projectuuidOrNUll(projectname)
         projectuuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}")
         return projectuuid if !projectuuid.nil?
-        projectuuid = NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
+        projectuuid = Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
         if !projectuuid.nil? then
             KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}", projectuuid)
         end
@@ -163,7 +163,7 @@ class Items
     def self.itemsForProjectName(projectname)
         projectuuid = Items::projectname2projectuuidOrNUll(projectname)
         return [] if projectuuid.nil?
-        NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        Nyx::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .select{|item| item["projectuuid"] == projectuuid }
             .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
     end
@@ -194,7 +194,7 @@ class Items
         end
         item["projectname"] = projectname
         item["projectuuid"] = projectuuid
-        NyxObjects::commitToDisk(item)
+        Nyx::commitToDisk(item)
     end
 
     # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
@@ -208,9 +208,9 @@ class Items
         end
         if newowner["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6" then
             clique = newowner
-            clique = NyxObjects::getOrNull(clique["uuid"])
+            clique = Nyx::getOrNull(clique["uuid"])
             clique["targets"] << item["target"]
-            NyxObjects::commitToDisk(clique)
+            Nyx::commitToDisk(clique)
             return true
         end
         puts newowner
@@ -250,24 +250,24 @@ class Items
                 DataPoint::openDataPoint(item["target"])
             end
             if option == "done" then
-                NyxObjects::destroy(item["uuid"])
+                Nyx::destroy(item["uuid"])
                 return
             end
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-                NyxObjects::commitToDisk(item)
+                Nyx::commitToDisk(item)
             end
             if option == "recast" then
                 Items::recast(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
-                NyxObjects::commitToDisk(item)
+                Nyx::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
                 status = Items::promote(item)
                 next if !status
-                NyxObjects::destroy(item["uuid"])
+                Nyx::destroy(item["uuid"])
                 return
             end
         }

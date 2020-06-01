@@ -1,6 +1,0 @@
-
-NyxCore
-
-NyxCore and NyxObjects were introduced on 31st May 2020 as an abstraction to encapsulate similar structures implemented by applications and support libaries. NyxCore is replacing what was known as CoreData manipulating files and directories, and all JSON objects are manipulated by NyxObjects. They provide raw data, metadata, structures and Starlight.
-
-

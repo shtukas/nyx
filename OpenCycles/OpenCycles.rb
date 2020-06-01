@@ -30,7 +30,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Cliques.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx.rb"
 
 # -----------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ class OpenCycles
                 PrimaryNetwork::visitSomething(something)
             end
             if option == "destroy opencycle" then
-                NyxObjects::destroy(opencycle["uuid"])
+                Nyx::destroy(opencycle["uuid"])
                 return
             end
         }
@@ -85,7 +85,7 @@ class OpenCycles
         loop {
             system("clear")
             puts "OpenCycles 🗃️"
-            opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", NyxObjects::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
+            opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
             break if opencycle.nil?
             OpenCycles::opencycleDive(opencycle)
         }
