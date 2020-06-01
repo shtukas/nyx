@@ -61,7 +61,7 @@ class NSXCatalystUI
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", GlobalNavigationNetworkNodes::nodes(), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
                     return if node.nil?
                     GlobalNavigationNetworkUserInterface::nodeDive(node)
                 }
@@ -227,7 +227,7 @@ class NSXCatalystUI
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", GlobalNavigationNetworkNodes::nodes(), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| GlobalNavigationNetworkNodes::nodeToString(node) })
                     return if node.nil?
                     GlobalNavigationNetworkUserInterface::nodeDive(node)
                 }
@@ -300,8 +300,8 @@ class NSXCatalystUI
         loop {
             system("clear")
             items = []
-            GlobalNavigationNetworkNodes::nodes()
-                .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
+            NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
                     items << [

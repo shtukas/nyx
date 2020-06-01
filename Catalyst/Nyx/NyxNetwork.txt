@@ -92,6 +92,13 @@ OpenCycle {
     "entityuuid"       : String,
 }
 
+------------------------------------------------------
+StarlightNode {
+    "uuid"              : String
+    "nyxType"           : "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"
+    "creationUnixtime"  : Float # Unixtime with decimals
+    "name"              : String
+}
 
 
 

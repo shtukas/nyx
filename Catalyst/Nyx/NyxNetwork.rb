@@ -94,5 +94,4 @@ class NyxNetwork
             .map{|filepath| JSON.parse(IO.read(filepath)) }
             .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     end
-
 end

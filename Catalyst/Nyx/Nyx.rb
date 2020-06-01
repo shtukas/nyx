@@ -1,7 +1,7 @@
 
 # encoding: UTF-8
 
-# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
+# require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
 
 # -----------------------------------------------------------------
 

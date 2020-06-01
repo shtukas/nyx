@@ -1,6 +1,6 @@
 ## Startlight
 
-Starlight is the navigation network built on the top of the Catalyst data points.
+Starlight is the nickname of Catalyst's global navigation network.
 
 ### CoreData, A10495s and Cliques
 
@@ -19,13 +19,6 @@ The navigation network is a semantic network of nodes and the paths between them
 ## Multiverse
 
 ```
-Global Navigation Network Node {
-    "catalystType"      : "global-navigation-network-node-4597539c"
-    "creationTimestamp" : Float # Unixtime with decimals
-    "uuid"              : String
-
-    "name"              : String
-} extends DataEntity
 
 Stargate {
     "uuid"              : String

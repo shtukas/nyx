@@ -31,7 +31,7 @@ class PrimaryNetwork
         return target if target
         clique = Cliques::getOrNull(uuid)
         return clique if clique
-        starlightnode = GlobalNavigationNetworkNodes::getOrNull(uuid)
+        starlightnode = NyxNetwork::getOrNull(uuid)
         retun starlightnode if starlightnode
         nil
     end
@@ -44,7 +44,7 @@ class PrimaryNetwork
         if something["catalystType"] == "catalyst-type:clique"  then
             return Cliques::cliqueToString(something)
         end
-        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             return GlobalNavigationNetworkNodes::nodeToString(something)
         end
         raise "PrimaryNetwork::somethingToString, Error: 056686f0"
@@ -63,7 +63,7 @@ class PrimaryNetwork
             Cliques::openClique(clique)
             return
         end
-        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
            node = something
            GlobalNavigationNetworkUserInterface::nodeDive(node)
            return
@@ -81,7 +81,7 @@ class PrimaryNetwork
             Cliques::cliqueDive(something)
             return
         end
-        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             GlobalNavigationNetworkUserInterface::nodeDive(something)
             return
         end
@@ -119,7 +119,7 @@ class PrimaryNetworkNavigation
             clique = something
             return Cliques::cliqueDive(clique)
         end
-        if something["catalystType"] == "global-navigation-network-node-4597539c"  then
+        if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
             node = something
             return GlobalNavigationNetworkUserInterface::nodeDive(node)
         end

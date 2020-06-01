@@ -45,7 +45,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Bank.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Nyx/Nyx.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
 
 # -----------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ class Items
     def self.promote(item) # Boolean # Indicates whether a promotion was acheived
         newowner = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
         return false if newowner.nil?
-        if newowner["catalystType"] == "global-navigation-network-node-4597539c" then
+        if newowner["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721" then
             node = newowner
             GlobalNavigationNetworkContents::issueClaimGivenNodeAndEntity(node, item["target"])
             return true

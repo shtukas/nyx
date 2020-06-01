@@ -18,49 +18,23 @@ require 'colorize'
 
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/PrimaryNetwork.rb"
 
+require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/Nyx/Nyx.rb"
+
 # -----------------------------------------------------------------
 
 class GlobalNavigationNetworkNodes
-
-    # GlobalNavigationNetworkNodes::path()
-    def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Global-Navigation-Network/nodes"
-    end
-
-    # GlobalNavigationNetworkNodes::save(node)
-    def self.save(node)
-        filepath = "#{GlobalNavigationNetworkNodes::path()}/#{node["uuid"]}.json"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(node)) }
-    end
-
-    # GlobalNavigationNetworkNodes::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = "#{GlobalNavigationNetworkNodes::path()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # GlobalNavigationNetworkNodes::nodes()
-    # Nodes are given in increasing creation timestamp
-    def self.nodes()
-        Dir.entries(GlobalNavigationNetworkNodes::path())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{GlobalNavigationNetworkNodes::path()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
-    end
 
     # GlobalNavigationNetworkNodes::makeNodeInteractivelyOrNull()
     def self.makeNodeInteractivelyOrNull()
         puts "Making a new Starlight node..."
         node = {
-            "catalystType"      => "global-navigation-network-node-4597539c",
-            "creationTimestamp" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721",
+            "creationUnixtime" => Time.new.to_f,
 
             "name" => LucilleCore::askQuestionAnswerAsString("nodename: ")
         }
-        GlobalNavigationNetworkNodes::save(node)
+        NyxNetwork::commitToDisk(node)
         puts JSON.pretty_generate(node)
         node
     end
@@ -148,14 +122,14 @@ class GlobalNavigationNetworkPaths
     # GlobalNavigationNetworkPaths::getParents(node)
     def self.getParents(node)
         GlobalNavigationNetworkPaths::getPathsWithGivenTarget(node["uuid"])
-            .map{|path| GlobalNavigationNetworkNodes::getOrNull(path["sourceuuid"]) }
+            .map{|path| NyxNetwork::getOrNull(path["sourceuuid"]) }
             .compact
     end
 
     # GlobalNavigationNetworkPaths::getChildren(node)
     def self.getChildren(node)
         GlobalNavigationNetworkPaths::getPathsWithGivenSource(node["uuid"])
-            .map{|path| GlobalNavigationNetworkNodes::getOrNull(path["targetuuid"]) }
+            .map{|path| NyxNetwork::getOrNull(path["targetuuid"]) }
             .compact
     end
 end
@@ -220,7 +194,7 @@ class GlobalNavigationNetworkContents
     def self.getNodesForEntity(clique)
         GlobalNavigationNetworkContents::claims()
             .select{|claim| claim["targetuuid"] == clique["uuid"] }
-            .map{|claim| GlobalNavigationNetworkNodes::getOrNull(claim["nodeuuid"]) }
+            .map{|claim| NyxNetwork::getOrNull(claim["nodeuuid"]) }
             .compact
     end
 end
@@ -229,9 +203,9 @@ class GlobalNavigationNetworkUserInterface
 
     # GlobalNavigationNetworkUserInterface::selectNodeFromExistingNodes()
     def self.selectNodeFromExistingNodes()
-        nodestrings = GlobalNavigationNetworkNodes::nodes().map{|node| GlobalNavigationNetworkNodes::nodeToString(node) }
+        nodestrings = NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| GlobalNavigationNetworkNodes::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = GlobalNavigationNetworkNodes::nodes()
+        node = NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
                 .select{|node| GlobalNavigationNetworkNodes::nodeToString(node) == nodestring }
                 .first
     end
@@ -246,7 +220,7 @@ class GlobalNavigationNetworkUserInterface
             items = []
             items << ["rename", lambda{ 
                 node["name"] = CatalystCommon::editTextUsingTextmate(node["name"]).strip
-                GlobalNavigationNetworkNodes::save(node)
+                NyxNetwork::commitToDisk(node)
             }]
 
             GlobalNavigationNetworkPaths::getParents(node)
@@ -313,7 +287,7 @@ class GlobalNavigationNetworkUserInterface
             if operation == "make node" then
                 node = GlobalNavigationNetworkNodes::makeNodeInteractivelyOrNull()
                 puts JSON.pretty_generate(node)
-                GlobalNavigationNetworkNodes::save(node)
+                NyxNetwork::commitToDisk(node)
             end
             if operation == "make starlight path" then
                 node1 = GlobalNavigationNetworkMakeAndOrSelectNodeQuest::makeAndOrSelectNodeOrNull()
