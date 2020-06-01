@@ -50,7 +50,7 @@ class DataIntegrityOfficer
     # DataIntegrityOfficer::interfaceLoopOperations()
     def self.interfaceLoopOperations()
         # Make sure that every Clique is on a node
-        Cliques::cliques()
+        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .each{|clique|
                 next if !StarlightContents::getNodesForEntity(clique).empty?
 
@@ -92,7 +92,7 @@ class DataIntegrityOfficer
                 Cliques::cliqueDive(clique)
 
                 # By now it could have been destroyed
-                next if Cliques::getOrNull(clique["uuid"]).nil?
+                next if NyxObjects::getOrNull(clique["uuid"]).nil?
                 # By now it also can have a parent node (since we dove)
                 next if !StarlightContents::getNodesForEntity(clique).empty?
 

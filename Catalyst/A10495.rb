@@ -135,7 +135,7 @@ class A10495
     def self.targets()
         Dir.entries(A10495::pathToRepository())
             .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{Cliques::pathToRepository()}/#{filename}" }
+            .map{|filename| "#{A10495::pathToRepository()}/#{filename}" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 

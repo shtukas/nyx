@@ -37,51 +37,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class Cliques
 
-    # Cliques::pathToRepository()
-    def self.pathToRepository()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Cliques"
-    end
-
-    # Cliques::fsckExplodeIfFail(clique)
-    def self.fsckExplodeIfFail(clique)
-        raise "Cliques::fsckExplodeIfFail [uuid] {#{clique}}" if clique["uuid"].nil?
-        raise "Cliques::fsckExplodeIfFail [creationTimestamp] {#{clique}}" if clique["creationTimestamp"].nil?
-        raise "Cliques::fsckExplodeIfFail [description] {#{clique}}" if clique["description"].nil?
-        raise "Cliques::fsckExplodeIfFail [targets] {#{clique}}" if clique["targets"].nil?
-        raise "Cliques::fsckExplodeIfFail [tags] {#{clique}}" if clique["tags"].nil?
-    end
-
-    # Cliques::save(clique)
-    def self.save(clique)
-        Cliques::fsckExplodeIfFail(clique)
-        filepath = "#{Cliques::pathToRepository()}/#{clique["uuid"]}.json"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(clique)) }
-    end
-
-    # Cliques::getOrNull(uuid)
-    def self.getOrNull(uuid)
-        filepath = "#{Cliques::pathToRepository()}/#{uuid}.json"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Cliques::destroy(uuid)
-    def self.destroy(uuid)
-        filepath = "#{Cliques::pathToRepository()}/#{uuid}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # Cliques::cliques()
-    # cliques are given in the increasing creation order.
-    def self.cliques()
-        Dir.entries(Cliques::pathToRepository())
-            .select{|filename| filename[-5, 5] == ".json" }
-            .map{|filename| "#{Cliques::pathToRepository()}/#{filename}" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|i1, i2| i1["creationTimestamp"]<=>i2["creationTimestamp"] }
-    end
-
     # Cliques::makeA10495sInteractively()
     def self.makeA10495sInteractively()
         targets = []
@@ -108,32 +63,32 @@ class Cliques
     # Cliques::issue1CliqueInteractivelyOrNull()
     def self.issue1CliqueInteractivelyOrNull()
         clique = {
-            "catalystType"      => "catalyst-type:clique",
-            "creationTimestamp" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "clique-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "creationUnixtime" => Time.new.to_f,
 
-            "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"           => Cliques::makeA10495sInteractively(),
-            "tags"              => Cliques::makeTagsInteractively()
+            "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
+            "targets"          => Cliques::makeA10495sInteractively(),
+            "tags"             => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
-        Cliques::save(clique)
+        NyxObjects::commitToDisk(clique)
         clique
     end
 
     # Cliques::issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
     def self.issueCliqueInteractivelyOrNull(canStarlightNodeInvite)
         clique = {
-            "catalystType"      => "catalyst-type:clique",
-            "creationTimestamp" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
+            "uuid"             => SecureRandom.uuid,
+            "nyxType"          => "clique-933c2260-92d1-4578-9aaf-cd6557c664c6",
+            "creationUnixtime" => Time.new.to_f,
 
-            "description"       => LucilleCore::askQuestionAnswerAsString("description: "),
-            "targets"           => Cliques::makeA10495sInteractively(),
-            "tags"              => Cliques::makeTagsInteractively()
+            "description"      => LucilleCore::askQuestionAnswerAsString("description: "),
+            "targets"          => Cliques::makeA10495sInteractively(),
+            "tags"             => Cliques::makeTagsInteractively()
         }
         puts JSON.pretty_generate(clique)
-        Cliques::save(clique)
+        NyxObjects::commitToDisk(clique)
         if canStarlightNodeInvite and LucilleCore::askQuestionAnswerAsBoolean("Would you like to add this clique to a Starlight node ? ") then
             node = StarlightUserInterface::selectNodeFromExistingOrCreateOneOrNull()
             if node then
@@ -145,13 +100,13 @@ class Cliques
 
     # Cliques::getCliquesByTag(tag)
     def self.getCliquesByTag(tag)
-        Cliques::cliques()
+        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["tags"].include?(tag) }
     end
 
     # Cliques::tags()
     def self.tags()
-        Cliques::cliques()
+        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .map{|clique| clique["tags"] }
             .flatten
             .uniq
@@ -165,7 +120,7 @@ class Cliques
         descriptionXp = lambda { |clique|
             "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
         }
-        cliques = Cliques::cliques()
+        cliques = NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
         descriptionsxp = cliques.reverse.map{|clique| descriptionXp.call(clique) }
         selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
@@ -178,7 +133,7 @@ class Cliques
             system('clear')
             puts "Cliques: Tag Diving: #{tag}"
             items = []
-            Cliques::cliques()
+            NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|clique|
                     items << [ Cliques::cliqueToString(clique) , lambda { Cliques::cliqueDive(clique) } ]
@@ -258,7 +213,7 @@ class Cliques
     def self.cliqueDive(clique)
         loop {
             puts ""
-            clique = Cliques::getOrNull(clique["uuid"]) # useful if we have modified it
+            clique = NyxObjects::getOrNull(clique["uuid"]) # useful if we have modified it
             return if clique.nil? # useful if we have just destroyed it
 
             Cliques::printCliqueDetails(clique)
@@ -276,7 +231,7 @@ class Cliques
                         return
                     end
                     clique["description"] = description
-                    Cliques::save(clique)
+                    NyxObjects::commitToDisk(clique)
                 }]
             items << [
                 "A10495 (add new)", 
@@ -284,7 +239,7 @@ class Cliques
                     target = A10495::issueNewTargetInteractivelyOrNull()
                     next if target.nil?
                     clique["targets"] << target
-                    Cliques::save(clique)
+                    NyxObjects::commitToDisk(clique)
                 }]
             items << [
                 "A10495 (select and remove)", 
@@ -293,13 +248,13 @@ class Cliques
                     target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", clique["targets"], toStringLambda)
                     next if target.nil?
                     clique["targets"] = clique["targets"].reject{|t| t["uuid"] == target["uuid"] }
-                    Cliques::save(clique)
+                    NyxObjects::commitToDisk(clique)
                 }]
             items << [
                 "tags (add new)", 
                 lambda{
                     clique["tags"] << LucilleCore::askQuestionAnswerAsString("tag: ")
-                    Cliques::save(clique)
+                    NyxObjects::commitToDisk(clique)
                 }]
             items << [
                 "tags (remove)", 
@@ -307,7 +262,7 @@ class Cliques
                     tag = LucilleCore::selectEntityFromListOfEntitiesOrNull("tag", clique["tags"])
                     next if tag.nil?
                     clique["tags"] = clique["tags"].reject{|t| t == tag }
-                    Cliques::save(clique)
+                    NyxObjects::commitToDisk(clique)
                 }]
             items << [
                 "add to Starlight Node", 
@@ -331,7 +286,7 @@ class Cliques
                 "destroy clique", 
                 lambda{
                     if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
-                        Cliques::destroy(clique["uuid"])
+                        NyxObjects::destroy(clique["uuid"])
                         return
                     end
                 }]
@@ -384,20 +339,20 @@ class Cliques
                     end
                     tag
                 }
-                Cliques::cliques()
+                NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                     .each{|clique|
                         uuid = clique["uuid"]
                         tags1 = clique["tags"]
                         tags2 = tags1.map{|tag| renameTagIfNeeded.call(tag, oldname, newname) }
                         if tags1.join(':') != tags2.join(':') then
                             clique["tags"] = tags2
-                            Cliques::save(clique)
+                            NyxObjects::commitToDisk(clique)
                         end
                     }
             end
             if operation == "clique dive (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                clique = Cliques::getOrNull(uuid)
+                clique = NyxObjects::getOrNull(uuid)
                 if clique then
                     Cliques::cliqueDive(clique)
                 else
@@ -406,11 +361,11 @@ class Cliques
             end
             if operation == "repair json (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                clique = Cliques::getOrNull(uuid)
+                clique = NyxObjects::getOrNull(uuid)
                 if clique then
                     cliquejson = CatalystCommon::editTextUsingTextmate(JSON.pretty_generate(clique))
                     clique = JSON.parse(cliquejson)
-                    Cliques::save(clique)
+                    NyxObjects::commitToDisk(clique)
                 else
                     puts "Could not find clique for uuid (#{uuid})"
                 end
@@ -419,7 +374,7 @@ class Cliques
                 Cliques::issueCliqueInteractivelyOrNull(true)
             end
             if operation == "show newly created cliques" then
-                cliques = Cliques::cliques()
+                cliques = NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                             .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
                             .reverse
                             .first(20)
@@ -427,7 +382,7 @@ class Cliques
             end
             if operation == "clique destroy (uuid)" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                clique = Cliques::getOrNull(uuid)
+                clique = NyxObjects::getOrNull(uuid)
                 next if clique.nil?
                 if LucilleCore::askQuestionAnswerAsBoolean("Sure you want to get rid of that thing ? ") then
                     puts "Well, this operation has not been implemented yet"
@@ -450,7 +405,7 @@ class CliquesSearch
 
     # CliquesSearch::searchPatternToCliques(searchPattern)
     def self.searchPatternToCliques(searchPattern)
-        Cliques::cliques()
+        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 

@@ -206,11 +206,11 @@ class Items
             StarlightContents::issueClaimGivenNodeAndEntity(node, item["target"])
             return true
         end
-        if newowner["catalystType"] == "catalyst-type:clique" then
+        if newowner["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6" then
             clique = newowner
-            clique = Cliques::getOrNull(clique["uuid"])
+            clique = NyxObjects::getOrNull(clique["uuid"])
             clique["targets"] << item["target"]
-            Cliques::save(clique)
+            NyxObjects::commitToDisk(clique)
             return true
         end
         puts newowner

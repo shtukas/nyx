@@ -74,7 +74,7 @@ class NSXCatalystUI
             items << [
                 "cliques listing",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if clique.nil?
                     Cliques::cliqueDive(clique)
                 }
@@ -84,7 +84,7 @@ class NSXCatalystUI
                 "clique visit (uuid)", 
                 lambda {
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                    clique = Cliques::getOrNull(uuid)
+                    clique = NyxObjects::getOrNull(uuid)
                     return if clique.nil?
                     Cliques::cliqueDive(clique)
                 }
@@ -246,7 +246,7 @@ class NSXCatalystUI
             items << [
                 "cliques listing",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Cliques::cliques(), lambda{|clique| Cliques::cliqueToString(clique) })
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if clique.nil?
                     Cliques::cliqueDive(clique)
                 }
@@ -256,7 +256,7 @@ class NSXCatalystUI
                 "clique visit (uuid)", 
                 lambda {
                     uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                    clique = Cliques::getOrNull(uuid)
+                    clique = NyxObjects::getOrNull(uuid)
                     return if clique.nil?
                     Cliques::cliqueDive(clique)
                 }
@@ -281,7 +281,7 @@ class NSXCatalystUI
         loop {
             system("clear")
             items = []
-            Cliques::cliques()
+            NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|

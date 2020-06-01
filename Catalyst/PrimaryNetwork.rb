@@ -29,7 +29,7 @@ class PrimaryNetwork
     def self.getSomethingByUuidOrNull(uuid)
         target = A10495::getOrNull(uuid)
         return target if target
-        clique = Cliques::getOrNull(uuid)
+        clique = NyxObjects::getOrNull(uuid)
         return clique if clique
         starlightnode = NyxObjects::getOrNull(uuid)
         retun starlightnode if starlightnode
@@ -41,7 +41,7 @@ class PrimaryNetwork
         if something["catalystType"] == "catalyst-type:10014e93" then
             return A10495::targetToString(something)
         end
-        if something["catalystType"] == "catalyst-type:clique"  then
+        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             return Cliques::cliqueToString(something)
         end
         if something["nyxType"] == "starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"  then
@@ -58,7 +58,7 @@ class PrimaryNetwork
             A10495::openTarget(target)
             return
         end
-        if something["catalystType"] == "catalyst-type:clique"  then
+        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = something
             Cliques::openClique(clique)
             return
@@ -77,7 +77,7 @@ class PrimaryNetwork
             A10495::visitTarget(something)
             return
         end
-        if something["catalystType"] == "catalyst-type:clique"  then
+        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             Cliques::cliqueDive(something)
             return
         end
@@ -115,7 +115,7 @@ class PrimaryNetworkNavigation
             target = something
             return A10495Navigation::visit(target)
         end
-        if something["catalystType"] == "catalyst-type:clique"  then
+        if something["nyxType"] == "clique-933c2260-92d1-4578-9aaf-cd6557c664c6"  then
             clique = something
             return Cliques::cliqueDive(clique)
         end
