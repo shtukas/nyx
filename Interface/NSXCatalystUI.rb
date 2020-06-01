@@ -39,12 +39,35 @@ require_relative "../OpenCycles/OpenCycles.rb"
 
 class NSXCatalystUI
 
-    # NSXCatalystUI::performGeneralNavigationDisplay()
-    def self.performGeneralNavigationDisplay()
+    # NSXCatalystUI::operations()
+    def self.operations()
         loop {
             system("clear")
 
             items = []
+
+            Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+                .each{|opencycle|
+                    entity = PrimaryNetwork::getSomethingByUuidOrNull(opencycle["entityuuid"])
+                    items << [
+                        OpenCycles::opencycleToString(opencycle).yellow, 
+                        lambda { PrimaryNetwork::visitSomething(entity) }
+                    ]
+                }
+
+            items << nil
+
+            Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+                .last(10)
+                .each{|item|
+                    items << [
+                        PrimaryNetwork::entityToString(item).yellow,
+                        lambda { PrimaryNetwork::openSomething(item) }
+                    ]
+                }
+
+            items << nil
 
             items << [
                 "navigate nodes", 
@@ -52,20 +75,41 @@ class NSXCatalystUI
             ]
 
             items << [
+                "nodes listing", 
+                lambda {
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
+                    return if node.nil?
+                    StarlightUserInterface::nodeDive(node)
+                }
+            ]
+
+            items << [
+                "latest nodes", 
+                lambda {
+                    items = []
+
+                    Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+                        .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+                        .last(50)
+                        .each{|item|
+                            items << [
+                                PrimaryNetwork::entityToString(item).yellow,
+                                lambda { PrimaryNetwork::openSomething(item) }
+                            ]
+                        }
+
+                    status = LucilleCore::menuItemsWithLambdas(items)
+                    break if !status
+                }
+            ]
+
+            items << nil
+
+            items << [
                 "navigate cliques", 
                 lambda { CliquesNavigation::mainNavigation() }
             ]
 
-            items << nil
-
-            items << [
-                "nodes listing", 
-                lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
-                    return if node.nil?
-                    StarlightUserInterface::nodeDive(node)
-                }
-            ]
             items << [
                 "cliques search and visit", 
                 lambda { CliquesNavigation::mainNavigation() }
@@ -91,6 +135,28 @@ class NSXCatalystUI
             ]
 
             items << [
+                "latest cliques", 
+                lambda {
+                    items = []
+
+                    Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                        .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
+                        .last(50)
+                        .each{|item|
+                            items << [
+                                PrimaryNetwork::entityToString(item).yellow,
+                                lambda { PrimaryNetwork::openSomething(item) }
+                            ]
+                        }
+
+                    status = LucilleCore::menuItemsWithLambdas(items)
+                    break if !status
+                }
+            ]
+
+            items << nil
+
+            items << [
                 "PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull() (test)",
                 lambda {
                     selectedEntity = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
@@ -102,240 +168,7 @@ class NSXCatalystUI
             items << nil
 
             items << [
-                "TimePods", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
-            ]
-
-            items << [
-                "Todo", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
-            ]
-
-            items << [
-                "OpenCycles", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
-            ]
-
-            items << [
-                "Calendar", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
-            ]
-
-            items << [
-                "Wave", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
-            ]
-
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # NSXCatalystUI::performOpenCyclesDisplay()
-    def self.performOpenCyclesDisplay()
-        system("clear")
-        loop {
-            items = []
-            Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
-                .each{|claim|
-                    entity = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
-                    next if entity.nil?
-                    items << [
-                        PrimaryNetwork::entityToString(entity).yellow, 
-                        lambda { PrimaryNetwork::visitSomething(entity) }
-                    ]
-                }
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # NSXCatalystUI::performAppsDisplay()
-    def self.performAppsDisplay()
-        loop {
-            system("clear")
-
-            items = []
-
-            items << [
-                "TimePods", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
-            ]
-
-            items << [
-                "Todo", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
-            ]
-
-            items << [
-                "OpenCycles", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
-            ]
-
-            items << [
-                "Calendar", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
-            ]
-
-            items << [
-                "Wave", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
-            ]
-
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # NSXCatalystUI::performManagementDisplay()
-    def self.performManagementDisplay()
-        loop {
-            system("clear")
-
-            items = []
-
-            items << [
-                "TimePods", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/TimePods/timepods") }
-            ]
-
-            items << [
-                "Todo", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Todo/todo") }
-            ]
-
-            items << [
-                "OpenCycles", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/opencycles") }
-            ]
-
-            items << [
-                "Calendar", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Calendar/calendar") }
-            ]
-
-            items << [
-                "Wave", 
-                lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
-            ]
-
-            items << [
-                "nodes management",
-                lambda { StarlightUserInterface::management() }
-            ]
-
-            items << [
-                "nodes listing", 
-                lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
-                    return if node.nil?
-                    StarlightUserInterface::nodeDive(node)
-                }
-            ]
-
-            items << [
-                "cliques management", 
-                lambda { Cliques::main() }
-            ]
-
-            items << [
-                "cliques search and visit", 
-                lambda { CliquesNavigation::mainNavigation() }
-            ]
-
-            items << [
-                "cliques listing",
-                lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
-                    break if clique.nil?
-                    Cliques::cliqueDive(clique)
-                }
-            ]
-
-            items << [
-                "clique visit (uuid)", 
-                lambda {
-                    uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                    clique = Nyx::getOrNull(uuid)
-                    return if clique.nil?
-                    Cliques::cliqueDive(clique)
-                }
-            ]
-
-            items << [
-                "PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull() (test)",
-                lambda {
-                    selectedEntity = PrimaryNetworkMakeAndOrSelectQuest::makeAndOrSelectSomethingOrNull()
-                    puts JSON.pretty_generate([selectedEntity])
-                    LucilleCore::pressEnterToContinue()
-                }
-            ]
-
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # NSXCatalystUI::performLastestCliquesDisplay()
-    def self.performLastestCliquesDisplay()
-        loop {
-            system("clear")
-            items = []
-            Nyx::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
-                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                .last(NSXMiscUtils::screenHeight()-3)
-                .each{|item|
-                    items << [
-                        PrimaryNetwork::entityToString(item),
-                        lambda { PrimaryNetwork::openSomething(item) }
-                    ]
-                }
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # NSXCatalystUI::performLatestStarlightNodesDisplay()
-    def self.performLatestStarlightNodesDisplay()
-        loop {
-            system("clear")
-            items = []
-            Nyx::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
-                .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
-                .last(NSXMiscUtils::screenHeight()-3)
-                .each{|item|
-                    items << [
-                        PrimaryNetwork::entityToString(item),
-                        lambda { PrimaryNetwork::openSomething(item) }
-                    ]
-                }
-            status = LucilleCore::menuItemsWithLambdas(items)
-            break if !status
-        }
-    end
-
-    # NSXCatalystUI::operations()
-    def self.operations()
-        loop {
-            system("clear")
-            items = []
-
-            items << [
-                "General Navigation", 
-                lambda { NSXCatalystUI::performGeneralNavigationDisplay() }
-            ]
-            items << [
-                "Latest Starlight Nodes", 
-                lambda { NSXCatalystUI::performLatestStarlightNodesDisplay() }
-            ]
-            items << [
-                "Latest Cliques", 
-                lambda { NSXCatalystUI::performLastestCliquesDisplay() }
-            ]
-            items << nil
-
-            items << [
-                "DataPoint (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
+                "datapoint (new) -> { Todo, OpenCycle, Starlight Node (existing or new) }", 
                 lambda {
                     target = DataPoint::issueNewDataPointInteractivelyOrNull()
                     return if target.nil?
@@ -437,17 +270,6 @@ class NSXCatalystUI
             items << [
                 "Wave", 
                 lambda { system("/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Wave/wave") }
-            ]
-
-            items << nil
-
-            items << [
-                "Management", 
-                lambda { NSXCatalystUI::performManagementDisplay() }
-            ]
-            items << [
-                "Applications", 
-                lambda { NSXCatalystUI::performAppsDisplay() }
             ]
 
             items << nil

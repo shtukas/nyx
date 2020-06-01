@@ -65,8 +65,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/SectionsT
 
 PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
-uuid = "7fea1c1e-518d-460e-b95d-76493c98cbd1"
-
 # -----------------------------------------------------------------------------
 
 lucilletext = IO.read(PATH_TO_DESKTOP_FILE)
@@ -81,6 +79,8 @@ if lucilletext.size == 0 then
     exit
 end
 
+uuid = Digest::SHA1.hexdigest(lucilletext)
+
 contentItem =         {
     "type" => "block",
     "block" => "[top]\n" + lucilletext.lines.map{|line| "     #{line}"}.join()
@@ -93,7 +93,6 @@ object = {
     "metric" => 0.83,
     "commands" => [],
     "defaultCommand" => "[]",
-    "isRunning" => true,
     "shell-redirects" => {
         "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt0/x-catalyst-objects-processing sections-type-0141-done-deep-task",
     }

@@ -52,27 +52,20 @@ require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/Catalyst/DataInteg
 
 # -----------------------------------------------------------------
 
-require_relative "NSXCatalystObjectsOperator.rb"
-require_relative "NSXCatalystUI.rb"
-require_relative "NSXDisplayUtils.rb"
-require_relative "NSXGeneralCommandHandler.rb"
-require_relative "NSXEstateServices.rb"
-require_relative "NSXMiscUtils.rb"
-
 require "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/OpenCycles/OpenCycles.rb"
 
 # -------------------------------------------------------------------------
 
-def lookForStuffOrNull(uuid)
+def specialCircumstancesGetOrNull(uuid)
     folderPath = "/Volumes/EnergyGrid/Data/Pascal/Snapshots/Lucille18-Galaxy/2020/20200528-091604-074494/Lucille18-Galaxy/DataBank/Catalyst/Cliques"
     filepath = "#{folderPath}/#{uuid}.json"
     return nil if !File.exists?(filepath)
     JSON.parse(IO.read(filepath))
 end
 
-class Fcsk
+class GlobalIntegrityChecker
 
-    # Fcsk::checkOpenCycle(opencycle)
+    # GlobalIntegrityChecker::checkOpenCycle(opencycle)
     def self.checkOpenCycle(opencycle)
         puts "[checking open cycle] #{opencycle["uuid"]}"
         entityuuid = opencycle["entityuuid"]
@@ -81,7 +74,7 @@ class Fcsk
             puts "[error] open cycle".red
             puts JSON.pretty_generate(opencycle)
             puts "... points as an unkown entity".red
-            #remoteentity = lookForStuffOrNull(entityuuid)
+            #remoteentity = specialCircumstancesGetOrNull(entityuuid)
             #if remoteentity then
             #    puts "... but I have found this:"
             #    puts JSON.pretty_generate(remoteentity)
@@ -106,14 +99,21 @@ class Fcsk
             exit
         end
     end
+
+    # GlobalIntegrityChecker::run()
+    def self.run()
+        puts "-> Starting Catalyst Integrity Check"
+
+        opencycles = Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+        if opencycles.empty? then
+            puts "[info] I could not find open cycles"
+        end
+        opencycles.each{|opencycle|
+            GlobalIntegrityChecker::checkOpenCycle(opencycle)
+        }
+
+        puts "-> Completed Catalyst Integrity Check"
+    end
 end
 
-puts "-> Starting Catalyst Fsck"
 
-opencycles = Nyx::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
-if opencycles.empty? then
-    puts "[info] I could not find open cycles"
-end
-opencycles.each{|opencycle|
-    Fcsk::checkOpenCycle(opencycle)
-}
