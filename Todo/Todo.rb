@@ -137,7 +137,7 @@ class Items
 
     # Items::projectNames()
     def self.projectNames()
-        NyxObjects::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .map{|item| item["projectname"] }
             .uniq
             .sort
@@ -147,7 +147,7 @@ class Items
     def self.projectname2projectuuidOrNUll(projectname)
         projectuuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}")
         return projectuuid if !projectuuid.nil?
-        projectuuid = NyxObjects::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
+        projectuuid = NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
         if !projectuuid.nil? then
             KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}", projectuuid)
         end
@@ -163,7 +163,7 @@ class Items
     def self.itemsForProjectName(projectname)
         projectuuid = Items::projectname2projectuuidOrNUll(projectname)
         return [] if projectuuid.nil?
-        NyxObjects::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        NyxObjects::objects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .select{|item| item["projectuuid"] == projectuuid }
             .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
     end

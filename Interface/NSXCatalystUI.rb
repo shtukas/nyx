@@ -61,7 +61,7 @@ class NSXCatalystUI
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
                     return if node.nil?
                     StarlightUserInterface::nodeDive(node)
                 }
@@ -74,7 +74,7 @@ class NSXCatalystUI
             items << [
                 "cliques listing",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if clique.nil?
                     Cliques::cliqueDive(clique)
                 }
@@ -136,7 +136,7 @@ class NSXCatalystUI
         system("clear")
         loop {
             items = []
-            NyxObjects::getObjects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+            NyxObjects::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
                 .each{|claim|
                     something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
                     next if something.nil?
@@ -227,7 +227,7 @@ class NSXCatalystUI
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
                     return if node.nil?
                     StarlightUserInterface::nodeDive(node)
                 }
@@ -246,7 +246,7 @@ class NSXCatalystUI
             items << [
                 "cliques listing",
                 lambda {
-                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
+                    clique = LucilleCore::selectEntityFromListOfEntitiesOrNull("cliques", NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6"), lambda{|clique| Cliques::cliqueToString(clique) })
                     break if clique.nil?
                     Cliques::cliqueDive(clique)
                 }
@@ -281,7 +281,7 @@ class NSXCatalystUI
         loop {
             system("clear")
             items = []
-            NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .sort{|i1, i2| i1["creationTimestamp"] <=> i2["creationTimestamp"] }
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
@@ -300,7 +300,7 @@ class NSXCatalystUI
         loop {
             system("clear")
             items = []
-            NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+            NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
                 .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|

@@ -85,7 +85,7 @@ class OpenCycles
         loop {
             system("clear")
             puts "OpenCycles 🗃️"
-            opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", NyxObjects::getObjects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
+            opencycle = LucilleCore::selectEntityFromListOfEntitiesOrNull("opencycle", NyxObjects::objects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f"), lambda {|opencycle| OpenCycles::opencycleToString(opencycle) })
             break if opencycle.nil?
             OpenCycles::opencycleDive(opencycle)
         }

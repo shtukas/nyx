@@ -100,13 +100,13 @@ class Cliques
 
     # Cliques::getCliquesByTag(tag)
     def self.getCliquesByTag(tag)
-        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["tags"].include?(tag) }
     end
 
     # Cliques::tags()
     def self.tags()
-        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .map{|clique| clique["tags"] }
             .flatten
             .uniq
@@ -120,7 +120,7 @@ class Cliques
         descriptionXp = lambda { |clique|
             "#{clique["description"]} (#{clique["uuid"][0,4]}) [#{clique["tags"].join(",")}]"
         }
-        cliques = NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        cliques = NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
         descriptionsxp = cliques.reverse.map{|clique| descriptionXp.call(clique) }
         selectedDescriptionxp = CatalystCommon::chooseALinePecoStyle("select clique (empty for null)", [""] + descriptionsxp)
         return nil if selectedDescriptionxp == ""
@@ -133,7 +133,7 @@ class Cliques
             system('clear')
             puts "Cliques: Tag Diving: #{tag}"
             items = []
-            NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+            NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                 .select{|clique| clique["tags"].map{|tag| tag.downcase }.include?(tag.downcase) }
                 .each{|clique|
                     items << [ Cliques::cliqueToString(clique) , lambda { Cliques::cliqueDive(clique) } ]
@@ -339,7 +339,7 @@ class Cliques
                     end
                     tag
                 }
-                NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                     .each{|clique|
                         uuid = clique["uuid"]
                         tags1 = clique["tags"]
@@ -374,7 +374,7 @@ class Cliques
                 Cliques::issueCliqueInteractivelyOrNull(true)
             end
             if operation == "show newly created cliques" then
-                cliques = NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+                cliques = NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
                             .sort{|p1, p2| p1["creationTimestamp"] <=> p2["creationTimestamp"] }
                             .reverse
                             .first(20)
@@ -405,7 +405,7 @@ class CliquesSearch
 
     # CliquesSearch::searchPatternToCliques(searchPattern)
     def self.searchPatternToCliques(searchPattern)
-        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .select{|clique| clique["description"].downcase.include?(searchPattern.downcase) }
     end
 

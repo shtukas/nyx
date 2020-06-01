@@ -32,7 +32,7 @@ class DataIntegrityOfficer
     # DataIntegrityOfficer::startSurvey()
     def self.startSurvey()
         # Ensure that each node not the root has a parent
-        NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .each{|node|
                 next if node["uuid"] == "3b5b7dbe-442b-4b5b-b681-f61ab598fd63" # root node
                 next if !StarlightPaths::getParents(node).empty?
@@ -50,7 +50,7 @@ class DataIntegrityOfficer
     # DataIntegrityOfficer::interfaceLoopOperations()
     def self.interfaceLoopOperations()
         # Make sure that every Clique is on a node
-        NyxObjects::getObjects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
+        NyxObjects::objects("clique-933c2260-92d1-4578-9aaf-cd6557c664c6")
             .each{|clique|
                 next if !StarlightContents::getNodesForEntity(clique).empty?
 

@@ -77,13 +77,13 @@ class StarlightPaths
 
     # StarlightPaths::getPathsWithGivenTarget(targetuuid)
     def self.getPathsWithGivenTarget(targetuuid)
-        NyxObjects::getObjects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        NyxObjects::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["targetuuid"] == targetuuid }
     end
 
     # StarlightPaths::getPathsWithGivenSource(sourceuuid)
     def self.getPathsWithGivenSource(sourceuuid)
-        NyxObjects::getObjects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
+        NyxObjects::objects("startlight-path-3d68c8f4-57ba-4678-a85b-9de995f8667e")
             .select{|path| path["sourceuuid"] == sourceuuid }
     end
 
@@ -130,7 +130,7 @@ class StarlightContents
 
     # StarlightContents::getNodeEntities(node)
     def self.getNodeEntities(node)
-        NyxObjects::getObjects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        NyxObjects::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["nodeuuid"] == node["uuid"] }
             .map{|claim| PrimaryNetwork::getSomethingByUuidOrNull(claim["targetuuid"]) }
             .compact
@@ -138,7 +138,7 @@ class StarlightContents
 
     # StarlightContents::getNodesForEntity(clique)
     def self.getNodesForEntity(clique)
-        NyxObjects::getObjects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
+        NyxObjects::objects("starlight-content-claim-b38137c1-fd43-4035-9f2c-af0fddb18c80")
             .select{|claim| claim["targetuuid"] == clique["uuid"] }
             .map{|claim| NyxObjects::getOrNull(claim["nodeuuid"]) }
             .compact
@@ -149,9 +149,9 @@ class StarlightUserInterface
 
     # StarlightUserInterface::selectNodeFromExistingNodes()
     def self.selectNodeFromExistingNodes()
-        nodestrings = NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| StarlightNodes::nodeToString(node) }
+        nodestrings = NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721").map{|node| StarlightNodes::nodeToString(node) }
         nodestring = CatalystCommon::chooseALinePecoStyle("node:", [""]+nodestrings)
-        node = NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        node = NyxObjects::objects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
                 .select{|node| StarlightNodes::nodeToString(node) == nodestring }
                 .first
     end

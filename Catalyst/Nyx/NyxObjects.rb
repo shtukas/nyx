@@ -85,8 +85,8 @@ class NyxObjects
             .map{|nyxtype| NyxObjects::destroyAtType(uuid, nyxtype) }
     end
 
-    # NyxObjects::getObjects(nyxtype)
-    def self.getObjects(nyxtype)
+    # NyxObjects::objects(nyxtype)
+    def self.objects(nyxtype)
         folderpath = "#{NyxObjects::pathToRepository()}/#{nyxtype}"
         Dir.entries(folderpath)
             .select{|filename| filename[-5, 5] == ".json" }
