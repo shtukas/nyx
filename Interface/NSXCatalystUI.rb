@@ -61,7 +61,7 @@ class NSXCatalystUI
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
                     return if node.nil?
                     StarlightUserInterface::nodeDive(node)
                 }
@@ -136,7 +136,7 @@ class NSXCatalystUI
         system("clear")
         loop {
             items = []
-            NyxNetwork::getObjects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
+            NyxObjects::getObjects("open-cycle-9fa96e3c-d140-4f82-a7f0-581c918e9e6f")
                 .each{|claim|
                     something = PrimaryNetwork::getSomethingByUuidOrNull(claim["entityuuid"])
                     next if something.nil?
@@ -227,7 +227,7 @@ class NSXCatalystUI
             items << [
                 "nodes listing", 
                 lambda {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721"), lambda{|node| StarlightNodes::nodeToString(node) })
                     return if node.nil?
                     StarlightUserInterface::nodeDive(node)
                 }
@@ -300,7 +300,7 @@ class NSXCatalystUI
         loop {
             system("clear")
             items = []
-            NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+            NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
                 .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
                 .last(NSXMiscUtils::screenHeight()-3)
                 .each{|item|
@@ -360,7 +360,7 @@ class NSXCatalystUI
                             "creationTimestamp" => Time.new.to_f,
                             "entityuuid"        => target["uuid"]
                         }
-                        NyxNetwork::commitToDisk(claim)
+                        NyxObjects::commitToDisk(claim)
                     end
                     if whereTo == "Starlight Node" then
                         NSXMiscUtils::attachTargetToStarlightNodeExistingOrNew(target)
@@ -412,7 +412,7 @@ class NSXCatalystUI
                         "engine"           => engine
                     }
                     puts JSON.pretty_generate(timepod)
-                    NyxNetwork::commitToDisk(timepod)
+                    NyxObjects::commitToDisk(timepod)
                 }
             ]
 

@@ -32,7 +32,7 @@ class DataIntegrityOfficer
     # DataIntegrityOfficer::startSurvey()
     def self.startSurvey()
         # Ensure that each node not the root has a parent
-        NyxNetwork::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
+        NyxObjects::getObjects("starlight-node-8826cbad-e54e-4e78-bf7d-28c9c5019721")
             .each{|node|
                 next if node["uuid"] == "3b5b7dbe-442b-4b5b-b681-f61ab598fd63" # root node
                 next if !StarlightPaths::getParents(node).empty?
@@ -58,7 +58,7 @@ class DataIntegrityOfficer
                 puts "[DataIntegrityOfficer] Clique '#{clique["description"]}' doesn't have a Starlight parent, please make and/or select one".green
 
                 if clique["tags"].include?("Pascal Address Book Archives") then
-                    node = NyxNetwork::getOrNull("2ec5eda3-7d52-4b5f-8622-df3494280fd9") # Pascal Address Book Archives
+                    node = NyxObjects::getOrNull("2ec5eda3-7d52-4b5f-8622-df3494280fd9") # Pascal Address Book Archives
                     if node.nil? then
                         puts "error: a6301551"
                         exit
@@ -68,7 +68,7 @@ class DataIntegrityOfficer
                 end
 
                 if clique["tags"].include?("Talks") then
-                    node = NyxNetwork::getOrNull("7c9172cb-f672-4cd9-aeb0-e00e0a2ba620") # Talks
+                    node = NyxObjects::getOrNull("7c9172cb-f672-4cd9-aeb0-e00e0a2ba620") # Talks
                     if node.nil? then
                         puts "error: a6301551"
                         exit
@@ -78,7 +78,7 @@ class DataIntegrityOfficer
                 end
 
                 if clique["tags"].include?("Guardian Digital") then
-                    node = NyxNetwork::getOrNull("469556a9-6458-43a4-90a8-75a985466124") # Digital
+                    node = NyxObjects::getOrNull("469556a9-6458-43a4-90a8-75a985466124") # Digital
                     if node.nil? then
                         puts "error: a6301551"
                         exit

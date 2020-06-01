@@ -44,7 +44,7 @@ class TimePods
             "passenger" => passenger,
             "engine"    => engine
         }
-        NyxNetwork::commitToDisk(pod)
+        NyxObjects::commitToDisk(pod)
         pod
     end
 
@@ -219,7 +219,7 @@ class TimePods
 
     # TimePods::startPod(uuid)
     def self.startPod(uuid)
-        pod = NyxNetwork::getOrNull(uuid)
+        pod = NyxObjects::getOrNull(uuid)
         return if pod.nil?
 
         Runner::start(uuid)

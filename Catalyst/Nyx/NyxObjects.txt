@@ -1,5 +1,5 @@
 
-NyxNetwork
+NyxObjects
 
 For history and description, see NyxCore.
 

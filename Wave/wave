@@ -59,20 +59,20 @@ loop {
         Wave::issueWave(LucilleCore::timeStringL22(), line, schedule)
     end
     if option == "waves dive" then
-        obj = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", NyxNetwork::getObjects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"), lambda {|wave| wave["description"] })
+        obj = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", NyxObjects::getObjects("wave-12ed27da-b5e4-4e6e-940f-2c84071cca58"), lambda {|wave| wave["description"] })
         next if obj.nil?
         ops = ["edit description", "recast"]
         op = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
         next if op.nil?
         if op == "edit description" then
             obj["description"] = CatalystCommon::editTextUsingTextmate(obj["description"])
-            NyxNetwork::commitToDisk(obj)
+            NyxObjects::commitToDisk(obj)
         end
         if op == "recast" then
             schedule = Wave::makeScheduleObjectInteractivelyOrNull()
             next if schedule.nil?
             obj["schedule"] = schedule
-            NyxNetwork::commitToDisk(obj)
+            NyxObjects::commitToDisk(obj)
         end
     end
 }

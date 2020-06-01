@@ -257,7 +257,7 @@ class Wave
             "description"      => description,
             "schedule"         => schedule
         }
-        NyxNetwork::commitToDisk(obj)
+        NyxObjects::commitToDisk(obj)
         obj
     end
 end

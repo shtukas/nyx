@@ -31,7 +31,7 @@ class PrimaryNetwork
         return target if target
         clique = Cliques::getOrNull(uuid)
         return clique if clique
-        starlightnode = NyxNetwork::getOrNull(uuid)
+        starlightnode = NyxObjects::getOrNull(uuid)
         retun starlightnode if starlightnode
         nil
     end

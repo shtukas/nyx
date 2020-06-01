@@ -6,4 +6,4 @@
 # -----------------------------------------------------------------
 
 require_relative "NyxCore.rb"
-require_relative "NyxNetwork.rb"
+require_relative "NyxObjects.rb"

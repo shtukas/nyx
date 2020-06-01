@@ -62,7 +62,7 @@ class Items
             "description"      => description,
             "target"           => target
         }
-        NyxNetwork::commitToDisk(item)
+        NyxObjects::commitToDisk(item)
         item
     end
 
@@ -92,7 +92,7 @@ class Items
             "description"      => description,
             "target"           => target
         }
-        NyxNetwork::commitToDisk(item)
+        NyxObjects::commitToDisk(item)
         item
     end
 
@@ -137,7 +137,7 @@ class Items
 
     # Items::projectNames()
     def self.projectNames()
-        NyxNetwork::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        NyxObjects::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .map{|item| item["projectname"] }
             .uniq
             .sort
@@ -147,7 +147,7 @@ class Items
     def self.projectname2projectuuidOrNUll(projectname)
         projectuuid = KeyValueStore::getOrNull(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}")
         return projectuuid if !projectuuid.nil?
-        projectuuid = NyxNetwork::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
+        projectuuid = NyxObjects::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37").select{|item| item["projectname"] == projectname }.first["projectuuid"]
         if !projectuuid.nil? then
             KeyValueStore::set(nil, "440e3a2b-043c-4835-a59b-96deffb72f01:#{projectname}", projectuuid)
         end
@@ -163,7 +163,7 @@ class Items
     def self.itemsForProjectName(projectname)
         projectuuid = Items::projectname2projectuuidOrNUll(projectname)
         return [] if projectuuid.nil?
-        NyxNetwork::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
+        NyxObjects::getObjects("todo-cc6d8717-98cf-4a7c-b14d-2261f0955b37")
             .select{|item| item["projectuuid"] == projectuuid }
             .sort{|i1, i2| i1["creationUnixtime"]<=>i2["creationUnixtime"] }
     end
@@ -194,7 +194,7 @@ class Items
         end
         item["projectname"] = projectname
         item["projectuuid"] = projectuuid
-        NyxNetwork::commitToDisk(item)
+        NyxObjects::commitToDisk(item)
     end
 
     # Items::promote(item) # Boolean # Indicates whether a promotion was acheived
@@ -250,24 +250,24 @@ class Items
                 A10495::openTarget(item["target"])
             end
             if option == "done" then
-                NyxNetwork::destroy(item["uuid"])
+                NyxObjects::destroy(item["uuid"])
                 return
             end
             if option == "set description" then
                 item["description"] = CatalystCommon::editTextUsingTextmate(item["description"])
-                NyxNetwork::commitToDisk(item)
+                NyxObjects::commitToDisk(item)
             end
             if option == "recast" then
                 Items::recast(item)
             end
             if option == "push" then
                 item["creationUnixtime"] = Time.new.to_f
-                NyxNetwork::commitToDisk(item)
+                NyxObjects::commitToDisk(item)
             end
             if option == "promote from Todo to Data" then
                 status = Items::promote(item)
                 next if !status
-                NyxNetwork::destroy(item["uuid"])
+                NyxObjects::destroy(item["uuid"])
                 return
             end
         }

@@ -77,10 +77,10 @@ require_relative "TimePods.rb"
 # -------------------------------------------------------------------------
 
 # Garbage Collection
-NyxNetwork::getObjects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+NyxObjects::getObjects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
     .each{|pod|
         if !TimePods::timePodIsStillRelevant(pod) then
-            NyxNetwork::destroy(pod["uuid"])
+            NyxObjects::destroy(pod["uuid"])
         end
     }
 
@@ -91,7 +91,7 @@ DailyTimes::putTimeToBankNoOftenThanOnceADay("e287b121-9ee9-4fc5-81ba-ef1c956c20
 DailyTimes::putTimeToBankNoOftenThanOnceADay("5c81927e-c4fb-4f8d-adae-228c346c8c7d", -6*3600, [1, 2, 3, 4, 5]) # 6 hours, Monday to Friday
 
 
-NyxNetwork::getObjects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+NyxObjects::getObjects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
     .select{|pod| ["bank-account"].include?(pod["engine"]["type"]) }
     .sort{|i1, i2| i1["creationUnixtime"] <=> i2["creationUnixtime"] }
     .first(3)
@@ -103,7 +103,7 @@ NyxNetwork::getObjects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
 
 objects = []
 
-NyxNetwork::getObjects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
+NyxObjects::getObjects("timepod-99a06996-dcad-49f5-a0ce-02365629e4fc")
     .each{|pod|
 
         defaultCommand = lambda {|isRunning|
