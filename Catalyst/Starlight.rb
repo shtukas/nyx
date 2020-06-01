@@ -267,17 +267,18 @@ class StarlightMakeAndOrSelectNodeQuest
             return nil if node.nil?
             puts "-> You are on a selection Quest [selecting a node]"
             puts "-> You have created '#{node["name"]}'"
-            option1 = "quest: return '#{node["name"]}' immediately"
-            option2 = "quest: dive first"
-            options = [ option1, option2 ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
-            if option == option1 then
-                return node
-            end
-            if option == option2 then
-                StarlightUserInterface::nodeDive(node)
-                return node
-            end
+            loop {
+                option1 = "quest: return '#{node["name"]}' immediately"
+                option2 = "quest: dive first"
+                options = [ option1, option2 ]
+                option = LucilleCore::selectEntityFromListOfEntitiesOrNull("options", options)
+                if option == option1 then
+                    return node
+                end
+                if option == option2 then
+                    StarlightUserInterface::nodeDive(node)
+                end
+            }
         end
         nil
     end

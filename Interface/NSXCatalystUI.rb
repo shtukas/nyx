@@ -556,7 +556,6 @@ class NSXCatalystUI
 
             # Some Admin
             NSXMiscUtils::importFromLucilleInbox()
-            DataIntegrityOfficer::interfaceLoopOperations()
 
             # Displays
             objects = NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
