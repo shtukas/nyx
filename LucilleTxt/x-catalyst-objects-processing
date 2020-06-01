@@ -63,13 +63,7 @@ PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 
 if ARGV[0] == "sections-type-0141-done-deep-task" then
     CatalystCommon::copyLocationToCatalystBin(PATH_TO_DESKTOP_FILE)
-
-    parts = IO.read(PATH_TO_DESKTOP_FILE)
-        .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")
-        .map{|part| part.strip }
-
-    parts[0] = SectionsType0141::applyNextTransformationToContent(parts[0])
-
-    content = "#{parts[0].strip}\n\n@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610\n\n#{parts[1].strip}\n"
+    content = IO.read(PATH_TO_DESKTOP_FILE).strip
+    content = SectionsType0141::applyNextTransformationToContent(content)
     File.open(PATH_TO_DESKTOP_FILE, "w"){|f| f.puts(content) }
 end

@@ -68,7 +68,6 @@ PATH_TO_DESKTOP_FILE = "/Users/pascal/Desktop/Lucille.txt"
 # -----------------------------------------------------------------------------
 
 lucilletext = IO.read(PATH_TO_DESKTOP_FILE)
-                .split("@separator:8fc7bdc6-991e-4deb-bb4b-b1e620ba5610")[0]
                 .lines
                 .first(10)
                 .join()
@@ -88,13 +87,13 @@ contentItem =         {
 
 object = {
     "uuid" => uuid,
-    "application" => "LucilleTxt0",
+    "application" => "LucilleTxt",
     "contentItem" => contentItem,
     "metric" => 0.83,
     "commands" => [],
     "defaultCommand" => "[]",
     "shell-redirects" => {
-        "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt0/x-catalyst-objects-processing sections-type-0141-done-deep-task",
+        "[]"     => "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/LucilleTxt/x-catalyst-objects-processing sections-type-0141-done-deep-task",
     }
 }
 

@@ -19,7 +19,7 @@ class NSXCatalystObjectsCommon
 
     # NSXCatalystObjectsCommon::applicationNames()
     def self.applicationNames()
-        ["Anniversaries", "BackupsMonitor", "Calendar", "LucilleTxt1", "LucilleTxt0", "TimePods", "Todo", "Vienna", "Wave", "VideoStream"]
+        ["Anniversaries", "BackupsMonitor", "Calendar", "LucilleTxt", "TimePods", "Todo", "Vienna", "Wave", "VideoStream"]
     end
 
     # NSXCatalystObjectsCommon::processing(objects)
@@ -90,7 +90,7 @@ class NSXCatalystObjectsOperator
     # NSXCatalystObjectsOperator::getCatalystListingObjectsOrderedFast()
     def self.getCatalystListingObjectsOrderedFast()
         NSXCatalystObjectsCommon::applicationNames()
-            .select{|appname| $CE605907[appname].nil? or ["LucilleTxt0", "LucilleTxt1"].include?(appname) }
+            .select{|appname| $CE605907[appname].nil? or ["LucilleTxt", "LucilleTxt1"].include?(appname) }
             .each{|appname| 
                 scriptfilepath = "/Users/pascal/Galaxy/LucilleOS/Applications/Catalyst/#{appname}/x-catalyst-objects" 
                 $CE605907[appname] = NSXCatalystObjectsCommon::getObjectsFromSource(scriptfilepath)
