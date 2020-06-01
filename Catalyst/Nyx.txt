@@ -29,6 +29,11 @@ TimePod
                         # automatically created when a 
                         # todo item gets more than one hour in the bank
         }
+        {
+            "type"          : "datapoint"
+            "description"   : String
+            "datapointuuid" : String
+        }
 
     TimePodEngine
         {

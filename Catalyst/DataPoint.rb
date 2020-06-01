@@ -86,9 +86,9 @@ class DataPoint
         FileUtils.mv(filepath1, filepath2)
         CoreDataFile::copyFileToRepository(filepath2)
         point = {
-            "nyxType"           => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
+            "nyxType"          => "data-point-6af2c9d7-67b5-4d16-8913-c5980b0453f2",
             "creationUnixtime" => Time.new.to_f,
-            "uuid"              => SecureRandom.uuid,
+            "uuid"             => SecureRandom.uuid,
 
             "type"     => "file",
             "filename" => filename2
@@ -203,22 +203,22 @@ class DataPoint
         types = ["line", "url", "file", "folder", "unique-name", "directory-mark"]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return if type.nil?
-        if type == "[data point] line" then
+        if type == "line" then
             return DataPoint::issueDataPointLineInteractively()
         end
-        if type == "[data point] url" then
+        if type == "url" then
             return DataPoint::issueDataPointUrlInteractively()
         end
-        if type == "[data point] file" then
+        if type == "file" then
             return DataPoint::issueDataPointFileInteractivelyOrNull()
         end
-        if type == "[data point] folder" then
+        if type == "folder" then
             return DataPoint::issueDataPointFolderInteractivelyOrNull()
         end
-        if type == "[data point] unique-name" then
+        if type == "unique-name" then
             return DataPoint::issueDataPointUniqueNameInteractively()
         end
-        if type == "[data point] directory-mark" then
+        if type == "directory-mark" then
             return DataPoint::issueDataPointDirectoryMarkInteractively()
         end
     end
@@ -271,22 +271,22 @@ class DataPoint
     # DataPoint::dataPointToString(point)
     def self.dataPointToString(point)
         if point["type"] == "line" then
-            return "[line] #{point["line"]}"
+            return "[data point] [line] #{point["line"]}"
         end
         if point["type"] == "file" then
-            return "[file] #{point["filename"]}"
+            return "[data point] [file] #{point["filename"]}"
         end
         if point["type"] == "url" then
-            return "[url] #{point["url"]}"
+            return "[data point] [url] #{point["url"]}"
         end
         if point["type"] == "folder" then
-            return "[folder] #{point["foldername"]}"
+            return "[data point] [folder] #{point["foldername"]}"
         end
         if point["type"] == "unique-name" then
-            return "[unique name] #{point["name"]}"
+            return "[data point] [unique name] #{point["name"]}"
         end
         if point["type"] == "directory-mark" then
-            return "[directory mark] #{point["mark"]}"
+            return "[data point] [directory mark] #{point["mark"]}"
         end
         raise "DataPoint error 3c7968e4"
     end
