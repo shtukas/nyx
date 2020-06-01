@@ -36,9 +36,9 @@ ContentItem
 }
 
 {
-    "type"    : "listing-and-focus"
-    "listing" : String # carries a single line.
-    "focus"   : String
+    "type" : "line-and-body"
+    "line" : String # carries a single line.
+    "body" : String
 }
 
 # Note that the block is displayed both in focus and unfocused mode, 

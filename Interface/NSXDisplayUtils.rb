@@ -10,15 +10,10 @@ class NSXDisplayUtils
         if item["type"] == "line" then
             return item["line"]
         end
-        if item["type"] == "listing-and-focus" then
-            return item["listing"]
+        if item["type"] == "line-and-body" then
+            return item["line"]
         end
         "[8f854b3a] I don't know how to announce: #{JSON.generate(item)}"
-    end
-
-    # NSXDisplayUtils::addLeftPaddingToLinesOfText(text, padding)
-    def self.addLeftPaddingToLinesOfText(text, padding)
-        text.lines.map{|line| padding+line }.join()
     end
 
     # NSXDisplayUtils::defaultCatalystObjectCommands()
@@ -44,26 +39,47 @@ class NSXDisplayUtils
     # NSXDisplayUtils::objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
     def self.objectDisplayStringForCatalystListing(object, isFocus, displayOrdinal)
         # NSXMiscUtils::screenWidth()
-        contentItemToDisplayLines = lambda {|contentItem|
-            if contentItem["type"] == "line" then
-                return [contentItem["line"]]
+
+        width = NSXMiscUtils::screenWidth()-15
+
+        contentItem = object["contentItem"]
+
+        if contentItem["type"] == "line" then
+            if isFocus then
+                line = contentItem["line"]
+                line = object["isRunning"] ? line.green : line
+                return [
+                    "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line}",
+                    NSXDisplayUtils::objectInferfaceString(object)
+                ].join("\n")
+            else
+                line = contentItem["line"]
+                return "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
             end
-            if contentItem["type"] == "listing-and-focus" then
-                return contentItem["focus"].lines.map{|line| line.rstrip }
-            end
-            [ "I don't know how to contentItemToDisplayLines: #{contentItem}" ]
-        }
-        displaylines = contentItemToDisplayLines.call(object["contentItem"].clone)
-        if isFocus then
-            firstdisplayline = displaylines.shift
-            line0 = "[*#{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstdisplayline.green : firstdisplayline)
-            lines1 = displaylines.map{|line| FlamePadding + (object["isRunning"] ? line.green : line) }
-            ([ line0 ] + lines1 + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
-        else
-            firstdisplayline = displaylines.shift
-            line0 = "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) " + (object["isRunning"] ? firstdisplayline.green : firstdisplayline)
-            line0[0, NSXMiscUtils::screenWidth()-1]
         end
+
+        if contentItem["type"] == "line-and-body" then
+          if isFocus then
+                strs = contentItem["body"]
+                            .lines
+                            .to_a
+                            .map
+                            .with_index{|line, indx|
+                                line = line.rstrip
+                                if indx == 0 then
+                                    "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
+                                else
+                                    "              #{line[0, width]}"
+                                end
+                            }
+                return  (strs + [ NSXDisplayUtils::objectInferfaceString(object) ]).join("\n")
+            else
+                line = contentItem["line"]
+                line = object["isRunning"] ? line.green : line
+                return "[ #{"%2d" % displayOrdinal}] (#{"%5.3f" % object["metric"]}) #{line[0, width]}"
+            end
+        end
+
     end
 
     # NSXDisplayUtils::doPresentObjectInviteAndExecuteCommand(object)

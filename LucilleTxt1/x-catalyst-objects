@@ -86,9 +86,9 @@ lucilletext = IO.read(PATH_TO_DESKTOP_FILE)
 contentItem = 
     if isRunning then
         {
-            "type"    => "listing-and-focus",
-            "listing" => "LucilleTxt1",
-            "focus"   => lucilletext
+            "type" => "line-and-body",
+            "line" => "LucilleTxt1",
+            "body" => lucilletext
         }
     else
         {

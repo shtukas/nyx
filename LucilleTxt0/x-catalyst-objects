@@ -82,9 +82,9 @@ if lucilletext.size == 0 then
 end
 
 contentItem =         {
-    "type"    => "listing-and-focus",
-    "listing" => "LucilleTxt0 ☀️",
-    "focus"   => lucilletext
+    "type" => "line-and-body",
+    "line" => "LucilleTxt0 ☀️",
+    "body" => lucilletext
 }
 
 object = {
